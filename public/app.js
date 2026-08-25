@@ -2418,16 +2418,168 @@ function teacherHeatmapRows() {
     return { name: c.name + " (örnek)", scores: c.scores };
   }));
 }
+/* ===========================================================================
+   MADDE ANALİZİ — klasik test kuramı (item analysis)
+   ===========================================================================
+   NEDEN: Brief "soru üretimi" istiyor ama üretilen sorunun İYİ BİR SORU olup
+   olmadığını kimse ölçmüyor. Bir soru zor ya da kolay olabilir; daha önemlisi
+   ÖĞRENENİ ÖĞRENMEYENDEN AYIRT EDİP ETMEDİĞİdir. Madde havuzlarında kullanılan
+   iki temel ölçü budur:
+
+     p (güçlük indeksi)  = soruyu doğru yanıtlayan oranı
+     d (ayırt edicilik)  = üst grubun doğru oranı - alt grubun doğru oranı
+
+   Üst/alt grup, testin toplam başarısına göre sıralanıp uçlardan %27 alınarak
+   oluşturulur (klasik test kuramında yaygın uygulama). Sınıf 10 kişiden azsa
+   %27 tek kişiye düşüp anlamsızlaşacağı için alt/üst YARI kullanılır ve sonuç
+   "gösterge niteliğinde" olarak işaretlenir.
+
+   DÜRÜSTLÜK NOTU (ekranda da yazar): 5-6 öğrencilik bir sınıfta bu sayılar
+   istatistiksel olarak güvenilir DEĞİLDİR; yön gösterir, karar vermez.
+   Kararı - her zamanki gibi - öğretmen verir.
+
+   Hiçbir AI çağrısı yapılmaz; bu saf hesaptır.
+   =========================================================================== */
+
+function itemAnalysis() {
+  const gonderenler = submittedStudents();
+  const n = gonderenler.length;
+  const mcs = (state.exam.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "mc"; });
+  if (!n || !mcs.length) return { n: n, maddeler: [] };
+
+  // Sıralama ölçütü: öğrencinin bu sınavdaki çoktan seçmeli doğru sayısı.
+  const sirali = gonderenler.map(function (st) {
+    const ss = readSession(st.id);
+    let d = 0;
+    mcs.forEach(function (q) { if (((ss.mcResults || {})[q.id] || {}).correct) d++; });
+    return { sid: st.id, dogru: d };
+  }).sort(function (a, b) { return b.dogru - a.dogru; });
+
+  const k = n >= 10 ? Math.max(1, Math.round(n * 0.27)) : Math.max(1, Math.floor(n / 2));
+  const ustGrup = sirali.slice(0, k).map(function (x) { return x.sid; });
+  const altGrup = sirali.slice(n - k).map(function (x) { return x.sid; });
+
+  const secilenSik = function (sid, qid) {
+    return ((readSession(sid).answers || {})[qid] || {}).selectedKey;
+  };
+  const grupOrani = function (grup, q) {
+    if (!grup.length) return 0;
+    let d = 0;
+    grup.forEach(function (sid) { if (secilenSik(sid, q.id) === q.correctKey) d++; });
+    return d / grup.length;
+  };
+
+  const maddeler = mcs.map(function (q) {
+    const secim = {};
+    (q.options || []).forEach(function (o) { secim[o.key] = 0; });
+    let bos = 0, dogruSayisi = 0;
+    gonderenler.forEach(function (st) {
+      const key = secilenSik(st.id, q.id);
+      if (key == null || key === "") { bos++; return; }
+      if (secim[key] == null) secim[key] = 0;
+      secim[key]++;
+      if (key === q.correctKey) dogruSayisi++;
+    });
+    const islevsiz = (q.options || [])
+      .filter(function (o) { return o.key !== q.correctKey && !secim[o.key]; })
+      .map(function (o) { return o.key; });
+    return {
+      q: q, p: dogruSayisi / n, d: grupOrani(ustGrup, q) - grupOrani(altGrup, q),
+      secim: secim, bos: bos, dogruSayisi: dogruSayisi, islevsiz: islevsiz
+    };
+  });
+
+  return { n: n, k: k, maddeler: maddeler, guvenilir: n >= 10 };
+}
+
+/* p (güçlük) yorumu - yaygın kullanılan aralıklar. */
+function pYorum(p) {
+  if (p < 0.30) return { s: "pill-critical", t: "çok zor" };
+  if (p > 0.90) return { s: "pill-warning", t: "çok kolay" };
+  if (p <= 0.70) return { s: "pill-success", t: "ideal güçlük" };
+  return { s: "pill-neutral", t: "kolay" };
+}
+
+/* d (ayırt edicilik) yorumu. NEGATİF d en önemli sinyaldir: iyi öğrenciler
+   yanlış, zayıf öğrenciler doğru yanıtlıyor demektir - soru ya da cevap
+   anahtarı hatalı olabilir. */
+function dYorum(d) {
+  if (d < 0) return { s: "pill-critical", t: "TERS ayırt ediyor - soru veya cevap anahtarı hatalı olabilir" };
+  if (d < 0.20) return { s: "pill-critical", t: "ayırt etmiyor - havuzdan çıkarmayı düşünün" };
+  if (d < 0.30) return { s: "pill-warning", t: "sınırda - gözden geçirin" };
+  if (d < 0.40) return { s: "pill-success", t: "iyi ayırt ediyor" };
+  return { s: "pill-success", t: "çok iyi ayırt ediyor" };
+}
+
+function itemAnalysisHtml() {
+  const a = itemAnalysis();
+  if (!a.maddeler.length) return "";
+
+  const satirlar = a.maddeler.map(function (m) {
+    const py = pYorum(m.p), dy = dYorum(m.d);
+    const sikDagilimi = Object.keys(m.secim).map(function (key) {
+      const say = m.secim[key];
+      const dogruMu = key === m.q.correctKey;
+      const oran = a.n ? Math.round(say / a.n * 100) : 0;
+      const ek = dogruMu ? " ia-opt-correct" : (!say ? " ia-opt-dead" : "");
+      return '<span class="ia-opt' + ek + '">' + key + ": " + say +
+        ' <span class="ia-opt-pct">(%' + oran + ")</span>" + (dogruMu ? " &#10003;" : "") + "</span>";
+    }).join("");
+
+    return '<div class="ia-item">' +
+      '<div class="ia-body">' + escapeHtml(m.q.body) + "</div>" +
+      '<div class="ia-metrics">' +
+        '<span class="ia-metric"><b>p</b> = ' + m.p.toFixed(2) +
+          ' <span class="pill ' + py.s + '">' + py.t + "</span></span>" +
+        '<span class="ia-metric"><b>d</b> = ' + m.d.toFixed(2) +
+          ' <span class="pill ' + dy.s + '">' + dy.t + "</span></span>" +
+      "</div>" +
+      '<div class="ia-opts">' + sikDagilimi +
+        (m.bos ? '<span class="ia-opt">boş: ' + m.bos + "</span>" : "") + "</div>" +
+      (m.islevsiz.length
+        ? '<div class="ia-note">İşlevsiz çeldirici: <b>' + m.islevsiz.join(", ") +
+          "</b> - hiçbir öğrenci seçmedi, bu şık soruyu zorlaştırmıyor. Daha inandırıcı bir çeldiriciyle değiştirmeyi düşünün.</div>"
+        : "") +
+      "</div>";
+  }).join("");
+
+  const grupAcik = a.guvenilir ? "%27 alınarak" : "yarıya bölünerek";
+  const uyari = !a.guvenilir
+    ? '<div class="ia-warn"><b>Bu sayılar gösterge niteliğindedir.</b> Sınıfta ' + a.n +
+      " öğrenci var; madde analizinin istatistiksel olarak anlamlı olması için genellikle en az 10 " +
+      "öğrenci gerekir. Yön gösterir, karar vermez - kararı siz verirsiniz.</div>"
+    : "";
+
+  return '<div class="card" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>Madde Analizi</h3>' +
+    '<span class="hint">klasik test kuramı · yapay zekâ kullanılmaz, saf hesap</span></div>' +
+    '<div class="ia-legend"><b>p</b> = güçlük (doğru yanıtlayan oranı) &nbsp;·&nbsp; ' +
+    "<b>d</b> = ayırt edicilik (üst grup - alt grup doğru oranı). " +
+    "Gruplar, sınavdaki çoktan seçmeli doğru sayısına göre sıralanıp uçlardan " +
+    grupAcik + " oluşturuldu (" + a.k + " + " + a.k + " öğrenci).</div>" +
+    uyari + satirlar + "</div>";
+}
+
 function teacherTab4Html() {
   if (state.exam.status !== "published" || state.examStatus === "not_started") return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
   const scores = computeDemoClassScores();
   const vals = Object.keys(scores).map(function (k) { return scores[k]; });
   const avg = vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0;
+  // Sabit "1/1" yazıyordu: çoklu öğrenci desteği geldiğinde güncellenmemişti.
+  const tumOgr = (state.students || []).length;
+  const bitiren = submittedStudents().length;
+  // Şube adı da sabit "8-A" idi; gerçek şubeler 7-A / 7-B.
+  // Mevcut siniflar() yardımcısı kullanıldı (alan adı s.sinif).
+  const subeler = siniflar();
+  const subeEtiketi = subeler.length ? subeler.join(" · ") : "sınıf";
   return '<div class="grid-3col" style="margin-bottom:18px;">' +
     '<div class="stat-tile"><div class="s-label">Sınıf Ortalaması</div><div class="s-value tabular">%' + avg + '</div><div class="s-sub">tüm kazanımlar</div></div>' +
     '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + examStatusLabel() + '</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">1/1</div><div class="s-sub">tamamlandı</div></div></div>' +
-    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — 8-A</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
+    '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">' + bitiren + '/' + tumOgr + '</div><div class="s-sub">tamamladı</div></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
+    itemAnalysisHtml() +
     trendHtml();
 }
 
@@ -3140,6 +3292,7 @@ setInterval(function () {
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
+    "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
