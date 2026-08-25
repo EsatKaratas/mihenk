@@ -38,6 +38,29 @@
     // Mimari (Cloudflare Workers + Hono) değişmez, yalnızca sağlayıcı değişir.
     "AI_PROVIDER": "workers-ai",
     "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+    // ---------------------------------------------------------------------
+    // YEDEK SAĞLAYICI (opsiyonel ama demo günü için ŞİDDETLE ÖNERİLİR)
+    //
+    // Workers AI ücretsiz kotası günde 10.000 neuron (~$0,11). Ölçtüğümüz
+    // tam demo turu ~$0,0116 → günde yaklaşık 10 tur. Ücretsiz planda kota
+    // dolunca istekler YAVAŞLAMAZ, HATA VERİR. Jüri sunumu sırasında bu,
+    // ürünün tek gösterilebilir özelliğinin ölmesi demektir.
+    //
+    // Aşağıdaki iki satırı açıp anahtarı eklerseniz, birincil sağlayıcı
+    // düştüğü anda sistem otomatik olarak yedeğe geçer ve arayüzdeki rozet
+    // "Yedek model" yazar (sessiz geçiş yok).
+    //
+    //   npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc
+    //
+    // Ölçülen maliyet karşılaştırması (tam demo turu):
+    //   workers-ai  llama-3.3-70b-instruct-fp8-fast : ~$0,0116
+    //   openai      gpt-5-nano                      : ~$0,0020  (5,7x ucuz)
+    // ---------------------------------------------------------------------
+    // Aktive ederken virgülleri OLDUĞU GİBİ bırakın — satır başındaki virgül,
+    // üstteki AI_MODEL satırının sonuna virgül eklemeyi unutma hatasını önler.
+    // , "AI_FALLBACK_PROVIDER": "openai"
+    // , "AI_FALLBACK_MODEL": "gpt-5-nano"
   },
 
   // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.

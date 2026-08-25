@@ -15,7 +15,7 @@ import {
   buildRubricPrompt,
   buildSampleAnswerPrompt,
 } from '../lib/prompts';
-import { callModelJson, providerName, modelName, type AiEnv } from '../lib/ai';
+import { callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv, type AiEnv } from '../lib/ai';
 import {
   generateQuestionsSchema,
   evaluateSchema,
@@ -68,13 +68,17 @@ const onInvalid = (result: { success: boolean; error?: { issues?: Array<{ path: 
 const ai = new Hono<{ Bindings: Bindings }>();
 
 /** Sağlayıcı/model bilgisi — arayüzdeki "AI modu" rozeti bunu okur. */
-ai.get('/status', (c) =>
-  c.json({
+ai.get('/status', (c) => {
+  const yedek = fallbackEnv(c.env);
+  return c.json({
     provider: providerName(c.env),
     model: modelName(c.env),
     ready: providerName(c.env) === 'workers-ai' ? !!c.env.AI : !!c.env.AI_API_KEY,
-  })
-);
+    fallback: fallbackConfigured(c.env)
+      ? { provider: providerName(yedek!), model: modelName(yedek!) }
+      : null,
+  });
+});
 
 // ---------------------------------------------------------------------------
 // POST /api/ai/generate-questions
@@ -116,7 +120,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   const maxTokens = clamp(600 + total * 420, 1200, 3000);
 
   try {
-    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
     const parsed = modelQuestionsSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -172,7 +176,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
 
     return c.json({
       questions,
-      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {
     return c.json(
@@ -218,7 +222,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
   });
 
   try {
-    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens: 700, temperature: 0.2 });
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 700, temperature: 0.2 });
     const parsed = modelEvaluationSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -252,7 +256,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       justification: parsed.data.justification.trim(),
       confidence: parsed.data.confidence,
       breakdown,
-      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {
     return c.json(
@@ -277,7 +281,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
       grade: b.grade,
       maxScore: b.maxScore,
     });
-    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 });
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 });
     const parsed = modelRubricSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -305,7 +309,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
 
     return c.json({
       criteria: olcekli,
-      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {
     return c.json(
@@ -335,7 +339,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     });
     // Düzey başına ~140 token; taban 500.
     const maxTokens = clamp(500 + b.levels.length * 140, 700, 2000);
-    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 });
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 });
     const parsed = modelSampleAnswersSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -348,7 +352,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     return c.json({
       answers,
       simulated: true,
-      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {
     return c.json(

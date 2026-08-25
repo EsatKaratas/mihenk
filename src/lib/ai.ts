@@ -22,7 +22,32 @@ export type AiEnv = {
   AI_MODEL?: string;
   AI_BASE_URL?: string;
   AI_API_KEY?: string;
+  // Yedek sağlayıcı — birincil başarısız olursa (kota dolması, kesinti,
+  // model kaldırılması) otomatik devreye girer. Yapılandırılmamışsa
+  // yedekleme sessizce atlanır ve hata olduğu gibi bildirilir.
+  AI_FALLBACK_PROVIDER?: string;
+  AI_FALLBACK_MODEL?: string;
+  AI_FALLBACK_BASE_URL?: string;
+  AI_FALLBACK_API_KEY?: string;
 };
+
+/** Yedek sağlayıcıyı birincilmiş gibi gösteren bir env görünümü üretir. */
+export function fallbackEnv(env: AiEnv): AiEnv | null {
+  if (!env.AI_FALLBACK_PROVIDER) return null;
+  return {
+    AI: env.AI,
+    AI_PROVIDER: env.AI_FALLBACK_PROVIDER,
+    AI_MODEL: env.AI_FALLBACK_MODEL,
+    AI_BASE_URL: env.AI_FALLBACK_BASE_URL,
+    AI_API_KEY: env.AI_FALLBACK_API_KEY,
+  };
+}
+
+export function fallbackConfigured(env: AiEnv): boolean {
+  const f = fallbackEnv(env);
+  if (!f) return false;
+  return providerName(f) === 'workers-ai' ? !!f.AI : !!f.AI_API_KEY;
+}
 
 export type CallOptions = {
   maxTokens: number;
@@ -152,6 +177,33 @@ export function extractJson(raw: string | object): unknown {
  * gereği ikiden fazla denenmez).
  */
 export async function callModelJson(
+  env: AiEnv,
+  prompt: string,
+  opts: CallOptions
+): Promise<{ data: unknown; attempts: number; approxPromptChars: number; usedProvider: string; usedModel: string; fellBack: boolean }> {
+  try {
+    const r = await callOne(env, prompt, opts);
+    return { ...r, usedProvider: providerName(env), usedModel: modelName(env), fellBack: false };
+  } catch (birincilHata) {
+    const yedek = fallbackEnv(env);
+    if (!yedek || !fallbackConfigured(env)) throw birincilHata;
+    // Birincil sağlayıcı düştü (kota, kesinti, model kaldırılması...).
+    // Sessizce yutmuyoruz: hangi sağlayıcının yanıtladığı çağrıya döner ve
+    // arayüzde gösterilir.
+    console.log(
+      JSON.stringify({
+        ev: 'ai_fallback',
+        from: providerName(env),
+        to: providerName(yedek),
+        reason: birincilHata instanceof Error ? birincilHata.message.slice(0, 200) : String(birincilHata).slice(0, 200),
+      })
+    );
+    const r = await callOne(yedek, prompt, opts);
+    return { ...r, usedProvider: providerName(yedek), usedModel: modelName(yedek), fellBack: true };
+  }
+}
+
+async function callOne(
   env: AiEnv,
   prompt: string,
   opts: CallOptions

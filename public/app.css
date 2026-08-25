@@ -566,3 +566,6 @@
 
   .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); }
   .team-sig b { color: var(--accent); letter-spacing: .04em; }
+
+  .fb-hint { margin-left: 7px; font-size: 10.5px; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 10px; padding: 2px 7px; }

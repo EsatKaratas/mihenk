@@ -27,7 +27,7 @@ nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik do�
 | GitHub kullanıcısı | EsatKaratas |
 
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon — **Problem 2**
-**Takım:** BİES — İrem Yazıcı, Zeynep Sude Demir, Esat Talha Karataş
+**Takım:** BIES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik
 **Teslim:** 26 Ağustos 2026 (KIS üzerinden) · **Final:** 5-6 Eylül 2026, BAU Beşiktaş
 
 ---
@@ -329,13 +329,59 @@ bırakmıyoruz — öğretmenin rubriğinin dışına çıkamıyor, kaynak metni
 bilgi ekleyemiyor, çıktısı şema doğrulamasından geçiyor ve hiçbir puanı
 kesinleştiremiyor."*
 
-**Gerçek sınıf listesi.** Varsayılan öğrenciler artık BİES takımı, iki şube:
+**Gerçek sınıf listesi.** Varsayılan öğrenciler artık BIES takımı, iki şube:
 7-A (Esat Talha Karataş, İrem Yazıcı) · 7-B (Zeynep Sude Demir, Burak Özçelik).
 Isı haritası satırları artık **gerçek şubelerden** hesaplanıyor; demo veriler
 "(örnek)" etiketiyle ve çakışmayan adlarla (6-A, 8-B, 8-C) altta duruyor.
 
 Doğrulandı: 7-A güçlü, 7-B zayıf yanıt verdi → gerçek modelle değerlendirme
 sonucu **7-A %88, 7-B %3**. Şube ayrışması gerçek veriden geliyor.
+
+---
+
+## 7g. Model sağlayıcısı: kota riski ve otomatik yedek (25 Ağustos)
+
+### Ölçülen maliyet (gerçek prompt boyutlarımızdan hesaplandı)
+
+| İşlem | Workers AI (Llama 3.3 70B fp8) | OpenAI gpt-5-nano |
+|---|---:|---:|
+| Soru üretimi (2 ÇSS + 1 açık uçlu) | $0,00291 | $0,00051 |
+| Rubrik taslağı | $0,00094 | $0,00016 |
+| Örnek yanıtlar (5 düzey) | $0,00175 | $0,00031 |
+| Açık uçlu değerlendirme (her biri) | $0,00099 | $0,00017 |
+| **Tam demo turu (6 öğrencili sınıf)** | **$0,0116** | **$0,0020** |
+
+Birim fiyatlar: Workers AI $0,293/M girdi + $2,253/M çıktı ·
+gpt-5-nano $0,05/M girdi + $0,40/M çıktı.
+
+### 🔴 Asıl risk: ücretsiz kota dolunca sistem DURUR
+
+Workers AI ücretsiz kotası **günde 10.000 neuron ≈ $0,11**. Ölçülen tam demo
+turu $0,0116 → **günde yaklaşık 10 tur.** Cloudflare belgeleri net:
+ücretsiz planda kota aşılırsa *"further operations will fail with an error"*.
+Yavaşlama değil, durma. Jüri sunumu sırasında bu, ürünün tek gösterilebilir
+özelliğinin ölmesi demektir.
+
+### Karar: tek sağlayıcıya bağlı kalma — otomatik yedek
+
+`AI_FALLBACK_PROVIDER` / `AI_FALLBACK_MODEL` / `AI_FALLBACK_API_KEY`
+yapılandırılırsa, birincil sağlayıcı başarısız olduğu anda (kota, kesinti,
+model kaldırılması) sistem **otomatik olarak yedeğe geçer.**
+
+- Geçiş **sessiz değildir**: yanıtın `meta.fellBack` alanı ve arayüzdeki rozet
+  "Yedek model · <ad>" yazar. Hangi modelin yanıtladığı her zaman görünür.
+- Yedek yapılandırılmamışsa hata olduğu gibi bildirilir (davranış değişmez).
+- Workers Logs'a `ai_fallback` olayı düşer (nereden nereye, sebebiyle).
+
+**Doğrulandı:** birincil model kasten bozuldu (`@cf/meta/BOZUK-MODEL-TESTI`),
+istek yine HTTP 200 döndü, puan üretildi ve `meta.fellBack: true` ile yedek
+modelin adı raporlandı.
+
+### Öneri
+Birincil `workers-ai` kalsın (ücretsiz, anahtar gerektirmiyor, çalışıyor).
+Yedek olarak bir harici sağlayıcı tanımlansın — $5 kredi ölçülen fiyatla
+**~2.450 tam demo turu** eder ve günlük sert kota yoktur. Anahtar
+`wrangler secret put AI_FALLBACK_API_KEY` ile verilir, koda girmez.
 
 ---
 

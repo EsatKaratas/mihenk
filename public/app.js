@@ -148,6 +148,7 @@ async function probeAiMode() {
     state.ai.provider = j.provider || "";
     state.ai.model = j.model || "";
     state.ai.mode = j.ready ? "live" : "simulation";
+    state.ai.fallback = j.fallback || null;
     state.ai.error = j.ready ? "" : "model sağlayıcısı yapılandırılmamış";
   } catch (e) {
     state.ai.mode = "simulation";
@@ -183,6 +184,7 @@ async function aiGenerateQuestions(doc) {
       docKey: doc.title || "adsiz",
     });
     state.ai.error = "";
+    if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
     return (j.questions || []).map(function (q) {
       return {
         id: qIdSeq++, type: q.type, difficulty: q.difficulty, outcome: doc.outcome,
@@ -215,6 +217,7 @@ async function aiEvaluate(q, answerText, rubric) {
       criteria: rubric.criteria.map(function (c) { return { label: c.label, weight: Number(c.weight) || 0 }; }),
     });
     state.ai.error = "";
+    if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
     return { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification, breakdown: j.breakdown, confidence: j.confidence };
   } catch (e) {
     const mesaj = String((e && e.message) || e);
@@ -249,9 +252,14 @@ function renderAiBadge() {
   if (el) {
     const live = state.ai.mode === "live";
     const txt = state.ai.mode === "unknown" ? "AI modu denetleniyor…"
-      : live ? ("Gerçek model · " + (state.ai.model || state.ai.provider))
+      : live ? ((state.ai.usingFallback ? "Yedek model · " : "Gerçek model · ") + (state.ai.model || state.ai.provider))
       : "Yerel simülasyon" + (state.ai.error ? " · " + state.ai.error : "");
-    el.innerHTML = '<span class="pill ' + (live ? "pill-success" : "pill-warning") + '">' + (live ? "●" : "○") + " " + escapeHtml(txt) + "</span>";
+    const cls = !live ? "pill-warning" : (state.ai.usingFallback ? "pill-accent2" : "pill-success");
+    el.innerHTML = '<span class="pill ' + cls + '" title="' +
+      (state.ai.fallback ? "Yedek sağlayıcı hazır: " + escapeHtml(state.ai.fallback.model || state.ai.fallback.provider) : "Yedek sağlayıcı yapılandırılmamış") +
+      '">' + (live ? "●" : "○") + " " + escapeHtml(txt) + "</span>" +
+      (state.ai.fallback && !state.ai.usingFallback
+        ? '<span class="fb-hint" title="Birincil sağlayıcı kotası dolarsa otomatik devreye girer">yedek hazır</span>' : "");
   }
   const col = document.getElementById("colophon");
   if (col) {
@@ -418,7 +426,7 @@ const state = {
   teacherTab: 1,
   studentTab: 1,
   genCount: 0,
-  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false },
+  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
@@ -1018,7 +1026,7 @@ function bosOturum() {
    AI'ın zorlandığı birkaçına odaklanması — görünmüyordu.               */
 let studentIdSeq = 1;
 
-// Varsayılan sınıf listesi — BİES takımı, iki şube.
+// Varsayılan sınıf listesi — BIES takımı, iki şube.
 const VARSAYILAN_OGRENCILER = [
   { name: "Esat Talha Karataş", sinif: "7-A" },
   { name: "İrem Yazıcı",        sinif: "7-A" },
