@@ -286,7 +286,10 @@ async function aiEvaluate(q, answerText, rubric, force) {
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
     const sonuc = { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification,
-                    breakdown: j.breakdown, confidence: j.confidence };
+                    breakdown: j.breakdown, confidence: j.confidence,
+                    // Sunucu, ogrenci yanitinin modele talimat vermeye calistigini bildirir.
+                    // Engelleme DEGIL, ogretmene sinyal (agents.md §7.1: karar insanda).
+                    injectionAttempt: !!j.injectionAttempt };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
     return sonuc;
@@ -2016,6 +2019,7 @@ function evalCardHtml(q, student, ev) {
     '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
+    injectionWarnHtml(ev) +
     (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
@@ -2080,6 +2084,20 @@ function confBadge(c) {
       : "Model yüksek güvenle değerlendirdi. Yine de son söz sizde.");
   return '<div class="conf-row"><span class="pill ' + cls + '">AI güveni %' + pct + '</span>' +
     '<span class="conf-note">' + not + '</span></div>';
+}
+
+/* Ogrenci yaniti, degerlendiren modele talimat vermeye calistiysa ogretmene
+   gosterilen uyari. Bilinçli olarak SUÇLAYICI DEGIL: yapay zeka talimati
+   uygulamadi, puan rubrige gore verildi; karar ogretmende. Sinav butunlugu
+   kaydiyla ayni dil kullanildi ("tek basina kopya kanidi degildir").
+   Ogrenci karnesinde GOSTERILMEZ — bu ogretmenin degerlendirmesine ait bir
+   sinyaldir, ogrenciye yonelik bir suclama degildir. */
+function injectionWarnHtml(ev) {
+  if (!ev || !ev.injectionAttempt) return "";
+  return '<div class="inj-warn"><b>⚠ Bu yanıt, değerlendiren yapay zekâya talimat ' +
+    'vermeye çalışan bir ifade içeriyor.</b> Yapay zekâ bu ifadeyi uygulamadı; puanı ' +
+    'yalnızca sizin tanımladığınız rubriğe göre verdi. Yanıtı kendiniz okuyup karar ' +
+    'vermeniz önerilir. Bu tek başına kopya kanıtı değildir.</div>';
 }
 
 function teacherTab3Html() {
@@ -3117,6 +3135,7 @@ setInterval(function () {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
+    "injectionWarnHtml",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
