@@ -411,6 +411,37 @@ ekranda hangi modelin yanıtladığı yazar."*
 
 ---
 
+## 7h. Değerlendirme önbelleği (25 Ağustos)
+
+**Neden:** Workers AI ücretsiz kotası günde ~10 tam demo turu. Provalarda aynı
+yanıt aynı rubrikle defalarca değerlendiriliyor ve her seferinde tam ücret
+ödeniyordu. Aynı girdi → aynı sonuç olduğu için yeniden çağırmak gereksiz.
+
+**Anahtar, sonucu etkileyen HER ŞEYİ içerir:** soru gövdesi · kazanım etiketi ·
+rubrik (maxScore + kriter/ağırlık) · öğrenci yanıtı · **model adı**.
+Kazanım ve model adı ilk tasarımda unutulmuştu; ikisi de modele gidiyor ve
+sonucu değiştiriyor, sonradan eklendi.
+
+**Doğruluk önlemleri**
+- Başarısız değerlendirmeler asla önbelleğe alınmaz
+- Hash çakışmasına karşı tam anahtar saklanır, isabette doğrulanır
+- Saklanan değer derin kopya (sonradan mutasyon önbelleği bozamaz)
+- "Yeniden Dene" önbelleği atlar (zorla taze çağrı)
+- 120 kayıt sınırı, dolunca en eski atılır
+- Önbellekten gelen sonuç arayüzde **açıkça işaretlenir** ve yanında
+  "Yapay Zekâ ile Yeniden Dene" butonu çıkar
+- Öğretmen paneline önbellek sayacı ve "Temizle" düğmesi eklendi
+
+**Doğrulama — 10 test, hepsi geçti:**
+1. Aynı girdi ikinci kez → önbellekten (6012 ms → **0 ms**)
+2. Rubrik değişti → taze çağrı · 3. Yanıt değişti → taze çağrı
+4. Kazanım değişti → taze çağrı · 5. Model değişti → taze çağrı
+6. "Yeniden Dene" → önbelleği atladı · 7. Hata önbelleğe girmedi (5→5)
+8. Diske yazıldı · 9. Sayfa yenilemesinden sonra **0 ağ çağrısı, 6 ms**
+10. Temizleme çalışıyor
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)

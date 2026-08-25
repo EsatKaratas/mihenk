@@ -569,3 +569,10 @@
 
   .fb-hint { margin-left: 7px; font-size: 10.5px; color: var(--text-muted);
     border: 1px dashed var(--border-strong); border-radius: 10px; padding: 2px 7px; }
+
+  .cache-note { font-size: 11.5px; line-height: 1.55; color: var(--text-muted);
+    background: var(--surface-2); border-left: 3px solid var(--border-strong);
+    border-radius: 6px; padding: 8px 10px; margin: -2px 0 10px; }
+  .cache-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--text-muted); }

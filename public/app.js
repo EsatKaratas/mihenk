@@ -201,13 +201,80 @@ async function aiGenerateQuestions(doc) {
   }
 }
 
-async function aiEvaluate(q, answerText, rubric) {
+/* ==================== Değerlendirme Önbelleği ====================
+   NEDEN: Workers AI ücretsiz kotası günde ~10 tam demo turu. Provalarda aynı
+   yanıt aynı rubrikle defalarca değerlendiriliyor ve her seferinde tam ücret
+   ödeniyordu. Aynı girdi → aynı sonuç olduğu için yeniden çağırmak gereksiz.
+
+   DOĞRULUK GARANTİLERİ — anahtar, sonucu etkileyen HER ŞEYİ içerir:
+     soru gövdesi · kazanım etiketi · rubrik (maxScore + kriter/ağırlık) ·
+     öğrenci yanıtı · model adı
+   Bunlardan biri değişirse anahtar değişir ve model yeniden çağrılır;
+   bayat sonuç gösterilmez.
+
+   Ek önlemler:
+     - Başarısız değerlendirmeler ASLA önbelleğe alınmaz
+     - Hash çakışmasına karşı tam anahtar saklanır ve isabette doğrulanır
+     - Saklanan değer derin kopyadır (sonradan mutasyon önbelleği bozmasın)
+     - "Yeniden Dene" önbelleği atlar (zorla taze çağrı)
+     - 120 kayıt sınırı, dolunca en eski atılır
+     - Önbellekten gelen sonuç arayüzde "önbellekten" olarak işaretlenir  */
+const EVAL_CACHE_MAX = 120;
+
+function evalCacheKey(q, rubric, answerText) {
+  return JSON.stringify({
+    b: String(q.body || "").trim(),
+    o: outcomeLabel(q.outcome),
+    m: rubric.maxScore,
+    c: (rubric.criteria || []).map(function (c) { return [String(c.label || "").trim(), Number(c.weight) || 0]; }),
+    a: String(answerText || "").trim(),
+    md: state.ai.model || ""
+  });
+}
+
+function hash32(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+function evalCacheGet(key) {
+  const kayit = (state.evalCache || {})[hash32(key)];
+  // Hash çakışmasına karşı tam anahtar doğrulanır.
+  if (!kayit || kayit.key !== key) return null;
+  return JSON.parse(JSON.stringify(kayit.value));
+}
+
+function evalCachePut(key, value) {
+  state.evalCache = state.evalCache || {};
+  const anahtarlar = Object.keys(state.evalCache);
+  if (anahtarlar.length >= EVAL_CACHE_MAX) {
+    // En eski kaydı at.
+    let enEski = anahtarlar[0];
+    anahtarlar.forEach(function (k) {
+      if ((state.evalCache[k].t || 0) < (state.evalCache[enEski].t || 0)) enEski = k;
+    });
+    delete state.evalCache[enEski];
+  }
+  state.evalCache[hash32(key)] = { key: key, value: JSON.parse(JSON.stringify(value)), t: Date.now() };
+}
+
+function evalCacheCount() { return Object.keys(state.evalCache || {}).length; }
+function evalCacheClear() { state.evalCache = {}; renderAll(); }
+
+async function aiEvaluate(q, answerText, rubric, force) {
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır.
   if (state.ai.mode !== "live") return simulateAIEvaluation(q, answerText, rubric);
   // Gerçek model modundayken çağrı başarısız olursa YEDEĞE DÜŞMEYİZ:
   // simüle edilmiş bir puanı "yapay zekâ önerisi" diye göstermek yanıltıcı olur.
   // Bunun yerine değerlendirme "yapılamadı" işaretlenir; öğretmen yeniden
   // deneyebilir ya da elle puanlayabilir.
+  const cacheKey = evalCacheKey(q, rubric, answerText);
+  if (!force) {
+    const hit = evalCacheGet(cacheKey);
+    if (hit) { hit.fromCache = true; return hit; }
+  }
+
   try {
     const j = await apiPost(AI_API.evaluate, {
       questionBody: q.body,
@@ -218,7 +285,11 @@ async function aiEvaluate(q, answerText, rubric) {
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
-    return { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification, breakdown: j.breakdown, confidence: j.confidence };
+    const sonuc = { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification,
+                    breakdown: j.breakdown, confidence: j.confidence };
+    // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
+    evalCachePut(cacheKey, sonuc);
+    return sonuc;
   } catch (e) {
     const mesaj = String((e && e.message) || e);
     state.ai.error = mesaj;
@@ -238,7 +309,8 @@ async function retryEvaluation(qid, sid) {
   state.ai.busy = true; busySince = Date.now(); renderAll();
   try {
     await probeAiMode();
-    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid]);
+    // Öğretmen bilinçli olarak yeniden deniyor: önbelleği atla.
+    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid], true);
     const yeni = Object.assign({}, readSession(ogrId).aiEvals || {});
     yeni[qid] = sonuc;
     writeSession(ogrId, { aiEvals: yeni });
@@ -279,7 +351,7 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId"];
+  "students", "activeStudentId", "evalCache"];
 
 function saveState() {
   if (_resetting) return;
@@ -442,6 +514,7 @@ const state = {
   poolError: "",
   critDescOpen: null,
   rejectedOpen: false,
+  evalCache: {},
   simRunning: false,
   simStatus: null,
 
@@ -1940,7 +2013,9 @@ function evalCardHtml(q, student, ev) {
     '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
-    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' + confBadge(ev.confidence) +
+    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
+    (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
+    confBadge(ev.confidence) +
     (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
@@ -1950,7 +2025,9 @@ function evalCardHtml(q, student, ev) {
     '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
     '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
     '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button></div></div>';
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button>' +
+    (ev.fromCache ? '<button class="btn btn-secondary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' : "") +
+    '</div></div>';
 }
 
 // Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
@@ -2104,6 +2181,9 @@ function teacherTab3Html() {
     'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
     '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
     (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
+    '<div class="cache-row">Değerlendirme önbelleği: <b>' + evalCacheCount() + '</b> kayıt' +
+    (evalCacheCount() ? ' <button class="btn btn-secondary btn-sm" id="btnClearCache">Temizle</button>' : "") +
+    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; ücretsiz model kotasını korur.</span></div>' +
     '<div id="simProgress" class="sim-progress">' +
     (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
     '</div></div>';
@@ -2114,6 +2194,8 @@ function teacherTab3Html() {
 function wireTeacherTab3() {
   const simBtn = document.getElementById("btnSimClass");
   if (simBtn) simBtn.onclick = function () { simulateClass(5); };
+  const ccBtn = document.getElementById("btnClearCache");
+  if (ccBtn) ccBtn.onclick = evalCacheClear;
   document.querySelectorAll(".retry-eval").forEach(function (b) {
     b.onclick = function () { retryEvaluation(Number(b.dataset.qid), Number(b.dataset.sid)); };
   });
@@ -3044,7 +3126,8 @@ setInterval(function () {
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
-    "siniflar", "classOutcomeScores", "realClassRows"
+    "siniflar", "classOutcomeScores", "realClassRows",
+    "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
