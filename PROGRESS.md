@@ -377,11 +377,37 @@ model kaldırılması) sistem **otomatik olarak yedeğe geçer.**
 istek yine HTTP 200 döndü, puan üretildi ve `meta.fellBack: true` ile yedek
 modelin adı raporlandı.
 
-### Öneri
-Birincil `workers-ai` kalsın (ücretsiz, anahtar gerektirmiyor, çalışıyor).
-Yedek olarak bir harici sağlayıcı tanımlansın — $5 kredi ölçülen fiyatla
-**~2.450 tam demo turu** eder ve günlük sert kota yoktur. Anahtar
-`wrangler secret put AI_FALLBACK_API_KEY` ile verilir, koda girmez.
+### Karar (kullanıcı onayı ile)
+Birincil **`workers-ai` / `llama-3.3-70b-instruct-fp8-fast`** kalır.
+Yedek sağlayıcı tanımlanır; birincil kotası dolduğunda otomatik devreye girer.
+
+**Yedek seçenekleri** (`wrangler.demo.jsonc` içinde yorumlu hazır):
+
+| | Google Gemini | OpenAI |
+|---|---|---|
+| Model | `gemini-2.5-flash` | `gpt-5-nano` |
+| Taban adres | `https://generativelanguage.googleapis.com/v1beta/openai/` | (varsayılan) |
+| Ücret | ücretsiz katman | kredi bazlı, ~$0,0020/tur |
+| Kota | hesaba özel, AI Studio'da görünür | günlük sert kota yok |
+| Anahtar | aistudio.google.com/apikey | platform.openai.com |
+
+> Google, ücretsiz katman için kesin RPM/RPD sayılarını artık dokümanda
+> yayınlamıyor; limitler hesaba göre değişiyor ve AI Studio > Rate limit
+> sayfasında görünüyor. Bu yüzden burada sayı verilmedi.
+
+Her iki seçenek de bizim mevcut `openai` sağlayıcı yolunu kullanır — Gemini'nin
+OpenAI uyumlu ucu sayesinde kod değişmez. Anahtar koda girmez:
+`npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc`
+
+**Bulunan hata:** Gemini'nin taban adresi `/` ile bitiyor; kodumuz sonuna
+`/chat/completions` eklediği için `//chat/completions` oluşuyor ve istek
+başarısız oluyordu. Taban adresin sonundaki eğik çizgiler artık kırpılıyor.
+
+### Jüriye anlatım
+Bu, "yedek plan" değil **mimari dayanıklılık** maddesidir ve anlatmaya değer:
+*"Tek bir model sağlayıcısına bağlı değiliz. Birincil sağlayıcı kotası dolarsa
+ya da kesinti yaşarsa sistem otomatik olarak yedeğe geçer — ve bunu gizlemez,
+ekranda hangi modelin yanıtladığı yazar."*
 
 ---
 

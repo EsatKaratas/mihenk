@@ -89,8 +89,13 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
 
   if (!env.AI_API_KEY) throw new Error(`AI_API_KEY tanımlı değil (provider: ${provider})`);
 
+  // Taban adresin sonundaki '/' temizlenir: Gemini'nin OpenAI uyumlu ucu
+  // '.../v1beta/openai/' biçiminde bitiyor ve doğrudan birleştirilirse
+  // '//chat/completions' oluşup istek başarısız oluyordu.
+  const kirp = (u: string) => u.replace(/\/+$/, '');
+
   if (provider === 'anthropic') {
-    const base = env.AI_BASE_URL || 'https://api.anthropic.com';
+    const base = kirp(env.AI_BASE_URL || 'https://api.anthropic.com');
     const r = await fetch(`${base}/v1/messages`, {
       method: 'POST',
       headers: {
@@ -110,8 +115,8 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
     return String(j?.content?.[0]?.text ?? '');
   }
 
-  // OpenAI uyumlu
-  const base = env.AI_BASE_URL || 'https://api.openai.com/v1';
+  // OpenAI uyumlu (OpenAI, Gemini'nin OpenAI ucu, Groq, DeepSeek, OpenRouter...)
+  const base = kirp(env.AI_BASE_URL || 'https://api.openai.com/v1');
   const r = await fetch(`${base}/chat/completions`, {
     method: 'POST',
     headers: {
