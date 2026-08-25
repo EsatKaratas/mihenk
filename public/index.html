@@ -177,6 +177,29 @@
   .q-card .actions { display: flex; gap: 8px; margin-top: 10px; }
   .q-card .time-tag { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
 
+  /* Öğrenci sınav ekranı şıkları — .q-card .opt-row kuralları buraya
+     uygulanmıyordu (şıklar .q-card içinde değil), bu yüzden şık harfi metne
+     yapışık ve satırlar boşluksuz çıkıyordu. Ayrı ve tam bir kural seti: */
+  .answer-opt { display: flex; align-items: flex-start; gap: 12px; padding: 13px 15px;
+    margin-bottom: 10px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: var(--surface); cursor: pointer; font-size: 14px; line-height: 1.55;
+    transition: border-color .12s ease, background .12s ease; }
+  .answer-opt:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .answer-opt input[type="radio"] { width: 18px; height: 18px; margin-top: 1px; flex: none;
+    accent-color: var(--accent); cursor: pointer; }
+  .answer-opt .opt-key { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px;
+    color: var(--accent); background: var(--accent-soft); border-radius: 6px; min-width: 26px;
+    height: 26px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .answer-opt .opt-text { flex: 1; padding-top: 3px; }
+  .answer-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .answer-opt.selected .opt-key { background: var(--accent); color: #fff; }
+
+  .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+  .crit-reason { font-size: 11.5px; color: var(--text-muted); line-height: 1.5;
+    margin: -2px 0 9px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
+
   .pool-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
   .pool-item:last-child { border-bottom: none; }
   .pool-item .p-body { flex: 1; font-size: 13px; }
@@ -632,8 +655,10 @@ function renderContentExpert() {
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span><span class="pill pill-neutral">' + q.outcome + '</span>' +
         '<span class="pill pill-success">Onaylı</span></div></div></div>';
-    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>';
+    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>' +
+    rejectedPoolHtml("ce");
 
+  wireRejectedPool();
   document.getElementById("btnGenerate").onclick = onGenerateQuestions;
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
   document.getElementById("ceSubject").onchange = function (e) { state.ceForm.subject = e.target.value; };
@@ -643,6 +668,45 @@ function renderContentExpert() {
   document.getElementById("ceMcCount").onchange = function (e) { state.ceForm.mcCount = Math.max(0, Math.min(8, parseInt(e.target.value, 10) || 0)); renderAll(); };
   document.getElementById("ceOpenCount").onchange = function (e) { state.ceForm.openCount = Math.max(0, Math.min(4, parseInt(e.target.value, 10) || 0)); renderAll(); };
   wirePendingCards();
+}
+
+/* ===================== Reddedilen Soru Havuzu =====================
+   Reddedilen sorular kaybolmaz; ayri bir havuzda saklanir.
+   - Icerik Uzmani: "Yeniden Incele" -> tekrar inceleme kuyruguna alir
+   - Ogretmen:      "Havuza Al"      -> dogrudan onayli havuza tasir
+   Boylece brief\'in "ogretmen soru havuzunu duzenler" maddesi de karsilanir. */
+function rejectedPoolHtml(mod) {
+  const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
+  const btn = mod === "ce"
+    ? '<button class="btn btn-secondary btn-sm restore-q" data-qid="QID" data-mode="review">↩ Yeniden İncele</button>'
+    : '<button class="btn btn-success btn-sm restore-q" data-qid="QID" data-mode="approve">↩ Havuza Al</button>';
+  const aciklama = mod === "ce"
+    ? "Reddettiğiniz sorular silinmez. Fikrinizi değiştirirseniz inceleme kuyruğuna geri alabilirsiniz."
+    : "İçerik uzmanının reddettiği sorular. Sınavınıza uygun bulduklarınızı doğrudan onaylı havuza alabilirsiniz.";
+  return '<div class="card" style="margin-top:16px;"><div class="card-head">' +
+    '<h3>Reddedilen Soru Havuzu</h3><span class="hint">' + rejected.length + ' soru</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">' + aciklama + '</div>' +
+    (rejected.length
+      ? rejected.map(function (q) {
+          return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
+            '<div class="p-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
+            '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
+            '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+            '<span class="pill pill-critical">Reddedildi</span></div></div>' +
+            '<div>' + btn.replace(/QID/g, q.id) + '</div></div>';
+        }).join("")
+      : '<div class="empty-state">Reddedilen soru yok.</div>') + '</div>';
+}
+
+function wireRejectedPool() {
+  document.querySelectorAll(".restore-q").forEach(function (b) {
+    b.onclick = function () {
+      const q = findQuestion(b.dataset.qid);
+      if (!q) return;
+      q.status = b.dataset.mode === "approve" ? "approved" : "ai_generated";
+      renderAll();
+    };
+  });
 }
 
 /* ============================== Öğretmen ============================== */
@@ -690,10 +754,11 @@ function teacherTab1Html() {
     (locked ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
       (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
-    ) + "</div></div>";
+    ) + "</div></div>" + rejectedPoolHtml("teacher");
 }
 
 function wireTeacherTab1() {
+  wireRejectedPool();
   document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
   const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
   const delEl = document.getElementById("examDelay"); if (delEl) delEl.oninput = function (e) { state.exam.startDelaySec = Number(e.target.value) || 0; };
@@ -766,10 +831,11 @@ function evalCardHtml(q) {
   return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
-    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
+    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' + confBadge(ev.confidence) +
     ev.breakdown.map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
-        '<div class="bar-track" style="margin-bottom:6px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>';
+        '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
+        (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
     }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
@@ -781,22 +847,89 @@ function doneCardHtml(q) {
   const rv = state.reviews[q.id], rub = state.rubrics[q.id];
   return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
-    '<div style="margin-top:8px;font-size:13px;">Nihai puan: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
-    (rv.decision === "revised" ? '<span class="pill pill-accent2">revize edildi</span>' : '<span class="pill pill-accent">AI önerisiyle aynı</span>') + '</div></div>';
+    '<div style="margin-top:8px;font-size:13px;">' +
+    'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
+    ' <span style="color:var(--text-muted);">&rarr;</span> ' +
+    'Öğretmen onayı: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
+    (rv.decision === "revised"
+      ? '<span class="pill pill-accent2">öğretmen revize etti</span>'
+      : '<span class="pill pill-accent">AI önerisiyle aynı</span>') +
+    (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
+    '</div></div>';
+}
+
+function confBadge(c) {
+  if (c == null) return "";
+  const pct = Math.round(c * 100);
+  const cls = c < 0.5 ? "pill-critical" : (c < 0.75 ? "pill-warning" : "pill-success");
+  const not = c < 0.5 ? "AI bu yanıtta zorlandı — önce buna bakın" : (c < 0.75 ? "AI kısmen emin" : "AI yüksek güvenle değerlendirdi");
+  return '<div style="margin:-4px 0 10px;"><span class="pill ' + cls + '" title="' + not + '">AI güveni %' + pct + '</span></div>';
 }
 
 function teacherTab3Html() {
   if (state.exam.status !== "published") return '<div class="empty-state">Sınav henüz yayınlanmadı.</div>';
-  if (state.examStatus === "not_started" || state.examStatus === "in_progress") return '<div class="empty-state">Öğrenci sınavı henüz bitirmedi. Değerlendirme kuyruğu, "Sınavı Bitir" dendiğinde dolacak.</div>';
-  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
+  if (state.examStatus === "not_started" || state.examStatus === "in_progress")
+    return '<div class="empty-state">Öğrenci sınavı henüz bitirmedi. Değerlendirme kuyruğu, "Sınavı Bitir" dendiğinde dolacak.</div>';
+
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const mcs = items.filter(function (q) { return q.type === "mc"; });
+  const opens = items.filter(function (q) { return q.type === "open"; });
   const pending = opens.filter(function (q) { return !state.reviews[q.id]; });
   const done = opens.filter(function (q) { return state.reviews[q.id]; });
-  return '<div class="card-head" style="margin-bottom:10px;"><h3>Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI puan önerisini incele, onayla veya revize et</span></div>' +
-    (pending.length ? pending.map(evalCardHtml).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
-    (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış</h3></div>' + done.map(doneCardHtml).join("") : "");
+  const mcCorrect = mcs.filter(function (q) { return (state.mcResults[q.id] || {}).correct; }).length;
+  const yayinlandi = state.examStatus === "graded";
+
+  // AI'in en az emin oldugu yanit en uste: ogretmen zamanini dogru yere harcasin.
+  pending.sort(function (a, b) {
+    const ca = (state.aiEvals[a.id] || {}).confidence;
+    const cb = (state.aiEvals[b.id] || {}).confidence;
+    return (ca == null ? 1 : ca) - (cb == null ? 1 : cb);
+  });
+
+  const ozet =
+    '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<h3>' + escapeHtml(state.exam.title || "Adsız Sınav") + '</h3>' +
+    (yayinlandi ? '<span class="pill pill-success">Sonuçlar yayınlandı</span>'
+                : '<span class="pill pill-accent2">Öğretmen onayı bekliyor</span>') + '</div>' +
+    '<div class="grid-3col">' +
+    '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcs.length + '</div><div class="s-sub">otomatik puanlandı — onay gerekmez</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' + (pending.length ? "AI puan önerdi, karar sizde" : "tümü incelendi") + '</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? "karne görünür durumda" : "siz yayınlayana kadar gizli") + '</div></div>' +
+    '</div></div>';
+
+  const mcListesi = mcs.length
+    ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Çoktan Seçmeli Sonuçlar</h3><span class="hint">anahtar karşılaştırmasıyla otomatik — yapay zekâ kararı değildir</span></div>' +
+      mcs.map(function (q) {
+        const a = state.answers[q.id] || {};
+        const dg = (state.mcResults[q.id] || {}).correct;
+        return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
+          '<div class="p-tags"><span class="pill ' + (dg ? "pill-success" : "pill-critical") + '">' + (dg ? "✓ Doğru" : "✗ Yanlış") + '</span>' +
+          '<span class="pill pill-neutral">Öğrenci: ' + (a.selectedKey || "boş") + '</span>' +
+          '<span class="pill pill-neutral">Doğru şık: ' + q.correctKey + '</span>' +
+          '<span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
+      }).join("") + '</div>'
+    : "";
+
+  const yayinKutusu = (!yayinlandi && pending.length === 0)
+    ? '<div class="card" style="margin-top:18px;">' +
+      '<div class="card-head"><h3>Sonuçları Yayınla</h3><span class="hint">son adım</span></div>' +
+      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">' +
+      'Onay bekleyen açık uçlu yanıt kalmadı. Sonuçlar, siz yayınlayana kadar öğrenciye görünmez.</div>' +
+      '<button class="btn btn-success" id="btnPublishResults">✓ Sonuçları Öğrenciye Yayınla</button></div>'
+    : "";
+
+  const acikUclu = opens.length
+    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI\'in en az emin oldugu yanit en ustte</span></div>' +
+      (pending.length ? pending.map(evalCardHtml).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
+      (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' + done.map(doneCardHtml).join("") : "")
+    : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
+
+  return ozet + mcListesi + acikUclu + yayinKutusu;
 }
 
 function wireTeacherTab3() {
+  const pubBtn = document.getElementById("btnPublishResults");
+  if (pubBtn) pubBtn.onclick = publishResults;
   document.querySelectorAll(".approve-as-is").forEach(function (b) {
     b.onclick = function () { const qid = Number(b.dataset.qid); finalizeReview(qid, state.aiEvals[qid].aiScore, "", "approved_as_is"); };
   });
@@ -811,14 +944,26 @@ function wireTeacherTab3() {
 }
 function finalizeReview(qid, score, comment, decision) {
   const rub = state.rubrics[qid];
-  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision };
-  maybeCompleteGrading();
+  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision, aiScore: (state.aiEvals[qid] || {}).aiScore };
   renderAll();
 }
-function maybeCompleteGrading() {
-  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
-  if (opens.every(function (q) { return state.reviews[q.id]; }) && state.examStatus === "submitted") {
+// Açık uçlu soruların tamamı incelendi mi? (Yalnızca ÇSS'den oluşan sınavda
+// hiç açık uçlu soru olmadığı için bu koşul doğrudan sağlanır.)
+function allOpensReviewed() {
+  return state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; })
+    .every(function (q) { return state.reviews[q.id]; });
+}
+
+// Sonuçlar öğrenciye ancak öğretmen yayınlayınca ulaşır.
+// ÖNCEKİ HATA: notlandırma yalnızca bir açık uçlu soru onaylandığında
+// tamamlanıyordu; sınavda hiç açık uçlu soru yoksa hiç tetiklenmiyor ve
+// sınav sonsuza dek "submitted" kalıyordu (öğrenci karnesi hiç oluşmuyordu).
+function publishResults() {
+  if (state.examStatus === "submitted" && allOpensReviewed()) {
     state.examStatus = "graded";
+    renderAll();
   }
 }
 
@@ -927,8 +1072,9 @@ function wireStudentTab1() {
 function mcAnswerHtml(q) {
   const a = state.answers[q.id] || {};
   return q.options.map(function (o) {
-    return '<label class="opt-row" style="cursor:pointer;"><input type="radio" name="ans-' + q.id + '" value="' + o.key + '" ' + (a.selectedKey === o.key ? "checked" : "") + ' class="mc-answer" data-qid="' + q.id + '">' +
-      '<span class="opt-key">' + o.key + '</span><span>' + escapeHtml(o.text) + '</span></label>';
+    const sec = a.selectedKey === o.key;
+    return '<label class="answer-opt' + (sec ? " selected" : "") + '"><input type="radio" name="ans-' + q.id + '" value="' + o.key + '" ' + (sec ? "checked" : "") + ' class="mc-answer" data-qid="' + q.id + '">' +
+      '<span class="opt-key">' + o.key + '</span><span class="opt-text">' + escapeHtml(o.text) + '</span></label>';
   }).join("") + '<div class="autosave-status" id="autosaveMsg"><span class="dot-save"></span> ' + (a.selectedKey ? "Kaydedildi" : "Henüz yanıt verilmedi") + '</div>';
 }
 function openAnswerHtml(q) {
@@ -1070,12 +1216,54 @@ function renderAdmin() {
   const pendingCount = pendingLive + state.baseline.pendingApprovalsOther;
   const completed = state.baseline.totalCompleted + ((state.examStatus === "submitted" || state.examStatus === "graded") ? 1 : 0);
   const rate = Math.round(completed / state.baseline.totalAssigned * 1000) / 10;
-  root.innerHTML = '<div class="grid-3col" style="margin-bottom:18px;">' +
-    '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">%' + rate + '</div><div class="s-sub tabular">' + completed + "/" + state.baseline.totalAssigned + ' sınav</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Bekleyen Öğretmen Onayı</div><div class="s-value tabular">' + pendingCount + '</div><div class="s-sub">açık uçlu yanıt</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + (state.baseline.classes.length + (state.exam.status === "published" ? 1 : 0)) + '</div><div class="s-sub">okul genelinde</div></div></div>' +
-    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — Okul Geneli</h3><span class="hint">sınıf × kazanım ortalama başarı</span></div><div id="adminHeatmap"></div></div>';
-  renderHeatmap("adminHeatmap", buildAdminHeatmapRows());
+
+  // En zayif kazanimi bul: yoneticiye "ne yapmali" sorusunun cevabini ver.
+  const rows = buildAdminHeatmapRows();
+  let enZayif = null;
+  rows.forEach(function (r) {
+    OUTCOMES.forEach(function (c) {
+      const v = r.scores[c.code];
+      if (v != null && (!enZayif || v < enZayif.v)) enZayif = { sinif: r.name, kod: c.code, etiket: outcomeLabel(c.code), v: v };
+    });
+  });
+
+  root.innerHTML =
+    '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<h3>Okul Geneli Ölçme Durumu</h3><span class="hint">tüm sınıflar, bu dönem</span></div>' +
+    '<div style="font-size:13px;color:var(--text-muted);line-height:1.6;">' +
+    'Bu ekran, okuldaki ölçme sürecinin ne kadarının tamamlandığını ve hangi kazanımlarda ' +
+    'eksik kalındığını tek bakışta gösterir. Puanların hiçbiri yapay zekâ tarafından ' +
+    'kesinleştirilmemiştir; buradaki sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçları yansıtır.' +
+    '</div></div>' +
+
+    '<div class="grid-3col" style="margin-bottom:18px;">' +
+    '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">%' + rate + '</div>' +
+    '<div class="s-sub tabular">' + completed + '/' + state.baseline.totalAssigned + ' sınav tamamlandı</div>' +
+    '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı</div></div>' +
+
+    '<div class="stat-tile"><div class="s-label">Öğretmen Onayı Bekleyen</div><div class="s-value tabular">' + pendingCount + '</div>' +
+    '<div class="s-sub">açık uçlu yanıt</div>' +
+    '<div class="s-note">AI puan önerdi, öğretmen henüz onaylamadı. Bu sayı büyürse sonuçlar gecikiyor demektir.</div></div>' +
+
+    '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + (state.baseline.classes.length + (state.exam.status === "published" ? 1 : 0)) + '</div>' +
+    '<div class="s-sub">okul genelinde</div>' +
+    '<div class="s-note">Bu dönem en az bir ölçme süreci yürütülen sınıf sayısı</div></div></div>' +
+
+    (enZayif
+      ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Önce Buraya Bakın</h3><span class="hint">en düşük kazanım</span></div>' +
+        '<div style="font-size:14px;line-height:1.65;"><b>' + escapeHtml(enZayif.sinif) + '</b> sinifi, ' +
+        '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarı gösterdi. ' +
+        'Bu, okuldaki en düşük değer. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.</div></div>'
+      : "") +
+
+    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası</h3><span class="hint">satır: sınıf, sütun: kazanım</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
+    'Her hücre, o sınıfın o kazanımdaki ortalama başarı yüzdesidir. ' +
+    '<b>Koyu renk = düşük başarı</b>, açık renk = yüksek başarı. ' +
+    '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
+    '<div id="adminHeatmap"></div></div>';
+
+  renderHeatmap("adminHeatmap", rows);
 }
 
 /* ============================== Modal ============================== */
