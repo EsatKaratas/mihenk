@@ -1,0 +1,15 @@
+# Linguist dil istatistiği düzeltmesi.
+#
+# NEDEN: GitHub dil çubuğu HTML'i %20'nin üzerinde gösteriyordu. Sebebi
+# mimari.html (48 KB) ve privacy-policy.html (18 KB) — bunlar birer
+# dokümantasyon ve hukuki metin sayfasıdır, ürünün kodu değildir.
+# Ürünün kodu public/app.js (arayüz mantığı) ve src/ (Worker, TypeScript)
+# altındadır. public/index.html işaretlenmedi: o uygulamanın gerçek
+# iskeleti, yani koddur.
+#
+# Bu bir gizleme değil, doğru sınıflandırmadır — dosyalar depoda durmaya
+# ve okunmaya devam ediyor.
+
+public/mimari.html          linguist-documentation
+public/privacy-policy.html  linguist-documentation
+public/404.html             linguist-documentation
