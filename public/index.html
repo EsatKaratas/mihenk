@@ -223,6 +223,27 @@
   .coverage-box .cv-ok { font-size: 11.5px; color: var(--success); line-height: 1.5; }
   .coverage-box .cv-diff { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
 
+  .exam-switcher { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 14px; background: var(--surface-2); }
+  .exam-switcher .es-head { font-size: 12.5px; font-weight: 600; margin-bottom: 9px; }
+  .exam-switcher .es-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .es-item { display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 9px;
+    background: var(--surface); cursor: pointer; text-align: left; min-width: 168px;
+    font-family: inherit; color: var(--text); transition: border-color .12s, background .12s; }
+  .es-item:hover { border-color: var(--accent); }
+  .es-item.active { border-color: var(--accent); background: var(--accent-soft); }
+  .es-item .es-name { font-size: 13px; font-weight: 600; }
+  .es-item .es-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .es-item.es-new { justify-content: center; align-items: center; color: var(--accent);
+    border-style: dashed; font-weight: 600; font-size: 13px; min-width: 120px; }
+
+  .tab-count { display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px;
+    background: var(--accent-soft); color: var(--accent); font-size: 10.5px;
+    font-weight: 700; font-family: "IBM Plex Mono", monospace; }
+  .tab-btn.active .tab-count { background: var(--accent); color: #fff; }
+
   .lbl-hint { font-weight: 400; font-size: 10.5px; color: var(--text-muted);
     text-transform: none; letter-spacing: 0; margin-left: 6px; }
   .new-outcome { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
@@ -618,9 +639,9 @@ function renderAiBadge() {
    her şeyi baştan yaptırıyordu. Durum artık tarayıcıda saklanıyor.
    (Kalıcı veritabanı değildir; yalnızca bu tarayıcıya özeldir.)              */
 const STORE_KEY = "t3-olcme-durum-v1";
-const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "genCount", "ceForm", "questions",
+const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
-  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter"];
+  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId"];
 
 function saveState() {
   try {
@@ -719,6 +740,7 @@ function loadDemoScenario() {
   state.ceForm.grade = 7;
   state.ceForm.outcomeCode = "FEN.7.1.2";
   state.ceForm.text = DEMO_METIN;
+  if (state.activeExamId == null) ensureExamList();
   state.exam.title = "Kuvvet ve Hareket — Kısa Sınav";
   state.exam.questionIds = state.questions.map(function (q) { return q.id; });
   state.exam.durationMin = 10;
@@ -760,11 +782,14 @@ const state = {
   outcomes: VARSAYILAN_KAZANIMLAR.slice(),
   subjects: VARSAYILAN_DERSLER.slice(),
   newOutcome: { open: false, code: "", label: "", error: "" },
+  ceTab: 1,
   poolFilter: { outcome: "", difficulty: "", type: "" },
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
+  exams: [],          // kaydedilmiş sınavlar
+  activeExamId: null, // düzenlenen / çözülen sınav
   exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null },
   answers: {},
   examStatus: "not_started",
@@ -916,14 +941,29 @@ function remedialBannerHtml() {
     '<button class="btn btn-secondary btn-sm" id="btnRemedialDismiss">Kapat</button></div></div>';
 }
 
-function renderContentExpert() {
-  const root = document.getElementById("panel-content_expert");
-  const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
-  const approved = state.questions.filter(function (q) { return q.status === "approved"; });
-  const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
+function ceTabsHtml() {
+  const bekleyen = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
+  const onayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
+  const tabs = [
+    { id: 1, label: "1 \u00b7 Soru \u00dcret", rozet: bekleyen },
+    { id: 2, label: "2 \u00b7 Soru Havuzu", rozet: onayli }
+  ];
+  return '<div class="tabs" id="ceTabs">' + tabs.map(function (x) {
+    return '<button class="tab-btn ' + (state.ceTab === x.id ? "active" : "") + '" data-tab="' + x.id + '">' +
+      x.label + (x.rozet ? ' <span class="tab-count">' + x.rozet + '</span>' : "") + '</button>';
+  }).join("") + '</div>';
+}
 
-  root.innerHTML =
-    remedialBannerHtml() +
+function wireCeTabs() {
+  document.querySelectorAll("#ceTabs .tab-btn").forEach(function (b) {
+    b.onclick = function () { state.ceTab = Number(b.dataset.tab); renderAll(); };
+  });
+}
+
+// 1. sekme: kaynak icerik + AI ciktilarinin incelenmesi
+function ceCreateHtml() {
+  const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
+  return     remedialBannerHtml() +
     '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">metin + kazanım</span></div>' +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
@@ -962,8 +1002,14 @@ function renderContentExpert() {
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
     '<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">Metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretir</span></div>' +
     '<div class="card"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
-    '<div id="pendingList">' + (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Soldan bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>' +
-    '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Ortak Soru Havuzu</h3><span class="hint">' + approved.length + ' onaylı · ' + rejected.length + ' reddedilen</span></div>' +
+    '<div id="pendingList">' + (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Soldan bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
+}
+
+// 2. sekme: onayli havuz + reddedilenler havuzu
+function cePoolHtml() {
+  const approved = state.questions.filter(function (q) { return q.status === "approved"; });
+  const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
+  return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Ortak Soru Havuzu</h3><span class="hint">' + approved.length + ' onaylı · ' + rejected.length + ' reddedilen</span></div>' +
     (approved.length ? approved.map(function (q) {
       return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
@@ -972,8 +1018,15 @@ function renderContentExpert() {
         '<span class="pill pill-success">Onaylı</span></div></div></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>' +
     rejectedPoolHtml("ce");
+}
 
-  wireRejectedPool();
+function renderContentExpert() {
+  const root = document.getElementById("panel-content_expert");
+  root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
+    (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
+  wireCeTabs();
+  if (state.ceTab === 2) { wireRejectedPool(); return; }
+
   const rg = document.getElementById("btnRemedialGen");
   if (rg) rg.onclick = onGenerateQuestions;
   const rd = document.getElementById("btnRemedialDismiss");
@@ -1073,6 +1126,128 @@ function wireRejectedPool() {
   });
 }
 
+
+/* ==================== Çoklu Sınav ====================
+   Öğretmen birden fazla sınav hazırlayabilir. Aktif sınavın alanları
+   state.exam + oturum alanlarında canlı tutulur; sınav değiştirilirken
+   mevcut alanlar kayda yazılır, hedefinkiler yüklenir.
+
+   Bu ayrıca "önceki sınava göre gelişim" analizini mümkün kılar:
+   tek sınavla kazanım trendi hesaplanamaz.                                 */
+let examIdSeq = 1;
+const OTURUM_ALANLARI = ["answers", "examStatus", "currentQIndex", "remainingSec",
+  "aiEvals", "reviews", "mcResults", "integrity"];
+
+function bosOturum() {
+  return {
+    answers: {}, examStatus: "not_started", currentQIndex: 0, remainingSec: 0,
+    aiEvals: {}, reviews: {}, mcResults: {},
+    integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
+                 pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] }
+  };
+}
+
+function syncActiveExam() {
+  if (state.activeExamId == null) return;
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return;
+  Object.keys(state.exam).forEach(function (k) { kayit[k] = state.exam[k]; });
+  kayit.session = {};
+  OTURUM_ALANLARI.forEach(function (k) { kayit.session[k] = state[k]; });
+}
+
+function activateExam(id) {
+  if (id === state.activeExamId) return;
+  syncActiveExam();
+  const kayit = state.exams.find(function (x) { return x.id === id; });
+  if (!kayit) return;
+  state.activeExamId = id;
+  state.exam = { title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
+                 status: kayit.status, durationMin: kayit.durationMin,
+                 startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt };
+  const s = kayit.session || bosOturum();
+  OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
+  renderAll();
+}
+
+function createExam(baslik) {
+  syncActiveExam();
+  const id = examIdSeq++;
+  const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
+                 status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null, session: bosOturum() };
+  state.exams.push(yeni);
+  state.activeExamId = id;
+  state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
+                 durationMin: 10, startDelaySec: 0, startsAt: null };
+  OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
+  state.teacherTab = 1;
+  renderAll();
+}
+
+function deleteExam(id) {
+  const kayit = state.exams.find(function (x) { return x.id === id; });
+  if (!kayit || kayit.status === "published") return false; // yayındaki sınav silinmez
+  state.exams = state.exams.filter(function (x) { return x.id !== id; });
+  if (state.activeExamId === id) {
+    if (state.exams.length) { state.activeExamId = null; activateExam(state.exams[0].id); }
+    else { state.activeExamId = null; createExam("Yeni Sınav"); }
+  }
+  renderAll();
+  return true;
+}
+
+// Ilk acilis / eski kayittan gecis: tek sinav varsa listeye tasi.
+function ensureExamList() {
+  state.exams = state.exams || [];
+  state.exams.forEach(function (x) { if (x.id >= examIdSeq) examIdSeq = x.id + 1; });
+  if (!state.exams.length) {
+    const id = examIdSeq++;
+    state.exams.push({ id: id, title: state.exam.title, questionIds: state.exam.questionIds,
+      timeOverrides: state.exam.timeOverrides, status: state.exam.status,
+      durationMin: state.exam.durationMin, startDelaySec: state.exam.startDelaySec,
+      startsAt: state.exam.startsAt, session: null });
+    state.activeExamId = id;
+  }
+  if (state.activeExamId == null) state.activeExamId = state.exams[0].id;
+  syncActiveExam();
+}
+
+function examStatusPill(st, sessionStatus) {
+  if (st !== "published") return '<span class="pill pill-neutral">Taslak</span>';
+  if (sessionStatus === "graded") return '<span class="pill pill-success">Sonuçlandı</span>';
+  if (sessionStatus === "submitted") return '<span class="pill pill-accent2">Onay bekliyor</span>';
+  return '<span class="pill pill-accent">Yayında</span>';
+}
+
+function examSwitcherHtml() {
+  return '<div class="exam-switcher"><div class="es-head">Sınavlarım <span class="lbl-hint">' +
+    state.exams.length + ' sınav</span></div><div class="es-list">' +
+    state.exams.map(function (x) {
+      const aktif = x.id === state.activeExamId;
+      const sess = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+      const st = aktif ? state.exam.status : x.status;
+      const ad = aktif ? (state.exam.title || "Adsız Sınav") : (x.title || "Adsız Sınav");
+      const adet = (aktif ? state.exam.questionIds : x.questionIds).length;
+      return '<button class="es-item ' + (aktif ? "active" : "") + '" data-exam="' + x.id + '">' +
+        '<span class="es-name">' + escapeHtml(ad) + '</span>' +
+        '<span class="es-meta">' + adet + ' soru ' + examStatusPill(st, sess) + '</span></button>';
+    }).join("") +
+    '<button class="es-item es-new" id="btnNewExam">+ Yeni Sınav</button></div>' +
+    (state.exam.status !== "published"
+      ? '<button class="btn btn-secondary btn-sm" id="btnDelExam" style="margin-top:8px;">Bu taslağı sil</button>'
+      : "") + '</div>';
+}
+
+function wireExamSwitcher() {
+  document.querySelectorAll(".es-item[data-exam]").forEach(function (b) {
+    b.onclick = function () { activateExam(Number(b.dataset.exam)); };
+  });
+  const nb = document.getElementById("btnNewExam");
+  if (nb) nb.onclick = function () { createExam(); };
+  const db = document.getElementById("btnDelExam");
+  if (db) db.onclick = function () { deleteExam(state.activeExamId); };
+}
+
 /* ============================== Öğretmen ============================== */
 function canPublishExam() {
   if (!state.exam.questionIds.length) return false;
@@ -1167,7 +1342,7 @@ function teacherTab1Html() {
   const tumOnayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
   const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
   const locked = state.exam.status === "published";
-  return '<div class="grid-2">' +
+  return examSwitcherHtml() + '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
     (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
     poolFilterHtml() +
@@ -1189,6 +1364,7 @@ function teacherTab1Html() {
 }
 
 function wireTeacherTab1() {
+  wireExamSwitcher();
   wireRejectedPool();
   const fo = document.getElementById("fltOutcome");
   if (fo) fo.onchange = function (e) { state.poolFilter.outcome = e.target.value; renderAll(); };
@@ -1494,23 +1670,45 @@ async function finishExam() {
 }
 
 function studentTab1Html() {
-  const ex = state.exam;
-  if (ex.status !== "published") return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>';
-  const items = ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-  const waiting = Date.now() < ex.startsAt;
-  const statusPill = state.examStatus === "not_started" ? (waiting ? '<span class="pill pill-warning">Yaklaşıyor</span>' : '<span class="pill pill-success">Aktif</span>')
-    : state.examStatus === "in_progress" ? '<span class="pill pill-accent">Sürüyor</span>'
-    : state.examStatus === "submitted" ? '<span class="pill pill-accent2">Değerlendiriliyor</span>'
-    : '<span class="pill pill-success">Sonuçlandı</span>';
-  return '<div class="card"><div class="card-head"><h3>' + escapeHtml(ex.title || "Adsız Sınav") + '</h3>' + statusPill + '</div>' +
-    '<div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">' + items.length + ' soru · ' + ex.durationMin + ' dakika</div>' +
-    (waiting ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
-    '<div style="margin-top:14px;"><button class="btn btn-primary" id="btnEnterExam" ' + ((!waiting && state.examStatus === "not_started") ? "" : "disabled") + '>Sınava Gir</button> ' +
-    (state.examStatus === "in_progress" ? '<button class="btn btn-secondary" id="btnResumeExam">Sınava Devam Et</button>' : "") + '</div></div>';
+  // Ogrenci artik TUM yayindaki sinavlari gorur; birini secip girer.
+  const yayindakiler = state.exams.filter(function (x) {
+    return (x.id === state.activeExamId ? state.exam.status : x.status) === "published";
+  });
+  if (!yayindakiler.length) {
+    return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>';
+  }
+  return yayindakiler.map(function (x) {
+    const aktif = x.id === state.activeExamId;
+    const ex = aktif ? state.exam : x;
+    const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+    const items = ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+    const waiting = Date.now() < ex.startsAt;
+    const statusPill = durum === "not_started" ? (waiting ? '<span class="pill pill-warning">Yaklaşıyor</span>' : '<span class="pill pill-success">Aktif</span>')
+      : durum === "in_progress" ? '<span class="pill pill-accent">Sürüyor</span>'
+      : durum === "submitted" ? '<span class="pill pill-accent2">Değerlendiriliyor</span>'
+      : '<span class="pill pill-success">Sonuçlandı</span>';
+    const acikUclu = items.filter(function (q) { return q.type === "open"; }).length;
+    return '<div class="card" style="margin-bottom:12px;' + (aktif ? "border-color:var(--accent);" : "") + '">' +
+      '<div class="card-head"><h3>' + escapeHtml(ex.title || "Adsız Sınav") + '</h3>' + statusPill + '</div>' +
+      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">' + items.length + ' soru' +
+      (acikUclu ? ' (' + acikUclu + ' açık uçlu)' : "") + ' · ' + ex.durationMin + ' dakika</div>' +
+      (aktif && waiting ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
+      '<div style="margin-top:14px;">' +
+      (aktif
+        ? '<button class="btn btn-primary" id="btnEnterExam" ' + ((!waiting && durum === "not_started") ? "" : "disabled") + '>Sınava Gir</button> ' +
+          (durum === "in_progress" ? '<button class="btn btn-secondary" id="btnResumeExam">Sınava Devam Et</button> ' : "") +
+          (durum === "graded" ? '<button class="btn btn-secondary" id="btnSeeReport">Karneyi Gör</button>' : "")
+        : '<button class="btn btn-secondary pick-exam" data-exam="' + x.id + '">Bu sınavı aç</button>') +
+      '</div></div>';
+  }).join("");
 }
 function wireStudentTab1() {
   const enterBtn = document.getElementById("btnEnterExam"); if (enterBtn) enterBtn.onclick = startExam;
   const resumeBtn = document.getElementById("btnResumeExam"); if (resumeBtn) resumeBtn.onclick = function () { state.studentTab = 2; renderAll(); };
+  const repBtn = document.getElementById("btnSeeReport"); if (repBtn) repBtn.onclick = function () { state.studentTab = 3; renderAll(); };
+  document.querySelectorAll(".pick-exam").forEach(function (b) {
+    b.onclick = function () { activateExam(Number(b.dataset.exam)); };
+  });
 }
 
 function mcAnswerHtml(q) {
@@ -1697,6 +1895,7 @@ function renderHeatmap(targetId, rows) {
         state.remedial = { outcomeCode: b.dataset.kod, sinif: b.dataset.sinif, deger: Number(b.dataset.deger) };
         state.ceForm.outcomeCode = b.dataset.kod;
         state.role = "content_expert";
+        state.ceTab = 1;
         renderAll();
         const banner = document.getElementById("remedialBanner");
         if (banner) banner.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1943,6 +2142,7 @@ function renderPipeline() {
 
 function renderAll() {
   renderAiBadge();
+  syncActiveExam();
   saveState();
   renderRoleNav();
   renderPipeline();
@@ -1976,6 +2176,7 @@ setInterval(function () {
 
 initPanels();
 loadState();
+ensureExamList();
 document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
 document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);

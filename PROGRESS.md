@@ -183,6 +183,33 @@ olarak katılıyor. Analiz mekanizması gerçek ve canlı güncelleniyor, ancak
 
 ---
 
+## 7c. Arayüz mimarisi (25 Ağustos, kullanıcı isteği)
+
+**İçerik Uzmanı paneli iki sekmeye ayrıldı:** 1 · Soru Üret (kaynak + AI
+çıktılarının incelenmesi) · 2 · Soru Havuzu (onaylı + reddedilenler). Panel
+tek sayfada dört bölüm taşıyacak kadar uzamıştı; ayrıca öğretmen ve öğrenci
+panelleri zaten sekmeliydi, tutarlılık sağlandı.
+
+**Çoklu sınav desteği eklendi.** `state.exams[]` + `state.activeExamId`.
+
+> **Neden gerekliydi (kullanıcı isteğinin ötesinde):** Tek sınavla
+> *"öğrencinin önceki sınavlara göre değişimi"* hesaplanamaz. Bu iddia
+> `MODEL PROMT #1.docx`'te ürün tarifinin parçası ama üründe karşılığı yoktu
+> ve **çoklu sınav olmadan hiçbir zaman olamazdı.** Şimdi mümkün.
+
+**Risk yönetimi kararı:** `state.exam` ve oturum alanları (`answers`,
+`examStatus`, `aiEvals`, `reviews`, `mcResults`, `integrity`) olduğu gibi
+bırakıldı — bunlar artık "aktif sınavın canlı alanları". Sınav değişirken
+`syncActiveExam()` mevcut alanları kayda yazar, `activateExam()` hedefinkileri
+yükler. Böylece mevcut kodun tamamı değişmeden çalışmaya devam etti; yalnızca
+liste ve geçiş arayüzü eklendi.
+
+**Doğrulandı:** 2 sınav, birbirinden tamamen yalıtık (sınav 1: 3 soru/3 yanıt/
+in_progress; sınav 2: 2 soru/0 yanıt). Geçişler ve sayfa yenilemesi sonrası
+veriler korundu. Öğrenci artık tüm yayındaki sınavları görüp seçebiliyor.
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)
