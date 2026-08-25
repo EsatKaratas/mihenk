@@ -1,0 +1,206 @@
+# PROJE DURUM KAYDI
+
+> Bu dosya, oturumlar arası bağlam kaybına karşı tutulan **tek doğruluk kaynağıdır.**
+> Yeni bir yapay zekâ oturumu veya yeni bir ekip arkadaşı buradan devralabilir.
+> Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
+> Son güncelleme: 25 Ağustos 2026
+
+---
+
+## 0. Tek satırda durum
+
+Sistem **canlıda ve gerçek bir dil modeliyle çalışıyor.** Prototip arayüzü (4 rol),
+Workers AI üzerinden soru üretiyor ve açık uçlu yanıtları rubriğe göre puanlıyor;
+nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik doğrulama
+**yok** (bilinçli kapsam kararı — bkz. §6).
+
+---
+
+## 1. Adresler ve hesaplar
+
+| Ne | Nerede |
+|---|---|
+| Canlı sistem | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
+| GitHub (public) | https://github.com/EsatKaratas/t3-olcme-degerlendirme |
+| Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
+| Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
+| GitHub kullanıcısı | EsatKaratas |
+
+**Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon — **Problem 2**
+**Takım:** BİES — İrem Yazıcı, Zeynep Sude Demir, Esat Talha Karataş
+**Teslim:** 26 Ağustos 2026 (KIS üzerinden) · **Final:** 5-6 Eylül 2026, BAU Beşiktaş
+
+---
+
+## 2. Çalıştırma
+
+```bash
+npm install
+npx wrangler login          # bir kez
+npm run dev:demo            # http://localhost:8787
+npm run deploy:demo         # canlıya al
+npm run lint                # tsc --noEmit
+```
+
+> **Neden `wrangler.demo.jsonc` var:** Üretim yapılandırması (`wrangler.jsonc`)
+> D1 + R2 + Queues bağlar. İkisi de demo akışı için gereksiz ve **deploy'u
+> engelliyor**: `database_id` placeholder ve Queues ücretsiz planda yok.
+> Demo yapılandırması yalnızca statik varlıkları + Workers AI'ı bağlar.
+> Üretim yapılandırması silinmedi, olduğu gibi duruyor.
+
+---
+
+## 3. Mimari — gerçekte ne var
+
+```
+public/index.html   tek dosyalık 4 rol prototipi (vanilla JS, build yok)
+  └─ fetch ──▶ Cloudflare Worker (Hono)
+                 src/index.ts        giriş noktası
+                 src/routes/ai.ts    /api/ai/{status,generate-questions,evaluate}
+                 src/lib/prompts.ts  model istemleri  ← JÜRİYE GÖSTERİLECEK DOSYA
+                 src/lib/ai.ts       sağlayıcı bağımsız çağrı + JSON onarımı
+                 src/schemas/ai.ts   Zod şemaları
+                 └─ env.AI ──▶ Workers AI
+```
+
+**Model:** `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
+**Sağlayıcı değiştirme:** `wrangler.demo.jsonc` → `vars.AI_PROVIDER` = `workers-ai` |
+`openai` | `anthropic`. Harici sağlayıcı için `npx wrangler secret put AI_API_KEY -c wrangler.demo.jsonc`.
+Mimari değişmez, yalnızca model sağlayıcısı değişir.
+
+**Yerel yedek:** Worker'a ulaşılamazsa arayüz şablon tabanlı simülasyona düşer ve
+**bunu ekranda açıkça yazar** (sağ üst rozet). Sessiz geri düşüş yoktur — bu
+bilinçli bir dürüstlük kararıdır.
+
+---
+
+## 4. Ölçülen değerler (canlı ortam, gerçek model)
+
+| İşlem | Süre | Not |
+|---|---|---|
+| Soru üretimi (2 ÇSS + 1 açık uçlu) | 10-17 sn | tek denemede |
+| Açık uçlu değerlendirme | ~10 sn | tek denemede |
+| Boş yanıt | anında | model çağrılmadan 0 puan |
+| Prompt injection denemesi | 3,3 sn | **0/20 ile reddedildi** |
+
+---
+
+## 5. Bulunan ve düzeltilen hatalar (kronolojik)
+
+Bunların hepsi **gerçek hatalardı** ve çoğu jüri gününde ortaya çıkardı.
+
+1. **`prototip.html` / `mimari.html` geçerli HTML belgesi değildi** — Artifact gövdesi
+   olarak yazılmışlar; `<!doctype>`, `<html>`, `<head>`, **`<meta charset>` yok.**
+   Türkçe karakter riski. → Sarmalandı, `public/` altına taşındı.
+2. **`mimari.html` Mermaid diyagramları bağımsız barındırmada render olmuyordu.**
+   → CDN yükleyici eklendi, yüklenemezse sayfa bozulmuyor.
+3. **`tsconfig.json` hiç yoktu** — TypeScript derlenemiyordu. → Eklendi (strict).
+4. **`assets.run_worker_first` dizi biçimi Wrangler 4 gerektiriyor**, `package.json`
+   Wrangler 3'e sabitti. **Proje mevcut hâliyle deploy edilemiyordu.**
+   → Wrangler 4.125 + workers-types 5. `@cloudflare/vitest-pool-workers` çözülemez
+   peer çakışması yarattığı için kaldırıldı (yalnızca testler için gerekliydi).
+5. **Zod hataları `agents.md` §2 hata biçimine uymuyordu** → özel hata kancası.
+6. **`evaluate.outcomeLabel` `.min(1).default('')`** — Zod varsayılanı da doğruladığı
+   için opsiyonel alan fiilen zorunlu olmuştu. → `.min(1)` kaldırıldı.
+7. **Model kullanımdan kaldırılmıştı** — `@cf/meta/llama-3.1-8b-instruct` 2026-05-30'da
+   emekli. → `llama-3.3-70b-instruct-fp8-fast`.
+8. **Workers AI `response` alanı bu modelde nesne dönüyor**, string değil.
+   `String(...)` → `"[object Object]"` → JSON.parse patlıyordu. → Tip kontrolü eklendi.
+9. **`max_tokens` yetersizdi** (220/soru) — yanıt kesiliyor, ilk deneme başarısız
+   olup gereksiz retry ile süre 27 sn'ye çıkıyordu. → 420/soru, tek denemede ~17 sn.
+10. **🔴 Sadece-ÇSS sınavı sonsuza dek kilitleniyordu.** `maybeCompleteGrading()`
+    yalnızca bir açık uçlu soru onaylandığında çağrılıyordu; sınavda açık uçlu soru
+    yoksa hiç tetiklenmiyor, `examStatus` sonsuza dek `"submitted"` kalıyor,
+    **öğrenci karnesi hiç oluşmuyordu.** → Açık `publishResults()` akışı.
+11. **Öğrenci sınav ekranındaki şıklar hiç stil almıyordu** — `.opt-row` kuralları
+    yalnızca `.q-card` içinde tanımlıydı, şık harfi metne yapışıyordu (`AF = m * a`).
+    → Ayrı `.answer-opt` kural seti.
+12. **README "9 tablo" diyordu**, `schema.sql`'de 14 tablo var. → Şemadan okunarak
+    düzeltildi (ilk düzeltmede iki tablo adı yanlış yazılmış, `schema.sql`'e karşı
+    kontrol edilip tekrar düzeltildi).
+
+---
+
+## 6. Bilinçli olarak YAPILMAYANLAR
+
+Bunlar unutulmuş değil, **kasıtlı olarak kapsam dışı** bırakıldı. Gerekçe: teslime
+kalan süre ve Kreaton rehberinin *"yarım ürün, tam problem çözümü"* ilkesi. Hiçbiri
+jüriye görünmüyor, hepsi zaman yiyor.
+
+- Better Auth / gerçek kimlik doğrulama (rol geçişi arayüzden yapılıyor)
+- `migrations/` klasörü (şema `d1 execute --file` ile uygulanıyor)
+- Vitest testleri
+- `routes.ts`'in gerçek `src/routes/*` yapısına tam bölünmesi (yalnızca AI uçları yazıldı)
+- Kalıcı veritabanı yazımı (prototip durumu tarayıcı belleğinde)
+- PDF ayrıştırma
+- TurkishMMLU'nun demoya sokulması — gated dataset, sınıf aralığı uyuşmuyor
+  (dataset 9-12, prototip 5-8). Türevleri `.gitignore`'da.
+
+---
+
+## 7. Jüri kriterleri ve karşılıkları
+
+Kreaton rehberi §5'teki dört kritik tavsiye:
+
+| Jüri kriteri | Bizdeki karşılığı | Durum |
+|---|---|---|
+| 1. Rakip analizi tablosu | `canva.docx`'te var, **deck'e taşınmadı** | ❌ açık |
+| 2. Brief'i aşan mikro inovasyon | rate limit, veri görselleştirme, güven skoru, kapalı döngü | 🟡 kısmen |
+| 3. Uçtan uca çalışır akış | canlı sistem + 4 rol döngüsü çalışıyor | ✅ |
+| 4. Ekip kapasitesine uygun kapsam | dar tutuldu, §6'daki kesme listesi | ✅ |
+
+> Rehber, 2. madde için örnek olarak **"rate limit güvenliği"** ve
+> **"veri görselleştirme"** sayıyor. İkisi de üründe var (agents.md §7.4 rate limit
+> `src/routes/ai.ts` içinde uygulandı; ısı haritası `renderHeatmap`), ama
+> **hiçbir yerde jüriye anlatılmıyor.** Deck'te öne çıkarılmalı.
+
+---
+
+## 8. Sıradaki işler (öncelik sırasıyla)
+
+### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)
+- [x] **Bloom etiketi** — inceleme kartında, onaylı havuzda ve öğretmen havuzunda rozet
+- [x] **Çeldirici gerekçeleri** — inceleme kartında ayrı kutu, her yanlış şık için AI analizi
+- [x] **Kriter gerekçeleri öğrenci karnesinde** — puan kırılımı + her kriterin gerekçesi
+      + "Bu puanı öğretmeniniz AI önerisini (14) değiştirerek belirledi" satırı
+
+### B. Demo güvenliği — TAMAMLANDI (25 Ağustos)
+- [x] **localStorage kalıcılığı** (`STORE_KEY = t3-olcme-durum-v1`) — sayfa yenilemesi
+      testinde durum ve geri sayım korundu (591 sn kalanla devam etti)
+- [x] **"Demo senaryosu" butonu** — üst çubukta. Yüklediği sorular UYDURMA DEĞİL,
+      llama-3.3-70b'nin gerçekten ürettiği çıktılar (`DEMO_SORULAR` sabiti).
+      Değerlendirme canlı çalışır, önceden doldurulmaz.
+- [x] **"Sıfırla" butonu** + **model bekleme sayacı** (buton üzerinde geçen saniye)
+
+### C. Ayrışma
+- [ ] **Kazanıma tekrar sorusu üret** — kapalı döngü, videonun finali
+- [ ] Öğretmen kalibrasyonu (AI'dan ortalama sapma)
+- [ ] Kazanım kapsama göstergesi (sınav kurarken)
+- [ ] AI rubrik taslağı önerisi
+
+### D. Brief uyumu
+- [ ] **Kazanım/ders/sınıf tanımlama** — şu an 3 kazanım koda gömülü
+- [ ] `.txt` dosya yükleme (brief "içerik yükleme" diyor)
+- [ ] Çoklu öğrenci (sınıf ortalaması şu an sahte `baseline` verisinden)
+
+### E. Kod dışı teslimatlar
+- [ ] **İş Modeli Kanvası — hiç yok, ZORUNLU TESLİMAT**
+- [ ] Deck: isim birliği, rakip tablosu, pazar sayıları, mimari slaytı, ekip slaytı,
+      6-madde uyum tablosu, "brief'te olmayan eklerimiz" slaytı
+- [ ] Demo videosu
+- [ ] Alt alan adını kısalt (URL videoda görünecek, çok uzun)
+
+### ⚠️ Çözülmesi gereken tutarsızlık
+Deck slayt 5'te **"Güvenli Öğrenci Deneyimi — tam ekran güvencesi ve hile önleyici
+kontroller"** bir MVP maddesi olarak yazılı ama **üründe yok.** Ya deck'ten çıkarılmalı
+ya da asgari hâli yapılmalı (tam ekran isteği + sekme değişimi sayacı).
+
+---
+
+## 9. Bilinen sınırlamalar (dürüstlük notu)
+
+- Prototip durumu tarayıcı belleğinde; sayfa yenilenince sıfırlanır.
+- Tek demo öğrenci; sınıf ortalamaları `state.baseline` içindeki sabit demo verisinden.
+- Yerel yedek modu soru türü/adet seçimini yok sayar (hep 2 ÇSS + 1 açık uçlu).
+  Gerçek model seçime uyar.
+- Backend yalnızca `/api/ai/*` uçlarını kapsar; `routes.ts`'teki diğer rotalar iskelettir.

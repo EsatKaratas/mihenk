@@ -197,6 +197,23 @@
   .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 
+  .pill-bloom { background: var(--accent2-soft); color: var(--accent2); }
+
+  .distractor-box { margin-top: 10px; border: 1px dashed var(--border-strong);
+    border-radius: 8px; padding: 9px 11px; background: var(--surface-2); }
+  .distractor-box .db-title { font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .distractor-box .db-row { font-size: 12px; line-height: 1.55; margin-bottom: 4px;
+    display: flex; gap: 7px; }
+  .distractor-box .db-key { font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    color: var(--critical); flex: none; }
+
+  .rr-crit { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px;
+    padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .rr-crit:last-child { border-bottom: none; }
+  .rr-crit .rc-reason { color: var(--text-muted); font-size: 11.5px; line-height: 1.5;
+    margin: 2px 0 6px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
+
   .crit-reason { font-size: 11.5px; color: var(--text-muted); line-height: 1.5;
     margin: -2px 0 9px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
 
@@ -290,7 +307,11 @@
         </span>
       </div>
       <div class="pipeline" id="pipelineStrip"></div>
-      <div class="ai-mode" id="aiModeBadge" style="margin-left:auto;display:flex;align-items:center;"></div>
+      <div class="ai-mode" id="aiModeBadge" style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <span id="aiModeSlot"></span>
+        <button class="btn btn-secondary btn-sm" id="btnDemoSeed" title="Gerçek model çıktısından hazırlanmış örnek senaryoyu yükler">Demo senaryosu</button>
+        <button class="btn btn-secondary btn-sm" id="btnReset" title="Tüm durumu sıfırlar">Sıfırla</button>
+      </div>
     </div>
     <nav class="role-nav" id="roleNav"></nav>
   </div>
@@ -332,6 +353,15 @@ function escapeHtml(str) {
   });
 }
 function truncate(str, n) { str = String(str || ""); return str.length > n ? str.slice(0, n - 1) + "…" : str; }
+// Model her soruya bilissel duzey (Bloom) etiketi uretir; bu etiket
+// olcme aracinin yalnizca ezber olcup olcmedigini gorunur kilar.
+var BLOOM_TR = { hatirlama: "Hatırlama", anlama: "Anlama", uygulama: "Uygulama",
+                 analiz: "Analiz", degerlendirme: "Değerlendirme", yaratma: "Yaratma" };
+function bloomPill(b) {
+  if (!b || !BLOOM_TR[b]) return "";
+  return '<span class="pill pill-bloom" title="Bloom taksonomisi — sorunun ölçtüğü bilişsel düzey">' + BLOOM_TR[b] + '</span>';
+}
+
 function diffLabel(d) { return { easy: "Kolay", medium: "Orta", hard: "Zor" }[d] || d; }
 function formatTime(sec) {
   sec = Math.max(0, sec | 0);
@@ -504,7 +534,7 @@ async function aiEvaluate(q, answerText, rubric) {
 }
 
 function renderAiBadge() {
-  const el = document.getElementById("aiModeBadge");
+  const el = document.getElementById("aiModeSlot");
   if (el) {
     const live = state.ai.mode === "live";
     const txt = state.ai.mode === "unknown" ? "AI modu denetleniyor…"
@@ -518,6 +548,142 @@ function renderAiBadge() {
       ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur."
       : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur.";
   }
+}
+
+
+/* ==================== Kalıcılık (localStorage) ====================
+   ÖNCEDEN: sayfa yenilenince tüm durum sıfırlanıyordu. Jüri sunumunda ya da
+   video çekiminde yanlış bir tuş, 10-17 saniyelik model beklemeleriyle birlikte
+   her şeyi baştan yaptırıyordu. Durum artık tarayıcıda saklanıyor.
+   (Kalıcı veritabanı değildir; yalnızca bu tarayıcıya özeldir.)              */
+const STORE_KEY = "t3-olcme-durum-v1";
+const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "genCount", "ceForm", "questions",
+  "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
+  "remainingSec", "aiEvals", "reviews", "mcResults"];
+
+function saveState() {
+  try {
+    const d = { _qIdSeq: qIdSeq };
+    KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
+    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+  } catch (e) { /* kota dolu ya da gizli sekme — sessizce geç */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    KALICI_ALANLAR.forEach(function (k) { if (d[k] !== undefined) state[k] = d[k]; });
+    if (d._qIdSeq) qIdSeq = d._qIdSeq;
+    // Süresi dolmuş bir sınavı yarım bırakmayalım.
+    if (state.examStatus === "in_progress" && state.remainingSec <= 0) state.examStatus = "submitted";
+    return true;
+  } catch (e) { return false; }
+}
+
+function resetState() {
+  try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+  location.reload();
+}
+
+/* ==================== Demo senaryosu ====================
+   Aşağıdaki sorular ve şıklar UYDURULMAMIŞTIR: geliştirme sırasında
+   @cf/meta/llama-3.3-70b-instruct-fp8-fast modelinin gerçekten ürettiği
+   çıktılardır ve olduğu gibi saklanmıştır. Amaç, sunum sırasında her seferinde
+   10-17 saniyelik üretimi beklememektir; jüri isterse "AI ile Soru Üret"e
+   basarak canlı üretimi de görebilir.                                        */
+const DEMO_SORULAR = [
+  {
+    type: "mc", difficulty: "medium", bloom: "anlama", aiTime: 60,
+    body: "Bir cisme etki eden dengelenmemiş kuvvetlerin etkisi nedir?",
+    options: [
+      { key: "A", text: "Cismin hızını değiştirir" },
+      { key: "B", text: "Cismin hızını değiştirmez" },
+      { key: "C", text: "Cismin yönünü değiştirir ancak hızını değiştirmez" },
+      { key: "D", text: "Cismin hareketini durdurur" }
+    ],
+    correctKey: "A",
+    distractorRationale: {
+      B: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin cismin hızını değiştirmediğini sanmaktadır",
+      C: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin sadece yönü değiştirdiğini sanmaktadır",
+      D: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin her zaman hareketi durdurduğunu sanmaktadır"
+    },
+    refKeywords: ["dengelenmemiş kuvvet", "hız", "hareket"]
+  },
+  {
+    type: "mc", difficulty: "easy", bloom: "hatirlama", aiTime: 30,
+    body: "Sürtünme kuvvetinin etkisi nedir?",
+    options: [
+      { key: "A", text: "Harekete zıt yönde etki eder" },
+      { key: "B", text: "Harekete aynı yönde etki eder" },
+      { key: "C", text: "Hareketi durdurur" },
+      { key: "D", text: "Hareketi hızlandırır" }
+    ],
+    correctKey: "A",
+    distractorRationale: {
+      B: "bu şıkkı seçen öğrenci sürtünme kuvvetinin harekete aynı yönde etki ettiğini sanmaktadır",
+      C: "bu şıkkı seçen öğrenci sürtünme kuvvetinin her zaman hareketi durdurduğunu sanmaktadır",
+      D: "bu şıkkı seçen öğrenci sürtünme kuvvetinin hareketi hızlandırdığını sanmaktadır"
+    },
+    refKeywords: ["sürtünme kuvveti", "hareket"]
+  },
+  {
+    type: "open", difficulty: "hard", bloom: "analiz", aiTime: 240,
+    body: "Bir cisme etki eden kuvvetler hareketini nasıl etkiler? Sürtünme kuvvetini de içerecek biçimde açıklayınız.",
+    refKeywords: ["kuvvet", "hareket", "sürtünme"]
+  }
+];
+
+const DEMO_METIN = "Bir cisme etki eden kuvvet, cismin hareket durumunu değiştirir. " +
+  "Dengelenmiş kuvvetler cismin hızını değiştirmez; cisim ya durur ya da sabit hızla " +
+  "hareketine devam eder. Dengelenmemiş kuvvetler ise cismi hızlandırır, yavaşlatır veya " +
+  "yönünü değiştirir. Sürtünme kuvveti harekete zıt yönde etki eder ve yüzeyin pürüzlülüğü " +
+  "arttıkça büyür. Havada hareket eden cisimlere hava direnci etki eder.";
+
+const DEMO_YANIT = "Dengelenmemiş kuvvetler cismin hızını değiştirir. Örneğin duran bir topa " +
+  "vurulduğunda top hareket eder. Sürtünme kuvveti ise harekete zıt yönde etki ederek topu yavaşlatır.";
+
+function loadDemoScenario() {
+  state.questions = DEMO_SORULAR.map(function (q) {
+    const kopya = JSON.parse(JSON.stringify(q));
+    kopya.id = qIdSeq++;
+    kopya.outcome = "FEN.7.1.2";
+    kopya.status = "approved";
+    kopya.demo = true;
+    return kopya;
+  });
+  state.ceForm.title = "Kuvvet ve Hareket — 3. Ünite Özeti";
+  state.ceForm.subject = "Fen Bilimleri";
+  state.ceForm.grade = 7;
+  state.ceForm.outcomeCode = "FEN.7.1.2";
+  state.ceForm.text = DEMO_METIN;
+  state.exam.title = "Kuvvet ve Hareket — Kısa Sınav";
+  state.exam.questionIds = state.questions.map(function (q) { return q.id; });
+  state.exam.durationMin = 10;
+  state.exam.startDelaySec = 0;
+  state.exam.status = "published";
+  state.exam.startsAt = Date.now();
+  state.questions.filter(function (q) { return q.type === "open"; }).forEach(function (q) { ensureRubric(q.id); });
+  // Öğrenci yanıtları hazır ama sınav BİTİRİLMEMİŞ: değerlendirme canlı çalışsın.
+  state.questions.forEach(function (q) {
+    state.answers[q.id] = q.type === "mc" ? { selectedKey: q.correctKey } : { text: DEMO_YANIT };
+  });
+  state.answers[state.questions[1].id] = { selectedKey: "C" }; // biri kasten yanlış
+  state.examStatus = "in_progress";
+  state.remainingSec = state.exam.durationMin * 60;
+  state.aiEvals = {}; state.reviews = {}; state.mcResults = {};
+  state.role = "student"; state.studentTab = 2; state.currentQIndex = 0;
+  renderAll();
+}
+
+/* ==================== Model bekleme göstergesi ====================
+   Model 10-17 saniye sürüyor. Sayaç olmadan ekran donmuş gibi görünüyor. */
+let busySince = 0;
+function tickBusy() {
+  const el = document.getElementById("busyTimer");
+  if (!el) return;
+  el.textContent = Math.round((Date.now() - busySince) / 1000) + " sn";
 }
 
 /* ============================== Durum ============================== */
@@ -571,6 +737,7 @@ async function onGenerateQuestions() {
     outcome: state.ceForm.outcomeCode, outcomeLabel: outcomeLabel(state.ceForm.outcomeCode), text: text,
   };
   state.ai.busy = true;
+  busySince = Date.now();
   renderAll();
   try {
     const qs = await aiGenerateQuestions(doc);
@@ -593,13 +760,28 @@ function renderPendingQuestionCard(q) {
     '<div class="q-meta">' +
     '<span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
+    bloomPill(q.bloom) +
     '<span class="pill pill-neutral">' + q.outcome + '</span>' +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
+    distractorHtml(q) +
     '<div class="actions">' +
     '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
     '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button></div></div>';
+}
+
+// Model, her yanlis sik icin o sikki secen ogrencinin hangi kavram yanilgisina
+// dustugunu yazar. Icerik uzmani soruyu onaylarken bunu gorur; celdiricinin
+// pedagojik bir karsiligi yoksa soruyu duzeltebilir.
+function distractorHtml(q) {
+  if (q.type !== "mc" || !q.distractorRationale) return "";
+  const keys = Object.keys(q.distractorRationale).filter(function (k) { return k !== q.correctKey; });
+  if (!keys.length) return "";
+  return '<div class="distractor-box"><div class="db-title">Çeldirici gerekçeleri — AI analizi</div>' +
+    keys.map(function (k) {
+      return '<div class="db-row"><span class="db-key">' + k + '</span><span>' + escapeHtml(q.distractorRationale[k]) + '</span></div>';
+    }).join("") + '</div>';
 }
 
 function wirePendingCards() {
@@ -645,7 +827,7 @@ function renderContentExpert() {
     '<div class="field"><label>Açık uçlu adedi</label>' +
     '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div></div>' +
     '<button class="btn btn-primary" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
-    (state.ai.busy ? "⏳ Model çalışıyor…" : "🤖 AI ile Soru Üret") + '</button>' +
+    (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
     '<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">Metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretir</span></div>' +
     '<div class="card"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
     '<div id="pendingList">' + (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Soldan bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>' +
@@ -653,7 +835,8 @@ function renderContentExpert() {
     (approved.length ? approved.map(function (q) {
       return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
-        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span><span class="pill pill-neutral">' + q.outcome + '</span>' +
+        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
+        '<span class="pill pill-neutral">' + q.outcome + '</span>' +
         '<span class="pill pill-success">Onaylı</span></div></div></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>' +
     rejectedPoolHtml("ce");
@@ -744,7 +927,8 @@ function teacherTab1Html() {
     (approved.length ? approved.map(function (q) {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' style="margin-top:3px;">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
-        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span><span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
+        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
+        '<span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
     }).join("") : '<div class="empty-state">Havuzda onaylı soru yok — önce İçerik Uzmanı panelinden soru onaylatın.</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
@@ -1034,6 +1218,7 @@ async function finishExam() {
   state.examStatus = "submitted";
   state.studentTab = 1;
   state.ai.busy = true;
+  busySince = Date.now();
   renderAll();
   try {
     const opens = items.filter(function (q) { return q.type !== "mc"; });
@@ -1148,8 +1333,18 @@ function studentTab3Html() {
     } else {
       const rv = state.reviews[q.id], rub = state.rubrics[q.id], ev = state.aiEvals[q.id];
       totalScore += rv.finalScore; totalMax += rub.maxScore;
+      const revize = rv.decision === "revised";
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
-        '<div class="justification" style="margin-top:6px;">' + escapeHtml(ev.justification) + (rv.comment ? "<br><b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div></div>';
+        '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
+        (revize
+          ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
+          : 'Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti.') + '</div>' +
+        '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puan kırılımı</div>' +
+        (ev.breakdown || []).map(function (b) {
+          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
+            (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
+        }).join("") +
+        '<div class="justification" style="margin-top:8px;">' + escapeHtml(ev.justification) + (rv.comment ? "<br><b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div></div>';
     }
   }).join("");
   return '<div class="card"><div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3><span class="pill pill-accent">Toplam ' + (Math.round(totalScore * 10) / 10) + "/" + totalMax + '</span></div>' + rows + '</div>';
@@ -1313,6 +1508,7 @@ function renderPipeline() {
 
 function renderAll() {
   renderAiBadge();
+  saveState();
   renderRoleNav();
   renderPipeline();
   renderContentExpert();
@@ -1344,6 +1540,10 @@ setInterval(function () {
 }, 1000);
 
 initPanels();
+loadState();
+document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
+document.getElementById("btnReset").onclick = resetState;
+setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 probeAiMode();
 </script>
