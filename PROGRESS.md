@@ -303,6 +303,42 @@ gerçek ve anlamlı.
 
 ---
 
+## 7f. Depo dili ve gerçek sınıf listesi (25 Ağustos)
+
+**GitHub "%84 HTML" diyor — ölçüm artefaktı.** Tüm kod tek bir `.html`
+dosyasının içindeydi; Linguist dosyanın tamamını HTML sayıyordu. Gerçek dağılım:
+
+| Bölüm | Bayt | Oran |
+|---|---:|---:|
+| `<script>` içinde JavaScript | 168.484 | %81 |
+| `<style>` içinde CSS | 37.169 | %18 |
+| **Gerçek HTML** | **1.854** | **%1** |
+
+Çözüm: `public/app.js` ve `public/app.css` olarak ayrıştırıldı. `index.html`
+artık 1.9 KB gerçek HTML. Depo dil istatistiği de yapılan işi doğru yansıtıyor.
+Yan fayda: tarayıcı önbelleklemesi ve kod okunabilirliği.
+
+**"Model eğitmedik mi?" — hayır, eğitmedik ve bu doğru olan.**
+Eğitilmiş bir model (Llama 3.3 70B) Cloudflare Workers AI üzerinden kullanılıyor.
+Yapılan iş modeli EĞİTMEK değil, modeli ölçme-değerlendirmeye uygun davranmaya
+ZORLAMAK: rubrik kısıtı, kaynak metne sadakat kuralı, JSON şema doğrulaması,
+çıktı normalleştirme (ağırlıkları 100'e ölçekleme, puanı kriter tavanına kırpma),
+prompt injection savunması, insan onay zinciri.
+Jüri sorarsa cevap: *"Hazır bir dil modeli kullanıyoruz ama serbest
+bırakmıyoruz — öğretmenin rubriğinin dışına çıkamıyor, kaynak metnin dışından
+bilgi ekleyemiyor, çıktısı şema doğrulamasından geçiyor ve hiçbir puanı
+kesinleştiremiyor."*
+
+**Gerçek sınıf listesi.** Varsayılan öğrenciler artık BİES takımı, iki şube:
+7-A (Esat Talha Karataş, İrem Yazıcı) · 7-B (Zeynep Sude Demir, Burak Özçelik).
+Isı haritası satırları artık **gerçek şubelerden** hesaplanıyor; demo veriler
+"(örnek)" etiketiyle ve çakışmayan adlarla (6-A, 8-B, 8-C) altta duruyor.
+
+Doğrulandı: 7-A güçlü, 7-B zayıf yanıt verdi → gerçek modelle değerlendirme
+sonucu **7-A %88, 7-B %3**. Şube ayrışması gerçek veriden geliyor.
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)
