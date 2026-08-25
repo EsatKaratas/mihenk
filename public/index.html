@@ -226,6 +226,20 @@
   .rub-ai-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 
+  /* Soru Üret düzeni: kaynak içerik önce ve tam genişlikte,
+     incelemeyi bekleyenler altta. */
+  .ce-layout { display: block; }
+  .ce-source { margin-bottom: 16px; }
+  .ce-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 16px; }
+  .ce-text-field textarea { min-height: 190px; font-size: 14px; line-height: 1.6; }
+  .gen-bar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .gen-bar .field { margin-bottom: 0; max-width: 132px; }
+  .gen-bar .gen-action { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1; }
+  .gen-bar .gen-hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .btn-lg { padding: 12px 22px; font-size: 14px; }
+  .pending-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; }
+
   .pool-edit { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
     border-radius: 9px; background: var(--accent-soft); }
   .pool-edit .field { margin-bottom: 10px; }
@@ -877,6 +891,7 @@ const state = {
   poolFilter: { outcome: "", difficulty: "", type: "" },
   editingQid: null, // öğretmenin havuzda düzenlediği soru
   rubricError: "",
+  poolError: "",
 
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
@@ -1138,9 +1153,10 @@ function wireCeTabs() {
 // 1. sekme: kaynak icerik + AI ciktilarinin incelenmesi
 function ceCreateHtml() {
   const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
-  return     remedialBannerHtml() +
-    '<div class="grid-2">' +
-    '<div class="card"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">metin + kazanım</span></div>' +
+  return remedialBannerHtml() +
+    '<div class="ce-layout">' +
+    '<div class="card ce-source"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">sorular buradan üretilir</span></div>' +
+    '<div class="ce-meta-grid">' +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
     '<div class="field-row"><div class="field"><label>Ders <span class="lbl-hint">yazıp Enter ile yeni ders ekleyebilirsiniz</span></label>' +
     '<input id="ceSubject" list="dersListesi" value="' + escapeHtml(state.ceForm.subject) + '" placeholder="örn. Fen Bilimleri">' +
@@ -1155,6 +1171,7 @@ function ceCreateHtml() {
     '</select>' +
     '<button class="btn btn-secondary btn-sm" id="btnNewOutcome" title="Yeni kazanım tanımla">+ Yeni</button>' +
     '<button class="btn btn-secondary btn-sm" id="btnDelOutcome" title="Seçili kazanımı sil">−</button></div>' +
+    '<!--meta-grid-end-->' +
     (state.newOutcome.open
       ? '<div class="new-outcome"><div class="field-row">' +
         '<div class="field"><label>Kazanım kodu</label><input id="noCode" value="' + escapeHtml(state.newOutcome.code) + '" placeholder="örn. FEN.7.3.1"></div>' +
@@ -1162,8 +1179,8 @@ function ceCreateHtml() {
         (state.newOutcome.error ? '<div class="pill pill-critical" style="margin-bottom:8px;">' + escapeHtml(state.newOutcome.error) + '</div>' : "") +
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
-      : "") + '</div>' +
-    '<div class="field"><label>Ders notu / metin <span class="lbl-hint">' + state.ceForm.text.length + ' / 6000 karakter</span></label>' +
+      : "") + '</div></div>' +
+    '<div class="field ce-text-field"><label>Ders notu / metin <span class="lbl-hint">' + state.ceForm.text.length + ' / 6000 karakter</span></label>' +
     '<div class="upload-row"><input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
     '<button class="btn btn-secondary btn-sm" id="btnUpload"' + (state.ceForm.pdfLoading ? " disabled" : "") + '>' +
     (state.ceForm.pdfLoading ? "⏳ PDF okunuyor…" : "📄 Dosyadan yükle (PDF / .txt / .md)") + '</button>' +
@@ -1171,15 +1188,19 @@ function ceCreateHtml() {
     pdfPickerHtml() +
     '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
     (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
-    '<div class="field-row"><div class="field"><label>Çoktan seçmeli adedi</label>' +
+    '<div class="gen-bar">' +
+    '<div class="field"><label>Çoktan seçmeli</label>' +
     '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
-    '<div class="field"><label>Açık uçlu adedi</label>' +
-    '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div></div>' +
-    '<button class="btn btn-primary" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
+    '<div class="field"><label>Açık uçlu</label>' +
+    '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div>' +
+    '<div class="gen-action">' +
+    '<button class="btn btn-primary btn-lg" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
-    '<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">Metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretir</span></div>' +
-    '<div class="card"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
-    '<div id="pendingList">' + (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Soldan bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
+    '<span class="gen-hint">Seçilen metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir</span>' +
+    '</div></div></div>' +
+    '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
+    '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
+    (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Yukarıya bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
 }
 
 // 2. sekme: onayli havuz + reddedilenler havuzu
@@ -1192,8 +1213,10 @@ function cePoolHtml() {
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
         '<span class="pill pill-neutral">' + q.outcome + '</span>' +
-        '<span class="pill pill-success">Onaylı</span></div></div></div>';
-    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>' +
+        '<span class="pill pill-success">Onaylı</span></div></div>' +
+        '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
+    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
+    (state.poolError ? '<div class="pill pill-critical" style="margin-top:10px;">' + escapeHtml(state.poolError) + '</div>' : "") + '</div>' +
     rejectedPoolHtml("ce");
 }
 
@@ -1309,6 +1332,35 @@ function renderContentExpert() {
    - Icerik Uzmani: "Yeniden Incele" -> tekrar inceleme kuyruguna alir
    - Ogretmen:      "Havuza Al"      -> dogrudan onayli havuza tasir
    Boylece brief\'in "ogretmen soru havuzunu duzenler" maddesi de karsilanir. */
+// Bir soru silinebilir mi? Herhangi bir sınavda kullanılıyorsa hayır —
+// sınav içeriği sessizce değişmemeli. Önce sınavdan çıkarılması gerekir.
+function questionUsage(qid) {
+  const kullanan = [];
+  (state.exams || []).forEach(function (x) {
+    const aktif = x.id === state.activeExamId;
+    const ids = aktif ? state.exam.questionIds : (x.questionIds || []);
+    const ad = aktif ? state.exam.title : x.title;
+    const st = aktif ? state.exam.status : x.status;
+    if (ids.indexOf(qid) !== -1) kullanan.push({ ad: ad || "Adsız Sınav", yayinda: st === "published" });
+  });
+  return kullanan;
+}
+
+function deleteQuestion(qid) {
+  const q = findQuestion(qid);
+  if (!q) return "Soru bulunamadı.";
+  const kullanan = questionUsage(q.id);
+  if (kullanan.length) {
+    return "Bu soru şu sınav(lar)da kullanılıyor: " +
+      kullanan.map(function (k) { return k.ad + (k.yayinda ? " (yayında)" : ""); }).join(", ") +
+      ". Önce sınavdan çıkarın.";
+  }
+  state.questions = state.questions.filter(function (x) { return String(x.id) !== String(qid); });
+  delete state.rubrics[qid];
+  if (state.editingQid === qid) state.editingQid = null;
+  return "";
+}
+
 function rejectedPoolHtml(mod) {
   const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
   const btn = mod === "ce"
@@ -1327,12 +1379,20 @@ function rejectedPoolHtml(mod) {
             '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
             '<span class="pill pill-neutral">' + q.outcome + '</span>' +
             '<span class="pill pill-critical">Reddedildi</span></div></div>' +
-            '<div>' + btn.replace(/QID/g, q.id) + '</div></div>';
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">' +
+            btn.replace(/QID/g, q.id) +
+            '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Kalıcı olarak sil">Sil</button></div></div>';
         }).join("")
       : '<div class="empty-state">Reddedilen soru yok.</div>') + '</div>';
 }
 
 function wireRejectedPool() {
+  document.querySelectorAll(".del-q").forEach(function (b) {
+    b.onclick = function () {
+      state.poolError = deleteQuestion(Number(b.dataset.qid));
+      renderAll();
+    };
+  });
   document.querySelectorAll(".restore-q").forEach(function (b) {
     b.onclick = function () {
       const q = findQuestion(b.dataset.qid);
@@ -2211,7 +2271,35 @@ function openAnswerHtml(q) {
 }
 
 function studentTab2Html() {
-  if (state.examStatus === "not_started") return '<div class="empty-state">Önce "Sınavlarım" sekmesinden sınava girin.</div>';
+  // Aktif sınav yoksa bu sekme boş bırakılmaz: çözülebilecek sınav varsa
+  // doğrudan buradan başlatılır.
+  if (state.examStatus === "not_started" || state.examStatus === "submitted" || state.examStatus === "graded") {
+    const hazir = (state.exams || []).filter(function (x) {
+      const aktif = x.id === state.activeExamId;
+      const ex = aktif ? state.exam : x;
+      const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+      const bekliyor = ex.startsAt ? Date.now() < ex.startsAt : false;
+      return ex.status === "published" && (durum === "not_started" || durum === "in_progress") && !bekliyor;
+    });
+    if (!hazir.length) {
+      return '<div class="card"><div class="empty-state">' +
+        (state.examStatus === "submitted" ? "Yanıtlarınız gönderildi, öğretmen onayı bekleniyor."
+          : state.examStatus === "graded" ? "Bu sınav sonuçlandı. Karnenizi 3. sekmeden görebilirsiniz."
+          : "Şu anda çözebileceğiniz bir sınav yok.") + '</div></div>';
+    }
+    return '<div class="card"><div class="card-head"><h3>Çözülmeyi bekleyen sınav</h3>' +
+      '<span class="pill pill-success">' + hazir.length + ' sınav</span></div>' +
+      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">' +
+      'Başlamak için aşağıdaki sınavı seçin. Tüm sınavlarınızı 2. sekmeden görebilirsiniz.</div>' +
+      hazir.map(function (x) {
+        const c = examCardState(x);
+        const items = c.ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+        return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(c.ex.title || "Adsız Sınav") + '</b>' +
+          '<div class="p-tags"><span class="pill pill-neutral">' + items.length + ' soru</span>' +
+          '<span class="pill pill-neutral">' + c.ex.durationMin + ' dk</span></div></div>' +
+          examActionBtn(x) + '</div>';
+      }).join("") + '</div>';
+  }
   if (state.examStatus === "submitted") return '<div class="card"><div class="empty-state">Yanıtlarınız gönderildi. Öğretmen onayını bekliyor — karne, onaylandığında 3. Sekme\'de görünecek.</div></div>';
   if (state.examStatus === "graded") return '<div class="card"><div class="empty-state">Bu sınav sonuçlandı. Karneyi 3. Sekme\'den görebilirsiniz.</div></div>';
 
@@ -2228,6 +2316,8 @@ function studentTab2Html() {
     '<button class="btn btn-critical" id="btnFinishExam">Sınavı Bitir</button></div></div>';
 }
 function wireStudentTab2() {
+  // Aktif sınav yokken bu sekme sınav başlatma kartlarını gösterir.
+  if (state.examStatus !== "in_progress") { wireStudentTab1(); return; }
   // Yapıştırma tespiti: yalnızca KAÇ KARAKTER yapıştırıldığı tutulur,
   // metnin kendisi kaydedilmez (bkz. privacy-policy.html §2).
   const oa = document.getElementById("openAnswerInput");
@@ -2315,9 +2405,11 @@ function studentTab3Html() {
 
 function renderStudent() {
   const root = document.getElementById("panel-student");
+  // Sıra bilinçli: öğrencinin ana işi sınav çözmek. "Sınavı Çöz" sekmesi
+  // aktif sınav yokken de ÖLÜ DEĞİLDİR — başlatılabilecek sınavı gösterir.
   const tabs = [
-    { id: 1, label: "1 · Sınavlarım", pasif: false },
-    { id: 2, label: "2 · Sınavı Çöz", pasif: state.examStatus !== "in_progress" },
+    { id: 2, label: "1 · Sınavı Çöz", pasif: false },
+    { id: 1, label: "2 · Sınavlarım", pasif: false },
     { id: 3, label: "3 · Karne", pasif: state.examStatus !== "graded" }
   ];
   root.innerHTML = '<div class="tabs" id="studentTabs">' +
