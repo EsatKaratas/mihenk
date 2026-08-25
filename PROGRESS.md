@@ -170,11 +170,19 @@ aşamasına geçemez."* Brief'in kendi ifadeleriyle karşılaştırma:
 | 5 | "AI, **tanımlı rubriğe göre** cevap için **puan ve gerekçe** önerir; **nihai karar eğitmene aittir**" | Kriter bazında puan + gerekçe + güven skoru; öğretmen onaylar veya revize eder; **sonuçlar öğretmen yayınlamadan öğrenciye gitmez** | ✅ |
 | 6 | "Öğrenme çıktısı analizi" · "sınıfın öğrenme durumunu tek ekrandan görür" | Kazanım ısı haritası (öğretmen + yönetici); en zayıf kazanım aksiyon kartı; **kapalı döngü: analizden soru üretimine dönüş** | ✅ |
 
-**Dürüstlük notu (MVP 6):** Isı haritasındaki sınıf ortalamaları şu an
-`state.baseline` içindeki demo verisinden geliyor; canlı sınav buna tek öğrenci
-olarak katılıyor. Analiz mekanizması gerçek ve canlı güncelleniyor, ancak
-çoklu öğrenci verisi simüle. Bu, maddeyi karşılamayı engellemiyor
-(brief çoklu öğrenci şartı koymuyor) ama **jüri sorarsa açıkça söylenmelidir.**
+**Gelişim trendi eklendi (25 Ağustos).** `MODEL PROMT #1.docx`'teki
+*"öğrencilerin ... önceki sınavlara göre değişimini görebilecek"* vaadinin
+karşılığı. Tek sınavla hesaplanamazdı; çoklu sınav desteğinden sonra mümkün oldu.
+Hem öğretmen 4. sekmesinde hem yönetici panelinde: kazanım × sınav tablosu ve
+son iki sınav arasındaki fark (▲/▼). Yüzdeler **öğretmen onayından geçmiş
+gerçek sonuçlardan** hesaplanır. Doğrulandı: iki sınavda FEN.7.1.2 %10→%95
+(▲ +85), MAT.7.2.1 %0→%100 (▲ +100).
+
+**Dürüstlük notu (MVP 6):** Isı haritasındaki *diğer sınıfların* ortalamaları
+`state.baseline` içindeki demo verisinden geliyor; canlı sınıf satırı (8-A) ve
+gelişim trendi ise **gerçek veriden** hesaplanıyor. Yani mekanizma gerçek,
+karşılaştırma sınıfları simüle. Brief çoklu öğrenci şartı koşmuyor, madde
+karşılanıyor — ama **jüri sorarsa açıkça söylenmelidir.**
 
 **3 zorunlu akış (brief slayt 05):**
 - Akış 01 İçerik Uzmanı: yükle → kazanım seç → AI üret → onayla ✅

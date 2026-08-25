@@ -233,6 +233,13 @@
   .coverage-box .cv-ok { font-size: 11.5px; color: var(--success); line-height: 1.5; }
   .coverage-box .cv-diff { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
 
+  .trend-table th.outcome-col { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; }
+  .trend-table td { text-align: center; padding: 7px 10px; font-size: 13px; }
+  .trend-up { color: var(--success); font-weight: 700; }
+  .trend-down { color: var(--critical); font-weight: 700; }
+  .trend-flat { color: var(--text-muted); font-weight: 600; }
+  .trend-none { color: var(--text-muted); }
+
   .pdf-picker { margin: 10px 0 12px; padding: 13px 15px; border: 1px solid var(--accent);
     border-radius: 10px; background: var(--accent-soft); }
   .pdf-picker .pp-head { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
@@ -713,6 +720,13 @@ function loadState() {
     if (d._qIdSeq) qIdSeq = d._qIdSeq;
     // Süresi dolmuş bir sınavı yarım bırakmayalım.
     if (state.examStatus === "in_progress" && state.remainingSec <= 0) state.examStatus = "submitted";
+    // PDF okuma sırasında sayfa yenilenirse buton sonsuza dek kilitli kalırdı.
+    state.ceForm.pdfLoading = false;
+    // Sayfa metinleri bellekte tutuluyor; yenileme sonrası PDF seçici anlamsız.
+    state.pdf = null;
+    if (state.ceForm.fileName && /\.pdf/i.test(state.ceForm.fileName) && /sayfa aralığı/.test(state.ceForm.fileName)) {
+      state.ceForm.fileName = "";
+    }
     return true;
   } catch (e) { return false; }
 }
@@ -1784,20 +1798,87 @@ function publishResults() {
 }
 
 function computeDemoClassScores() {
-  const scores = {}, counts = {};
-  state.exam.questionIds.forEach(function (qid) {
-    const q = state.questions.find(function (x) { return x.id === qid; }); if (!q) return;
-    let pct = null;
-    if (q.type === "mc" && state.mcResults[qid]) pct = state.mcResults[qid].correct ? 100 : 0;
-    if (q.type === "open" && state.reviews[qid]) { const rub = state.rubrics[qid]; pct = state.reviews[qid].finalScore / rub.maxScore * 100; }
-    if (pct == null) return;
-    scores[q.outcome] = (scores[q.outcome] || 0) + pct;
-    counts[q.outcome] = (counts[q.outcome] || 0) + 1;
-  });
-  const result = {};
-  Object.keys(scores).forEach(function (k) { result[k] = Math.round(scores[k] / counts[k]); });
-  return result;
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  return kayit ? examOutcomeScores(kayit).scores : {};
 }
+/* ==================== Gelişim Trendi ====================
+   MODEL PROMT dokümanındaki "öğrencilerin ... önceki sınavlara göre
+   değişimini görebilecek" vaadinin karşılığı. Tek sınavla hesaplanamazdı;
+   çoklu sınav desteği geldikten sonra mümkün oldu.
+
+   Kazanım yüzdeleri, sonuçlanmış sınavların GERÇEK verisinden hesaplanır
+   (çoktan seçmeli doğruluğu + öğretmenin ONAYLADIĞI açık uçlu puanlar).  */
+function examOutcomeScores(kayit) {
+  const aktif = kayit.id === state.activeExamId;
+  const ex = aktif ? state.exam : kayit;
+  const ss = aktif
+    ? { mcResults: state.mcResults, reviews: state.reviews, examStatus: state.examStatus }
+    : (kayit.session || { mcResults: {}, reviews: {}, examStatus: "not_started" });
+  const toplam = {}, adet = {};
+  (ex.questionIds || []).forEach(function (qid) {
+    const q = state.questions.find(function (x) { return x.id === qid; });
+    if (!q) return;
+    let pct = null;
+    if (q.type === "mc" && ss.mcResults[qid]) pct = ss.mcResults[qid].correct ? 100 : 0;
+    if (q.type === "open" && ss.reviews[qid]) {
+      const rub = state.rubrics[qid];
+      if (rub) pct = ss.reviews[qid].finalScore / rub.maxScore * 100;
+    }
+    if (pct == null) return;
+    toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
+    adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+  });
+  const sonuc = {};
+  Object.keys(toplam).forEach(function (k) { sonuc[k] = Math.round(toplam[k] / adet[k]); });
+  return { baslik: ex.title || "Adsız Sınav", scores: sonuc };
+}
+
+function gradedExamHistory() {
+  return (state.exams || []).filter(function (x) {
+    const durum = x.id === state.activeExamId ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+    return durum === "graded";
+  }).map(examOutcomeScores);
+}
+
+function trendOku(fark) {
+  if (fark == null) return '<span class="trend-none">—</span>';
+  if (fark > 2) return '<span class="trend-up">▲ +' + fark + '</span>';
+  if (fark < -2) return '<span class="trend-down">▼ ' + fark + '</span>';
+  return '<span class="trend-flat">● ' + (fark > 0 ? "+" : "") + fark + '</span>';
+}
+
+function trendHtml() {
+  const gecmis = gradedExamHistory();
+  if (gecmis.length < 2) {
+    return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Sınavlar Arası Gelişim</h3>' +
+      '<span class="hint">' + gecmis.length + ' sonuçlanmış sınav</span></div>' +
+      '<div class="empty-state">Gelişim karşılaştırması için en az iki sonuçlanmış sınav gerekir. ' +
+      'Şu anda ' + gecmis.length + ' sınav sonuçlandı.</div></div>';
+  }
+  const kodlar = {};
+  gecmis.forEach(function (g) { Object.keys(g.scores).forEach(function (k) { kodlar[k] = true; }); });
+  const liste = Object.keys(kodlar);
+  const son = gecmis[gecmis.length - 1], onceki = gecmis[gecmis.length - 2];
+  return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Sınavlar Arası Gelişim</h3>' +
+    '<span class="hint">' + gecmis.length + ' sonuçlanmış sınav</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">' +
+    'Kazanım yüzdeleri, öğretmen onayından geçmiş gerçek sonuçlardan hesaplanır. ' +
+    'Son sütun, <b>' + escapeHtml(son.baslik) + '</b> ile <b>' + escapeHtml(onceki.baslik) + '</b> arasındaki farktır.</div>' +
+    '<div class="heatmap-wrap"><table class="heatmap trend-table"><tr><th>Kazanım</th>' +
+    gecmis.map(function (g) { return '<th>' + escapeHtml(truncate(g.baslik, 18)) + '</th>'; }).join("") +
+    '<th>Değişim</th></tr>' +
+    liste.map(function (k) {
+      const a = onceki.scores[k], b = son.scores[k];
+      const fark = (a != null && b != null) ? b - a : null;
+      return '<tr><th class="outcome-col">' + escapeHtml(k) + '</th>' +
+        gecmis.map(function (g) {
+          const v = g.scores[k];
+          return '<td>' + (v == null ? '<span class="trend-none">—</span>' : '<b class="tabular">%' + v + '</b>') + '</td>';
+        }).join("") +
+        '<td>' + trendOku(fark) + '</td></tr>';
+    }).join("") + '</table></div></div>';
+}
+
 function teacherHeatmapRows() {
   return [{ name: "8-A (Demo)", scores: computeDemoClassScores(), live: true }].concat(state.baseline.classes.slice(0, 2));
 }
@@ -1810,7 +1891,8 @@ function teacherTab4Html() {
     '<div class="stat-tile"><div class="s-label">Sınıf Ortalaması</div><div class="s-value tabular">%' + avg + '</div><div class="s-sub">tüm kazanımlar</div></div>' +
     '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + examStatusLabel() + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">1/1</div><div class="s-sub">tamamlandı</div></div></div>' +
-    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — 8-A</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>';
+    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — 8-A</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
+    trendHtml();
 }
 
 function renderTeacher() {
@@ -2058,7 +2140,10 @@ function studentTab3Html() {
           return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
             (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
         }).join("") +
-        '<div class="justification" style="margin-top:8px;">' + escapeHtml(ev.justification) + (rv.comment ? "<br><b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div></div>';
+        ((ev.justification || rv.comment)
+          ? '<div class="justification" style="margin-top:8px;">' + escapeHtml(ev.justification || "") +
+            (rv.comment ? (ev.justification ? "<br>" : "") + "<b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div>'
+          : "") + '</div>';
     }
   }).join("");
   return '<div class="card"><div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3><span class="pill pill-accent">Toplam ' + (Math.round(totalScore * 10) / 10) + "/" + totalMax + '</span></div>' + rows + '</div>';
@@ -2213,7 +2298,7 @@ function renderAdmin() {
     'Her hücre, o sınıfın o kazanımdaki ortalama başarı yüzdesidir. ' +
     '<b>Koyu renk = düşük başarı</b>, açık renk = yüksek başarı. ' +
     '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
-    '<div id="adminHeatmap"></div></div>';
+    '<div id="adminHeatmap"></div></div>' + trendHtml();
 
   renderHeatmap("adminHeatmap", rows);
 }
@@ -2368,8 +2453,14 @@ function closeModal() { document.getElementById("modalOverlay").classList.remove
 function renderRoleNav() {
   const pendingReview = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
   const pendingApproval = Object.keys(state.aiEvals).filter(function (qid) { return !state.reviews[qid]; }).length;
-  const examReady = state.exam.status === "published" && state.examStatus === "not_started" && Date.now() >= state.exam.startsAt;
-  const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady ? 1 : 0, admin: 0 };
+  // Çözülmeyi bekleyen TÜM yayındaki sınavlar sayılır (yalnızca aktif olan değil).
+  const examReady = (state.exams || []).filter(function (x) {
+    const aktif = x.id === state.activeExamId;
+    const ex = aktif ? state.exam : x;
+    const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+    return ex.status === "published" && durum === "not_started" && (!ex.startsAt || Date.now() >= ex.startsAt);
+  }).length;
+  const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady, admin: 0 };
   document.getElementById("roleNav").innerHTML = ROLES.map(function (r) {
     return '<button class="role-btn ' + (state.role === r.id ? "active" : "") + '" data-role="' + r.id + '"><span class="r-label">' + r.label + '</span><span class="r-hint">' + r.hint + '</span>' +
       (badges[r.id] ? '<span class="badge">' + badges[r.id] + '</span>' : "") + '</button>';
