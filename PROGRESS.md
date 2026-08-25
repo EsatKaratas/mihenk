@@ -206,6 +206,15 @@ iddiası jüride teknik bir soruyla çöker. Bunun yerine sistem sekme değişim
 pencere odağı kaybı ve tam ekrandan çıkışı **kaydeder** ve öğretmene **bağlam**
 olarak sunar. Karar insanındır — projenin HITL ilkesiyle aynı mantık.
 
+**v2 eklemeleri (kullanıcı fikri üzerine):**
+- **Yanıta metin yapıştırma tespiti** — açık uçlu yanıtlar yapay zekâya okutulduğu
+  için, öğrencinin dışarıdan (örn. bir sohbet modelinden) hazır metin yapıştırması
+  bu üründeki **en doğrudan bütünlük sinyalidir**. Sekme değişimi dolaylı sinyal,
+  yapıştırma doğrudan sinyal. Yalnızca karakter SAYISI tutulur, metnin kendisi
+  kaydedilmez.
+- **Sınav dışında kalınan toplam süre** — "3 kez, toplam 6 saniye" ile
+  "3 kez, toplam 4 dakika" farklı sinyallerdir; sadece sayı yetmiyor.
+
 - Öğrenci sınav ekranında ne kaydedildiğini açıkça görür (gizli izleme yok)
 - Öğretmen onay ekranında özet + olay günlüğü, "tek başına kopya kanıtı değildir" notuyla
 - Hiçbir puanı otomatik etkilemez

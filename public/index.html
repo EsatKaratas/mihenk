@@ -206,6 +206,11 @@
   .integrity-bar .ib-text { flex: 1; min-width: 260px; }
   .integrity-bar .ib-count { white-space: nowrap; color: var(--text); }
 
+  .grid-2col-int { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px; margin-bottom: 12px; }
+  .stat-tile.tile-alert { border-color: var(--critical); }
+  .stat-tile.tile-alert .s-value { color: var(--critical); }
+
   .integrity-log { border-top: 1px solid var(--border); padding-top: 8px; }
   .integrity-log .il-row { display: flex; gap: 12px; font-size: 12px; padding: 3px 0; }
   .integrity-log .il-time { color: var(--text-muted); min-width: 56px; }
@@ -720,7 +725,8 @@ const state = {
   genCount: 0,
   ai: { mode: "unknown", provider: "", model: "", error: "", busy: false },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
-  integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0, events: [] },
+  integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
+               pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
   ceForm: { title: "", subject: SUBJECTS[0], grade: GRADES[2], outcomeCode: OUTCOMES[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
@@ -1341,6 +1347,14 @@ function studentTab2Html() {
     '<button class="btn btn-critical" id="btnFinishExam">Sınavı Bitir</button></div></div>';
 }
 function wireStudentTab2() {
+  // Yapıştırma tespiti: yalnızca KAÇ KARAKTER yapıştırıldığı tutulur,
+  // metnin kendisi kaydedilmez (bkz. privacy-policy.html §2).
+  const oa = document.getElementById("openAnswerInput");
+  if (oa) oa.addEventListener("paste", function (e) {
+    let n = 0;
+    try { n = (e.clipboardData || window.clipboardData).getData("text").length; } catch (err) { n = 0; }
+    integrityNote("yapistir", { karakter: n });
+  });
   const fsBtn = document.getElementById("btnGoFullscreen");
   if (fsBtn) fsBtn.onclick = function () { requestExamFullscreen().then(renderAll); };
   document.querySelectorAll(".mc-answer").forEach(function (el) {
@@ -1565,26 +1579,31 @@ function renderAdmin() {
 
    Şeffaflık: öğrenci sınav ekranında neyin kaydedildiğini açıkça görür.
    Gizli izleme yoktur (bkz. privacy-policy.html §2).                        */
-const INTEGRITY_ETIKET = { sekme: "Sekme değişimi", odak: "Pencere odağı kaybı", tamekran: "Tam ekrandan çıkış" };
+const INTEGRITY_ETIKET = { sekme: "Sekme değişimi", odak: "Pencere odağı kaybı",
+  tamekran: "Tam ekrandan çıkış", yapistir: "Yanıta metin yapıştırıldı", donus: "Sınava geri dönüş" };
 
 function integrityReset() {
-  state.integrity = { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0, events: [] };
+  state.integrity = { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
+                      pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] };
 }
 
-function integrityNote(tur) {
+function integrityNote(tur, detay) {
   const g = state.integrity;
   if (!g.active) return;
   if (tur === "sekme") g.tabSwitch++;
   else if (tur === "odak") g.blur++;
   else if (tur === "tamekran") g.fsExit++;
-  if (g.events.length < 60) g.events.push({ tur: tur, sn: Math.max(0, state.exam.durationMin * 60 - state.remainingSec) });
+  else if (tur === "yapistir") { g.pasteCount++; g.pasteChars += (detay && detay.karakter) || 0; }
+  if (g.events.length < 60) {
+    g.events.push({ tur: tur, sn: Math.max(0, state.exam.durationMin * 60 - state.remainingSec), detay: detay || null });
+  }
   saveState();
   updateIntegrityBadge();
 }
 
 function integrityTotal() {
   const g = state.integrity;
-  return g.tabSwitch + g.blur + g.fsExit;
+  return g.tabSwitch + g.blur + g.fsExit + g.pasteCount;
 }
 
 // Sayaci renderAll cagirmadan guncelle: acik uclu yanit yazilirken odak kaybolmasin.
@@ -1609,7 +1628,20 @@ function exitExamFullscreen() {
 
 // Dinleyiciler bir kez baglanir; yalnizca integrity.active iken sayar.
 document.addEventListener("visibilitychange", function () {
-  if (document.hidden) integrityNote("sekme");
+  const g = state.integrity;
+  if (document.hidden) {
+    g._awayFrom = Date.now();
+    integrityNote("sekme");
+  } else if (g.active && g._awayFrom) {
+    // Kaç KEZ ayrıldığı kadar NE KADAR SÜRE ayrı kaldığı da önemlidir:
+    // "3 kez, toplam 6 saniye" ile "3 kez, toplam 4 dakika" farklı sinyallerdir.
+    const sure = Math.round((Date.now() - g._awayFrom) / 1000);
+    g._awayFrom = 0;
+    if (sure >= 2) {
+      g.awaySec += sure;
+      integrityNote("donus", { sure: sure });
+    }
+  }
 });
 window.addEventListener("blur", function () { integrityNote("odak"); });
 document.addEventListener("fullscreenchange", function () {
@@ -1620,8 +1652,10 @@ function integrityNoticeHtml() {
   const g = state.integrity;
   return '<div class="integrity-bar">' +
     '<span class="ib-dot"></span>' +
-    '<span class="ib-text">Sınav bütünlüğü kaydı açık — sekme değişimi, pencere odağı kaybı ve tam ekrandan çıkış ' +
-    'öğretmeninize <b>bilgi olarak</b> iletilir. Sistem sizi engellemez veya puanınızı otomatik düşürmez.</span>' +
+    '<span class="ib-text">Sınav bütünlüğü kaydı açık — sekme değişimi, pencere odağı kaybı, tam ekrandan çıkış ' +
+    've yanıta <b>metin yapıştırılması</b> öğretmeninize <b>bilgi olarak</b> iletilir. ' +
+    'Yapıştırdığınız metnin içeriği kaydedilmez, yalnızca uzunluğu tutulur. ' +
+    'Sistem sizi engellemez veya puanınızı otomatik düşürmez.</span>' +
     '<span class="ib-count">Kayıtlı olay: <b id="integrityCount" class="tabular">' + integrityTotal() + '</b></span>' +
     (g.fsGranted ? "" : '<button class="btn btn-secondary btn-sm" id="btnGoFullscreen">Tam ekrana geç</button>') +
     '</div>';
@@ -1642,9 +1676,23 @@ function integritySummaryHtml() {
     '<div class="stat-tile"><div class="s-label">Odak Kaybı</div><div class="s-value tabular">' + g.blur + '</div><div class="s-sub">pencereden çıkış</div></div>' +
     '<div class="stat-tile"><div class="s-label">Tam Ekrandan Çıkış</div><div class="s-value tabular">' + g.fsExit + '</div><div class="s-sub">' + (g.fsGranted ? "tam ekran açıktı" : "tam ekran kullanılmadı") + '</div></div>' +
     '</div>' +
+    '<div class="grid-2col-int">' +
+    '<div class="stat-tile' + (g.pasteCount ? ' tile-alert' : '') + '"><div class="s-label">Yanıta Yapıştırma</div>' +
+    '<div class="s-value tabular">' + g.pasteCount + '</div>' +
+    '<div class="s-sub">' + (g.pasteCount ? g.pasteChars + ' karakter yapıştırıldı' : 'yapıştırma yok') + '</div>' +
+    '<div class="s-note">Açık uçlu yanıtlar yapay zekâya okutulduğu için, dışarıdan hazır metin yapıştırılması bu üründeki en doğrudan bütünlük sinyalidir.</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Sınav Dışında Kalınan Süre</div>' +
+    '<div class="s-value tabular">' + formatTime(g.awaySec || 0) + '</div>' +
+    '<div class="s-sub">toplam</div>' +
+    '<div class="s-note">Kaç kez ayrıldığı kadar ne kadar süre ayrı kaldığı da önemlidir.</div></div>' +
+    '</div>' +
     (g.events.length
       ? '<div class="integrity-log">' + g.events.slice(0, 12).map(function (e) {
-          return '<div class="il-row"><span class="il-time tabular">' + formatTime(e.sn) + '</span><span>' + INTEGRITY_ETIKET[e.tur] + '</span></div>';
+          const ek = e.detay
+            ? (e.detay.karakter != null ? ' <b>(' + e.detay.karakter + ' karakter)</b>'
+              : (e.detay.sure != null ? ' <b>(' + formatTime(e.detay.sure) + ' sonra)</b>' : ""))
+            : "";
+          return '<div class="il-row"><span class="il-time tabular">' + formatTime(e.sn) + '</span><span>' + INTEGRITY_ETIKET[e.tur] + ek + '</span></div>';
         }).join("") + (g.events.length > 12 ? '<div class="il-row" style="color:var(--text-muted);">… ve ' + (g.events.length - 12) + ' olay daha</div>' : "") + '</div>'
       : "") +
     '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-top:10px;">' + yorum + '</div></div>';
