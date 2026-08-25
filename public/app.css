@@ -621,6 +621,8 @@
     /* Flex çocuklarının içeriğe göre şişmesini engelle — mobilde
        taşmaların büyük bölümünün kök nedeni buydu. */
     .field-row, .actions, .q-meta, .conf-row { flex-wrap: wrap; }
+    .cal-band-sapma { margin-left: 0; }
+    .cal-top { gap: 12px; }
     .field-row > .field { min-width: 0; }
   }
 
@@ -665,6 +667,52 @@
   .ia-opt-pct { opacity: .7; }
   .ia-note { margin-top: 9px; font-size: 11.5px; line-height: 1.55;
     color: var(--warning); }
+
+
+  /* --- Öğretmen-AI uyumu (kalibrasyon) ------------------------------------
+     BAĞIMSIZ sınıflar (bkz. .ia-* ve .inj-warn notları). */
+  .cal-top { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
+  .cal-big { flex: none; min-width: 104px; text-align: center;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px; }
+  .cal-big-sayi { font-family: "Archivo", sans-serif; font-weight: 800;
+    font-size: 30px; line-height: 1.1; color: var(--accent); }
+  .cal-big-etiket { font-size: 11px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text-muted); margin-top: 2px; }
+  .cal-detay { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;
+    font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+  .cal-detay b { color: var(--text); }
+
+  .cal-band { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 12px; padding: 8px 11px; border-radius: 8px;
+    background: var(--surface-2); margin-bottom: 6px; }
+  .cal-band-ad { font-weight: 600; color: var(--text); min-width: 0; }
+  .cal-band-adet { color: var(--text-muted); }
+  .cal-band-sapma { margin-left: auto; color: var(--text-muted); }
+  .cal-band-sapma b { font-family: "IBM Plex Mono", monospace; color: var(--text); }
+
+  .cal-note { font-size: 11.5px; line-height: 1.6; padding: 9px 11px;
+    border-radius: 8px; margin: 10px 0; background: var(--surface-2);
+    color: var(--text-muted); }
+  .cal-note.cal-ok { background: var(--success-soft); color: var(--success);
+    border: 1px solid var(--success); }
+  .cal-note.cal-warn { background: var(--warning-soft); color: var(--warning);
+    border: 1px solid var(--warning); }
+  .cal-warn-box { font-size: 11.5px; line-height: 1.6; color: var(--warning);
+    background: var(--warning-soft); border: 1px solid var(--warning);
+    border-radius: 8px; padding: 9px 11px; margin-bottom: 10px; }
+
+  .cal-worst { font-size: 12px; line-height: 1.55; padding: 10px 12px;
+    border-radius: 8px; background: var(--surface-2);
+    border-left: 3px solid var(--accent); margin-top: 10px; color: var(--text-muted); }
+  .cal-worst-baslik { display: block; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em;
+    color: var(--text-muted); margin-bottom: 4px; }
+  .cal-worst-sayi { margin-top: 5px; font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px; color: var(--text); }
+  .cal-limit { margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--border); font-size: 11px; line-height: 1.55;
+    color: var(--text-muted); }
 
   .cache-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
     margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);

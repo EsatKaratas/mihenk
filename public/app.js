@@ -2562,6 +2562,153 @@ function itemAnalysisHtml() {
     uyari + satirlar + "</div>";
 }
 
+/* ===========================================================================
+   ÖĞRETMEN - YAPAY ZEKÂ UYUMU (kalibrasyon)
+   ===========================================================================
+   NEDEN: Brief'in problem tanımındaki cümle şudur - "değerlendiriciler
+   arasında tutarsızlık oluşabiliyor." Bu bölüm doğrudan o soruna bakar:
+   öğretmenin onayladığı NİHAİ puan ile yapay zekânın ÖNERDİĞİ puan ne kadar
+   örtüşüyor?
+
+   Üç şey ölçülür:
+     1. Yön (bias)        : ortalama(nihai - AI). Pozitifse AI CİMRİ davranıyor
+                            (öğretmen puan ekliyor), negatifse AI CÖMERT.
+     2. Ortalama sapma    : ortalama(|nihai - AI|) - yönden bağımsız büyüklük.
+     3. Güven kalibrasyonu: AI "güvenim yüksek" dediğinde gerçekten daha mı
+                            isabetli? Güven skoru bu projede onay kuyruğunu
+                            sıralamak için kullanılıyor; işe yarayıp yaramadığı
+                            ancak böyle ölçülebilir.
+
+   SINIR (dürüstlük notu, ekranda da yazar): Öğretmen puanı KRİTER BAZINDA
+   değil, TOPLAM olarak düzeltiyor. Bu yüzden "hangi kriterde ayrışıyoruz"
+   sorusu bu veriyle yanıtlanamaz; kırılım soru ve güven bandı düzeyinde
+   verilir.
+
+   Hiçbir AI çağrısı yapılmaz; saf hesaptır.
+   =========================================================================== */
+
+function calibration() {
+  const gonderenler = submittedStudents();
+  const kayitlar = [];
+
+  gonderenler.forEach(function (st) {
+    const ss = readSession(st.id);
+    const rv = ss.reviews || {}, ev = ss.aiEvals || {};
+    Object.keys(rv).forEach(function (qid) {
+      const r = rv[qid];
+      if (!r || r.finalScore == null || r.aiScore == null) return;
+      const q = state.questions.find(function (x) { return String(x.id) === String(qid); });
+      const rub = state.rubrics[qid];
+      const evq = ev[qid];
+      kayitlar.push({
+        sid: st.id, ogrenci: st.name, qid: qid,
+        soru: q ? q.body : "(soru bulunamadı)",
+        maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
+        ai: Number(r.aiScore), nihai: Number(r.finalScore),
+        fark: Number(r.finalScore) - Number(r.aiScore),
+        confidence: evq && evq.confidence != null ? Number(evq.confidence) : null,
+        degistirildi: Math.abs(Number(r.finalScore) - Number(r.aiScore)) > 0.001
+      });
+    });
+  });
+
+  if (!kayitlar.length) return { n: 0 };
+
+  const n = kayitlar.length;
+  const ort = function (dizi) { return dizi.reduce(function (a, b) { return a + b; }, 0) / dizi.length; };
+  const yon = ort(kayitlar.map(function (k) { return k.fark; }));
+  const sapma = ort(kayitlar.map(function (k) { return Math.abs(k.fark); }));
+  const aynenOnay = kayitlar.filter(function (k) { return !k.degistirildi; }).length;
+
+  const tavanlar = kayitlar.map(function (k) { return k.maxScore; }).filter(function (v) { return v; });
+  const ortTavan = tavanlar.length ? ort(tavanlar) : null;
+  const uyum = ortTavan ? Math.max(0, Math.round((1 - sapma / ortTavan) * 100)) : null;
+
+  const bantla = function (c) {
+    if (c == null) return null;
+    if (c >= 0.85) return "yuksek";
+    if (c >= 0.70) return "orta";
+    return "dusuk";
+  };
+  const bantlar = { yuksek: [], orta: [], dusuk: [] };
+  kayitlar.forEach(function (k) {
+    const b = bantla(k.confidence);
+    if (b) bantlar[b].push(Math.abs(k.fark));
+  });
+  const bantOzeti = ["yuksek", "orta", "dusuk"].map(function (b) {
+    return { bant: b, adet: bantlar[b].length, ortSapma: bantlar[b].length ? ort(bantlar[b]) : null };
+  }).filter(function (x) { return x.adet > 0; });
+
+  const yks = bantOzeti.filter(function (x) { return x.bant === "yuksek"; })[0];
+  const dsk = bantOzeti.filter(function (x) { return x.bant === "dusuk"; })[0];
+  let guvenKalibre = null;
+  if (yks && dsk) guvenKalibre = yks.ortSapma < dsk.ortSapma;
+
+  const enFarkli = kayitlar.slice().sort(function (a, b) { return Math.abs(b.fark) - Math.abs(a.fark); })[0];
+
+  return {
+    n: n, yon: yon, sapma: sapma, uyum: uyum, ortTavan: ortTavan,
+    aynenOnay: aynenOnay, degistirilen: n - aynenOnay,
+    bantOzeti: bantOzeti, guvenKalibre: guvenKalibre,
+    enFarkli: enFarkli && Math.abs(enFarkli.fark) > 0.001 ? enFarkli : null,
+    guvenilir: n >= 5
+  };
+}
+
+function calibrationHtml() {
+  const c = calibration();
+  if (!c.n) return "";
+
+  const yonMetni = Math.abs(c.yon) < 0.05
+    ? "Sistematik bir sapma yok."
+    : (c.yon > 0
+      ? "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CİMRİ</b> davranıyor - siz puan ekliyorsunuz."
+      : "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CÖMERT</b> davranıyor - siz puan kırıyorsunuz.");
+
+  const bantAd = { yuksek: "Yüksek güven (%85 ve üstü)", orta: "Orta güven (%70-85)", dusuk: "Düşük güven (%70 altı)" };
+  const bantSatir = c.bantOzeti.map(function (b) {
+    return '<div class="cal-band"><span class="cal-band-ad">' + bantAd[b.bant] + "</span>" +
+      '<span class="cal-band-adet">' + b.adet + " yanıt</span>" +
+      '<span class="cal-band-sapma">ortalama sapma <b>' + b.ortSapma.toFixed(1) + "</b> puan</span></div>";
+  }).join("");
+
+  const kalibreNotu = c.guvenKalibre === null
+    ? '<div class="cal-note">Güven skorunun işe yarayıp yaramadığını ölçmek için hem yüksek hem düşük güvenli değerlendirme gerekir; henüz ikisi birlikte yok.</div>'
+    : (c.guvenKalibre
+      ? '<div class="cal-note cal-ok"><b>Güven skoru çalışıyor.</b> Yapay zekânın emin olduğu yanıtlarda sizinle daha çok örtüşüyor, zorlandığını söylediği yanıtlarda daha çok ayrışıyor. Onay kuyruğundaki "en düşük güven en üstte" sıralaması bu yüzden anlamlı.</div>'
+      : '<div class="cal-note cal-warn"><b>Dikkat: güven skoru beklendiği gibi davranmıyor.</b> Yapay zekânın emin olduğu yanıtlarda sapma, zorlandığını söylediği yanıtlardan daha büyük. Onay kuyruğu sıralamasına bu veriyle güvenmeyin.</div>');
+
+  const enFarkliKutu = c.enFarkli
+    ? '<div class="cal-worst"><span class="cal-worst-baslik">En çok ayrıştığınız yanıt</span>' +
+      escapeHtml(c.enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(c.enFarkli.soru).slice(0, 90)) +
+      '<div class="cal-worst-sayi">AI önerisi <b>' + c.enFarkli.ai + "</b> &rarr; sizin puanınız <b>" +
+      c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + c.enFarkli.fark.toFixed(1) + ")</div></div>"
+    : "";
+
+  const azVeri = !c.guvenilir
+    ? '<div class="cal-warn-box"><b>Bu sayılar gösterge niteliğindedir.</b> Yalnızca ' + c.n +
+      " onaylanmış değerlendirme var. Eğilimin netleşmesi için daha fazla onay gerekir.</div>"
+    : "";
+
+  return '<div class="card" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>Öğretmen - Yapay Zekâ Uyumu</h3>' +
+    '<span class="hint">brief: "değerlendiriciler arasında tutarsızlık" · saf hesap</span></div>' +
+    '<div class="cal-top">' +
+      '<div class="cal-big"><div class="cal-big-sayi">' + (c.uyum != null ? "%" + c.uyum : "—") + "</div>" +
+      '<div class="cal-big-etiket">uyum</div></div>' +
+      '<div class="cal-detay">' +
+        "<div>" + yonMetni + "</div>" +
+        "<div>Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+          (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + "</div>" +
+        "<div><b>" + c.aynenOnay + "</b> yanıtı olduğu gibi onayladınız, <b>" + c.degistirilen +
+          "</b> yanıtta puanı değiştirdiniz.</div>" +
+      "</div>" +
+    "</div>" +
+    azVeri + bantSatir + kalibreNotu + enFarkliKutu +
+    '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır. Öğretmen puanı kriter bazında değil toplam olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
+    "</div>";
+}
+
 function teacherTab4Html() {
   if (state.exam.status !== "published" || state.examStatus === "not_started") return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
   const scores = computeDemoClassScores();
@@ -2580,6 +2727,7 @@ function teacherTab4Html() {
     '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">' + bitiren + '/' + tumOgr + '</div><div class="s-sub">tamamladı</div></div></div>' +
     '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
+    calibrationHtml() +
     trendHtml();
 }
 
@@ -3293,6 +3441,7 @@ setInterval(function () {
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
+    "calibration", "calibrationHtml",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
