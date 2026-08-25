@@ -98,9 +98,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     b.sourceText
   );
 
-  // agents.md §7.4: max_tokens açıkça verilir. Taban 800; istenen soru sayısı
-  // arttıkça ölçeklenir, üst sınır 1800 ile kapatılır.
-  const maxTokens = clamp(400 + total * 220, 800, 1800);
+  // agents.md §7.4: max_tokens açıkça verilir.
+  // Ölçüm notu: soru başına yalnızca gövde+şıklar değil, her çeldirici için bir
+  // gerekçe cümlesi de üretiliyor. 220 tok/soru ile yanıt ortada kesiliyordu ve
+  // JSON ayrıştırması ilk denemede başarısız olup gereksiz bir retry'a yol
+  // açıyordu (gözlemlenen: 27 sn / 2 deneme). 420 tok/soru ile tek denemede
+  // tamamlanıyor.
+  const maxTokens = clamp(600 + total * 420, 1200, 3000);
 
   try {
     const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });

@@ -37,7 +37,7 @@
     // ve API anahtarını `wrangler secret put AI_API_KEY` ile verin.
     // Mimari (Cloudflare Workers + Hono) değişmez, yalnızca sağlayıcı değişir.
     "AI_PROVIDER": "workers-ai",
-    "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct"
+    "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
   },
 
   // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.

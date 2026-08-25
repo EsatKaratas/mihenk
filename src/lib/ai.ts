@@ -40,8 +40,12 @@ export function modelName(env: AiEnv): string {
   return providerName(env) === 'workers-ai' ? DEFAULT_WORKERS_AI_MODEL : 'bilinmiyor';
 }
 
-/** Ham metin döndüren tek giriş noktası. */
-async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise<string> {
+/**
+ * Tek giriş noktası. Dönen değer metin VEYA nesne olabilir:
+ * bazı Workers AI modelleri `response` alanında zaten ayrıştırılmış bir nesne
+ * döndürür (String(...) uygulanırsa "[object Object]" olur ve JSON.parse patlar).
+ */
+async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise<string | object> {
   const provider = providerName(env);
   const model = modelName(env);
   const temperature = opts.temperature ?? 0.4;
@@ -54,7 +58,8 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
       max_tokens: opts.maxTokens,
       temperature,
     } as any);
-    return String(res?.response ?? res?.result?.response ?? '');
+    const r = res?.response ?? res?.result?.response ?? res;
+    return typeof r === 'string' ? r : (r as object);
   }
 
   if (!env.AI_API_KEY) throw new Error(`AI_API_KEY tanımlı değil (provider: ${provider})`);
@@ -105,7 +110,9 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
  * Modeller sık sık ```json çitleri veya "İşte sonuç:" gibi giriş cümleleri
  * ekler; bu fonksiyon onları tolere eder.
  */
-export function extractJson(raw: string): unknown {
+export function extractJson(raw: string | object): unknown {
+  // Model zaten ayrıştırılmış bir nesne döndürdüyse doğrudan kullan.
+  if (raw && typeof raw === 'object') return raw;
   let s = String(raw || '').trim();
 
   // ``` çitlerini soy
