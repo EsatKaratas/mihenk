@@ -255,6 +255,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       maxScore: b.maxScore,
       justification: parsed.data.justification.trim(),
       confidence: parsed.data.confidence,
+      injectionAttempt: parsed.data.injectionAttempt,
       breakdown,
       meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });

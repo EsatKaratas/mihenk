@@ -100,6 +100,11 @@ export const modelEvaluationSchema = z.object({
     .min(1),
   justification: z.string().default(''),
   confidence: z.number().min(0).max(1).catch(0.5),
+  // Model, öğrenci yanıtının kendisine talimat vermeye çalıştığını bildirir.
+  // Bu bir ENGELLEME değildir — öğretmene sunulan bir SİNYALDİR (agents.md
+  // §7.1 ile aynı mantık: karar insanda kalır). Alan yoksa false kabul edilir,
+  // eski istemci sürümleri bozulmaz.
+  injectionAttempt: z.boolean().catch(false).default(false),
 });
 
 export type ModelQuestion = z.infer<typeof modelQuestionSchema>;
