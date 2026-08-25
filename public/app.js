@@ -1401,6 +1401,80 @@ function examTrayHtml() {
 
 // Sınavın hangi kazanımları ölçtüğünü gösterir. Sistem sadece sınav kurmuyor,
 // ölçme geçerliliğini de denetliyor: "4 kazanımdan 3'ünü ölçüyor, biri boşta".
+/* ===========================================================================
+   BLOOM TAKSONOMİSİ DENGESİ
+   ===========================================================================
+   NEDEN: Model zaten her soruya bilişsel düzey etiketi üretiyordu ama bu
+   etiket yalnızca rozet olarak duruyordu. Bir sınavın tamamı "hatırlama"
+   düzeyindeyse o sınav ezber ölçer, öğrenmeyi ölçmez — ve öğretmen bunu
+   soruları tek tek okumadan göremez.
+
+   Bloom düzeyleri iki öbekte toplanır:
+     ALT DÜZEY : hatırlama, anlama          -> bilgiyi geri çağırma
+     ÜST DÜZEY : uygulama, analiz,          -> bilgiyi kullanma, değerlendirme
+                 değerlendirme, yaratma
+
+   Ölçme literatüründe sabit bir "doğru oran" yoktur; sınıf düzeyine ve
+   dersin amacına göre değişir. Bu yüzden ürün bir hedef oran DAYATMAZ,
+   yalnızca iki uç durumu bildirir:
+     - hiç üst düzey soru yoksa  -> sınav ezber ölçüyor olabilir
+     - hiç alt düzey soru yoksa  -> temel bilgi hiç ölçülmüyor olabilir
+   Karar öğretmenindir (agents.md §7.1).
+
+   Saf hesaptır, AI çağrısı yapılmaz.
+   =========================================================================== */
+
+var BLOOM_SIRA = ["hatirlama", "anlama", "uygulama", "analiz", "degerlendirme", "yaratma"];
+var BLOOM_UST = { uygulama: true, analiz: true, degerlendirme: true, yaratma: true };
+
+function bloomDagilimi(sorular) {
+  const say = {};
+  BLOOM_SIRA.forEach(function (b) { say[b] = 0; });
+  let etiketli = 0;
+  sorular.forEach(function (q) {
+    if (q && q.bloom && say[q.bloom] != null) { say[q.bloom]++; etiketli++; }
+  });
+  let alt = 0, ust = 0;
+  BLOOM_SIRA.forEach(function (b) { if (BLOOM_UST[b]) ust += say[b]; else alt += say[b]; });
+  return { say: say, etiketli: etiketli, alt: alt, ust: ust,
+           ustOran: etiketli ? Math.round(ust / etiketli * 100) : 0 };
+}
+
+function bloomBalanceHtml(sorular) {
+  const d = bloomDagilimi(sorular);
+  if (!d.etiketli) return "";
+
+  const cubuk = BLOOM_SIRA.filter(function (b) { return d.say[b] > 0; }).map(function (b) {
+    const oran = Math.round(d.say[b] / d.etiketli * 100);
+    return '<span class="bl-seg' + (BLOOM_UST[b] ? " bl-ust" : "") + '" style="flex:' + d.say[b] +
+      ';" title="' + BLOOM_TR[b] + ": " + d.say[b] + " soru (%" + oran + ')"></span>';
+  }).join("");
+
+  const rozetler = BLOOM_SIRA.filter(function (b) { return d.say[b] > 0; }).map(function (b) {
+    return '<span class="bl-rozet' + (BLOOM_UST[b] ? " bl-ust" : "") + '">' +
+      BLOOM_TR[b] + " <b>" + d.say[b] + "</b></span>";
+  }).join("");
+
+  let not = "";
+  if (d.ust === 0) {
+    not = '<div class="bl-warn">Bu sınavdaki soruların <b>tamamı alt düzey</b> (hatırlama/anlama). ' +
+      "Sınav büyük olasılıkla ezber ölçüyor; öğrencinin bilgiyi <i>kullanabildiğini</i> " +
+      "gösteren bir soru yok. En az bir uygulama ya da analiz sorusu eklemeyi düşünün.</div>";
+  } else if (d.alt === 0) {
+    not = '<div class="bl-warn">Bu sınavdaki soruların <b>tamamı üst düzey</b>. ' +
+      "Temel bilgiyi ölçen bir soru yok; konuyu kısmen öğrenmiş öğrenci hiç puan alamayabilir.</div>";
+  } else {
+    not = '<div class="bl-ok">Alt düzey <b>' + d.alt + "</b> · üst düzey <b>" + d.ust +
+      "</b> soru (üst düzey oranı %" + d.ustOran + "). Dengeli görünüyor; hedef oranı dersin " +
+      "amacına göre siz belirlersiniz.</div>";
+  }
+
+  return '<div class="bl-box"><div class="bl-head">Bilişsel düzey dağılımı ' +
+    '<span class="bl-hint">Bloom taksonomisi · saf hesap</span></div>' +
+    '<div class="bl-bar">' + cubuk + "</div>" +
+    '<div class="bl-rozetler">' + rozetler + "</div>" + not + "</div>";
+}
+
 function coverageHtml() {
   const secili = state.exam.questionIds
     .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
@@ -1427,6 +1501,7 @@ function coverageHtml() {
       ? '<div class="cv-warn">Havuzdaki <b>' + eksik.length + '</b> kazanım bu sınavda hiç ölçülmüyor. Ölçme geçerliliği için gözden geçirin.</div>'
       : '<div class="cv-ok">Havuzdaki tüm kazanımlar bu sınavda ölçülüyor.</div>') +
     '<div class="cv-diff">Zorluk dağılımı — Kolay <b>' + zor.easy + '</b> · Orta <b>' + zor.medium + '</b> · Zor <b>' + zor.hard + '</b></div>' +
+    bloomBalanceHtml(secili) +
     '</div>';
 }
 
@@ -3757,6 +3832,7 @@ setInterval(function () {
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
+    "bloomDagilimi", "bloomBalanceHtml",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
