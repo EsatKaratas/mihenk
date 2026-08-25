@@ -223,6 +223,15 @@
     resize: vertical; }
   .crit-desc:focus { color: var(--text); border-color: var(--border-strong); }
 
+  .conf-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: -2px 0 10px; }
+  .conf-row .conf-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+
+  .wait-box { padding: 9px 12px; border-radius: 8px; background: var(--warning-soft);
+    color: var(--warning); font-size: 12.5px; line-height: 1.55; }
+
+  .legend-live { display: block; width: 100%; margin-top: 6px; font-size: 11px;
+    color: var(--text-muted); line-height: 1.5; }
+
   .rub-intro { font-size: 13px; line-height: 1.65; color: var(--text-muted);
     padding: 12px 14px; margin-bottom: 14px; border-radius: 9px;
     background: var(--surface-2); border-left: 3px solid var(--accent); }
@@ -946,7 +955,8 @@ const state = {
   rubricSelectedQ: null,
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
-  exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null, endsAt: null },
+  exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10,
+          startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null },
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -1488,6 +1498,7 @@ function activateExam(id) {
   state.activeExamId = id;
   state.exam = { title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
                  status: kayit.status, durationMin: kayit.durationMin,
+                 startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
                  startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt };
   const s = kayit.session || bosOturum();
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
@@ -1498,11 +1509,12 @@ function createExam(baslik) {
   syncActiveExam();
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
-                 status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null, session: bosOturum() };
+                 status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
+                 startDelaySec: 0, startsAt: null, session: bosOturum() };
   state.exams.push(yeni);
   state.activeExamId = id;
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
-                 durationMin: 10, startDelaySec: 0, startsAt: null };
+                 durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null };
   OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
   state.teacherTab = 1;
   renderAll();
@@ -1528,7 +1540,8 @@ function ensureExamList() {
     const id = examIdSeq++;
     state.exams.push({ id: id, title: state.exam.title, questionIds: state.exam.questionIds,
       timeOverrides: state.exam.timeOverrides, status: state.exam.status,
-      durationMin: state.exam.durationMin, startDelaySec: state.exam.startDelaySec,
+      durationMin: state.exam.durationMin, startMode: state.exam.startMode,
+      startAtLocal: state.exam.startAtLocal, startDelaySec: state.exam.startDelaySec,
       startsAt: state.exam.startsAt, session: null });
     state.activeExamId = id;
   }
@@ -1756,7 +1769,20 @@ function teacherTab1Html() {
     '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
     '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Sınav süresi (dk)</label><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '></div>' +
-    '<div class="field"><label>Başlama gecikmesi (sn, demo)</label><input id="examDelay" type="number" min="0" value="' + state.exam.startDelaySec + '" ' + (locked ? "disabled" : "") + '></div></div>' +
+    '<div class="field"><label>Sınav ne zaman açılsın?</label>' +
+    '<select id="examStartMode" ' + (locked ? "disabled" : "") + '>' +
+    '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
+    '<option value="scheduled"' + (state.exam.startMode === "scheduled" ? " selected" : "") + '>Belirli bir tarih ve saatte</option>' +
+    '</select></div></div>' +
+    (state.exam.startMode === "scheduled"
+      ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
+        '<input id="examStartAt" type="datetime-local" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
+        '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
+      : '<div class="lbl-hint" style="margin:-4px 0 12px;">Sınav, yayınladığınız anda öğrencilerin listesinde açılır.</div>') +
+    (locked && state.exam.startsAt
+      ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
+        new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
+      : "") +
     (locked ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
       (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
@@ -1812,7 +1838,21 @@ function wireTeacherTab1() {
   });
   document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
   const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
-  const delEl = document.getElementById("examDelay"); if (delEl) delEl.oninput = function (e) { state.exam.startDelaySec = Number(e.target.value) || 0; };
+  const modeEl = document.getElementById("examStartMode");
+  if (modeEl) modeEl.onchange = function (e) {
+    state.exam.startMode = e.target.value;
+    if (state.exam.startMode === "scheduled" && !state.exam.startAtLocal) {
+      // Varsayılan: 1 saat sonrası, dakikaya yuvarlanmış.
+      const d = new Date(Date.now() + 3600000);
+      d.setSeconds(0, 0);
+      const pad = function (n) { return String(n).padStart(2, "0"); };
+      state.exam.startAtLocal = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+        "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    renderAll();
+  };
+  const startEl = document.getElementById("examStartAt");
+  if (startEl) startEl.onchange = function (e) { state.exam.startAtLocal = e.target.value; saveSoon(); };
   document.querySelectorAll(".pool-check").forEach(function (el) {
     el.onchange = function () {
       const qid = Number(el.dataset.qid);
@@ -1826,8 +1866,15 @@ function wireTeacherTab1() {
   });
   const pubBtn = document.getElementById("btnPublishExam");
   if (pubBtn) pubBtn.onclick = function () {
+    if (state.exam.startMode === "scheduled" && state.exam.startAtLocal) {
+      const ts = new Date(state.exam.startAtLocal).getTime();
+      if (isNaN(ts)) { state.poolError = "Geçerli bir açılış tarihi ve saati seçin."; renderAll(); return; }
+      state.exam.startsAt = ts;
+    } else {
+      state.exam.startsAt = Date.now();
+    }
     state.exam.status = "published";
-    state.exam.startsAt = Date.now() + state.exam.startDelaySec * 1000;
+    state.poolError = "";
     renderAll();
   };
 }
@@ -2056,6 +2103,78 @@ function rubRefreshBar(rub) {
       st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b> — 100'ü <b>" + (tw - 100) + " puan</b> aşıyor. Fazlalığı azaltın.";
     }
   }
+}
+
+function evalCardHtml(q) {
+  const ans = state.answers[q.id] || { text: "" };
+  const ev = state.aiEvals[q.id];
+  const rub = state.rubrics[q.id];
+  if (ev && ev.failed) return evalFailedCardHtml(q, ans, ev, rub);
+  return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
+    '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
+    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' + confBadge(ev.confidence) +
+    ev.breakdown.map(function (b) {
+      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
+        '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
+        (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
+    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
+    '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
+    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Puanı Güncelle ve Onayla</button></div></div>';
+}
+// Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
+function evalFailedCardHtml(q, ans, ev, rub) {
+  return '<div class="eval-card eval-failed" data-qid="' + q.id + '">' +
+    '<div class="q-meta"><span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
+    '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
+    '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
+    '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
+    '<div class="fail-note">Yapay zekâ ön değerlendirmesi tamamlanamadı. ' +
+    'Öğrencinin yanıtı güvenle kaydedildi; kaybolmadı.<br><span class="mono-err">' +
+    escapeHtml(ev.error || "bilinmeyen hata") + '</span></div>' +
+    '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
+    '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
+    '<input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label>' +
+    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Elle Puanla ve Onayla</button></div></div>';
+}
+
+function doneCardHtml(q) {
+  const rv = state.reviews[q.id], rub = state.rubrics[q.id];
+  return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
+    '<div style="margin-top:8px;font-size:13px;">' +
+    'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
+    ' <span style="color:var(--text-muted);">&rarr;</span> ' +
+    'Öğretmen onayı: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
+    (rv.decision === "revised"
+      ? '<span class="pill pill-accent2">öğretmen revize etti</span>'
+      : '<span class="pill pill-accent">AI önerisiyle aynı</span>') +
+    (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
+    '</div></div>';
+}
+
+// Güven skoru, modelin KENDİ değerlendirmesinden ne kadar emin olduğudur.
+// Tooltip yetmiyordu: ne anlama geldiği ve öğretmenin ne yapması gerektiği
+// doğrudan ekranda yazıyor.
+function confBadge(c) {
+  if (c == null) return "";
+  const pct = Math.round(c * 100);
+  const cls = c < 0.5 ? "pill-critical" : (c < 0.75 ? "pill-warning" : "pill-success");
+  const not = c < 0.5
+    ? "Model bu yanıtta zorlandı. Puanı dikkatle gözden geçirin."
+    : (c < 0.75
+      ? "Model kısmen emin. Gerekçeleri okuyup teyit etmeniz önerilir."
+      : "Model yüksek güvenle değerlendirdi. Yine de son söz sizde.");
+  return '<div class="conf-row"><span class="pill ' + cls + '">AI güveni %' + pct + '</span>' +
+    '<span class="conf-note">' + not + '</span></div>';
 }
 
 function teacherTab3Html() {
@@ -2329,6 +2448,18 @@ async function finishExam() {
   }
 }
 
+// "3 gün 4 saat" gibi okunur kalan süre — saniye saymak anlamsız.
+function kalanMetni(ts) {
+  const sn = Math.max(0, Math.round((ts - Date.now()) / 1000));
+  if (sn < 60) return sn + " saniye içinde açılacak";
+  const dk = Math.floor(sn / 60);
+  if (dk < 60) return dk + " dakika içinde açılacak";
+  const sa = Math.floor(dk / 60);
+  if (sa < 24) return sa + " saat " + (dk % 60) + " dakika içinde açılacak";
+  const gun = Math.floor(sa / 24);
+  return gun + " gün " + (sa % 24) + " saat içinde açılacak";
+}
+
 function examCardState(x) {
   const aktif = x.id === state.activeExamId;
   const ex = aktif ? state.exam : x;
@@ -2381,7 +2512,11 @@ function studentTab1Html() {
         ? '<div class="resume-note">Bu sınavı yarım bıraktınız. Yanıtlarınız kaydedildi; devam ettiğinizde ' +
           'kaldığınız sorudan başlayacaksınız.' + (kalanSn != null ? ' Kalan süre <b>' + formatTime(kalanSn) + '</b>.' : "") + '</div>'
         : "") +
-      (c.bekliyor ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((c.ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
+      (c.bekliyor
+        ? '<div class="wait-box"><b>Açılış: ' +
+          new Date(c.ex.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</b>' +
+          '<div id="waitPill" class="lbl-hint" style="margin-left:0;">' + kalanMetni(c.ex.startsAt) + '</div></div>'
+        : "") +
       '<div style="margin-top:14px;">' + examActionBtn(x) + '</div></div>';
   }).join("");
 }
@@ -2599,7 +2734,9 @@ function renderHeatmap(targetId, rows) {
     }).join("") + "</table></div>" +
     '<div class="legend-scale"><span>Düşük</span>' +
     [1, 2, 3, 4, 5].map(function (s) { return '<span class="legend-swatch" style="background:var(--seq-' + s + ');"></span>'; }).join("") +
-    '<span>Yüksek başarı</span><span style="margin-left:14px;">● canlı demo verisi</span></div>';
+    '<span>Yüksek başarı</span>' +
+    '<span class="legend-live">● işaretli satır, bu oturumda gerçekten çözülen sınavdan hesaplanır; ' +
+    'diğer sınıflar karşılaştırma için eklenmiş örnek verilerdir.</span></div>';
   el.querySelectorAll(".hm-cell[data-val]").forEach(bestTextColor);
   const low = [];
   rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(r.name + " · " + c.code); }); });
@@ -2917,10 +3054,43 @@ setInterval(function () {
     if (stillWaiting) {
       waitingFlag = true;
       const wp = document.getElementById("waitPill");
-      if (wp) wp.textContent = "Sınav " + Math.max(0, Math.ceil((state.exam.startsAt - Date.now()) / 1000)) + " sn içinde açılacak";
+      if (wp) wp.textContent = kalanMetni(state.exam.startsAt);
     } else if (waitingFlag) { waitingFlag = false; renderAll(); }
   }
 }, 1000);
+
+/* ==================== Öz-kontrol ====================
+   Geliştirme sırasında bir yeniden yazım, çağrılan bir fonksiyonu sessizce
+   silebiliyor; hata ancak o ekrana girildiğinde ortaya çıkıyor. Bu liste,
+   açılışta eksik tanımı hemen görünür kılar.
+   (Gerçekten yaşandı: rubrik ekranı yeniden yazılırken evalCardHtml,
+   doneCardHtml, evalFailedCardHtml ve confBadge silinmişti.)          */
+(function selfCheck() {
+  const gerekli = [
+    "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
+    "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "renderPendingQuestionCard", "distractorHtml",
+    "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
+    "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
+    "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
+    "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
+    "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
+    "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
+    "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
+    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni"
+  ];
+  const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
+  if (eksik.length) {
+    console.error("ÖZ-KONTROL BAŞARISIZ — tanımlı olmayan fonksiyonlar:", eksik);
+    document.addEventListener("DOMContentLoaded", function () {
+      const uyari = document.createElement("div");
+      uyari.style.cssText = "position:fixed;bottom:12px;left:12px;right:12px;z-index:9999;padding:12px 16px;" +
+        "border-radius:10px;background:#ae3325;color:#fff;font:600 13px/1.5 system-ui;box-shadow:0 4px 16px rgba(0,0,0,.4)";
+      uyari.textContent = "Geliştirici uyarısı — eksik fonksiyon: " + eksik.join(", ");
+      document.body.appendChild(uyari);
+    });
+  }
+})();
 
 initPanels();
 loadState();
