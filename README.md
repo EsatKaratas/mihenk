@@ -5,14 +5,20 @@ Soru hazırlama, açık uçlu sınavları değerlendirme ve kazanım analizini y
 zekâ ile hızlandıran; **son puan onayını her zaman öğretmende tutan**
 (Human-in-the-Loop) bir ölçme-değerlendirme platformu.
 
-> **Canlı gösterim:** Aşağıdaki iki bağlantı, bu depodaki dosyaların üretildiği
-> tasarım oturumunda hazırlanmıştır ve jüri için paylaşıma açılabilir:
-> - [Mimari dokümantasyonu](https://claude.ai/code/artifact/59bbea9b-fda7-4252-954a-018209248593) — uçtan uca akış, D1 şeması, API rotaları, bileşen ağacı
-> - [İnteraktif prototip (4 rol canlı döngü)](https://claude.ai/code/artifact/8675093a-7ed3-45b6-8d20-371426135308) — bu depoda `public/index.html` olarak yer alır
+> ## 🔴 Canlı sistem
 >
-> Bu bağlantılar varsayılan olarak sadece hazırlayan hesaba özeldir; jüriyle
-> paylaşmak için ilgili sayfanın paylaş menüsünden bağlantıyı herkese açık hale
-> getirin.
+> **https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev**
+>
+> Cloudflare Workers üzerinde çalışıyor; soru üretimi ve açık uçlu puanlama
+> **gerçek bir dil modeli** tarafından yapılır (Workers AI —
+> `@cf/meta/llama-3.3-70b-instruct-fp8-fast`).
+>
+> - [Mimari dokümantasyonu](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari.html) — uçtan uca akış, D1 şeması, API rotaları, bileşen ağacı
+> - [KVKK aydınlatma metni](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/privacy-policy.html)
+>
+> Arayüzün sağ üstündeki rozet, o an gerçek modelin mi yoksa yerel yedeğin mi
+> çalıştığını gösterir. Ölçülen değerler (canlı ortam, tek deneme):
+> soru üretimi ~10-17 sn, açık uçlu değerlendirme ~10 sn.
 
 ---
 
