@@ -138,7 +138,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions" };
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions", alignment: "/api/ai/outcome-alignment" };
 
 async function probeAiMode() {
   try {
@@ -354,7 +354,7 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment"];
 
 function saveState() {
   if (_resetting) return;
@@ -539,6 +539,7 @@ const state = {
   reviews: {},
   mcResults: {},
   misconceptions: {},
+  alignment: {},
   baseline: {
     totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
     classes: [
@@ -695,6 +696,156 @@ async function onGenerateQuestions() {
   }
 }
 
+/* ===========================================================================
+   KAZANIM-SORU HİZALAMA DENETİMİ (arayüz) — içerik geçerliği
+   ===========================================================================
+   NEDEN: Öğretmen bir kazanım seçiyor, model o kazanım için soru üretiyor.
+   Ama ürettiği soru gerçekten O kazanımı mı ölçüyor? Ölçmede buna "içerik
+   geçerliği" denir. "Metnin yüzey anlamını belirleyebilme" için üretilmiş bir
+   soru aslında derin anlam ölçüyorsa, sonuç yanlış kazanıma yazılır ve ısı
+   haritası öğretmeni yanıltır.
+
+   TASARIM:
+   - Denetimi ÜRETEN çağrı yapmaz; ayrı ve bağımsız bir çağrıdır. Model kendi
+     ürettiğini onaylamaya eğilimlidir.
+   - OTOMATİK ÇALIŞMAZ; düğmeyle tetiklenir (her denetim bir model çağrısıdır).
+   - Hiçbir soruyu reddetmez veya silmez (agents.md §7.1) — öğretmene sinyaldir.
+   - Öneri kodu yalnızca gerçekten tanımlı kazanımlardan gelebilir; sunucu da
+     ayrıca doğrular, böylece model kod uyduramaz.
+   - Sessiz düşüş yok: çağrı başarısız olursa hata yazılır, uydurma sonuç yok.
+   =========================================================================== */
+
+function alignKey(qid) { return String(qid); }
+
+/** Öneri havuzu: tanımlı kazanımlar + (yüklüyse) müfredat kataloğu. */
+function alignAdaylari(ders) {
+  const liste = OUTCOMES_LIST().map(function (o) {
+    const p = o.label.split(" — ");
+    return { kod: o.code, metin: p.length > 1 ? p.slice(1).join(" — ") : o.label };
+  });
+  const k = (state.katalog || {})[ders];
+  if (k) {
+    const mevcut = {};
+    liste.forEach(function (x) { mevcut[x.kod] = true; });
+    k.kazanimlar.forEach(function (x) {
+      if (!mevcut[x.kod] && x.uygunluk === "yazili") liste.push({ kod: x.kod, metin: x.metin });
+    });
+  }
+  return liste.slice(0, 60);
+}
+
+async function runAlignment() {
+  const bekleyen = state.questions.filter(function (q) { return q.status === "ai_generated"; });
+  if (!bekleyen.length) return;
+
+  // Kazanıma göre grupla: her kazanım için ayrı denetim çağrısı yapılır,
+  // çünkü denetim "bu soru BU kazanımı ölçüyor mu" sorusudur.
+  const gruplar = {};
+  bekleyen.forEach(function (q) { (gruplar[q.outcome] = gruplar[q.outcome] || []).push(q); });
+
+  state.alignment = state.alignment || {};
+  bekleyen.forEach(function (q) { state.alignment[alignKey(q.id)] = { loading: true }; });
+  renderAll();
+
+  const kodlar = Object.keys(gruplar);
+  for (let i = 0; i < kodlar.length; i++) {
+    const kod = kodlar[i];
+    const grup = gruplar[kod];
+    try {
+      const j = await apiPost(AI_API.alignment, {
+        outcomeCode: kod,
+        outcomeLabel: outcomeLabel(kod),
+        questions: grup.map(function (q) { return { type: q.type, body: q.body }; }),
+        candidates: alignAdaylari(state.ceForm.subject)
+      });
+      (j.results || []).forEach(function (r) {
+        const q = grup[r.index - 1];
+        if (!q) return;
+        state.alignment[alignKey(q.id)] = {
+          karar: r.karar, gerekce: r.gerekce, onerilenKod: r.onerilenKod,
+          model: (j.meta && j.meta.model) || ""
+        };
+      });
+    } catch (e) {
+      const mesaj = String((e && e.message) || e);
+      grup.forEach(function (q) { state.alignment[alignKey(q.id)] = { error: mesaj }; });
+    }
+  }
+  saveState();
+  renderAll();
+}
+
+var ALIGN_ETIKET = {
+  olcuyor: { ad: "kazanımı ölçüyor", sinif: "pill-success" },
+  kismen: { ad: "kısmen ölçüyor", sinif: "pill-warning" },
+  olcmuyor: { ad: "bu kazanımı ölçmüyor", sinif: "pill-critical" },
+  belirsiz: { ad: "karar verilemedi", sinif: "pill-neutral" }
+};
+
+/** Tek bir soru kartında gösterilen hizalama satırı. */
+function alignmentRowHtml(q) {
+  const d = (state.alignment || {})[alignKey(q.id)];
+  if (!d) return "";
+  if (d.loading) return '<div class="al-row al-loading">Kazanım denetimi yapılıyor…</div>';
+  if (d.error) {
+    return '<div class="al-row al-err"><b>Kazanım denetimi yapılamadı.</b> ' + escapeHtml(d.error) + "</div>";
+  }
+  const e = ALIGN_ETIKET[d.karar] || ALIGN_ETIKET.belirsiz;
+  const oneri = d.onerilenKod
+    ? '<div class="al-oneri">Daha uygun görünen kazanım: <b>' + escapeHtml(d.onerilenKod) +
+      '</b> <button class="btn btn-secondary btn-sm al-uygula" data-qid="' + q.id +
+      '" data-kod="' + escapeHtml(d.onerilenKod) + '">Bu kazanıma taşı</button></div>'
+    : "";
+  return '<div class="al-row"><div class="al-bas"><span class="pill ' + e.sinif + '">' + e.ad + "</span>" +
+    '<span class="al-hint">içerik geçerliği denetimi · bağımsız çağrı</span></div>' +
+    (d.gerekce ? '<div class="al-gerekce">' + escapeHtml(d.gerekce) + "</div>" : "") +
+    oneri + "</div>";
+}
+
+/** Bekleyen soru listesinin başındaki denetim çubuğu. */
+function alignmentBarHtml(bekleyen) {
+  if (!bekleyen.length) return "";
+  const d = state.alignment || {};
+  const yukleniyor = bekleyen.some(function (q) { return (d[alignKey(q.id)] || {}).loading; });
+  const sonuclu = bekleyen.filter(function (q) { const x = d[alignKey(q.id)]; return x && x.karar; });
+  let ozet = "";
+  if (sonuclu.length) {
+    const say = { olcuyor: 0, kismen: 0, olcmuyor: 0, belirsiz: 0 };
+    sonuclu.forEach(function (q) { const k = d[alignKey(q.id)].karar; if (say[k] != null) say[k]++; });
+    const sorunlu = say.kismen + say.olcmuyor;
+    ozet = '<span class="al-ozet">' + say.olcuyor + " soru kazanımı ölçüyor" +
+      (sorunlu ? ", <b>" + sorunlu + "</b> soruda sorun var" : "") + "</span>";
+  }
+  return '<div class="al-bar"><button class="btn btn-secondary btn-sm" id="btnAlign"' +
+    (yukleniyor ? " disabled" : "") + ">" +
+    (yukleniyor ? "Denetleniyor…" : (sonuclu.length ? "Kazanım Denetimini Yenile" : "Kazanım Denetimi Yap")) +
+    "</button>" + ozet +
+    '<span class="al-aciklama">Üretilen sorular seçtiğiniz kazanımı gerçekten ölçüyor mu? ' +
+    "Denetimi soruyu üreten çağrı değil, ayrı ve bağımsız bir çağrı yapar.</span></div>";
+}
+
+function wireAlignment() {
+  const b = document.getElementById("btnAlign");
+  if (b) b.onclick = function () { runAlignment(); };
+  document.querySelectorAll(".al-uygula").forEach(function (btn) {
+    btn.onclick = function () {
+      const qid = btn.dataset.qid, kod = btn.dataset.kod;
+      const q = state.questions.filter(function (x) { return String(x.id) === String(qid); })[0];
+      if (!q) return;
+      // Önerilen kazanım tanımlı değilse (katalogdan geldiyse) önce ekle.
+      if (!OUTCOMES_LIST().some(function (o) { return o.code === kod; })) {
+        const aday = alignAdaylari(state.ceForm.subject).filter(function (x) { return x.kod === kod; })[0];
+        if (aday) addOutcome(aday.kod, aday.metin);
+      }
+      q.outcome = kod;
+      // Kazanım değişti; eski denetim sonucu artık geçersiz.
+      if (state.alignment) delete state.alignment[alignKey(q.id)];
+      saveState();
+      renderAll();
+    };
+  });
+}
+
 function renderPendingQuestionCard(q) {
   const optsHtml = q.type === "mc" ? q.options.map(function (o) {
     return '<div class="opt-row">' +
@@ -713,6 +864,7 @@ function renderPendingQuestionCard(q) {
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
     distractorHtml(q) +
+    alignmentRowHtml(q) +
     '<div class="actions">' +
     '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
     '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button></div></div>';
@@ -844,6 +996,7 @@ function ceCreateHtml() {
     '<span class="gen-hint">Seçilen metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir</span>' +
     '</div></div></div>' +
     '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
+    alignmentBarHtml(pending) +
     '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
     (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Yukarıya bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
 }
@@ -877,6 +1030,7 @@ function renderContentExpert() {
   const rd = document.getElementById("btnRemedialDismiss");
   if (rd) rd.onclick = function () { state.remedial = null; renderAll(); };
   document.getElementById("btnGenerate").onclick = onGenerateQuestions;
+  wireAlignment();
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
   const subEl = document.getElementById("ceSubject");
   subEl.onchange = function (e) { addSubject(e.target.value); renderAll(); };
@@ -3833,6 +3987,7 @@ setInterval(function () {
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "bloomDagilimi", "bloomBalanceHtml",
+    "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",

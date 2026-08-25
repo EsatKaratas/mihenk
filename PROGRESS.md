@@ -1172,3 +1172,102 @@ gerektirdiğini ayırıyoruz — çünkü konuşma kazanımı çoktan seçmeli s
 
 Bu, §11f'de seçenek havuzunda duran **"MEB kazanım kataloğu içe aktarma"**
 maddesinin karşılığıdır.
+
+---
+
+## 13. SORU KALİTESİ TURU (26 Ağustos)
+
+Müfredat kataloğu geldikten sonra, onunla **birleşen** iki özellik yapıldı.
+Hazır soru bankası entegrasyonu ise gerekçeli olarak reddedildi.
+
+### 13a. Neden hazır soru bankası peşine düşülmedi
+
+| Artı | Eksi |
+|---|---|
+| Demoda hazır başlangıç | Zaten var: `DEMO_SORULAR` gerçek model çıktıları |
+| MEB sorularıyla kıyas | **Ana değer önerisiyle çelişir:** ürün "AI soru üretiyor" diyor; hazır havuz jüriye *"AI'a ne gerek var?"* dedirtir |
+| Few-shot örnek olabilir | Kaynak PDF elde değil (§12a) |
+| | Çıkarım + doğrulama + entegrasyon ≈ 2 saat |
+| | Telif/kullanım sorusu açar |
+
+**Karar:** Maliyet yüksek, fayda düşük, ters etki riski var. O süre katalogla
+sinerjik iki özelliğe harcandı.
+
+### 13b. Bloom bilişsel düzey dengesi
+
+Model zaten her soruya Bloom etiketi üretiyordu ama etiket **yalnızca rozet
+olarak duruyordu.** Bir sınavın tamamı "hatırlama" düzeyindeyse o sınav ezber
+ölçer — ve öğretmen bunu soruları tek tek okumadan göremez.
+
+Sınav kurarken kazanım kapsama kutusunun içinde: bilişsel düzey çubuğu
+(alt düzey soluk, üst düzey vurgulu), düzey bazında sayılar ve iki uç uyarısı.
+
+**Hedef oran DAYATILMIYOR** — ölçme literatüründe sabit bir "doğru oran"
+yoktur, sınıf düzeyine ve dersin amacına göre değişir. Yalnızca iki uç
+bildirilir:
+
+| Durum | Mesaj |
+|---|---|
+| Hiç üst düzey soru yok | "Sınav büyük olasılıkla ezber ölçüyor; öğrencinin bilgiyi *kullanabildiğini* gösteren bir soru yok." |
+| Hiç alt düzey soru yok | "Temel bilgiyi ölçen bir soru yok; konuyu kısmen öğrenmiş öğrenci hiç puan alamayabilir." |
+| Dengeli | Sayılar verilir + "hedef oranı dersin amacına göre siz belirlersiniz" |
+
+Alt düzey: hatırlama, anlama. Üst düzey: uygulama, analiz, değerlendirme,
+yaratma. Saf hesap, AI çağrısı yok.
+
+**Doğrulama — 4 birim testi, hepsi geçti:** hepsi alt düzey (alt 3/üst 0,
+ezber uyarısı) · hepsi üst düzey (alt 0/üst 2, temel bilgi uyarısı) ·
+dengeli (alt 2/üst 2, oran %50, uyarı yok) · etiketsiz sorular (hiç render
+edilmiyor).
+
+### 13c. Kazanım-soru hizalama denetimi (içerik geçerliği)
+
+**Sorun:** Öğretmen bir kazanım seçiyor, model o kazanım için soru üretiyor.
+Ama ürettiği soru gerçekten O kazanımı mı ölçüyor? "Metnin yüzey anlamını
+belirleyebilme" için üretilmiş bir soru aslında derin anlam ölçüyorsa, sonuç
+yanlış kazanıma yazılır ve **ısı haritası öğretmeni yanıltır.**
+
+Yeni uç: `POST /api/ai/outcome-alignment`. Her soru için üç karardan biri:
+`olcuyor` · `kismen` · `olcmuyor`, tek cümlelik gerekçe ve — uygun değilse —
+daha uygun kazanım önerisi.
+
+**Kritik tasarım kararları:**
+- **Denetimi üreten çağrı yapmaz.** Ayrı ve bağımsız bir çağrıdır; model kendi
+  ürettiğini onaylamaya eğilimlidir. İstemde de bu açıkça yazar: *"Soruları
+  sen üretmedin; görevin onları onaylamak değil."*
+- **Model kod uyduramaz.** Öneri yalnızca gönderilen aday listesinden gelebilir;
+  sunucu ayrıca doğrular, liste dışı kod temizlenir. Aday listesi verilmezse
+  öneri hiç istenmez.
+- Her soru için sonuç garanti edilir; model bir soruyu atlarsa `belirsiz` döner.
+- Hiçbir soruyu reddetmez veya silmez (`agents.md` §7.1) — öğretmene sinyaldir.
+  Öneriyi uygulamak tek tıklık ayrı bir eylemdir ("Bu kazanıma taşı").
+- Injection savunması bu uçta da uygulandı.
+- `agents.md` §7.4: rate limit 5/dk, `max_tokens` açık, 6.000 karakter aşılırsa 413.
+
+**Doğrulama — kasten yanlış hizalanmış sorularla (canlı, gerçek model):**
+
+| Soru | Beklenen | Sonuç |
+|---|---|---|
+| Yüzey anlam sorusu (uygun) | ölçüyor | ✅ **ÖLÇÜYOR** |
+| Kasten *derin anlam* sorusu | ölçüyor değil | ✅ **KISMEN** + öneri `T.O.7.7` (*"üst düzey çıkarımlarla derin anlam"* — doğru adres) |
+| Kasten *dilbilgisi* sorusu | ölçüyor değil | ✅ **ÖLÇMÜYOR** — *"dilbilgisi kurallarını ölçüyor, metnin anlamıyla ilgili değil"* |
+
+**4/4 geçti** (3,3 sn). Ek testler:
+
+| Test | Sonuç |
+|---|---|
+| Aday listesi verilmeden | **Hiç kod önerilmedi** — uydurma engeli çalışıyor |
+| Arayüz uçtan uca | 2,5 sn; uygun soru ÖLÇÜYOR, yazım yanlışı sorusu ÖLÇMÜYOR; özet: "1 soru kazanımı ölçüyor, 1 soruda sorun var" |
+| "Bu kazanıma taşı" | Soru yeni kazanıma taşındı, kazanım tanımlı değilse otomatik eklendi, eski denetim sonucu geçersiz sayılıp silindi |
+| **Ağ hatası** | Hata kaydedildi, **uydurma karar yok**, ekranda hata satırı |
+| Soru yok / çok uzun | HTTP 400 / 413 |
+| Bekleyen soru yok · denetlenmemiş soru | Hiç render edilmiyor |
+
+### 13d. Jüriye anlatım
+
+*"Yapay zekâ soru üretiyor — ama ürettiği sorunun doğru kazanımı ölçtüğünü de
+denetliyoruz. Üstelik denetimi soruyu üreten çağrı değil, ayrı ve bağımsız bir
+çağrı yapıyor; çünkü bir model kendi ürettiğini onaylamaya eğilimlidir."*
+
+Bu, §11f seçenek havuzundaki **"kazanım-soru hizalama denetimi"** ve
+**"Bloom taksonomisi dengesi"** maddelerinin karşılığıdır.

@@ -800,6 +800,27 @@
     border-radius: 8px; padding: 8px 10px; }
   .bl-ok { font-size: 11.5px; line-height: 1.55; color: var(--text-muted); }
 
+
+  /* --- Kazanım-soru hizalama denetimi (içerik geçerliği) ------------------
+     BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* / .kat-* / .bl-* notları). */
+  .al-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 12px; margin-bottom: 12px; border-radius: 10px;
+    background: var(--surface-2); border: 1px solid var(--border); }
+  .al-ozet { font-size: 12px; color: var(--text-muted); }
+  .al-ozet b { color: var(--warning); }
+  .al-aciklama { flex: 1 1 100%; font-size: 11px; line-height: 1.55; color: var(--text-muted); }
+
+  .al-row { margin-top: 9px; padding: 9px 11px; border-radius: 8px;
+    background: var(--surface-2); border-left: 3px solid var(--border-strong); }
+  .al-bas { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .al-hint { font-size: 10.5px; color: var(--text-muted); }
+  .al-gerekce { margin-top: 5px; font-size: 11.5px; line-height: 1.55; color: var(--text-muted); }
+  .al-oneri { margin-top: 8px; display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; font-size: 11.5px; color: var(--accent); }
+  .al-loading { font-size: 11.5px; color: var(--text-muted); }
+  .al-err { font-size: 11.5px; line-height: 1.55; color: var(--critical);
+    background: var(--accent2-soft); border-left-color: var(--critical); }
+
   .cache-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
     margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
     font-size: 12.5px; color: var(--text-muted); }

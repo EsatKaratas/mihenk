@@ -82,6 +82,42 @@ export const modelMisconceptionsSchema = z.object({
   correctCount: z.number().int().min(0).catch(0),
 });
 
+/**
+ * Kazanım-soru hizalama denetimi (içerik geçerliği).
+ * candidates: modelin "daha uygun kazanım" önerisini seçebileceği liste.
+ * Boşsa öneri istenmez — model kod UYDURAMASIN diye sunucuda da doğrulanır.
+ */
+export const alignmentSchema = z.object({
+  outcomeCode: z.string().min(1).max(40),
+  outcomeLabel: z.string().min(1).max(200),
+  questions: z
+    .array(
+      z.object({
+        type: z.enum(['mc', 'open']),
+        body: z.string().min(1).max(2000),
+      })
+    )
+    .min(1)
+    .max(12),
+  candidates: z
+    .array(z.object({ kod: z.string().min(1).max(40), metin: z.string().min(1).max(220) }))
+    .max(60)
+    .optional(),
+});
+
+export const modelAlignmentSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        index: z.number().int(),
+        karar: z.enum(['olcuyor', 'kismen', 'olcmuyor']).catch('kismen'),
+        gerekce: z.string().default(''),
+        onerilenKod: z.string().max(40).default(''),
+      })
+    )
+    .default([]),
+});
+
 export const rubricCriterionSchema = z.object({
   label: z.string().min(1).max(120),
   weight: z.number().min(0).max(100),

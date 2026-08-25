@@ -15,6 +15,7 @@ import {
   buildRubricPrompt,
   buildSampleAnswerPrompt,
   buildMisconceptionPrompt,
+  buildAlignmentPrompt,
 } from '../lib/prompts';
 import { callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv, type AiEnv } from '../lib/ai';
 import {
@@ -28,6 +29,8 @@ import {
   modelSampleAnswersSchema,
   misconceptionsSchema,
   modelMisconceptionsSchema,
+  alignmentSchema,
+  modelAlignmentSchema,
   MAX_SOURCE_CHARS,
 } from '../schemas/ai';
 
@@ -454,6 +457,96 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
       correctCount: clamp(Math.round(Number(parsed.data.correctCount) || 0), 0, dolu.length),
       analyzed: dolu.length,
       skipped: b.answers.length - dolu.length,
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+    });
+  } catch (e) {
+    return c.json(
+      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      502
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/outcome-alignment — kazanım-soru hizalama denetimi
+// (içerik geçerliği). Öğretmenin seçtiği kazanım ile üretilen soruların
+// gerçekten örtüşüp örtüşmediğini BAĞIMSIZ bir çağrıda değerlendirir.
+//
+// agents.md §7.1: Hiçbir soruyu otomatik reddetmez; öğretmene sinyaldir.
+// ---------------------------------------------------------------------------
+ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+
+  if (rateLimited(`align:${b.outcomeCode}`)) {
+    return c.json(
+      { error: 'rate_limited', message: 'Aynı kazanım için dakikada en fazla 5 denetim isteği gönderebilirsiniz.' },
+      429
+    );
+  }
+
+  const toplam = b.questions.reduce((t, q) => t + (q.body || '').length, 0);
+  if (toplam > MAX_SOURCE_CHARS) {
+    return c.json(
+      { error: 'payload_too_large', message: `Soru metinlerinin toplamı ${toplam} karakter; sınır ${MAX_SOURCE_CHARS}. Daha az soruyla deneyin.` },
+      413
+    );
+  }
+
+  try {
+    const prompt = buildAlignmentPrompt({
+      outcomeCode: b.outcomeCode,
+      outcomeLabel: b.outcomeLabel,
+      questions: b.questions.map((q, i) => ({ index: i + 1, type: q.type, body: q.body })),
+      candidates: b.candidates,
+    });
+    const maxTokens = clamp(400 + b.questions.length * 110, 600, 1600);
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, {
+      maxTokens,
+      temperature: 0.2,
+    });
+    const parsed = modelAlignmentSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json(
+        { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
+        502
+      );
+    }
+
+    // Normalleştirme — model çıktısı güvenilmez:
+    //  - index sınır dışıysa at
+    //  - onerilenKod aday listesinde YOKSA temizle (model kod uyduramasın)
+    //  - hedef kazanımın kendisi öneri olarak dönerse anlamsız, temizle
+    const adayKodlar = new Set((b.candidates || []).map((x) => x.kod));
+    const results = parsed.data.results
+      .filter((r) => Number.isFinite(r.index) && r.index >= 1 && r.index <= b.questions.length)
+      .map((r) => {
+        const kod = (r.onerilenKod || '').trim();
+        const gecerliOneri = kod && kod !== b.outcomeCode && adayKodlar.has(kod) ? kod : '';
+        return {
+          index: r.index,
+          karar: r.karar,
+          gerekce: (r.gerekce || '').trim(),
+          onerilenKod: gecerliOneri,
+        };
+      });
+
+    // Her soru için bir sonuç garanti et: model atladıysa "belirsiz" döner.
+    const tam = b.questions.map((_, i) => {
+      const bulunan = results.find((r) => r.index === i + 1);
+      return bulunan || { index: i + 1, karar: 'belirsiz', gerekce: 'Model bu soru için karar döndürmedi.', onerilenKod: '' };
+    });
+
+    const ozet = {
+      olcuyor: tam.filter((r) => r.karar === 'olcuyor').length,
+      kismen: tam.filter((r) => r.karar === 'kismen').length,
+      olcmuyor: tam.filter((r) => r.karar === 'olcmuyor').length,
+      belirsiz: tam.filter((r) => r.karar === 'belirsiz').length,
+    };
+
+    return c.json({
+      outcomeCode: b.outcomeCode,
+      results: tam,
+      ozet,
       meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {
