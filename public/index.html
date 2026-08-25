@@ -223,6 +223,52 @@
     resize: vertical; }
   .crit-desc:focus { color: var(--text); border-color: var(--border-strong); }
 
+  .rub-intro { font-size: 13px; line-height: 1.65; color: var(--text-muted);
+    padding: 12px 14px; margin-bottom: 14px; border-radius: 9px;
+    background: var(--surface-2); border-left: 3px solid var(--accent); }
+  .rub-intro b { color: var(--text); }
+
+  .rub-qpick { margin-bottom: 12px; }
+  .rub-qpick > div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+  .rub-question { font-size: 14px; line-height: 1.6; padding: 12px 14px; margin-bottom: 16px;
+    border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); }
+  .rub-question .rq-label { display: block; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin-bottom: 5px; }
+
+  .rub-step { display: flex; align-items: center; gap: 9px; margin: 18px 0 9px; }
+  .rub-step .rs-no { width: 22px; height: 22px; flex: none; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .rub-step .rs-text { font-size: 13.5px; font-weight: 600; }
+
+  .rub-helpers { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+
+  .rub-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden;
+    background: var(--surface-3); margin-bottom: 9px; }
+  .rub-bar .rb-seg { height: 100%; }
+  .rub-bar .rb-empty { background: repeating-linear-gradient(45deg,
+    var(--surface-3), var(--surface-3) 4px, var(--border) 4px, var(--border) 8px); }
+
+  .rub-status { font-size: 12.5px; line-height: 1.6; padding: 9px 12px; border-radius: 8px;
+    margin-bottom: 14px; }
+  .rub-status.ok { background: var(--success-soft); color: var(--success); }
+  .rub-status.warn { background: var(--warning-soft); color: var(--warning); }
+  .rub-status.err { background: var(--accent2-soft); color: var(--critical); }
+
+  .crit-row { display: flex; align-items: center; gap: 8px; }
+  .crit-no { width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: 11px;
+    font-weight: 700; color: var(--text-muted); background: var(--surface-3);
+    display: inline-flex; align-items: center; justify-content: center; }
+  .crit-label { flex: 1; }
+  .crit-weight { width: 68px; flex: none; text-align: right; }
+  .crit-pct { font-size: 12px; color: var(--text-muted); }
+  .crit-points { font-family: "IBM Plex Mono", monospace; font-size: 12px;
+    color: var(--accent); white-space: nowrap; min-width: 74px; }
+  .crit-desc-add { display: block; margin-top: 5px; padding: 0; border: none; background: none;
+    color: var(--accent); font-family: inherit; font-size: 11.5px; cursor: pointer; }
+  .crit-desc-add:hover { text-decoration: underline; }
+
   .rub-ai-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 
@@ -892,6 +938,7 @@ const state = {
   editingQid: null, // öğretmenin havuzda düzenlediği soru
   rubricError: "",
   poolError: "",
+  critDescOpen: null,
 
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
@@ -1785,133 +1832,230 @@ function wireTeacherTab1() {
   };
 }
 
-function critRowHtml(c, i) {
-  return '<div class="crit-block"><div class="crit-row" data-idx="' + i + '">' +
+/* ==================== Puanlama Anahtarı (Rubrik) ====================
+   Bu ekranın tek işi şu: açık uçlu bir yanıtın hangi ölçütlere göre
+   puanlanacağını ÖĞRETMENİN belirlemesi. Yapay zekâ bu ölçütlerin dışına
+   çıkamaz (bkz. src/lib/prompts.ts → buildEvaluationPrompt).
+
+   Önceki sürüm doğrudan sayı istiyordu; kullanıcı %40'ın kaç puan ettiğini,
+   neden 100 olması gerektiğini ve ne kadar eksik kaldığını göremiyordu.   */
+
+const RUBRIK_SABLONLARI = [
+  {
+    ad: "Kavramsal Anlama",
+    aciklama: "Bir kavramın doğru anlaşılıp anlaşılmadığını ölçen sorular için",
+    criteria: [
+      { label: "Kavram doğruluğu", weight: 50, description: "Kavramı bilimsel olarak doğru ifade etmiş." },
+      { label: "Kavramlar arası ilişki", weight: 30, description: "İlgili kavramlarla bağını kurmuş." },
+      { label: "Anlatım açıklığı", weight: 20, description: "Anlaşılır ve tutarlı bir dille açıklamış." }
+    ]
+  },
+  {
+    ad: "Problem Çözme",
+    aciklama: "İşlem ve çözüm yolu gerektiren sorular için",
+    criteria: [
+      { label: "Yöntem seçimi", weight: 35, description: "Probleme uygun yolu seçmiş." },
+      { label: "İşlem doğruluğu", weight: 35, description: "Adımları hatasız uygulamış." },
+      { label: "Sonucun yorumu", weight: 30, description: "Bulduğu sonucu anlamlandırmış." }
+    ]
+  },
+  {
+    ad: "Yazılı Anlatım",
+    aciklama: "Görüş, yorum ve gerekçelendirme isteyen sorular için",
+    criteria: [
+      { label: "İçerik zenginliği", weight: 40, description: "Konuyu yeterli derinlikte ele almış." },
+      { label: "Örnek ve dayanak", weight: 30, description: "İddialarını örnekle desteklemiş." },
+      { label: "Dil ve tutarlılık", weight: 30, description: "Bütünlüklü ve akıcı yazmış." }
+    ]
+  }
+];
+
+function kriterPuani(rub, c) {
+  return Math.round(rub.maxScore * (Number(c.weight) || 0) / 100 * 10) / 10;
+}
+
+function critRowHtml(rub, c, i) {
+  const puan = kriterPuani(rub, c);
+  const acikMi = state.critDescOpen === i || !!c.description;
+  return '<div class="crit-block">' +
+    '<div class="crit-row" data-idx="' + i + '">' +
+    '<span class="crit-no">' + (i + 1) + '</span>' +
     '<input type="text" class="crit-label" data-idx="' + i + '" value="' + escapeHtml(c.label) + '" placeholder="örn. Kavram doğruluğu">' +
-    '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight + '"><span style="font-size:12px;color:var(--text-muted);">%</span>' +
-    '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '">✕</button></div>' +
-    // Modelin ürettiği "tam puan için ne gerekir" açıklaması; öğretmen
-    // düzenleyebilir ve bu metin değerlendirme isteminde kullanılmaz —
-    // yalnızca öğretmene hatırlatıcıdır.
-    (c.description
-      ? '<textarea class="crit-desc" data-idx="' + i + '" rows="2" placeholder="Bu kriterden tam puan almak için ne gerekir?">' + escapeHtml(c.description) + '</textarea>'
-      : '<textarea class="crit-desc" data-idx="' + i + '" rows="1" placeholder="Açıklama (opsiyonel) — bu kriterden tam puan almak için ne gerekir?"></textarea>') +
+    '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight + '">' +
+    '<span class="crit-pct">%</span>' +
+    '<span class="crit-points" data-idx="' + i + '">= ' + puan + ' puan</span>' +
+    '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '" title="Bu ölçütü kaldır">✕</button></div>' +
+    (acikMi
+      ? '<textarea class="crit-desc" data-idx="' + i + '" rows="2" placeholder="Bu ölçütten tam puan almak için yanıtta ne olmalı?">' + escapeHtml(c.description || "") + '</textarea>'
+      : '<button class="crit-desc-add" data-idx="' + i + '">+ Ne beklendiğini yaz (opsiyonel)</button>') +
     '</div>';
 }
 
 function teacherTab2Html() {
   const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
-  if (!opens.length) return '<div class="empty-state">Sınava henüz açık uçlu soru eklenmedi. Önce 1. Sekme\'den soru seçin.</div>';
+  if (!opens.length) {
+    return '<div class="card"><div class="card-head"><h3>Puanlama Anahtarı</h3></div>' +
+      '<div class="rub-intro">Açık uçlu sorular, çoktan seçmeli sorular gibi tek bir doğru cevaba sahip değildir. ' +
+      'Bu yüzden yapay zekânın <b>neye göre puan vereceğini</b> siz belirlersiniz. ' +
+      'Bu ekran, sınavınızdaki açık uçlu sorular için o ölçütleri tanımladığınız yerdir.</div>' +
+      '<div class="empty-state">Sınavda henüz açık uçlu soru yok. Önce <b>1 · Sınav Oluştur</b> sekmesinden açık uçlu bir soru ekleyin.</div></div>';
+  }
   if (state.rubricSelectedQ == null || !opens.find(function (q) { return q.id === state.rubricSelectedQ; })) state.rubricSelectedQ = opens[0].id;
   const q = opens.find(function (x) { return x.id === state.rubricSelectedQ; });
   ensureRubric(q.id);
   const rub = state.rubrics[q.id];
   const tw = totalWeight(rub);
-  return '<div class="grid-2"><div class="card"><div class="card-head"><h3>Açık Uçlu Sorular</h3></div>' +
-    opens.map(function (o) { return '<button class="btn ' + (o.id === q.id ? "btn-primary" : "btn-secondary") + ' btn-sm rub-select" data-qid="' + o.id + '" style="margin:0 6px 6px 0;">' + escapeHtml(truncate(o.body, 34)) + '</button>'; }).join("") +
-    '<div style="margin-top:14px;font-size:13px;color:var(--text-muted);">' + escapeHtml(q.body) + '</div></div>' +
-    '<div class="card"><div class="card-head"><h3>Puanlama Anahtarı</h3><span class="hint">toplam ağırlık %' + tw + '</span></div>' +
-    '<div class="field"><label>Maksimum puan</label><input id="rubMax" type="number" min="1" value="' + rub.maxScore + '"></div>' +
-    '<div class="rub-ai-row">' +
+  const kalanPuan = Math.round(rub.maxScore * (100 - tw) / 100 * 10) / 10;
+
+  // Dağıtım çubuğu: ölçütlerin ağırlıkları renkli bloklar hâlinde.
+  const renkler = ["--accent", "--accent2", "--success", "--warning", "--critical", "--accent-strong"];
+  const bar = '<div class="rub-bar">' +
+    rub.criteria.map(function (c, i) {
+      const w = Math.max(0, Math.min(100, Number(c.weight) || 0));
+      return w ? '<div class="rb-seg" style="width:' + w + '%;background:var(' + renkler[i % renkler.length] + ');" title="' + escapeHtml(c.label) + ' %' + w + '"></div>' : "";
+    }).join("") +
+    (tw < 100 ? '<div class="rb-seg rb-empty" style="width:' + (100 - tw) + '%;"></div>' : "") +
+    '</div>';
+
+  const durum = tw === 100
+    ? '<div class="rub-status ok">✓ Ölçütler tamam. Toplam <b>' + rub.maxScore + ' puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.</div>'
+    : tw < 100
+      ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + kalanPuan + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
+      : '<div class="rub-status err">Ağırlıkların toplamı <b>%' + tw + '</b> — 100\'ü <b>' + (tw - 100) + ' puan</b> aşıyor. Fazlalığı azaltın.</div>';
+
+  const soruSecici = opens.length > 1
+    ? '<div class="rub-qpick"><span class="lbl-hint">Bu sınavda ' + opens.length + ' açık uçlu soru var — her biri için ayrı ölçüt tanımlarsınız:</span><div>' +
+      opens.map(function (o) {
+        const r = state.rubrics[o.id];
+        const hazir = r && totalWeight(r) === 100;
+        return '<button class="btn ' + (o.id === q.id ? "btn-primary" : "btn-secondary") + ' btn-sm rub-select" data-qid="' + o.id + '">' +
+          (hazir ? "✓ " : "• ") + escapeHtml(truncate(o.body, 30)) + '</button>';
+      }).join("") + '</div></div>'
+    : "";
+
+  return '<div class="card">' +
+    '<div class="card-head"><h3>Puanlama Anahtarı</h3><span class="hint">açık uçlu yanıtlar için</span></div>' +
+    '<div class="rub-intro">Açık uçlu yanıtların tek bir doğru cevabı yoktur. Bu yüzden yapay zekânın ' +
+    '<b>neye göre puan vereceğini siz belirlersiniz</b> — model bu ölçütlerin dışına çıkamaz, ' +
+    'her ölçüt için ayrı puan ve gerekçe üretir. Nihai puanı yine siz onaylarsınız.</div>' +
+    soruSecici +
+    '<div class="rub-question"><span class="rq-label">Ölçüt tanımlanan soru</span>' + escapeHtml(q.body) + '</div>' +
+
+    '<div class="rub-step"><span class="rs-no">1</span><span class="rs-text">Bu soru kaç puan üzerinden değerlendirilsin?</span></div>' +
+    '<div class="field" style="max-width:180px;"><input id="rubMax" type="number" min="1" max="100" value="' + rub.maxScore + '"></div>' +
+
+    '<div class="rub-step"><span class="rs-no">2</span><span class="rs-text">Bu ' + rub.maxScore + ' puanı hangi ölçütlere dağıtacaksınız?</span></div>' +
+    '<div class="rub-helpers">' +
     '<button class="btn btn-primary btn-sm" id="btnAiRubric"' + (state.ai.busy ? " disabled" : "") + '>' +
-    (state.ai.busy ? '⏳ Hazırlanıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile rubrik taslağı öner") + '</button>' +
-    '<span class="lbl-hint">Model bir taslak önerir; kriterleri ve ağırlıkları siz belirlersiniz.</span></div>' +
+    (state.ai.busy ? '⏳ Hazırlanıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 Bu soruya özel taslak öner") + '</button>' +
+    RUBRIK_SABLONLARI.map(function (s, i) {
+      return '<button class="btn btn-secondary btn-sm rub-tpl" data-tpl="' + i + '" title="' + escapeHtml(s.aciklama) + '">' + escapeHtml(s.ad) + '</button>';
+    }).join("") +
+    '</div>' +
     (state.rubricError ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.rubricError) + '</div>' : "") +
     (rub.aiDraft ? '<div class="pill pill-accent2" style="margin-bottom:10px;">Bu taslağı yapay zekâ önerdi — onaylamadan önce gözden geçirin.</div>' : "") +
-    '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(c, i); }).join("") + '</div>' +
-    '<button class="btn btn-secondary btn-sm" id="btnAddCrit">+ Kriter Ekle</button>' +
-    '<div class="pill ' + (tw === 100 ? "pill-success" : "pill-warning") + '" id="weightPill" style="margin-top:10px;">' + (tw === 100 ? "Ağırlıklar tamam" : "Ağırlıklar %100 olmalı (şu an %" + tw + ")") + '</div>' +
-    '</div></div>';
+
+    bar + durum +
+    '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(rub, c, i); }).join("") + '</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnAddCrit">+ Ölçüt Ekle</button>' +
+    '</div>';
 }
 
 function wireTeacherTab2() {
   const aiRub = document.getElementById("btnAiRubric");
   if (aiRub) aiRub.onclick = function () { aiSuggestRubric(state.rubricSelectedQ); };
-  document.querySelectorAll(".rub-select").forEach(function (b) { b.onclick = function () { state.rubricSelectedQ = Number(b.dataset.qid); renderAll(); }; });
+
+  document.querySelectorAll(".rub-tpl").forEach(function (b) {
+    b.onclick = function () {
+      const s = RUBRIK_SABLONLARI[Number(b.dataset.tpl)];
+      const rub = state.rubrics[state.rubricSelectedQ];
+      rub.criteria = JSON.parse(JSON.stringify(s.criteria));
+      rub.aiDraft = false;
+      state.rubricError = "";
+      renderAll();
+    };
+  });
+
+  document.querySelectorAll(".rub-select").forEach(function (b) {
+    b.onclick = function () { state.rubricSelectedQ = Number(b.dataset.qid); state.critDescOpen = null; renderAll(); };
+  });
+
+  document.querySelectorAll(".crit-desc-add").forEach(function (b) {
+    b.onclick = function () { state.critDescOpen = Number(b.dataset.idx); renderAll(); };
+  });
   document.querySelectorAll(".crit-desc").forEach(function (el) {
     el.oninput = function () {
       const rub = state.rubrics[state.rubricSelectedQ];
       if (rub && rub.criteria[el.dataset.idx]) { rub.criteria[el.dataset.idx].description = el.value; saveSoon(); }
     };
   });
+
   const maxEl = document.getElementById("rubMax");
-  if (maxEl) maxEl.oninput = function () { state.rubrics[state.rubricSelectedQ].maxScore = Number(maxEl.value) || 1; };
-  document.querySelectorAll(".crit-label").forEach(function (el) { el.oninput = function () { state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].label = el.value; }; });
+  if (maxEl) maxEl.onchange = function () {
+    state.rubrics[state.rubricSelectedQ].maxScore = Math.max(1, Math.min(100, Number(maxEl.value) || 1));
+    renderAll();
+  };
+
+  document.querySelectorAll(".crit-label").forEach(function (el) {
+    el.oninput = function () { state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].label = el.value; saveSoon(); };
+  });
+
+  // Ağırlık değişince renderAll ÇAĞIRMAYIZ (odak kaybolmasın); puan
+  // karşılığını, çubuğu ve durum satırını yerinde güncelleriz.
   document.querySelectorAll(".crit-weight").forEach(function (el) {
     el.oninput = function () {
-      state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].weight = Number(el.value) || 0;
       const rub = state.rubrics[state.rubricSelectedQ];
-      const pill = document.getElementById("weightPill");
-      if (pill) { const tw = totalWeight(rub); pill.textContent = tw === 100 ? "Ağırlıklar tamam" : "Ağırlıklar %100 olmalı (şu an %" + tw + ")"; pill.className = "pill " + (tw === 100 ? "pill-success" : "pill-warning"); }
+      const i = Number(el.dataset.idx);
+      rub.criteria[i].weight = Math.max(0, Math.min(100, Number(el.value) || 0));
+      const pEl = document.querySelector('.crit-points[data-idx="' + i + '"]');
+      if (pEl) pEl.textContent = "= " + kriterPuani(rub, rub.criteria[i]) + " puan";
+      rubRefreshBar(rub);
+      saveSoon();
     };
   });
+
   const addBtn = document.getElementById("btnAddCrit");
-  if (addBtn) addBtn.onclick = function () { state.rubrics[state.rubricSelectedQ].criteria.push({ label: "Yeni kriter", weight: 0 }); renderAll(); };
-  document.querySelectorAll(".crit-remove").forEach(function (el) { el.onclick = function () { state.rubrics[state.rubricSelectedQ].criteria.splice(Number(el.dataset.idx), 1); renderAll(); }; });
+  if (addBtn) addBtn.onclick = function () {
+    const rub = state.rubrics[state.rubricSelectedQ];
+    const kalan = Math.max(0, 100 - totalWeight(rub));
+    rub.criteria.push({ label: "", weight: kalan, description: "" });
+    state.critDescOpen = null;
+    renderAll();
+  };
+  document.querySelectorAll(".crit-remove").forEach(function (el) {
+    el.onclick = function () {
+      state.rubrics[state.rubricSelectedQ].criteria.splice(Number(el.dataset.idx), 1);
+      state.critDescOpen = null;
+      renderAll();
+    };
+  });
 }
 
-function evalCardHtml(q) {
-  const ans = state.answers[q.id] || { text: "" };
-  const ev = state.aiEvals[q.id];
-  const rub = state.rubrics[q.id];
-  if (ev && ev.failed) return evalFailedCardHtml(q, ans, ev, rub);
-  return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
-    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
-    '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
-    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' + confBadge(ev.confidence) +
-    ev.breakdown.map(function (b) {
-      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
-        '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
-        (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
-    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
-    '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
-    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
-    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Puanı Güncelle ve Onayla</button></div></div>';
-}
-// Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
-function evalFailedCardHtml(q, ans, ev, rub) {
-  return '<div class="eval-card eval-failed" data-qid="' + q.id + '">' +
-    '<div class="q-meta"><span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
-    '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
-    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
-    '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
-    '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
-    '<div class="fail-note">Yapay zekâ ön değerlendirmesi tamamlanamadı. ' +
-    'Öğrencinin yanıtı güvenle kaydedildi; kaybolmadı.<br><span class="mono-err">' +
-    escapeHtml(ev.error || "bilinmeyen hata") + '</span></div>' +
-    '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
-    '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
-    '<input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
-    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label>' +
-    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions">' +
-    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Elle Puanla ve Onayla</button></div></div>';
-}
-
-function doneCardHtml(q) {
-  const rv = state.reviews[q.id], rub = state.rubrics[q.id];
-  return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
-    '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
-    '<div style="margin-top:8px;font-size:13px;">' +
-    'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
-    ' <span style="color:var(--text-muted);">&rarr;</span> ' +
-    'Öğretmen onayı: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
-    (rv.decision === "revised"
-      ? '<span class="pill pill-accent2">öğretmen revize etti</span>'
-      : '<span class="pill pill-accent">AI önerisiyle aynı</span>') +
-    (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
-    '</div></div>';
-}
-
-function confBadge(c) {
-  if (c == null) return "";
-  const pct = Math.round(c * 100);
-  const cls = c < 0.5 ? "pill-critical" : (c < 0.75 ? "pill-warning" : "pill-success");
-  const not = c < 0.5 ? "AI bu yanıtta zorlandı — önce buna bakın" : (c < 0.75 ? "AI kısmen emin" : "AI yüksek güvenle değerlendirdi");
-  return '<div style="margin:-4px 0 10px;"><span class="pill ' + cls + '" title="' + not + '">AI güveni %' + pct + '</span></div>';
+// Ağırlık yazarken çubuğu ve durum metnini yeniden çizmeden güncelle.
+function rubRefreshBar(rub) {
+  const tw = totalWeight(rub);
+  const kalanPuan = Math.round(rub.maxScore * (100 - tw) / 100 * 10) / 10;
+  const bar = document.querySelector(".rub-bar");
+  if (bar) {
+    const renkler = ["--accent", "--accent2", "--success", "--warning", "--critical", "--accent-strong"];
+    bar.innerHTML = rub.criteria.map(function (c, i) {
+      const w = Math.max(0, Math.min(100, Number(c.weight) || 0));
+      return w ? '<div class="rb-seg" style="width:' + w + '%;background:var(' + renkler[i % renkler.length] + ');"></div>' : "";
+    }).join("") + (tw < 100 ? '<div class="rb-seg rb-empty" style="width:' + (100 - tw) + '%;"></div>' : "");
+  }
+  const st = document.querySelector(".rub-status");
+  if (st) {
+    if (tw === 100) {
+      st.className = "rub-status ok";
+      st.innerHTML = "✓ Ölçütler tamam. Toplam <b>" + rub.maxScore + " puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.";
+    } else if (tw < 100) {
+      st.className = "rub-status warn";
+      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b>. Dağıtılmayı bekleyen <b>" + kalanPuan + " puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.";
+    } else {
+      st.className = "rub-status err";
+      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b> — 100'ü <b>" + (tw - 100) + " puan</b> aşıyor. Fazlalığı azaltın.";
+    }
+  }
 }
 
 function teacherTab3Html() {
