@@ -173,7 +173,12 @@ Kreaton rehberi §5'teki dört kritik tavsiye:
 - [x] **"Sıfırla" butonu** + **model bekleme sayacı** (buton üzerinde geçen saniye)
 
 ### C. Ayrışma
-- [ ] **Kazanıma tekrar sorusu üret** — kapalı döngü, videonun finali
+- [x] **Kazanıma tekrar sorusu üret — KAPALI DÖNGÜ (25 Ağustos)**
+      Isı haritasının altında (hem öğretmen 4. sekme hem yönetici paneli)
+      %60 altındaki kazanımlar için aksiyon butonu: "7-B · MAT.7.3.4 (%58) →
+      tekrar sorusu üret". Tıklayınca İçerik Uzmanı paneline geçer, kazanımı
+      seçer ve talebi açıklayan afişi gösterir. Zincir böyle kapanıyor:
+      içerik → sınav → değerlendirme → analiz → YENİ İÇERİK.
 - [ ] Öğretmen kalibrasyonu (AI'dan ortalama sapma)
 - [ ] Kazanım kapsama göstergesi (sınav kurarken)
 - [ ] AI rubrik taslağı önerisi

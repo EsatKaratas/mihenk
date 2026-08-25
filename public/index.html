@@ -197,6 +197,19 @@
   .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 
+  .remedial-box { margin-top: 14px; padding: 13px 15px; border: 1px solid var(--accent);
+    border-radius: 10px; background: var(--accent-soft); }
+  .remedial-box .rb-title { font-size: 13px; font-weight: 700; color: var(--accent-strong); margin-bottom: 4px; }
+  .remedial-box .rb-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; margin-bottom: 10px; }
+  .remedial-box .remedial-btn { margin: 0 8px 8px 0; }
+
+  .remedial-banner { border: 1px solid var(--accent2); background: var(--accent2-soft);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .remedial-banner .rbn-head { font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--accent2); margin-bottom: 6px; }
+  .remedial-banner .rbn-body { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+  .remedial-banner .rbn-actions { display: flex; gap: 8px; margin-top: 11px; }
+
   .pill-bloom { background: var(--accent2-soft); color: var(--accent2); }
 
   .distractor-box { margin-top: 10px; border: 1px dashed var(--border-strong);
@@ -559,7 +572,7 @@ function renderAiBadge() {
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
-  "remainingSec", "aiEvals", "reviews", "mcResults"];
+  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial"];
 
 function saveState() {
   try {
@@ -693,6 +706,7 @@ const state = {
   studentTab: 1,
   genCount: 0,
   ai: { mode: "unknown", provider: "", model: "", error: "", busy: false },
+  remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   ceForm: { title: "", subject: SUBJECTS[0], grade: GRADES[2], outcomeCode: OUTCOMES[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
@@ -802,6 +816,22 @@ function wirePendingCards() {
   });
 }
 
+// Analiz ekranından gelen "tekrar sorusu üret" talebini gösteren afiş.
+function remedialBannerHtml() {
+  const r = state.remedial;
+  if (!r) return "";
+  const hazir = state.ceForm.text.trim().length >= 30;
+  return '<div class="remedial-banner" id="remedialBanner">' +
+    '<div class="rbn-head">Analizden gelen talep</div>' +
+    '<div class="rbn-body"><b>' + escapeHtml(r.sinif) + '</b> sınıfı, <b>' + escapeHtml(outcomeLabel(r.outcomeCode)) +
+    '</b> kazanımında <b class="tabular">%' + r.deger + '</b> başarı gösterdi. ' +
+    'Bu kazanıma yönelik tekrar sorusu üretmek için ' +
+    (hazir ? 'aşağıdaki kaynak metin kullanılacak.' : 'sağdaki alana kaynak metni yapıştırın.') + '</div>' +
+    '<div class="rbn-actions">' +
+    (hazir ? '<button class="btn btn-primary btn-sm" id="btnRemedialGen"' + (state.ai.busy ? " disabled" : "") + '>Bu kazanıma soru üret</button>' : "") +
+    '<button class="btn btn-secondary btn-sm" id="btnRemedialDismiss">Kapat</button></div></div>';
+}
+
 function renderContentExpert() {
   const root = document.getElementById("panel-content_expert");
   const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
@@ -809,6 +839,7 @@ function renderContentExpert() {
   const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
 
   root.innerHTML =
+    remedialBannerHtml() +
     '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">metin + kazanım</span></div>' +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
@@ -842,6 +873,10 @@ function renderContentExpert() {
     rejectedPoolHtml("ce");
 
   wireRejectedPool();
+  const rg = document.getElementById("btnRemedialGen");
+  if (rg) rg.onclick = onGenerateQuestions;
+  const rd = document.getElementById("btnRemedialDismiss");
+  if (rd) rd.onclick = function () { state.remedial = null; renderAll(); };
   document.getElementById("btnGenerate").onclick = onGenerateQuestions;
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
   document.getElementById("ceSubject").onchange = function (e) { state.ceForm.subject = e.target.value; };
@@ -1398,6 +1433,41 @@ function renderHeatmap(targetId, rows) {
   const low = [];
   rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(r.name + " · " + c.code); }); });
   if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
+
+  /* ============ KAPALI DÖNGÜ ============
+     Analiz ekranı sadece sorunu göstermekle kalmaz, çözümü de başlatır:
+     zayıf kazanımın yanındaki buton, kullanıcıyı o kazanım seçili hâlde
+     soru üretim ekranına götürür. İçerik → sınav → değerlendirme → analiz
+     → YENİ İÇERİK zinciri böyle kapanır.                                  */
+  const zayif = [];
+  rows.forEach(function (r) {
+    cols.forEach(function (c) {
+      const v = r.scores[c.code];
+      if (v != null && v < 60) zayif.push({ sinif: r.name, kod: c.code, deger: v });
+    });
+  });
+  zayif.sort(function (a, b) { return a.deger - b.deger; });
+  if (zayif.length) {
+    el.insertAdjacentHTML("beforeend",
+      '<div class="remedial-box"><div class="rb-title">Bu kazanımlar için aksiyon alın</div>' +
+      '<div class="rb-desc">Aşağıdaki butonlar sizi, ilgili kazanım seçili hâlde soru üretim ekranına götürür. ' +
+      'Böylece analizden doğrudan yeni ölçme aracına geçebilirsiniz.</div>' +
+      zayif.slice(0, 4).map(function (z) {
+        return '<button class="btn btn-secondary btn-sm remedial-btn" data-kod="' + z.kod + '" data-sinif="' +
+          escapeHtml(z.sinif) + '" data-deger="' + z.deger + '">' +
+          escapeHtml(z.sinif) + ' · ' + z.kod + ' (%' + z.deger + ') → tekrar sorusu üret</button>';
+      }).join("") + '</div>');
+    el.querySelectorAll(".remedial-btn").forEach(function (b) {
+      b.onclick = function () {
+        state.remedial = { outcomeCode: b.dataset.kod, sinif: b.dataset.sinif, deger: Number(b.dataset.deger) };
+        state.ceForm.outcomeCode = b.dataset.kod;
+        state.role = "content_expert";
+        renderAll();
+        const banner = document.getElementById("remedialBanner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+    });
+  }
 }
 
 function buildAdminHeatmapRows() {
