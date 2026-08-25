@@ -81,6 +81,11 @@
   .brand .titles .sub { font-size: 11.5px; color: var(--text-muted); }
 
   .pipeline { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap; }
+  /* Model rozeti + üst çubuk düğmeleri. Eskiden yalnızca index.html'de inline
+     stildi ve flex-wrap yoktu: 375 px genişlikte üç öğe tek satırda kalıp
+     438 px'e ulaşıyor, sayfayı yatay kaydırıyordu. Ölçüldü, düzeltildi. */
+  .ai-mode { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+  .ai-mode > span { min-width: 0; }
   .pipeline .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); flex: none; }
   .pipeline .dot.active { background: var(--accent2); }
   .pipeline .dot.done { background: var(--success); }
@@ -569,6 +574,59 @@
     .grid-2 { grid-template-columns: 1fr; }
     .role-nav { grid-template-columns: repeat(2, 1fr); }
     .eval-grid { grid-template-columns: 1fr; }
+
+    /* --- Mobil uyum turu (26 Ağustos) — 375 px'de ölçülerek düzeltildi --- */
+
+    /* Üst çubuk: model rozeti ve düğmeler kendi satırına iner. */
+    .brand-row { flex-direction: column; align-items: stretch; }
+    .ai-mode { margin-left: 0; width: 100%; }
+
+    /* .pill nowrap idi; model adı (@cf/meta/llama-3.3-70b-instruct-fp8-fast)
+       ve uzun uyarı metinleri viewport'u aşıyordu. Mobilde sarmalanır. */
+    .pill { white-space: normal; overflow-wrap: anywhere; }
+    .btn { white-space: normal; }
+
+    /* Dokunma hedefi: WCAG 2.5.8 en az 24x24 px ister; ölçümde 21 px'lik
+       bir hedef vardı. Mobilde taban yükseklik verildi. */
+    .btn { min-height: 36px; }
+    .btn-sm { min-height: 32px; }
+
+    /* Uzun tablolar mobilde yatay kaydırılabilir olsun — sayfanın kendisi
+       değil, yalnızca tablo kaysın. */
+    .table-wrap, .heatmap-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Kod/model adı gibi kırılamayan diziler taşmasın. */
+    .mono, .mono-err, code { overflow-wrap: anywhere; }
+
+    /* Dosya seçme bağlantısı metin akışı içinde olduğu için WCAG 2.5.8'in
+       inline istisnasına girer, ama padding:0 ile 21 px kalıyordu ve
+       dokunması zordu. Mobilde dikey boşluk verildi. */
+    .dropzone .dz-browse { padding: 5px 4px; min-height: 26px; }
+
+    /* Sekme çubuğu: 4 sekmeli öğretmen panelinde 375 px'de 447 px'e çıkıp
+       SAYFAYI yatay kaydırıyordu. .tabs'ta overflow-x:auto vardı ama flex
+       öğesi olarak min-width:auto ile içeriğe göre genişliyordu, bu yüzden
+       hiç devreye girmiyordu. Mobilde sarmalamaya alındı: kaydırma yerine
+       satır atlar, böylece hiçbir sekme keşfedilmeyi beklemez. */
+    .tabs { flex-wrap: wrap; overflow-x: visible; min-width: 0; }
+    .tab-btn { padding: 9px 12px; font-size: 12.5px; }
+
+    /* Rubrik kriter satırı: sıra no + ad + ağırlık + yüzde + puan tavanı
+       tek satırda 375 px'i aşıyordu (.crit-row'da flex-wrap yoktu). */
+    .crit-row { flex-wrap: wrap; }
+    .crit-row input[type="text"] { min-width: 0; }
+    .crit-label, .crit-points { min-width: 0; }
+    .crit-points { white-space: normal; }
+
+    /* Flex çocuklarının içeriğe göre şişmesini engelle — mobilde
+       taşmaların büyük bölümünün kök nedeni buydu. */
+    .field-row, .actions, .q-meta, .conf-row { flex-wrap: wrap; }
+    .field-row > .field { min-width: 0; }
+  }
+
+  /* Çok dar ekranlar (küçük telefonlar): rol seçici tek kolona iner. */
+  @media (max-width: 430px) {
+    .role-nav { grid-template-columns: 1fr; }
   }
 
   .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); }

@@ -339,8 +339,8 @@ function renderAiBadge() {
   const col = document.getElementById("colophon");
   if (col) {
     col.textContent = state.ai.mode === "live"
-      ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur."
-      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur.";
+      ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder; veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur."
+      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder; veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur.";
   }
 }
 
@@ -1821,7 +1821,8 @@ function critRowHtml(rub, c, i) {
     '<div class="crit-row" data-idx="' + i + '">' +
     '<span class="crit-no">' + (i + 1) + '</span>' +
     '<input type="text" class="crit-label" data-idx="' + i + '" value="' + escapeHtml(c.label) + '" placeholder="örn. Kavram doğruluğu">' +
-    '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight + '">' +
+    '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight +
+      '" aria-label="' + escapeHtml((c.label || ("Ölçüt " + (i + 1))) + " ağırlığı (yüzde)") + '">' +
     '<span class="crit-pct">%</span>' +
     '<span class="crit-points" data-idx="' + i + '">= ' + puan + ' puan</span>' +
     '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '" title="Bu ölçütü kaldır">✕</button></div>' +
@@ -1882,7 +1883,7 @@ function teacherTab2Html() {
     '<div class="rub-question"><span class="rq-label">Ölçüt tanımlanan soru</span>' + escapeHtml(q.body) + '</div>' +
 
     '<div class="rub-step"><span class="rs-no">1</span><span class="rs-text">Bu soru kaç puan üzerinden değerlendirilsin?</span></div>' +
-    '<div class="field" style="max-width:180px;"><input id="rubMax" type="number" min="1" max="100" value="' + rub.maxScore + '"></div>' +
+    '<div class="field" style="max-width:180px;"><input id="rubMax" type="number" min="1" max="100" value="' + rub.maxScore + '" aria-label="Bu soru kaç puan üzerinden değerlendirilsin"></div>' +
 
     '<div class="rub-step"><span class="rs-no">2</span><span class="rs-text">Bu ' + rub.maxScore + ' puanı hangi ölçütlere dağıtacaksınız?</span></div>' +
     '<div class="rub-helpers">' +

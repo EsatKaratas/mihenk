@@ -862,9 +862,76 @@ imkânsız (10d), canlıda birincil bozulmadan test edilmesi gerekiyor.
 
 | # | Bulgu | Durum |
 |---|---|---|
-| 1 | Arayüz alt bilgisi *"veriler yalnızca bellekte tutulur"* diyor — artık `localStorage`'da kalıcı. Ekrandaki dürüstlük notu yanlış. | açık |
+| 1 | Arayüz alt bilgisi *"veriler yalnızca bellekte tutulur"* diyordu — artık `localStorage`'da kalıcı. | ✅ düzeltildi: *"veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur"* |
 | 2 | `robots.txt` `/gizlilik-politikasi` yolunu `Allow` ediyor ama o yol **404**; gerçek yol `/privacy-policy`. `agents.md` §8 kontrol listesi maddesi karşılanmıyor. | açık |
 | 3 | `robots.txt` içinde `Sitemap: https://[uygulama-domaini]/sitemap.xml` — **placeholder**, sitemap de yok. | açık |
 | 4 | Rate limit bellek-içi `Map` → Workers'da isolate başına (bkz. §9). | kabul edildi |
 | 5 | `npm test` tanımlı, test dosyası yok — `agents.md` §6 ile çelişki (bkz. §9). | teslim sonrası |
 | 6 | `agents.md` §3 doğrudan `main` push'unu yasaklıyor ve PR zorunlu tutuyor; pratikte tüm commit'ler doğrudan `main`'e gidiyor. Tek kişilik yarışma oturumunda kural fiilen uygulanmıyor. | teslim sonrası |
+
+### 10h. Mobil uyum ve erişilebilirlik turu (26 Ağustos) — YAPILDI
+
+`AKTARIM.md` §6'da *"hiç yapılmadı"* olarak işaretliydi. 375 px (mobil),
+768 px (tablet) ve masaüstü genişliklerinde **ölçülerek** yapıldı.
+
+#### 🔴 Bulunan: mobilde sayfa yatay kayıyordu
+
+375 px viewport'ta `scrollWidth` **459 px**. Dört ayrı kök neden bulundu —
+hepsi aynı hatanın farklı yüzü: **flex kapsayıcıda `flex-wrap` eksikliği.**
+
+| # | Öğe | Ölçülen | Kök neden |
+|---|---|---|---|
+| 1 | `.ai-mode` (model rozeti + Demo/Sıfırla düğmeleri) | 438 px | CSS'te **hiç tanımlı değildi** — yalnızca `index.html`'de inline stildi ve `flex-wrap` yoktu |
+| 2 | `.pill` (model adı, uyarı pilleri) | 361 px | `white-space: nowrap` — `@cf/meta/llama-3.3-70b-instruct-fp8-fast` sarmalanamıyordu |
+| 3 | `.tabs` (öğretmen 4 sekme) | 447 px | `overflow-x: auto` **vardı ama çalışmıyordu**: flex öğesi olarak `min-width: auto` ile içeriğe göre genişliyor, kaydırma hiç devreye girmiyordu |
+| 4 | `.crit-row` (rubrik kriter satırı) | 447 px | `flex-wrap` yok — sıra no + ad + ağırlık + yüzde + puan tavanı tek satırda |
+
+Yapılan: inline stil CSS'e taşındı, `@media (max-width: 760px)` bloğu
+genişletildi (üst çubuk dikey, `.pill`/`.btn` sarmalama, `.tabs` sarmalamaya
+alındı, `.crit-row` ve genel flex kapsayıcılara `flex-wrap`), çok dar
+ekranlar için `@media (max-width: 430px)` eklendi (rol seçici tek kolon).
+
+**Sonuç — 375 px'de 4 rol × tüm sekmeler:**
+
+| Rol | Sekme | Önce | Sonra |
+|---|---|---|---|
+| İçerik Uzmanı | 2 | 459 px | **375 px** ✅ |
+| Öğretmen | 4 | 447 px | **375 px** ✅ |
+| Öğrenci | 3 | 375 px | **375 px** ✅ |
+| Eğitim Yöneticisi | — | 375 px | **375 px** ✅ |
+
+#### Erişilebilirlik
+
+| Kontrol | Sonuç |
+|---|---|
+| `lang="tr"` | ✅ |
+| Adsız düğme (erişilebilir ad yok) | 0 ✅ |
+| Başlık hiyerarşisi atlaması | 0 ✅ |
+| `alt` metni olmayan resim | 0 ✅ |
+| `prefers-reduced-motion` desteği | ✅ var |
+| Klavye odak göstergesi | ✅ `:focus-visible` kuralı `app.css:65`'te tanımlı |
+| WCAG 2.5.8 dokunma hedefi (≥24 px) | **1 ihlal bulundu → düzeltildi**: `.dz-browse` ("bilgisayarınızdan seçin") `padding:0` ile 21 px kalıyordu → 26 px |
+| Form alanı erişilebilir adı | **4 ihlal bulundu → düzeltildi**: rubrik ekranındaki ağırlık alanları ve toplam puan alanı adsızdı. `aria-label` kriter adını dinamik içeriyor: *"Kavram doğruluğu ağırlığı (yüzde)"* |
+
+> **Yanlış alarm kaydı (dürüstlük notu):** İlk ölçümde klavye odak
+> göstergesi "yok" görünmüştü; sebep, testin `element.focus()` ile
+> **programatik** odak vermesiydi — `:focus-visible` yalnızca klavye
+> etkileşiminde tetiklenir. Kural `app.css:65`'te mevcut. Benzer şekilde
+> 768 px'te ölçülen 15 px taşma, render tamamlanmadan alınmış bir ölçümdü;
+> tekrarında `fark: 0`, taşan öğe 0.
+
+#### Masaüstü regresyon denetimi — TEMİZ
+
+Mobil kuralların masaüstünü bozmadığı ayrıca doğrulandı: `.ai-mode`
+`margin-left: auto` (sağa yapışık) korundu, `.brand-row` satır yönünde,
+`.tabs` `nowrap` + `overflow-x: auto`, rol seçici 4 kolon, yatay taşma yok,
+öz-kontrol uyarısı yok.
+
+#### Bu turda kapsam dışı bırakılan (finale)
+
+`public/app.js` genelinde `<div class="field"><label>…</label><input …></div>`
+kalıbı kullanılıyor; `label`'da `for`, `input`'ta `id` yok, sarmalama da yok —
+yani ekran okuyucu bu ikisini **bağlamıyor.** Onlarca yerde tekrarlanıyor;
+teslim günü toplu değişiklik riskli görüldü. Rubrik ekranındaki kritik alanlar
+`aria-label` ile tek tek düzeltildi. Kalanı final öncesi (5-6 Eylül) toplu
+olarak ele alınacak.
