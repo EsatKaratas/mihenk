@@ -50,9 +50,9 @@
     // --- SEÇENEK A: Google Gemini (ücretsiz katman, kart istemiyor) --------
     // Anahtar: https://aistudio.google.com/apikey
     // Kotanızı AI Studio > Rate limit sayfasında görürsünüz.
-    // , "AI_FALLBACK_PROVIDER": "openai"
-    // , "AI_FALLBACK_MODEL": "gemini-2.5-flash"
-    // , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
+    , "AI_FALLBACK_PROVIDER": "openai"
+    , "AI_FALLBACK_MODEL": "gemini-2.5-flash"
+    , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
     //
     // --- SEÇENEK B: OpenAI (kredi bazlı, günlük sert kota yok) ------------
     // Ölçülen: gpt-5-nano ile tam demo turu ~$0,0020 → $5 ≈ 2.450 tur.

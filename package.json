@@ -18,6 +18,7 @@
     "queue:create": "wrangler queues create olcme-ai-tasks",
     "r2:create": "wrangler r2 bucket create t3-olcme-source-assets",
     "lint": "tsc --noEmit",
+    "check:config": "python tools/check-jsonc.py wrangler.jsonc wrangler.demo.jsonc",
     "test": "vitest run",
     "test:watch": "vitest"
   },
