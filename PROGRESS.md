@@ -195,10 +195,28 @@ Kreaton rehberi §5'teki dört kritik tavsiye:
 - [ ] Demo videosu
 - [ ] Alt alan adını kısalt (URL videoda görünecek, çok uzun)
 
-### ⚠️ Çözülmesi gereken tutarsızlık
-Deck slayt 5'te **"Güvenli Öğrenci Deneyimi — tam ekran güvencesi ve hile önleyici
-kontroller"** bir MVP maddesi olarak yazılı ama **üründe yok.** Ya deck'ten çıkarılmalı
-ya da asgari hâli yapılmalı (tam ekran isteği + sekme değişimi sayacı).
+### ✅ Sınav bütünlüğü kaydı — YAPILDI (25 Ağustos)
+
+Deck slayt 5'teki "Güvenli Öğrenci Deneyimi" maddesinin karşılığı üründe yoktu.
+Uygulandı — **ancak iddia bilinçli olarak değiştirildi.**
+
+**Neden "hile önleme" değil "bütünlük kaydı":** Tarayıcı tabanlı hiçbir sistem
+hileyi önleyemez (öğrenci yandaki telefona bakabilir). "Hile önleyici kontroller"
+iddiası jüride teknik bir soruyla çöker. Bunun yerine sistem sekme değişimi,
+pencere odağı kaybı ve tam ekrandan çıkışı **kaydeder** ve öğretmene **bağlam**
+olarak sunar. Karar insanındır — projenin HITL ilkesiyle aynı mantık.
+
+- Öğrenci sınav ekranında ne kaydedildiğini açıkça görür (gizli izleme yok)
+- Öğretmen onay ekranında özet + olay günlüğü, "tek başına kopya kanıtı değildir" notuyla
+- Hiçbir puanı otomatik etkilemez
+- Tam ekran reddedilirse sınav çalışmaya devam eder (zarif düşüş — gömülü
+  tarayıcıda test edildi, `fsGranted:false` ile sorunsuz çalıştı)
+- `agents.md` §7 gereği `privacy-policy.html` §2 güncellendi: ne toplandığı,
+  kime gösterildiği, ekran görüntüsü/kamera/mikrofon/tuş kaydı toplanMAdığı
+
+**⚠️ DECK'TE DEĞİŞTİRİLMESİ GEREKEN İFADE:**
+~~"tam ekran güvencesi ve hile önleyici kontroller"~~
+→ **"sınav bütünlüğü kaydı — öğretmene şeffaf sinyal"**
 
 ---
 

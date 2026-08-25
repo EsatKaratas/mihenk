@@ -197,6 +197,19 @@
   .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 
+  .integrity-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-strong);
+    border-radius: 9px; background: var(--surface-2); font-size: 12px;
+    color: var(--text-muted); line-height: 1.5; }
+  .integrity-bar .ib-dot { width: 7px; height: 7px; border-radius: 50%;
+    background: var(--warning); flex: none; }
+  .integrity-bar .ib-text { flex: 1; min-width: 260px; }
+  .integrity-bar .ib-count { white-space: nowrap; color: var(--text); }
+
+  .integrity-log { border-top: 1px solid var(--border); padding-top: 8px; }
+  .integrity-log .il-row { display: flex; gap: 12px; font-size: 12px; padding: 3px 0; }
+  .integrity-log .il-time { color: var(--text-muted); min-width: 56px; }
+
   .remedial-box { margin-top: 14px; padding: 13px 15px; border: 1px solid var(--accent);
     border-radius: 10px; background: var(--accent-soft); }
   .remedial-box .rb-title { font-size: 13px; font-weight: 700; color: var(--accent-strong); margin-bottom: 4px; }
@@ -572,7 +585,7 @@ function renderAiBadge() {
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
-  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial"];
+  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity"];
 
 function saveState() {
   try {
@@ -707,6 +720,7 @@ const state = {
   genCount: 0,
   ai: { mode: "unknown", provider: "", model: "", error: "", busy: false },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
+  integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0, events: [] },
   ceForm: { title: "", subject: SUBJECTS[0], grade: GRADES[2], outcomeCode: OUTCOMES[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
@@ -1143,7 +1157,7 @@ function teacherTab3Html() {
       (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' + done.map(doneCardHtml).join("") : "")
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
 
-  return ozet + mcListesi + acikUclu + yayinKutusu;
+  return ozet + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
 }
 
 function wireTeacherTab3() {
@@ -1239,6 +1253,10 @@ function startExam() {
   state.currentQIndex = 0;
   state.remainingSec = state.exam.durationMin * 60;
   state.studentTab = 2;
+  integrityReset();
+  state.integrity.active = true;
+  // Tam ekran isteği kullanıcı hareketi (buton tıklaması) içinde yapılmalıdır.
+  requestExamFullscreen().then(renderAll);
   renderAll();
 }
 async function finishExam() {
@@ -1250,6 +1268,8 @@ async function finishExam() {
       state.mcResults[q.id] = { correct: !!a && a.selectedKey === q.correctKey };
     }
   });
+  state.integrity.active = false;
+  exitExamFullscreen();
   state.examStatus = "submitted";
   state.studentTab = 1;
   state.ai.busy = true;
@@ -1311,7 +1331,8 @@ function studentTab2Html() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const q = items[state.currentQIndex];
   const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
-  return '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
+  return integrityNoticeHtml() +
+    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
     '<div class="qnav">' + items.map(function (it, i) { return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") + '" data-idx="' + i + '">' + (i + 1) + '</div>'; }).join("") + '</div></div>' +
     '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span><span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span></div>' +
     '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
@@ -1320,6 +1341,8 @@ function studentTab2Html() {
     '<button class="btn btn-critical" id="btnFinishExam">Sınavı Bitir</button></div></div>';
 }
 function wireStudentTab2() {
+  const fsBtn = document.getElementById("btnGoFullscreen");
+  if (fsBtn) fsBtn.onclick = function () { requestExamFullscreen().then(renderAll); };
   document.querySelectorAll(".mc-answer").forEach(function (el) {
     el.onchange = function () {
       const qid = Number(el.dataset.qid);
@@ -1529,6 +1552,102 @@ function renderAdmin() {
     '<div id="adminHeatmap"></div></div>';
 
   renderHeatmap("adminHeatmap", rows);
+}
+
+
+/* ==================== Sınav Bütünlüğü Kaydı ====================
+   TASARIM KARARI — "hile önleme" DEĞİL, "bütünlük kaydı":
+   Tarayıcı tabanlı hiçbir sistem hileyi önleyemez (öğrenci yandaki telefona
+   bakabilir). Bu yüzden sistem engellemeye çalışmaz; sınav sırasındaki
+   sekme değişimi, pencere odağı kaybı ve tam ekrandan çıkış olaylarını
+   kaydeder ve öğretmene BAĞLAM olarak sunar. Karar yine insanındır —
+   projenin Human-in-the-Loop ilkesiyle aynı mantık.
+
+   Şeffaflık: öğrenci sınav ekranında neyin kaydedildiğini açıkça görür.
+   Gizli izleme yoktur (bkz. privacy-policy.html §2).                        */
+const INTEGRITY_ETIKET = { sekme: "Sekme değişimi", odak: "Pencere odağı kaybı", tamekran: "Tam ekrandan çıkış" };
+
+function integrityReset() {
+  state.integrity = { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0, events: [] };
+}
+
+function integrityNote(tur) {
+  const g = state.integrity;
+  if (!g.active) return;
+  if (tur === "sekme") g.tabSwitch++;
+  else if (tur === "odak") g.blur++;
+  else if (tur === "tamekran") g.fsExit++;
+  if (g.events.length < 60) g.events.push({ tur: tur, sn: Math.max(0, state.exam.durationMin * 60 - state.remainingSec) });
+  saveState();
+  updateIntegrityBadge();
+}
+
+function integrityTotal() {
+  const g = state.integrity;
+  return g.tabSwitch + g.blur + g.fsExit;
+}
+
+// Sayaci renderAll cagirmadan guncelle: acik uclu yanit yazilirken odak kaybolmasin.
+function updateIntegrityBadge() {
+  const el = document.getElementById("integrityCount");
+  if (el) el.textContent = integrityTotal();
+}
+
+async function requestExamFullscreen() {
+  try {
+    const el = document.documentElement;
+    if (el.requestFullscreen) { await el.requestFullscreen(); state.integrity.fsGranted = true; }
+  } catch (e) {
+    // Tarayıcı reddedebilir (izin, gömülü çerçeve vb.). Sınav yine de çalışır.
+    state.integrity.fsGranted = false;
+  }
+}
+
+function exitExamFullscreen() {
+  try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
+}
+
+// Dinleyiciler bir kez baglanir; yalnizca integrity.active iken sayar.
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden) integrityNote("sekme");
+});
+window.addEventListener("blur", function () { integrityNote("odak"); });
+document.addEventListener("fullscreenchange", function () {
+  if (!document.fullscreenElement && state.integrity.active && state.integrity.fsGranted) integrityNote("tamekran");
+});
+
+function integrityNoticeHtml() {
+  const g = state.integrity;
+  return '<div class="integrity-bar">' +
+    '<span class="ib-dot"></span>' +
+    '<span class="ib-text">Sınav bütünlüğü kaydı açık — sekme değişimi, pencere odağı kaybı ve tam ekrandan çıkış ' +
+    'öğretmeninize <b>bilgi olarak</b> iletilir. Sistem sizi engellemez veya puanınızı otomatik düşürmez.</span>' +
+    '<span class="ib-count">Kayıtlı olay: <b id="integrityCount" class="tabular">' + integrityTotal() + '</b></span>' +
+    (g.fsGranted ? "" : '<button class="btn btn-secondary btn-sm" id="btnGoFullscreen">Tam ekrana geç</button>') +
+    '</div>';
+}
+
+function integritySummaryHtml() {
+  const g = state.integrity;
+  const toplam = integrityTotal();
+  const seviye = toplam === 0 ? "pill-success" : (toplam <= 3 ? "pill-warning" : "pill-critical");
+  const yorum = toplam === 0
+    ? "Sınav boyunca sekme değişimi veya odak kaybı kaydedilmedi."
+    : "Bu kayıtlar tek başına kopya kanıtı değildir; bildirim gelmesi, sekmenin kazara değişmesi gibi masum " +
+      "nedenlerle de olabilir. Değerlendirmede bağlam olarak kullanın.";
+  return '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<h3>Sınav Bütünlüğü Kaydı</h3><span class="pill ' + seviye + '">' + toplam + ' olay</span></div>' +
+    '<div class="grid-3col" style="margin-bottom:10px;">' +
+    '<div class="stat-tile"><div class="s-label">Sekme Değişimi</div><div class="s-value tabular">' + g.tabSwitch + '</div><div class="s-sub">başka sekmeye geçiş</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Odak Kaybı</div><div class="s-value tabular">' + g.blur + '</div><div class="s-sub">pencereden çıkış</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Tam Ekrandan Çıkış</div><div class="s-value tabular">' + g.fsExit + '</div><div class="s-sub">' + (g.fsGranted ? "tam ekran açıktı" : "tam ekran kullanılmadı") + '</div></div>' +
+    '</div>' +
+    (g.events.length
+      ? '<div class="integrity-log">' + g.events.slice(0, 12).map(function (e) {
+          return '<div class="il-row"><span class="il-time tabular">' + formatTime(e.sn) + '</span><span>' + INTEGRITY_ETIKET[e.tur] + '</span></div>';
+        }).join("") + (g.events.length > 12 ? '<div class="il-row" style="color:var(--text-muted);">… ve ' + (g.events.length - 12) + ' olay daha</div>' : "") + '</div>'
+      : "") +
+    '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-top:10px;">' + yorum + '</div></div>';
 }
 
 /* ============================== Modal ============================== */
