@@ -51,7 +51,7 @@
     // Anahtar: https://aistudio.google.com/apikey
     // Kotanızı AI Studio > Rate limit sayfasında görürsünüz.
     , "AI_FALLBACK_PROVIDER": "openai"
-    , "AI_FALLBACK_MODEL": "gemini-2.5-flash"
+    , "AI_FALLBACK_MODEL": "gemini-3.7-flash"
     , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
     //
     // --- SEÇENEK B: OpenAI (kredi bazlı, günlük sert kota yok) ------------

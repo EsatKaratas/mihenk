@@ -3,6 +3,7 @@ node_modules/
 dist/
 
 # agents.md §7: sırlar asla commit edilmez
+anahtar.txt
 .dev.vars
 .env
 *.local

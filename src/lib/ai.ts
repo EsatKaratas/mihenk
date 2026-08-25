@@ -32,6 +32,22 @@ export type AiEnv = {
 };
 
 /** Yedek sağlayıcıyı birincilmiş gibi gösteren bir env görünümü üretir. */
+/**
+ * API anahtarını temizler.
+ *
+ * GERÇEK OLAY: Anahtar Not Defteri ile kaydedilip yüklendiğinde başına
+ * görünmez bir UTF-8 BOM (U+FEFF) eklenmişti. Google "Please pass a valid
+ * API key" diyordu ve sebebi hiçbir yerde görünmüyordu. Anahtarın nasıl
+ * girildiğine bağlı kalmamak için sunucu tarafında da temizliyoruz:
+ * BOM, sıfır genişlikli karakterler ve baş/son boşluklar atılır.
+ */
+function temizAnahtar(k?: string): string {
+  return (k || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/[\u200B-\u200D\u2060]/g, '')
+    .trim();
+}
+
 export function fallbackEnv(env: AiEnv): AiEnv | null {
   if (!env.AI_FALLBACK_PROVIDER) return null;
   return {
@@ -39,14 +55,14 @@ export function fallbackEnv(env: AiEnv): AiEnv | null {
     AI_PROVIDER: env.AI_FALLBACK_PROVIDER,
     AI_MODEL: env.AI_FALLBACK_MODEL,
     AI_BASE_URL: env.AI_FALLBACK_BASE_URL,
-    AI_API_KEY: env.AI_FALLBACK_API_KEY,
+    AI_API_KEY: temizAnahtar(env.AI_FALLBACK_API_KEY),
   };
 }
 
 export function fallbackConfigured(env: AiEnv): boolean {
   const f = fallbackEnv(env);
   if (!f) return false;
-  return providerName(f) === 'workers-ai' ? !!f.AI : !!f.AI_API_KEY;
+  return providerName(f) === 'workers-ai' ? !!f.AI : !!temizAnahtar(f.AI_API_KEY);
 }
 
 export type CallOptions = {
@@ -87,7 +103,8 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
     return typeof r === 'string' ? r : (r as object);
   }
 
-  if (!env.AI_API_KEY) throw new Error(`AI_API_KEY tanımlı değil (provider: ${provider})`);
+  const apiKey = temizAnahtar(env.AI_API_KEY);
+  if (!apiKey) throw new Error(`AI_API_KEY tanımlı değil (provider: ${provider})`);
 
   // Taban adresin sonundaki '/' temizlenir: Gemini'nin OpenAI uyumlu ucu
   // '.../v1beta/openai/' biçiminde bitiyor ve doğrudan birleştirilirse
@@ -100,7 +117,7 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': env.AI_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -121,7 +138,7 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      authorization: `Bearer ${env.AI_API_KEY}`,
+      authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -130,9 +147,20 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  if (!r.ok) throw new Error(`OpenAI-uyumlu ${r.status}: ${(await r.text()).slice(0, 300)}`);
+  if (!r.ok) {
+    // Gövde boş dönebiliyor; durum metnini ve uç adresini de ekle ki
+    // hata teşhis edilebilir olsun.
+    const govde = (await r.text().catch(() => '')).slice(0, 400);
+    throw new Error(
+      `OpenAI-uyumlu ${r.status} ${r.statusText || ''} @ ${base}/chat/completions [model=${model}] ${govde || '(boş gövde)'}`
+    );
+  }
   const j: any = await r.json();
-  return String(j?.choices?.[0]?.message?.content ?? '');
+  const icerik = j?.choices?.[0]?.message?.content;
+  if (icerik == null) {
+    throw new Error(`Yanıtta içerik yok: ${JSON.stringify(j).slice(0, 300)}`);
+  }
+  return String(icerik);
 }
 
 /**
@@ -215,12 +243,19 @@ async function callOne(
 ): Promise<{ data: unknown; attempts: number; approxPromptChars: number }> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const p =
-      attempt === 1
-        ? prompt
-        : `${prompt}\n\nÖNEMLİ: Önceki yanıtın geçerli JSON değildi. SADECE geçerli JSON döndür; hiçbir açıklama, başlık veya kod bloğu işareti ekleme.`;
+    // Yanit kesildiyse ikinci denemede token butcesini iki katina cikar ve
+    // modelden daha kisa yazmasini iste. Farkli saglayicilar ayni istem icin
+    // farkli uzunlukta yaziyor; sabit butce birinde yetip digerinde
+    // yetmeyebiliyor (Gemini yedeginde tam bu yasandi).
+    const kesilmis = lastErr instanceof Error && /kapanm|kesil/i.test(lastErr.message);
+    const p = attempt === 1
+      ? prompt
+      : prompt + (kesilmis
+          ? '\n\nONEMLI: Onceki yanitin YARIDA KESILDI. Daha KISA yaz: her gerekceyi tek cumleyle sinirla. Yalnizca gecerli JSON dondur.'
+          : '\n\nONEMLI: Onceki yanitin gecerli JSON degildi. SADECE gecerli JSON dondur; hicbir aciklama, baslik veya kod blogu isareti ekleme.');
+    const buOpts = kesilmis ? { maxTokens: Math.min(opts.maxTokens * 2, 4000), temperature: opts.temperature } : opts;
     try {
-      const raw = await callModel(env, p, opts);
+      const raw = await callModel(env, p, buOpts);
       const data = extractJson(raw);
       // agents.md §7.4: maliyet görünürlüğü — Workers Logs'a yazılır.
       console.log(
@@ -229,7 +264,7 @@ async function callOne(
           provider: providerName(env),
           model: modelName(env),
           approxPromptChars: p.length,
-          maxTokens: opts.maxTokens,
+          maxTokens: buOpts.maxTokens,
           attempt,
         })
       );
