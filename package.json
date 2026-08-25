@@ -1,0 +1,41 @@
+{
+  "name": "t3-olcme-degerlendirme-sistemi",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "T3 Vakfı Creathon — Problem 2: Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi (Cloudflare Workers + Hono + D1, Human-in-the-Loop puanlama).",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:demo": "wrangler dev -c wrangler.demo.jsonc",
+    "deploy": "wrangler deploy --minify",
+    "deploy:demo": "wrangler deploy -c wrangler.demo.jsonc",
+    "cf-typegen": "wrangler types",
+    "db:migrate:local": "wrangler d1 execute olcme-db --local --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute olcme-db --remote --file=./schema.sql",
+    "db:seed:local": "wrangler d1 execute olcme-db --local --file=./seed.sql",
+    "db:tables:local": "wrangler d1 execute olcme-db --local --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
+    "queue:create": "wrangler queues create olcme-ai-tasks",
+    "r2:create": "wrangler r2 bucket create t3-olcme-source-assets",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.2",
+    "better-auth": "^1.1.3",
+    "hono": "^4.6.14",
+    "kysely": "^0.27.4",
+    "kysely-d1": "^0.3.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260825.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^4.125.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

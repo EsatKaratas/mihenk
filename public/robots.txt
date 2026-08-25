@@ -1,0 +1,23 @@
+# T3 Vakfı Creathon — Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
+# Bu sistem oturum açma gerektiren bir eğitim platformudur; kullanıcı
+# panelleri ve API uçları arama motorları tarafından indekslenmemelidir.
+
+User-agent: *
+
+# Kimlik doğrulama gerektiren panel ve API rotaları
+Disallow: /api/
+Disallow: /internal/
+Disallow: /app/
+Disallow: /panel/
+Disallow: /ogrenci/
+Disallow: /ogretmen/
+Disallow: /icerik-uzmani/
+Disallow: /yonetici/
+
+# Genel erişime açık sayfalar
+Allow: /$
+Allow: /giris
+Allow: /gizlilik-politikasi
+Allow: /destek
+
+Sitemap: https://[uygulama-domaini]/sitemap.xml

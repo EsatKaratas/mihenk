@@ -1,0 +1,10 @@
+# Bu dosyayı `.dev.vars` olarak kopyalayın. `.dev.vars` ASLA commit edilmez.
+# Üretimde bu değerler `npx wrangler secret put <AD>` ile verilir.
+
+# --- Model sağlayıcısı ------------------------------------------------------
+# workers-ai kullanıyorsanız anahtar GEREKMEZ; aşağısını boş bırakın.
+# Harici sağlayıcıya geçtiyseniz (AI_PROVIDER=openai | anthropic):
+# AI_API_KEY=buraya-anahtarinizi-yazin
+
+# --- Kimlik doğrulama (henüz uygulanmadı, ileride) --------------------------
+# BETTER_AUTH_SECRET=degistirin-bu-cok-gizli-bir-deger

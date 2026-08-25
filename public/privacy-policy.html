@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gizlilik Politikası ve KVKK Aydınlatma Metni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e3e8f2;
+    --text: #10141f;
+    --text-muted: #565f76;
+    --border: #d3d9e5;
+    --border-strong: #b7c0d4;
+    --accent: #2e4c8a;
+    --accent-strong: #1f3766;
+    --accent-soft: #dbe4f7;
+    --accent2: #b5631a;
+    --accent2-soft: #f3e0c8;
+    --success: #266b45;
+    --success-soft: #dcf0e5;
+    --shadow: 0 1px 2px rgba(20,30,60,0.06), 0 8px 24px rgba(20,30,60,0.05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --text: #e8ebf3; --text-muted: #8d96ad;
+      --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+      --accent-soft: #1c2a4a; --accent2: #e2914f; --accent2-soft: #3a2a18;
+      --success: #4fb488; --success-soft: #163526;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --text: #e8ebf3; --text-muted: #8d96ad;
+    --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+    --accent-soft: #1c2a4a; --accent2: #e2914f; --accent2-soft: #3a2a18;
+    --success: #4fb488; --success-soft: #163526;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  h1, h2, h3 { font-family: "Archivo", sans-serif; font-weight: 700; text-wrap: balance; margin: 0; color: var(--text); }
+  a { color: var(--accent-strong); }
+  a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  .shell { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0,1fr); }
+  .sidebar { padding: 40px 20px 40px 32px; position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; }
+  .sidebar .eyebrow { font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: block; }
+  .sidebar h2.doc-title { font-size: 16px; margin-bottom: 20px; }
+  nav.toc { display: flex; flex-direction: column; gap: 1px; }
+  nav.toc a { display: flex; gap: 8px; padding: 6px 8px; border-radius: 6px; color: var(--text-muted); font-size: 13px; text-decoration: none; }
+  nav.toc a:hover { background: var(--surface-2); color: var(--text); }
+  nav.toc a .num { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); flex: none; width: 18px; }
+
+  main { padding: 40px 32px 100px; min-width: 0; }
+  .doc-head { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .doc-head h1 { font-size: 26px; }
+  .doc-head .meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 12.5px; color: var(--text-muted); }
+  .doc-head .meta .mono { color: var(--accent-strong); }
+
+  .callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border-radius: 10px;
+    background: var(--accent2-soft); border: 1px solid var(--accent2);
+    margin-bottom: 32px; font-size: 14px;
+  }
+  .callout .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-top: 6px; flex: none; }
+
+  article section { margin-bottom: 34px; scroll-margin-top: 20px; }
+  article section h2 {
+    font-size: 17px; display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px;
+  }
+  article section h2 .n {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent);
+    border: 1px solid var(--border-strong); padding: 1px 7px; border-radius: 5px; background: var(--surface);
+  }
+  article section p, article section li { color: var(--text); font-size: 14.5px; max-width: 74ch; }
+  article section p { margin: 0 0 10px; }
+  article section ul { margin: 0 0 10px; padding-left: 22px; }
+  article section li { margin-bottom: 4px; }
+  .fill { background: var(--surface-2); border-radius: 4px; padding: 0 4px; font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent-strong); }
+
+  .hitl-box {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent2);
+    border-radius: 8px; padding: 14px 16px; box-shadow: var(--shadow); margin: 12px 0;
+  }
+  .hitl-box .tag { font-size: 11px; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+
+  .rights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; margin: 10px 0 6px; }
+  .right-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--surface); font-size: 13.5px; }
+  .right-card b { display: block; font-size: 13px; color: var(--accent-strong); margin-bottom: 2px; }
+
+  .consent-demo {
+    margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--border);
+  }
+  .consent-demo h2 { font-size: 15px; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .consent-preview {
+    border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 16px; box-shadow: var(--shadow); max-width: 420px;
+  }
+  .consent-preview label { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--text-muted); }
+  .consent-preview input { margin-top: 2px; }
+  .consent-preview button {
+    margin-top: 14px; width: 100%; padding: 10px; border-radius: 7px; border: none;
+    background: var(--accent-strong); color: #fff; font-family: "Source Sans 3", sans-serif; font-weight: 600; font-size: 13.5px; cursor: pointer;
+  }
+  pre.snippet { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 12px; overflow-x: auto; margin-top: 14px; }
+
+  footer.colophon { margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; padding: 20px; }
+    main { padding: 24px 18px 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <span class="eyebrow">Örnek Belge</span>
+    <h2 class="doc-title">Gizlilik Politikası &amp; KVKK Aydınlatma Metni</h2>
+    <nav class="toc">
+      <a href="#s1"><span class="num">1</span> Veri Sorumlusu</a>
+      <a href="#s2"><span class="num">2</span> Toplanan Veriler</a>
+      <a href="#s3"><span class="num">3</span> İşlenme Amacı</a>
+      <a href="#s4"><span class="num">4</span> Yapay Zekâ ve İnsan Onayı</a>
+      <a href="#s5"><span class="num">5</span> Küçüklerin Verileri</a>
+      <a href="#s6"><span class="num">6</span> Saklama Süresi</a>
+      <a href="#s7"><span class="num">7</span> Veri Paylaşımı</a>
+      <a href="#s8"><span class="num">8</span> Güvenlik Tedbirleri</a>
+      <a href="#s9"><span class="num">9</span> Veri Sahibi Hakları</a>
+      <a href="#s10"><span class="num">10</span> Başvuru Yöntemi</a>
+      <a href="#s11"><span class="num">11</span> Politika Güncellemeleri</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="doc-head">
+      <h1>Gizlilik Politikası ve KVKK Aydınlatma Metni</h1>
+      <div class="meta">
+        <span>Sürüm <span class="mono">1.0</span></span>
+        <span>Son güncelleme: <span class="mono">[GG.AA.YYYY]</span></span>
+        <span>Kapsam: <span class="mono">Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi</span></span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="dot"></span>
+      <div>Bu metin, T3 Vakfı Creathon — Problem 2 kapsamında geliştirilen sistem için <b>örnek/taslak</b> bir gizlilik
+      politikasıdır. <span class="fill">[Kurum/Okul Adı]</span>, <span class="fill">[adres]</span> ve
+      <span class="fill">[iletişim e-postası]</span> gibi köşeli parantezli alanlar, gerçek kullanıma geçmeden önce
+      kurumunuzun bilgileriyle doldurulmalı ve nihai metin bir hukuk danışmanına onaylatılmalıdır.</div>
+    </div>
+
+    <article>
+      <section id="s1">
+        <h2><span class="n">1</span> Veri Sorumlusu</h2>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("<b>KVKK</b>") kapsamında veri sorumlusu
+        <span class="fill">[Kurum/Okul Adı]</span>'dır (<span class="mono">"biz"</span>). Bu Sistemi kullanan
+        İçerik Uzmanı, Öğretmen, Öğrenci ve Eğitim Yöneticisi rolündeki tüm kullanıcıların kişisel verileri, aşağıda
+        açıklanan amaç ve kapsamda işlenir.</p>
+      </section>
+
+      <section id="s2">
+        <h2><span class="n">2</span> Toplanan Veriler</h2>
+        <ul>
+          <li><b>Kimlik ve iletişim verisi:</b> ad-soyad, e-posta, kurum/okul, sınıf-şube bilgisi.</li>
+          <li><b>Eğitim içeriği verisi:</b> içerik uzmanınca yüklenen ders notları, konu/kazanım etiketleri.</li>
+          <li><b>Sınav verisi:</b> çoktan seçmeli işaretlemeler, açık uçlu yanıt metinleri, harcanan çözüm süresi, auto-save geçmişi.</li>
+          <li><b>Değerlendirme verisi:</b> yapay zekâ tarafından üretilen puan/gerekçe önerileri ve öğretmenin nihai puan kararı.</li>
+          <li><b>Performans verisi:</b> kazanım bazlı başarı oranları, sınıf ve okul düzeyinde toplulaştırılmış analitikler.</li>
+          <li><b>Teknik veri:</b> oturum açma zaman damgaları, cihaz/tarayıcı bilgisi (güvenlik ve hata ayıklama amaçlı).</li>
+        </ul>
+      </section>
+
+      <section id="s3">
+        <h2><span class="n">3</span> Verilerin İşlenme Amacı</h2>
+        <p>Veriler; soru üretimi ve sınav oluşturma süreçlerinin yürütülmesi, açık uçlu yanıtların değerlendirilmesi,
+        öğrenci gelişiminin ve kazanım bazlı başarı durumunun izlenmesi, kurum içi raporlama ve sistemin güvenliğinin
+        sağlanması amacıyla, KVKK'nın 5. ve 6. maddelerinde belirtilen işleme şartlarına dayanılarak işlenir.</p>
+      </section>
+
+      <section id="s4">
+        <h2><span class="n">4</span> Yapay Zekâ Kullanımı ve İnsan Onayı (Human-in-the-Loop)</h2>
+        <p>Sistem, soru üretimi, çözüm süresi tahmini ve açık uçlu yanıtların ilk değerlendirmesi için yapay zekâ
+        modelleri kullanır. Bu modellerin ürettiği hiçbir çıktı — soru, süre önerisi ya da puan — kullanıcıyı
+        etkileyen nihai bir karar teşkil etmez.</p>
+        <div class="hitl-box">
+          <span class="tag">Güvence</span>
+          Açık uçlu sorulardan alınan puanlar, ilgili öğretmen tarafından tek tek incelenip onaylanmadan veya
+          revize edilmeden öğrencinin karnesine yansımaz. Nihai puanlama kararı her zaman bir öğretmene aittir;
+          sistem, öğretmenin kararını değiştiremez ya da atlayamaz.
+        </div>
+        <p>Bu uygulama, otomatik sistemler yoluyla verilen kararlara karşı ilgili kişinin itiraz hakkını koruma
+        altına almayı ve değerlendirme sürecinde şeffaflığı sağlamayı amaçlar.</p>
+      </section>
+
+      <section id="s5">
+        <h2><span class="n">5</span> Küçüklerin Verilerinin Korunması</h2>
+        <p>Öğrenci kullanıcıların önemli bir kısmı 18 yaşından küçük olabilir. Bu nedenle:</p>
+        <ul>
+          <li>Öğrenci hesapları, kurumun (okulun) veli/vasi ile yaptığı kayıt sözleşmesi kapsamında oluşturulur;
+          bireysel açık rıza yerine kurumun eğitim faaliyetini yürütme yükümlülüğüne dayanılır.</li>
+          <li>Öğrenci verileri, pazarlama amacıyla kullanılmaz ve üçüncü taraflara satılmaz.</li>
+          <li>Veli/vasiler, çocuklarına ait verilerin görüntülenmesi, düzeltilmesi veya silinmesi talebiyle
+          <span class="fill">[iletişim e-postası]</span> üzerinden kuruma başvurabilir.</li>
+        </ul>
+      </section>
+
+      <section id="s6">
+        <h2><span class="n">6</span> Saklama Süresi</h2>
+        <p>Sınav ve değerlendirme verileri, ilgili eğitim-öğretim döneminin sonundan itibaren
+        <span class="fill">[X]</span> yıl süreyle; kimlik ve iletişim verileri ise kullanıcının kurumla ilişkisi
+        sona erdiği tarihten itibaren mevzubahis mevzuatta belirlenen yasal saklama süresi boyunca muhafaza edilir.
+        Süre sonunda veriler silinir, yok edilir veya anonim hâle getirilir.</p>
+      </section>
+
+      <section id="s7">
+        <h2><span class="n">7</span> Veri Paylaşımı ve Alt Yükleniciler</h2>
+        <p>Verileriniz, sistemin çalışması için gerekli olduğu ölçüde barındırma ve yapay zekâ çıkarım hizmeti
+        sağlayan alt yükleniciler (örn. Cloudflare Workers / Workers AI altyapısı) ile paylaşılır; bu paylaşım
+        yalnızca hizmetin sunulması amacıyla ve sözleşmesel gizlilik yükümlülükleri altında gerçekleşir. Veri
+        yurt dışına aktarılıyorsa, aktarımın hukuki dayanağı ve alınan ek tedbirler bu bölümde ayrıca belirtilir:
+        <span class="fill">[aktarım mekanizması / SCC / yeterlilik kararı]</span>.</p>
+      </section>
+
+      <section id="s8">
+        <h2><span class="n">8</span> Güvenlik Tedbirleri</h2>
+        <ul>
+          <li>Rol bazlı erişim kontrolü — her kullanıcı yalnızca kendi paneline ve yetkili olduğu veriye erişir.</li>
+          <li>Şifreler tek yönlü özetlenerek (hash) saklanır; düz metin şifre hiçbir yerde tutulmaz.</li>
+          <li>Sınav süresince alınan yanıtlar şifreli bağlantı üzerinden iletilir ve auto-save kayıtları erişim
+          günlükleriyle izlenir.</li>
+        </ul>
+      </section>
+
+      <section id="s9">
+        <h2><span class="n">9</span> Veri Sahibinin Hakları</h2>
+        <p>KVKK'nın 11. maddesi uyarınca her kullanıcı (ve öğrenciler için veli/vasisi) aşağıdaki haklara sahiptir:</p>
+        <div class="rights-grid">
+          <div class="right-card"><b>Bilgi talep etme</b>Verinin işlenip işlenmediğini öğrenme</div>
+          <div class="right-card"><b>Erişim</b>İşlenen verilere ilişkin bilgi talep etme</div>
+          <div class="right-card"><b>Düzeltme</b>Eksik/yanlış verinin düzeltilmesini isteme</div>
+          <div class="right-card"><b>Silme</b>Sebebin ortadan kalkması hâlinde silinmesini isteme</div>
+          <div class="right-card"><b>İtiraz</b>Analiz sonucuna itiraz etme</div>
+          <div class="right-card"><b>Zarar talebi</b>Kanuna aykırı işleme sebebiyle zararın giderilmesini isteme</div>
+        </div>
+      </section>
+
+      <section id="s10">
+        <h2><span class="n">10</span> Başvuru Yöntemi</h2>
+        <p>Haklarınızı kullanmak için <span class="fill">[iletişim e-postası]</span> adresine kimliğinizi
+        doğrulayan bilgilerle birlikte yazılı olarak başvurabilirsiniz. Başvurunuz KVKK'da belirtilen süre
+        içinde (en geç 30 gün) ücretsiz olarak sonuçlandırılır.</p>
+      </section>
+
+      <section id="s11">
+        <h2><span class="n">11</span> Politika Güncellemeleri</h2>
+        <p>Bu politika, sistemdeki değişikliklere veya mevzuattaki güncellemelere bağlı olarak revize edilebilir.
+        Güncel sürüm her zaman giriş ekranından erişilebilir; önemli değişikliklerde kullanıcılara bildirim
+        gösterilir.</p>
+      </section>
+    </article>
+
+    <div class="consent-demo">
+      <h2>Giriş / Kayıt Akışı Entegrasyonu</h2>
+      <p style="font-size:13.5px; color:var(--text-muted); max-width:60ch; margin-bottom:14px;">
+        Aşağıdaki onay bloğu, kayıt formunun altına yerleştirilecek örnek bileşendir. Onay verilmeden
+        <span class="mono">Kayıt Ol</span> butonu aktif olmamalıdır.
+      </p>
+      <div class="consent-preview">
+        <label>
+          <input type="checkbox" id="policyConsent">
+          <span>
+            <a href="#s1">Gizlilik Politikası ve KVKK Aydınlatma Metni</a>'ni okudum ve anladım.
+            (Öğrenci hesapları için bu onay, kurum tarafından veli/vasi adına verilir.)
+          </span>
+        </label>
+        <button type="button" disabled>Kayıt Ol</button>
+      </div>
+      <pre class="snippet"><span class="mono">// Hono rota önerisi (routes.ts)
+app.get("/gizlilik-politikasi", (c) => c.html(PRIVACY_POLICY_HTML));
+
+// users tablosuna eklenebilecek denetim alanı (schema.sql)
+// ALTER TABLE users ADD COLUMN privacy_accepted_at TEXT;</span></pre>
+    </div>
+
+    <footer class="colophon">
+      T3 Vakfı Creathon — Problem 2 · Bu belge örnek/taslak niteliğindedir, yürürlüğe koymadan önce hukuki
+      inceleme yapılması önerilir.
+    </footer>
+  </main>
+</div>
+
+<script>
+  try {
+    var cb = document.getElementById('policyConsent');
+    var btn = document.querySelector('.consent-preview button');
+    if (cb && btn) {
+      cb.addEventListener('change', function () { btn.disabled = !cb.checked; });
+    }
+  } catch (e) {}
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // ===========================================================================
+  // DEMO / JÜRİ YAPILANDIRMASI
+  //
+  // Neden ayrı bir dosya var:
+  // Üretim yapılandırması (wrangler.jsonc) D1, R2 ve Queues bağlamaları içerir.
+  // Bunlar demo akışı için GEREKLİ DEĞİLDİR ve iki sert engel çıkarır:
+  //   1) d1_databases[].database_id doldurulmadan `wrangler deploy` başarısız olur,
+  //   2) Queues, Cloudflare ücretsiz planında kullanılamaz.
+  // Bu dosya yalnızca demo akışının ihtiyacı olanı bağlar: statik varlıklar + AI.
+  // Üretim mimarisi wrangler.jsonc'ta olduğu gibi durur, hiçbir şey silinmedi.
+  //
+  //   npm run deploy:demo     -> canlıya al
+  //   npm run dev:demo        -> yerelde çalıştır
+  // ===========================================================================
+
+  "name": "t3-olcme-degerlendirme",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "workers_dev": true,
+
+  "vars": {
+    "APP_NAME": "T3 Ölçme ve Değerlendirme Sistemi",
+    "APP_ENV": "demo",
+
+    // Model sağlayıcısı. Workers AI'ın Türkçe kalitesi yetersiz kalırsa
+    // burayı "openai" veya "anthropic" yapıp AI_MODEL/AI_BASE_URL'i ayarlayın
+    // ve API anahtarını `wrangler secret put AI_API_KEY` ile verin.
+    // Mimari (Cloudflare Workers + Hono) değişmez, yalnızca sağlayıcı değişir.
+    "AI_PROVIDER": "workers-ai",
+    "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct"
+  },
+
+  // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.
+  "ai": {
+    "binding": "AI"
+  },
+
+  // Statik varlıklar: public/index.html (prototip), mimari.html,
+  // privacy-policy.html, 404.html, robots.txt
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/internal/*"]
+  }
+}

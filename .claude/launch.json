@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "t3-olcme-demo",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "dev", "-c", "wrangler.demo.jsonc", "--port", "8787"],
+      "port": 8787
+    }
+  ]
+}

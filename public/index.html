@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onay Döngüsü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e3e8f2;
+    --surface-3: #d8dfec;
+    --text: #10141f;
+    --text-muted: #565f76;
+    --border: #d3d9e5;
+    --border-strong: #b7c0d4;
+    --accent: #2e4c8a;
+    --accent-strong: #1f3766;
+    --accent-soft: #dbe4f7;
+    --accent2: #b5631a;
+    --accent2-soft: #f3e0c8;
+    --success: #266b45;
+    --success-soft: #dcf0e5;
+    --warning: #96631a;
+    --warning-soft: #f6e6c8;
+    --critical: #ae3325;
+    --critical-soft: #f7ddd6;
+    --shadow: 0 1px 2px rgba(20,30,60,0.07), 0 10px 28px rgba(20,30,60,0.07);
+    --seq-1: #eaf0fb; --seq-2: #c7d7f2; --seq-3: #9db3e6; --seq-4: #6a86cf; --seq-5: #2e4c8a;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --surface-3: #212942;
+      --text: #e8ebf3; --text-muted: #8d96ad; --border: #262d42; --border-strong: #333c58;
+      --accent: #7ea0e8; --accent-strong: #a9c2f2; --accent-soft: #1c2a4a;
+      --accent2: #e2914f; --accent2-soft: #3a2a18;
+      --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
+      --critical: #e2685c; --critical-soft: #3a1c18;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
+      --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --surface-3: #212942;
+    --text: #e8ebf3; --text-muted: #8d96ad; --border: #262d42; --border-strong: #333c58;
+    --accent: #7ea0e8; --accent-strong: #a9c2f2; --accent-soft: #1c2a4a;
+    --accent2: #e2914f; --accent2-soft: #3a2a18;
+    --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
+    --critical: #e2685c; --critical-soft: #3a1c18;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
+    --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4 { font-family: "Archivo", sans-serif; font-weight: 700; text-wrap: balance; margin: 0; color: var(--text); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  button { font-family: inherit; }
+  a { color: var(--accent-strong); }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .role-btn, .tab-btn, .btn, .pill, .q-card, .modal-overlay { transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease, transform 0.15s ease; }
+  }
+
+  .app { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---------- Topbar ---------- */
+  .topbar { padding: 22px 0 16px; display: flex; flex-direction: column; gap: 16px; }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 32px; height: 32px; border: 2px solid var(--accent); border-radius: 7px; display: grid; place-items: center; font-family:"Archivo",sans-serif; font-weight: 800; font-size: 12px; color: var(--accent-strong); background: var(--accent-soft); }
+  .brand .titles { display: flex; flex-direction: column; }
+  .brand .titles .name { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 15px; }
+  .brand .titles .sub { font-size: 11.5px; color: var(--text-muted); }
+
+  .pipeline { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap; }
+  .pipeline .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); flex: none; }
+  .pipeline .dot.active { background: var(--accent2); }
+  .pipeline .dot.done { background: var(--success); }
+  .pipeline .seg { display: flex; align-items: center; gap: 6px; }
+  .pipeline .bar { width: 20px; height: 1px; background: var(--border-strong); }
+
+  .role-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .role-btn {
+    position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+    padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); cursor: pointer; text-align: left;
+  }
+  .role-btn .r-label { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 13.5px; color: var(--text); }
+  .role-btn .r-hint { font-size: 11px; color: var(--text-muted); }
+  .role-btn.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: var(--shadow); }
+  .role-btn.active .r-label { color: var(--accent-strong); }
+  .role-btn .badge {
+    position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px;
+    border-radius: 999px; background: var(--accent2); color: #fff; font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px; font-weight: 600; display: grid; place-items: center; box-shadow: var(--shadow);
+  }
+
+  /* ---------- Layout primitives ---------- */
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .grid-2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 18px; }
+  .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 18px; }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .card-head h3 { font-size: 14.5px; }
+  .card-head .hint { font-size: 12px; color: var(--text-muted); }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab-btn { padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+  .tab-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
+
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .field input, .field select, .field textarea {
+    font-family: "Source Sans 3", sans-serif; font-size: 13.5px; padding: 9px 10px; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); width: 100%;
+  }
+  .field textarea { resize: vertical; min-height: 84px; font-family: "Source Sans 3", sans-serif; line-height: 1.5; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row > .field { flex: 1; }
+
+  .btn {
+    font-weight: 600; font-size: 13px; padding: 9px 15px; border-radius: 8px; border: 1px solid transparent;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent-strong); color: #fff; }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:disabled { background: var(--border-strong); color: var(--text-muted); cursor: not-allowed; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { opacity: 0.88; }
+  .btn-secondary { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+  .btn-secondary:hover { background: var(--surface-2); }
+  .btn-ghost { background: none; border-color: transparent; color: var(--text-muted); }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+  .btn-critical { background: var(--surface); border-color: var(--critical); color: var(--critical); }
+  .btn-critical:hover { background: var(--critical-soft); }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill-neutral { background: var(--surface-2); color: var(--text-muted); }
+  .pill-accent2 { background: var(--accent2-soft); color: var(--accent2); }
+  .pill-success { background: var(--success-soft); color: var(--success); }
+  .pill-warning { background: var(--warning-soft); color: var(--warning); }
+  .pill-critical { background: var(--critical-soft); color: var(--critical); }
+  .pill-accent { background: var(--accent-soft); color: var(--accent-strong); }
+
+  .empty-state { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border-strong); border-radius: 10px; }
+
+  /* ---------- Question cards ---------- */
+  .q-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--surface); }
+  .q-card .q-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .q-card .q-body-input { font-size: 13.5px; font-weight: 600; }
+  .q-card .opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .q-card .opt-row .opt-key { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); width: 16px; flex: none; }
+  .q-card .opt-row input[type="text"] { flex: 1; padding: 6px 8px; font-size: 12.5px; }
+  .q-card .opt-row input[type="radio"] { width: 15px; height: 15px; accent-color: var(--success); }
+  .q-card .actions { display: flex; gap: 8px; margin-top: 10px; }
+  .q-card .time-tag { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
+
+  .pool-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  .pool-item:last-child { border-bottom: none; }
+  .pool-item .p-body { flex: 1; font-size: 13px; }
+  .pool-item .p-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+
+  .tray-item { display: flex; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .tray-item .t-text { flex: 1; }
+  .tray-item input[type="number"] { width: 58px; padding: 5px 6px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); }
+  .tray-total { display: flex; justify-content: space-between; padding: 10px 4px 0; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+
+  .crit-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .crit-row input[type="text"] { flex: 1; padding: 6px 8px; font-size: 12.5px; }
+  .crit-row input[type="number"] { width: 60px; padding: 6px 8px; font-size: 12.5px; }
+
+  .bar-track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+
+  .eval-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; background: var(--surface); box-shadow: var(--shadow); }
+  .eval-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; margin-top: 12px; }
+  .eval-block h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+  .answer-box { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; }
+  .crit-line { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--text-muted); }
+  .justification { background: var(--accent2-soft); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text); margin-top: 8px; }
+
+  /* ---------- Student exam viewport ---------- */
+  .timer-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
+  .timer-bar .t-value { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 600; color: var(--accent-strong); }
+  .timer-bar .t-value.low { color: var(--critical); }
+  .qnav { display: flex; gap: 4px; }
+  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); }
+  .qnav-dot.current { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+  .qnav-dot.answered { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+
+  .exam-viewport { padding: 20px; }
+  .exam-viewport .qv-meta { display: flex; gap: 8px; margin-bottom: 10px; }
+  .exam-viewport .qv-body { font-size: 16px; font-weight: 600; margin-bottom: 16px; text-wrap: balance; }
+  .autosave-status { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+  .autosave-status .dot-save { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  .exam-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* ---------- Report card ---------- */
+  .report-row { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .report-row .rr-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; align-items: baseline; }
+  .report-row .rr-score { font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--accent-strong); }
+
+  /* ---------- Stat tiles ---------- */
+  .stat-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .stat-tile .s-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .stat-tile .s-value { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 26px; }
+  .stat-tile .s-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ---------- Heatmap ---------- */
+  .heatmap-wrap { overflow-x: auto; }
+  table.heatmap { border-collapse: separate; border-spacing: 3px; font-size: 12px; }
+  table.heatmap th { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px 8px; text-align: left; }
+  table.heatmap th.outcome-col { text-align: right; max-width: 160px; }
+  .hm-cell { width: 64px; height: 44px; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 12.5px; position: relative; }
+  .hm-cell .hm-flag { position: absolute; top: 2px; right: 2px; font-size: 8px; }
+  .legend-scale { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; color: var(--text-muted); }
+  .legend-swatch { width: 18px; height: 12px; border-radius: 3px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(10,14,24,0.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); padding: 24px; max-width: 420px; width: 100%; }
+  .modal h3 { font-size: 16px; margin-bottom: 8px; }
+  .modal p { font-size: 13.5px; color: var(--text-muted); margin: 0 0 18px; }
+  .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .colophon { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 760px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .role-nav { grid-template-columns: repeat(2, 1fr); }
+    .eval-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand-row">
+      <div class="brand">
+        <span class="mark">T3</span>
+        <span class="titles">
+          <span class="name">Onay Döngüsü</span>
+          <span class="sub">İçerik → Sınav → Çözüm → Onay → Analiz — canlı rol prototipi</span>
+        </span>
+      </div>
+      <div class="pipeline" id="pipelineStrip"></div>
+      <div class="ai-mode" id="aiModeBadge" style="margin-left:auto;display:flex;align-items:center;"></div>
+    </div>
+    <nav class="role-nav" id="roleNav"></nav>
+  </div>
+
+  <main id="panels"></main>
+
+  <div class="colophon" id="colophon">Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder; AI adımları (soru üretimi, puan önerisi) şablon tabanlı bir taklittir. Veriler yalnızca bellekte tutulur, sayfa yenilenince sıfırlanır.</div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<script>
+/* ============================== Sabitler ============================== */
+const STOPWORDS = new Set(["ve","veya","ile","bir","bu","şu","o","da","de","ki","mi","mı","mu","mü","çok","daha",
+  "gibi","için","olan","olarak","ise","ancak","fakat","ama","en","çünkü","kadar","göre","üzere","hem","ya","yani",
+  "diye","hiç","her","bazı","tüm","bütün","şey","kez","olur","değil","vb","vs","dir","dır","dur","dür","onun",
+  "bunun","şunun","biz","siz","onlar","ben","sen","değildir","olduğu","olduğunu","yapılan","yapılır"]);
+
+const SUBJECTS = ["Matematik", "Fen Bilimleri", "Türkçe"];
+const GRADES = [5, 6, 7, 8];
+const OUTCOMES = [
+  { code: "MAT.7.2.1", label: "MAT.7.2.1 — Oran ve Orantı" },
+  { code: "MAT.7.3.4", label: "MAT.7.3.4 — Cebirsel İfadeler" },
+  { code: "FEN.7.1.2", label: "FEN.7.1.2 — Kuvvet ve Hareket" },
+];
+const ROLES = [
+  { id: "content_expert", label: "İçerik Uzmanı", hint: "soru üretimi ve onay" },
+  { id: "teacher", label: "Öğretmen", hint: "sınav ve değerlendirme" },
+  { id: "student", label: "Öğrenci", hint: "sınav çözümü" },
+  { id: "admin", label: "Eğitim Yöneticisi", hint: "okul genel bakış" },
+];
+
+/* ============================== Yardımcılar ============================== */
+function escapeHtml(str) {
+  return String(str == null ? "" : str).replace(/[&<>"']/g, function (ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+function truncate(str, n) { str = String(str || ""); return str.length > n ? str.slice(0, n - 1) + "…" : str; }
+function diffLabel(d) { return { easy: "Kolay", medium: "Orta", hard: "Zor" }[d] || d; }
+function formatTime(sec) {
+  sec = Math.max(0, sec | 0);
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+function examStatusLabel() {
+  return { not_started: "Başlamadı", in_progress: "Sürüyor", submitted: "Değerlendiriliyor", graded: "Sonuçlandı" }[state.examStatus];
+}
+function pseudoRandom(seed) { const x = Math.sin(seed * 9301 + 49297) % 1; return Math.abs(x); }
+
+function extractKeywords(text, n) {
+  const words = (text || "").toLowerCase()
+    .replace(/[^a-zçğıöşü\s]/gi, " ")
+    .split(/\s+/)
+    .filter(function (w) { return w.length > 3 && !STOPWORDS.has(w); });
+  const freq = {};
+  words.forEach(function (w) { freq[w] = (freq[w] || 0) + 1; });
+  let uniq = Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a]; });
+  const fallback = ["kavram", "ilke", "süreç", "örnek", "yöntem", "ilişki", "etki", "sonuç", "gözlem", "veri"];
+  let fi = 0;
+  while (uniq.length < n && fi < fallback.length) {
+    if (uniq.indexOf(fallback[fi]) === -1) uniq.push(fallback[fi]);
+    fi++;
+  }
+  return uniq.slice(0, n).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); });
+}
+
+/* ====================== Yerel Yedek (Simülasyon) ======================
+   Model sunucusuna ulasilamadiginda devreye giren sablon tabanli yedek.
+   Arayuzde bu mod acikca "Yerel simulasyon" olarak isaretlenir.        */
+let qIdSeq = 1;
+
+function simulateQuestions(doc) {
+  const kw = extractKeywords(doc.text, 8);
+  const offset = (state.genCount * 2) % Math.max(1, kw.length - 3 > 0 ? kw.length - 3 : kw.length);
+  const k = function (i) { return kw[(offset + i) % kw.length]; };
+  const mk = function () { return qIdSeq++; };
+  const qs = [
+    {
+      id: mk(), type: "mc", difficulty: "easy", outcome: doc.outcome,
+      body: 'Metne göre "' + k(0) + '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
+      options: [{ key: "A", text: k(1) }, { key: "B", text: k(2) }, { key: "C", text: k(3) }, { key: "D", text: "Metinde bu konuya değinilmemiştir" }],
+      correctKey: "A", aiTime: 45, status: "ai_generated", refKeywords: [k(0), k(1)],
+    },
+    {
+      id: mk(), type: "mc", difficulty: "medium", outcome: doc.outcome,
+      body: '"' + doc.outcomeLabel + '" kazanımı kapsamında, metinde geçen "' + k(2) + '" ifadesi en çok hangisiyle ilişkilendirilir?',
+      options: [{ key: "A", text: k(4) }, { key: "B", text: k(3) }, { key: "C", text: k(5) }, { key: "D", text: "Bunların hiçbiri" }],
+      correctKey: "B", aiTime: 60, status: "ai_generated", refKeywords: [k(2), k(3)],
+    },
+    {
+      id: mk(), type: "open", difficulty: "hard", outcome: doc.outcome,
+      body: '"' + k(0) + '" ve "' + k(1) + '" kavramları arasındaki ilişkiyi metinden yararlanarak açıklayınız; en az bir örnek veriniz.',
+      aiTime: 240, status: "ai_generated", refKeywords: [k(0), k(1), k(2)],
+    },
+  ];
+  state.genCount++;
+  return qs;
+}
+
+function simulateAIEvaluation(q, answerText, rubric) {
+  const text = (answerText || "").toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean);
+  const lengthFactor = Math.max(0, Math.min(1, words.length / 40));
+  const kws = q.refKeywords || [];
+  const found = kws.filter(function (kwd) { return text.indexOf(String(kwd).toLowerCase()) !== -1; });
+  const coverage = kws.length ? found.length / kws.length : 0.4;
+  const breakdown = rubric.criteria.map(function (c, i) {
+    const base = 0.45 * lengthFactor + 0.55 * coverage;
+    const jitter = (pseudoRandom(q.id + i * 7) - 0.5) * 0.18;
+    const ratio = Math.max(0.1, Math.min(1, base + jitter));
+    const max = Math.round(rubric.maxScore * (Number(c.weight) / 100) * 10) / 10;
+    const points = Math.round(max * ratio * 2) / 2;
+    return { label: c.label, weight: c.weight, max: max, points: points };
+  });
+  const aiScore = Math.round(breakdown.reduce(function (s, b) { return s + b.points; }, 0) * 2) / 2;
+
+  let justification;
+  if (!words.length) {
+    justification = "Yanıt boş bırakıldığı için kriterlerin hiçbirinde puan verilemedi.";
+  } else if (coverage >= 0.75) {
+    justification = 'Yanıt, "' + kws.slice(0, 2).join('" ve "') + '" kavramlarına doğrudan değiniyor ve yeterli uzunlukta açıklama içeriyor.';
+  } else if (coverage > 0) {
+    const missing = kws.filter(function (kwd) { return found.indexOf(kwd) === -1; });
+    justification = 'Yanıt "' + (found[0] || kws[0]) + '" kavramına değiniyor ancak ' +
+      (missing[0] ? '"' + missing[0] + '" ile ilişkisini' : "örnekle desteklemeyi") + " yeterince açıklamıyor.";
+  } else {
+    justification = "Yanıt, sorunun beklediği temel kavramlara doğrudan değinmiyor; örnek ve açıklama eksik.";
+  }
+  return { aiScore: aiScore, maxScore: rubric.maxScore, justification: justification, breakdown: breakdown };
+}
+
+
+/* ========================= Gerçek AI Katmanı =========================
+   Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
+   yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate" };
+
+async function probeAiMode() {
+  try {
+    const r = await fetch(AI_API.status, { headers: { accept: "application/json" } });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    state.ai.provider = j.provider || "";
+    state.ai.model = j.model || "";
+    state.ai.mode = j.ready ? "live" : "simulation";
+    state.ai.error = j.ready ? "" : "model sağlayıcısı yapılandırılmamış";
+  } catch (e) {
+    state.ai.mode = "simulation";
+    state.ai.error = "API'ye ulaşılamadı";
+  }
+  renderAll();
+}
+
+async function apiPost(url, body) {
+  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(function () { return null; });
+  if (!r.ok) throw new Error((j && j.message) || ("HTTP " + r.status));
+  return j;
+}
+
+async function aiGenerateQuestions(doc) {
+  if (state.ai.mode !== "live") return simulateQuestions(doc);
+  try {
+    const j = await apiPost(AI_API.generate, {
+      sourceText: doc.text.slice(0, 6000),
+      subject: doc.subject,
+      grade: String(doc.grade),
+      outcomeCode: doc.outcome,
+      outcomeLabel: doc.outcomeLabel,
+      mcCount: state.ceForm.mcCount,
+      openCount: state.ceForm.openCount,
+      optionCount: 4,
+      docKey: doc.title || "adsiz",
+    });
+    state.ai.error = "";
+    return (j.questions || []).map(function (q) {
+      return {
+        id: qIdSeq++, type: q.type, difficulty: q.difficulty, outcome: doc.outcome,
+        body: q.body, options: q.options, correctKey: q.correctKey,
+        distractorRationale: q.distractorRationale || {}, bloom: q.bloom,
+        aiTime: q.aiTime, status: "ai_generated", refKeywords: q.refKeywords || [],
+      };
+    });
+  } catch (e) {
+    state.ai.error = String((e && e.message) || e);
+    state.ai.mode = "simulation";
+    return simulateQuestions(doc);
+  }
+}
+
+async function aiEvaluate(q, answerText, rubric) {
+  if (state.ai.mode !== "live") return simulateAIEvaluation(q, answerText, rubric);
+  try {
+    const j = await apiPost(AI_API.evaluate, {
+      questionBody: q.body,
+      outcomeLabel: outcomeLabel(q.outcome),
+      studentAnswer: answerText || "",
+      maxScore: rubric.maxScore,
+      criteria: rubric.criteria.map(function (c) { return { label: c.label, weight: Number(c.weight) || 0 }; }),
+    });
+    state.ai.error = "";
+    return { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification, breakdown: j.breakdown, confidence: j.confidence };
+  } catch (e) {
+    state.ai.error = String((e && e.message) || e);
+    state.ai.mode = "simulation";
+    return simulateAIEvaluation(q, answerText, rubric);
+  }
+}
+
+function renderAiBadge() {
+  const el = document.getElementById("aiModeBadge");
+  if (el) {
+    const live = state.ai.mode === "live";
+    const txt = state.ai.mode === "unknown" ? "AI modu denetleniyor…"
+      : live ? ("Gerçek model · " + (state.ai.model || state.ai.provider))
+      : "Yerel simülasyon" + (state.ai.error ? " · " + state.ai.error : "");
+    el.innerHTML = '<span class="pill ' + (live ? "pill-success" : "pill-warning") + '">' + (live ? "●" : "○") + " " + escapeHtml(txt) + "</span>";
+  }
+  const col = document.getElementById("colophon");
+  if (col) {
+    col.textContent = state.ai.mode === "live"
+      ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur."
+      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder, veriler yalnızca bellekte tutulur.";
+  }
+}
+
+/* ============================== Durum ============================== */
+const state = {
+  role: "content_expert",
+  teacherTab: 1,
+  studentTab: 1,
+  genCount: 0,
+  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false },
+  ceForm: { title: "", subject: SUBJECTS[0], grade: GRADES[2], outcomeCode: OUTCOMES[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
+  questions: [],
+  rubrics: {},
+  rubricSelectedQ: null,
+  exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null },
+  answers: {},
+  examStatus: "not_started",
+  currentQIndex: 0,
+  remainingSec: 0,
+  aiEvals: {},
+  reviews: {},
+  mcResults: {},
+  baseline: {
+    totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
+    classes: [
+      { name: "7-B", scores: { "MAT.7.2.1": 72, "MAT.7.3.4": 58, "FEN.7.1.2": 81 } },
+      { name: "8-B", scores: { "MAT.7.2.1": 65, "MAT.7.3.4": 70, "FEN.7.1.2": 60 } },
+      { name: "8-C", scores: { "MAT.7.2.1": 84, "MAT.7.3.4": 77, "FEN.7.1.2": 69 } },
+    ],
+  },
+};
+
+function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
+function outcomeLabel(code) { const o = OUTCOMES.find(function (x) { return x.code === code; }); return o ? o.label : code; }
+
+/* ============================== İçerik Uzmanı ============================== */
+async function onGenerateQuestions() {
+  const text = state.ceForm.text.trim();
+  if (text.length < 30) {
+    state.ceForm.error = "Soru üretmek için en az birkaç cümlelik bir metin girin (min. 30 karakter).";
+    renderAll();
+    return;
+  }
+  if (state.ceForm.mcCount + state.ceForm.openCount < 1) {
+    state.ceForm.error = "En az bir soru isteyin (çoktan seçmeli veya açık uçlu).";
+    renderAll();
+    return;
+  }
+  state.ceForm.error = "";
+  const doc = {
+    title: state.ceForm.title || "Adsız Kaynak", subject: state.ceForm.subject, grade: state.ceForm.grade,
+    outcome: state.ceForm.outcomeCode, outcomeLabel: outcomeLabel(state.ceForm.outcomeCode), text: text,
+  };
+  state.ai.busy = true;
+  renderAll();
+  try {
+    const qs = await aiGenerateQuestions(doc);
+    state.questions = state.questions.concat(qs);
+  } finally {
+    state.ai.busy = false;
+    renderAll();
+  }
+}
+
+function renderPendingQuestionCard(q) {
+  const optsHtml = q.type === "mc" ? q.options.map(function (o) {
+    return '<div class="opt-row">' +
+      '<span class="opt-key">' + o.key + '</span>' +
+      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" value="' + escapeHtml(o.text) + '">' +
+      '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
+      '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label></div>';
+  }).join("") : "";
+  return '<div class="q-card" data-card-id="' + q.id + '">' +
+    '<div class="q-meta">' +
+    '<span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
+    '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
+    '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+    '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
+    '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
+    '<div style="margin-top:8px;">' + optsHtml + '</div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
+    '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button></div></div>';
+}
+
+function wirePendingCards() {
+  document.querySelectorAll(".q-body-input").forEach(function (el) {
+    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) q.body = el.value; };
+  });
+  document.querySelectorAll(".opt-input").forEach(function (el) {
+    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { const o = q.options.find(function (x) { return x.key === el.dataset.okey; }); if (o) o.text = el.value; } };
+  });
+  document.querySelectorAll(".correct-radio").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) q.correctKey = el.dataset.okey; };
+  });
+  document.querySelectorAll(".approve-btn").forEach(function (el) {
+    el.onclick = function () { const q = findQuestion(el.dataset.qid); if (q) { q.status = "approved"; renderAll(); } };
+  });
+  document.querySelectorAll(".reject-btn").forEach(function (el) {
+    el.onclick = function () { const q = findQuestion(el.dataset.qid); if (q) { q.status = "rejected"; renderAll(); } };
+  });
+}
+
+function renderContentExpert() {
+  const root = document.getElementById("panel-content_expert");
+  const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
+  const approved = state.questions.filter(function (q) { return q.status === "approved"; });
+  const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
+
+  root.innerHTML =
+    '<div class="grid-2">' +
+    '<div class="card"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">metin + kazanım</span></div>' +
+    '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
+    '<div class="field-row"><div class="field"><label>Ders</label><select id="ceSubject">' +
+    SUBJECTS.map(function (s) { return '<option ' + (s === state.ceForm.subject ? "selected" : "") + '>' + s + '</option>'; }).join("") +
+    '</select></div><div class="field"><label>Sınıf</label><select id="ceGrade">' +
+    GRADES.map(function (g) { return '<option ' + (String(g) === String(state.ceForm.grade) ? "selected" : "") + '>' + g + '</option>'; }).join("") +
+    '</select></div></div>' +
+    '<div class="field"><label>Kazanım</label><select id="ceOutcome">' +
+    OUTCOMES.map(function (o) { return '<option value="' + o.code + '" ' + (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' + o.label + '</option>'; }).join("") +
+    '</select></div>' +
+    '<div class="field"><label>Ders notu / metin</label><textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
+    (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
+    '<div class="field-row"><div class="field"><label>Çoktan seçmeli adedi</label>' +
+    '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
+    '<div class="field"><label>Açık uçlu adedi</label>' +
+    '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div></div>' +
+    '<button class="btn btn-primary" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
+    (state.ai.busy ? "⏳ Model çalışıyor…" : "🤖 AI ile Soru Üret") + '</button>' +
+    '<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">Metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretir</span></div>' +
+    '<div class="card"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
+    '<div id="pendingList">' + (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Soldan bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>' +
+    '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Ortak Soru Havuzu</h3><span class="hint">' + approved.length + ' onaylı · ' + rejected.length + ' reddedilen</span></div>' +
+    (approved.length ? approved.map(function (q) {
+      return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
+        '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
+        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span><span class="pill pill-neutral">' + q.outcome + '</span>' +
+        '<span class="pill pill-success">Onaylı</span></div></div></div>';
+    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') + '</div>';
+
+  document.getElementById("btnGenerate").onclick = onGenerateQuestions;
+  document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
+  document.getElementById("ceSubject").onchange = function (e) { state.ceForm.subject = e.target.value; };
+  document.getElementById("ceGrade").onchange = function (e) { state.ceForm.grade = e.target.value; };
+  document.getElementById("ceOutcome").onchange = function (e) { state.ceForm.outcomeCode = e.target.value; };
+  document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value; };
+  document.getElementById("ceMcCount").onchange = function (e) { state.ceForm.mcCount = Math.max(0, Math.min(8, parseInt(e.target.value, 10) || 0)); renderAll(); };
+  document.getElementById("ceOpenCount").onchange = function (e) { state.ceForm.openCount = Math.max(0, Math.min(4, parseInt(e.target.value, 10) || 0)); renderAll(); };
+  wirePendingCards();
+}
+
+/* ============================== Öğretmen ============================== */
+function canPublishExam() {
+  if (!state.exam.questionIds.length) return false;
+  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
+  return opens.every(function (q) { return state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100; });
+}
+function totalWeight(rub) { return rub.criteria.reduce(function (s, c) { return s + (Number(c.weight) || 0); }, 0); }
+function ensureRubric(qid) {
+  if (!state.rubrics[qid]) {
+    state.rubrics[qid] = { maxScore: 20, criteria: [
+      { label: "Kavram doğruluğu", weight: 40 }, { label: "Örnek / uygulama", weight: 30 }, { label: "Anlatım açıklığı", weight: 30 },
+    ] };
+  }
+}
+
+function examTrayHtml() {
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  if (!items.length) return '<div class="empty-state">Soldan soru seçerek sınava ekleyin.</div>';
+  const locked = state.exam.status === "published";
+  const total = items.reduce(function (sum, q) { return sum + (state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime); }, 0);
+  return items.map(function (q) {
+    return '<div class="tray-item"><span class="t-text">' + escapeHtml(truncate(q.body, 56)) + ' <span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık") + '</span></span>' +
+      '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" value="' + (state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime) + '" ' + (locked ? "disabled" : "") + '> sn</div>';
+  }).join("") + '<div class="tray-total"><span>Toplam süre</span><span class="tabular">' + (Math.round(total / 6) / 10) + ' dk</span></div>';
+}
+
+function teacherTab1Html() {
+  const approved = state.questions.filter(function (q) { return q.status === "approved"; });
+  const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
+  const locked = state.exam.status === "published";
+  return '<div class="grid-2">' +
+    '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' + approved.length + ' soru</span></div>' +
+    (approved.length ? approved.map(function (q) {
+      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' style="margin-top:3px;">' +
+        '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
+        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span><span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
+    }).join("") : '<div class="empty-state">Havuzda onaylı soru yok — önce İçerik Uzmanı panelinden soru onaylatın.</div>') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
+    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
+    '<div id="examTray">' + examTrayHtml() + '</div>' +
+    '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Sınav süresi (dk)</label><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '></div>' +
+    '<div class="field"><label>Başlama gecikmesi (sn, demo)</label><input id="examDelay" type="number" min="0" value="' + state.exam.startDelaySec + '" ' + (locked ? "disabled" : "") + '></div></div>' +
+    (locked ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' :
+      '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
+      (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
+    ) + "</div></div>";
+}
+
+function wireTeacherTab1() {
+  document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
+  const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
+  const delEl = document.getElementById("examDelay"); if (delEl) delEl.oninput = function (e) { state.exam.startDelaySec = Number(e.target.value) || 0; };
+  document.querySelectorAll(".pool-check").forEach(function (el) {
+    el.onchange = function () {
+      const qid = Number(el.dataset.qid);
+      if (el.checked) { if (state.exam.questionIds.indexOf(qid) === -1) state.exam.questionIds.push(qid); }
+      else { state.exam.questionIds = state.exam.questionIds.filter(function (id) { return id !== qid; }); delete state.exam.timeOverrides[qid]; }
+      renderAll();
+    };
+  });
+  document.querySelectorAll(".tray-time").forEach(function (el) {
+    el.oninput = function () { state.exam.timeOverrides[Number(el.dataset.qid)] = Number(el.value) || 10; };
+  });
+  const pubBtn = document.getElementById("btnPublishExam");
+  if (pubBtn) pubBtn.onclick = function () {
+    state.exam.status = "published";
+    state.exam.startsAt = Date.now() + state.exam.startDelaySec * 1000;
+    renderAll();
+  };
+}
+
+function critRowHtml(c, i) {
+  return '<div class="crit-row" data-idx="' + i + '"><input type="text" class="crit-label" data-idx="' + i + '" value="' + escapeHtml(c.label) + '" placeholder="örn. Kavram doğruluğu">' +
+    '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight + '"><span style="font-size:12px;color:var(--text-muted);">%</span>' +
+    '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '">✕</button></div>';
+}
+
+function teacherTab2Html() {
+  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
+  if (!opens.length) return '<div class="empty-state">Sınava henüz açık uçlu soru eklenmedi. Önce 1. Sekme\'den soru seçin.</div>';
+  if (state.rubricSelectedQ == null || !opens.find(function (q) { return q.id === state.rubricSelectedQ; })) state.rubricSelectedQ = opens[0].id;
+  const q = opens.find(function (x) { return x.id === state.rubricSelectedQ; });
+  ensureRubric(q.id);
+  const rub = state.rubrics[q.id];
+  const tw = totalWeight(rub);
+  return '<div class="grid-2"><div class="card"><div class="card-head"><h3>Açık Uçlu Sorular</h3></div>' +
+    opens.map(function (o) { return '<button class="btn ' + (o.id === q.id ? "btn-primary" : "btn-secondary") + ' btn-sm rub-select" data-qid="' + o.id + '" style="margin:0 6px 6px 0;">' + escapeHtml(truncate(o.body, 34)) + '</button>'; }).join("") +
+    '<div style="margin-top:14px;font-size:13px;color:var(--text-muted);">' + escapeHtml(q.body) + '</div></div>' +
+    '<div class="card"><div class="card-head"><h3>Puanlama Anahtarı</h3><span class="hint">toplam ağırlık %' + tw + '</span></div>' +
+    '<div class="field"><label>Maksimum puan</label><input id="rubMax" type="number" min="1" value="' + rub.maxScore + '"></div>' +
+    '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(c, i); }).join("") + '</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnAddCrit">+ Kriter Ekle</button>' +
+    '<div class="pill ' + (tw === 100 ? "pill-success" : "pill-warning") + '" id="weightPill" style="margin-top:10px;">' + (tw === 100 ? "Ağırlıklar tamam" : "Ağırlıklar %100 olmalı (şu an %" + tw + ")") + '</div>' +
+    '</div></div>';
+}
+
+function wireTeacherTab2() {
+  document.querySelectorAll(".rub-select").forEach(function (b) { b.onclick = function () { state.rubricSelectedQ = Number(b.dataset.qid); renderAll(); }; });
+  const maxEl = document.getElementById("rubMax");
+  if (maxEl) maxEl.oninput = function () { state.rubrics[state.rubricSelectedQ].maxScore = Number(maxEl.value) || 1; };
+  document.querySelectorAll(".crit-label").forEach(function (el) { el.oninput = function () { state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].label = el.value; }; });
+  document.querySelectorAll(".crit-weight").forEach(function (el) {
+    el.oninput = function () {
+      state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].weight = Number(el.value) || 0;
+      const rub = state.rubrics[state.rubricSelectedQ];
+      const pill = document.getElementById("weightPill");
+      if (pill) { const tw = totalWeight(rub); pill.textContent = tw === 100 ? "Ağırlıklar tamam" : "Ağırlıklar %100 olmalı (şu an %" + tw + ")"; pill.className = "pill " + (tw === 100 ? "pill-success" : "pill-warning"); }
+    };
+  });
+  const addBtn = document.getElementById("btnAddCrit");
+  if (addBtn) addBtn.onclick = function () { state.rubrics[state.rubricSelectedQ].criteria.push({ label: "Yeni kriter", weight: 0 }); renderAll(); };
+  document.querySelectorAll(".crit-remove").forEach(function (el) { el.onclick = function () { state.rubrics[state.rubricSelectedQ].criteria.splice(Number(el.dataset.idx), 1); renderAll(); }; });
+}
+
+function evalCardHtml(q) {
+  const ans = state.answers[q.id] || { text: "" };
+  const ev = state.aiEvals[q.id];
+  const rub = state.rubrics[q.id];
+  return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
+    '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
+    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
+    ev.breakdown.map(function (b) {
+      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
+        '<div class="bar-track" style="margin-bottom:6px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>';
+    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
+    '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
+    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Puanı Güncelle ve Onayla</button></div></div>';
+}
+function doneCardHtml(q) {
+  const rv = state.reviews[q.id], rub = state.rubrics[q.id];
+  return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
+    '<div style="margin-top:8px;font-size:13px;">Nihai puan: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
+    (rv.decision === "revised" ? '<span class="pill pill-accent2">revize edildi</span>' : '<span class="pill pill-accent">AI önerisiyle aynı</span>') + '</div></div>';
+}
+
+function teacherTab3Html() {
+  if (state.exam.status !== "published") return '<div class="empty-state">Sınav henüz yayınlanmadı.</div>';
+  if (state.examStatus === "not_started" || state.examStatus === "in_progress") return '<div class="empty-state">Öğrenci sınavı henüz bitirmedi. Değerlendirme kuyruğu, "Sınavı Bitir" dendiğinde dolacak.</div>';
+  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
+  const pending = opens.filter(function (q) { return !state.reviews[q.id]; });
+  const done = opens.filter(function (q) { return state.reviews[q.id]; });
+  return '<div class="card-head" style="margin-bottom:10px;"><h3>Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI puan önerisini incele, onayla veya revize et</span></div>' +
+    (pending.length ? pending.map(evalCardHtml).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
+    (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış</h3></div>' + done.map(doneCardHtml).join("") : "");
+}
+
+function wireTeacherTab3() {
+  document.querySelectorAll(".approve-as-is").forEach(function (b) {
+    b.onclick = function () { const qid = Number(b.dataset.qid); finalizeReview(qid, state.aiEvals[qid].aiScore, "", "approved_as_is"); };
+  });
+  document.querySelectorAll(".revise-approve").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid);
+      const scoreEl = document.querySelector('.final-score[data-qid="' + qid + '"]');
+      const commentEl = document.querySelector('.teacher-comment[data-qid="' + qid + '"]');
+      finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised");
+    };
+  });
+}
+function finalizeReview(qid, score, comment, decision) {
+  const rub = state.rubrics[qid];
+  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision };
+  maybeCompleteGrading();
+  renderAll();
+}
+function maybeCompleteGrading() {
+  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
+  if (opens.every(function (q) { return state.reviews[q.id]; }) && state.examStatus === "submitted") {
+    state.examStatus = "graded";
+  }
+}
+
+function computeDemoClassScores() {
+  const scores = {}, counts = {};
+  state.exam.questionIds.forEach(function (qid) {
+    const q = state.questions.find(function (x) { return x.id === qid; }); if (!q) return;
+    let pct = null;
+    if (q.type === "mc" && state.mcResults[qid]) pct = state.mcResults[qid].correct ? 100 : 0;
+    if (q.type === "open" && state.reviews[qid]) { const rub = state.rubrics[qid]; pct = state.reviews[qid].finalScore / rub.maxScore * 100; }
+    if (pct == null) return;
+    scores[q.outcome] = (scores[q.outcome] || 0) + pct;
+    counts[q.outcome] = (counts[q.outcome] || 0) + 1;
+  });
+  const result = {};
+  Object.keys(scores).forEach(function (k) { result[k] = Math.round(scores[k] / counts[k]); });
+  return result;
+}
+function teacherHeatmapRows() {
+  return [{ name: "8-A (Demo)", scores: computeDemoClassScores(), live: true }].concat(state.baseline.classes.slice(0, 2));
+}
+function teacherTab4Html() {
+  if (state.exam.status !== "published" || state.examStatus === "not_started") return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
+  const scores = computeDemoClassScores();
+  const vals = Object.keys(scores).map(function (k) { return scores[k]; });
+  const avg = vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0;
+  return '<div class="grid-3col" style="margin-bottom:18px;">' +
+    '<div class="stat-tile"><div class="s-label">Sınıf Ortalaması</div><div class="s-value tabular">%' + avg + '</div><div class="s-sub">tüm kazanımlar</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + examStatusLabel() + '</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">1/1</div><div class="s-sub">tamamlandı</div></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — 8-A</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>';
+}
+
+function renderTeacher() {
+  const root = document.getElementById("panel-teacher");
+  const tabs = [{ id: 1, label: "1 · Sınav Oluştur" }, { id: 2, label: "2 · Rubrik" }, { id: 3, label: "3 · Değerlendirme Onayı" }, { id: 4, label: "4 · Analitik" }];
+  root.innerHTML = '<div class="tabs" id="teacherTabs">' +
+    tabs.map(function (t) { return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.label + '</button>'; }).join("") +
+    '</div><div id="teacherTabContent"></div>';
+  document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
+  const content = document.getElementById("teacherTabContent");
+  if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
+  if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
+  if (state.teacherTab === 3) { content.innerHTML = teacherTab3Html(); wireTeacherTab3(); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+}
+
+/* ============================== Öğrenci ============================== */
+let autosaveTimer = null;
+function flashAutosave() { const m = document.getElementById("autosaveMsg"); if (m) m.innerHTML = '<span class="dot-save"></span> Kaydedildi ✓'; }
+
+function startExam() {
+  state.examStatus = "in_progress";
+  state.currentQIndex = 0;
+  state.remainingSec = state.exam.durationMin * 60;
+  state.studentTab = 2;
+  renderAll();
+}
+async function finishExam() {
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  // Çoktan seçmeli anında puanlanır; açık uçlu yanıtlar model önerisi bekler.
+  items.forEach(function (q) {
+    if (q.type === "mc") {
+      const a = state.answers[q.id];
+      state.mcResults[q.id] = { correct: !!a && a.selectedKey === q.correctKey };
+    }
+  });
+  state.examStatus = "submitted";
+  state.studentTab = 1;
+  state.ai.busy = true;
+  renderAll();
+  try {
+    const opens = items.filter(function (q) { return q.type !== "mc"; });
+    for (let i = 0; i < opens.length; i++) {
+      const q = opens[i];
+      const a = state.answers[q.id] || { text: "" };
+      ensureRubric(q.id);
+      state.aiEvals[q.id] = await aiEvaluate(q, a.text || "", state.rubrics[q.id]);
+    }
+  } finally {
+    state.ai.busy = false;
+    renderAll();
+  }
+}
+
+function studentTab1Html() {
+  const ex = state.exam;
+  if (ex.status !== "published") return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>';
+  const items = ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const waiting = Date.now() < ex.startsAt;
+  const statusPill = state.examStatus === "not_started" ? (waiting ? '<span class="pill pill-warning">Yaklaşıyor</span>' : '<span class="pill pill-success">Aktif</span>')
+    : state.examStatus === "in_progress" ? '<span class="pill pill-accent">Sürüyor</span>'
+    : state.examStatus === "submitted" ? '<span class="pill pill-accent2">Değerlendiriliyor</span>'
+    : '<span class="pill pill-success">Sonuçlandı</span>';
+  return '<div class="card"><div class="card-head"><h3>' + escapeHtml(ex.title || "Adsız Sınav") + '</h3>' + statusPill + '</div>' +
+    '<div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">' + items.length + ' soru · ' + ex.durationMin + ' dakika</div>' +
+    (waiting ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
+    '<div style="margin-top:14px;"><button class="btn btn-primary" id="btnEnterExam" ' + ((!waiting && state.examStatus === "not_started") ? "" : "disabled") + '>Sınava Gir</button> ' +
+    (state.examStatus === "in_progress" ? '<button class="btn btn-secondary" id="btnResumeExam">Sınava Devam Et</button>' : "") + '</div></div>';
+}
+function wireStudentTab1() {
+  const enterBtn = document.getElementById("btnEnterExam"); if (enterBtn) enterBtn.onclick = startExam;
+  const resumeBtn = document.getElementById("btnResumeExam"); if (resumeBtn) resumeBtn.onclick = function () { state.studentTab = 2; renderAll(); };
+}
+
+function mcAnswerHtml(q) {
+  const a = state.answers[q.id] || {};
+  return q.options.map(function (o) {
+    return '<label class="opt-row" style="cursor:pointer;"><input type="radio" name="ans-' + q.id + '" value="' + o.key + '" ' + (a.selectedKey === o.key ? "checked" : "") + ' class="mc-answer" data-qid="' + q.id + '">' +
+      '<span class="opt-key">' + o.key + '</span><span>' + escapeHtml(o.text) + '</span></label>';
+  }).join("") + '<div class="autosave-status" id="autosaveMsg"><span class="dot-save"></span> ' + (a.selectedKey ? "Kaydedildi" : "Henüz yanıt verilmedi") + '</div>';
+}
+function openAnswerHtml(q) {
+  const a = state.answers[q.id] || {};
+  return '<textarea id="openAnswerInput" data-qid="' + q.id + '" rows="7" placeholder="Yanıtınızı buraya yazın...">' + escapeHtml(a.text || "") + '</textarea>' +
+    '<div class="autosave-status" id="autosaveMsg"><span class="dot-save"></span> ' + (a.text ? "Kaydedildi" : "Henüz yanıt verilmedi") + '</div>';
+}
+
+function studentTab2Html() {
+  if (state.examStatus === "not_started") return '<div class="empty-state">Önce "Sınavlarım" sekmesinden sınava girin.</div>';
+  if (state.examStatus === "submitted") return '<div class="card"><div class="empty-state">Yanıtlarınız gönderildi. Öğretmen onayını bekliyor — karne, onaylandığında 3. Sekme\'de görünecek.</div></div>';
+  if (state.examStatus === "graded") return '<div class="card"><div class="empty-state">Bu sınav sonuçlandı. Karneyi 3. Sekme\'den görebilirsiniz.</div></div>';
+
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const q = items[state.currentQIndex];
+  const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
+  return '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
+    '<div class="qnav">' + items.map(function (it, i) { return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") + '" data-idx="' + i + '">' + (i + 1) + '</div>'; }).join("") + '</div></div>' +
+    '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span><span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span></div>' +
+    '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
+    '<div class="exam-footer"><div><button class="btn btn-secondary" id="btnPrevQ" ' + (state.currentQIndex === 0 ? "disabled" : "") + '>← Önceki</button> ' +
+    '<button class="btn btn-secondary" id="btnNextQ" ' + (state.currentQIndex === items.length - 1 ? "disabled" : "") + '>Sonraki →</button></div>' +
+    '<button class="btn btn-critical" id="btnFinishExam">Sınavı Bitir</button></div></div>';
+}
+function wireStudentTab2() {
+  document.querySelectorAll(".mc-answer").forEach(function (el) {
+    el.onchange = function () {
+      const qid = Number(el.dataset.qid);
+      state.answers[qid] = state.answers[qid] || {};
+      state.answers[qid].selectedKey = el.value;
+      state.answers[qid].savedAt = Date.now();
+      flashAutosave();
+      const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
+      if (dot) dot.classList.add("answered");
+    };
+  });
+  const openEl = document.getElementById("openAnswerInput");
+  if (openEl) openEl.oninput = function () {
+    const qid = Number(openEl.dataset.qid);
+    state.answers[qid] = state.answers[qid] || {};
+    state.answers[qid].text = openEl.value;
+    state.answers[qid].savedAt = Date.now();
+    const msg = document.getElementById("autosaveMsg");
+    if (msg) msg.innerHTML = '<span class="dot-save"></span> Kaydediliyor…';
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(function () {
+      const m = document.getElementById("autosaveMsg");
+      if (m) m.innerHTML = '<span class="dot-save"></span> Kaydedildi ✓ ' + new Date(state.answers[qid].savedAt).toLocaleTimeString("tr-TR");
+      const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
+      if (dot && openEl.value.trim()) dot.classList.add("answered");
+    }, 500);
+  };
+  const prev = document.getElementById("btnPrevQ"); if (prev) prev.onclick = function () { state.currentQIndex--; renderAll(); };
+  const next = document.getElementById("btnNextQ"); if (next) next.onclick = function () { state.currentQIndex++; renderAll(); };
+  document.querySelectorAll(".qnav-dot").forEach(function (d) { d.onclick = function () { state.currentQIndex = Number(d.dataset.idx); renderAll(); }; });
+  const finishBtn = document.getElementById("btnFinishExam"); if (finishBtn) finishBtn.onclick = function () { openModal(finishExamModalHtml()); };
+}
+
+function studentTab3Html() {
+  if (state.examStatus !== "graded") {
+    return '<div class="card"><div class="empty-state">' + (state.examStatus === "submitted" ? "Öğretmen henüz onaylamadı. Onaylandığında karneniz burada görünecek." : "Sınavı tamamladığınızda karneniz burada görünecek.") + '</div></div>';
+  }
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  let totalScore = 0, totalMax = 0;
+  const rows = items.map(function (q) {
+    if (q.type === "mc") {
+      const res = state.mcResults[q.id], a = state.answers[q.id] || {};
+      totalScore += res.correct ? 1 : 0; totalMax += 1;
+      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="' + (res.correct ? "pill pill-success" : "pill pill-critical") + '">' + (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
+        '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + (a.selectedKey || "—") + " · Doğru cevap: " + q.correctKey + '</div></div>';
+    } else {
+      const rv = state.reviews[q.id], rub = state.rubrics[q.id], ev = state.aiEvals[q.id];
+      totalScore += rv.finalScore; totalMax += rub.maxScore;
+      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
+        '<div class="justification" style="margin-top:6px;">' + escapeHtml(ev.justification) + (rv.comment ? "<br><b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div></div>';
+    }
+  }).join("");
+  return '<div class="card"><div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3><span class="pill pill-accent">Toplam ' + (Math.round(totalScore * 10) / 10) + "/" + totalMax + '</span></div>' + rows + '</div>';
+}
+
+function renderStudent() {
+  const root = document.getElementById("panel-student");
+  const tabs = [{ id: 1, label: "1 · Sınavlarım" }, { id: 2, label: "2 · Sınavı Çöz" }, { id: 3, label: "3 · Karne" }];
+  root.innerHTML = '<div class="tabs" id="studentTabs">' +
+    tabs.map(function (t) { return '<button class="tab-btn ' + (state.studentTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.label + '</button>'; }).join("") +
+    '</div><div id="studentTabContent"></div>';
+  document.querySelectorAll("#studentTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.studentTab = Number(b.dataset.tab); renderAll(); }; });
+  const content = document.getElementById("studentTabContent");
+  if (state.studentTab === 1) { content.innerHTML = studentTab1Html(); wireStudentTab1(); }
+  if (state.studentTab === 2) { content.innerHTML = studentTab2Html(); wireStudentTab2(); }
+  if (state.studentTab === 3) { content.innerHTML = studentTab3Html(); }
+}
+
+/* ============================== Eğitim Yöneticisi & Isı Haritası ============================== */
+function relLuminance(r, g, b) {
+  const a = [r, g, b].map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+}
+function bestTextColor(el) {
+  const bg = getComputedStyle(el).backgroundColor;
+  const m = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return;
+  const L = relLuminance(+m[1], +m[2], +m[3]);
+  el.style.color = L > 0.42 ? "#10141f" : "#f5f7fb";
+}
+function scaleStep(pct) { if (pct >= 85) return 5; if (pct >= 70) return 4; if (pct >= 55) return 3; if (pct >= 40) return 2; return 1; }
+
+function renderHeatmap(targetId, rows) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const cols = OUTCOMES;
+  el.innerHTML = '<div class="heatmap-wrap"><table class="heatmap"><tr><th></th>' +
+    cols.map(function (c) { return "<th>" + c.code + "</th>"; }).join("") + "</tr>" +
+    rows.map(function (r) {
+      return "<tr><th class=\"outcome-col\">" + escapeHtml(r.name) + "</th>" + cols.map(function (c) {
+        const v = r.scores[c.code];
+        if (v == null) return '<td><div class="hm-cell" style="background:var(--surface-2);color:var(--text-muted);">—</div></td>';
+        const step = scaleStep(v);
+        return '<td><div class="hm-cell" data-val="' + v + '" style="background:var(--seq-' + step + ');">' + (r.live ? '<span class="hm-flag">●</span>' : "") + v + '%</div></td>';
+      }).join("") + "</tr>";
+    }).join("") + "</table></div>" +
+    '<div class="legend-scale"><span>Düşük</span>' +
+    [1, 2, 3, 4, 5].map(function (s) { return '<span class="legend-swatch" style="background:var(--seq-' + s + ');"></span>'; }).join("") +
+    '<span>Yüksek başarı</span><span style="margin-left:14px;">● canlı demo verisi</span></div>';
+  el.querySelectorAll(".hm-cell[data-val]").forEach(bestTextColor);
+  const low = [];
+  rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(r.name + " · " + c.code); }); });
+  if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
+}
+
+function buildAdminHeatmapRows() {
+  const rows = state.baseline.classes.map(function (c) { return { name: c.name, scores: c.scores }; });
+  if (state.examStatus === "submitted" || state.examStatus === "graded") rows.push({ name: "8-A (Demo · canlı)", scores: computeDemoClassScores(), live: true });
+  return rows;
+}
+function renderAdmin() {
+  const root = document.getElementById("panel-admin");
+  const pendingLive = Object.keys(state.aiEvals).filter(function (qid) { return !state.reviews[qid]; }).length;
+  const pendingCount = pendingLive + state.baseline.pendingApprovalsOther;
+  const completed = state.baseline.totalCompleted + ((state.examStatus === "submitted" || state.examStatus === "graded") ? 1 : 0);
+  const rate = Math.round(completed / state.baseline.totalAssigned * 1000) / 10;
+  root.innerHTML = '<div class="grid-3col" style="margin-bottom:18px;">' +
+    '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">%' + rate + '</div><div class="s-sub tabular">' + completed + "/" + state.baseline.totalAssigned + ' sınav</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Bekleyen Öğretmen Onayı</div><div class="s-value tabular">' + pendingCount + '</div><div class="s-sub">açık uçlu yanıt</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + (state.baseline.classes.length + (state.exam.status === "published" ? 1 : 0)) + '</div><div class="s-sub">okul genelinde</div></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — Okul Geneli</h3><span class="hint">sınıf × kazanım ortalama başarı</span></div><div id="adminHeatmap"></div></div>';
+  renderHeatmap("adminHeatmap", buildAdminHeatmapRows());
+}
+
+/* ============================== Modal ============================== */
+function finishExamModalHtml() {
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const answeredCount = items.filter(function (it) { const a = state.answers[it.id]; return a && (a.selectedKey || (a.text && a.text.trim())); }).length;
+  return '<h3>Sınavı bitirmek istediğinize emin misiniz?</h3>' +
+    "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladınız. Bitirdikten sonra yanıtlarınızı değiştiremezsiniz; açık uçlu yanıtlarınız AI ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical" id="modalConfirmFinish">Evet, Bitir</button></div>';
+}
+function openModal(html) {
+  document.getElementById("modalBox").innerHTML = html;
+  document.getElementById("modalOverlay").classList.add("open");
+  const cancel = document.getElementById("modalCancel"); if (cancel) cancel.onclick = closeModal;
+  const confirmFinish = document.getElementById("modalConfirmFinish"); if (confirmFinish) confirmFinish.onclick = function () { closeModal(); finishExam(); };
+}
+function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); }
+
+/* ============================== Üst çubuk & sayfa iskeleti ============================== */
+function renderRoleNav() {
+  const pendingReview = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
+  const pendingApproval = Object.keys(state.aiEvals).filter(function (qid) { return !state.reviews[qid]; }).length;
+  const examReady = state.exam.status === "published" && state.examStatus === "not_started" && Date.now() >= state.exam.startsAt;
+  const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady ? 1 : 0, admin: 0 };
+  document.getElementById("roleNav").innerHTML = ROLES.map(function (r) {
+    return '<button class="role-btn ' + (state.role === r.id ? "active" : "") + '" data-role="' + r.id + '"><span class="r-label">' + r.label + '</span><span class="r-hint">' + r.hint + '</span>' +
+      (badges[r.id] ? '<span class="badge">' + badges[r.id] + '</span>' : "") + '</button>';
+  }).join("");
+  document.querySelectorAll(".role-btn").forEach(function (b) { b.onclick = function () { state.role = b.dataset.role; renderAll(); }; });
+}
+function renderPipeline() {
+  const steps = [
+    { label: "Havuz", done: state.questions.some(function (q) { return q.status === "approved"; }) },
+    { label: "Sınav", done: state.exam.status === "published" },
+    { label: "Çözüm", done: state.examStatus === "submitted" || state.examStatus === "graded" },
+    { label: "Onay", done: state.examStatus === "graded" },
+    { label: "Analiz", done: state.examStatus === "graded" },
+  ];
+  let activeSet = false;
+  const html = steps.map(function (s, i) {
+    let cls = "dot";
+    if (s.done) cls += " done"; else if (!activeSet) { cls += " active"; activeSet = true; }
+    return '<span class="seg"><span class="' + cls + '"></span><span>' + s.label + "</span></span>" + (i < steps.length - 1 ? '<span class="bar"></span>' : "");
+  }).join("");
+  document.getElementById("pipelineStrip").innerHTML = html;
+}
+
+function renderAll() {
+  renderAiBadge();
+  renderRoleNav();
+  renderPipeline();
+  renderContentExpert();
+  renderTeacher();
+  renderStudent();
+  renderAdmin();
+  document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
+}
+function initPanels() {
+  document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
+}
+
+let waitingFlag = false;
+setInterval(function () {
+  if (state.examStatus === "in_progress") {
+    state.remainingSec = Math.max(0, state.remainingSec - 1);
+    const tv = document.getElementById("timerValue");
+    if (tv) { tv.textContent = formatTime(state.remainingSec); tv.classList.toggle("low", state.remainingSec < 60); }
+    if (state.remainingSec === 0) finishExam();
+  }
+  if (state.exam.status === "published" && state.examStatus === "not_started") {
+    const stillWaiting = Date.now() < state.exam.startsAt;
+    if (stillWaiting) {
+      waitingFlag = true;
+      const wp = document.getElementById("waitPill");
+      if (wp) wp.textContent = "Sınav " + Math.max(0, Math.ceil((state.exam.startsAt - Date.now()) / 1000)) + " sn içinde açılacak";
+    } else if (waitingFlag) { waitingFlag = false; renderAll(); }
+  }
+}, 1000);
+
+initPanels();
+renderAll();
+probeAiMode();
+</script>
+</body>
+</html>

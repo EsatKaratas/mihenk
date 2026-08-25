@@ -1,0 +1,102 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Worker adı — Cloudflare panelinde ve *.workers.dev alt alan adında görünür.
+  "name": "t3-olcme-degerlendirme",
+
+  // Hono uygulamasının giriş noktası (routes.ts içeriğini buradan import edin).
+  "main": "src/index.ts",
+
+  // `wrangler deploy` ilk çalıştırmada daha güncel bir tarih önerebilir; öneriyi kabul edin.
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Demo/jüri günü için hızlı gözlemlenebilirlik (Workers Logs).
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // *.workers.dev alt alan adı — özel alan adı bağlamadan hemen demoya çıkmak için.
+  "workers_dev": true,
+
+  // Gizli olmayan yapılandırma. Sırlar (OAuth secret, Better Auth secret) buraya YAZILMAZ;
+  // bkz. README → "Ortam Değişkenleri ve Sırlar" (wrangler secret put ... ).
+  "vars": {
+    "APP_NAME": "T3 Ölçme ve Değerlendirme Sistemi",
+    "APP_ENV": "development"
+  },
+
+  // ---------------------------------------------------------------------
+  // D1 — birincil veritabanı (bkz. schema.sql)
+  // `wrangler d1 create olcme-db` çalıştırdıktan sonra dönen database_id'yi
+  // buraya yapıştırın.
+  // ---------------------------------------------------------------------
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "olcme-db",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // ---------------------------------------------------------------------
+  // R2 — içerik uzmanının yüklediği kaynak dosyalar (PDF/DOCX ders notları)
+  // ve öğretmenin dışa aktardığı analiz raporları için nesne depolama.
+  // `npm run r2:create` ile oluşturun.
+  // ---------------------------------------------------------------------
+  "r2_buckets": [
+    {
+      "binding": "SOURCE_ASSETS",
+      "bucket_name": "t3-olcme-source-assets"
+    }
+  ],
+
+  // ---------------------------------------------------------------------
+  // Workers AI — soru üretimi ve açık uçlu yanıt ön-değerlendirmesi.
+  // routes.ts içinde `c.env.AI.run(...)` ile çağrılır.
+  // ---------------------------------------------------------------------
+  "ai": {
+    "binding": "AI"
+  },
+
+  // ---------------------------------------------------------------------
+  // Queues — ağır AI işlerini (soru üretimi, açık uçlu değerlendirme)
+  // istek-yanıt döngüsünden ayırmak için. `npm run queue:create` ile oluşturun.
+  // Ücretsiz/deneme planında Queues kullanılamıyorsa bu bloğu kaldırıp
+  // /internal/ai/* rotalarını doğrudan (senkron) çağırabilirsiniz.
+  // ---------------------------------------------------------------------
+  "queues": {
+    "producers": [
+      { "queue": "olcme-ai-tasks", "binding": "AI_TASKS_QUEUE" }
+    ],
+    "consumers": [
+      { "queue": "olcme-ai-tasks", "max_batch_size": 5, "max_batch_timeout": 30, "max_retries": 3 }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Statik varlıklar — interaktif prototip (public/index.html), 404 sayfası,
+  // gizlilik politikası ve robots.txt aynı Worker üzerinden servis edilir.
+  // `not_found_handling: "404-page"` public/404.html dosyasını otomatik kullanır.
+  // ---------------------------------------------------------------------
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/internal/*"]
+  }
+
+  // Not: Sondaki "routes" bloğu bilerek yorum satırı olarak bırakıldı — bu
+  // geçerli JSON değil, JSONC yorumu. Aktive ederken üstündeki satırı da
+  // (bu "assets" bloğunun kapanışına) bir virgül ekleyerek düzenleyin.
+
+  // ---------------------------------------------------------------------
+  // Özel alan adı — jüri sunumu için *.workers.dev yeterlidir; kurumsal bir
+  // alan adına bağlarken bu bloğun yorumunu kaldırıp domaini güncelleyin.
+  // ---------------------------------------------------------------------
+  // "routes": [
+  //   { "pattern": "olcme.kurumadi.k12.tr/*", "custom_domain": true }
+  // ]
+}

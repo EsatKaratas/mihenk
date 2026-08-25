@@ -1,0 +1,17 @@
+node_modules/
+.wrangler/
+dist/
+
+# agents.md §7: sırlar asla commit edilmez
+.dev.vars
+.env
+*.local
+
+# Gated dataset türevleri — lisans gereği depoya girmez (bkz. §6.1 P3)
+seed/turkishmmlu/02_questions.sql
+seed/turkishmmlu/excluded_latex_flagged.json
+seed/turkishmmlu/*_raw.json
+
+__pycache__/
+*.pyc
+.DS_Store

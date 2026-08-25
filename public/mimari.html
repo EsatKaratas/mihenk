@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ölçme Değerlendirme Mimarisi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e3e8f2;
+    --text: #10141f;
+    --text-muted: #565f76;
+    --border: #d3d9e5;
+    --border-strong: #b7c0d4;
+    --accent: #2e4c8a;
+    --accent-strong: #1f3766;
+    --accent-soft: #dbe4f7;
+    --accent2: #b5631a;
+    --accent2-soft: #f3e0c8;
+    --success: #266b45;
+    --warning: #96631a;
+    --critical: #ae3325;
+    --shadow: 0 1px 2px rgba(20, 30, 60, 0.06), 0 8px 24px rgba(20, 30, 60, 0.05);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f18;
+      --surface: #131826;
+      --surface-2: #1a2033;
+      --text: #e8ebf3;
+      --text-muted: #8d96ad;
+      --border: #262d42;
+      --border-strong: #333c58;
+      --accent: #7ea0e8;
+      --accent-strong: #a9c2f2;
+      --accent-soft: #1c2a4a;
+      --accent2: #e2914f;
+      --accent2-soft: #3a2a18;
+      --success: #4fb488;
+      --warning: #d9a441;
+      --critical: #e2685c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0c0f18;
+    --surface: #131826;
+    --surface-2: #1a2033;
+    --text: #e8ebf3;
+    --text-muted: #8d96ad;
+    --border: #262d42;
+    --border-strong: #333c58;
+    --accent: #7ea0e8;
+    --accent-strong: #a9c2f2;
+    --accent-soft: #1c2a4a;
+    --accent2: #e2914f;
+    --accent2-soft: #3a2a18;
+    --success: #4fb488;
+    --warning: #d9a441;
+    --critical: #e2685c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a, summary, .method-badge { transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--text);
+  }
+
+  code, pre, .mono, .path, .field, .kbd {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  a { color: var(--accent-strong); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, summary:focus-visible, details > summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  .shell {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 0;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    padding: 40px 20px 40px 32px;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .brand .mark {
+    width: 34px; height: 34px;
+    border: 2px solid var(--accent);
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-family: "Archivo", sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+  }
+
+  .brand .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  nav.toc { display: flex; flex-direction: column; gap: 2px; }
+
+  nav.toc a {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 8px;
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  nav.toc a:hover { background: var(--surface-2); text-decoration: none; color: var(--text); }
+  nav.toc a .num { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); }
+
+  .stack-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .chip {
+    font-size: 11px;
+    font-family: "IBM Plex Mono", monospace;
+    padding: 4px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  /* ---------- Main ---------- */
+  main { padding: 40px 32px 100px; min-width: 0; }
+
+  .hero {
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .hero h1 { font-size: 28px; letter-spacing: -0.01em; }
+  .hero p.lede {
+    margin-top: 10px;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+  .hero .hitl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 7px 12px;
+    background: var(--accent2-soft);
+    border: 1px solid var(--accent2);
+    border-radius: 7px;
+    font-size: 12.5px;
+    color: var(--text);
+  }
+  .hero .hitl .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); flex: none; }
+
+  section.block { margin-bottom: 64px; scroll-margin-top: 24px; }
+
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .block-head .idx {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: var(--surface);
+  }
+  .block-head h2 { font-size: 21px; }
+  .block-sub { color: var(--text-muted); font-size: 14.5px; max-width: 68ch; margin: 4px 0 24px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- Mermaid frame ---------- */
+  .diagram-frame {
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .diagram-frame pre.mermaid { margin: 0; }
+
+  /* ---------- DB schema cards ---------- */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .table-card {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .table-card .t-name {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--accent-strong);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .table-card .t-name::before { content: "▦"; color: var(--accent); font-size: 12px; }
+  .table-card .t-desc { font-size: 12.5px; color: var(--text-muted); margin: 6px 0 8px; }
+  .table-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  .table-card li { font-size: 12px; font-family: "IBM Plex Mono", monospace; color: var(--text); }
+  .table-card li .fk { color: var(--accent); }
+  .table-card li .type { color: var(--text-muted); }
+
+  details.sql-group {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  details.sql-group summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 13.5px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-2);
+  }
+  details.sql-group summary::-webkit-details-marker { display: none; }
+  details.sql-group summary::before {
+    content: "▸";
+    color: var(--accent);
+    font-size: 11px;
+    transition: transform 0.15s ease;
+  }
+  details.sql-group[open] summary::before { transform: rotate(90deg); }
+  details.sql-group summary .n { font-family: "IBM Plex Mono", monospace; color: var(--accent); font-size: 12px; }
+
+  pre.code-block {
+    margin: 0;
+    padding: 16px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+    background: var(--surface);
+    color: var(--text);
+    white-space: pre;
+  }
+  pre.code-block .kw { color: var(--accent-strong); font-weight: 600; }
+  pre.code-block .cm { color: var(--text-muted); font-style: italic; }
+  pre.code-block .ty { color: var(--accent2); }
+
+  /* ---------- API table ---------- */
+  .api-group { margin-bottom: 26px; }
+  .api-group h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  table.api-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  table.api-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 9px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  table.api-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  table.api-table tr:last-child td { border-bottom: none; }
+  table.api-table .path { font-size: 12.5px; color: var(--text); }
+  table.api-table td.desc { color: var(--text-muted); font-size: 12.5px; }
+
+  .method-badge {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+  }
+  .method-GET { background: var(--accent-soft); color: var(--accent-strong); }
+  .method-POST { background: rgba(38,107,69,0.14); color: var(--success); }
+  .method-PATCH { background: rgba(150,99,26,0.16); color: var(--warning); }
+  .method-DELETE { background: rgba(174,51,37,0.14); color: var(--critical); }
+
+  .api-table-wrap { overflow-x: auto; }
+
+  /* ---------- Component tree ---------- */
+  .tree-wrap { overflow-x: auto; padding: 4px; }
+  ul.tree, ul.tree ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 26px;
+    position: relative;
+  }
+  ul.tree { padding-left: 0; }
+  ul.tree li {
+    position: relative;
+    padding: 5px 0 5px 18px;
+    font-size: 13px;
+  }
+  ul.tree li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0;
+    border-left: 1px solid var(--border-strong);
+    height: 100%;
+  }
+  ul.tree li:last-child::before { height: 19px; }
+  ul.tree li::after {
+    content: "";
+    position: absolute;
+    left: 0; top: 19px;
+    width: 14px;
+    border-top: 1px solid var(--border-strong);
+  }
+  ul.tree > li { padding-left: 0; }
+  ul.tree > li::before, ul.tree > li::after { display: none; }
+
+  .node {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--text);
+  }
+  .node.panel-root {
+    font-family: "Archivo", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent-strong);
+  }
+  .node .tag {
+    font-size: 10px;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--accent2-soft);
+    color: var(--accent2);
+    font-family: "Source Sans 3", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  footer.colophon {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar {
+      position: relative;
+      height: auto;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav.toc { flex-direction: row; flex-wrap: wrap; }
+    .stack-chips { margin-top: 0; padding-top: 0; border-top: none; }
+    main { padding: 28px 18px 80px; }
+  }
+</style>
+  <script type="module">
+    // Artifact ortamında Mermaid yerleşik render edilir; bağımsız barındırmada
+    // yüklenmesi gerekir. Yüklenemezse diyagram ham metin olarak kalır (sayfa bozulmaz).
+    try {
+      const m = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+      const dark = matchMedia('(prefers-color-scheme: dark)').matches
+        && document.documentElement.getAttribute('data-theme') !== 'light';
+      m.default.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default' });
+    } catch (e) { console.warn('Mermaid yüklenemedi:', e); }
+  </script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark">T3</span>
+      <span class="eyebrow">Creathon · Problem 2</span>
+    </div>
+    <nav class="toc">
+      <a href="#akis"><span class="num">01</span> Kullanıcı &amp; Veri Akışı</a>
+      <a href="#veritabani"><span class="num">02</span> D1 Veritabanı Şeması</a>
+      <a href="#api"><span class="num">03</span> Hono API Rotaları</a>
+      <a href="#arayuz"><span class="num">04</span> Panel &amp; Bileşen Ağacı</a>
+      <a href="#uretim"><span class="num">05</span> Üretim &amp; Demo Hazırlığı</a>
+    </nav>
+    <div class="stack-chips">
+      <span class="chip">Cloudflare Workers</span>
+      <span class="chip">D1 · SQLite</span>
+      <span class="chip">Hono</span>
+      <span class="chip">Queues</span>
+      <span class="chip">Workers AI</span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <h1>Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi — Mimari Tasarım</h1>
+      <p class="lede">Soru üretimi, sınav oluşturma ve açık uçlu değerlendirme AI ile hızlandırılır; ancak puanlamada
+      son sözü her zaman öğretmen söyler. Aşağıda dört panelin (İçerik Uzmanı, Öğretmen, Öğrenci, Eğitim Yöneticisi)
+      uçtan uca akışı, D1 şeması, Hono rota mimarisi ve arayüz bileşen ağacı yer alır.</p>
+      <div class="hitl"><span class="dot"></span> Human-in-the-Loop: her AI çıktısı (soru, süre önerisi, puan) onaya düşer — otomatik yayınlanmaz.</div>
+    </div>
+
+    <!-- ================= 01 AKIŞ ================= -->
+    <section class="block" id="akis">
+      <div class="block-head"><span class="idx">01</span><h2>Kullanıcı &amp; Veri Akışı</h2></div>
+      <p class="block-sub">İçerikten karneye tek zincir: her ok bir durum geçişini, her AI adımı bir onay kapısını temsil eder.</p>
+      <div class="panel diagram-frame">
+<pre class="mermaid">
+flowchart TB
+    subgraph ICERIK["İÇERİK UZMANI"]
+        A1["Kaynak metni yükle + konu / sınıf / kazanım"]
+        A2["AI: soru üretimi — ÇSS + açık uçlu"]
+        A3["İncele ve düzenle"]
+        A4{"Onayla?"}
+        A1 --> A2 --> A3 --> A4
+    end
+    A4 -->|"onaylandı"| POOL[("Ortak Soru Havuzu")]
+    A4 -->|"reddet"| A3
+
+    subgraph OGRETMEN1["ÖĞRETMEN — Sınav Kurulumu"]
+        B1["Kazanım / zorluğa göre soru seç"]
+        B2["AI süre önerisini gör, gerekirse değiştir"]
+        B3["Sınavı oluştur"]
+        B4["Açık uçlu için rubrik belirle"]
+        B5["Öğrencilere ata ve zamanla"]
+        B1 --> B2 --> B3 --> B4 --> B5
+    end
+    POOL --> B1
+
+    subgraph OGRENCI1["ÖĞRENCİ — Sınav"]
+        C1["Aktif / yaklaşan sınavları gör"]
+        C2["Sınav saatinde erişime açılır"]
+        C3["Geri sayım + soru çözümü — auto-save"]
+        C4["Sınavı Bitir"]
+        C1 --> C2 --> C3 --> C4
+    end
+    B5 --> C1
+
+    D1["AI: açık uçlu yanıtları analiz eder, puan + gerekçe önerir"]
+    C4 --> D1
+
+    subgraph OGRETMEN2["ÖĞRETMEN — Puan Onayı"]
+        E1["Puan ve gerekçeyi tek tek incele"]
+        E2{"Onayla ya da revize et"}
+        E3["Nihai puan kilitlenir"]
+        E1 --> E2 --> E3
+    end
+    D1 --> E1
+
+    E3 --> F1["ÖĞRENCİ: karneyi görür"]
+    E3 --> G1["Kazanım analitikleri güncellenir"]
+    G1 --> H1["EĞİTİM YÖNETİCİSİ: tamamlanma oranı, bekleyen onaylar, kazanım ısı haritası"]
+</pre>
+      </div>
+    </section>
+
+    <!-- ================= 02 VERİTABANI ================= -->
+    <section class="block" id="veritabani">
+      <div class="block-head"><span class="idx">02</span><h2>D1 (SQLite) Veritabanı Şeması</h2></div>
+      <p class="block-sub">9 tablo grubu, akıştaki her adıma bire bir karşılık gelir. Kart görünümü hızlı tarama içindir; altındaki SQL blokları <code>wrangler d1 execute</code> ile doğrudan çalıştırılabilir.</p>
+
+      <div class="panel diagram-frame" style="margin-bottom:18px;">
+<pre class="mermaid">
+erDiagram
+    USERS ||--o{ SOURCE_DOCUMENTS : "yükler"
+    USERS ||--o{ EXAMS : "oluşturur"
+    USERS ||--o{ EXAM_ASSIGNMENTS : "atanır"
+    LEARNING_OUTCOMES ||--o{ QUESTIONS : "etiketler"
+    SOURCE_DOCUMENTS ||--o{ QUESTIONS : "üretir"
+    QUESTIONS ||--o{ RUBRICS : "puanlama_anahtari"
+    QUESTIONS ||--o{ EXAM_QUESTIONS : "sinavda_yer_alir"
+    EXAMS ||--o{ EXAM_QUESTIONS : "icerir"
+    EXAMS ||--o{ EXAM_ASSIGNMENTS : "atanir"
+    EXAM_ASSIGNMENTS ||--o{ SUBMISSIONS : "yanit_verir"
+    SUBMISSIONS ||--o| AI_EVALUATIONS : "AI_puanlar"
+    AI_EVALUATIONS ||--o| TEACHER_REVIEWS : "ogretmen_onayi"
+    LEARNING_OUTCOMES ||--o{ ANALYTICS_SNAPSHOTS : "olcumlenir"
+</pre>
+      </div>
+
+      <div class="schema-grid">
+        <div class="table-card">
+          <div class="t-name">users</div>
+          <div class="t-desc">4 rol · rol bazlı panel yönlendirmesi</div>
+          <ul>
+            <li>role <span class="type">'content_expert'|'teacher'|'student'|'admin'</span></li>
+            <li><span class="fk">school_id</span> <span class="type">→ schools</span></li>
+            <li>class_name <span class="type">TEXT (öğrenci)</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">learning_outcomes</div>
+          <div class="t-desc">kazanımlar — soru ve analitiklerin ortak anahtarı</div>
+          <ul>
+            <li>code <span class="type">TEXT UNIQUE</span></li>
+            <li>subject, grade_level</li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">source_documents</div>
+          <div class="t-desc">İçerik Uzmanı — 1. Alan çıktısı</div>
+          <ul>
+            <li><span class="fk">uploaded_by</span> <span class="type">→ users</span></li>
+            <li>status <span class="type">processing|ready|failed</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">questions</div>
+          <div class="t-desc">İçerik Uzmanı — 2. Alan / ortak havuz</div>
+          <ul>
+            <li>type <span class="type">multiple_choice|open_ended</span></li>
+            <li>ai_estimated_time_sec</li>
+            <li>status <span class="type">ai_generated → pending_review → approved</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">rubrics</div>
+          <div class="t-desc">Öğretmen — 2. Sekme, puanlama anahtarı</div>
+          <ul>
+            <li>criteria <span class="type">JSON[]</span></li>
+            <li>max_score <span class="type">REAL</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">exams / exam_questions</div>
+          <div class="t-desc">Öğretmen — 1. Sekme, sınav kurulumu</div>
+          <ul>
+            <li>time_estimate_sec <span class="type">(manuel override)</span></li>
+            <li>status <span class="type">draft → scheduled → active → completed</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">exam_assignments</div>
+          <div class="t-desc">sınav ↔ öğrenci ataması</div>
+          <ul>
+            <li>status <span class="type">not_started|in_progress|submitted|graded</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">submissions</div>
+          <div class="t-desc">Öğrenci — 2. Sekme, auto-save yanıtları</div>
+          <ul>
+            <li>last_saved_at <span class="type">her keystroke'ta güncellenir</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name">ai_evaluations / teacher_reviews</div>
+          <div class="t-desc">Human-in-the-Loop çekirdeği</div>
+          <ul>
+            <li>ai_score + ai_justification</li>
+            <li>final_score <span class="type">(nihai karar öğretmende)</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <details class="sql-group" open>
+        <summary>Tam SQL — CREATE TABLE ifadeleri <span class="n">schema.sql</span></summary>
+        <pre class="code-block"><span class="cm">-- 1. Kurum / Kullanıcı</span>
+<span class="kw">CREATE TABLE</span> schools (
+  id         <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  name       <span class="ty">TEXT</span> NOT NULL,
+  created_at <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="kw">CREATE TABLE</span> users (
+  id            <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  school_id     <span class="ty">INTEGER</span> REFERENCES schools(id),
+  full_name     <span class="ty">TEXT</span> NOT NULL,
+  email         <span class="ty">TEXT</span> NOT NULL UNIQUE,
+  password_hash <span class="ty">TEXT</span> NOT NULL,
+  role          <span class="ty">TEXT</span> NOT NULL CHECK (role IN (<span class="cm">'content_expert','teacher','student','admin'</span>)),
+  class_name    <span class="ty">TEXT</span>,
+  created_at    <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="cm">-- 2. Kazanımlar</span>
+<span class="kw">CREATE TABLE</span> learning_outcomes (
+  id          <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  code        <span class="ty">TEXT</span> NOT NULL UNIQUE,
+  description <span class="ty">TEXT</span> NOT NULL,
+  subject     <span class="ty">TEXT</span> NOT NULL,
+  grade_level <span class="ty">INTEGER</span> NOT NULL
+);
+
+<span class="cm">-- 3. Kaynak içerik (İçerik Uzmanı — 1. Alan)</span>
+<span class="kw">CREATE TABLE</span> source_documents (
+  id          <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  uploaded_by <span class="ty">INTEGER</span> NOT NULL REFERENCES users(id),
+  title       <span class="ty">TEXT</span> NOT NULL,
+  raw_text    <span class="ty">TEXT</span> NOT NULL,
+  subject     <span class="ty">TEXT</span> NOT NULL,
+  grade_level <span class="ty">INTEGER</span> NOT NULL,
+  status      <span class="ty">TEXT</span> NOT NULL DEFAULT <span class="cm">'processing'</span> CHECK (status IN (<span class="cm">'processing','ready','failed'</span>)),
+  created_at  <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="cm">-- 4. Soru havuzu (İçerik Uzmanı — 2. Alan)</span>
+<span class="kw">CREATE TABLE</span> questions (
+  id                    <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  source_document_id    <span class="ty">INTEGER</span> REFERENCES source_documents(id),
+  learning_outcome_id   <span class="ty">INTEGER</span> REFERENCES learning_outcomes(id),
+  type                  <span class="ty">TEXT</span> NOT NULL CHECK (type IN (<span class="cm">'multiple_choice','open_ended'</span>)),
+  body                  <span class="ty">TEXT</span> NOT NULL,
+  options               <span class="ty">TEXT</span>,               <span class="cm">-- JSON, sadece ÇSS</span>
+  correct_option_key    <span class="ty">TEXT</span>,
+  difficulty            <span class="ty">TEXT</span> NOT NULL CHECK (difficulty IN (<span class="cm">'easy','medium','hard'</span>)),
+  ai_estimated_time_sec <span class="ty">INTEGER</span> NOT NULL,
+  status                <span class="ty">TEXT</span> NOT NULL DEFAULT <span class="cm">'ai_generated'</span>
+                           CHECK (status IN (<span class="cm">'ai_generated','pending_review','approved','rejected'</span>)),
+  reviewed_by           <span class="ty">INTEGER</span> REFERENCES users(id),
+  reviewed_at           <span class="ty">TEXT</span>,
+  created_at            <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="cm">-- 5. Rubrik (Öğretmen — 2. Sekme)</span>
+<span class="kw">CREATE TABLE</span> rubrics (
+  id          <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  question_id <span class="ty">INTEGER</span> NOT NULL REFERENCES questions(id),
+  created_by  <span class="ty">INTEGER</span> NOT NULL REFERENCES users(id),
+  max_score   <span class="ty">REAL</span> NOT NULL,
+  criteria    <span class="ty">TEXT</span> NOT NULL,   <span class="cm">-- JSON: [{"label":"...","weight":40}]</span>
+  created_at  <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="cm">-- 6. Sınavlar (Öğretmen — 1. Sekme)</span>
+<span class="kw">CREATE TABLE</span> exams (
+  id               <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  teacher_id       <span class="ty">INTEGER</span> NOT NULL REFERENCES users(id),
+  title            <span class="ty">TEXT</span> NOT NULL,
+  subject          <span class="ty">TEXT</span> NOT NULL,
+  grade_level      <span class="ty">INTEGER</span> NOT NULL,
+  starts_at        <span class="ty">TEXT</span> NOT NULL,
+  duration_minutes <span class="ty">INTEGER</span> NOT NULL,
+  status           <span class="ty">TEXT</span> NOT NULL DEFAULT <span class="cm">'draft'</span>
+                      CHECK (status IN (<span class="cm">'draft','scheduled','active','completed','results_approved'</span>)),
+  created_at       <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="kw">CREATE TABLE</span> exam_questions (
+  id                <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  exam_id           <span class="ty">INTEGER</span> NOT NULL REFERENCES exams(id),
+  question_id       <span class="ty">INTEGER</span> NOT NULL REFERENCES questions(id),
+  order_index       <span class="ty">INTEGER</span> NOT NULL,
+  time_estimate_sec <span class="ty">INTEGER</span> NOT NULL,
+  UNIQUE (exam_id, question_id)
+);
+
+<span class="kw">CREATE TABLE</span> exam_assignments (
+  id           <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  exam_id      <span class="ty">INTEGER</span> NOT NULL REFERENCES exams(id),
+  student_id   <span class="ty">INTEGER</span> NOT NULL REFERENCES users(id),
+  status       <span class="ty">TEXT</span> NOT NULL DEFAULT <span class="cm">'not_started'</span>
+                 CHECK (status IN (<span class="cm">'not_started','in_progress','submitted','graded'</span>)),
+  started_at   <span class="ty">TEXT</span>,
+  submitted_at <span class="ty">TEXT</span>,
+  UNIQUE (exam_id, student_id)
+);
+
+<span class="cm">-- 7. Yanıtlar (Öğrenci — 2. Sekme, auto-save)</span>
+<span class="kw">CREATE TABLE</span> submissions (
+  id                  <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  exam_assignment_id  <span class="ty">INTEGER</span> NOT NULL REFERENCES exam_assignments(id),
+  question_id         <span class="ty">INTEGER</span> NOT NULL REFERENCES questions(id),
+  selected_option_key <span class="ty">TEXT</span>,
+  answer_text         <span class="ty">TEXT</span>,
+  last_saved_at       <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>)),
+  UNIQUE (exam_assignment_id, question_id)
+);
+
+<span class="cm">-- 8. AI değerlendirme + öğretmen onayı (Human-in-the-Loop)</span>
+<span class="kw">CREATE TABLE</span> ai_evaluations (
+  id                    <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  submission_id         <span class="ty">INTEGER</span> NOT NULL REFERENCES submissions(id),
+  rubric_id             <span class="ty">INTEGER</span> REFERENCES rubrics(id),
+  ai_score              <span class="ty">REAL</span> NOT NULL,
+  ai_justification      <span class="ty">TEXT</span> NOT NULL,
+  ai_criteria_breakdown <span class="ty">TEXT</span> NOT NULL,  <span class="cm">-- JSON</span>
+  created_at            <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="kw">CREATE TABLE</span> teacher_reviews (
+  id               <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  ai_evaluation_id <span class="ty">INTEGER</span> NOT NULL UNIQUE REFERENCES ai_evaluations(id),
+  reviewed_by      <span class="ty">INTEGER</span> NOT NULL REFERENCES users(id),
+  final_score      <span class="ty">REAL</span> NOT NULL,          <span class="cm">-- nihai karar</span>
+  teacher_comment  <span class="ty">TEXT</span>,
+  decision         <span class="ty">TEXT</span> NOT NULL CHECK (decision IN (<span class="cm">'approved_as_is','revised'</span>)),
+  reviewed_at      <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);
+
+<span class="cm">-- 9. Analitik (Öğretmen 4. Sekme + Eğitim Yöneticisi)</span>
+<span class="kw">CREATE TABLE</span> analytics_snapshots (
+  id                  <span class="ty">INTEGER</span> PRIMARY KEY AUTOINCREMENT,
+  scope               <span class="ty">TEXT</span> NOT NULL CHECK (scope IN (<span class="cm">'student','class','school'</span>)),
+  scope_ref           <span class="ty">TEXT</span> NOT NULL,
+  learning_outcome_id <span class="ty">INTEGER</span> REFERENCES learning_outcomes(id),
+  success_rate        <span class="ty">REAL</span> NOT NULL,
+  sample_size         <span class="ty">INTEGER</span> NOT NULL,
+  computed_at         <span class="ty">TEXT</span> NOT NULL DEFAULT (datetime(<span class="cm">'now'</span>))
+);</pre>
+      </details>
+    </section>
+
+    <!-- ================= 03 API ================= -->
+    <section class="block" id="api">
+      <div class="block-head"><span class="idx">03</span><h2>Hono API Rotaları</h2></div>
+      <p class="block-sub">Her grup bir panelin bir sekmesine karşılık gelir; <code>requireRole()</code> middleware'i erişimi role göre sınırlar.</p>
+
+      <div class="api-group">
+        <h3>Auth — tüm roller</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/auth/register</td><td class="desc">Kullanıcı kaydı</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/auth/login</td><td class="desc">Giriş — role göre panele yönlendirme</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/auth/me</td><td class="desc">Oturum bilgisi + rol</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>İçerik Uzmanı — 1. Alan · kaynak yükleme</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/documents</td><td class="desc">Metin + konu/sınıf/kazanım yükle</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/documents</td><td class="desc">Yüklenen dokümanları listele</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/documents/:id/generate-questions</td><td class="desc">AI soru üretimini tetikle (Queue)</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>İçerik Uzmanı — 2. Alan · soru inceleme</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/documents/:id/questions</td><td class="desc">İncelenmeyi bekleyen AI çıktıları</td></tr>
+          <tr><td><span class="method-badge method-PATCH">PATCH</span></td><td class="path">/api/questions/:id</td><td class="desc">Soru metni / şıkları düzenle</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/questions/:id/approve</td><td class="desc">Onayla → ortak havuza aktar</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/questions/:id/reject</td><td class="desc">Reddet</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/questions</td><td class="desc">Havuzu filtrele — ?outcome=&amp;difficulty=&amp;type=</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Öğretmen — 1. Sekme · sınav kurulumu</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/exams</td><td class="desc">Yeni sınav (draft)</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/exams</td><td class="desc">Öğretmenin sınavları</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/exams/:id/questions</td><td class="desc">Havuzdan soru ekle</td></tr>
+          <tr><td><span class="method-badge method-PATCH">PATCH</span></td><td class="path">/api/exams/:id/questions/:questionId</td><td class="desc">Süre / sıra güncelle — manuel override</td></tr>
+          <tr><td><span class="method-badge method-DELETE">DELETE</span></td><td class="path">/api/exams/:id/questions/:questionId</td><td class="desc">Sınavdan soru çıkar</td></tr>
+          <tr><td><span class="method-badge method-DELETE">DELETE</span></td><td class="path">/api/exams/:id</td><td class="desc">Taslak sınavı sil</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/exams/:id/assign</td><td class="desc">Sınıf/öğrenci ataması + zamanlama</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/exams/:id/publish</td><td class="desc">draft → scheduled/active</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Öğretmen — 2. Sekme · rubrik</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/exams/:id/rubrics</td><td class="desc">Kriter listesi + max_score tanımla</td></tr>
+          <tr><td><span class="method-badge method-PATCH">PATCH</span></td><td class="path">/api/rubrics/:id</td><td class="desc">Kriterleri güncelle</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Öğretmen — 3. Sekme · puan onayı (Human-in-the-Loop)</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/exams/:id/evaluations</td><td class="desc">Onay bekleyen AI değerlendirmeleri</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/evaluations/:id</td><td class="desc">Yanıt + rubrik + AI puan/gerekçe</td></tr>
+          <tr><td><span class="method-badge method-PATCH">PATCH</span></td><td class="path">/api/evaluations/:id/review</td><td class="desc">final_score + karar — nihai onay</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Öğretmen — 4. Sekme · analitik</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/exams/:id/analytics</td><td class="desc">Sınav bazlı başarı dağılımı</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/classes/:className/analytics</td><td class="desc">Sınıf + öğrenci trend</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/students/:id/analytics</td><td class="desc">Kazanım bazlı eksik/güçlü alanlar</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Öğrenci Paneli</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/student/exams</td><td class="desc">Aktif + yaklaşan sınavlar — 1. Sekme</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/student/exams/:id/start</td><td class="desc">Geri sayımı başlat — 2. Sekme</td></tr>
+          <tr><td><span class="method-badge method-PATCH">PATCH</span></td><td class="path">/api/student/exams/:id/answers/:questionId</td><td class="desc">Auto-save yanıt</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/student/exams/:id/submit</td><td class="desc">Bitir → AI değerlendirme kuyruğu</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/student/exams/:id/report</td><td class="desc">Karne — 3. Sekme (onay sonrası)</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Eğitim Yöneticisi Paneli</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/admin/overview</td><td class="desc">Tamamlanma oranları</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/admin/pending-approvals</td><td class="desc">Öğretmen bazlı bekleyen onaylar</td></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/admin/outcomes-heatmap</td><td class="desc">Kazanım ısı haritası matrisi</td></tr>
+        </table></div>
+      </div>
+
+      <div class="api-group">
+        <h3>Dahili — Queues consumer'ları</h3>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/internal/ai/generate-questions</td><td class="desc">Workers AI ile soru üretimi</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/internal/ai/evaluate-submission</td><td class="desc">Rubrike göre açık uçlu puanlama</td></tr>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ================= 04 ARAYÜZ ================= -->
+    <section class="block" id="arayuz">
+      <div class="block-head"><span class="idx">04</span><h2>Panel &amp; Bileşen Ağacı</h2></div>
+      <p class="block-sub">Bento/dashboard mantığıyla tek bir <code>AppShell</code> altında dört panel; her panel kendi sekme bileşenlerini modüler olarak yükler.</p>
+
+      <div class="panel" style="padding: 20px;">
+        <div class="tree-wrap">
+          <ul class="tree">
+            <li><span class="node panel-root">AppShell</span> <span class="node">(Sidebar + TopBar, role → yönlendirme)</span>
+              <ul>
+                <li><span class="node panel-root">ContentExpertPanel</span>
+                  <ul>
+                    <li><span class="node">Tab · KaynakYükleme</span>
+                      <ul>
+                        <li><span class="node">FileDropzone / TextPasteArea</span></li>
+                        <li><span class="node">MetadataForm</span> <span class="node">(konu, sınıf, kazanım seçici)</span></li>
+                        <li><span class="node">GenerateQuestionsButton</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab · SoruİncelemePaneli</span>
+                      <ul>
+                        <li><span class="node">QuestionFilterBar</span></li>
+                        <li><span class="node">QuestionCardGrid</span>
+                          <ul>
+                            <li><span class="node">MCQuestionCard</span></li>
+                            <li><span class="node">OpenEndedQuestionCard</span></li>
+                          </ul>
+                        </li>
+                        <li><span class="node">QuestionEditModal</span></li>
+                        <li><span class="node">ApproveRejectActionBar</span> <span class="tag">HITL</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li><span class="node panel-root">TeacherPanel</span>
+                  <ul>
+                    <li><span class="node">Tab1 · SoruHavuzu &amp; SınavOluşturucu</span>
+                      <ul>
+                        <li><span class="node">PoolFilterSidebar</span></li>
+                        <li><span class="node">QuestionPoolList</span></li>
+                        <li><span class="node">AIEstimatedTimeBadge</span> <span class="tag">düzenlenebilir</span></li>
+                        <li><span class="node">ExamBuilderTray</span> <span class="node">(sürükle-bırak sıralama)</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab2 · RubrikEditörü</span>
+                      <ul>
+                        <li><span class="node">OpenEndedQuestionSelector</span></li>
+                        <li><span class="node">CriteriaListEditor</span></li>
+                        <li><span class="node">MaxScoreInput</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab3 · DeğerlendirmeOnayKuyruğu</span>
+                      <ul>
+                        <li><span class="node">PendingEvaluationList</span></li>
+                        <li><span class="node">SubmissionDetailCard</span></li>
+                        <li><span class="node">AIScoreSuggestionPanel</span></li>
+                        <li><span class="node">ScoreOverrideForm</span> <span class="tag">HITL — nihai karar</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab4 · SınıfAnalitikleri</span>
+                      <ul>
+                        <li><span class="node">ClassSuccessOverviewCard</span></li>
+                        <li><span class="node">StudentTrendChart</span></li>
+                        <li><span class="node">KazanımHeatmapGrid</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li><span class="node panel-root">StudentPanel</span>
+                  <ul>
+                    <li><span class="node">Tab1 · SınavListesi</span>
+                      <ul>
+                        <li><span class="node">ActiveExamCard</span></li>
+                        <li><span class="node">UpcomingExamCard</span> <span class="node">(geri sayım rozeti)</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab2 · SınavÇözümEkranı</span>
+                      <ul>
+                        <li><span class="node">CountdownTimerBar</span> <span class="node">(üstte)</span></li>
+                        <li><span class="node">QuestionViewport</span>
+                          <ul>
+                            <li><span class="node">MCQuestionView</span></li>
+                            <li><span class="node">OpenEndedAnswerBox</span> <span class="tag">auto-save</span></li>
+                          </ul>
+                        </li>
+                        <li><span class="node">PrevNextNav</span> <span class="node">(altta)</span></li>
+                        <li><span class="node">FinishExamButton</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="node">Tab3 · KarneEkranı</span>
+                      <ul>
+                        <li><span class="node">ScoreSummaryCard</span></li>
+                        <li><span class="node">PerQuestionResultList</span></li>
+                        <li><span class="node">AIJustificationReadout</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li><span class="node panel-root">AdminPanel</span> <span class="node">(Bento grid)</span>
+                  <ul>
+                    <li><span class="node">CompletionRateTile</span></li>
+                    <li><span class="node">PendingTeacherApprovalsTile</span></li>
+                    <li><span class="node">OutcomeHeatmapTile</span></li>
+                    <li><span class="node">SchoolOverviewTable</span></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 05 ÜRETİM HAZIRLIĞI ================= -->
+    <section class="block" id="uretim">
+      <div class="block-head"><span class="idx">05</span><h2>Üretim &amp; Demo Hazırlığı</h2></div>
+      <p class="block-sub">Mimarinin yanına, dağıtım öncesi eksik kalan üç tamamlayıcı parça eklendi — dosya olarak ayrıca iletildi.</p>
+
+      <div class="schema-grid">
+        <div class="table-card">
+          <div class="t-name" style="text-transform:none;">404.html</div>
+          <div class="t-desc">Bilinmeyen rotalar için — mevcut mavi baskı temasıyla uyumlu, kırık bağlantı şeması + "Ana Sayfaya Dön" / "Destek" aksiyonları.</div>
+          <ul>
+            <li><span class="fk">Hono</span> <span class="type">app.notFound() ile bağlanır</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name" style="text-transform:none;">privacy-policy.html</div>
+          <div class="t-desc">KVKK aydınlatma metni — veri sorumlusu, toplanan veri, AI/insan-onaylı puanlama açıklaması, küçüklerin verisi ve haklar bölümleriyle.</div>
+          <ul>
+            <li><span class="fk">Rota</span> <span class="type">GET /gizlilik-politikasi</span></li>
+            <li><span class="fk">Şema notu</span> <span class="type">users.privacy_accepted_at (opsiyonel)</span></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <div class="t-name" style="text-transform:none;">robots.txt</div>
+          <div class="t-desc">/api/, /internal/ ve rol panellerini crawl'dan hariç tutar; giriş ve gizlilik sayfalarına izin verir.</div>
+          <ul>
+            <li><span class="fk">Konum</span> <span class="type">kök dizin — /robots.txt</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="hero" style="border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin-bottom:0;">
+        <p class="lede" style="margin-top:0; max-width:none;">Human-in-the-Loop ilkesi gizlilik metnine de taşındı: AI'nin
+        ürettiği puan/gerekçe önerileri, öğretmen onayından geçmeden nihai karar sayılmaz — bu, hem 4. Sekme'deki analitiklerin
+        hem de KVKK aydınlatma metninin 4. maddesinin ortak referans noktasıdır.</p>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      T3 Vakfı Creathon — Problem 2 · Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi. Şema ve rota dosyaları (<code>schema.sql</code>, <code>routes.ts</code>) ile 404, gizlilik politikası ve robots.txt dosyaları ayrıca iletildi.
+    </footer>
+  </main>
+</div>
+</body>
+</html>

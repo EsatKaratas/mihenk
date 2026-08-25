@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sayfa bulunamadı — 404</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --text: #10141f;
+    --text-muted: #565f76;
+    --border: #d3d9e5;
+    --border-strong: #b7c0d4;
+    --accent: #2e4c8a;
+    --accent-strong: #1f3766;
+    --accent-soft: #dbe4f7;
+    --accent2: #b5631a;
+    --accent2-soft: #f3e0c8;
+    --critical: #ae3325;
+    --shadow: 0 1px 2px rgba(20,30,60,0.06), 0 8px 24px rgba(20,30,60,0.05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f18; --surface: #131826; --text: #e8ebf3; --text-muted: #8d96ad;
+      --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+      --accent-soft: #1c2a4a; --accent2: #e2914f; --accent2-soft: #3a2a18;
+      --critical: #e2685c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0f18; --surface: #131826; --text: #e8ebf3; --text-muted: #8d96ad;
+    --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+    --accent-soft: #1c2a4a; --accent2: #e2914f; --accent2-soft: #3a2a18;
+    --critical: #e2685c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    max-width: 620px;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 44px 40px 40px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--accent2);
+    background: var(--accent2-soft);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 5px;
+    margin-bottom: 22px;
+  }
+  .schematic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .node {
+    width: 46px; height: 46px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+  }
+  .node.here { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); font-weight: 600; }
+  .node.missing {
+    border-style: dashed;
+    border-color: var(--critical);
+    color: var(--critical);
+  }
+  .wire { width: 22px; height: 1.5px; background: var(--border-strong); position: relative; }
+  .wire.broken { background: none; border-top: 1.5px dashed var(--border-strong); }
+
+  h1 {
+    font-family: "Archivo", sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  p.lede {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 46ch;
+    margin: 0 auto 28px;
+  }
+  .path-readout {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 14px;
+    margin: 0 0 28px;
+    text-align: left;
+    overflow-x: auto;
+  }
+  .path-readout .lbl { color: var(--accent); }
+  .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    font-family: "Source Sans 3", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    border: 1px solid transparent;
+  }
+  .btn.primary { background: var(--accent-strong); color: #fff; }
+  .btn.primary:hover { background: var(--accent); }
+  .btn.secondary { background: transparent; border-color: var(--border-strong); color: var(--text); }
+  .btn.secondary:hover { background: var(--accent-soft); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  footer {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <span class="eyebrow">HATA 404</span>
+
+    <div class="schematic" aria-hidden="true">
+      <div class="node">giriş</div>
+      <div class="wire"></div>
+      <div class="node here">panel</div>
+      <div class="wire broken"></div>
+      <div class="node missing">?</div>
+    </div>
+
+    <h1>Bu koordinatta bir sayfa yok</h1>
+    <p class="lede">Aradığınız sayfa taşınmış, kaldırılmış olabilir ya da hiç var olmadı. Bağlantıyı kontrol edin ya da aşağıdan devam edin.</p>
+
+    <div class="path-readout" id="pathReadout">
+      <span class="lbl">İstenen yol</span> → <span id="reqPath">/bilinmeyen-sayfa</span>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="/">Ana Sayfaya Dön</a>
+      <a class="btn secondary" href="/destek">Destek ile İletişime Geç</a>
+    </div>
+
+    <footer>T3 Vakfı Creathon · Ölçme ve Değerlendirme Sistemi</footer>
+  </main>
+
+  <script>
+    // Gerçek Hono dağıtımında bu değeri sunucu tarafında doldurun (aşağıdaki not).
+    try {
+      var p = window.location && window.location.pathname;
+      if (p) document.getElementById('reqPath').textContent = p;
+    } catch (e) {}
+  </script>
+
+  <!--
+    HONO ENTEGRASYONU
+    ------------------
+    routes.ts içindeki app tanımının en altına ekleyin:
+
+      app.notFound((c) => {
+        const html = /* bu dosyanın <body> içeriği veya statik asset */;
+        return c.html(html, 404);
+      });
+
+    Statik asset olarak sunmak isterseniz (Workers Assets / Cloudflare Pages):
+      - Bu dosyayı public/404.html altına koyun,
+      - wrangler.toml'da [assets] binding'i tanımlayın,
+      - app.notFound(async (c) => c.env.ASSETS.fetch(new Request(new URL('/404.html', c.req.url))))
+  -->
+</body>
+</html>
