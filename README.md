@@ -13,12 +13,15 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev)
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)
 
-![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)
-![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
-![Model](https://img.shields.io/badge/model-Llama%203.3%2070B-0f9d58?style=flat-square)
-![Human in the Loop](https://img.shields.io/badge/Human--in--the--Loop-zorunlu-8957e5?style=flat-square)
-![Injection testi](https://img.shields.io/badge/injection%20testi-5%2F5-2ea44f?style=flat-square)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
+[![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
+[![Model](https://img.shields.io/badge/model-Llama%203.3%2070B-0f9d58?style=flat-square)](./src/lib/prompts.ts)
+[![Human in the Loop](https://img.shields.io/badge/Human--in--the--Loop-zorunlu-8957e5?style=flat-square)](./agents.md)
+[![Injection testi](https://img.shields.io/badge/injection%20testi-5%2F5-2ea44f?style=flat-square)](./tools/injection-test.py)
+
+<sub>Rozetlerin her biri depodaki ilgili yere gider — mimari bölümü, `tsconfig.json`,
+model istemleri, geliştirme kuralları, güvenlik testi.</sub>
 
 </div>
 
@@ -28,6 +31,19 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 **açık uçlu yanıt okuma** ve **kazanım analizi** — yapay zekâ ile hızlandırır.
 Ama yapay zekâ hiçbir şeye karar vermez: soru **önerir**, puan **önerir**,
 rubrik **önerir**. Onaylayan her zaman insandır.
+
+### İçindekiler
+
+**Hızlı erişim:** [Neden farklı](#neden-bu-proje-farklı) · [Uçtan uca akış](#uçtan-uca-akış) · [Ölçülen değerler](#canlıda-ölçülen-değerler) · [**Hemen deneyin**](#hemen-deneyin) · [Güvenlik](#111-güvenlik--prompt-injectiona-karşı-sertleştirme)
+
+| | |
+|---|---|
+| [1. Problem ve çözüm](#1-problem-ve-çözüm) | [7. Ortam değişkenleri ve sırlar](#7-ortam-değişkenleri-ve-sırlar) |
+| [2. Dört kullanıcı rolü](#2-dört-kullanıcı-rolü) | [8. Deploy](#8-deploy-üretim) |
+| [3. Mimari](#3-mimari) | [9. Bilinen sınırlamalar](#9-bilinen-sınırlamalar-ve-yol-haritası) |
+| [4. Proje yapısı](#4-proje-yapısı) | [10. Gizlilik ve veri koruma](#10-gizlilik-ve-veri-koruma) |
+| [5. Yerelde çalıştırma](#5-yerelde-çalıştırma) | [**11. Brief'in istediğinin ötesi**](#11-briefin-istediğinin-ötesi) |
+| [6. Demo akışı (jüri için)](#6-demo-akışı-jüri-için-önerilen-sıra) | |
 
 ### Neden bu proje farklı
 
@@ -100,16 +116,28 @@ Arayüzün üst kısmındaki rozet, o an **hangi modelin** yanıtladığını g�
 birincil model, yedek sağlayıcı ya da yerel simülasyon. Bu bilinçlidir —
 sistemin sessizce simülasyona düşüp gerçek yapay zekâ gibi görünmesini engeller.
 
-### İçindekiler
+### Hemen deneyin
 
-| | |
-|---|---|
-| [1. Problem ve çözüm](#1-problem-ve-çözüm) | [7. Ortam değişkenleri ve sırlar](#7-ortam-değişkenleri-ve-sırlar) |
-| [2. Dört kullanıcı rolü](#2-dört-kullanıcı-rolü) | [8. Deploy](#8-deploy-üretim) |
-| [3. Mimari](#3-mimari) | [9. Bilinen sınırlamalar](#9-bilinen-sınırlamalar-ve-yol-haritası) |
-| [4. Proje yapısı](#4-proje-yapısı) | [10. Gizlilik ve veri koruma](#10-gizlilik-ve-veri-koruma) |
-| [5. Yerelde çalıştırma](#5-yerelde-çalıştırma) | [**11. Brief'in istediğinin ötesi**](#11-briefin-istediğinin-ötesi) |
-| [6. Demo akışı (jüri için)](#6-demo-akışı-jüri-için-önerilen-sıra) | |
+**Kurulum gerekmez:** [canlı sistemi açın](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev),
+üst çubuktaki **"Demo senaryosu"** düğmesine basın ve rol seçiciden dört rol
+arasında gezinin. Yüklenen sorular uydurma değil, modelin gerçekten ürettiği
+çıktılar; değerlendirme canlı çalışır.
+
+**Yerelde çalıştırmak isterseniz** (Node.js ≥ 18 ve bir Cloudflare hesabı):
+
+```bash
+git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
+cd t3-olcme-degerlendirme
+npm install
+npx wrangler login
+npm run dev:demo      # http://localhost:8787
+```
+
+Güvenlik testini kendiniz koşmak için:
+
+```bash
+python tools/injection-test.py https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev
+```
 
 ---
 
@@ -303,6 +331,9 @@ Model istemlerinin tamamı `src/lib/prompts.ts` içindedir.
 
 ### 5.3 Tam üretim yapılandırması
 
+<details>
+<summary><b>Adım adım üretim kurulumu</b> — D1 + R2 + Queues (canlı demoda kullanılmıyor, açmak için tıklayın)</summary>
+
 ```bash
 # 1) Bağımlılıkları kurun
 npm install
@@ -332,6 +363,8 @@ npm run dev
 `npm run dev` komutu Worker'ı `http://localhost:8787` üzerinde açar;
 `public/index.html` aynı adresten servis edilir, API rotaları `/api/*`
 altındadır.
+
+</details>
 
 ## 6. Demo akışı (jüri için önerilen sıra)
 
