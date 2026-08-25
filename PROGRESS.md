@@ -156,6 +156,33 @@ Kreaton rehberi §5'teki dört kritik tavsiye:
 
 ---
 
+## 7b. 6 ZORUNLU MVP MADDESİ — DENETİM
+
+Eleme bu tablodan yapılıyor: *"Bir madde eksikse ekip sonraki değerlendirme
+aşamasına geçemez."* Brief'in kendi ifadeleriyle karşılaştırma:
+
+| # | Brief'in cümlesi | Üründeki karşılığı | Durum |
+|---|---|---|---|
+| 1 | "Eğitmen kaynak içeriği, konu, kazanım, seviye ve soru türünü sisteme **tanımlar**" | Metin yapıştırma **+ .txt/.md dosya yükleme**; ders serbest metin (yeni ders eklenebilir); sınıf 1-12; **kazanım ekle/sil**; ÇSS ve açık uçlu adedi seçimi | ✅ |
+| 2 | "Sistem içerikten **çoktan seçmeli ve açık uçlu** soru taslakları üretir; eğitmen **düzenler ve onaylar**" | Gerçek model (llama-3.3-70b) her iki türü üretir; soru metni ve şıklar düzenlenebilir; doğru şık değiştirilebilir; onayla/reddet | ✅ |
+| 3 | "Onaylanan sorular havuza alınır; **seçilerek** sınav/ölçme seti oluşturulur" | Onaylılar havuza girer; **kazanım/zorluk/tür filtresi**; seçilerek sınav kurulur; **kazanım kapsama göstergesi** | ✅ |
+| 4 | Eğitmen "**değerlendirme kriterlerini** belirler" (Rol 02) | Rubrik sekmesi; kriter + ağırlık; **ağırlık %100 olmadan sınav yayınlanamaz** | ✅ |
+| 5 | "AI, **tanımlı rubriğe göre** cevap için **puan ve gerekçe** önerir; **nihai karar eğitmene aittir**" | Kriter bazında puan + gerekçe + güven skoru; öğretmen onaylar veya revize eder; **sonuçlar öğretmen yayınlamadan öğrenciye gitmez** | ✅ |
+| 6 | "Öğrenme çıktısı analizi" · "sınıfın öğrenme durumunu tek ekrandan görür" | Kazanım ısı haritası (öğretmen + yönetici); en zayıf kazanım aksiyon kartı; **kapalı döngü: analizden soru üretimine dönüş** | ✅ |
+
+**Dürüstlük notu (MVP 6):** Isı haritasındaki sınıf ortalamaları şu an
+`state.baseline` içindeki demo verisinden geliyor; canlı sınav buna tek öğrenci
+olarak katılıyor. Analiz mekanizması gerçek ve canlı güncelleniyor, ancak
+çoklu öğrenci verisi simüle. Bu, maddeyi karşılamayı engellemiyor
+(brief çoklu öğrenci şartı koymuyor) ama **jüri sorarsa açıkça söylenmelidir.**
+
+**3 zorunlu akış (brief slayt 05):**
+- Akış 01 İçerik Uzmanı: yükle → kazanım seç → AI üret → onayla ✅
+- Akış 02 Eğitmen: sınav oluştur → açık uçlu cevapları gör → AI önerisini incele → nihai puanı onayla ✅
+- Akış 03 Öğrenci: sınavı tamamla → cevaplar kaydedilsin → **sonuç onay sonrası oluşsun** ✅
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)
