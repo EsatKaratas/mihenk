@@ -15,9 +15,10 @@ Disallow: /icerik-uzmani/
 Disallow: /yonetici/
 
 # Genel erişime açık sayfalar
+# NOT: Bu yollar canlı sistemde DOĞRULANMIŞTIR. Önceki sürüm /giris,
+# /gizlilik-politikasi ve /destek yollarını izin veriyordu; üçü de 404
+# döndürüyordu (gerçek yol /privacy-policy). Sitemap satırı da
+# [uygulama-domaini] placeholder'ı ile duruyordu ve sitemap.xml hiç yok.
 Allow: /$
-Allow: /giris
-Allow: /gizlilik-politikasi
-Allow: /destek
-
-Sitemap: https://[uygulama-domaini]/sitemap.xml
+Allow: /mimari
+Allow: /privacy-policy
