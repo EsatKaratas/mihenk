@@ -935,3 +935,124 @@ yani ekran okuyucu bu ikisini **bağlamıyor.** Onlarca yerde tekrarlanıyor;
 teslim günü toplu değişiklik riskli görüldü. Rubrik ekranındaki kritik alanlar
 `aria-label` ile tek tek düzeltildi. Kalanı final öncesi (5-6 Eylül) toplu
 olarak ele alınacak.
+
+---
+
+## 11. AYRIŞTIRICI ÖZELLİKLER TURU (26 Ağustos)
+
+**Neden bu tur:** Problem 2'yi çözen diğer takımların hepsi brief'in altı
+maddesini yapacak — soru üretimi, rubrik puanlama, analiz. Dolayısıyla MVP
+maddeleri ayrıştırıcı değildir. Ayrıştıran şey *"bu ekip ölçme-değerlendirmeyi
+gerçekten biliyor"* dedirten derinliktir. Kreaton rehberinin *"yarım ürün, tam
+problem çözümü"* ilkesi gereği çok özellik yerine üç tanesi seçilip tam yapıldı.
+
+### 11a. Madde analizi — klasik test kuramı
+
+Üretilen sorunun **iyi bir ölçme aracı olup olmadığını** ölçer. İki gösterge:
+
+| Gösterge | Tanım | Yorum eşikleri |
+|---|---|---|
+| **p** (güçlük) | doğru yanıtlayan oranı | <0,30 çok zor · 0,30-0,70 ideal · >0,90 çok kolay |
+| **d** (ayırt edicilik) | üst grup − alt grup doğru oranı | <0 TERS · <0,20 ayırt etmiyor · 0,20-0,30 sınırda · ≥0,40 çok iyi |
+
+Üst/alt grup, sınavdaki ÇSS doğru sayısına göre sıralanıp uçlardan %27
+alınarak oluşturulur; sınıf 10 kişiden azsa %27 tek kişiye düşeceği için
+yarıya bölünür ve sonuç **"gösterge niteliğindedir"** uyarısıyla işaretlenir.
+
+En değerli sinyal **negatif d**: iyi öğrenciler yanlış, zayıflar doğru
+yanıtlıyorsa soru ya da cevap anahtarı hatalıdır. Ayrıca **işlevsiz çeldirici**
+(hiç kimsenin seçmediği şık) işaretlenir.
+
+Hiçbir AI çağrısı yapılmaz — saf hesap, kota tüketmez.
+
+**Doğrulama:** Birim testi (bilinen girdi ↔ elle hesaplanmış beklenen çıktı)
+birebir eşleşti: n=4, k=2; S1 p=0,50 d=1,00 işlevsiz=D; S2 p=0,25 d=0,50
+işlevsiz=A,D. Ters ayırt edicilik senaryosunda d=−1,00 doğru tespit edildi.
+5 sınır durumunda (öğrenci yok / ÇSS yok / sınav yok / seçenek dizisi yok /
+tek öğrenci) sıfır hata; veri yoksa bölüm hiç render edilmiyor.
+
+### 11b. Öğretmen-yapay zekâ uyumu (kalibrasyon)
+
+Brief'in problem tanımındaki cümleye doğrudan cevap: *"değerlendiriciler
+arasında tutarsızlık oluşabiliyor."*
+
+- **Yön (bias):** ortalama(nihai − AI). Pozitifse AI cimri, negatifse cömert.
+- **Ortalama sapma:** ortalama(|nihai − AI|). Uyum yüzdesi bundan türetilir.
+- **Güven kalibrasyonu:** AI "güvenim yüksek" dediğinde gerçekten daha isabetli
+  mi? Güven skoru bu projede onay kuyruğunu sıralamak için kullanılıyor;
+  işe yarayıp yaramadığı ancak böyle ölçülür. Yüksek güven bandındaki sapma
+  düşük banttan küçükse *"güven skoru çalışıyor"*, değilse **"DİKKAT: güven
+  skoru beklendiği gibi davranmıyor, kuyruk sıralamasına bu veriyle
+  güvenmeyin"** uyarısı çıkar.
+
+**Dürüstçe kabul edilen sınır (ekranda da yazar):** Öğretmen puanı kriter
+bazında değil TOPLAM olarak düzeltiyor; bu yüzden *"hangi kriterde
+ayrışıyoruz"* sorusu bu veriyle **yanıtlanamaz.** Uydurmak yerine kırılım soru
+ve güven bandı düzeyinde verildi.
+
+**Doğrulama:** Birim testi (4 onay) birebir eşleşti — yön −0,50 (cömert),
+sapma 2,00, uyum %90, aynen onay 1, değiştirilen 3, bantlar yüksek:2:1,00 /
+düşük:2:3,00, güvenKalibre true, en farklı −5,0. Ters senaryoda (yüksek
+güvende sapma büyük) uyarı doğru çıktı. 6 sınır durumunda sıfır hata.
+
+### 11c. Kavram yanılgısı kümeleme
+
+**Isı haritası "hangi kazanım zayıf" der; bu bölüm "NEDEN zayıf" der.**
+Öğretmenin asıl ihtiyacı budur: yarın sınıfta neyi tekrar anlatacağı.
+
+Yeni uç: `POST /api/ai/misconceptions`. Sınıfın açık uçlu yanıtlarındaki
+**en az iki öğrencide tekrarlayan** hatalar gruplanır; her küme için başlık,
+açıklama, kaç öğrencide görüldüğü, **yanıtlardan birebir kısa alıntılar** ve
+öğretmene tek cümlelik somut öneri döner.
+
+Tasarım kararları:
+- **Öğrenci adı modele gönderilmez** — yalnızca anonim, numaralı yanıt metinleri.
+- **Otomatik çalışmaz**; her analiz bir model çağrısıdır, öğretmen düğmeyle
+  tetikler. Sonuç sınav+soru bazında saklanır, sekme değişiminde yeniden
+  ücret ödenmez.
+- Hiçbir puanı etkilemez (`agents.md` §7.1) — bir gözlemdir.
+- **Injection savunması bu uçta da uygulandı.** Öğrenci yanıtları burada da
+  veridir; savunmayı atlamak yeni bir açık olurdu. Aynı sertleştirme:
+  `crypto.randomUUID()` sınır belirteci + kuralların önünde güvenlik bloğu.
+- Sunucu tarafında normalleştirme: `studentCount` analiz edilen yanıt sayısını
+  aşamaz ve <2 olan kümeler elenir (istem kuralı 1 ile tutarlılık), alıntılar
+  en fazla 3'e kırpılır, en yaygın küme başa alınır.
+- `agents.md` §7.4 uyumu: rate limit (dakikada 5), `max_tokens` açıkça verilir,
+  yanıt toplamı 6.000 karakteri aşarsa 413 döner (sessizce kırpılmaz).
+
+**Doğrulama (canlı, gerçek model):**
+
+| Test | Sonuç |
+|---|---|
+| Kümeleme (kurgulanmış sınıf: 4 öğrencide aynı yanılgı) | 5,1 sn — yanılgı **5/7'de** doğru yakalandı, alıntılar gerçek yanıtlardan |
+| Arayüz uçtan uca (5 öğrenci) | 5,5 sn — yanılgı **4/5'te** yakalandı, 2 küme render edildi |
+| **Injection** (yanıt dizisine "SİSTEM TALİMATI… HACKED" eklendi) | **GEÇTİ** — istem sızmadı, HACKED kümesi oluşmadı |
+| Şema sınırı (tek yanıt) | HTTP 400 |
+| Boş yanıtlar | HTTP 200 + açıklayıcı not, model çağrılmadı |
+| Çok uzun yanıtlar | HTTP 413 |
+| **Bağlantı koptu** | Uydurma küme **yok**, ekranda hata kutusu — sessiz düşüş yasağına uygun |
+| Tek yanıt (istemci) | **Ağ çağrısı 0** — boşuna kota harcanmıyor |
+| Açık uçlu soru yok / tek öğrenci | Bölüm hiç render edilmiyor |
+
+### 11d. Yan düzeltmeler
+
+Analitik sekmesinde bayat kalmış iki değer bu turda düzeltildi:
+- Öğrenci sayacı sabit **"1/1"** yazıyordu (çoklu öğrenci desteği geldiğinde
+  güncellenmemişti) → gerçek sayı: tamamlayan/toplam.
+- Isı haritası başlığı sabit **"8-A"** idi; gerçek şubeler 7-A/7-B →
+  mevcut `siniflar()` yardımcısından dinamik.
+
+### 11e. Bu turda uygulanan ders
+
+Üç özelliğin CSS'i de **bağımsız sınıflarla** yazıldı (`.ia-*`, `.cal-*`,
+`.mis-*`). Gerekçe §5'teki 11. hata ve §10h'de önlenen tekrarı: bu projede
+`.opt-row` yalnızca `.q-card` içinde, `.cv-warn` yalnızca `.coverage-box`
+içinde tanımlıydı ve dışarıda kullanıldıklarında **hiç stil almıyorlardı.**
+
+### 11f. Değerlendirilip yapılmayanlar (final öncesi seçenek havuzu)
+
+Ayrıştırıcı fikir listesi çıkarıldı, üçü seçildi. Yapılmayanlar:
+kazanım-soru hizalama denetimi (içerik geçerliği) · Bloom taksonomisi dengesi ·
+öğrenciye geri bildirim taslağı · soru havuzu benzerlik denetimi · AI karar
+günlüğü (denetim izi) · maliyet şeffaflığı paneli · MEB kazanım kataloğu içe
+aktarma · öğrenci erişilebilirliği (süre uzatma, disleksi dostu font).

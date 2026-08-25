@@ -138,7 +138,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers" };
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions" };
 
 async function probeAiMode() {
   try {
@@ -354,7 +354,7 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache"];
+  "students", "activeStudentId", "evalCache", "misconceptions"];
 
 function saveState() {
   if (_resetting) return;
@@ -538,6 +538,7 @@ const state = {
   aiEvals: {},
   reviews: {},
   mcResults: {},
+  misconceptions: {},
   baseline: {
     totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
     classes: [
@@ -2709,6 +2710,151 @@ function calibrationHtml() {
     "</div>";
 }
 
+/* ===========================================================================
+   KAVRAM YANILGISI KÜMELEME (arayüz)
+   ===========================================================================
+   NEDEN: Isı haritası "hangi kazanım zayıf" der. Bu bölüm "NEDEN zayıf" der.
+   Öğretmenin asıl ihtiyacı budur: yarın sınıfta neyi tekrar anlatacağı.
+
+   TASARIM KARARLARI:
+   - OTOMATİK ÇALIŞMAZ. Her analiz bir model çağrısıdır ve kota tüketir;
+     öğretmen istediğinde düğmeyle tetiklenir.
+   - Öğrenci ADI sunucuya gönderilmez (yalnızca anonim yanıt metinleri).
+   - Sonuç hiçbir puanı etkilemez (agents.md §7.1) — bir gözlemdir.
+   - Sessiz düşüş yok: çağrı başarısız olursa hata ekranda yazar, uydurma
+     bir "yanılgı listesi" gösterilmez.
+   - Sonuç sınav+soru bazında saklanır ve diske yazılır; sekme değişiminde
+     yeniden ücret ödenmez.
+   =========================================================================== */
+
+function miscKey(qid) {
+  return String(state.activeExamId) + ":" + String(qid);
+}
+
+/** Bu sınavdaki açık uçlu sorular (analiz edilebilir olanlar). */
+function miscQuestions() {
+  return (state.exam.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+}
+
+/** Sınıfın o soruya verdiği DOLU yanıtları toplar (isim taşımaz). */
+function miscAnswers(qid) {
+  return submittedStudents()
+    .map(function (st) { return ((readSession(st.id).answers || {})[qid] || {}).text || ""; })
+    .map(function (t) { return String(t).trim(); })
+    .filter(function (t) { return t.length > 0; });
+}
+
+async function runMisconceptions(qid) {
+  const q = state.questions.find(function (x) { return String(x.id) === String(qid); });
+  if (!q) return;
+  const key = miscKey(qid);
+  state.misconceptions = state.misconceptions || {};
+  state.misconceptions[key] = { loading: true };
+  renderAll();
+
+  const yanitlar = miscAnswers(qid);
+  if (yanitlar.length < 2) {
+    state.misconceptions[key] = { error: "Analiz için en az iki dolu yanıt gerekir; şu an " + yanitlar.length + " var." };
+    saveState(); renderAll(); return;
+  }
+
+  try {
+    const j = await apiPost(AI_API.misconceptions, {
+      questionBody: q.body,
+      outcomeLabel: outcomeLabel(q.outcome),
+      answers: yanitlar
+    });
+    state.misconceptions[key] = {
+      clusters: j.clusters || [],
+      correctCount: j.correctCount || 0,
+      analyzed: j.analyzed || yanitlar.length,
+      model: (j.meta && j.meta.model) || "",
+      fellBack: !!(j.meta && j.meta.fellBack),
+      at: Date.now()
+    };
+  } catch (e) {
+    // Sessiz düşüş yok: uydurma bir yanılgı listesi göstermek yerine hatayı yaz.
+    state.misconceptions[key] = { error: String((e && e.message) || e) };
+  }
+  saveState();
+  renderAll();
+}
+
+function misconceptionHtml() {
+  const sorular = miscQuestions();
+  if (!sorular.length) return "";
+  const gonderen = submittedStudents().length;
+  if (gonderen < 2) return "";
+
+  const bloklar = sorular.map(function (q) {
+    const key = miscKey(q.id);
+    const d = (state.misconceptions || {})[key];
+    const yanitSayisi = miscAnswers(q.id).length;
+
+    let govde;
+    if (d && d.loading) {
+      govde = '<div class="mis-durum">Sınıfın yanıtları okunuyor…</div>';
+    } else if (d && d.error) {
+      govde = '<div class="mis-hata"><b>Analiz yapılamadı.</b> ' + escapeHtml(d.error) +
+        '<div class="mis-hata-not">Yanıtlar kaybolmadı. Bağlantı düzelince yeniden deneyebilirsiniz.</div></div>';
+    } else if (d && d.clusters) {
+      if (!d.clusters.length) {
+        govde = '<div class="mis-durum mis-temiz">Tekrarlayan bir kavram yanılgısı bulunamadı. ' +
+          d.analyzed + " yanıt incelendi.</div>";
+      } else {
+        govde = d.clusters.map(function (k) {
+          const oran = d.analyzed ? Math.round(k.studentCount / d.analyzed * 100) : 0;
+          return '<div class="mis-kume">' +
+            '<div class="mis-kume-bas"><span class="mis-kume-ad">' + escapeHtml(k.title) + "</span>" +
+            '<span class="pill ' + (oran >= 50 ? "pill-critical" : "pill-warning") + '">' +
+            k.studentCount + "/" + d.analyzed + " öğrenci</span></div>" +
+            (k.explanation ? '<div class="mis-aciklama">' + escapeHtml(k.explanation) + "</div>" : "") +
+            ((k.evidence || []).length
+              ? '<div class="mis-kanit">' + k.evidence.map(function (e) {
+                  return '<span class="mis-alinti">&ldquo;' + escapeHtml(e) + "&rdquo;</span>";
+                }).join("") + "</div>"
+              : "") +
+            (k.action ? '<div class="mis-aksiyon"><b>Öneri:</b> ' + escapeHtml(k.action) + "</div>" : "") +
+            "</div>";
+        }).join("") +
+        '<div class="mis-ozet">' + d.analyzed + " yanıt incelendi · " + d.correctCount +
+          " yanıt kazanımı doğru biçimde ifade etmiş" +
+          (d.model ? ' · <span class="mis-model">' + escapeHtml(d.model) + "</span>" : "") +
+          (d.fellBack ? ' <span class="pill pill-warning">yedek model</span>' : "") + "</div>";
+      }
+    } else {
+      govde = '<div class="mis-durum">Bu soruya ' + yanitSayisi +
+        " dolu yanıt verildi. Sınıfın ortak hatasını görmek için analiz edin.</div>";
+    }
+
+    const dugmeMetni = d && d.clusters ? "Yeniden Analiz Et" : "Sınıfın Ortak Hatasını Bul";
+    return '<div class="mis-blok">' +
+      '<div class="mis-soru">' + escapeHtml(q.body) + "</div>" +
+      govde +
+      '<div class="mis-alt"><button class="btn btn-secondary btn-sm mis-run" data-qid="' + q.id + '"' +
+      (d && d.loading ? " disabled" : "") + ">" + (d && d.loading ? "Analiz ediliyor…" : dugmeMetni) + "</button>" +
+      '<span class="mis-alt-not">' + yanitSayisi + " yanıt · isimler gönderilmez</span></div>" +
+      "</div>";
+  }).join("");
+
+  return '<div class="card" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>Kavram Yanılgısı Analizi</h3>' +
+    '<span class="hint">ısı haritası "hangi kazanım zayıf" der, bu bölüm "neden zayıf" der</span></div>' +
+    '<div class="mis-giris">Sınıfın açık uçlu yanıtlarında <b>en az iki öğrencide tekrarlayan</b> ' +
+    "hatalar gruplanır. Bu bir puanlama değildir, hiçbir öğrencinin notunu etkilemez; " +
+    "yarın sınıfta neyi tekrar anlatacağınıza karar vermeniz içindir. " +
+    "Öğrenci adları yapay zekâya gönderilmez.</div>" +
+    bloklar + "</div>";
+}
+
+function wireMisconceptions() {
+  document.querySelectorAll(".mis-run").forEach(function (b) {
+    b.onclick = function () { runMisconceptions(b.dataset.qid); };
+  });
+}
+
 function teacherTab4Html() {
   if (state.exam.status !== "published" || state.examStatus === "not_started") return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
   const scores = computeDemoClassScores();
@@ -2728,6 +2874,7 @@ function teacherTab4Html() {
     '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
     calibrationHtml() +
+    misconceptionHtml() +
     trendHtml();
 }
 
@@ -2742,7 +2889,7 @@ function renderTeacher() {
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
   if (state.teacherTab === 3) { content.innerHTML = teacherTab3Html(); wireTeacherTab3(); }
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html(); wireMisconceptions(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -3442,6 +3589,7 @@ setInterval(function () {
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "calibration", "calibrationHtml",
+    "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",

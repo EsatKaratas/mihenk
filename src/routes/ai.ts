@@ -14,6 +14,7 @@ import {
   buildEvaluationPrompt,
   buildRubricPrompt,
   buildSampleAnswerPrompt,
+  buildMisconceptionPrompt,
 } from '../lib/prompts';
 import { callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv, type AiEnv } from '../lib/ai';
 import {
@@ -25,6 +26,9 @@ import {
   modelRubricSchema,
   sampleAnswersSchema,
   modelSampleAnswersSchema,
+  misconceptionsSchema,
+  modelMisconceptionsSchema,
+  MAX_SOURCE_CHARS,
 } from '../schemas/ai';
 
 type Bindings = AiEnv & { DB?: D1Database };
@@ -353,6 +357,103 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     return c.json({
       answers,
       simulated: true,
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+    });
+  } catch (e) {
+    return c.json(
+      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      502
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/misconceptions — sınıfın açık uçlu yanıtlarındaki TEKRARLAYAN
+// kavram yanılgılarını kümeler.
+//
+// Isı haritası "hangi kazanım zayıf" der; bu uç "NEDEN zayıf" der.
+// agents.md §7.1: Bu çıktı hiçbir puanı etkilemez, öğretmene sunulan bir
+// gözlemdir. Öğrenci adı modele GÖNDERİLMEZ (yanıtlar anonim gider).
+// ---------------------------------------------------------------------------
+ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+
+  // agents.md §7.4: hız sınırı. Anahtar soru gövdesinden türetilir.
+  if (rateLimited(`mis:${b.questionBody.slice(0, 60)}`)) {
+    return c.json(
+      { error: 'rate_limited', message: 'Aynı soru için dakikada en fazla 5 analiz isteği gönderebilirsiniz. Biraz bekleyip tekrar deneyin.' },
+      429
+    );
+  }
+
+  // agents.md §7.4: kaynak metin sınırı. Yanıtların toplamı 6.000 karakteri
+  // aşarsa istem şişer; sondan kırpmak yerine istek reddedilir ki öğretmen
+  // hangi veriyle çalışıldığını bilsin.
+  const toplamKarakter = b.answers.reduce((t, a) => t + (a || '').length, 0);
+  if (toplamKarakter > MAX_SOURCE_CHARS) {
+    return c.json(
+      {
+        error: 'payload_too_large',
+        message: `Yanıtların toplamı ${toplamKarakter} karakter; sınır ${MAX_SOURCE_CHARS}. Daha az öğrenciyle deneyin.`,
+      },
+      413
+    );
+  }
+
+  // Boş yanıtlar analize girmemeli: model onları "yanılgı" sanabilir.
+  const dolu = b.answers.map((a) => (a || '').trim()).filter((a) => a.length > 0);
+  if (dolu.length < 2) {
+    return c.json({
+      clusters: [],
+      correctCount: 0,
+      analyzed: dolu.length,
+      skipped: b.answers.length - dolu.length,
+      note: 'Analiz için en az iki dolu yanıt gerekir.',
+      meta: { provider: providerName(c.env), model: modelName(c.env), skipped: true },
+    });
+  }
+
+  try {
+    const prompt = buildMisconceptionPrompt({
+      questionBody: b.questionBody,
+      outcomeLabel: b.outcomeLabel,
+      answers: dolu,
+    });
+    // agents.md §7.4: max_tokens açıkça verilir. Küme başına ~180 token.
+    const maxTokens = clamp(500 + dolu.length * 60, 700, 1600);
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, {
+      maxTokens,
+      temperature: 0.3,
+    });
+    const parsed = modelMisconceptionsSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json(
+        { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
+        502
+      );
+    }
+
+    // Normalleştirme — model çıktısı güvenilmez:
+    //  - studentCount analiz edilen yanıt sayısını aşamaz
+    //  - "tekrarlayan" olması için en az 2 öğrenci gerekir (istem kuralı 1)
+    //  - alıntılar kırpılır
+    const clusters = parsed.data.clusters
+      .map((k) => ({
+        title: k.title.trim(),
+        explanation: k.explanation.trim(),
+        studentCount: clamp(Math.round(Number(k.studentCount) || 0), 0, dolu.length),
+        evidence: (k.evidence || []).map((e) => e.trim()).filter(Boolean).slice(0, 3),
+        action: k.action.trim(),
+      }))
+      .filter((k) => k.title && k.studentCount >= 2)
+      .sort((x, y) => y.studentCount - x.studentCount)
+      .slice(0, 4);
+
+    return c.json({
+      clusters,
+      correctCount: clamp(Math.round(Number(parsed.data.correctCount) || 0), 0, dolu.length),
+      analyzed: dolu.length,
+      skipped: b.answers.length - dolu.length,
       meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
   } catch (e) {

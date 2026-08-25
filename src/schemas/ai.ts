@@ -52,6 +52,36 @@ export const modelSampleAnswersSchema = z.object({
   answers: z.array(z.string().min(1).max(2000)).min(1).max(8),
 });
 
+/**
+ * Kavram yanılgısı kümeleme girdisi.
+ *
+ * Öğrenci ADI GÖNDERİLMEZ — modele yalnızca anonim yanıt metinleri gider.
+ * Amaç kimseyi işaretlemek değil, sınıfta tekrarlayan hatayı görmek.
+ */
+export const misconceptionsSchema = z.object({
+  questionBody: z.string().min(1).max(2000),
+  outcomeLabel: z.string().max(200).default(''),
+  // En az 2 yanıt: tek yanıtta "tekrarlayan" bir yanılgı olamaz.
+  answers: z.array(z.string().max(3000)).min(2).max(40),
+});
+
+/** Model çıktısı — güvenilmez, normalleştirilerek doğrulanır. */
+export const modelMisconceptionsSchema = z.object({
+  clusters: z
+    .array(
+      z.object({
+        title: z.string().min(1).max(180),
+        explanation: z.string().default(''),
+        studentCount: z.number().int().min(1),
+        evidence: z.array(z.string().max(240)).default([]),
+        action: z.string().default(''),
+      })
+    )
+    .max(6)
+    .default([]),
+  correctCount: z.number().int().min(0).catch(0),
+});
+
 export const rubricCriterionSchema = z.object({
   label: z.string().min(1).max(120),
   weight: z.number().min(0).max(100),
