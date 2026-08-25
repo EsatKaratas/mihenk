@@ -124,9 +124,19 @@
   .card-head h3 { font-size: 14.5px; }
   .card-head .hint { font-size: 12px; color: var(--text-muted); }
 
-  .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--border); overflow-x: auto; }
-  .tab-btn { padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
-  .tab-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
+  /* Sekmeler segment kontrolü olarak: alt çizgi yeterince belirgin değildi,
+     hangi sekmede olunduğu ilk bakışta anlaşılmıyordu. */
+  .tabs { display: flex; gap: 6px; margin-bottom: 18px; padding: 5px; overflow-x: auto;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px; }
+  .tab-btn { display: flex; align-items: center; gap: 7px; padding: 10px 16px; font-size: 13px;
+    font-weight: 600; font-family: inherit; color: var(--text-muted); background: transparent;
+    border: 1px solid transparent; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    transition: background .12s ease, color .12s ease, border-color .12s ease; }
+  .tab-btn:hover:not(.active) { background: var(--surface-3); color: var(--text); }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent-strong);
+    box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .tab-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .tab-btn:disabled:hover { background: transparent; color: var(--text-muted); }
 
   .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
   .field label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
@@ -223,6 +233,28 @@
   .coverage-box .cv-ok { font-size: 11.5px; color: var(--success); line-height: 1.5; }
   .coverage-box .cv-diff { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
 
+  .pdf-picker { margin: 10px 0 12px; padding: 13px 15px; border: 1px solid var(--accent);
+    border-radius: 10px; background: var(--accent-soft); }
+  .pdf-picker .pp-head { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .pdf-picker .pp-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; margin-bottom: 10px; }
+  .pdf-picker .pp-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-bottom: 10px; }
+  .pdf-picker .pp-count { font-family: "IBM Plex Mono", monospace; font-size: 12.5px;
+    padding: 9px 10px; border-radius: 8px; background: var(--surface); color: var(--text); }
+  .pdf-picker .pp-count.over { color: var(--warning); }
+
+  .eval-card.eval-failed { border-color: var(--critical); }
+  .fail-note { margin-top: 12px; padding: 11px 13px; border-radius: 8px;
+    background: var(--surface-2); border-left: 3px solid var(--critical);
+    font-size: 12.5px; line-height: 1.6; color: var(--text); }
+  .fail-note .mono-err { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    color: var(--text-muted); }
+
+  .exam-card .ec-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+  .exam-card.resume { border-color: var(--accent); }
+  .resume-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--accent-strong); font-size: 12.5px; line-height: 1.55; }
+
   .exam-switcher { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
     margin-bottom: 14px; background: var(--surface-2); }
   .exam-switcher .es-head { font-size: 12.5px; font-weight: 600; margin-bottom: 9px; }
@@ -242,7 +274,7 @@
     min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px;
     background: var(--accent-soft); color: var(--accent); font-size: 10.5px;
     font-weight: 700; font-family: "IBM Plex Mono", monospace; }
-  .tab-btn.active .tab-count { background: var(--accent); color: #fff; }
+  .tab-btn.active .tab-count { background: rgba(255,255,255,.22); color: #fff; }
 
   .lbl-hint { font-weight: 400; font-size: 10.5px; color: var(--text-muted);
     text-transform: none; letter-spacing: 0; margin-left: 6px; }
@@ -597,7 +629,12 @@ async function aiGenerateQuestions(doc) {
 }
 
 async function aiEvaluate(q, answerText, rubric) {
+  // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır.
   if (state.ai.mode !== "live") return simulateAIEvaluation(q, answerText, rubric);
+  // Gerçek model modundayken çağrı başarısız olursa YEDEĞE DÜŞMEYİZ:
+  // simüle edilmiş bir puanı "yapay zekâ önerisi" diye göstermek yanıltıcı olur.
+  // Bunun yerine değerlendirme "yapılamadı" işaretlenir; öğretmen yeniden
+  // deneyebilir ya da elle puanlayabilir.
   try {
     const j = await apiPost(AI_API.evaluate, {
       questionBody: q.body,
@@ -609,9 +646,25 @@ async function aiEvaluate(q, answerText, rubric) {
     state.ai.error = "";
     return { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification, breakdown: j.breakdown, confidence: j.confidence };
   } catch (e) {
-    state.ai.error = String((e && e.message) || e);
-    state.ai.mode = "simulation";
-    return simulateAIEvaluation(q, answerText, rubric);
+    const mesaj = String((e && e.message) || e);
+    state.ai.error = mesaj;
+    return { failed: true, error: mesaj, maxScore: rubric.maxScore, aiScore: null,
+             justification: "", confidence: null, breakdown: [] };
+  }
+}
+
+// Bağlantı geri geldiğinde tek bir değerlendirmeyi yeniden dene.
+async function retryEvaluation(qid) {
+  const q = findQuestion(qid);
+  if (!q) return;
+  const a = state.answers[qid] || { text: "" };
+  ensureRubric(qid);
+  state.ai.busy = true; busySince = Date.now(); renderAll();
+  try {
+    await probeAiMode();
+    state.aiEvals[qid] = await aiEvaluate(q, a.text || "", state.rubrics[qid]);
+  } finally {
+    state.ai.busy = false; renderAll();
   }
 }
 
@@ -783,6 +836,8 @@ const state = {
   subjects: VARSAYILAN_DERSLER.slice(),
   newOutcome: { open: false, code: "", label: "", error: "" },
   ceTab: 1,
+  pdf: null, // { ad, sayfaSayisi, from, to } — sayfa metinleri bellekte (pdfPages)
+
   poolFilter: { outcome: "", difficulty: "", type: "" },
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
@@ -790,7 +845,7 @@ const state = {
   rubricSelectedQ: null,
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
-  exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null },
+  exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10, startDelaySec: 0, startsAt: null, endsAt: null },
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -839,6 +894,84 @@ function addSubject(ad) {
     state.subjects = SUBJECTS_LIST().concat([ad]);
   }
   state.ceForm.subject = ad;
+}
+
+
+/* ==================== PDF Okuma ====================
+   Ders notu, müfredat ya da kitap bölümü PDF olarak yüklenebilir.
+   pdf.js istemci tarafında çalışır; DOSYA SUNUCUYA GÖNDERİLMEZ.
+
+   Sayfa metinleri bilinçli olarak state dışında (pdfPages) tutulur:
+   büyük bir PDF localStorage kotasını doldurabilirdi. Kullanıcının seçtiği
+   sayfa aralığının metni state.ceForm.text'e yazılır, kalıcı olan odur.   */
+let pdfPages = null;      // [{ n, text }]
+let pdfLibPromise = null;
+
+function loadPdfLib() {
+  if (!pdfLibPromise) {
+    pdfLibPromise = import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.min.mjs")
+      .then(function (lib) {
+        lib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.mjs";
+        return lib;
+      });
+  }
+  return pdfLibPromise;
+}
+
+async function extractPdf(file) {
+  const lib = await loadPdfLib();
+  const buf = await file.arrayBuffer();
+  const doc = await lib.getDocument({ data: buf }).promise;
+  const sayfalar = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const sayfa = await doc.getPage(i);
+    const tc = await sayfa.getTextContent();
+    const metin = tc.items.map(function (x) { return x.str; }).join(" ").replace(/\s+/g, " ").trim();
+    sayfalar.push({ n: i, text: metin });
+  }
+  return sayfalar;
+}
+
+function pdfRangeText() {
+  if (!pdfPages || !state.pdf) return "";
+  const a = Math.max(1, Math.min(state.pdf.from, state.pdf.to));
+  const b = Math.min(pdfPages.length, Math.max(state.pdf.from, state.pdf.to));
+  return pdfPages.filter(function (s) { return s.n >= a && s.n <= b; })
+    .map(function (s) { return s.text; }).join("\n\n").trim();
+}
+
+function applyPdfRange() {
+  const metin = pdfRangeText();
+  if (!metin) {
+    state.ceForm.error = "Seçilen sayfalarda metin bulunamadı. Farklı bir aralık deneyin.";
+    renderAll();
+    return;
+  }
+  state.ceForm.text = metin.slice(0, 6000);
+  state.ceForm.fileName = state.pdf.ad + " · sayfa " + state.pdf.from + "-" + state.pdf.to +
+    (metin.length > 6000 ? " (ilk 6000 karakter alındı)" : "");
+  state.ceForm.error = "";
+  renderAll();
+}
+
+function pdfPickerHtml() {
+  if (!state.pdf) return "";
+  const uzunluk = pdfRangeText().length;
+  return '<div class="pdf-picker">' +
+    '<div class="pp-head">📕 ' + escapeHtml(state.pdf.ad) + ' — <b>' + state.pdf.sayfaSayisi + ' sayfa</b></div>' +
+    '<div class="pp-desc">Sorular hangi sayfalardan üretilsin? Tüm kitaptan değil, ' +
+    'işlediğiniz bölümden soru üretmek daha isabetli sonuç verir.</div>' +
+    '<div class="pp-row">' +
+    '<div class="field"><label>Başlangıç sayfası</label>' +
+    '<input type="number" id="pdfFrom" min="1" max="' + state.pdf.sayfaSayisi + '" value="' + state.pdf.from + '"></div>' +
+    '<div class="field"><label>Bitiş sayfası</label>' +
+    '<input type="number" id="pdfTo" min="1" max="' + state.pdf.sayfaSayisi + '" value="' + state.pdf.to + '"></div>' +
+    '<div class="field"><label>Seçilen metin</label>' +
+    '<div class="pp-count' + (uzunluk > 6000 ? " over" : "") + '">' + uzunluk.toLocaleString("tr-TR") + ' karakter' +
+    (uzunluk > 6000 ? ' — ilk 6000 alınacak' : "") + '</div></div>' +
+    '</div>' +
+    '<button class="btn btn-primary btn-sm" id="btnApplyPdf">Bu sayfaları kullan</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnClearPdf">PDF\'i kaldır</button></div>';
 }
 
 /* ============================== İçerik Uzmanı ============================== */
@@ -989,9 +1122,11 @@ function ceCreateHtml() {
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
       : "") + '</div>' +
     '<div class="field"><label>Ders notu / metin <span class="lbl-hint">' + state.ceForm.text.length + ' / 6000 karakter</span></label>' +
-    '<div class="upload-row"><input type="file" id="ceFile" accept=".txt,.md,text/plain,text/markdown" style="display:none;">' +
-    '<button class="btn btn-secondary btn-sm" id="btnUpload">📄 Dosyadan yükle (.txt / .md)</button>' +
+    '<div class="upload-row"><input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
+    '<button class="btn btn-secondary btn-sm" id="btnUpload"' + (state.ceForm.pdfLoading ? " disabled" : "") + '>' +
+    (state.ceForm.pdfLoading ? "⏳ PDF okunuyor…" : "📄 Dosyadan yükle (PDF / .txt / .md)") + '</button>' +
     '<span class="lbl-hint" id="uploadInfo">' + escapeHtml(state.ceForm.fileName || "veya aşağıya doğrudan yapıştırın") + '</span></div>' +
+    pdfPickerHtml() +
     '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
     (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
     '<div class="field-row"><div class="field"><label>Çoktan seçmeli adedi</label>' +
@@ -1066,10 +1201,49 @@ function renderContentExpert() {
   // Dosyadan yükleme (.txt / .md) — istemci tarafında okunur, sunucuya gitmez.
   const fileEl = document.getElementById("ceFile");
   document.getElementById("btnUpload").onclick = function () { fileEl.click(); };
-  fileEl.onchange = function () {
+  const pf = document.getElementById("pdfFrom");
+  if (pf) pf.onchange = function (e) { state.pdf.from = Math.max(1, Math.min(state.pdf.sayfaSayisi, Number(e.target.value) || 1)); renderAll(); };
+  const pt = document.getElementById("pdfTo");
+  if (pt) pt.onchange = function (e) { state.pdf.to = Math.max(1, Math.min(state.pdf.sayfaSayisi, Number(e.target.value) || 1)); renderAll(); };
+  const pa = document.getElementById("btnApplyPdf");
+  if (pa) pa.onclick = applyPdfRange;
+  const pc = document.getElementById("btnClearPdf");
+  if (pc) pc.onclick = function () { state.pdf = null; pdfPages = null; state.ceForm.fileName = ""; renderAll(); };
+
+  fileEl.onchange = async function () {
     const f = fileEl.files && fileEl.files[0];
     if (!f) return;
-    if (f.size > 2 * 1024 * 1024) { state.ceForm.error = "Dosya çok büyük (en fazla 2 MB)."; renderAll(); return; }
+    if (f.size > 25 * 1024 * 1024) { state.ceForm.error = "Dosya çok büyük (en fazla 25 MB)."; renderAll(); return; }
+
+    // --- PDF yolu ---
+    if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") {
+      state.ceForm.pdfLoading = true; state.ceForm.error = ""; renderAll();
+      try {
+        pdfPages = await extractPdf(f);
+        const doluSayfa = pdfPages.filter(function (s) { return s.text.length > 20; }).length;
+        if (!doluSayfa) {
+          state.pdf = null; pdfPages = null;
+          state.ceForm.error = "Bu PDF'te metin katmanı bulunamadı — taranmış görüntü olabilir. " +
+            "Böyle dosyalar için metni kopyalayıp aşağıya yapıştırın.";
+        } else {
+          state.pdf = { ad: f.name, sayfaSayisi: pdfPages.length, from: 1, to: Math.min(3, pdfPages.length) };
+          if (!state.ceForm.title) state.ceForm.title = f.name.replace(/\.pdf$/i, "");
+          state.ceForm.fileName = f.name + " yüklendi — sayfa aralığı seçin";
+        }
+      } catch (err) {
+        state.pdf = null; pdfPages = null;
+        state.ceForm.error = "PDF okunamadı: " + String((err && err.message) || err) +
+          ". İnternet bağlantısı gerekiyorsa kontrol edin ya da metni doğrudan yapıştırın.";
+      } finally {
+        state.ceForm.pdfLoading = false;
+        fileEl.value = "";
+        renderAll();
+      }
+      return;
+    }
+
+    // --- düz metin yolu ---
+    if (f.size > 2 * 1024 * 1024) { state.ceForm.error = "Metin dosyası çok büyük (en fazla 2 MB)."; renderAll(); return; }
     const fr = new FileReader();
     fr.onload = function () {
       const metin = String(fr.result || "");
@@ -1081,6 +1255,7 @@ function renderContentExpert() {
     };
     fr.onerror = function () { state.ceForm.error = "Dosya okunamadı."; renderAll(); };
     fr.readAsText(f, "utf-8");
+    fileEl.value = "";
   };
   document.getElementById("ceMcCount").onchange = function (e) { state.ceForm.mcCount = Math.max(0, Math.min(8, parseInt(e.target.value, 10) || 0)); renderAll(); };
   document.getElementById("ceOpenCount").onchange = function (e) { state.ceForm.openCount = Math.max(0, Math.min(4, parseInt(e.target.value, 10) || 0)); renderAll(); };
@@ -1441,6 +1616,7 @@ function evalCardHtml(q) {
   const ans = state.answers[q.id] || { text: "" };
   const ev = state.aiEvals[q.id];
   const rub = state.rubrics[q.id];
+  if (ev && ev.failed) return evalFailedCardHtml(q, ans, ev, rub);
   return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
@@ -1456,6 +1632,27 @@ function evalCardHtml(q) {
     '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
     '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Puanı Güncelle ve Onayla</button></div></div>';
 }
+// Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
+function evalFailedCardHtml(q, ans, ev, rub) {
+  return '<div class="eval-card eval-failed" data-qid="' + q.id + '">' +
+    '<div class="q-meta"><span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
+    '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
+    '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
+    '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
+    '<div class="fail-note">Yapay zekâ ön değerlendirmesi tamamlanamadı. ' +
+    'Öğrencinin yanıtı güvenle kaydedildi; kaybolmadı.<br><span class="mono-err">' +
+    escapeHtml(ev.error || "bilinmeyen hata") + '</span></div>' +
+    '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
+    '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
+    '<input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label>' +
+    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Elle Puanla ve Onayla</button></div></div>';
+}
+
 function doneCardHtml(q) {
   const rv = state.reviews[q.id], rub = state.rubrics[q.id];
   return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
@@ -1488,6 +1685,7 @@ function teacherTab3Html() {
   const mcs = items.filter(function (q) { return q.type === "mc"; });
   const opens = items.filter(function (q) { return q.type === "open"; });
   const pending = opens.filter(function (q) { return !state.reviews[q.id]; });
+  const basarisiz = pending.filter(function (q) { return (state.aiEvals[q.id] || {}).failed; }).length;
   const done = opens.filter(function (q) { return state.reviews[q.id]; });
   const mcCorrect = mcs.filter(function (q) { return (state.mcResults[q.id] || {}).correct; }).length;
   const yayinlandi = state.examStatus === "graded";
@@ -1506,7 +1704,9 @@ function teacherTab3Html() {
                 : '<span class="pill pill-accent2">Öğretmen onayı bekliyor</span>') + '</div>' +
     '<div class="grid-3col">' +
     '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcs.length + '</div><div class="s-sub">otomatik puanlandı — onay gerekmez</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' + (pending.length ? "AI puan önerdi, karar sizde" : "tümü incelendi") + '</div></div>' +
+    '<div class="stat-tile' + (basarisiz ? ' tile-alert' : '') + '"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' +
+    (basarisiz ? basarisiz + ' değerlendirme yapılamadı — yeniden deneyin'
+      : (pending.length ? "AI puan önerdi, karar sizde" : "tümü incelendi")) + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? "karne görünür durumda" : "siz yayınlayana kadar gizli") + '</div></div>' +
     '</div></div>';
 
@@ -1541,6 +1741,9 @@ function teacherTab3Html() {
 }
 
 function wireTeacherTab3() {
+  document.querySelectorAll(".retry-eval").forEach(function (b) {
+    b.onclick = function () { retryEvaluation(Number(b.dataset.qid)); };
+  });
   const pubBtn = document.getElementById("btnPublishResults");
   if (pubBtn) pubBtn.onclick = publishResults;
   document.querySelectorAll(".approve-as-is").forEach(function (b) {
@@ -1557,7 +1760,7 @@ function wireTeacherTab3() {
 }
 function finalizeReview(qid, score, comment, decision) {
   const rub = state.rubrics[qid];
-  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision, aiScore: (state.aiEvals[qid] || {}).aiScore };
+  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision, aiScore: (state.aiEvals[qid] || {}).aiScore != null ? state.aiEvals[qid].aiScore : null };
   renderAll();
 }
 // Açık uçlu soruların tamamı incelendi mi? (Yalnızca ÇSS'den oluşan sınavda
@@ -1626,12 +1829,19 @@ function renderTeacher() {
 
 /* ============================== Öğrenci ============================== */
 let autosaveTimer = null;
+let _saveTimer = null;
+function saveSoon() {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(function () { syncActiveExam(); saveState(); _saveTimer = null; }, 400);
+}
+
 function flashAutosave() { const m = document.getElementById("autosaveMsg"); if (m) m.innerHTML = '<span class="dot-save"></span> Kaydedildi ✓'; }
 
 function startExam() {
   state.examStatus = "in_progress";
   state.currentQIndex = 0;
   state.remainingSec = state.exam.durationMin * 60;
+  state.exam.endsAt = Date.now() + state.exam.durationMin * 60000;
   state.studentTab = 2;
   integrityReset();
   state.integrity.active = true;
@@ -1669,8 +1879,27 @@ async function finishExam() {
   }
 }
 
+function examCardState(x) {
+  const aktif = x.id === state.activeExamId;
+  const ex = aktif ? state.exam : x;
+  const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+  const bekliyor = ex.startsAt ? Date.now() < ex.startsAt : false;
+  return { aktif: aktif, ex: ex, durum: durum, bekliyor: bekliyor };
+}
+
+// Her sınav kartında TEK eylem: durumu ne olursa olsun öğrencinin yapması
+// gereken bir tek şey vardır.
+function examActionBtn(x) {
+  const c = examCardState(x);
+  const d = 'data-exam="' + x.id + '"';
+  if (c.durum === "graded") return '<button class="btn btn-primary exam-act" ' + d + ' data-act="rapor">Karnemi Gör</button>';
+  if (c.durum === "submitted") return '<button class="btn btn-secondary" disabled>Öğretmen onayı bekleniyor</button>';
+  if (c.durum === "in_progress") return '<button class="btn btn-primary exam-act" ' + d + ' data-act="devam">Kaldığın Yerden Devam Et</button>';
+  if (c.bekliyor) return '<button class="btn btn-secondary" disabled>Henüz açılmadı</button>';
+  return '<button class="btn btn-primary exam-act" ' + d + ' data-act="basla">Sınava Başla</button>';
+}
+
 function studentTab1Html() {
-  // Ogrenci artik TUM yayindaki sinavlari gorur; birini secip girer.
   const yayindakiler = state.exams.filter(function (x) {
     return (x.id === state.activeExamId ? state.exam.status : x.status) === "published";
   });
@@ -1678,36 +1907,46 @@ function studentTab1Html() {
     return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>';
   }
   return yayindakiler.map(function (x) {
-    const aktif = x.id === state.activeExamId;
-    const ex = aktif ? state.exam : x;
-    const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
-    const items = ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-    const waiting = Date.now() < ex.startsAt;
-    const statusPill = durum === "not_started" ? (waiting ? '<span class="pill pill-warning">Yaklaşıyor</span>' : '<span class="pill pill-success">Aktif</span>')
-      : durum === "in_progress" ? '<span class="pill pill-accent">Sürüyor</span>'
-      : durum === "submitted" ? '<span class="pill pill-accent2">Değerlendiriliyor</span>'
-      : '<span class="pill pill-success">Sonuçlandı</span>';
+    const c = examCardState(x);
+    const items = c.ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
     const acikUclu = items.filter(function (q) { return q.type === "open"; }).length;
-    return '<div class="card" style="margin-bottom:12px;' + (aktif ? "border-color:var(--accent);" : "") + '">' +
-      '<div class="card-head"><h3>' + escapeHtml(ex.title || "Adsız Sınav") + '</h3>' + statusPill + '</div>' +
-      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">' + items.length + ' soru' +
-      (acikUclu ? ' (' + acikUclu + ' açık uçlu)' : "") + ' · ' + ex.durationMin + ' dakika</div>' +
-      (aktif && waiting ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
-      '<div style="margin-top:14px;">' +
-      (aktif
-        ? '<button class="btn btn-primary" id="btnEnterExam" ' + ((!waiting && durum === "not_started") ? "" : "disabled") + '>Sınava Gir</button> ' +
-          (durum === "in_progress" ? '<button class="btn btn-secondary" id="btnResumeExam">Sınava Devam Et</button> ' : "") +
-          (durum === "graded" ? '<button class="btn btn-secondary" id="btnSeeReport">Karneyi Gör</button>' : "")
-        : '<button class="btn btn-secondary pick-exam" data-exam="' + x.id + '">Bu sınavı aç</button>') +
-      '</div></div>';
+    const rozet = c.durum === "graded" ? '<span class="pill pill-success">Sonuçlandı</span>'
+      : c.durum === "submitted" ? '<span class="pill pill-accent2">Değerlendiriliyor</span>'
+      : c.durum === "in_progress" ? '<span class="pill pill-accent">Yarım kaldı</span>'
+      : c.bekliyor ? '<span class="pill pill-warning">Yaklaşıyor</span>'
+      : '<span class="pill pill-success">Çözülebilir</span>';
+    // Yarım kalan sınavda ne kadar ilerlediğini göster.
+    const yanitlanan = items.filter(function (q) {
+      const a = (c.aktif ? state.answers : (x.session || {}).answers || {})[q.id];
+      return a && (a.selectedKey || (a.text && a.text.trim()));
+    }).length;
+    const kalanSn = c.ex.endsAt ? Math.max(0, Math.round((c.ex.endsAt - Date.now()) / 1000)) : null;
+    return '<div class="card exam-card' + (c.durum === "in_progress" ? " resume" : "") + '">' +
+      '<div class="card-head"><h3>' + escapeHtml(c.ex.title || "Adsız Sınav") + '</h3>' + rozet + '</div>' +
+      '<div class="ec-meta">' + items.length + ' soru' + (acikUclu ? ' · ' + acikUclu + ' açık uçlu' : "") +
+      ' · ' + c.ex.durationMin + ' dakika' +
+      (c.durum === "in_progress" || c.durum === "submitted" || c.durum === "graded"
+        ? ' · <b>' + yanitlanan + '/' + items.length + '</b> soru yanıtlandı' : "") + '</div>' +
+      (c.durum === "in_progress"
+        ? '<div class="resume-note">Bu sınavı yarım bıraktınız. Yanıtlarınız kaydedildi; devam ettiğinizde ' +
+          'kaldığınız sorudan başlayacaksınız.' + (kalanSn != null ? ' Kalan süre <b>' + formatTime(kalanSn) + '</b>.' : "") + '</div>'
+        : "") +
+      (c.bekliyor ? '<div class="pill pill-warning" id="waitPill">Sınav ' + Math.max(0, Math.ceil((c.ex.startsAt - Date.now()) / 1000)) + ' sn içinde açılacak</div>' : "") +
+      '<div style="margin-top:14px;">' + examActionBtn(x) + '</div></div>';
   }).join("");
 }
+
 function wireStudentTab1() {
-  const enterBtn = document.getElementById("btnEnterExam"); if (enterBtn) enterBtn.onclick = startExam;
-  const resumeBtn = document.getElementById("btnResumeExam"); if (resumeBtn) resumeBtn.onclick = function () { state.studentTab = 2; renderAll(); };
-  const repBtn = document.getElementById("btnSeeReport"); if (repBtn) repBtn.onclick = function () { state.studentTab = 3; renderAll(); };
-  document.querySelectorAll(".pick-exam").forEach(function (b) {
-    b.onclick = function () { activateExam(Number(b.dataset.exam)); };
+  document.querySelectorAll(".exam-act").forEach(function (b) {
+    b.onclick = function () {
+      const id = Number(b.dataset.exam);
+      const act = b.dataset.act;
+      // Öğrenci "aktif sınav" diye bir kavram bilmez: gerekiyorsa arkada geçilir.
+      if (id !== state.activeExamId) activateExam(id);
+      if (act === "rapor") { state.studentTab = 3; renderAll(); return; }
+      if (act === "devam") { state.studentTab = 2; renderAll(); return; }
+      startExam();
+    };
   });
 }
 
@@ -1759,6 +1998,7 @@ function wireStudentTab2() {
       state.answers[qid] = state.answers[qid] || {};
       state.answers[qid].selectedKey = el.value;
       state.answers[qid].savedAt = Date.now();
+      saveSoon();
       flashAutosave();
       const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
       if (dot) dot.classList.add("answered");
@@ -1770,6 +2010,10 @@ function wireStudentTab2() {
     state.answers[qid] = state.answers[qid] || {};
     state.answers[qid].text = openEl.value;
     state.answers[qid].savedAt = Date.now();
+    // ÖNEMLİ: bu satır olmadan "Kaydedildi ✓" göstergesi yalnızca görseldi;
+    // yanıt state'te duruyor ama diske YAZILMIYORDU. Tarayıcı kapanırsa
+    // veya bağlantı koparsa öğrencinin yazdığı her şey kayboluyordu.
+    saveSoon();
     const msg = document.getElementById("autosaveMsg");
     if (msg) msg.innerHTML = '<span class="dot-save"></span> Kaydediliyor…';
     clearTimeout(autosaveTimer);
@@ -1805,9 +2049,11 @@ function studentTab3Html() {
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
         '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
         (revize
-          ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
+          ? (rv.aiScore != null
+              ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
+              : 'Bu puanı öğretmeniniz doğrudan belirledi.')
           : 'Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti.') + '</div>' +
-        '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puan kırılımı</div>' +
+        ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puan kırılımı</div>' : "") +
         (ev.breakdown || []).map(function (b) {
           return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
             (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
@@ -1820,9 +2066,16 @@ function studentTab3Html() {
 
 function renderStudent() {
   const root = document.getElementById("panel-student");
-  const tabs = [{ id: 1, label: "1 · Sınavlarım" }, { id: 2, label: "2 · Sınavı Çöz" }, { id: 3, label: "3 · Karne" }];
+  const tabs = [
+    { id: 1, label: "1 · Sınavlarım", pasif: false },
+    { id: 2, label: "2 · Sınavı Çöz", pasif: state.examStatus !== "in_progress" },
+    { id: 3, label: "3 · Karne", pasif: state.examStatus !== "graded" }
+  ];
   root.innerHTML = '<div class="tabs" id="studentTabs">' +
-    tabs.map(function (t) { return '<button class="tab-btn ' + (state.studentTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.label + '</button>'; }).join("") +
+    tabs.map(function (t) {
+      return '<button class="tab-btn ' + (state.studentTab === t.id ? "active" : "") + '" data-tab="' + t.id + '"' +
+        (t.pasif ? ' disabled title="Bu sekme şu anda kullanılamıyor"' : "") + '>' + t.label + '</button>';
+    }).join("") +
     '</div><div id="studentTabContent"></div>';
   document.querySelectorAll("#studentTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.studentTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("studentTabContent");
@@ -2159,7 +2412,11 @@ function initPanels() {
 let waitingFlag = false;
 setInterval(function () {
   if (state.examStatus === "in_progress") {
-    state.remainingSec = Math.max(0, state.remainingSec - 1);
+    // Kalan süre mutlak bitiş anından hesaplanır: sayfa kapansa, tarayıcı
+    // çökse veya bağlantı kesilse bile süre gerçekte olduğu gibi işler.
+    state.remainingSec = state.exam.endsAt
+      ? Math.max(0, Math.round((state.exam.endsAt - Date.now()) / 1000))
+      : Math.max(0, state.remainingSec - 1);
     const tv = document.getElementById("timerValue");
     if (tv) { tv.textContent = formatTime(state.remainingSec); tv.classList.toggle("low", state.remainingSec < 60); }
     if (state.remainingSec === 0) finishExam();

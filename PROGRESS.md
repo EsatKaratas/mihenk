@@ -210,6 +210,51 @@ veriler korundu. Öğrenci artık tüm yayındaki sınavları görüp seçebiliy
 
 ---
 
+## 7d. Kullanıcı geri bildirimi turu (25 Ağustos)
+
+**PDF yükleme.** Ders notu / müfredat / kitap bölümü PDF olarak yüklenebiliyor.
+pdf.js istemci tarafında çalışır, **dosya sunucuya gönderilmez.** Öğretmen sayfa
+sayısını görür ve **hangi sayfa aralığından** soru üretileceğini seçer — 40
+sayfalık bir kitabın tamamından soru istemek istemez. Seçilen aralığın karakter
+sayısı canlı gösterilir, 6000'i aşarsa uyarır. Taranmış (metin katmanı olmayan)
+PDF'ler tespit edilip kullanıcıya açıkça söylenir.
+Sayfa metinleri bilinçli olarak `state` dışında tutulur (localStorage kotası).
+
+**Sekmeler segment kontrolüne çevrildi.** Alt çizgili yazılar yeterince belirgin
+değildi; hangi sekmede olunduğu ilk bakışta anlaşılmıyordu. Aktif sekme artık
+dolu renkli. Kullanılamayan sekmeler (öğrencide "Sınavı Çöz" / "Karne") pasif.
+
+**Öğrenci akışı sadeleştirildi.** "Bu sınavı aç" + "Sınava Gir" ikilisi, iç kavram
+olan *aktif sınav*ı öğrenciye sızdırıyordu — çoklu sınav eklenirken yapılan bir
+tasarım hatasıydı. Artık her sınav kartında duruma göre **tek buton** var:
+Sınava Başla / Kaldığın Yerden Devam Et / Karnemi Gör / (pasif) Öğretmen onayı
+bekleniyor. Gerekirse aktif sınav arkada sessizce değiştirilir.
+
+**Kesinti sonrası devam — iki gerçek hata düzeltildi:**
+
+1. 🔴 **Açık uçlu yanıtlar diske hiç yazılmıyordu.** Yazarken `renderAll()`
+   çağrılmıyordu (odak kaybolmasın diye) ve `saveState()` de ona bağlıydı.
+   Ekrandaki **"Kaydedildi ✓" göstergesi tamamen görseldi** — tarayıcı kapanırsa
+   öğrencinin yazdığı her şey kayboluyordu. Geciktirilmiş kayıt (`saveSoon`,
+   400 ms) eklendi. Doğrulandı: yazılan metin localStorage'da göründü.
+2. **Süre sayfa kapalıyken duruyordu.** `remainingSec` her saniye 1 azaltılıyordu.
+   Artık sınav başlarken **mutlak bitiş anı** (`endsAt`) saklanıyor; kalan süre
+   ondan hesaplanıyor. Sayfa kapansa, tarayıcı çökse, bağlantı kopsa bile süre
+   gerçekte olduğu gibi işliyor.
+
+Ayrıca sınav kartı ilerlemeyi gösteriyor ("1/3 soru yanıtlandı") ve devam
+notunda kalan süre yazıyor.
+
+**Değerlendirme sırasında bağlantı koparsa.** Önceden sessizce yerel simülasyona
+düşüp **sahte bir puanı "yapay zekâ önerisi" diye gösteriyordu.** Artık gerçek
+model modundayken çağrı başarısız olursa değerlendirme "yapılamadı" işaretlenir;
+öğretmene **"Yapay Zekâ ile Yeniden Dene"** ve **"Elle Puanla ve Onayla"**
+seçenekleri sunulur. Öğrencinin yanıtının kaybolmadığı ekranda yazar.
+Doğrulandı: kesinti simülasyonunda sahte puan üretilmedi, bağlantı gelince
+yeniden deneme başarılı oldu.
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)
