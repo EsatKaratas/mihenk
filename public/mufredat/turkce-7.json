@@ -1,0 +1,616 @@
+{
+  "ders": "Türkçe",
+  "sinif": 7,
+  "kaynak": "MEB Ortaokul Türkçe Dersi Öğretim Programı — 7. sınıf öğrenme çıktıları",
+  "not": "uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir. yazili: yazılı sınavla ölçülebilir · performans: gözlem/performans gerektirir · surec: öğrenme sürecine aittir, sınav sorusu olmaz.",
+  "temalar": [
+    {
+      "no": 1,
+      "ad": "Hayat Boyu Gelişim",
+      "dersSaati": 28
+    },
+    {
+      "no": 2,
+      "ad": "Bir Hilal Uğruna",
+      "dersSaati": 28
+    },
+    {
+      "no": 3,
+      "ad": "İletişim ve Sosyal İlişkiler",
+      "dersSaati": 28
+    },
+    {
+      "no": 4,
+      "ad": "Türk Sanatı",
+      "dersSaati": 29
+    },
+    {
+      "no": 5,
+      "ad": "Okuma Kültürü",
+      "dersSaati": 30
+    },
+    {
+      "no": 6,
+      "ad": "Hak ve Sorumluluklar",
+      "dersSaati": 27
+    }
+  ],
+  "kazanimlar": [
+    {
+      "kod": "T.D.7.1",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlemede/izlemede materyal seçimini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.D.7.2",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlemede/izlemede strateji, yöntem ve teknik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.D.7.3",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinleyeceğinin/izleyeceğinin içeriğine yönelik tahminde bulunabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.4",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinde/izlediğinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.5",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinin/izlediğinin yüzey anlamını belirleyebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.6",
+      "alan": "Dinleme/İzleme",
+      "metin": "Basit çıkarımlar yoluyla dinlediğinin/izlediğinin derin anlamını belirleyebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.7",
+      "alan": "Dinleme/İzleme",
+      "metin": "Üst düzey çıkarımlar yoluyla dinlediğinin/izlediğinin derin anlamını belirleyebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.8",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediklerini/izlediklerini karşılaştırabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.9",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğindeki/izlediğindeki unsurları sınıflandırabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.10",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğini/izlediğini yorumlayabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.11",
+      "alan": "Dinleme/İzleme",
+      "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.12",
+      "alan": "Dinleme/İzleme",
+      "metin": "Bilgilendirici metinde metin yapılarından hareketle önemli bilgileri belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.13",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinin/izlediğinin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.14",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinin/izlediğinin bölümlerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.15",
+      "alan": "Dinleme/İzleme",
+      "metin": "Bilgilendirici metinde düşünceyi geliştirme yollarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.16",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğindeki/izlediğindeki söz sanatlarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.17",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinde/izlediğinde kullanılan ikna tekniklerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.18",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğinden/izlediğinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.19",
+      "alan": "Dinleme/İzleme",
+      "metin": "Çoklu ortam ögelerine yönelik çözümleme yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.20",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğini/izlediğini özetleyebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.21",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğini/izlediğini değerlendirebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.22",
+      "alan": "Dinleme/İzleme",
+      "metin": "Medya içeriğini sorgulayabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.23",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğini/izlediğini eleştirebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.24",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinlediğindeki/izlediğindeki probleme çözüm üretebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.D.7.25",
+      "alan": "Dinleme/İzleme",
+      "metin": "Dinleme/izleme sürecini değerlendirebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.K.7.1",
+      "alan": "Konuşma",
+      "metin": "Konuşma sürecini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.K.7.2",
+      "alan": "Konuşma",
+      "metin": "Konuşmada yöntem ve teknik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.K.7.3",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında amaç ve içeriğe yönelik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.K.7.4",
+      "alan": "Konuşma",
+      "metin": "İletişimi sürdürmek amacıyla soru sorabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.5",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında çoklu ortam ögeleriyle içerik oluşturabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.6",
+      "alan": "Konuşma",
+      "metin": "Yaratıcı konuşma yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.7",
+      "alan": "Konuşma",
+      "metin": "Hazırlıksız konuşma yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.8",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında sesini uygun şekilde kullanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.9",
+      "alan": "Konuşma",
+      "metin": "Sözlü sunum yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.10",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında tahminlerinden yararlanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.11",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında karşılaştırma yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.12",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında sınıflandırma yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.13",
+      "alan": "Konuşma",
+      "metin": "Yorumunu sözlü olarak ifade edebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.14",
+      "alan": "Konuşma",
+      "metin": "Sözlü olarak özetleyebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.15",
+      "alan": "Konuşma",
+      "metin": "Değerlendirmesini sözlü olarak ifade edebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.16",
+      "alan": "Konuşma",
+      "metin": "Sözlü olarak tartışabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.17",
+      "alan": "Konuşma",
+      "metin": "Eleştirisini sözlü olarak ifade edebilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.18",
+      "alan": "Konuşma",
+      "metin": "Problem çözümüne yönelik konuşma yapabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.19",
+      "alan": "Konuşma",
+      "metin": "Hazırlıklı konuşmasını yapılandırabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.20",
+      "alan": "Konuşma",
+      "metin": "Düşünceyi geliştirme yollarını kullanarak konuşmasını yapılandırabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.21",
+      "alan": "Konuşma",
+      "metin": "Konuşmasını zenginleştirecek biçimde söz varlığını kullanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.22",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında açık ve örtük ifadeleri kullanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.23",
+      "alan": "Konuşma",
+      "metin": "Uygun bağlantı ifadelerini kullanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.24",
+      "alan": "Konuşma",
+      "metin": "Konuşmasında beden dilini kullanabilme",
+      "uygunluk": "performans"
+    },
+    {
+      "kod": "T.K.7.25",
+      "alan": "Konuşma",
+      "metin": "Konuşma sürecini değerlendirebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.O.7.1",
+      "alan": "Okuma",
+      "metin": "Okumada materyal seçimini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.O.7.2",
+      "alan": "Okuma",
+      "metin": "Okumada strateji, yöntem ve teknik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.O.7.3",
+      "alan": "Okuma",
+      "metin": "Okuyacağı metnin içeriğine yönelik tahminde bulunabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.4",
+      "alan": "Okuma",
+      "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.5",
+      "alan": "Okuma",
+      "metin": "Metnin yüzey anlamını belirleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.6",
+      "alan": "Okuma",
+      "metin": "Görselle iletilen anlamı belirleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.7",
+      "alan": "Okuma",
+      "metin": "Basit çıkarımlar yoluyla metnin derin anlamını belirleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.8",
+      "alan": "Okuma",
+      "metin": "Üst düzey çıkarımlar yoluyla metnin derin anlamını belirleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.9",
+      "alan": "Okuma",
+      "metin": "Okuduklarını karşılaştırabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.10",
+      "alan": "Okuma",
+      "metin": "Metindeki unsurları sınıflandırabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.11",
+      "alan": "Okuma",
+      "metin": "Metni yorumlayabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.12",
+      "alan": "Okuma",
+      "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.13",
+      "alan": "Okuma",
+      "metin": "Bilgilendirici metinde metin yapılarından hareketle önemli bilgileri belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.14",
+      "alan": "Okuma",
+      "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.15",
+      "alan": "Okuma",
+      "metin": "Metnin bölümlerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.16",
+      "alan": "Okuma",
+      "metin": "Şiirin biçim özelliklerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.17",
+      "alan": "Okuma",
+      "metin": "Bilgilendirici metinde düşünceyi geliştirme yollarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.18",
+      "alan": "Okuma",
+      "metin": "Metindeki söz sanatlarını belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.19",
+      "alan": "Okuma",
+      "metin": "Metinde kullanılan ikna tekniklerini belirlemeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.20",
+      "alan": "Okuma",
+      "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.21",
+      "alan": "Okuma",
+      "metin": "Okuduğunu özetleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.22",
+      "alan": "Okuma",
+      "metin": "Okuduğunu değerlendirebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.23",
+      "alan": "Okuma",
+      "metin": "Basılı ve dijital medya metnini sorgulayabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.24",
+      "alan": "Okuma",
+      "metin": "Metni eleştirebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.25",
+      "alan": "Okuma",
+      "metin": "Metindeki probleme çözüm üretebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.O.7.26",
+      "alan": "Okuma",
+      "metin": "Okuma sürecini değerlendirebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.Y.7.1",
+      "alan": "Yazma",
+      "metin": "Yazma sürecini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.Y.7.2",
+      "alan": "Yazma",
+      "metin": "Yazmada strateji, yöntem ve teknik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.Y.7.3",
+      "alan": "Yazma",
+      "metin": "Yazısında içerik ve yapıya yönelik seçimlerini yönetebilme",
+      "uygunluk": "surec"
+    },
+    {
+      "kod": "T.Y.7.4",
+      "alan": "Yazma",
+      "metin": "Yazısında çoklu ortam ögeleriyle içerik oluşturabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.5",
+      "alan": "Yazma",
+      "metin": "Yaratıcı yazı yazabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.6",
+      "alan": "Yazma",
+      "metin": "Yazılı üretim ve yazılı etkileşiminde tahminlerinden yararlanabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.7",
+      "alan": "Yazma",
+      "metin": "Yazısında karşılaştırma yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.8",
+      "alan": "Yazma",
+      "metin": "Yazısında sınıflandırma yapabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.9",
+      "alan": "Yazma",
+      "metin": "Yorumunu yazılı olarak ifade edebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.10",
+      "alan": "Yazma",
+      "metin": "Yazılı olarak özetleyebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.11",
+      "alan": "Yazma",
+      "metin": "Değerlendirmesini yazılı olarak ifade edebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.12",
+      "alan": "Yazma",
+      "metin": "Yazılı üretiminde ve yazılı etkileşiminde tartışabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.13",
+      "alan": "Yazma",
+      "metin": "Eleştirisini yazılı olarak ifade edebilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.14",
+      "alan": "Yazma",
+      "metin": "Problem çözümüne yönelik yazabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.15",
+      "alan": "Yazma",
+      "metin": "Düşünceyi geliştirme yollarını kullanarak metni yapılandırabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.16",
+      "alan": "Yazma",
+      "metin": "Yazısını zenginleştirecek biçimde söz varlığını kullanabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.17",
+      "alan": "Yazma",
+      "metin": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.18",
+      "alan": "Yazma",
+      "metin": "Uygun bağlantı ifadelerini kullanabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.19",
+      "alan": "Yazma",
+      "metin": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "uygunluk": "yazili"
+    },
+    {
+      "kod": "T.Y.7.20",
+      "alan": "Yazma",
+      "metin": "Yazma sürecini değerlendirebilme",
+      "uygunluk": "surec"
+    }
+  ]
+}

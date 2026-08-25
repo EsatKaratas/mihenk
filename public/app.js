@@ -804,8 +804,9 @@ function ceCreateHtml() {
     OUTCOMES_LIST().map(function (o) { return '<option value="' + o.code + '" ' + (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' + escapeHtml(o.label) + '</option>'; }).join("") +
     '</select>' +
     '<button class="icon-btn" id="btnNewOutcome" title="Yeni kazanım tanımla" aria-label="Yeni kazanım tanımla">+</button>' +
-    '<button class="icon-btn" id="btnDelOutcome" title="Seçili kazanımı sil" aria-label="Seçili kazanımı sil">−</button></div>' +
-    '<span class="field-note">' + OUTCOMES_LIST().length + ' kazanım tanımlı · yenisini + ile ekleyin</span></div>' +
+    '<button class="icon-btn" id="btnDelOutcome" title="Seçili kazanımı sil" aria-label="Seçili kazanımı sil">−</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="MEB öğretim programından kazanım seç">Katalog</button></div>' +
+    '<span class="field-note">' + OUTCOMES_LIST().length + ' kazanım tanımlı · <b>Katalog</b> ile MEB müfredatından ekleyin, + ile elle tanımlayın</span></div>' +
     '<!--meta-grid-end-->' +
     (state.newOutcome.open
       ? '<div class="new-outcome"><div class="field-row">' +
@@ -885,6 +886,8 @@ function renderContentExpert() {
   document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
 
   // Kazanım tanımlama
+  const bKat = document.getElementById("btnKatalog");
+  if (bKat) bKat.onclick = function () { katalogAc(); };
   document.getElementById("btnNewOutcome").onclick = function () {
     state.newOutcome = { open: true, code: "", label: "", error: "" }; renderAll();
   };
@@ -3489,6 +3492,172 @@ function finishExamModalHtml() {
     "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladınız. Bitirdikten sonra yanıtlarınızı değiştiremezsiniz; açık uçlu yanıtlarınız AI ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical" id="modalConfirmFinish">Evet, Bitir</button></div>';
 }
+/* ===========================================================================
+   MÜFREDAT KAZANIM KATALOĞU
+   ===========================================================================
+   NEDEN: Kazanımlar bu prototipte elle yazılıyordu ve varsayılan üç tanesi
+   (MAT.7.2.1, MAT.7.3.4, FEN.7.1.2) bizim uydurduğumuz kodlardı. Artık
+   MEB Ortaokul Türkçe Dersi Öğretim Programı'nın 7. sınıf öğrenme çıktıları
+   depoda duruyor (public/mufredat/turkce-7.json, 96 kazanım) ve öğretmen
+   katalogdan seçerek ekliyor.
+
+   ÜÇLÜ UYGUNLUK AYRIMI — ürünün kendi sınıflandırmasıdır, müfredatın parçası
+   değildir ve arayüzde bu açıkça yazar:
+     yazili     : yazılı sınavla ölçülebilir (Okuma, Yazma)            → 39
+     performans : gözlem/performans gerektirir (Dinleme, Konuşma)      → 43
+     surec      : öğrenme sürecine aittir, sınav sorusu olmaz          → 14
+
+   Bu ayrım pedagojik olarak gereklidir: bir Türkçe öğretmeni konuşma
+   kazanımını çoktan seçmeli soruyla ölçemez. Katalog varsayılan olarak
+   yalnızca "yazili" gösterir; diğerleri uyarı etiketiyle listelenir.
+   =========================================================================== */
+
+const MUFREDAT_KATALOGLARI = { "Türkçe": "/mufredat/turkce-7.json" };
+
+async function katalogYukle(ders) {
+  const yol = MUFREDAT_KATALOGLARI[ders];
+  if (!yol) return null;
+  state.katalog = state.katalog || {};
+  if (state.katalog[ders]) return state.katalog[ders];
+  const r = await fetch(yol, { headers: { accept: "application/json" } });
+  if (!r.ok) throw new Error("Katalog yüklenemedi (HTTP " + r.status + ")");
+  const j = await r.json();
+  state.katalog[ders] = j;
+  return j;
+}
+
+function katalogFiltreDurumu() {
+  state.katalogFiltre = state.katalogFiltre || { alan: "", uygunluk: "yazili", ara: "" };
+  return state.katalogFiltre;
+}
+
+function katalogSatirlari(k) {
+  const f = katalogFiltreDurumu();
+  const mevcut = {};
+  OUTCOMES_LIST().forEach(function (o) { mevcut[o.code] = true; });
+  const ara = (f.ara || "").toLocaleLowerCase("tr");
+  return k.kazanimlar.filter(function (x) {
+    if (f.alan && x.alan !== f.alan) return false;
+    if (f.uygunluk && x.uygunluk !== f.uygunluk) return false;
+    if (ara && (x.kod + " " + x.metin).toLocaleLowerCase("tr").indexOf(ara) === -1) return false;
+    return true;
+  }).map(function (x) { return Object.assign({}, x, { ekli: !!mevcut[x.kod] }); });
+}
+
+const UYGUNLUK_ETIKET = {
+  yazili: { ad: "yazılı sınav", sinif: "pill-success", not: "" },
+  performans: { ad: "performans", sinif: "pill-warning",
+    not: "Bu kazanım dinleme ya da konuşma becerisidir; yazılı sınavla değil gözlemle ölçülür." },
+  surec: { ad: "süreç", sinif: "pill-neutral",
+    not: "Bu bir öğrenme süreci kazanımıdır; doğrudan sınav sorusu haline getirilmesi önerilmez." }
+};
+
+function katalogModalHtml(k, hata) {
+  const f = katalogFiltreDurumu();
+  const satirlar = katalogSatirlari(k);
+  const alanlar = k.kazanimlar.map(function (x) { return x.alan; })
+    .filter(function (v, i, a) { return a.indexOf(v) === i; });
+  const sayim = { yazili: 0, performans: 0, surec: 0 };
+  k.kazanimlar.forEach(function (x) { sayim[x.uygunluk]++; });
+
+  const liste = satirlar.length
+    ? satirlar.map(function (x) {
+        const u = UYGUNLUK_ETIKET[x.uygunluk];
+        return '<label class="kat-satir' + (x.ekli ? " kat-ekli" : "") + '">' +
+          '<input type="checkbox" class="kat-sec" value="' + x.kod + '"' + (x.ekli ? " disabled checked" : "") + ">" +
+          '<span class="kat-icerik"><span class="kat-kod">' + x.kod + "</span>" +
+          '<span class="kat-metin">' + escapeHtml(x.metin) + "</span>" +
+          '<span class="kat-etiketler"><span class="pill pill-neutral">' + escapeHtml(x.alan) + "</span>" +
+          '<span class="pill ' + u.sinif + '">' + u.ad + "</span>" +
+          (x.ekli ? '<span class="pill pill-neutral">zaten ekli</span>' : "") + "</span></span></label>";
+      }).join("")
+    : '<div class="kat-bos">Bu filtreyle eşleşen kazanım yok.</div>';
+
+  return '<h3>MEB Kazanım Kataloğu — ' + escapeHtml(k.ders) + " " + k.sinif + ". sınıf</h3>" +
+    '<div class="kat-kaynak">' + escapeHtml(k.kaynak) + " · <b>" + k.kazanimlar.length +
+    " kazanım</b>. Bu kazanımlar uydurulmadı, öğretim programından alındı.</div>" +
+    (hata ? '<div class="kat-hata">' + escapeHtml(hata) + "</div>" : "") +
+    '<div class="kat-filtre">' +
+      '<select id="katUygunluk">' +
+        '<option value="yazili"' + (f.uygunluk === "yazili" ? " selected" : "") + ">Yazılı sınavla ölçülebilir (" + sayim.yazili + ")</option>" +
+        '<option value="performans"' + (f.uygunluk === "performans" ? " selected" : "") + ">Performans/gözlem (" + sayim.performans + ")</option>" +
+        '<option value="surec"' + (f.uygunluk === "surec" ? " selected" : "") + ">Süreç kazanımı (" + sayim.surec + ")</option>" +
+        '<option value=""' + (f.uygunluk === "" ? " selected" : "") + ">Tümü (" + k.kazanimlar.length + ")</option>" +
+      "</select>" +
+      '<select id="katAlan"><option value="">Tüm alanlar</option>' +
+        alanlar.map(function (a) {
+          return '<option value="' + escapeHtml(a) + '"' + (f.alan === a ? " selected" : "") + ">" + escapeHtml(a) + "</option>";
+        }).join("") +
+      "</select>" +
+      '<input id="katAra" placeholder="kazanım ara…" value="' + escapeHtml(f.ara) + '">' +
+    "</div>" +
+    (f.uygunluk && UYGUNLUK_ETIKET[f.uygunluk].not
+      ? '<div class="kat-uyari">' + UYGUNLUK_ETIKET[f.uygunluk].not + "</div>" : "") +
+    '<div class="kat-liste">' + liste + "</div>" +
+    '<div class="kat-not">"Uygunluk" ayrımı bu ürünün değerlendirmesidir, müfredatın parçası değildir.</div>' +
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button>' +
+    '<button class="btn btn-primary" id="katEkle">Seçilenleri Ekle</button></div>';
+}
+
+async function katalogAc() {
+  const ders = state.ceForm.subject;
+  try {
+    const k = await katalogYukle(ders);
+    if (!k) {
+      openModal('<h3>Katalog bulunamadı</h3><p>"' + escapeHtml(ders) +
+        '" dersi için müfredat kataloğu yok. Şu an yalnızca <b>Türkçe 7. sınıf</b> kataloğu var; ' +
+        'diğer dersler için kazanımları + düğmesiyle elle ekleyebilirsiniz.</p>' +
+        '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
+      return;
+    }
+    katalogModalGoster(k);
+  } catch (e) {
+    openModal('<h3>Katalog yüklenemedi</h3><p>' + escapeHtml(String((e && e.message) || e)) +
+      "</p><p>Bağlantı düzelince tekrar deneyebilirsiniz; kazanımları elle de ekleyebilirsiniz.</p>" +
+      '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
+  }
+}
+
+function katalogModalGoster(k, hata) {
+  openModal(katalogModalHtml(k, hata));
+  const f = katalogFiltreDurumu();
+  const yenile = function () { katalogModalGoster(k); };
+  const uy = document.getElementById("katUygunluk");
+  if (uy) uy.onchange = function () { f.uygunluk = uy.value; yenile(); };
+  const al = document.getElementById("katAlan");
+  if (al) al.onchange = function () { f.alan = al.value; yenile(); };
+  const ara = document.getElementById("katAra");
+  if (ara) {
+    ara.oninput = function () { f.ara = ara.value; };
+    // Arama kutusunda renderAll/yeniden çizim yapmıyoruz: odak kaybolur
+    // (PROGRESS.md §5'te kayıtlı ders). Enter ile ya da filtre değişince yenilenir.
+    ara.onkeydown = function (ev) { if (ev.key === "Enter") { ev.preventDefault(); yenile(); } };
+  }
+  const ekle = document.getElementById("katEkle");
+  if (ekle) ekle.onclick = function () {
+    const secili = Array.prototype.slice.call(document.querySelectorAll(".kat-sec:checked:not(:disabled)"));
+    if (!secili.length) { katalogModalGoster(k, "Hiç kazanım seçmediniz."); return; }
+    let eklenen = 0, atlanan = 0;
+    secili.forEach(function (cb) {
+      const kz = k.kazanimlar.filter(function (x) { return x.kod === cb.value; })[0];
+      if (!kz) return;
+      // addOutcome kodu büyük harfe çevirir ve kod+" — "+ad biçiminde etiketler.
+      const h = addOutcome(kz.kod, kz.metin);
+      if (h) atlanan++; else eklenen++;
+    });
+    closeModal();
+    saveState();
+    renderAll();
+    if (eklenen) {
+      state.ceForm.error = "";
+    }
+    // Kullanıcıya ne olduğunu söyle (sessiz başarı da bir belirsizliktir).
+    openModal('<h3>Katalogdan eklendi</h3><p><b>' + eklenen + "</b> kazanım eklendi" +
+      (atlanan ? ", <b>" + atlanan + "</b> tanesi zaten tanımlıydı ve atlandı" : "") +
+      ".</p><div class=\"modal-actions\"><button class=\"btn btn-secondary\" id=\"modalCancel\">Tamam</button></div>");
+  };
+}
+
 function openModal(html) {
   document.getElementById("modalBox").innerHTML = html;
   document.getElementById("modalOverlay").classList.add("open");
@@ -3590,6 +3759,7 @@ setInterval(function () {
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
+    "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",

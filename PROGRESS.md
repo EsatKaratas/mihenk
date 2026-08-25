@@ -1056,3 +1056,119 @@ kazanım-soru hizalama denetimi (içerik geçerliği) · Bloom taksonomisi denge
 öğrenciye geri bildirim taslağı · soru havuzu benzerlik denetimi · AI karar
 günlüğü (denetim izi) · maliyet şeffaflığı paneli · MEB kazanım kataloğu içe
 aktarma · öğrenci erişilebilirliği (süre uzatma, disleksi dostu font).
+
+---
+
+## 12. GERÇEK MÜFREDAT KATALOĞU (26 Ağustos)
+
+**Kullanıcı iki dosya getirdi:** MEB 7. sınıf Türkçe öğretim programı (PDF) ve
+bir `sorular.json`. İkisi ayrı ayrı değerlendirildi.
+
+### 12a. `sorular.json` — REDDEDİLDİ (kurtarılamaz)
+
+85 kayıt, bir PDF'ten çıkarılmış. Kullanılmadı çünkü **veri geri
+döndürülemez biçimde bozuk.** Ölçülen bozukluk dağılımı:
+
+| Bozukluk | Oran |
+|---|---|
+| Satır sonu tiresi | 43/85 (%51) |
+| **İki sütun birleşmiş** | 39/85 (%46) |
+| Ters yazım (dikey sayfa kenarı metni) | 30/85 (%35) |
+| `siklar` boş | 11/85 |
+
+Asıl engel şıklarda görüldü — `id=2`'nin bir şıkkı:
+
+```
+"A) I B) II C) III D) IV C) Teyzem her zaman harika turşu kurar. (Sağlamak,"
+```
+
+Tek satırda **iki ayrı sorunun şıkları** var. Şık sayısı dağılımı da bunu
+doğruluyor: 4, 8, 12 … 43'e kadar gidiyor; bir çoktan seçmeli soruda 43 şık
+olmaz, bunlar birleşmiş kayıtlardır.
+
+**Neden düzeltilemez:** Sütun ayrımı için hangi kelimenin hangi sütunda
+olduğu (x koordinatı) gerekir; o bilgi yalnızca kaynak PDF'te vardır, JSON'a
+aktarılırken kaybolmuştur. Tahminle ayırmak **sessizce yanlış** soru-şık
+eşleşmesi üretirdi — bu projenin sessiz düşüş yasağına aykırı. Ayrıca
+**hiçbir kayıtta doğru cevap yok**; bu tek başına yeterli engel.
+
+**Karar:** Kaynak PDF gelirse `pymupdf` ile sütun-farkında (blok + koordinat)
+çıkarım yapılabilir. O zamana kadar kullanılmıyor.
+
+> Not: Ürünün ana değeri zaten soruyu **üretmek**; hazır soru havuzu bir
+> gereklilik değil, olsa olsa kıyas malzemesiydi.
+
+### 12b. Müfredat PDF — KABUL EDİLDİ, ürüne girdi
+
+MEB Ortaokul Türkçe Dersi Öğretim Programı, 7. sınıf. **96 öğrenme çıktısı**
+sıfır bozuk kayıtla çıkarıldı ve `public/mufredat/turkce-7.json` olarak
+depoya alındı.
+
+| Alan | Kazanım |
+|---|---|
+| Okuma | 26 |
+| Dinleme/İzleme | 25 |
+| Konuşma | 25 |
+| Yazma | 20 |
+
+Ayrıca 6 tema ve ders saati dağılımı (28+28+28+29+30+27 = 170 saat).
+
+**Çıkarımda çözülen iki tuzak:**
+1. Satır sonu tireleri — `belirleye-
+bilme` → `belirleyebilme`.
+2. **Metin içi atıflar** — müfredatta `(T.D.7.7.)` gibi atıflar var; satır
+   kırılınca bunlar satır başına düşüp kazanım tanımı sanılıyordu. 3 kayıt
+   bozulmuştu (`T.D.7.7`, `T.O.7.5`, `T.Y.7.16` — tanım yerine açıklama
+   paragrafı almışlardı). İki kuralla çözüldü: kod sonrası `)` / `,` gelirse
+   atıftır, atla; ve öğrenme çıktısı kalıbı gereği tanım "-bilme" ile biter.
+
+Kalite denetimi: `)` ile başlayan 0 · içinde kod geçen 0 · "bilme" ile
+bitmeyen 0 · 200+ karakter 0 · tire içeren 0.
+
+### 12c. Üçlü uygunluk ayrımı — ürünün kendi katkısı
+
+Kazanımlar üç kategoriye ayrıldı. **Bu ayrım müfredatın parçası değildir,
+ürünün değerlendirmesidir ve arayüzde bu açıkça yazar.**
+
+| Kategori | Adet | Anlamı |
+|---|---|---|
+| `yazili` | **39** | Yazılı sınavla ölçülebilir (Okuma, Yazma) |
+| `performans` | 43 | Gözlem/performans gerektirir (Dinleme, Konuşma) |
+| `surec` | 14 | Öğrenme sürecine aittir, sınav sorusu olmaz |
+
+**Neden gerekli:** Bir Türkçe öğretmeni konuşma kazanımını çoktan seçmeli
+soruyla ölçemez. Katalog varsayılan olarak yalnızca `yazili` gösterir;
+diğerleri seçilirse ekranda gerekçeli uyarı çıkar:
+*"Bu kazanım dinleme ya da konuşma becerisidir; yazılı sınavla değil gözlemle
+ölçülür."*
+
+### 12d. Arayüz
+
+Kazanım seçicisinin yanına **Katalog** düğmesi eklendi. Modal: uygunluk
+filtresi + alan filtresi + arama + çoklu seçim. Zaten ekli kazanımlar
+işaretli ve devre dışı gelir (mükerrer engeli).
+
+**Doğrulama:**
+
+| Test | Sonuç |
+|---|---|
+| Katalog servisi | HTTP 200, 96 kazanım, 6 tema |
+| Varsayılan liste | 39 satır (yazılı sınav filtresi) |
+| Ekleme | 3 kazanım seçildi → liste 3'ten 6'ya çıktı, diske yazıldı |
+| Mükerrer engeli | Tekrar açılışta 3 kayıt "zaten ekli" ve devre dışı |
+| **MEB kazanımıyla soru üretimi** | `T.O.7.5` ile 5,4 sn'de 1 ÇSS + 1 açık uçlu üretildi, ikisi de kazanıma ve kaynak metne uygun |
+| Katalogsuz ders (Matematik) | Açıklayıcı modal, çökme yok |
+| **Ağ hatası** | Hata modalı, **uydurma liste yok** |
+| Performans/süreç filtresi | Gerekçeli uyarı çıkıyor |
+| Arama ("söz varlığı") | 6 sonuç · sonuçsuz aramada boş mesajı |
+
+### 12e. Jüriye anlatım
+
+*"Kazanımları biz uydurmadık. MEB Ortaokul Türkçe Dersi Öğretim Programı'nın
+96 öğrenme çıktısı ürünün içinde; öğretmen katalogdan seçiyor. Üstelik
+hangilerinin yazılı sınavla ölçülebileceğini, hangilerinin performans
+gerektirdiğini ayırıyoruz — çünkü konuşma kazanımı çoktan seçmeli soruyla
+ölçülmez."*
+
+Bu, §11f'de seçenek havuzunda duran **"MEB kazanım kataloğu içe aktarma"**
+maddesinin karşılığıdır.
