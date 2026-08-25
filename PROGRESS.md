@@ -263,6 +263,46 @@ yeniden deneme başarılı oldu.
 
 ---
 
+## 7e. Çoklu öğrenci (25 Ağustos) — MVP 6'nın son gerçeklik boşluğu
+
+Bir sınavın oturumu artık **öğrenci başına** tutuluyor: `kayit.sessions[ogrenciId]`.
+Çoklu sınavdaki takas yönteminin aynısı bir kat daha uygulandı; mevcut kodun
+tamamı değişmeden çalışmaya devam etti.
+
+**Neden gerekliydi:** Tek öğrenciyle "sınıfın öğrenme durumu" gerçek veriden
+hesaplanamıyordu ve ürünün ana değer önerisi — *öğretmenin 40 kağıt yerine
+AI'ın zorlandığı birkaçına odaklanması* — görünmüyordu.
+
+- Öğretmen 3. sekmesi artık **tüm sınıfın** açık uçlu yanıtlarını tek kuyrukta
+  gösteriyor, her kartta öğrenci adı var, **AI güveni en düşük olan en üstte.**
+- Çoktan seçmeli sonuçlar sınıf geneli: "%67 doğru · 4/6 öğrenci".
+- Onaylar doğru öğrencinin oturumuna yazılıyor (`finalizeReview(..., sid)`).
+- Sonuçlar sınıfın tamamına birlikte yayınlanıyor.
+- Kazanım yüzdeleri artık **tüm öğrencilerin gerçek sonuçlarından** ortalanıyor.
+- Öğrenci panelinde "hangi öğrenciyim?" seçici (gerçek üründe bu kimlik
+  doğrulamadan gelir).
+
+**Sınıf simülasyonu.** Öğretmen 3. sekmesinden "5 öğrencilik sınıf simüle et".
+Yanıtlar `/api/ai/sample-answers` ile farklı başarı düzeylerinde üretilir,
+**değerlendirme gerçek modelle ve öğretmenin tanımladığı gerçek rubrikle**
+yapılır. Simüle öğrenciler arayüzde "SİMÜLE" rozetiyle işaretlenir.
+
+Ölçülen sonuç (canlı model): Ada Y. 4/20 ("sürtünme kuvvetini bilmiyorum"),
+Deniz K. 8/20, Mira S. 10/20, Ege T. 11/20, Poyraz A. 13/20. Puan dağılımı
+gerçek ve anlamlı.
+
+### Bu turda bulunan üç hata
+1. 🔴 **Güven skoru hep %72 çıkıyordu** — prompt'taki JSON örneğinde
+   `"confidence": 0.72` yazıyordu ve model onu kopyalıyordu. Güvene göre
+   sıralama özelliği fiilen işlevsizdi. Örnekten sabit sayı kaldırıldı,
+   hesaplama kılavuzu eklendi. Düzeltme sonrası ölçüm: 0.65 / 0.75 / 0.90 / 0.95.
+2. **"Sıfırla" butonunda yarış durumu** — `saveState()` ile
+   `localStorage.removeItem()` arasında bekleyen bir zamanlayıcı, temizlikten
+   sonra eski durumu geri yazabiliyordu. `_resetting` bayrağı eklendi.
+3. Türkçe ek hatası: "Sınıfın %67'i doğru" → "%67 doğru".
+
+---
+
 ## 8. Sıradaki işler (öncelik sırasıyla)
 
 ### A. Bedava kazançlar — TAMAMLANDI (25 Ağustos)

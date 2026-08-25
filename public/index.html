@@ -223,6 +223,29 @@
     resize: vertical; }
   .crit-desc:focus { color: var(--text); border-color: var(--border-strong); }
 
+  .student-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--surface-2); }
+  .student-picker .sp-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+  .sp-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
+    border: 1px solid var(--border-strong); border-radius: 20px; background: var(--surface);
+    color: var(--text); font-family: inherit; font-size: 12.5px; cursor: pointer; }
+  .sp-btn:hover { border-color: var(--accent); }
+  .sp-btn.active { background: var(--accent); border-color: var(--accent-strong); color: #fff; }
+
+  .sim-progress:empty { display: none; }
+  .sim-progress { margin-top: 12px; }
+  .sim-bar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+  .sim-fill { height: 100%; background: var(--accent); transition: width .3s ease; }
+  .sim-text { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+
+  .student-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+    border-radius: 20px; background: var(--accent-soft); color: var(--accent-strong);
+    font-size: 11.5px; font-weight: 700; }
+  .student-chip.sim { background: var(--surface-3); color: var(--text-muted); font-weight: 600; }
+  .student-chip .sc-tag { font-size: 9.5px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .04em; opacity: .75; }
+
   .conf-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: -2px 0 10px; }
   .conf-row .conf-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
 
@@ -722,7 +745,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric" };
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers" };
 
 async function probeAiMode() {
   try {
@@ -809,15 +832,20 @@ async function aiEvaluate(q, answerText, rubric) {
 }
 
 // Bağlantı geri geldiğinde tek bir değerlendirmeyi yeniden dene.
-async function retryEvaluation(qid) {
+async function retryEvaluation(qid, sid) {
   const q = findQuestion(qid);
   if (!q) return;
-  const a = state.answers[qid] || { text: "" };
+  const ogrId = sid != null ? sid : state.activeStudentId;
+  const ss = readSession(ogrId);
+  const a = (ss.answers || {})[qid] || { text: "" };
   ensureRubric(qid);
   state.ai.busy = true; busySince = Date.now(); renderAll();
   try {
     await probeAiMode();
-    state.aiEvals[qid] = await aiEvaluate(q, a.text || "", state.rubrics[qid]);
+    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid]);
+    const yeni = Object.assign({}, readSession(ogrId).aiEvals || {});
+    yeni[qid] = sonuc;
+    writeSession(ogrId, { aiEvals: yeni });
   } finally {
     state.ai.busy = false; renderAll();
   }
@@ -849,9 +877,11 @@ function renderAiBadge() {
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
-  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId"];
+  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
+  "students", "activeStudentId"];
 
 function saveState() {
+  if (_resetting) return;
   try {
     const d = { _qIdSeq: qIdSeq };
     KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
@@ -879,7 +909,12 @@ function loadState() {
   } catch (e) { return false; }
 }
 
+let _resetting = false;
 function resetState() {
+  // saveState() ile localStorage.removeItem arasında yarış vardı: bekleyen bir
+  // kayıt zamanlayıcısı, temizlikten SONRA eski durumu geri yazabiliyordu.
+  _resetting = true;
+  if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
   try { localStorage.removeItem(STORE_KEY); } catch (e) {}
   location.reload();
 }
@@ -1006,11 +1041,15 @@ const state = {
   poolError: "",
   critDescOpen: null,
   rejectedOpen: false,
+  simRunning: false,
+  simStatus: null,
 
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
+  students: [],       // sınıf listesi
+  activeStudentId: null,
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
   exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10,
@@ -1575,13 +1614,96 @@ function bosOturum() {
   };
 }
 
+/* ==================== Sınıf (çoklu öğrenci) ====================
+   Bir sınavın oturumu artık ÖĞRENCİ BAŞINA tutulur: kayit.sessions[ogrenciId].
+   state.answers/examStatus/... aktif (sınav, öğrenci) çiftinin canlı alanıdır.
+
+   Neden gerekliydi: tek öğrenciyle "sınıfın öğrenme durumu" gerçek veriden
+   hesaplanamıyordu ve ürünün ana değer önerisi — öğretmenin 40 kağıt yerine
+   AI'ın zorlandığı birkaçına odaklanması — görünmüyordu.               */
+let studentIdSeq = 1;
+
+function ensureStudents() {
+  state.students = state.students || [];
+  state.students.forEach(function (s) { if (s.id >= studentIdSeq) studentIdSeq = s.id + 1; });
+  if (!state.students.length) {
+    state.students.push({ id: studentIdSeq++, name: "Demo Öğrenci", demo: false });
+  }
+  if (state.activeStudentId == null ||
+      !state.students.some(function (s) { return s.id === state.activeStudentId; })) {
+    state.activeStudentId = state.students[0].id;
+  }
+}
+
+function activeStudent() {
+  return (state.students || []).find(function (s) { return s.id === state.activeStudentId; }) || { id: 0, name: "Öğrenci" };
+}
+
+function examSessions(kayit) {
+  if (!kayit.sessions) {
+    kayit.sessions = {};
+    // Eski tek-oturumlu kayıttan geçiş.
+    if (kayit.session) { kayit.sessions[state.activeStudentId] = kayit.session; delete kayit.session; }
+  }
+  return kayit.sessions;
+}
+
+function sessionOf(kayit, sid) {
+  const ss = examSessions(kayit);
+  if (!ss[sid]) ss[sid] = bosOturum();
+  return ss[sid];
+}
+
 function syncActiveExam() {
-  if (state.activeExamId == null) return;
+  if (state.activeExamId == null || state.activeStudentId == null) return;
   const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
   if (!kayit) return;
   Object.keys(state.exam).forEach(function (k) { kayit[k] = state.exam[k]; });
-  kayit.session = {};
-  OTURUM_ALANLARI.forEach(function (k) { kayit.session[k] = state[k]; });
+  const ss = examSessions(kayit);
+  ss[state.activeStudentId] = {};
+  OTURUM_ALANLARI.forEach(function (k) { ss[state.activeStudentId][k] = state[k]; });
+}
+
+// Bir öğrencinin oturumunu OKU: aktif öğrenci canlı alanlarda tutulur.
+function readSession(sid) {
+  if (sid === state.activeStudentId) {
+    const o = {};
+    OTURUM_ALANLARI.forEach(function (k) { o[k] = state[k]; });
+    return o;
+  }
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  return kayit ? sessionOf(kayit, sid) : bosOturum();
+}
+
+// Bir öğrencinin oturumuna YAZ.
+function writeSession(sid, degisiklik) {
+  if (sid === state.activeStudentId) {
+    Object.keys(degisiklik).forEach(function (k) { state[k] = degisiklik[k]; });
+    return;
+  }
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return;
+  const s = sessionOf(kayit, sid);
+  Object.keys(degisiklik).forEach(function (k) { s[k] = degisiklik[k]; });
+}
+
+// Sınavı çözmüş (en az gönderilmiş) öğrenciler.
+function submittedStudents() {
+  return (state.students || []).filter(function (s) {
+    const ss = readSession(s.id);
+    return ss.examStatus === "submitted" || ss.examStatus === "graded";
+  });
+}
+
+// Öğrenci değiştir: mevcut oturumu kaydet, hedefinkini yükle.
+function activateStudent(sid) {
+  if (sid === state.activeStudentId) return;
+  syncActiveExam();
+  state.activeStudentId = sid;
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  const s = kayit ? sessionOf(kayit, sid) : bosOturum();
+  OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
+  renderAll();
 }
 
 function activateExam(id) {
@@ -1594,7 +1716,7 @@ function activateExam(id) {
                  status: kayit.status, durationMin: kayit.durationMin,
                  startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
                  startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt };
-  const s = kayit.session || bosOturum();
+  const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
   renderAll();
 }
@@ -1604,7 +1726,7 @@ function createExam(baslik) {
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
-                 startDelaySec: 0, startsAt: null, session: bosOturum() };
+                 startDelaySec: 0, startsAt: null, sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
@@ -1636,7 +1758,7 @@ function ensureExamList() {
       timeOverrides: state.exam.timeOverrides, status: state.exam.status,
       durationMin: state.exam.durationMin, startMode: state.exam.startMode,
       startAtLocal: state.exam.startAtLocal, startDelaySec: state.exam.startDelaySec,
-      startsAt: state.exam.startsAt, session: null });
+      startsAt: state.exam.startsAt, sessions: {} });
     state.activeExamId = id;
   }
   if (state.activeExamId == null) state.activeExamId = state.exams[0].id;
@@ -1655,7 +1777,7 @@ function examSwitcherHtml() {
     state.exams.length + ' sınav</span></div><div class="es-list">' +
     state.exams.map(function (x) {
       const aktif = x.id === state.activeExamId;
-      const sess = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+      const sess = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
       const st = aktif ? state.exam.status : x.status;
       const ad = aktif ? (state.exam.title || "Adsız Sınav") : (x.title || "Adsız Sınav");
       const adet = (aktif ? state.exam.questionIds : x.questionIds).length;
@@ -2038,6 +2160,116 @@ function wireTeacherTab1() {
   };
 }
 
+/* ==================== Sınıf Simülasyonu ====================
+   Analiz ekranlarının anlamlı olması ve ürünün ana değer önerisinin
+   ("40 kağıt yerine AI'ın zorlandığı birkaçına odaklan") görünmesi için
+   birden fazla öğrenci gerekir.
+
+   Üretilen yanıtlar GERÇEK ÖĞRENCİLERE AİT DEĞİLDİR; arayüzde "simüle"
+   rozetiyle işaretlenir. Ancak değerlendirme gerçek modelle, öğretmenin
+   tanımladığı gerçek rubrikle yapılır — sınıf ortalamaları uydurma sabit
+   veriden değil, bu gerçek değerlendirmelerden hesaplanır.            */
+const SIM_ISIMLER = ["Ada Y.", "Deniz K.", "Ege T.", "Mira S.", "Poyraz A.", "Zeynep D.", "Kerem B.", "Elif N."];
+const SIM_DUZEYLER = [
+  "kavramı doğru ve örnekle açıklayan güçlü bir yanıt",
+  "kavramı büyük ölçüde doğru açıklayan ama örnek vermeyen orta düzey yanıt",
+  "kavramın yalnızca bir kısmını bilen, kısa ve eksik yanıt",
+  "kavramı yanlış anlamış, konuyla kısmen ilgili zayıf yanıt",
+  "çok kısa ve neredeyse hiçbir açıklama içermeyen yanıt"
+];
+
+function simProgress(metin, oran) {
+  state.simStatus = { metin: metin, oran: oran };
+  const el = document.getElementById("simProgress");
+  if (el) {
+    el.innerHTML = '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(oran * 100) + '%;"></div></div>' +
+      '<div class="sim-text">' + escapeHtml(metin) + '</div>';
+  }
+}
+
+async function simulateClass(adet) {
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  if (!items.length) { state.poolError = "Önce sınava soru ekleyin."; renderAll(); return; }
+  if (state.exam.status !== "published") { state.poolError = "Sınıfı simüle etmeden önce sınavı yayınlayın."; renderAll(); return; }
+  const opens = items.filter(function (q) { return q.type === "open"; });
+  if (opens.some(function (q) { return !state.rubrics[q.id] || totalWeight(state.rubrics[q.id]) !== 100; })) {
+    state.poolError = "Açık uçlu sorular için puanlama anahtarını tamamlayın (%100).";
+    renderAll();
+    return;
+  }
+
+  state.simRunning = true;
+  state.poolError = "";
+  renderAll();
+
+  try {
+    // 1) Öğrencileri oluştur
+    const yeniler = [];
+    for (let i = 0; i < adet; i++) {
+      const s = { id: studentIdSeq++, name: SIM_ISIMLER[i % SIM_ISIMLER.length], demo: true,
+                  ability: 0.35 + (i / Math.max(1, adet - 1)) * 0.55 };
+      state.students.push(s);
+      yeniler.push(s);
+    }
+    simProgress(adet + " öğrenci oluşturuldu", 0.1);
+
+    // 2) Açık uçlu sorular için farklı düzeylerde örnek yanıtlar
+    const yanitlar = {};
+    for (let oi = 0; oi < opens.length; oi++) {
+      const q = opens[oi];
+      simProgress("Örnek yanıtlar hazırlanıyor (" + (oi + 1) + "/" + opens.length + ")…", 0.1 + 0.25 * (oi / Math.max(1, opens.length)));
+      const seviyeler = yeniler.map(function (s, i) { return SIM_DUZEYLER[Math.min(SIM_DUZEYLER.length - 1, Math.floor((1 - s.ability) * SIM_DUZEYLER.length))]; });
+      try {
+        const j = await apiPost(AI_API.sampleAnswers, {
+          questionBody: q.body,
+          outcomeLabel: outcomeLabel(q.outcome),
+          grade: String(state.ceForm.grade),
+          levels: seviyeler
+        });
+        yanitlar[q.id] = j.answers || [];
+      } catch (e) {
+        state.poolError = "Örnek yanıtlar üretilemedi: " + String((e && e.message) || e);
+        yanitlar[q.id] = [];
+      }
+    }
+
+    // 3) Her öğrenci için yanıtla + değerlendir
+    for (let i = 0; i < yeniler.length; i++) {
+      const ogr = yeniler[i];
+      const oturum = bosOturum();
+      items.forEach(function (q) {
+        if (q.type === "mc") {
+          const dogru = Math.random() < ogr.ability;
+          const yanlislar = (q.options || []).filter(function (o) { return o.key !== q.correctKey; });
+          const sec = dogru ? q.correctKey : (yanlislar.length ? yanlislar[Math.floor(Math.random() * yanlislar.length)].key : q.correctKey);
+          oturum.answers[q.id] = { selectedKey: sec, savedAt: Date.now() };
+          oturum.mcResults[q.id] = { correct: sec === q.correctKey };
+        } else {
+          const liste = yanitlar[q.id] || [];
+          oturum.answers[q.id] = { text: liste[i] || liste[liste.length - 1] || "", savedAt: Date.now() };
+        }
+      });
+      oturum.examStatus = "submitted";
+
+      // Açık uçluları GERÇEK modelle değerlendir
+      for (let oi = 0; oi < opens.length; oi++) {
+        const q = opens[oi];
+        simProgress(ogr.name + " değerlendiriliyor (" + (i + 1) + "/" + yeniler.length + ")…",
+          0.35 + 0.6 * ((i * opens.length + oi) / Math.max(1, yeniler.length * opens.length)));
+        oturum.aiEvals[q.id] = await aiEvaluate(q, oturum.answers[q.id].text || "", state.rubrics[q.id]);
+      }
+
+      const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+      if (kayit) examSessions(kayit)[ogr.id] = oturum;
+    }
+
+    simProgress("Tamamlandı — " + yeniler.length + " öğrenci sınavı gönderdi", 1);
+  } finally {
+    state.simRunning = false;
+    renderAll();
+  }
+}
+
 /* ==================== Puanlama Anahtarı (Rubrik) ====================
    Bu ekranın tek işi şu: açık uçlu bir yanıtın hangi ölçütlere göre
    puanlanacağını ÖĞRETMENİN belirlemesi. Yapay zekâ bu ölçütlerin dışına
@@ -2264,30 +2496,40 @@ function rubRefreshBar(rub) {
   }
 }
 
-function evalCardHtml(q) {
-  const ans = state.answers[q.id] || { text: "" };
-  const ev = state.aiEvals[q.id];
+function studentChip(student) {
+  return '<span class="student-chip' + (student.demo ? " sim" : "") + '">' +
+    escapeHtml(student.name) + (student.demo ? ' <span class="sc-tag">simüle</span>' : "") + '</span>';
+}
+
+function evalCardHtml(q, student, ev) {
+  const ss = readSession(student.id);
+  const ans = (ss.answers || {})[q.id] || { text: "" };
   const rub = state.rubrics[q.id];
-  if (ev && ev.failed) return evalFailedCardHtml(q, ans, ev, rub);
-  return '<div class="eval-card" data-qid="' + q.id + '"><div class="q-meta"><span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+  if (ev && ev.failed) return evalFailedCardHtml(q, student, ans, ev, rub);
+  if (!ev) return "";
+  return '<div class="eval-card" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
+    '<div class="q-meta">' + studentChip(student) +
+    '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
     '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' + confBadge(ev.confidence) +
-    ev.breakdown.map(function (b) {
+    (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
         (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
     }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
-    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
-    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Puanı Güncelle ve Onayla</button></div></div>';
+    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button></div></div>';
 }
+
 // Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
-function evalFailedCardHtml(q, ans, ev, rub) {
-  return '<div class="eval-card eval-failed" data-qid="' + q.id + '">' +
-    '<div class="q-meta"><span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
+function evalFailedCardHtml(q, student, ans, ev, rub) {
+  return '<div class="eval-card eval-failed" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
+    '<div class="q-meta">' + studentChip(student) +
+    '<span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
     '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
@@ -2297,17 +2539,19 @@ function evalFailedCardHtml(q, ans, ev, rub) {
     escapeHtml(ev.error || "bilinmeyen hata") + '</span></div>' +
     '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
-    '<input type="number" class="final-score" data-qid="' + q.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
+    '<input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
     '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label>' +
-    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
     '<div class="actions">' +
-    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '">Elle Puanla ve Onayla</button></div></div>';
+    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
+    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Elle Puanla ve Onayla</button></div></div>';
 }
 
-function doneCardHtml(q) {
-  const rv = state.reviews[q.id], rub = state.rubrics[q.id];
-  return '<div class="eval-card" style="opacity:0.75;"><div class="q-meta"><span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+function doneCardHtml(q, student, ev, rv) {
+  const rub = state.rubrics[q.id];
+  return '<div class="eval-card" style="opacity:0.75;">' +
+    '<div class="q-meta">' + studentChip(student) +
+    '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
     '<div style="margin-top:8px;font-size:13px;">' +
     'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
@@ -2320,9 +2564,6 @@ function doneCardHtml(q) {
     '</div></div>';
 }
 
-// Güven skoru, modelin KENDİ değerlendirmesinden ne kadar emin olduğudur.
-// Tooltip yetmiyordu: ne anlama geldiği ve öğretmenin ne yapması gerektiği
-// doğrudan ekranda yazıyor.
 function confBadge(c) {
   if (c == null) return "";
   const pct = Math.round(c * 100);
@@ -2344,16 +2585,41 @@ function teacherTab3Html() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const mcs = items.filter(function (q) { return q.type === "mc"; });
   const opens = items.filter(function (q) { return q.type === "open"; });
-  const pending = opens.filter(function (q) { return !state.reviews[q.id]; });
-  const basarisiz = pending.filter(function (q) { return (state.aiEvals[q.id] || {}).failed; }).length;
-  const done = opens.filter(function (q) { return state.reviews[q.id]; });
-  const mcCorrect = mcs.filter(function (q) { return (state.mcResults[q.id] || {}).correct; }).length;
-  const yayinlandi = state.examStatus === "graded";
+  const gonderenler = submittedStudents();
 
-  // AI'in en az emin oldugu yanit en uste: ogretmen zamanini dogru yere harcasin.
+  // Tüm sınıfın açık uçlu yanıtları tek kuyrukta: öğretmen öğrenci öğrenci
+  // gezinmek zorunda kalmasın.
+  const tumDegerlendirmeler = [];
+  gonderenler.forEach(function (s) {
+    const ss = readSession(s.id);
+    opens.forEach(function (q) {
+      tumDegerlendirmeler.push({
+        student: s, q: q,
+        ev: (ss.aiEvals || {})[q.id],
+        review: (ss.reviews || {})[q.id]
+      });
+    });
+  });
+  const pending = tumDegerlendirmeler.filter(function (x) { return !x.review; });
+  const done = tumDegerlendirmeler.filter(function (x) { return x.review; });
+  const basarisiz = pending.filter(function (x) { return (x.ev || {}).failed; }).length;
+
+  // Çoktan seçmeli: sınıf geneli doğru sayısı.
+  let mcDogru = 0, mcToplam = 0;
+  gonderenler.forEach(function (s) {
+    const ss = readSession(s.id);
+    mcs.forEach(function (q) {
+      mcToplam++;
+      if ((ss.mcResults || {})[q.id] && ss.mcResults[q.id].correct) mcDogru++;
+    });
+  });
+  const mcCorrect = mcDogru;
+  const yayinlandi = gonderenler.length > 0 && gonderenler.every(function (s) { return readSession(s.id).examStatus === "graded"; });
+
+  // AI'ın en az emin olduğu yanıt en üste: öğretmen zamanını doğru yere harcasın.
+  // Çok öğrencili sınıfta asıl değeri burada ortaya çıkıyor.
   pending.sort(function (a, b) {
-    const ca = (state.aiEvals[a.id] || {}).confidence;
-    const cb = (state.aiEvals[b.id] || {}).confidence;
+    const ca = (a.ev || {}).confidence, cb = (b.ev || {}).confidence;
     return (ca == null ? 1 : ca) - (cb == null ? 1 : cb);
   });
 
@@ -2363,21 +2629,24 @@ function teacherTab3Html() {
     (yayinlandi ? '<span class="pill pill-success">Sonuçlar yayınlandı</span>'
                 : '<span class="pill pill-accent2">Öğretmen onayı bekliyor</span>') + '</div>' +
     '<div class="grid-3col">' +
-    '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcs.length + '</div><div class="s-sub">otomatik puanlandı — onay gerekmez</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcToplam + '</div><div class="s-sub">' + gonderenler.length + ' öğrenci · otomatik puanlandı</div></div>' +
     '<div class="stat-tile' + (basarisiz ? ' tile-alert' : '') + '"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' +
     (basarisiz ? basarisiz + ' değerlendirme yapılamadı — yeniden deneyin'
       : (pending.length ? "AI puan önerdi, karar sizde" : "tümü incelendi")) + '</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? "karne görünür durumda" : "siz yayınlayana kadar gizli") + '</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? gonderenler.length + " öğrenci karnesini görebiliyor" : "siz yayınlayana kadar gizli") + '</div></div>' +
     '</div></div>';
 
   const mcListesi = mcs.length
     ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Çoktan Seçmeli Sonuçlar</h3><span class="hint">anahtar karşılaştırmasıyla otomatik — yapay zekâ kararı değildir</span></div>' +
       mcs.map(function (q) {
-        const a = state.answers[q.id] || {};
-        const dg = (state.mcResults[q.id] || {}).correct;
+        const dogruSayisi = gonderenler.filter(function (s) {
+          const r = (readSession(s.id).mcResults || {})[q.id];
+          return r && r.correct;
+        }).length;
+        const oran = gonderenler.length ? Math.round(dogruSayisi / gonderenler.length * 100) : 0;
         return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
-          '<div class="p-tags"><span class="pill ' + (dg ? "pill-success" : "pill-critical") + '">' + (dg ? "✓ Doğru" : "✗ Yanlış") + '</span>' +
-          '<span class="pill pill-neutral">Öğrenci: ' + (a.selectedKey || "boş") + '</span>' +
+          '<div class="p-tags"><span class="pill ' + (oran >= 60 ? "pill-success" : oran >= 40 ? "pill-warning" : "pill-critical") + '">%' + oran + ' doğru</span>' +
+          '<span class="pill pill-neutral">' + dogruSayisi + '/' + gonderenler.length + ' öğrenci</span>' +
           '<span class="pill pill-neutral">Doğru şık: ' + q.correctKey + '</span>' +
           '<span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
       }).join("") + '</div>'
@@ -2393,54 +2662,95 @@ function teacherTab3Html() {
 
   const acikUclu = opens.length
     ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI\'in en az emin oldugu yanit en ustte</span></div>' +
-      (pending.length ? pending.map(evalCardHtml).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
-      (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' + done.map(doneCardHtml).join("") : "")
+      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
+      (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
+        done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
 
-  return ozet + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
+  const simKutusu = '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<h3>Sınıf Verisi</h3><span class="hint">' + gonderenler.length + ' öğrenci sınavı gönderdi</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">' +
+    'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf ' +
+    'oluşturabilirsiniz: yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
+    '<b>değerlendirme gerçek modelle ve sizin tanımladığınız rubrikle</b> yapılır. ' +
+    'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
+    (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
+    '<div id="simProgress" class="sim-progress">' +
+    (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
+    '</div></div>';
+
+  return ozet + simKutusu + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
 }
 
 function wireTeacherTab3() {
+  const simBtn = document.getElementById("btnSimClass");
+  if (simBtn) simBtn.onclick = function () { simulateClass(5); };
   document.querySelectorAll(".retry-eval").forEach(function (b) {
-    b.onclick = function () { retryEvaluation(Number(b.dataset.qid)); };
+    b.onclick = function () { retryEvaluation(Number(b.dataset.qid), Number(b.dataset.sid)); };
   });
   const pubBtn = document.getElementById("btnPublishResults");
   if (pubBtn) pubBtn.onclick = publishResults;
   document.querySelectorAll(".approve-as-is").forEach(function (b) {
-    b.onclick = function () { const qid = Number(b.dataset.qid); finalizeReview(qid, state.aiEvals[qid].aiScore, "", "approved_as_is"); };
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
+      const ev = (readSession(sid).aiEvals || {})[qid] || {};
+      finalizeReview(qid, ev.aiScore, "", "approved_as_is", sid);
+    };
   });
   document.querySelectorAll(".revise-approve").forEach(function (b) {
     b.onclick = function () {
-      const qid = Number(b.dataset.qid);
-      const scoreEl = document.querySelector('.final-score[data-qid="' + qid + '"]');
-      const commentEl = document.querySelector('.teacher-comment[data-qid="' + qid + '"]');
-      finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised");
+      const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
+      const sel = '[data-qid="' + qid + '"][data-sid="' + sid + '"]';
+      const scoreEl = document.querySelector('.final-score' + sel);
+      const commentEl = document.querySelector('.teacher-comment' + sel);
+      finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised", sid);
     };
   });
 }
-function finalizeReview(qid, score, comment, decision) {
+function finalizeReview(qid, score, comment, decision, sid) {
+  const ogrId = sid != null ? sid : state.activeStudentId;
   const rub = state.rubrics[qid];
-  state.reviews[qid] = { finalScore: Math.max(0, Math.min(rub.maxScore, score)), comment: comment, decision: decision, aiScore: (state.aiEvals[qid] || {}).aiScore != null ? state.aiEvals[qid].aiScore : null };
+  const ss = readSession(ogrId);
+  const ev = (ss.aiEvals || {})[qid] || {};
+  const yeniReviews = Object.assign({}, ss.reviews || {});
+  yeniReviews[qid] = {
+    finalScore: Math.max(0, Math.min(rub.maxScore, score)),
+    comment: comment,
+    decision: decision,
+    aiScore: ev.aiScore != null ? ev.aiScore : null
+  };
+  writeSession(ogrId, { reviews: yeniReviews });
   renderAll();
 }
 // Açık uçlu soruların tamamı incelendi mi? (Yalnızca ÇSS'den oluşan sınavda
 // hiç açık uçlu soru olmadığı için bu koşul doğrudan sağlanır.)
+// Sınavı gönderen HER öğrencinin HER açık uçlu yanıtı incelendi mi?
 function allOpensReviewed() {
-  return state.exam.questionIds
+  const opens = state.exam.questionIds
     .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
-    .filter(function (q) { return q && q.type === "open"; })
-    .every(function (q) { return state.reviews[q.id]; });
+    .filter(function (q) { return q && q.type === "open"; });
+  if (!opens.length) return true;
+  const gonderenler = submittedStudents();
+  if (!gonderenler.length) return false;
+  return gonderenler.every(function (s) {
+    const ss = readSession(s.id);
+    return opens.every(function (q) { return ss.reviews && ss.reviews[q.id]; });
+  });
 }
 
 // Sonuçlar öğrenciye ancak öğretmen yayınlayınca ulaşır.
 // ÖNCEKİ HATA: notlandırma yalnızca bir açık uçlu soru onaylandığında
 // tamamlanıyordu; sınavda hiç açık uçlu soru yoksa hiç tetiklenmiyor ve
 // sınav sonsuza dek "submitted" kalıyordu (öğrenci karnesi hiç oluşmuyordu).
+// Sonuçlar sınıfın tamamına birlikte yayınlanır.
 function publishResults() {
-  if (state.examStatus === "submitted" && allOpensReviewed()) {
-    state.examStatus = "graded";
-    renderAll();
-  }
+  if (!allOpensReviewed()) return;
+  submittedStudents().forEach(function (s) {
+    const ss = readSession(s.id);
+    if (ss.examStatus === "submitted") writeSession(s.id, { examStatus: "graded" });
+  });
+  renderAll();
 }
 
 function computeDemoClassScores() {
@@ -2454,26 +2764,34 @@ function computeDemoClassScores() {
 
    Kazanım yüzdeleri, sonuçlanmış sınavların GERÇEK verisinden hesaplanır
    (çoktan seçmeli doğruluğu + öğretmenin ONAYLADIĞI açık uçlu puanlar).  */
+// Bir sınavın kazanım yüzdeleri: SINIFIN TAMAMI üzerinden ortalama.
+// Önceden yalnızca aktif öğrencinin sonucuna bakıyordu; tek öğrenciyle
+// "sınıfın öğrenme durumu" hesaplanamıyordu.
 function examOutcomeScores(kayit) {
   const aktif = kayit.id === state.activeExamId;
   const ex = aktif ? state.exam : kayit;
-  const ss = aktif
-    ? { mcResults: state.mcResults, reviews: state.reviews, examStatus: state.examStatus }
-    : (kayit.session || { mcResults: {}, reviews: {}, examStatus: "not_started" });
   const toplam = {}, adet = {};
-  (ex.questionIds || []).forEach(function (qid) {
-    const q = state.questions.find(function (x) { return x.id === qid; });
-    if (!q) return;
-    let pct = null;
-    if (q.type === "mc" && ss.mcResults[qid]) pct = ss.mcResults[qid].correct ? 100 : 0;
-    if (q.type === "open" && ss.reviews[qid]) {
-      const rub = state.rubrics[qid];
-      if (rub) pct = ss.reviews[qid].finalScore / rub.maxScore * 100;
-    }
-    if (pct == null) return;
-    toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
-    adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+
+  (state.students || []).forEach(function (ogr) {
+    const ss = (aktif)
+      ? readSession(ogr.id)
+      : ((kayit.sessions || {})[ogr.id] || null);
+    if (!ss || (ss.examStatus !== "graded" && ss.examStatus !== "submitted")) return;
+    (ex.questionIds || []).forEach(function (qid) {
+      const q = state.questions.find(function (x) { return x.id === qid; });
+      if (!q) return;
+      let pct = null;
+      if (q.type === "mc" && (ss.mcResults || {})[qid]) pct = ss.mcResults[qid].correct ? 100 : 0;
+      if (q.type === "open" && (ss.reviews || {})[qid]) {
+        const rub = state.rubrics[qid];
+        if (rub) pct = ss.reviews[qid].finalScore / rub.maxScore * 100;
+      }
+      if (pct == null) return;
+      toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
+      adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+    });
   });
+
   const sonuc = {};
   Object.keys(toplam).forEach(function (k) { sonuc[k] = Math.round(toplam[k] / adet[k]); });
   return { baslik: ex.title || "Adsız Sınav", scores: sonuc };
@@ -2481,8 +2799,11 @@ function examOutcomeScores(kayit) {
 
 function gradedExamHistory() {
   return (state.exams || []).filter(function (x) {
-    const durum = x.id === state.activeExamId ? state.examStatus : ((x.session || {}).examStatus || "not_started");
-    return durum === "graded";
+    // Sınıftan en az bir öğrencinin sonucu yayınlandıysa sınav geçmişe girer.
+    const ss = x.id === state.activeExamId
+      ? (state.students || []).map(function (o) { return readSession(o.id); })
+      : Object.keys(x.sessions || {}).map(function (k) { return x.sessions[k]; });
+    return ss.some(function (s) { return s && s.examStatus === "graded"; });
   }).map(examOutcomeScores);
 }
 
@@ -2622,7 +2943,7 @@ function kalanMetni(ts) {
 function examCardState(x) {
   const aktif = x.id === state.activeExamId;
   const ex = aktif ? state.exam : x;
-  const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+  const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
   const bekliyor = ex.startsAt ? Date.now() < ex.startsAt : false;
   return { aktif: aktif, ex: ex, durum: durum, bekliyor: bekliyor };
 }
@@ -2657,7 +2978,7 @@ function studentTab1Html() {
       : '<span class="pill pill-success">Çözülebilir</span>';
     // Yarım kalan sınavda ne kadar ilerlediğini göster.
     const yanitlanan = items.filter(function (q) {
-      const a = (c.aktif ? state.answers : (x.session || {}).answers || {})[q.id];
+      const a = (c.aktif ? state.answers : ((x.sessions || {})[state.activeStudentId] || {}).answers || {})[q.id];
       return a && (a.selectedKey || (a.text && a.text.trim()));
     }).length;
     const kalanSn = c.ex.endsAt ? Math.max(0, Math.round((c.ex.endsAt - Date.now()) / 1000)) : null;
@@ -2715,7 +3036,7 @@ function studentTab2Html() {
     const hazir = (state.exams || []).filter(function (x) {
       const aktif = x.id === state.activeExamId;
       const ex = aktif ? state.exam : x;
-      const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+      const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
       const bekliyor = ex.startsAt ? Date.now() < ex.startsAt : false;
       return ex.status === "published" && (durum === "not_started" || durum === "in_progress") && !bekliyor;
     });
@@ -2841,6 +3162,17 @@ function studentTab3Html() {
   return '<div class="card"><div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3><span class="pill pill-accent">Toplam ' + (Math.round(totalScore * 10) / 10) + "/" + totalMax + '</span></div>' + rows + '</div>';
 }
 
+// Öğrenci panelinde "hangi öğrenciyim?" seçici. Gerçek üründe bu kimlik
+// doğrulamadan gelir; prototipte roller gibi elle değiştirilir.
+function studentPickerHtml() {
+  if ((state.students || []).length < 2) return "";
+  return '<div class="student-picker"><span class="sp-label">Görüntülenen öğrenci</span>' +
+    state.students.map(function (s) {
+      return '<button class="sp-btn ' + (s.id === state.activeStudentId ? "active" : "") + '" data-sid="' + s.id + '">' +
+        escapeHtml(s.name) + (s.demo ? ' <span class="sc-tag">simüle</span>' : "") + '</button>';
+    }).join("") + '</div>';
+}
+
 function renderStudent() {
   const root = document.getElementById("panel-student");
   // Sıra bilinçli: öğrencinin ana işi sınav çözmek. "Sınavı Çöz" sekmesi
@@ -2850,13 +3182,16 @@ function renderStudent() {
     { id: 1, label: "2 · Sınavlarım", pasif: false },
     { id: 3, label: "3 · Karne", pasif: state.examStatus !== "graded" }
   ];
-  root.innerHTML = '<div class="tabs" id="studentTabs">' +
+  root.innerHTML = studentPickerHtml() + '<div class="tabs" id="studentTabs">' +
     tabs.map(function (t) {
       return '<button class="tab-btn ' + (state.studentTab === t.id ? "active" : "") + '" data-tab="' + t.id + '"' +
         (t.pasif ? ' disabled title="Bu sekme şu anda kullanılamıyor"' : "") + '>' + t.label + '</button>';
     }).join("") +
     '</div><div id="studentTabContent"></div>';
   document.querySelectorAll("#studentTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.studentTab = Number(b.dataset.tab); renderAll(); }; });
+  document.querySelectorAll(".sp-btn").forEach(function (b) {
+    b.onclick = function () { activateStudent(Number(b.dataset.sid)); };
+  });
   const content = document.getElementById("studentTabContent");
   if (state.studentTab === 1) { content.innerHTML = studentTab1Html(); wireStudentTab1(); }
   if (state.studentTab === 2) { content.innerHTML = studentTab2Html(); wireStudentTab2(); }
@@ -3153,7 +3488,7 @@ function renderRoleNav() {
   const examReady = (state.exams || []).filter(function (x) {
     const aktif = x.id === state.activeExamId;
     const ex = aktif ? state.exam : x;
-    const durum = aktif ? state.examStatus : ((x.session || {}).examStatus || "not_started");
+    const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
     return ex.status === "published" && durum === "not_started" && (!ex.startsAt || Date.now() >= ex.startsAt);
   }).length;
   const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady, admin: 0 };
@@ -3236,7 +3571,10 @@ setInterval(function () {
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
-    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni"
+    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
+    "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
+    "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
+    "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -3253,6 +3591,7 @@ setInterval(function () {
 
 initPanels();
 loadState();
+ensureStudents();
 ensureExamList();
 document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
 document.getElementById("btnReset").onclick = resetState;

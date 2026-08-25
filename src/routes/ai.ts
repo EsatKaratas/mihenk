@@ -9,7 +9,12 @@
 
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { buildQuestionPrompt, buildEvaluationPrompt, buildRubricPrompt } from '../lib/prompts';
+import {
+  buildQuestionPrompt,
+  buildEvaluationPrompt,
+  buildRubricPrompt,
+  buildSampleAnswerPrompt,
+} from '../lib/prompts';
 import { callModelJson, providerName, modelName, type AiEnv } from '../lib/ai';
 import {
   generateQuestionsSchema,
@@ -18,6 +23,8 @@ import {
   modelEvaluationSchema,
   rubricDraftSchema,
   modelRubricSchema,
+  sampleAnswersSchema,
+  modelSampleAnswersSchema,
 } from '../schemas/ai';
 
 type Bindings = AiEnv & { DB?: D1Database };
@@ -298,6 +305,49 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
 
     return c.json({
       criteria: olcekli,
+      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+    });
+  } catch (e) {
+    return c.json(
+      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      502
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/sample-answers — SİMÜLE EDİLMİŞ sınıf için örnek yanıtlar
+//
+// Analiz ekranlarının anlamlı olması için tek öğrenci yetmiyor. Bu uç, farklı
+// başarı düzeylerinde gerçekçi öğrenci yanıtları üretir; böylece sınıf
+// ortalamaları uydurma sabit veriden değil, GERÇEK değerlendirmelerden
+// hesaplanır. Üretilen yanıtlar gerçek öğrencilere ait değildir ve arayüzde
+// "simüle edilmiş sınıf verisi" olarak işaretlenir.
+// ---------------------------------------------------------------------------
+ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+  try {
+    const prompt = buildSampleAnswerPrompt({
+      questionBody: b.questionBody,
+      outcomeLabel: b.outcomeLabel,
+      grade: b.grade,
+      levels: b.levels,
+    });
+    // Düzey başına ~140 token; taban 500.
+    const maxTokens = clamp(500 + b.levels.length * 140, 700, 2000);
+    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 });
+    const parsed = modelSampleAnswersSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json(
+        { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
+        502
+      );
+    }
+    // İstenen düzey sayısına hizala: eksikse son yanıtı tekrar etme, kırp.
+    const answers = parsed.data.answers.slice(0, b.levels.length).map((s) => s.trim());
+    return c.json({
+      answers,
+      simulated: true,
       meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
     });
   } catch (e) {

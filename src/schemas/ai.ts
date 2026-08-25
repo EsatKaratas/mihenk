@@ -41,6 +41,17 @@ export const modelRubricSchema = z.object({
     .max(6),
 });
 
+export const sampleAnswersSchema = z.object({
+  questionBody: z.string().min(1).max(2000),
+  outcomeLabel: z.string().max(200).default(''),
+  grade: z.union([z.number().int().min(1).max(12), z.string().max(8)]).default(''),
+  levels: z.array(z.string().min(1).max(120)).min(1).max(8),
+});
+
+export const modelSampleAnswersSchema = z.object({
+  answers: z.array(z.string().min(1).max(2000)).min(1).max(8),
+});
+
 export const rubricCriterionSchema = z.object({
   label: z.string().min(1).max(120),
   weight: z.number().min(0).max(100),
