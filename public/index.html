@@ -284,6 +284,63 @@
   /* Soru Üret düzeni: kaynak içerik önce ve tam genişlikte,
      incelemeyi bekleyenler altta. */
   .ce-layout { display: block; }
+  .ce-meta-grid > .field { min-width: 0; }
+  .ce-meta-grid label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-note { font-size: 11px; color: var(--text-muted); line-height: 1.45; margin-top: 4px; }
+  .label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .char-count { font-size: 11px; font-family: "IBM Plex Mono", monospace; color: var(--text-muted); }
+  .char-count.near { color: var(--warning); }
+
+  .input-with-actions { display: flex; gap: 6px; align-items: stretch; }
+  .input-with-actions > select, .input-with-actions > input { flex: 1; min-width: 0; }
+  .icon-btn { flex: none; width: 34px; height: 34px; display: inline-flex; align-items: center;
+    justify-content: center; border: 1px solid var(--border-strong); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-family: inherit; font-size: 15px;
+    line-height: 1; cursor: pointer; transition: border-color .12s, background .12s; }
+  .icon-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .icon-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* Sürükle-bırak alanı */
+  .dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; padding: 22px 18px; margin-bottom: 12px; text-align: center; cursor: pointer;
+    border: 2px dashed var(--border-strong); border-radius: 11px; background: var(--surface-2);
+    transition: border-color .14s, background .14s; }
+  .dropzone:hover, .dropzone.over { border-color: var(--accent); background: var(--accent-soft); }
+  .dropzone.busy { cursor: default; border-style: solid; }
+  .dropzone .dz-icon { font-size: 26px; line-height: 1; }
+  .dropzone .dz-title { font-size: 13.5px; font-weight: 600; }
+  .dropzone .dz-or { font-weight: 400; color: var(--text-muted); }
+  .dropzone .dz-browse { background: none; border: none; padding: 0; font: inherit;
+    color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .dropzone .dz-sub { font-size: 11.5px; color: var(--text-muted); }
+  .dropzone .dz-file { margin-top: 6px; font-size: 12px; color: var(--success);
+    font-family: "IBM Plex Mono", monospace; }
+  .dropzone .dz-spin { width: 22px; height: 22px; border-radius: 50%;
+    border: 2.5px solid var(--border-strong); border-top-color: var(--accent);
+    animation: dzspin .8s linear infinite; }
+  @keyframes dzspin { to { transform: rotate(360deg); } }
+  .dz-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px;
+    font-size: 11.5px; color: var(--text-muted); }
+  .dz-divider::before, .dz-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  /* Sınav taslağı listesi */
+  .tray-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 4px;
+    border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .tray-item .t-no { flex: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface-3); color: var(--text-muted); font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .tray-item .t-text { flex: 1; min-width: 0; line-height: 1.5; }
+  .tray-item .t-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .tray-item .t-controls { display: flex; align-items: center; gap: 5px; flex: none; }
+  .tray-item .tray-time { width: 62px; text-align: right; }
+  .tray-item .t-unit { font-size: 11px; color: var(--text-muted); margin-right: 3px; }
+  .tray-item .icon-btn { width: 28px; height: 28px; font-size: 13px; }
+
+  .tray-summary { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-strong); }
+  .tray-summary .ts-row { display: flex; justify-content: space-between; gap: 12px;
+    font-size: 12.5px; color: var(--text-muted); padding: 3px 0; }
+  .tray-summary .ts-row.strong { color: var(--text); font-weight: 700; font-size: 14px; }
+
   .ce-source { margin-bottom: 16px; }
   .ce-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 16px; }
   .ce-text-field textarea { min-height: 190px; font-size: 14px; line-height: 1.6; }
@@ -948,6 +1005,7 @@ const state = {
   rubricError: "",
   poolError: "",
   critDescOpen: null,
+  rejectedOpen: false,
 
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
@@ -1215,19 +1273,20 @@ function ceCreateHtml() {
     '<div class="card ce-source"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">sorular buradan üretilir</span></div>' +
     '<div class="ce-meta-grid">' +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
-    '<div class="field-row"><div class="field"><label>Ders <span class="lbl-hint">yazıp Enter ile yeni ders ekleyebilirsiniz</span></label>' +
-    '<input id="ceSubject" list="dersListesi" value="' + escapeHtml(state.ceForm.subject) + '" placeholder="örn. Fen Bilimleri">' +
+    '<div class="field"><label>Ders</label>' +
+    '<input id="ceSubject" list="dersListesi" value="' + escapeHtml(state.ceForm.subject) + '" placeholder="Seçin veya yeni ders yazın">' +
     '<datalist id="dersListesi">' + SUBJECTS_LIST().map(function (s) { return '<option value="' + escapeHtml(s) + '">'; }).join("") + '</datalist></div>' +
     '<div class="field"><label>Sınıf</label><select id="ceGrade">' +
-    GRADES.map(function (g) { return '<option ' + (String(g) === String(state.ceForm.grade) ? "selected" : "") + '>' + g + '</option>'; }).join("") +
-    '</select></div></div>' +
-    '<div class="field"><label>Kazanım <span class="lbl-hint">' + OUTCOMES_LIST().length + ' tanımlı</span></label>' +
-    '<div style="display:flex;gap:8px;align-items:center;">' +
-    '<select id="ceOutcome" style="flex:1;">' +
+    GRADES.map(function (g) { return '<option ' + (String(g) === String(state.ceForm.grade) ? "selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
+    '</select></div>' +
+    '<div class="field field-outcome"><label>Kazanım</label>' +
+    '<div class="input-with-actions">' +
+    '<select id="ceOutcome">' +
     OUTCOMES_LIST().map(function (o) { return '<option value="' + o.code + '" ' + (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' + escapeHtml(o.label) + '</option>'; }).join("") +
     '</select>' +
-    '<button class="btn btn-secondary btn-sm" id="btnNewOutcome" title="Yeni kazanım tanımla">+ Yeni</button>' +
-    '<button class="btn btn-secondary btn-sm" id="btnDelOutcome" title="Seçili kazanımı sil">−</button></div>' +
+    '<button class="icon-btn" id="btnNewOutcome" title="Yeni kazanım tanımla" aria-label="Yeni kazanım tanımla">+</button>' +
+    '<button class="icon-btn" id="btnDelOutcome" title="Seçili kazanımı sil" aria-label="Seçili kazanımı sil">−</button></div>' +
+    '<span class="field-note">' + OUTCOMES_LIST().length + ' kazanım tanımlı · yenisini + ile ekleyin</span></div>' +
     '<!--meta-grid-end-->' +
     (state.newOutcome.open
       ? '<div class="new-outcome"><div class="field-row">' +
@@ -1236,13 +1295,22 @@ function ceCreateHtml() {
         (state.newOutcome.error ? '<div class="pill pill-critical" style="margin-bottom:8px;">' + escapeHtml(state.newOutcome.error) + '</div>' : "") +
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
-      : "") + '</div></div>' +
-    '<div class="field ce-text-field"><label>Ders notu / metin <span class="lbl-hint">' + state.ceForm.text.length + ' / 6000 karakter</span></label>' +
-    '<div class="upload-row"><input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
-    '<button class="btn btn-secondary btn-sm" id="btnUpload"' + (state.ceForm.pdfLoading ? " disabled" : "") + '>' +
-    (state.ceForm.pdfLoading ? "⏳ PDF okunuyor…" : "📄 Dosyadan yükle (PDF / .txt / .md)") + '</button>' +
-    '<span class="lbl-hint" id="uploadInfo">' + escapeHtml(state.ceForm.fileName || "veya aşağıya doğrudan yapıştırın") + '</span></div>' +
+      : "") + '</div>' +
+    '<div class="field ce-text-field"><div class="label-row"><label>Ders notu / metin</label>' +
+    '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
+    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
+    '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
+    (state.ceForm.pdfLoading
+      ? '<div class="dz-spin"></div><div class="dz-title">PDF okunuyor…</div>' +
+        '<div class="dz-sub">Sayfalar çıkarılıyor, bu birkaç saniye sürebilir.</div>'
+      : '<div class="dz-icon">📄</div>' +
+        '<div class="dz-title">Dosyayı buraya sürükleyin<span class="dz-or"> veya </span>' +
+        '<button class="dz-browse" id="btnUpload" type="button">bilgisayarınızdan seçin</button></div>' +
+        '<div class="dz-sub">PDF · TXT · MD — dosya sunucuya gönderilmez, tarayıcınızda okunur</div>' +
+        (state.ceForm.fileName ? '<div class="dz-file">✓ ' + escapeHtml(state.ceForm.fileName) + '</div>' : "")) +
+    '</div>' +
     pdfPickerHtml() +
+    '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
     '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
     (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
     '<div class="gen-bar">' +
@@ -1293,7 +1361,7 @@ function renderContentExpert() {
   const subEl = document.getElementById("ceSubject");
   subEl.onchange = function (e) { addSubject(e.target.value); renderAll(); };
   subEl.onkeydown = function (e) { if (e.key === "Enter") { addSubject(e.target.value); renderAll(); } };
-  document.getElementById("ceGrade").onchange = function (e) { state.ceForm.grade = e.target.value; };
+  document.getElementById("ceGrade").onchange = function (e) { state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value; };
   document.getElementById("ceOutcome").onchange = function (e) { state.ceForm.outcomeCode = e.target.value; };
   document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
 
@@ -1322,7 +1390,28 @@ function renderContentExpert() {
 
   // Dosyadan yükleme (.txt / .md) — istemci tarafında okunur, sunucuya gitmez.
   const fileEl = document.getElementById("ceFile");
-  document.getElementById("btnUpload").onclick = function () { fileEl.click(); };
+  const upBtn = document.getElementById("btnUpload");
+  if (upBtn) upBtn.onclick = function () { fileEl.click(); };
+
+  // Sürükle-bırak
+  const dz = document.getElementById("dropzone");
+  if (dz) {
+    dz.onclick = function (e) { if (e.target === dz || e.target.classList.contains("dz-icon") || e.target.classList.contains("dz-sub")) fileEl.click(); };
+    ["dragenter", "dragover"].forEach(function (ev) {
+      dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); });
+    });
+    dz.addEventListener("drop", function (e) {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      fileEl.files = dt.files;
+      fileEl.dispatchEvent(new Event("change"));
+    });
+  }
   const pf = document.getElementById("pdfFrom");
   if (pf) pf.onchange = function (e) { state.pdf.from = Math.max(1, Math.min(state.pdf.sayfaSayisi, Number(e.target.value) || 1)); renderAll(); };
   const pt = document.getElementById("pdfTo");
@@ -1426,10 +1515,13 @@ function rejectedPoolHtml(mod) {
   const aciklama = mod === "ce"
     ? "Reddettiğiniz sorular silinmez. Fikrinizi değiştirirseniz inceleme kuyruğuna geri alabilirsiniz."
     : "İçerik uzmanının reddettiği sorular. Sınavınıza uygun bulduklarınızı doğrudan onaylı havuza alabilirsiniz.";
+  if (!rejected.length && mod === "teacher") return "";
+  const acik = state.rejectedOpen !== false;
   return '<div class="card" style="margin-top:16px;"><div class="card-head">' +
-    '<h3>Reddedilen Soru Havuzu</h3><span class="hint">' + rejected.length + ' soru</span></div>' +
-    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">' + aciklama + '</div>' +
-    (rejected.length
+    '<h3>Reddedilen Soru Havuzu</h3>' +
+    '<button class="btn btn-secondary btn-sm" id="btnToggleRejected">' + rejected.length + ' soru · ' + (acik ? "gizle" : "göster") + '</button></div>' +
+    (acik ? '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">' + aciklama + '</div>' : "") +
+    (!acik ? "" : rejected.length
       ? rejected.map(function (q) {
           return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
             '<div class="p-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
@@ -1444,6 +1536,8 @@ function rejectedPoolHtml(mod) {
 }
 
 function wireRejectedPool() {
+  const tg = document.getElementById("btnToggleRejected");
+  if (tg) tg.onclick = function () { state.rejectedOpen = state.rejectedOpen === false; renderAll(); };
   document.querySelectorAll(".del-q").forEach(function (b) {
     b.onclick = function () {
       state.poolError = deleteQuestion(Number(b.dataset.qid));
@@ -1633,15 +1727,52 @@ function ensureRubric(qid) {
   }
 }
 
+// Sınavın toplam puanı: her çoktan seçmeli 1 puan, her açık uçlu kendi
+// rubriğinin maksimum puanı kadar. Öğrenci karnesindeki hesapla aynıdır.
+function examTotalPoints(items) {
+  return items.reduce(function (s, q) {
+    if (q.type === "mc") return s + 1;
+    const rub = state.rubrics[q.id];
+    return s + (rub ? rub.maxScore : 0);
+  }, 0);
+}
+
+function examSuggestedSec(items) {
+  return items.reduce(function (sum, q) {
+    return sum + (state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime);
+  }, 0);
+}
+
 function examTrayHtml() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-  if (!items.length) return '<div class="empty-state">Soldan soru seçerek sınava ekleyin.</div>';
+  if (!items.length) return '<div class="empty-state">Soldaki havuzdan soru işaretleyerek sınava ekleyin.</div>';
   const locked = state.exam.status === "published";
-  const total = items.reduce(function (sum, q) { return sum + (state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime); }, 0);
-  return items.map(function (q) {
-    return '<div class="tray-item"><span class="t-text">' + escapeHtml(truncate(q.body, 56)) + ' <span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık") + '</span></span>' +
-      '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" value="' + (state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime) + '" ' + (locked ? "disabled" : "") + '> sn</div>';
-  }).join("") + '<div class="tray-total"><span>Toplam süre</span><span class="tabular">' + (Math.round(total / 6) / 10) + ' dk</span></div>';
+  const onerilenDk = Math.round(examSuggestedSec(items) / 6) / 10;
+  const puan = examTotalPoints(items);
+  const mc = items.filter(function (q) { return q.type === "mc"; }).length;
+  const acik = items.length - mc;
+
+  return items.map(function (q, i) {
+    const sure = state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime;
+    const qPuan = q.type === "mc" ? 1 : ((state.rubrics[q.id] || {}).maxScore || 0);
+    return '<div class="tray-item">' +
+      '<span class="t-no">' + (i + 1) + '</span>' +
+      '<span class="t-text">' + escapeHtml(truncate(q.body, 62)) +
+      '<span class="t-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
+      '<span class="pill pill-accent">' + qPuan + ' puan</span></span></span>' +
+      '<span class="t-controls">' +
+      '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" max="900" value="' + sure + '" ' + (locked ? "disabled" : "") + ' title="Bu soru için önerilen süre (saniye)"><span class="t-unit">sn</span>' +
+      (locked ? "" :
+        '<button class="icon-btn tray-up" data-idx="' + i + '" title="Yukarı taşı" ' + (i === 0 ? "disabled" : "") + '>↑</button>' +
+        '<button class="icon-btn tray-down" data-idx="' + i + '" title="Aşağı taşı" ' + (i === items.length - 1 ? "disabled" : "") + '>↓</button>' +
+        '<button class="icon-btn tray-remove" data-qid="' + q.id + '" title="Sınavdan çıkar">✕</button>') +
+      '</span></div>';
+  }).join("") +
+  '<div class="tray-summary">' +
+  '<div class="ts-row"><span>' + items.length + ' soru</span><span>' + mc + ' çoktan seçmeli · ' + acik + ' açık uçlu</span></div>' +
+  '<div class="ts-row strong"><span>Toplam puan</span><span class="tabular">' + puan + ' puan</span></div>' +
+  '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + onerilenDk + ' dk</span></div>' +
+  '</div>';
 }
 
 // Sınavın hangi kazanımları ölçtüğünü gösterir. Sistem sadece sınav kurmuyor,
@@ -1768,7 +1899,10 @@ function teacherTab1Html() {
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
-    '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Sınav süresi (dk)</label><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '></div>' +
+    '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Öğrenciye verilecek toplam süre (dk)</label>' +
+    '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
+    (locked ? "" : '<button class="btn btn-secondary btn-sm" id="btnUseSuggested" title="Soru sürelerinin toplamını uygula">Öneriyi uygula</button>') + '</div>' +
+    '<span class="field-note">Sınav bu süre dolunca otomatik biter. Yukarıdaki soru süreleri yalnızca öneridir.</span></div>' +
     '<div class="field"><label>Sınav ne zaman açılsın?</label>' +
     '<select id="examStartMode" ' + (locked ? "disabled" : "") + '>' +
     '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
@@ -1838,6 +1972,31 @@ function wireTeacherTab1() {
   });
   document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
   const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
+  const sugBtn = document.getElementById("btnUseSuggested");
+  if (sugBtn) sugBtn.onclick = function () {
+    const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+    state.exam.durationMin = Math.max(1, Math.ceil(examSuggestedSec(items) / 60));
+    renderAll();
+  };
+  document.querySelectorAll(".tray-up").forEach(function (b) {
+    b.onclick = function () {
+      const i = Number(b.dataset.idx), ids = state.exam.questionIds;
+      if (i > 0) { const tmp = ids[i - 1]; ids[i - 1] = ids[i]; ids[i] = tmp; renderAll(); }
+    };
+  });
+  document.querySelectorAll(".tray-down").forEach(function (b) {
+    b.onclick = function () {
+      const i = Number(b.dataset.idx), ids = state.exam.questionIds;
+      if (i < ids.length - 1) { const tmp = ids[i + 1]; ids[i + 1] = ids[i]; ids[i] = tmp; renderAll(); }
+    };
+  });
+  document.querySelectorAll(".tray-remove").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid);
+      state.exam.questionIds = state.exam.questionIds.filter(function (x) { return x !== qid; });
+      renderAll();
+    };
+  });
   const modeEl = document.getElementById("examStartMode");
   if (modeEl) modeEl.onchange = function (e) {
     state.exam.startMode = e.target.value;
