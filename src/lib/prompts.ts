@@ -165,3 +165,54 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
   "confidence": 0.72
 }`;
 }
+
+export type RubricSpec = {
+  questionBody: string;
+  outcomeLabel: string;
+  subject: string;
+  grade: number | string;
+  maxScore: number;
+};
+
+/**
+ * Rubrik taslağı istemi.
+ *
+ * Tasarım kararı: rubriği model KESİNLEŞTİRMEZ, yalnızca taslak önerir.
+ * Öğretmen kriterleri ve ağırlıkları değiştirebilir; ağırlık toplamı %100
+ * olmadan sınav yayınlanamaz. Human-in-the-Loop zincirinin bir halkası daha.
+ */
+export function buildRubricPrompt(spec: RubricSpec): string {
+  return `Sen, açık uçlu sınav soruları için puanlama anahtarı (rubrik) hazırlayan bir ölçme ve
+değerlendirme uzmanısın.
+
+Aşağıdaki açık uçlu soru için 3 veya 4 kriterden oluşan bir rubrik taslağı hazırla.
+Bu taslak öğretmene ÖNERİ olarak sunulacak; öğretmen kriterleri ve ağırlıkları
+değiştirebilecek.
+
+SORU:
+${spec.questionBody}
+
+Bağlam:
+- Ders: ${spec.subject}
+- Sınıf düzeyi: ${spec.grade}
+- Ölçülen kazanım: ${spec.outcomeLabel}
+- Toplam puan: ${spec.maxScore}
+
+Kurallar:
+1. Kriterler bu SORUYA özgü olmalı; "yazım kuralları", "temizlik" gibi genel
+   ölçütler koyma. Sorunun beklediği bilişsel işi ölç.
+2. Ağırlıklar tam sayı yüzde olmalı ve toplamları KESİNLİKLE 100 etmelidir.
+3. Kriter adları kısa olmalı (en fazla 4 kelime).
+4. Her kriter için, o kriterden tam puan alan bir yanıtın neyi içermesi
+   gerektiğini tek cümleyle açıkla.
+5. En önemli kriter en yüksek ağırlığı almalıdır.
+
+ÇIKTI BİÇİMİ — yalnızca aşağıdaki şemaya uyan geçerli JSON döndür.
+Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin ekleme.
+
+{
+  "criteria": [
+    {"label": "Kavram doğruluğu", "weight": 40, "description": "tam puan için gereken..."}
+  ]
+}`;
+}

@@ -216,6 +216,22 @@
   .integrity-bar .ib-text { flex: 1; min-width: 260px; }
   .integrity-bar .ib-count { white-space: nowrap; color: var(--text); }
 
+  .crit-block { margin-bottom: 12px; }
+  .crit-desc { width: 100%; margin-top: 5px; font-family: "Source Sans 3", sans-serif;
+    font-size: 12px; line-height: 1.5; padding: 7px 9px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted);
+    resize: vertical; }
+  .crit-desc:focus { color: var(--text); border-color: var(--border-strong); }
+
+  .rub-ai-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+  .pool-edit { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
+    border-radius: 9px; background: var(--accent-soft); }
+  .pool-edit .field { margin-bottom: 10px; }
+  .pool-edit textarea { min-height: 60px; }
+  .pool-item .pool-edit-btn { flex: none; align-self: flex-start; }
+
   .pool-filter { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 9px; padding: 10px; margin-bottom: 12px; border: 1px solid var(--border);
     border-radius: 9px; background: var(--surface-2); }
@@ -580,7 +596,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate" };
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric" };
 
 async function probeAiMode() {
   try {
@@ -606,7 +622,12 @@ async function apiPost(url, body) {
 }
 
 async function aiGenerateQuestions(doc) {
+  // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır
+  // ve arayüzdeki rozet zaten "Yerel simülasyon" yazar.
   if (state.ai.mode !== "live") return simulateQuestions(doc);
+  // Gerçek model modundayken çağrı başarısız olursa YEDEĞE DÜŞMEYİZ:
+  // şablon üretimi anahtar kelimeleri şıklara dizen bir taklittir; bunu
+  // "yapay zekânın ürettiği soru" gibi göstermek kullanıcıyı yanıltır.
   try {
     const j = await apiPost(AI_API.generate, {
       sourceText: doc.text.slice(0, 6000),
@@ -630,8 +651,9 @@ async function aiGenerateQuestions(doc) {
     });
   } catch (e) {
     state.ai.error = String((e && e.message) || e);
-    state.ai.mode = "simulation";
-    return simulateQuestions(doc);
+    state.ceForm.error = "Soru üretilemedi: " + state.ai.error +
+      " — Bağlantınızı kontrol edip tekrar deneyin. Hiçbir soru üretilmedi.";
+    return [];
   }
 }
 
@@ -853,6 +875,9 @@ const state = {
   pdf: null, // { ad, sayfaSayisi, from, to } — sayfa metinleri bellekte (pdfPages)
 
   poolFilter: { outcome: "", difficulty: "", type: "" },
+  editingQid: null, // öğretmenin havuzda düzenlediği soru
+  rubricError: "",
+
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
   questions: [],
   rubrics: {},
@@ -1011,7 +1036,10 @@ async function onGenerateQuestions() {
   renderAll();
   try {
     const qs = await aiGenerateQuestions(doc);
-    state.questions = state.questions.concat(qs);
+    if (qs.length) {
+      state.questions = state.questions.concat(qs);
+      state.ceForm.error = "";
+    }
   } finally {
     state.ai.busy = false;
     renderAll();
@@ -1444,6 +1472,39 @@ function canPublishExam() {
   return opens.every(function (q) { return state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100; });
 }
 function totalWeight(rub) { return rub.criteria.reduce(function (s, c) { return s + (Number(c.weight) || 0); }, 0); }
+// Model bir rubrik TASLAĞI önerir; öğretmen üzerinde serbestçe değişiklik
+// yapar. Taslak geldiğinde mevcut kriterler değiştirilir, ağırlıklar %100'e
+// normalleştirilmiş olarak gelir.
+async function aiSuggestRubric(qid) {
+  const q = findQuestion(qid);
+  if (!q) return;
+  ensureRubric(qid);
+  if (state.ai.mode !== "live") {
+    state.rubricError = "Rubrik önerisi için gerçek model bağlantısı gerekiyor.";
+    renderAll();
+    return;
+  }
+  state.ai.busy = true; busySince = Date.now(); state.rubricError = ""; renderAll();
+  try {
+    const j = await apiPost(AI_API.rubric, {
+      questionBody: q.body,
+      outcomeLabel: outcomeLabel(q.outcome),
+      subject: state.ceForm.subject,
+      grade: String(state.ceForm.grade),
+      maxScore: state.rubrics[qid].maxScore,
+    });
+    state.rubrics[qid].criteria = (j.criteria || []).map(function (c) {
+      return { label: c.label, weight: c.weight, description: c.description || "" };
+    });
+    state.rubrics[qid].aiDraft = true;
+  } catch (e) {
+    state.rubricError = "Rubrik önerisi alınamadı: " + String((e && e.message) || e);
+  } finally {
+    state.ai.busy = false;
+    renderAll();
+  }
+}
+
 function ensureRubric(qid) {
   if (!state.rubrics[qid]) {
     state.rubrics[qid] = { maxScore: 20, criteria: [
@@ -1505,6 +1566,45 @@ function filteredPool() {
   });
 }
 
+/* Öğretmen havuzdaki bir soruyu düzenleyebilir (brief Rol 02:
+   "Soru havuzunu düzenler"). Düzenleme yayınlanmış bir sınavdaki soruyu
+   da etkileyeceği için, sınav yayındaysa uyarı gösterilir. */
+function poolEditHtml(q) {
+  const kilitli = state.exams.some(function (x) {
+    const st = x.id === state.activeExamId ? state.exam.status : x.status;
+    const ids = x.id === state.activeExamId ? state.exam.questionIds : x.questionIds;
+    return st === "published" && (ids || []).indexOf(q.id) !== -1;
+  });
+  return '<div class="pool-edit">' +
+    (kilitli ? '<div class="pill pill-warning" style="margin-bottom:9px;">Bu soru yayında olan bir sınavda kullanılıyor. Değişiklik, sınavı çözen öğrencilere de yansır.</div>' : "") +
+    '<div class="field"><label>Soru metni</label>' +
+    '<textarea class="pe-body" data-qid="' + q.id + '" rows="3">' + escapeHtml(q.body) + '</textarea></div>' +
+    (q.type === "mc"
+      ? '<div class="field"><label>Şıklar — doğru olanı işaretleyin</label>' +
+        (q.options || []).map(function (o) {
+          return '<div class="opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+            '<span class="opt-key">' + o.key + '</span>' +
+            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
+            '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);white-space:nowrap;">' +
+            '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '"' +
+            (o.key === q.correctKey ? " checked" : "") + '> doğru</label></div>';
+        }).join("") + '</div>'
+      : "") +
+    '<div class="field-row"><div class="field"><label>Zorluk</label>' +
+    '<select class="pe-diff" data-qid="' + q.id + '">' +
+    [["easy", "Kolay"], ["medium", "Orta"], ["hard", "Zor"]].map(function (d) {
+      return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
+    }).join("") + '</select></div>' +
+    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
+    OUTCOMES_LIST().map(function (o) {
+      return '<option value="' + o.code + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
+    }).join("") + '</select></div>' +
+    '<div class="field"><label>Süre (sn)</label>' +
+    '<input type="number" class="pe-time" data-qid="' + q.id + '" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
+    '<button class="btn btn-primary btn-sm pe-save" data-qid="' + q.id + '">Değişiklikleri Kaydet</button> ' +
+    '<button class="btn btn-secondary btn-sm pe-cancel">Vazgeç</button></div>';
+}
+
 function poolFilterHtml() {
   const f = state.poolFilter;
   const kazanimlar = {};
@@ -1536,10 +1636,14 @@ function teacherTab1Html() {
     (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
     poolFilterHtml() +
     (approved.length ? approved.map(function (q) {
+      const duzenleniyor = state.editingQid === q.id;
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' style="margin-top:3px;">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
+        '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+        (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
+        '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
+        (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
     }).join("") : '<div class="empty-state">' + (tumOnayli ? 'Bu filtreye uyan soru yok. Filtreyi genişletin.' : 'Havuzda onaylı soru yok — önce İçerik Uzmanı panelinden soru onaylatın.') + '</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
@@ -1561,6 +1665,44 @@ function wireTeacherTab1() {
   if (fd) fd.onchange = function (e) { state.poolFilter.difficulty = e.target.value; renderAll(); };
   const ft = document.getElementById("fltType");
   if (ft) ft.onchange = function (e) { state.poolFilter.type = e.target.value; renderAll(); };
+
+  // --- havuzda soru düzenleme ---
+  document.querySelectorAll(".pool-edit-btn").forEach(function (b) {
+    b.onclick = function () {
+      const id = Number(b.dataset.qid);
+      state.editingQid = state.editingQid === id ? null : id;
+      renderAll();
+    };
+  });
+  const cancelBtn = document.querySelector(".pe-cancel");
+  if (cancelBtn) cancelBtn.onclick = function () { state.editingQid = null; renderAll(); };
+  // Metin girdileri renderAll ÇAĞIRMAZ (odak kaybolmasın); doğrudan mutasyon.
+  document.querySelectorAll(".pe-body").forEach(function (el) {
+    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { q.body = el.value; saveSoon(); } };
+  });
+  document.querySelectorAll(".pe-opt").forEach(function (el) {
+    el.oninput = function () {
+      const q = findQuestion(el.dataset.qid);
+      if (!q) return;
+      const o = (q.options || []).find(function (x) { return x.key === el.dataset.okey; });
+      if (o) { o.text = el.value; saveSoon(); }
+    };
+  });
+  document.querySelectorAll(".pe-correct").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.correctKey = el.dataset.okey; saveSoon(); } };
+  });
+  document.querySelectorAll(".pe-diff").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.difficulty = el.value; renderAll(); } };
+  });
+  document.querySelectorAll(".pe-outcome").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.outcome = el.value; renderAll(); } };
+  });
+  document.querySelectorAll(".pe-time").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.aiTime = Math.max(15, Math.min(900, Number(el.value) || 60)); renderAll(); } };
+  });
+  document.querySelectorAll(".pe-save").forEach(function (b) {
+    b.onclick = function () { state.editingQid = null; renderAll(); };
+  });
   document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
   const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
   const delEl = document.getElementById("examDelay"); if (delEl) delEl.oninput = function (e) { state.exam.startDelaySec = Number(e.target.value) || 0; };
@@ -1584,9 +1726,17 @@ function wireTeacherTab1() {
 }
 
 function critRowHtml(c, i) {
-  return '<div class="crit-row" data-idx="' + i + '"><input type="text" class="crit-label" data-idx="' + i + '" value="' + escapeHtml(c.label) + '" placeholder="örn. Kavram doğruluğu">' +
+  return '<div class="crit-block"><div class="crit-row" data-idx="' + i + '">' +
+    '<input type="text" class="crit-label" data-idx="' + i + '" value="' + escapeHtml(c.label) + '" placeholder="örn. Kavram doğruluğu">' +
     '<input type="number" class="crit-weight" data-idx="' + i + '" min="0" max="100" value="' + c.weight + '"><span style="font-size:12px;color:var(--text-muted);">%</span>' +
-    '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '">✕</button></div>';
+    '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '">✕</button></div>' +
+    // Modelin ürettiği "tam puan için ne gerekir" açıklaması; öğretmen
+    // düzenleyebilir ve bu metin değerlendirme isteminde kullanılmaz —
+    // yalnızca öğretmene hatırlatıcıdır.
+    (c.description
+      ? '<textarea class="crit-desc" data-idx="' + i + '" rows="2" placeholder="Bu kriterden tam puan almak için ne gerekir?">' + escapeHtml(c.description) + '</textarea>'
+      : '<textarea class="crit-desc" data-idx="' + i + '" rows="1" placeholder="Açıklama (opsiyonel) — bu kriterden tam puan almak için ne gerekir?"></textarea>') +
+    '</div>';
 }
 
 function teacherTab2Html() {
@@ -1602,6 +1752,12 @@ function teacherTab2Html() {
     '<div style="margin-top:14px;font-size:13px;color:var(--text-muted);">' + escapeHtml(q.body) + '</div></div>' +
     '<div class="card"><div class="card-head"><h3>Puanlama Anahtarı</h3><span class="hint">toplam ağırlık %' + tw + '</span></div>' +
     '<div class="field"><label>Maksimum puan</label><input id="rubMax" type="number" min="1" value="' + rub.maxScore + '"></div>' +
+    '<div class="rub-ai-row">' +
+    '<button class="btn btn-primary btn-sm" id="btnAiRubric"' + (state.ai.busy ? " disabled" : "") + '>' +
+    (state.ai.busy ? '⏳ Hazırlanıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile rubrik taslağı öner") + '</button>' +
+    '<span class="lbl-hint">Model bir taslak önerir; kriterleri ve ağırlıkları siz belirlersiniz.</span></div>' +
+    (state.rubricError ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.rubricError) + '</div>' : "") +
+    (rub.aiDraft ? '<div class="pill pill-accent2" style="margin-bottom:10px;">Bu taslağı yapay zekâ önerdi — onaylamadan önce gözden geçirin.</div>' : "") +
     '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(c, i); }).join("") + '</div>' +
     '<button class="btn btn-secondary btn-sm" id="btnAddCrit">+ Kriter Ekle</button>' +
     '<div class="pill ' + (tw === 100 ? "pill-success" : "pill-warning") + '" id="weightPill" style="margin-top:10px;">' + (tw === 100 ? "Ağırlıklar tamam" : "Ağırlıklar %100 olmalı (şu an %" + tw + ")") + '</div>' +
@@ -1609,7 +1765,15 @@ function teacherTab2Html() {
 }
 
 function wireTeacherTab2() {
+  const aiRub = document.getElementById("btnAiRubric");
+  if (aiRub) aiRub.onclick = function () { aiSuggestRubric(state.rubricSelectedQ); };
   document.querySelectorAll(".rub-select").forEach(function (b) { b.onclick = function () { state.rubricSelectedQ = Number(b.dataset.qid); renderAll(); }; });
+  document.querySelectorAll(".crit-desc").forEach(function (el) {
+    el.oninput = function () {
+      const rub = state.rubrics[state.rubricSelectedQ];
+      if (rub && rub.criteria[el.dataset.idx]) { rub.criteria[el.dataset.idx].description = el.value; saveSoon(); }
+    };
+  });
   const maxEl = document.getElementById("rubMax");
   if (maxEl) maxEl.oninput = function () { state.rubrics[state.rubricSelectedQ].maxScore = Number(maxEl.value) || 1; };
   document.querySelectorAll(".crit-label").forEach(function (el) { el.oninput = function () { state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].label = el.value; }; });

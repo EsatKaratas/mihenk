@@ -9,13 +9,15 @@
 
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { buildQuestionPrompt, buildEvaluationPrompt } from '../lib/prompts';
+import { buildQuestionPrompt, buildEvaluationPrompt, buildRubricPrompt } from '../lib/prompts';
 import { callModelJson, providerName, modelName, type AiEnv } from '../lib/ai';
 import {
   generateQuestionsSchema,
   evaluateSchema,
   modelQuestionsSchema,
   modelEvaluationSchema,
+  rubricDraftSchema,
+  modelRubricSchema,
 } from '../schemas/ai';
 
 type Bindings = AiEnv & { DB?: D1Database };
@@ -243,6 +245,59 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       justification: parsed.data.justification.trim(),
       confidence: parsed.data.confidence,
       breakdown,
+      meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
+    });
+  } catch (e) {
+    return c.json(
+      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      502
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/rubric  — rubrik TASLAĞI önerisi
+// Öğretmen kriterleri ve ağırlıkları değiştirebilir; ağırlık toplamı %100
+// olmadan sınav yayınlanamaz (agents.md §7.1: nihai karar insanda).
+// ---------------------------------------------------------------------------
+ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+  try {
+    const prompt = buildRubricPrompt({
+      questionBody: b.questionBody,
+      outcomeLabel: b.outcomeLabel,
+      subject: b.subject,
+      grade: b.grade,
+      maxScore: b.maxScore,
+    });
+    const { data, attempts } = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 });
+    const parsed = modelRubricSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json(
+        { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
+        502
+      );
+    }
+
+    // Ağırlıklar 100'e normalleştirilir: model toplamı tutturamayabilir ve
+    // arayüz %100 olmadan yayına izin vermez.
+    const ham = parsed.data.criteria.map((x) => ({
+      label: x.label.trim(),
+      weight: Math.max(1, Math.round(x.weight)),
+      description: (x.description || '').trim(),
+    }));
+    const toplam = ham.reduce((s, x) => s + x.weight, 0);
+    let olcekli = ham.map((x) => ({ ...x, weight: Math.max(1, Math.round((x.weight / toplam) * 100)) }));
+    const fark = 100 - olcekli.reduce((s, x) => s + x.weight, 0);
+    if (fark !== 0 && olcekli.length) {
+      // Farkı en büyük ağırlıklı kritere ekleyerek toplamı tam 100 yap.
+      let enBuyuk = 0;
+      olcekli.forEach((x, i) => { if (x.weight > olcekli[enBuyuk].weight) enBuyuk = i; });
+      olcekli[enBuyuk] = { ...olcekli[enBuyuk], weight: Math.max(1, olcekli[enBuyuk].weight + fark) };
+    }
+
+    return c.json({
+      criteria: olcekli,
       meta: { provider: providerName(c.env), model: modelName(c.env), attempts },
     });
   } catch (e) {

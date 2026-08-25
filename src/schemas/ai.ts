@@ -19,6 +19,28 @@ export const generateQuestionsSchema = z.object({
   docKey: z.string().min(1).max(120).default('default'),
 });
 
+export const rubricDraftSchema = z.object({
+  questionBody: z.string().min(1).max(2000),
+  outcomeLabel: z.string().max(200).default(''),
+  subject: z.string().max(80).default(''),
+  grade: z.union([z.number().int().min(1).max(12), z.string().max(8)]).default(''),
+  maxScore: z.number().min(1).max(100).default(20),
+});
+
+/** Model çıktısı — ağırlıklar sunucuda 100'e normalleştirilir. */
+export const modelRubricSchema = z.object({
+  criteria: z
+    .array(
+      z.object({
+        label: z.string().min(1).max(120),
+        weight: z.number().min(1).max(100),
+        description: z.string().default(''),
+      })
+    )
+    .min(2)
+    .max(6),
+});
+
 export const rubricCriterionSchema = z.object({
   label: z.string().min(1).max(120),
   weight: z.number().min(0).max(100),
