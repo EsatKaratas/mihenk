@@ -11,8 +11,9 @@
 >    git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
 >    cd t3-olcme-degerlendirme && npm install
 >    ```
-> 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (81 KB). Bu dosya bir özettir;
->    çelişki görürsen `PROGRESS.md`'ye güven. Oradaki §10-§14 en yeni bilgidir.
+> 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (122 KB). Bu dosya bir özettir;
+>    çelişki görürsen `PROGRESS.md`'ye güven. Oradaki §10-§20 en yeni bilgidir;
+>    **§19 (model kararı) ve §20 (Kiril sızması) en günceli.**
 > 3. **`agents.md` oturum boyunca geçerli kısıtlardır.** Özellikle §1
 >    (Human-in-the-Loop) hiçbir gerekçeyle esnetilemez.
 > 4. Aşağıdaki **§5 "İlk Görev"** ile başla. Kullanıcı başka bir şey
@@ -60,7 +61,7 @@ Bu tez ürünün her katmanında görünür:
 ```
 Tarayıcı (vanilla JS, build adımı YOK)
   public/index.html   ~2 KB iskelet
-  public/app.js       252 KB — 4 rolün tüm mantığı, tek dosya
+  public/app.js       255 KB — 4 rolün tüm mantığı, tek dosya
   public/app.css      54 KB
         │
         │ fetch  (yalnızca /api/ai/* — başka sunucu çağrısı yok)
@@ -75,7 +76,7 @@ Cloudflare Worker (Hono)
         │
         ▼
   env.AI ──▶ Workers AI · @cf/meta/llama-3.3-70b-instruct-fp8-fast
-        └──▶ (birincil düşerse) OpenAI-uyumlu yedek · gemini-3.7-flash
+        └──▶ (birincil düşerse) OpenAI-uyumlu yedek · gpt-5.6-luna
 ```
 
 **Neden vanilla JS ve tek dosya:** Build adımı yok, `wrangler deploy` tek
@@ -146,7 +147,7 @@ yapılandırma dosyası var (§6.1).
 t3-olcme-degerlendirme/
 │
 ├── AKTARIM.md              15 KB  bu dosya — devir özeti
-├── PROGRESS.md             89 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§15)
+├── PROGRESS.md            122 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§20)
 ├── README.md               36 KB  jüri odaklı tanıtım (rozetler, mermaid akış)
 ├── agents.md              7,7 KB  ★ ZORUNLU kurallar (HITL, mimari, sınırlar)
 │
@@ -158,7 +159,7 @@ t3-olcme-degerlendirme/
 ├── routes.ts              9,4 KB  tam rota iskeleti (referans; handler'lar TODO)
 ├── .gitattributes         0,7 KB  Linguist: dokümantasyon HTML'i kod sayılmasın
 ├── .dev.vars.example      0,5 KB  yerel sır şablonu (gerçeği .gitignore'da)
-├── ANAHTAR-EKLE.bat       0,3 KB  Gemini anahtarını doğrula + Cloudflare'e yükle
+├── ANAHTAR-EKLE.bat       0,4 KB  yedek anahtarı doğrula + Cloudflare'e yükle
 │
 ├── src/
 │   ├── index.ts           1,3 KB  Worker giriş noktası
@@ -175,7 +176,7 @@ t3-olcme-degerlendirme/
 │
 ├── public/
 │   ├── index.html         1,9 KB  iskelet
-│   ├── app.js             252 KB  ★ 4 rolün TÜM mantığı (tek dosya)
+│   ├── app.js             255 KB  ★ 4 rolün TÜM mantığı (tek dosya)
 │   ├── app.css             57 KB  tüm stiller
 │   ├── _headers           1,6 KB  ★ güvenlik başlıkları (CSP dahil)
 │   ├── mimari.html         51 KB  mimari dokümantasyonu (4 mermaid diyagram)
@@ -399,10 +400,10 @@ secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
 | Kontrol | Sonuç |
 |---|---|
 | `npm run lint` (tsc --noEmit) | temiz |
-| `npm test` | **88/88 geçti** (3 dosya, 1,1 sn) |
+| `npm test` | **98/98 geçti** (3 dosya) |
 | `npm run check:config` | 2/2 geçerli |
 | `node --check public/app.js` | geçerli |
-| Açılış öz-kontrolü | temiz (**136 fonksiyon** denetleniyor) |
+| Açılış öz-kontrolü | temiz (**137 fonksiyon** denetleniyor) |
 | 4 rol × tüm sekmeler | render hatasız, konsol hatası 0 |
 | Canlı statik yollar | `/` `/app.js` `/app.css` `/mimari` `/privacy-policy` `/robots.txt` `/mufredat/turkce-7.json` `/mimari.js` → 200, bilinmeyen → 404 |
 | Güvenlik başlıkları | 5/5 aktif |
@@ -584,7 +585,7 @@ yazarken bunlara uyulmazsa aynı hatalar tekrarlanır.
 **1. `public/app.js` 238 KB — blok değiştirirken sınırları doğrula.**
 Bir yeniden yazımda `critRowHtml` ile `teacherTab3Html` arasındaki aralık
 fazladan 4 fonksiyon kapsadı ve onlar silindi; öğretmen sekmesi canlıda
-kırıldı. Bu yüzden dosya başında **öz-kontrol** var: 136 fonksiyonun varlığını
+kırıldı. Bu yüzden dosya başında **öz-kontrol** var: 137 fonksiyonun varlığını
 denetler, eksikse ekranda kırmızı uyarı basar.
 **Yeni fonksiyon eklediysen `selfCheck` listesine eklemeyi unutma.**
 
