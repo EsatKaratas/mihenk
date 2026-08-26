@@ -77,30 +77,57 @@ function extractKeywords(text, n) {
    Arayuzde bu mod acikca "Yerel simulasyon" olarak isaretlenir.        */
 let qIdSeq = 1;
 
+/* Yerel yedek (simülasyon) üretimi.
+   İKİ HATA DÜZELTİLDİ (§14h):
+   1) Eskiden HER ZAMAN 2 ÇSS + 1 açık uçlu üretiyordu; öğretmenin seçtiği
+      adetler yok sayılıyordu. Artık istenen sayıya uyar.
+   2) Ürettiği sorular "Metne göre…" diyordu ama needsSource/srcId alanları
+      yoktu; yani uyaran metin düzeltmesi (§14c) simülasyon modunda
+      çalışmıyor, aynı "metin yok" hatası burada devam ediyordu. Artık
+      kaynak metin bağlanıyor.
+   Bu üretim bir TAKLİTTİR ve arayüzde "Yerel simülasyon" rozetiyle
+   açıkça belirtilir; gerçek model çıktısı değildir. */
 function simulateQuestions(doc) {
-  const kw = extractKeywords(doc.text, 8);
-  const offset = (state.genCount * 2) % Math.max(1, kw.length - 3 > 0 ? kw.length - 3 : kw.length);
+  const kw = extractKeywords(doc.text, 10);
+  if (!kw.length) return [];
+  const offset = (state.genCount * 2) % kw.length;
   const k = function (i) { return kw[(offset + i) % kw.length]; };
   const mk = function () { return qIdSeq++; };
-  const qs = [
-    {
-      id: mk(), type: "mc", difficulty: "easy", outcome: doc.outcome,
-      body: 'Metne göre "' + k(0) + '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
-      options: [{ key: "A", text: k(1) }, { key: "B", text: k(2) }, { key: "C", text: k(3) }, { key: "D", text: "Metinde bu konuya değinilmemiştir" }],
-      correctKey: "A", aiTime: 45, status: "ai_generated", refKeywords: [k(0), k(1)],
-    },
-    {
-      id: mk(), type: "mc", difficulty: "medium", outcome: doc.outcome,
-      body: '"' + doc.outcomeLabel + '" kazanımı kapsamında, metinde geçen "' + k(2) + '" ifadesi en çok hangisiyle ilişkilendirilir?',
-      options: [{ key: "A", text: k(4) }, { key: "B", text: k(3) }, { key: "C", text: k(5) }, { key: "D", text: "Bunların hiçbiri" }],
-      correctKey: "B", aiTime: 60, status: "ai_generated", refKeywords: [k(2), k(3)],
-    },
-    {
-      id: mk(), type: "open", difficulty: "hard", outcome: doc.outcome,
-      body: '"' + k(0) + '" ve "' + k(1) + '" kavramları arasındaki ilişkiyi metinden yararlanarak açıklayınız; en az bir örnek veriniz.',
-      aiTime: 240, status: "ai_generated", refKeywords: [k(0), k(1), k(2)],
-    },
-  ];
+  const istenenMc = Math.max(0, Number(doc.mcCount != null ? doc.mcCount : 2));
+  const istenenOpen = Math.max(0, Number(doc.openCount != null ? doc.openCount : 1));
+  const zorluklar = ["easy", "medium", "hard"];
+  const qs = [];
+
+  for (let i = 0; i < istenenMc; i++) {
+    const t = i * 3;
+    qs.push({
+      id: mk(), type: "mc", difficulty: zorluklar[i % 3], outcome: doc.outcome,
+      bloom: i % 2 === 0 ? "hatirlama" : "anlama",
+      body: 'Metne göre "' + k(t) + '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
+      options: [
+        { key: "A", text: k(t + 1) }, { key: "B", text: k(t + 2) },
+        { key: "C", text: k(t + 3) }, { key: "D", text: "Metinde bu konuya değinilmemiştir" }
+      ],
+      correctKey: "A", aiTime: 45 + i * 10, status: "ai_generated",
+      refKeywords: [k(t), k(t + 1)],
+      // Simülasyon soruları da metne atıf yapıyor: metin sınavda gösterilmeli.
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+    });
+  }
+
+  for (let i = 0; i < istenenOpen; i++) {
+    const t = i * 2;
+    qs.push({
+      id: mk(), type: "open", difficulty: i === 0 ? "hard" : "medium", outcome: doc.outcome,
+      bloom: i === 0 ? "analiz" : "uygulama",
+      body: '"' + k(t) + '" ve "' + k(t + 1) + '" kavramları arasındaki ilişkiyi metinden ' +
+        'yararlanarak açıklayınız; en az bir örnek veriniz.',
+      aiTime: 240, status: "ai_generated",
+      refKeywords: [k(t), k(t + 1), k(t + 2)],
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+    });
+  }
+
   state.genCount++;
   return qs;
 }
@@ -980,6 +1007,9 @@ async function onGenerateQuestions() {
   // öğrenciye gösterilebilsin. Eskiden metin atılıyordu ve soru
   // cevaplanamaz hale geliyordu.
   doc.srcId = kaynakEkle(doc);
+  // Yerel simülasyon da bu adetlere uymalı (§14h).
+  doc.mcCount = state.ceForm.mcCount;
+  doc.openCount = state.ceForm.openCount;
   state.ai.busy = true;
   busySince = Date.now();
   renderAll();
@@ -1273,7 +1303,7 @@ function ceCreateHtml() {
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
       : "") + '</div>' +
-    '<div class="field ce-text-field"><div class="label-row"><label>Ders notu / metin</label>' +
+    '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
     '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
     '<input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
     '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
@@ -4327,6 +4357,46 @@ function renderPipeline() {
   document.getElementById("pipelineStrip").innerHTML = html;
 }
 
+/* ===========================================================================
+   ERİŞİLEBİLİRLİK — label/input otomatik bağlama
+   ===========================================================================
+   BULGU (§10h, §14): Arayüz genelinde
+   <div class="field"><label>Başlık</label><input id="ceTitle"></div>
+   kalıbı kullanılıyor. label'da `for`, kimi yerde input'ta `id` yoktu; ekran
+   okuyucu ikisini BAĞLAMIYOR ve alanı "etiketsiz giriş" olarak okuyordu.
+   Ölçüldü: 14 label/input çiftinin 14'ü bağlı değildi.
+
+   NEDEN ELLE DEĞİL BURADAN: Kalıp onlarca yerde tekrarlanıyor; her birini
+   elle düzenlemek 176 KB'lık dosyada regresyon riski demekti (bu projede
+   daha önce blok sınırı hatası yaşandı — §5). Bunun yerine render sonrası
+   tek geçiş: bağlanmamış her label kendi kapsayıcısındaki kontrole
+   bağlanır, gerekirse kontrole id üretilir.
+
+   İKİ KORUMA:
+   - Dosya (type=file) ve gizli girişler ATLANIR: "Ders notu" etiketi gizli
+     dosya seçiciye değil, metin alanına işaret etmelidir.
+   - Kapsayıcıda textarea varsa o tercih edilir (aynı gerekçe).
+   =========================================================================== */
+var _autoLabelSeq = 0;
+
+function bindFieldLabels(kok) {
+  const kap = kok || document;
+  kap.querySelectorAll("label:not([for])").forEach(function (lbl) {
+    // Kontrolü saran label'lar zaten erişilebilir; dokunma.
+    if (lbl.querySelector("input, select, textarea")) return;
+    const sahne = lbl.parentElement;
+    if (!sahne) return;
+    const adaylar = Array.prototype.slice
+      .call(sahne.querySelectorAll("input, select, textarea"))
+      .filter(function (c) { return c.type !== "hidden" && c.type !== "file"; });
+    if (!adaylar.length) return;
+    const textarea = adaylar.filter(function (c) { return c.tagName === "TEXTAREA"; })[0];
+    const hedef = textarea || adaylar[0];
+    if (!hedef.id) hedef.id = "auto_lbl_" + (++_autoLabelSeq);
+    lbl.setAttribute("for", hedef.id);
+  });
+}
+
 function renderAll() {
   renderAiBadge();
   syncActiveExam();
@@ -4338,6 +4408,8 @@ function renderAll() {
   renderStudent();
   renderAdmin();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
+  // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
+  bindFieldLabels();
 }
 function initPanels() {
   document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
@@ -4388,6 +4460,7 @@ setInterval(function () {
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
     "ensureSources", "kaynakEkle", "kaynakBul", "soruKaynakIster", "kaynakBlokHtml",
     "feedbackDraftHtml",
+    "bindFieldLabels",
     "kaynakRozetHtml", "sinavKaynakUyarisiHtml",
     "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimSecenekleriHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",
