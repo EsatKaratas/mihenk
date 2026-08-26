@@ -5,13 +5,14 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§16 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§17 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
 > hizalama denetimi · §14 ürün açıkları ve güvenlik turu ·
 > §15 Müfredat Kitaplığı (PDF kalıcılığı) ·
-> **§16 yedek sağlayıcı OpenAI'a alındı — en yeni. §16d KRİTİK.**
+> §16 yedek sağlayıcı OpenAI'a alındı (§16d KRİTİK) ·
+> **§17 geniş denetim — en yeni. 3 gerçek hata bulundu ve düzeltildi.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -1970,3 +1971,132 @@ yazıyor, yani kayma gizli değil. Yine de öğretmene söylenmesi gereken bir
 
 **Yedek model işi görüyor.** Demo yedeğe düşerse ürün özellik kaybetmiyor;
 7 ucun tamamı çalışıyor, injection savunması ayakta, süreler 3,0-7,6 sn.
+
+---
+
+## 17. GENİŞ DENETİM — finale hazırlık (26 Ağustos, akşam)
+
+Kullanıcının talebi: *"Finale kadar bununla çıkmayı hedefliyorum, geniş bir
+test yap, bir daha bu tarafa dönmek zorunda kalmayayım."* Bu bölüm o denetimin
+tam kaydıdır: **ne test edildi, ne bulundu, ne bilerek bırakıldı.**
+
+### 17a. Bulunan ve düzeltilen üç gerçek hata
+
+#### 🔴 1. XSS — kazanım kodu ve şık harfi 13 yerde kaçırılmıyordu
+
+20 veri alanına gerçek payload konup 4 rol × tüm sekmeler render edildiğinde
+DOM'a **gerçek `<img>` / `<svg>` / `<iframe>` / `<script>` elemanları giriyordu.**
+Çalışmamalarının tek sebebi CSP'ydi (`script-src`'de `unsafe-inline` yok).
+Yani `public/_headers` dosyasının kendi notu ("asıl XSS savunması
+`escapeHtml`'dir, CSP ikinci katman") tersine dönmüştü: birinci katman delikti.
+
+Kalıp tutarlıydı: **etiketler kaçırılıyor, kodlar/anahtarlar kaçırılmıyordu.**
+Kazanım kodunun sabit bir kalıp (`MAT.7.2.1`) olduğu varsayılmış; oysa
+"+ Yeni kazanım tanımla" formundaki kod alanı serbest metindir.
+
+| Yer | Ne kaçırılmıyordu |
+|---|---|
+| `renderHeatmap` | sütun başlığı, düşük-hücre uyarısı, "tekrar sorusu üret" düğmesi (öznitelik + metin) |
+| `kazanimSecenekleriHtml` | `<option value>` |
+| `poolEditHtml` kazanım seçici | `<option value>` |
+| `katalogSatirlari` | checkbox `value` + kod metni |
+| Soru havuzu etiketleri | `q.outcome` — **8 ayrı yerde** |
+| Madde analizi | şık harfi, işlevsiz çeldirici listesi |
+| Öğrenci karnesi | "Yanıtınız / Doğru cevap" şık harfleri |
+
+**Doğrulama:** aynı test yeniden koşuldu → enjekte eleman **0**, XSS
+tetiklenmesi **0**, render hatası **0**, payload her yerde metin olarak
+görünüyor. Ayrıca `app.js`'te kaçırılmamış kullanıcı verisi arayan bir tarayıcı
+betiği yazıldı; kalan 21 aday tek tek incelendi — hepsi sabit tablo
+(`ALIGN_ETIKET`, `UYGUNLUK_ETIKET`), sayı ya da zaten kaçırılmış çıktı.
+
+#### 🔴 2. Öğretmen elle puanlayınca öğrenci karnesi ÇÖKÜYORDU
+
+```
+studentTab3Html -> app.js:4121
+TypeError: Cannot read properties of undefined (reading 'breakdown')
+```
+
+Tetikleyen senaryo **tam da demo günü yaşanacak olan**: model çağrısı
+başarısız olunca öğretmene "Elle Puanla ve Onayla" sunuluyor (§3.4 sessiz geri
+düşüş yasağı); o yol seçilince `aiEvals[q.id]` hiç oluşmuyor. Karne kodu
+doğrudan `ev.breakdown` okuyordu. Mevcut savunma yalnızca `!rv || !rub`
+durumunu kapsıyordu.
+
+**§4.4'te `mcResults` için düzeltilen hatanın birebir aynısı** — aynı kalıp,
+farklı alan. Ders: bir alanın "her zaman dolu" olduğu varsayımı bu kod
+tabanında iki kez yanlış çıktı.
+
+#### 🔴 3. Yanlış beyan — AI kullanılmadığı hâlde "AI önerisi onaylandı" deniyordu
+
+Aynı yerde ikinci sorun: ortada hiç yapay zekâ önerisi yokken öğrenciye
+*"Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti"*
+yazıyordu. Bu **yanlış beyandır ve HITL şeffaflığına aykırıdır** — öğrenci
+puanının nasıl oluştuğunu doğru bilmelidir. Artık: *"Bu puanı öğretmeniniz
+doğrudan belirledi; bu soruda yapay zekâ önerisi kullanılmadı."*
+
+### 17b. Temiz çıkan denetimler
+
+| Alan | Kapsam | Sonuç |
+|---|---|---|
+| Statik bütünlük | `tsc`, `vitest`, `node --check`, öz-kontrol, JSONC, Python/mjs araçları | ✅ lint temiz · **88/88** · 136 ad tanımlı · 2/2 yapılandırma |
+| Canlı statik yollar | 9 yol | ✅ hepsi 200 |
+| 404 davranışı | bilinmeyen yol | ✅ 404 + özel sayfa (`/404.html` → `/404` 307, Cloudflare normalleştirmesi) |
+| Güvenlik başlıkları | 7 kontrol | ✅ nosniff · DENY · Referrer-Policy · Permissions-Policy · CSP (`frame-ancestors 'none'`, `object-src 'none'`) |
+| `robots.txt` | `agents.md` §7 | ✅ `/api/` ve `/internal/` disallow yerinde |
+| **API hata sözleşmesi** | 7 senaryo | ✅ hepsi `{error, message}` + doğru HTTP kodu |
+| Zod doğrulama | boş gövde, kısa metin, geçersiz sınıf, sınır aşımı | ✅ hepsi 400 |
+| Kaynak metin sınırı | 6001 karakter | ✅ **reddedildi**, sessizce kırpılmadı |
+| Sıfır soru isteği | `mcCount=0, openCount=0` | ✅ 400 |
+| **XSS** | 20 alan × 4 payload × 10 rol/sekme | ✅ düzeltme sonrası **0** |
+| **Prompt injection** | 5 vektör × 3 koşum (yedek modelde) | ✅ **5/5, 5/5, 5/5** |
+| **Arıza davranışı** | AI 502 → üretim ve değerlendirme | ✅ sahte veri YOK, dürüst hata, "Yeniden Dene" + "Elle Puanla", başarısız değerlendirme önbelleğe **alınmadı** |
+| Tam zincir (AI'sız) | sınav → gönder → elle puanla → yayımla → karne | ✅ Toplam 20/22 |
+| Çoklu öğrenci oturumu | öğrenci değiştir → geri dön | ✅ veri bozulmuyor |
+| 4 rol × tüm sekmeler | render + konsol | ✅ hata **0** |
+| Düğme bağlantısı | 79 düğme | ✅ işleyicisiz **0** |
+| Erişilebilirlik | label, erişilebilir ad, dokunma hedefi | ✅ bağsız 0 · adsız 0 · 24×24 altı 0 (satır içi istisnalar hariç) |
+| Mobil 375 px | 10 rol/sekme | ✅ yatay taşma 0 · küçük hedef 0 |
+
+### 17c. 🟡 Ölçülen ama düzeltilmeyen: hız sınırı canlıda tetiklenmiyor
+
+`/api/ai/rubric` ucuna arka arkaya **7 istek** gönderildi (limit 5/dk).
+**Hepsi 200 döndü** — sınır hiç devreye girmedi.
+
+Sebep zaten belgeliydi (`guards.ts`, §6.3-10): sayaç bellek içidir ve
+Cloudflare her isteği farklı bir isolate'e verebilir. Birim testler
+fonksiyonun doğru olduğunu kanıtlıyor (5 geçer 6. bloke, pencere kayması,
+anahtar yalıtımı — 4 test). Yani **kod doğru, dağıtık çalışma zamanında
+etkisiz.**
+
+**Pratik anlamı:** sunucu tarafında kaçak kredi tüketimine karşı gerçek bir
+koruma yok. **Ama asıl koruma zaten başka yerde:** OpenAI kredisi ön ödemeli
+($4,99) ve otomatik yükleme KAPALI — en kötü durumda kredi biter, sürpriz
+fatura gelmez. Bu yeterli görüldü; D1/KV tabanlı sayaç üretim işidir (§5.3).
+
+### 17d. Denetimde yazılan yeniden koşulabilir araçlar
+
+| Araç | Ne yapar |
+|---|---|
+| `tools/injection-test.py` | 5 vektörlü injection testi (ölçütü bu turda düzeltildi) |
+| scratchpad `canli-test.sh` | 31 kontrol: statik yollar, başlıklar, robots, API hata sözleşmesi, sınırlar |
+| scratchpad `xss-tara.mjs` | `app.js`'te kaçırılmamış kullanıcı verisi arar |
+| scratchpad `ozkontrol.js` | öz-kontrol listesindeki her adın gerçekten tanımlı olduğunu doğrular |
+
+> Not: `canli-test.sh`, `xss-tara.mjs` ve `ozkontrol.js` depoya alınmadı
+> (geçici denetim betikleri). Finale kadar tekrar gerekirse `PROGRESS.md`
+> §17'deki tanımlarına göre yeniden yazılabilir ya da depoya taşınabilir.
+
+### 17e. Finale kadar bilinçli bırakılanlar
+
+Hiçbiri demoyu engellemez; hepsi kayıtlı ve gerekçeli:
+
+1. **Hız sınırı dağıtık değil** (§17c) — ön ödemeli kredi yeterli koruma.
+2. **CSP'de `style-src 'unsafe-inline'`** — `app.js` 87 yerde inline stil
+   kullanıyor (bu turda 88'den 87'ye indi).
+3. **Puanlama cömertliği modele göre değişiyor** (§16i) — llama 15-16/20,
+   luna 20/20. Öğretmen onayı ve model rozeti bunu görünür kılıyor.
+4. **`injectionAttempt` bayrağı %100 güvenilir değil** (§16i) — 4 gözlemin
+   1'inde kaçtı; puan hiçbir zaman etkilenmedi.
+5. **D1/R2/Queues/Better Auth canlıda bağlı değil** (§1.6) — bilinçli kapsam.
+6. **AI karar günlüğü / denetim izi** (§5.3-5) — yapılmadı, sıradaki iş.
