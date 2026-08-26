@@ -2691,3 +2691,70 @@ kartsız kullanıldığı tek yerde lacivert üstünde 1,88:1'e düşüyordu
 
 `AKTARIM.md §2`, `mimari.html` için "4 mermaid diyagram" diyor. Sayfada **2**
 var ve ikisi de render ediliyor (§14e zaten "2 diyagram" diyor). Düzeltilmeli.
+
+---
+
+## 24. UÇTAN UCA ARAYÜZ DENETİMİ — canlı, gerçek modelle (26 Ağustos, gece)
+
+Kullanıcının isteği: *"biz bu elimizdeki uygulamayı sorunsuz halledelim."*
+Bugüne kadar API, tema ve render test edilmişti; bu tur **arayüz üzerinden hiç
+sürülmemiş** akışları kapsar. Tamamı CANLI sistemde, gerçek model çağrılarıyla.
+
+### 24a. Uçtan uca sürülen zincir (hepsi çalışıyor)
+
+| Adım | Ölçüm |
+|---|---|
+| Soru üretimi (arayüzden) | 12,2 sn · 3 soru · çeldirici gerekçeleri dolu · kaynak saklandı (`srcId`) · günlüğe yazıldı |
+| Onay / red zinciri | 2 onay + 1 red · günlükte doğru aktörle (`içerik uzmanı`) |
+| Sınav kurma | kazanım kapsaması 1/1 · süre önerileri · toplam puan doğru |
+| **Bloom dengesi** | 3 ÇSS iken *"ezber ölçüyor"* uyarısı; üst düzey soru eklenince *"%25 · dengeli"* — §13b birebir çalışıyor |
+| Yayın koruması | rubriksiz/ağırlık≠100 iken düğme **pasif** ve ekranda gerekçe yazıyor |
+| AI rubrik taslağı | 5,8 sn · 4 ölçüt · ağırlık toplamı **tam 100** · açıklamalar dolu |
+| Öğrenci çözümü | 4 yanıt diske yazıldı (§7d `saveSoon` düzeltmesi) · onay modalı bilgilendirici |
+| Değerlendirme | 19,8 sn · 10/20 · kırılım AI rubriğinin tavanlarına birebir oturdu (8/6/4/2) |
+| **Sınıf simülasyonu** | 5 öğrenci · puanlar 4-11 arası **gerçekten ayrışıyor** · "SİMÜLE" rozeti var |
+| İnceleme kuyruğu sırası | %60, %65, %65, %65, %65, %75 — **en düşük güven en üstte** (§7e) |
+| Kavram yanılgısı | 1 küme · 4 öğrenci · 2 birebir alıntı · somut öneri · **öğrenci adı sızmadı** |
+| Madde analizi | p=0,33 d=0,67 · p=0,67 d=0,67 · p=0,50 d=0,33 (gerçek veriden) |
+| Kalibrasyon | uyum %96 · sapma 0,83 — yalnızca onay verisi oluşunca göründü |
+| Öğrenci karnesi | 10/23 · kırılım · doğru beyan |
+| **Oturum yalıtımı** (§3.2 riskli bölge) | 6 öğrenci arası geçiş · **bozulma 0** |
+| Günlük indirme | CSV 3.211 B / 21 satır · UTF-8 BOM · **öğrenci adı yok** |
+| Sıfırlama | soru 6→0 · günlük 20→0 · IndexedDB boşaldı · tema korundu |
+
+### 24b. Bulunan ve düzeltilen hata
+
+**Denetim izi özetindeki sayım yanlıştı.** Ekranda *"Kullanılan modeller:
+llama · 14"* yazıyordu; oysa o turda **8** model çağrısı yapılmıştı. Sebep:
+`auditOzet()` `model` alanı TAŞIYAN her kaydı sayıyordu — insan kararları
+(`soru_onaylandi`, `soru_reddedildi`, `puan_karari`) da bu alanı taşır, çünkü
+hangi modelin ürettiği çıktıya karar verildiğini gösterir (bu doğrudur).
+Denetim izi ekranında bir sayının ne saydığı belirsiz olamaz (§21d).
+
+Düzeltme: yalnızca modelin ÜRETTİĞİ olaylar sayılıyor
+(`soru_uretildi`, `rubrik_onerildi`, `degerlendirme_onerildi`) ve etiket
+**"Model çağrısı yapılan adımlar"** oldu. Sentetik günlükle doğrulandı:
+6 kaydın 6'sı model adı taşıyor, sayaç **2** gösteriyor (gerçek çağrı sayısı).
+
+### 24c. Model kalitesi gözlemi (kod hatası DEĞİL)
+
+Üretilen açık uçlu soruda model **"Sürtünme" yerine "Sürünme"** yazdı (iki kez)
+ve bu terim rubriğe, değerlendirme geri bildirimine ve kavram yanılgısı
+kümesine kadar yayıldı. `dilUyarisi` bunu yakalamaz — yabancı alfabe yok,
+yalnızca yanlış Türkçe sözcük var. Ürünün cevabı zaten insan onayıdır: inceleme
+kartında soru gövdesi düzenlenebilir. **Demo notu:** jüri önünde canlı üretim
+yapılırsa üretilen metin onaylanmadan önce okunmalıdır.
+
+### 24d. Beş yanlış alarm (hepsi TEST kusuru, ürün doğru)
+
+Kayda geçiriliyor ki ileride bulgu sanılmasın:
+1. `examTotalPoints()` argümansız/yanlış argümanla çağrıldı (§15g'nin tekrarı).
+2. Soru adedi alanı `input` olayıyla değişmiyor sanıldı — alan `change` olayında
+   bağlanıyor; gerçek kullanıcı yazıp alandan çıkınca çalışıyor.
+3. "Yayın düğmesi sebepsiz pasif" sanıldı — gerekçe pill'i ekranda VAR; arama
+   regex'i panelin başındaki sekme metnine takılmıştı.
+4. Kavram yanılgısı "0 küme" sanıldı — sonuç `examId:questionId` anahtarında,
+   sonuç yerleşmeden okunmuştu.
+5. Rol sıçramaları ve 18×18 dokunma hedefi — ekran görüntüsü/gerçek görünüm
+   ölçek farkından ıskalayan tıklamalar ve yanlış öğe ölçümü (radyonun hedefi
+   onu saran 871×54 px'lik `<label>`).

@@ -1542,9 +1542,21 @@ function auditOzet() {
   var onaylanan = g.filter(function (k) { return k.tur === "soru_onaylandi"; }).length;
   var reddedilen = g.filter(function (k) { return k.tur === "soru_reddedildi"; }).length;
 
-  // Hangi modeller kullanılmış? (§19c: model farkı puanı etkiliyor)
+  /* Hangi modeller kullanılmış? (§19c: model farkı puanı etkiliyor)
+     🔴 DÜZELTİLEN SAYIM HATASI: Eskiden `model` alanı TAŞIYAN her kayıt
+     sayılıyordu. Ama insan kararları (soru_onaylandi / soru_reddedildi /
+     puan_karari) da bu alanı taşır — hangi modelin ürettiği çıktıya karar
+     verildiğini göstermek için, ki bu doğrudur. Sonuç: ekranda
+     "Kullanılan modeller: llama · 14" yazıyordu, oysa gerçekte 8 model
+     çağrısı yapılmıştı (ölçüldü: 2 üretim + 6 değerlendirme).
+     Denetim izi ekranında bir sayının ne saydığı belirsiz olamaz (§21d:
+     "yalancı bir denetim izi hiç olmamasından kötüdür"). Artık yalnızca
+     MODELİN ÜRETTİĞİ olaylar sayılıyor; insan kararları sayılmıyor. */
+  var MODEL_URETIMI = { soru_uretildi: 1, rubrik_onerildi: 1, degerlendirme_onerildi: 1 };
   var modeller = {};
-  g.forEach(function (k) { if (k.model) modeller[k.model] = (modeller[k.model] || 0) + 1; });
+  g.forEach(function (k) {
+    if (k.model && MODEL_URETIMI[k.tur]) modeller[k.model] = (modeller[k.model] || 0) + 1;
+  });
 
   return {
     toplamKayit: g.length, dusen: state.auditDusen || 0,
@@ -1669,7 +1681,10 @@ function auditGunluguHtml() {
         "kalıyor demektir; çok yüksekse modelin rubriğe uyumu gözden geçirilmelidir.</div>"
       : "") +
 
-    (modelListesi ? '<div class="au-modeller">Kullanılan modeller: ' + modelListesi + "</div>" : "") +
+    /* Sayının NEYİ saydığı yazıyor: yalnızca modelin ürettiği çıktılar
+       (soru üretimi, rubrik taslağı, puan önerisi). İnsan kararları bu
+       sayıya dâhil değildir — bkz. auditOzet() içindeki MODEL_URETIMI. */
+    (modelListesi ? '<div class="au-modeller">Model çağrısı yapılan adımlar: ' + modelListesi + "</div>" : "") +
 
     (o.dusen ? '<div class="au-uyari">⚠ Günlük en fazla ' + AUDIT_LIMIT + " kayıt tutar; " +
       "sınır aşıldığı için <b>" + o.dusen + " eski kayıt düştü</b>. Kalıcı arşiv için indirin.</div>" : "") +
