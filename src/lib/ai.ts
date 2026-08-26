@@ -234,7 +234,15 @@ export function extractJson(raw: string | object): unknown {
   if (fence) s = fence[1].trim();
 
   const start = s.search(/[{[]/);
-  if (start === -1) throw new Error('Yanıtta JSON bulunamadı');
+  if (start === -1) {
+    // Modelin NE döndürdüğü teşhis için şarttır. Boş gelmesi ile alakasız
+    // metin dönmesi tamamen farklı sorunlardır: GPT-5 ailesindeki akıl
+    // yürüten modeller `max_completion_tokens` bütçesini düşünme
+    // tokenlarıyla tüketip içeriği BOŞ döndürebiliyor (26 Ağustos'ta
+    // gpt-5-nano'da yaşandı). Eski mesaj ikisini ayırt ettirmiyordu.
+    const onIzleme = s.length ? JSON.stringify(s.slice(0, 200)) : '(BOŞ yanıt)';
+    throw new Error(`Yanıtta JSON bulunamadı — model şunu döndürdü: ${onIzleme}`);
+  }
 
   const open = s[start];
   const close = open === '{' ? '}' : ']';

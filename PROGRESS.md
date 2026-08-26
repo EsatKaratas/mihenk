@@ -1855,3 +1855,50 @@ beri çalışmamış olmalı. Düzeltildi; ayrıca araç sağlayıcı seçebiliy
 Ek olarak `tools/anahtar-ekran.mjs` yazıldı: yalnızca `127.0.0.1`'e bağlanan,
 anahtarı diske yazmayan, geçersizse yüklemeyen yerel bir giriş ekranı
 (`ANAHTAR-EKRAN.bat`). Windows'ta `anahtar.txt.txt` tuzağını ortadan kaldırır.
+
+### 16h. 🔴 `gpt-5-nano` bu projede ÇALIŞMIYOR — ucuz model denendi ve elendi
+
+Kullanıcı haklı olarak sordu: "ucuz bir modeli de test edelim, fark azsa
+ucuzunu seçelim." Test edildi. **Fark az değil: nano hiç çalışmıyor.**
+
+Yedek `gpt-5-nano`'ya alınıp deploy edildi, aynı girdilerle üç uç denendi:
+
+| Uç | Çıktı tavanı | Sonuç | Süre |
+|---|---:|---|---:|
+| `generate-questions` | 1440 | ❌ HTTP 502 | 25,0 sn |
+| `generate-questions` (tekrar) | 1440 | ❌ HTTP 502 | 27,1 sn |
+| `evaluate` | 820 | ❌ HTTP 502 | 14,4 sn |
+| `rubric` | 600 | ❌ HTTP 502 | 10,1 sn |
+
+Hepsinde aynı hata: `ai_call_failed — Yanıtta JSON bulunamadı`.
+(`callOne` her çağrıda kendi içinde 2 kez denediği için bu aslında 8
+başarısız model çağrısıdır.)
+
+**Sebep tahmin edilmedi, ölçüldü.** `extractJson`'ın hata mesajı modelin ne
+döndürdüğünü gizliyordu; mesaja ham yanıtın ilk 200 karakteri eklendi
+(kalıcı iyileştirme). Yeni çıktı:
+
+```
+Yanıtta JSON bulunamadı — model şunu döndürdü: (BOŞ yanıt)
+```
+
+**Kök neden:** GPT-5 ailesindeki akıl yürüten modellerde
+`max_completion_tokens` **düşünme (reasoning) tokenlarını da sayar.**
+`gpt-5-nano` bütçenin tamamını içsel düşünmeye harcayıp `content` alanını boş
+döndürüyor. Bizim tavanlarımız 600-1860 arasında ve nano'ya yetmiyor.
+`gpt-5.6-luna` aynı tavanlarla sorunsuz çalışıyor.
+
+**Karar: yedek `gpt-5.6-luna` kalıyor.** Maliyet karşılaştırması anlamsız hâle
+geldi — nano 3 kat ucuz olsa da hiç çıktı üretmiyor.
+
+**Gelecek seçeneği (bugün YAPILMADI, riskli):** GPT-5 modelleri
+`reasoning_effort` parametresini destekliyor. `"minimal"` verilirse nano
+çalışabilir ve tur maliyeti $0,016 → $0,005'e düşerdi ($4,99 ile ~309 yerine
+~988 tur). Teslimden bir gün önce model çağrı yoluna yeni parametre eklemek
+gereksiz risk olduğu için yapılmadı. Ayrıca **309 tur zaten fazlasıyla
+yeterli**: bir tur 11 çağrıdır, yani ~3.400 model çağrısı; jüri demosu 2-3
+tur, prova 10-20 tur mertebesindedir.
+
+**Ders:** "Daha ucuz model" kararı fiyat tablosuna bakarak verilemez. Bu
+projede ucuz modelin maliyeti sıfır çıktı üretmek oldu. Sağlayıcı değişikliği
+her zaman GERÇEK istemlerle canlıda sınanmalıdır.
