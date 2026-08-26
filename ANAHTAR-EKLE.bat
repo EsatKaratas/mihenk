@@ -3,9 +3,15 @@ chcp 65001 >nul
 cd /d "%~dp0"
 echo.
 echo ============================================================
-echo   ANAHTAR DOGRULAMA VE YUKLEME
+echo   YEDEK SAGLAYICI ANAHTARI - DOGRULA VE YUKLE
 echo ============================================================
 echo.
-node toolsnahtar-dogrula.mjs
+echo Once bu klasorde "anahtar.txt" dosyasi olusturup API
+echo anahtarini icine yapistirin ve kaydedin.
+echo.
+echo Saglayici secmek icin: ANAHTAR-EKLE.bat gemini
+echo Bos birakilirsa OpenAI denenir.
+echo.
+node "tools/anahtar-dogrula.mjs" %1
 echo.
 pause

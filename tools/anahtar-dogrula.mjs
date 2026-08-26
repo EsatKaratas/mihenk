@@ -1,20 +1,55 @@
 /**
- * Gemini anahtarını önce GOOGLE'A SORAR, geçerliyse Cloudflare'e yükler.
+ * Yedek sağlayıcı anahtarını önce SAĞLAYICIYA SORAR, geçerliyse Cloudflare'e
+ * yükler (AI_FALLBACK_API_KEY).
  *
  * Neden: Cloudflare üzerinden test ederken hata zinciri uzun oluyor
- * (Worker -> Google). Bu araç doğrudan Google'a sorar; böylece sorunun
+ * (Worker -> sağlayıcı). Bu araç doğrudan sağlayıcıya sorar; böylece sorunun
  * anahtarda mı başka yerde mi olduğu tek adımda anlaşılır.
  *
  * Anahtar ekrana yazılmaz, hiçbir yere gönderilmez; test bittiğinde
  * anahtar.txt silinir.
+ *
+ * Kullanım:
+ *   node tools/anahtar-dogrula.mjs           -> openai (varsayılan yedek)
+ *   node tools/anahtar-dogrula.mjs gemini    -> Google Gemini
  */
 import { readFileSync, existsSync, unlinkSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 const DOSYA = 'anahtar.txt';
-const BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
-// Yeniden eskiye doğru; ilk çalışan seçilir.
-const MODELLER = ['gemini-3.7-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+
+// Her sağlayıcı için: OpenAI uyumlu taban adres + denenecek modeller.
+// Modeller iyiden ucuza doğru sıralıdır; ilk ÇALIŞAN seçilir ve raporlanır.
+const SAGLAYICILAR = {
+  openai: {
+    ad: 'OpenAI',
+    base: 'https://api.openai.com/v1',
+    modeller: ['gpt-5-mini', 'gpt-5.6-luna', 'gpt-5-nano'],
+    ipucu: [
+      '   - Anahtar silinmis ya da suresi dolmus olabilir (platform.openai.com/api-keys)',
+      '   - Kredi bakiyesi 0 ise de hata doner (Billing > Credit balance)',
+      '   - Anahtarin tamami kopyalanmamis olabilir (sk- ile baslar)',
+    ],
+  },
+  gemini: {
+    ad: 'Google Gemini',
+    base: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    modeller: ['gemini-3.7-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'],
+    ipucu: [
+      '   - Anahtar silinmis olabilir (aistudio.google.com/apikey)',
+      '   - Ya da anahtarin tamami kopyalanmamis olabilir',
+    ],
+  },
+};
+
+const secim = (process.argv[2] || 'openai').toLowerCase();
+const SAG = SAGLAYICILAR[secim];
+if (!SAG) {
+  console.log('\nHATA: bilinmeyen saglayici "' + secim + '". Secenekler: ' + Object.keys(SAGLAYICILAR).join(', '));
+  process.exit(1);
+}
+const BASE = SAG.base;
+const MODELLER = SAG.modeller;
 
 function bitir(kod) {
   if (existsSync(DOSYA)) {
@@ -39,7 +74,7 @@ if (!key) {
 
 console.log('');
 console.log('Okunan anahtar : ' + key.slice(0, 3) + '…' + key.slice(-3) + '  (' + key.length + ' karakter)');
-console.log('Google\'a soruluyor…\n');
+console.log(SAG.ad + '\'a soruluyor…\n');
 
 let calisan = null;
 for (const model of MODELLER) {
@@ -74,9 +109,8 @@ console.log('');
 if (!calisan) {
   console.log('SONUC: Anahtar hicbir modelde calismadi.');
   console.log('');
-  console.log('  "Please pass a valid API key" goruyorsaniz:');
-  console.log('   - Anahtar silinmis olabilir (aistudio.google.com/apikey)');
-  console.log('   - Ya da anahtarin tamami kopyalanmamis olabilir');
+  console.log('  Anahtar reddedildiyse:');
+  SAG.ipucu.forEach(function (satir) { console.log(satir); });
   console.log('   Yeni bir anahtar olusturup tekrar deneyin.');
   console.log('');
   console.log('Cloudflare\'e YUKLENMEDI (gecersiz anahtar yuklenmez).');
