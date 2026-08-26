@@ -1,314 +1,644 @@
-# PROJE AKTARIM DOKÜMANI (MASTER PROMPT)
-## T3 Vakfı Creathon — Problem 2 · Takım BIES
+# PROJE AKTARIM DOKÜMANI
+## T3 Vakfı Bursiyer Yapay Zekâ Creathon — Problem 2 · Takım BIES
 
 > **Bu dokümanı okuyan yapay zekâ asistanına:**
 >
-> Bu, devam eden bir yarışma projesinin aktarım paketidir.
->
-> 1. **Kodun tamamı GitHub'dadır** — bu dokümana kod gömülmemiştir, bilinçli
->    bir karardır (gerekçe §4). Önce şunu çalıştır:
->    `git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme`
-> 2. Depodaki **`PROGRESS.md`** dosyası bu projenin **tek doğruluk kaynağıdır**;
->    bulunan her hata, verilen her karar ve gerekçesi orada kayıtlıdır. Onu oku.
-> 3. **`agents.md`** dosyasındaki kurallar oturum boyunca geçerli kısıtlardır.
->    Özellikle §7.1 (Human-in-the-Loop) hiçbir gerekçeyle esnetilemez.
-> 4. §6'daki **"KALDIĞIMIZ NOKTA"** başlığından devam et. Kullanıcı başka bir
->    şey söylemediyse oradan başla, kendi başına yeni bir yön seçme.
+> 1. **Kodun tamamı GitHub'dadır**, bu dokümana gömülmemiştir. Bilinçli bir
+>    karardır: `public/app.js` tek başına 237 KB; sohbete sığdırılmaya
+>    çalışılırsa model kaçınılmaz olarak kısaltır veya hatırlamadığı yeri
+>    uydurur. Bu projede bir kez yaşandı (`PROGRESS.md` §5).
+>    ```bash
+>    git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
+>    cd t3-olcme-degerlendirme && npm install
+>    ```
+> 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (81 KB). Bu dosya bir özettir;
+>    çelişki görürsen `PROGRESS.md`'ye güven. Oradaki §10-§14 en yeni bilgidir.
+> 3. **`agents.md` oturum boyunca geçerli kısıtlardır.** Özellikle §1
+>    (Human-in-the-Loop) hiçbir gerekçeyle esnetilemez.
+> 4. Aşağıdaki **§5 "İlk Görev"** ile başla. Kullanıcı başka bir şey
+>    söylemediyse kendi başına yeni bir yön seçme.
 > 5. Kullanıcıya görünen tüm metinler **Türkçe**, kod içindeki adlar İngilizce.
 >
-> Doküman tarihi: **26 Ağustos 2026** (son güncelleme)
->
-> ⚠️ **Bu dosya bir özettir. Tek doğruluk kaynağı `PROGRESS.md`'dir** ve orada
-> §10-§14 arası bu dosyadan daha yeni bilgi vardır. Çelişki görürsen
-> `PROGRESS.md`'ye güven.
+> **Doküman tarihi:** 26 Ağustos 2026 · **Teslim:** 27 Ağustos 2026 ·
+> **Final sunum:** 5-6 Eylül 2026, BAU Beşiktaş
 
----
-
-## 1. Projenin Amacı ve Mimari Özeti
-
-**Problem 2:** Soru hazırlama, açık uçlu sınav değerlendirme ve kazanım
-analizini yapay zekâ ile hızlandırmak; **nihai kararı ve puan onayını her zaman
-öğretmende tutmak.**
-
-**Değiştirilemez tez (Human-in-the-Loop):** Yapay zekâ soru, süre, rubrik ve
-puan *önerir*. Hiçbir AI çıktısı insan onayından geçmeden bir sonraki aşamaya
-geçemez. Otomatik onay eşiği eklemek yasaktır.
-
-### Canlı adresler
 | Ne | Nerede |
 |---|---|
 | Canlı sistem | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
+| Mimari dokümantasyonu | `/mimari` (aynı alan adında) |
 | Depo (public) | https://github.com/EsatKaratas/t3-olcme-degerlendirme |
-| Cloudflare hesabı | karatasesat@hotmail.com · `8f038be6be2c6e5ad71da437d444584a` |
-
-**Takım BIES:** Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik
-**Teslim:** 26 Ağustos 2026 · **Final:** 5-6 Eylül 2026, BAU Beşiktaş
-
-### Mimari
-```
-public/index.html   1,9 KB — sadece iskelet
-public/app.css      37 KB  — tüm stiller
-public/app.js       176 KB — 4 rol prototipi (vanilla JS, build adımı yok)
-   └─ fetch ─▶ Cloudflare Worker (Hono)
-                 src/index.ts        giriş noktası
-                 src/routes/ai.ts    7 uç: /api/ai/{status,generate-questions,
-                                              evaluate,rubric,sample-answers,
-                                              misconceptions,outcome-alignment}
-                 src/lib/prompts.ts  model istemleri ← JÜRİYE GÖSTERİLECEK DOSYA
-                 src/lib/ai.ts       sağlayıcı bağımsız çağrı + yedek + JSON onarımı
-                 src/schemas/ai.ts   Zod şemaları
-                 └─ env.AI ─▶ Workers AI
-```
-
-**Model:** `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (birincil)
-**Yedek:** `gemini-3.7-flash` (Gemini'nin OpenAI uyumlu ucu) — otomatik devreye girer
-
-**MODEL EĞİTİLMEDİ.** Eğitilmiş bir model kullanılıyor. Yapılan iş modeli
-rubrik/kaynak kısıtlarına, şema doğrulamasına ve insan onay zincirine tabi
-kılmaktır. Jüri sorarsa cevap `PROGRESS.md` §7f'de hazır.
+| Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
+| Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
+| Takım BIES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
 
 ---
 
-## 2. Dosya Ağacı
+# 1. Projenin Amacı ve Mimari Yapısı
+
+## 1.1 Problem ve değiştirilemez tez
+
+**Problem 2 (brief):** Soru hazırlama, açık uçlu sınav değerlendirme ve
+öğrenme çıktısı analizini yapay zekâ ile hızlandırmak; **nihai kararı ve puan
+onayını her zaman eğitmende tutmak.**
+
+**Değiştirilemez tez — Human-in-the-Loop:** Yapay zekâ soru, süre, rubrik,
+puan ve geri bildirim *önerir*. Hiçbir AI çıktısı insan onayından geçmeden bir
+sonraki aşamaya geçemez. **Otomatik onay eşiği eklemek yasaktır** (`agents.md`
+§1). Bir öneri kabul edilirken bunun bir öneri olduğu ekranda yazılıdır.
+
+Bu tez ürünün her katmanında görünür:
+- Üretilen soru `ai_generated` durumunda bekler, İçerik Uzmanı onaylayana
+  kadar havuza girmez.
+- AI puanı `aiEvals`'ta durur; öğretmen `reviews`'a yazmadan öğrenciye gitmez.
+- Öğrenciye geri bildirim taslağı ayrı bir kutuda durur; öğretmen "Nota Aktar"
+  demeden karneye geçmez.
+- Injection denemesi, kavram yanılgısı, sınav bütünlüğü kaydı — hepsi
+  **sinyal**, hiçbiri otomatik yaptırım değil.
+
+## 1.2 Çalışma zamanı mimarisi
+
+```
+Tarayıcı (vanilla JS, build adımı YOK)
+  public/index.html   ~2 KB iskelet
+  public/app.js       237 KB — 4 rolün tüm mantığı, tek dosya
+  public/app.css      54 KB
+        │
+        │ fetch  (yalnızca /api/ai/* — başka sunucu çağrısı yok)
+        ▼
+Cloudflare Worker (Hono)
+  src/index.ts        giriş noktası, app.route("/api/ai", ai)
+  src/routes/ai.ts    7 uç — Zod doğrulama + hız sınırı + normalleştirme
+  src/lib/prompts.ts  6 model istemi  ← JÜRİYE GÖSTERİLECEK DOSYA
+  src/lib/ai.ts       sağlayıcı bağımsız çağrı + otomatik yedek + JSON onarımı
+  src/lib/guards.ts   saf yardımcılar (test edilebilir)
+  src/schemas/ai.ts   Zod şemaları (girdi + model çıktısı)
+        │
+        ▼
+  env.AI ──▶ Workers AI · @cf/meta/llama-3.3-70b-instruct-fp8-fast
+        └──▶ (birincil düşerse) OpenAI-uyumlu yedek · gemini-3.7-flash
+```
+
+**Neden vanilla JS ve tek dosya:** Build adımı yok, `wrangler deploy` tek
+komutla yayınlıyor. Jüri demosunda kırılacak bir derleme zinciri yok. Bedeli:
+237 KB'lık tek dosya, bu yüzden §6.3'teki kurallar var.
+
+## 1.3 Dört rol, tek zincir
+
+| Rol | Panel | Ne yapar |
+|---|---|---|
+| **İçerik Uzmanı** | 2 sekme | Kaynak metin yükler (yapıştır / .txt / .md / PDF), ders-sınıf-kazanım tanımlar, AI'ın ürettiği soruları düzenler ve onaylar |
+| **Öğretmen** | 4 sekme | Havuzdan sınav kurar, rubrik tanımlar, AI puan önerilerini inceleyip onaylar, sınıf analitiğini görür |
+| **Öğrenci** | 3 sekme | Sınavı çözer (geri sayımlı), yanıtları otomatik kaydedilir, öğretmen onayından sonra gerekçeli karnesini okur |
+| **Eğitim Yöneticisi** | tek sayfa | Okul geneli tamamlanma, bekleyen onaylar, kazanım ısı haritası |
+
+Zincir kapanıyor: **içerik → sınav → çözüm → onay → analiz → yeni içerik.**
+Analiz ekranında %60 altındaki kazanım için "tekrar sorusu üret" düğmesi
+İçerik Uzmanı paneline döner.
+
+## 1.4 Yedi AI ucu
+
+Hepsi `POST` (yalnızca `/status` `GET`), hepsi Zod ile doğrulanır, hepsinde
+dakika bazlı hız sınırı ve **prompt injection sertleştirmesi** vardır.
+
+| Uç | Ne döndürür |
+|---|---|
+| `/api/ai/status` | Etkin sağlayıcı/model, yedek tanımlı mı |
+| `/api/ai/generate-questions` | ÇSS + açık uçlu taslak; Bloom düzeyi, çeldirici gerekçeleri, `needsSource` |
+| `/api/ai/evaluate` | Kriter bazında puan + gerekçe, güven skoru, `studentFeedback`, `injectionAttempt` |
+| `/api/ai/rubric` | Soruya özgü rubrik taslağı (ağırlıklar %100'e normalleştirilir) |
+| `/api/ai/sample-answers` | Farklı başarı düzeylerinde örnek yanıt (`simulated: true`) |
+| `/api/ai/misconceptions` | Sınıfın yanıtlarında tekrarlayan kavram yanılgıları (öğrenci adı gönderilmez) |
+| `/api/ai/outcome-alignment` | İçerik geçerliği: soru seçilen kazanımı ölçüyor mu (bağımsız çağrı) |
+
+## 1.5 Otomatik yedek sağlayıcı
+
+`AI_FALLBACK_*` yapılandırılmışsa birincil sağlayıcı başarısız olduğu anda
+(kota, kesinti, model kaldırılması) sistem yedeğe geçer. **Geçiş sessiz
+değildir:** yanıtın `meta.fellBack` alanı ve arayüzdeki rozet hangi modelin
+yanıtladığını yazar; Workers Logs'a `ai_fallback` olayı düşer.
+
+## 1.6 🔴 Canlıda ne bağlı, ne bağlı değil (dürüstlük notu)
+
+Bu ayrım **jüriye açıkça söylenmelidir** ve `README.md` §3 ile `/mimari`
+sayfasında da yazılıdır.
+
+| Bileşen | Hedef mimari | Canlı demo |
+|---|---|---|
+| Cloudflare Workers + Hono | ✅ | ✅ **çalışıyor** |
+| Workers AI | ✅ | ✅ **çalışıyor** |
+| Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** |
+| D1 (SQLite, 14 tablo) | ✅ | ❌ şema hazır, **yazım yok** |
+| R2 nesne depolama | ✅ | ❌ bağlı değil (PDF istemcide işlenir) |
+| Queues (asenkron AI) | ✅ | ❌ ücretsiz planda kullanılamaz |
+| Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir |
+
+**Sebep teknik:** `d1_databases[].database_id` doldurulmadan `wrangler deploy`
+başarısız olur ve Queues Cloudflare ücretsiz planında yoktur. Bu yüzden iki
+yapılandırma dosyası var (§6.1).
+
+---
+
+# 2. Güncel Dosya Ağacı
+
+43 takipli dosya. Boyutlar gerçek ölçümdür.
 
 ```
 t3-olcme-degerlendirme/
-├── AKTARIM.md              bu dosya
-├── PROGRESS.md             TEK DOĞRULUK KAYNAĞI — önce bunu oku
-├── README.md               jüri odaklı dokümantasyon
-├── agents.md               geliştirme kuralları (ZORUNLU)
-├── package.json            bağımlılıklar + 15 npm script
-├── tsconfig.json           TypeScript strict
-├── wrangler.jsonc          ÜRETİM yapılandırması (D1+R2+Queues+AI)
-├── wrangler.demo.jsonc     DEMO yapılandırması (kullanılan bu)
-├── schema.sql              D1 şeması — 14 tablo
-├── routes.ts               tam rota iskeleti (referans; handler'lar TODO)
-├── ANAHTAR-EKLE.bat        Gemini anahtarı doğrula + yükle (çift tıkla)
-├── tools/
-│   ├── check-jsonc.py      JSONC doğrulayıcı (npm run check:config)
-│   ├── anahtar-dogrula.mjs anahtarı Google'a sorup Cloudflare'e yükler
-│   └── test-gemini.mjs     yerel anahtar testi
+│
+├── AKTARIM.md              15 KB  bu dosya — devir özeti
+├── PROGRESS.md             82 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§14)
+├── README.md               36 KB  jüri odaklı tanıtım (rozetler, mermaid akış)
+├── agents.md              7,7 KB  ★ ZORUNLU kurallar (HITL, mimari, sınırlar)
+│
+├── package.json           1,6 KB  bağımlılıklar + 16 npm script
+├── tsconfig.json          0,5 KB  TypeScript strict
+├── wrangler.jsonc         4,2 KB  ÜRETİM yapılandırması (D1+R2+Queues+AI)
+├── wrangler.demo.jsonc    3,5 KB  ★ DEMO yapılandırması — KULLANILAN BU
+├── schema.sql             8,5 KB  D1 şeması, 14 tablo (canlıda bağlı değil)
+├── routes.ts              9,4 KB  tam rota iskeleti (referans; handler'lar TODO)
+├── .gitattributes         0,7 KB  Linguist: dokümantasyon HTML'i kod sayılmasın
+├── .dev.vars.example      0,5 KB  yerel sır şablonu (gerçeği .gitignore'da)
+├── ANAHTAR-EKLE.bat       0,3 KB  Gemini anahtarını doğrula + Cloudflare'e yükle
+│
 ├── src/
-│   ├── index.ts            Worker giriş noktası
-│   ├── routes/ai.ts        AI uçları
-│   ├── lib/ai.ts           sağlayıcı katmanı + otomatik yedek
-│   ├── lib/prompts.ts      4 model istemi
-│   └── schemas/ai.ts       Zod şemaları
-├── seed/turkishmmlu/       dataset dönüştürme (demoda KULLANILMIYOR)
-└── public/
-    ├── index.html · app.css · app.js
-    ├── mimari.html · privacy-policy.html · 404.html · robots.txt
+│   ├── index.ts           1,3 KB  Worker giriş noktası
+│   ├── routes/ai.ts        22 KB  ★ 7 AI ucu
+│   ├── lib/prompts.ts      27 KB  ★ 6 model istemi (jüriye gösterilecek)
+│   ├── lib/ai.ts           10 KB  sağlayıcı katmanı + yedek + JSON onarımı
+│   ├── lib/guards.ts      3,5 KB  saf yardımcılar (hız sınırı, kaynak tespiti)
+│   └── schemas/ai.ts      6,6 KB  Zod şemaları
+│
+├── test/                          ★ 88 test, npm test ile koşar
+│   ├── guards.test.ts     6,0 KB  37 test — kaynak tespiti, hız sınırı
+│   ├── schemas.test.ts    7,5 KB  27 test — şema sınırları, normalleştirme
+│   └── ai-lib.test.ts     4,9 KB  24 test — extractJson, sağlayıcı, BOM
+│
+├── public/
+│   ├── index.html         1,9 KB  iskelet
+│   ├── app.js             238 KB  ★ 4 rolün TÜM mantığı (tek dosya)
+│   ├── app.css             54 KB  tüm stiller
+│   ├── _headers           1,6 KB  ★ güvenlik başlıkları (CSP dahil)
+│   ├── mimari.html         51 KB  mimari dokümantasyonu (4 mermaid diyagram)
+│   ├── mimari.js          1,5 KB  mermaid yükleyici (inline OLAMAZ — §6.3)
+│   ├── privacy-policy.html 20 KB  KVKK aydınlatma metni
+│   ├── 404.html           6,8 KB  özel hata sayfası
+│   ├── robots.txt         0,8 KB  /api/ ve /internal/ disallow
+│   └── mufredat/
+│       └── turkce-7.json   17 KB  ★ MEB 96 öğrenme çıktısı + 6 tema
+│
+├── tools/
+│   ├── injection-test.py  4,7 KB  ★ 5 vektörlü güvenlik testi (tekrar koşulabilir)
+│   ├── check-jsonc.py     1,9 KB  JSONC doğrulayıcı (npm run check:config)
+│   ├── anahtar-dogrula.mjs 3,7 KB yedek anahtarı Google'a sorup CF'e yükler
+│   └── test-gemini.mjs    2,8 KB  yedek anahtarını yerelde sınar
+│
+├── seed/turkishmmlu/              dataset dönüştürme — DEMODA KULLANILMIYOR
+│   ├── 01_learning_outcomes.sql
+│   ├── convert_turkishmmlu.py
+│   ├── import_summary.json
+│   └── IMPORT_NOTES.md
+│
+└── .claude/launch.json    0,2 KB  dev server tanımı (port 8787)
 ```
+
+**★ ile işaretliler**, değişiklik yapmadan önce mutlaka okunmalıdır.
 
 ---
 
-## 3. Teknolojiler ve Bağımlılıklar
+# 3. Veritabanı ve Veri Akışı
 
-| Katman | Teknoloji |
+## 3.1 Veriler nerede tutuluyor
+
+**Prototipte sunucuda hiçbir veri saklanmaz.** Tüm durum tarayıcının
+`localStorage`'ında, tek bir anahtar altındadır: `t3-olcme-durum-v1`.
+
+Kalıcı yazılan 30 üst düzey alan (`KALICI_ALANLAR`, `public/app.js`):
+
+```
+role · teacherTab · studentTab · ceTab · genCount · ceForm · questions ·
+rubrics · rubricSelectedQ · exam · answers · examStatus · currentQIndex ·
+remainingSec · aiEvals · reviews · mcResults · remedial · integrity ·
+outcomes · subjects · poolFilter · exams · activeExamId · students ·
+activeStudentId · evalCache · misconceptions · alignment · sources
+```
+
+D1 şeması (`schema.sql`, 14 tablo) hazırdır ama **canlıda bağlı değildir**:
+`schools · users · learning_outcomes · source_documents ·
+source_document_outcomes · questions · rubrics · exams · exam_questions ·
+exam_assignments · submissions · ai_evaluations · teacher_reviews ·
+analytics_snapshots`
+
+## 3.2 İki katmanlı oturum modeli (dikkat: burada kolay hata yapılır)
+
+Aynı anda **çok sınav** ve **çok öğrenci** desteklenir. Bu, iç içe iki takas
+mekanizmasıyla çözüldü ve **mevcut kodun tamamı değişmeden çalışmaya devam
+etti** — yeni kod yazarken bu modeli bozmamak önemlidir.
+
+```
+state.exams[]                       ← tüm sınav kayıtları
+state.activeExamId                  ← hangi sınav "canlı" alanlarda
+   └── kayit.sessions[ogrenciId]    ← öğrenci başına oturum
+state.activeStudentId               ← hangi öğrenci "canlı" alanlarda
+```
+
+**Aktif sınavın + aktif öğrencinin** oturum alanları `state` kökünde "canlı"
+durur; diğerleri kayıtlara yazılır. Sekiz oturum alanı (`OTURUM_ALANLARI`):
+
+```
+answers · examStatus · currentQIndex · remainingSec ·
+aiEvals · reviews · mcResults · integrity
+```
+
+Geçiş fonksiyonları: `syncActiveExam()` mevcut alanları kayda yazar,
+`activateExam()` / `activateStudent()` hedefinkileri yükler.
+**Okuma/yazma her zaman `readSession(sid)` / `writeSession(sid, ...)` ile
+yapılmalıdır**, doğrudan `state.answers` üzerinden değil — aksi halde yanlış
+öğrencinin verisi okunur.
+
+## 3.3 Soru üretim akışı
+
+```
+İçerik Uzmanı formu (ceForm: title, subject, grade, outcomeCode, text,
+                     mcCount, openCount)
+   │
+   ├─▶ kaynakEkle(doc)  → state.sources[]'a yazılır, srcId döner
+   │                       (en fazla 10 kaynak; sınır aşılırsa en eski atılır)
+   │
+   ├─▶ POST /api/ai/generate-questions
+   │      · Zod doğrulama (kaynak metin 30-6000 karakter)
+   │      · hız sınırı: aynı docKey için 5/dk
+   │      · istemde kaynak metin nonce ile sarılır (injection savunması)
+   │      · model çıktısı normalleştirilir: şık harfleri A-B-C-D'ye dizilir,
+   │        doğru şık yeniden eşlenir, aiTime kırpılır
+   │      · needsSource: model kararı VEYA gövdede kaynak atıf kalıbı
+   │
+   └─▶ state.questions[] += { status: "ai_generated", srcId, needsSource, ... }
+```
+
+Öğretmen/İçerik Uzmanı onaylayınca `status: "approved"` olur ve havuza girer.
+Reddedilirse `status: "rejected"`.
+
+## 3.4 Değerlendirme akışı
+
+```
+Öğrenci yanıtı (answers[qid].text)
+   │
+   ├─▶ evalCacheKey(q, rubric, answerText) — önbellek anahtarı
+   │      soru gövdesi + kazanım + rubrik (maxScore + kriter/ağırlık) +
+   │      yanıt + MODEL ADI
+   │      · isabet varsa 0-6 ms, model çağrılmaz
+   │      · başarısız değerlendirme ASLA önbelleğe alınmaz
+   │      · "Yeniden Dene" önbelleği atlar
+   │
+   ├─▶ POST /api/ai/evaluate  (önbellek ıskalarsa)
+   │      · kriter tavanları sunucuda hesaplanır, puan tavana kırpılır
+   │      · 0,5 katına yuvarlanır
+   │      · studentFeedback + injectionAttempt döner
+   │
+   ├─▶ state.aiEvals[qid] = { aiScore, breakdown, confidence,
+   │                          studentFeedback, injectionAttempt }
+   │
+   └─▶ Öğretmen onayı → state.reviews[qid] = { finalScore, comment,
+                                                decision, aiScore }
+           │
+           └─▶ publishResults() → examStatus: "graded" → öğrenci karnesi
+```
+
+**Sessiz geri düşüş yasağı:** Gerçek model modunda çağrı başarısız olursa
+sistem simülasyona düşüp sahte puan göstermez. Değerlendirme "yapılamadı"
+işaretlenir; öğretmene "Yapay Zekâ ile Yeniden Dene" ve "Elle Puanla ve
+Onayla" seçenekleri sunulur.
+
+## 3.5 Uyaran metin (kaynak metin) akışı
+
+Bir soru kaynak metne dayanıyorsa (`needsSource: true`), o metin **sınavda
+öğrenciye soruyla birlikte gösterilir.** Türkçe okuma kazanımları metin
+olmadan ölçülemez.
+
+```
+state.sources[] = [{ id, title, subject, grade, text, at }]
+state.questions[i].srcId ──▶ kaynakBul(srcId)
+   ├─ öğrenci sınav ekranı : kaynakBlokHtml(q, "student")  → metin AÇIK
+   ├─ öğretmen inceleme    : kaynakBlokHtml(q, "review")   → katlanabilir
+   └─ sınav kurma          : sinavKaynakUyarisiHtml(secili)
+```
+
+Kaynak silinmişse (limit aşımı) **sessizce metinsiz soru gösterilmez**;
+öğrenciye ve öğretmene farklı, açık uyarı çıkar.
+
+## 3.6 Gizlilik sınırları
+
+- Öğrenci **adı hiçbir AI çağrısında gönderilmez.** Kavram yanılgısı
+  kümelemede yanıtlar anonim ve numaralıdır.
+- PDF dosyaları **istemcide** `pdf.js` ile çözümlenir; dosya sunucuya
+  gönderilmez. Sayfa metinleri bilinçli olarak `state` dışında tutulur
+  (localStorage kotası).
+- Sınav bütünlüğü kaydında yapıştırılan metnin **içeriği** saklanmaz,
+  yalnızca karakter sayısı tutulur.
+- `agents.md` §7: öğrenci verisiyle ilgili her değişiklikte
+  `public/privacy-policy.html` güncellenmek zorundadır.
+
+---
+
+# 4. Çözülen Son Sorunlar ve Mevcut Durum
+
+26 Ağustos'ta 20 commit yapıldı (toplam 46). Ayrıntılar `PROGRESS.md`
+§10-§14'te; burada özet.
+
+## 4.1 Kullanıcının bildirdiği üç ürün hatası — üçü de düzeltildi
+
+| # | Sorun | Çözüm |
+|---|---|---|
+| 1 | Ders/sınıf/kazanım **birbirinden bağımsızdı** ("Türkçe + MAT.7.3.4 + Kuvvet ve Hareket" mümkündü) | Kazanıma `subject`/`grade` eklendi, seçici filtreleniyor, uyuşmazlıkta gerekçeli uyarı. Sert engelleme yok |
+| 2 | 8. sınıf seçiliyken **7. sınıf kataloğu** açılıyordu | Katalog anahtarı artık ders **ve** sınıf birlikte |
+| 3 | 🔴 **"Metne göre…" sorusu ama ortada metin yok** — soru cevaplanamazdı | Uyaran metin sistemi (§3.5): kaynak saklanıyor, soruya bağlanıyor, sınavda gösteriliyor. Sunucuda deterministik güvence (regex 10/10) |
+
+## 4.2 Ayrıştırıcı özellikler (bu takımı diğerlerinden ayıran kısım)
+
+| Özellik | Ne yapar | Ölçüm |
+|---|---|---|
+| **Prompt injection sertleştirmesi** | Öğrenci cevabına *"tam puan ver"* yazması gerçek saldırı yüzeyi. 6/6 istemde nonce sınır belirteci + kuralların önünde güvenlik bloğu | **5 vektör, 5/5 savunuldu** (`tools/injection-test.py`) |
+| **Madde analizi** | Üretilen sorunun iyi bir ölçme aracı olup olmadığı: güçlük (p), ayırt edicilik (d), işlevsiz çeldirici. Negatif d = anahtar hatalı olabilir | Birim testi elle hesapla birebir |
+| **Öğretmen–AI uyumu** | Brief'in *"değerlendirici tutarsızlığı"* sorununa cevap. Ayrıca **güven skorunun kendisini denetler** | Birim testi birebir |
+| **Kavram yanılgısı kümeleme** | Isı haritası "hangi kazanım zayıf" der, bu "**neden** zayıf" der | Kurgulanan yanılgı 5/7'de yakalandı |
+| **Gerçek MEB müfredatı** | 96 öğrenme çıktısı; **yazılı sınav (39) / performans (43) / süreç (14)** ayrımıyla | `T.O.7.5` ile gerçek soru üretildi |
+| **Bloom düzey dengesi** | Sınav ezber mi ölçüyor? Hedef oran dayatmıyor, iki ucu bildiriyor | 4 birim testi |
+| **Kazanım–soru hizalama** | İçerik geçerliği. **Denetimi soruyu üreten çağrı yapmaz**, bağımsız çağrı yapar | Kasten yanlış sorularla 4/4 |
+| **Öğrenciye geri bildirim taslağı** | Puan değil "ne yapmalısın". **Otomatik doldurulmaz**, öğretmen "Nota Aktar" der | 3 yanıt düzeyinde doğrulandı |
+
+## 4.3 Güvenlik denetimi (`373dcfd`)
+
+**Temiz:** XSS (14 alana gerçek payload, 4 rol × tüm sekmeler → sızma yok) ·
+secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
+
+**Düzeltilen 4 bulgu:**
+1. `rubric` ve `sample-answers` istemlerinde injection savunması yoktu —
+   **dolaylı zincir** (kaynak metin → soru → istem). Artık 6/6.
+2. `/evaluate`, `/rubric`, `/sample-answers` uçlarında **hız sınırı yoktu.**
+   `/evaluate` için 45/dk seçildi (bir sınıfın tamamı meşru olarak
+   değerlendirilir; 5 koymak gerçek kullanımı bozardı).
+3. **Hiç güvenlik başlığı yoktu** → `public/_headers`: CSP,
+   `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`,
+   `Permissions-Policy`. pdf.js + mermaid + fontlar + API ile test edildi.
+4. Gizlilik politikası eksikti (`agents.md` §7 ihlali).
+
+## 4.4 Denetim sırasında ortaya çıkan iki gizli hata
+
+- **Mermaid diyagramları hiç render edilmiyordu** (jüriye gösterilen sayfa!).
+  `startOnLoad` `DOMContentLoaded`'ı bekliyor ama `await import()` asenkron
+  olduğu için o olay geçmiş oluyordu; `try/catch` de yakalamadığı için
+  **sessizce** başarısızdı. Yükleyici `mimari.js`'e taşındı, `run()` ile
+  açıkça tetikleniyor.
+- **Karne ekranı çöküyordu.** `mcResults[q.id].correct` doğrudan okunuyordu;
+  kayıt yoksa öğrenci karnede hiçbir şey göremiyordu. Artık "puanlanmadı"
+  etiketiyle sebebi yazılıyor ve puana dahil edilmiyor.
+
+## 4.5 Doğrulanmış son durum (26 Ağustos)
+
+| Kontrol | Sonuç |
 |---|---|
-| Çalışma zamanı | Cloudflare Workers · `compatibility_date` 2025-03-10 · `nodejs_compat` |
-| Framework | Hono ^4.6.14 |
-| Doğrulama | zod ^3.24.1 · @hono/zod-validator ^0.4.2 |
-| CLI | **wrangler ^4** (v3 DEĞİL — gerekçe §7) |
-| Tipler | @cloudflare/workers-types **^5** (wrangler 4 şart koşuyor) |
-| Frontend | Vanilla JS + CSS, build adımı yok, tek dosya |
-| PDF | pdf.js 4.7.76 (CDN, istemci tarafı) |
-| Node | ≥ 18 (kurulu: 24.19.0) |
+| `npm run lint` (tsc --noEmit) | temiz |
+| `npm test` | **88/88 geçti** (3 dosya, 1,1 sn) |
+| `npm run check:config` | 2/2 geçerli |
+| `node --check public/app.js` | geçerli |
+| Açılış öz-kontrolü | temiz (**107 fonksiyon** denetleniyor) |
+| 4 rol × tüm sekmeler | render hatasız, konsol hatası 0 |
+| Canlı statik yollar | `/` `/app.js` `/app.css` `/mimari` `/privacy-policy` `/robots.txt` `/mufredat/turkce-7.json` `/mimari.js` → 200, bilinmeyen → 404 |
+| Güvenlik başlıkları | 5/5 aktif |
+| Mobil (375 px) | 4 rol × tüm sekmeler, yatay taşma **yok** |
+| Erişilebilirlik | bağlanmamış label **0**, WCAG 2.5.8 ihlali **0** |
+| XSS | 14 alanda sızma yok |
 
-**Kaldırıldı:** `@cloudflare/vitest-pool-workers` — wrangler 4 ile çözülemez
-peer çakışması yaratıyordu, yalnızca testleri workerd içinde koşturmaya yarıyor.
+**Ölçülen süreler (canlı, gerçek model):** soru üretimi ~9,7 sn (1 ÇSS +
+1 açık uçlu) · değerlendirme 3,3-5,5 sn · rubrik ~2,7 sn · kavram yanılgısı
+~5,1 sn · hizalama denetimi 2,5-3,3 sn · önbellekten **0-6 ms**.
+
+## 4.6 🔴 KOTA GERÇEĞİ — demo öncesi mutlaka okunmalı
+
+26 Ağustos'ta test sırasında **Workers AI günlük kotası doldu.** Sistem
+yedeğe düştü ve Gemini'nin gerçek sınırı ortaya çıktı:
+
+```
+Quota exceeded for metric:
+generativelanguage.googleapis.com/generate_content_free_tier_requests,
+limit: 20
+```
+
+- Workers AI ücretsiz kotası ≈ **günde 10 tam demo turu**.
+- Gemini ücretsiz katmanı **günde 20 istek** — gerçek bir emniyet ağı değil.
+- İkisi de tükenince AI uçları 502 döner; sistem bunu ekranda açıkça yazar
+  (sessiz düşüş yok) ama **demo yapılamaz.**
+
+**Önlem:** Sunumdan önce kota tazeliğini kontrol et, gereksiz deneme yapma,
+değerlendirme önbelleğini kullan, provayı aynı girdilerle yap.
+
+---
+
+# 5. Kalan Eksikler ve İlk Görev
+
+## 5.1 ★ KULLANICININ (İNSANIN) YAPACAĞI İŞLER — kod dışı, teslim kritik
+
+Bunlar **yapay zekânın tek başına bitirebileceği işler değildir**; ekip
+kararı, tasarım aracı ya da kamera gerektirir. Yeni oturumda asistan bunlara
+**içerik üretimiyle destek olabilir** ama teslim eden insandır.
+
+| # | İş | Durum | Asistan nasıl yardım eder |
+|---|---|---|---|
+| 1 | **İş Modeli Kanvası** | 🔴 **HİÇ YOK — ZORUNLU TESLİMAT** | 9 kutunun metnini ürüne özel yazabilir; ekip Canva'ya aktarır |
+| 2 | **Deck güncellemesi** | 🔴 ~12 ayrıştırıcı özelliğin **hiçbiri deck'te yok** | Slayt metinlerini yazabilir. Malzeme `README.md` §11 ve `PROGRESS.md` §11-§14'te hazır |
+| 3 | Deck'te **"hile önleyici kontroller"** ifadesi | 🔴 yanlış — üründe engelleme yok, kayıt var | Doğru ifade: **"sınav bütünlüğü kaydı — öğretmene şeffaf sinyal"** |
+| 4 | **Rakip analizi tablosu** | `canva.docx`'te var, deck'e taşınmadı | Kreaton rehberi bunu kritik tavsiye sayıyor |
+| 5 | **Demo videosu** | yok | Çekim senaryosu yazabilir (hangi ekran, hangi sıra, kaç saniye) |
+| 6 | **Ekran görüntüleri** | README'de tek ürün görseli yok | Asistanın tarayıcı aracı dosyaya kaydedemiyor; kullanıcı alıp `docs/` altına koyarsa asistan yerleştirir |
+| 7 | **`v-demo` tag'i** | atılmadı | `agents.md` §8: sunumdan 24 saat önce (≈4 Eylül) |
+| 8 | **Kota kontrolü** | — | Sunum öncesi §4.6'yı oku |
+
+## 5.2 ★ İLK GÖREV — yeni oturumda buradan başla
+
+> **Kullanıcı başka bir şey söylemediyse: İş Modeli Kanvası taslağını yaz
+> (§5.1 madde 1), ardından deck için slayt metinlerini hazırla (madde 2-4).**
+
+**Gerekçe:** Kod tarafı güçlü ve doğrulanmış durumda (§4.5). Ama **jüri kodu
+okumaz, deck'i izler.** 26 Ağustos'ta eklenen 12 ayrıştırıcı özelliğin hiçbiri
+sunumda yok ve zorunlu bir teslimat (kanvas) hâlâ eksik. Bu noktada 13.
+özelliği eklemek, 12'sinin görünmemesi sorununu çözmez.
+
+Kanvas yazarken kullanılacak gerçek malzeme:
+- **Değer önerisi:** `README.md` "Neden bu proje farklı" tablosu
+- **Müşteri segmentleri:** brief'in 4 rolü (`PROGRESS.md` §7b)
+- **Maliyet yapısı:** `PROGRESS.md` §7g'de ölçülmüş gerçek maliyetler
+  (tam demo turu $0,0116 Workers AI / $0,0020 gpt-5-nano)
+- **Ayrıştırıcılar:** `PROGRESS.md` §11-§14
+
+## 5.3 Kod tarafında bilinçli bırakılanlar (finale, 5-6 Eylül)
+
+Hiçbiri demoyu engellemez. Öncelik sırasıyla:
+
+| # | Eksik | Not |
+|---|---|---|
+| 1 | **Zincir yedek** (Workers AI → Gemini → OpenAI) | §4.6'daki kota sorununun tek gerçek çözümü. `callModelJson` değişikliği + test gerekir; OpenAI anahtarı/kredisi kullanıcıda |
+| 2 | **CSP'de `style-src 'unsafe-inline'`** | `app.js` 87 yerde inline `style="..."` kullanıyor. Stiller sınıflara taşınırsa bu izin kaldırılabilir ve CSP güçlenir |
+| 3 | Isı haritasındaki **"(örnek)" satırları** | Karşılaştırma sınıfları (6-A, 8-B, 8-C) demo verisi. Canlı şubeler (7-A, 7-B) gerçek veriden. Arayüzde "(örnek)" etiketli — yanıltma yok |
+| 4 | **Diğer dersler için kazanım katalogları** | Türkçe 7 yapıldı, kalıp hazır (`public/mufredat/turkce-7.json`). Matematik/Fen eklenebilir |
+| 5 | **AI karar günlüğü / denetim izi** | Hangi model, hangi istem, ne önerdi, öğretmen ne yaptı — indirilebilir. HITL tezinin en güçlü kanıtı olurdu |
+| 6 | Maliyet şeffaflığı paneli · soru havuzu benzerlik denetimi · öğrenci erişilebilirliği (süre uzatma, disleksi dostu font) | `PROGRESS.md` §11f'deki seçenek havuzu |
+
+## 5.4 Reddedilmiş işler (tekrar önerilmemeli, gerekçeleri kayıtlı)
+
+| İş | Neden reddedildi |
+|---|---|
+| **Hazır soru bankası entegrasyonu** | Ana değer önerisiyle çelişiyor: ürün "AI soru üretiyor" diyor; hazır havuz jüriye *"AI'a ne gerek var?"* dedirtir. Ayrıntı `PROGRESS.md` §13a |
+| `sorular.json` düzeltme | 85 kaydın %46'sında iki sütun birleşmiş, %35'inde ters yazım, şıklarda iki sorunun seçenekleri karışık (bir kayıtta 43 şık) ve **hiçbir kayıtta doğru cevap yok**. Sütun ayrımı için gereken koordinat bilgisi kayıp. `PROGRESS.md` §12a |
+| Modelden "kendi kendine yeten soru üret" istemek | Türkçe okuma kazanımlarını imkânsız kılardı. Doğru çözüm uyaran metin oldu (§3.5) |
+| Better Auth / kalıcı D1 yazımı / migrations | Bilinçli kapsam kararı. `PROGRESS.md` §6 |
+
+---
+
+# 6. Özel Kurallar
+
+## 6.1 Çalıştırma ve sürümler
 
 ```bash
 npm install
-npx wrangler login
-npm run dev:demo       # http://localhost:8787
-npm run deploy:demo    # canlıya al
-npm run lint           # tsc --noEmit
-npm run check:config   # JSONC doğrula
+npx wrangler login          # bir kez
+npm run dev:demo            # http://localhost:8787
+npm run deploy:demo         # ★ CANLIYA AL (demo yapılandırması)
+npm run lint                # tsc --noEmit
+npm test                    # vitest run — 88 test
+npm run check:config        # JSONC doğrula (yapılandırma değiştiyse ZORUNLU)
+python tools/injection-test.py <taban-url>   # güvenlik testi
 ```
 
----
+**⚠️ `npm run deploy` (üretim) DEĞİL, `npm run deploy:demo` kullanılır.**
+Üretim yapılandırması D1+R2+Queues bağlar ve deploy başarısız olur.
 
-## 4. Tüm Güncel Kodlar
+| Bağımlılık | package.json | Kurulu gerçek |
+|---|---|---|
+| Node | `>=18` | **24.19.0** |
+| npm | — | 11.17.0 |
+| hono | `^4.6.14` | 4.13.4 |
+| zod | `^3.24.1` | 3.25.76 |
+| **wrangler** | `^4.125.0` | **4.125.0** |
+| vitest | `^2.1.8` | 2.1.9 |
+| typescript | `^5.7.2` | 5.9.3 |
+| @cloudflare/workers-types | `^5.20260825.1` | — |
 
-**Kod bu dokümana gömülmemiştir. Bu bilinçli bir karardır:**
+**Wrangler 4 şarttır, 3 değil:** `assets.run_worker_first` dizi biçimi
+Wrangler 4 gerektiriyor. Bu yüzden `@cloudflare/workers-types` da 5 olmalı.
+`@cloudflare/vitest-pool-workers` **kaldırıldı** — Wrangler 4 ile çözülemez
+peer çakışması yaratıyordu. Testler düz `vitest` ile Node altında koşuyor;
+bu yüzden test edilecek kod Cloudflare çalışma zamanına bağlı olmamalı
+(bkz. `src/lib/guards.ts`).
 
-- `public/app.js` tek başına **176 KB**, `app.css` **37 KB**, toplam kod
-  ~250 KB. Bir sohbet mesajına sığmaz; sığdırılmaya çalışılırsa model
-  kaçınılmaz olarak kısaltır veya **hatırlamadığı yerleri uydurur.**
-- Depodan `git clone` ile alınan kod **kayıpsız, versiyonlu ve doğrulanabilir.**
-- Bu projede daha önce bir aktarım denemesinde tam da bu yaşandı; `PROGRESS.md`
-  §5'te kayıtlı.
+**Model:** `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (birincil) ·
+`gemini-3.7-flash` (yedek, OpenAI uyumlu uç).
+**MODEL EĞİTİLMEDİ.** Hazır bir model kullanılıyor; yapılan iş onu rubrik ve
+kaynak kısıtlarına, şema doğrulamasına ve insan onay zincirine tabi kılmaktır.
+Jüri sorarsa cevap `PROGRESS.md` §7f'de hazır.
 
-```bash
-git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
-cd t3-olcme-degerlendirme && npm install
-```
+## 6.2 Mimari kurallar (`agents.md` özeti — bunlar bağlayıcıdır)
 
-**Okuma sırası:** `PROGRESS.md` → `agents.md` → `src/lib/prompts.ts` →
-`src/lib/ai.ts` → `src/routes/ai.ts` → `public/app.js`
+- **§1 HITL değiştirilemez.** Otomatik onay eşiği eklenemez. Bir PR öğretmen
+  onayını bypass ediyorsa gerekçesi ne olursa olsun reddedilir.
+- Her `POST`/`PATCH` gövdesi **Zod** ile doğrulanır. Doğrulamasız
+  `c.req.json()` code review'da otomatik reddedilir.
+- Her hata yanıtı `{ "error": "<kısa_kod>", "message": "..." }` biçiminde
+  döner. Zod hataları `onInvalid` kancasıyla bu biçime normalleştirilir.
+- `max_tokens` her model çağrısında **açıkça** verilir. Sınırsız üretim
+  isteği reddedilir.
+- Kaynak metin **6.000 karakterle** sınırlı (`MAX_SOURCE_CHARS`). Aşılırsa
+  sessizce kırpılmaz, 413 döner.
+- Her AI ucunda **dakika bazlı hız sınırı** vardır. Limit uca göre değişir:
+  soru üretimi/rubrik/örnek yanıt 5/dk, değerlendirme 45/dk (bir sınıfın
+  tamamı meşru olarak değerlendirilir).
+- D1'e string birleştirmeyle SQL yazılmaz; `db.prepare(...).bind(...)`
+  kullanılır.
+- Sırlar `wrangler secret put` ile yönetilir, **koda veya depoya asla
+  girmez.** `.dev.vars` `.gitignore`'da.
+- Öğrenci verisiyle ilgili her değişiklikte `public/privacy-policy.html`
+  güncellenir (§7).
+- `main` her zaman deploy edilebilir durumda kalır. Commit mesajları
+  Conventional Commits (`feat:` `fix:` `docs:` `sec:` `test:` `chore:`).
 
----
+## 6.3 ★ Bu projeye özgü, sert öğrenilmiş dersler
 
-## 5. Mevcut Durum
+Bunların her biri **gerçekten yaşanmış bir hatanın** sonucudur. Yeni kod
+yazarken bunlara uyulmazsa aynı hatalar tekrarlanır.
 
-### 6 zorunlu MVP maddesinin tamamı ✅
-Ayrıntılı denetim tablosu `PROGRESS.md` §7b'de. Özet: içerik+kazanım tanımlama ·
-ÇSS ve açık uçlu üretimi · havuz+filtre+sınav kurma · rubrik · rubrik tabanlı
-AI ön değerlendirme + öğretmen onayı · kazanım analizi. Üç zorunlu akış da
-uçtan uca çalışıyor.
+**1. `public/app.js` 238 KB — blok değiştirirken sınırları doğrula.**
+Bir yeniden yazımda `critRowHtml` ile `teacherTab3Html` arasındaki aralık
+fazladan 4 fonksiyon kapsadı ve onlar silindi; öğretmen sekmesi canlıda
+kırıldı. Bu yüzden dosya başında **öz-kontrol** var: 107 fonksiyonun varlığını
+denetler, eksikse ekranda kırmızı uyarı basar.
+**Yeni fonksiyon eklediysen `selfCheck` listesine eklemeyi unutma.**
 
-### Brief'i aşan özellikler
-kapalı döngü (analizden soru üretimine dönüş) · kazanım kapsama denetimi ·
-sınav bütünlüğü kaydı (yapıştırma tespiti dahil) · AI güven skoruna göre
-sıralama · Bloom etiketi · çeldirici gerekçeleri · çoklu sınav · çoklu öğrenci ·
-sınıflar arası ısı haritası · gelişim trendi · değerlendirme önbelleği ·
-otomatik yedek sağlayıcı · KVKK metni
+**2. CSS sınıflarını kapsayıcıya bağlı tanımlama.**
+`.opt-row` yalnızca `.q-card` içinde tanımlıydı; öğrenci sınav ekranında
+kullanıldığında hiç stil almadı (şık harfi metne yapıştı: `AF = m * a`).
+Aynı hata `.cv-warn` ile tekrarlanmak üzereydi. Bugün eklenen tüm sınıflar
+(`.ia-*`, `.cal-*`, `.mis-*`, `.kat-*`, `.bl-*`, `.al-*`, `.src-*`,
+`.fb-draft`, `.inj-warn`, `.oc-*`) **bilinçli olarak bağımsızdır.**
 
-**26 Ağustos'ta eklenenler** (ayrıntı `PROGRESS.md` §11-§14):
-prompt injection sertleştirmesi + öğretmene sinyal · **madde analizi**
-(güçlük/ayırt edicilik/işlevsiz çeldirici) · **öğretmen-AI uyumu** ve güven
-skoru kalibrasyonu · **kavram yanılgısı kümeleme** · **gerçek MEB müfredat
-kataloğu** (96 kazanım, yazılı/performans/süreç ayrımıyla) · **Bloom düzey
-dengesi** · **kazanım-soru hizalama denetimi** (içerik geçerliği) ·
-**uyaran metin** (metne dayalı soru artık metinle birlikte sunuluyor) ·
-**öğrenciye geri bildirim taslağı** · mobil uyum · güvenlik başlıkları
+**3. Metin girdilerinde `renderAll()` çağırma — odak kaybolur.**
+Açık uçlu yanıtlar bir dönem hiç kaydedilmiyordu; "Kaydedildi ✓" göstergesi
+tamamen görseldi. Çözüm: `saveSoon()` (400 ms geciktirmeli kayıt).
+"Nota Aktar" düğmesi de bu yüzden `renderAll` çağırmaz, DOM'u doğrudan
+günceller.
 
-### Ölçülen değerler (canlı, 26 Ağustos)
-| İşlem | Süre |
-|---|---|
-| Soru üretimi (1 ÇSS + 1 açık uçlu) | ~9,7 sn |
-| Soru üretimi (2 ÇSS + 1 açık uçlu) | 10-17 sn |
-| Açık uçlu değerlendirme | 3,3-5,5 sn |
-| Rubrik taslağı | ~2,7 sn |
-| Kavram yanılgısı kümeleme | ~5,1 sn |
-| Kazanım hizalama denetimi | 2,5-3,3 sn |
-| Önbellekten değerlendirme | **0-6 ms** |
-| **Prompt injection (5 vektör)** | **5/5 savunuldu** |
+**4. Prompt'taki örnek değerler kopyalanır.**
+İstemdeki `"confidence": 0.72` örneği yüzünden model her yanıta 0.72 yazıyordu
+ve güven skoruna göre sıralama işlevsizdi. **Örneklere sabit sayı koyma.**
 
-### Doğrulanmış son durum (26 Ağustos)
-`npm run lint` temiz · `npx tsc --noEmit` temiz · `npm run check:config` 2/2 ·
-açılıştaki öz-kontrol temiz · 4 rol × tüm sekmeler render hatasız · 7 AI ucu
-canlıda 200 · mobilde yatay taşma yok (375 px) · XSS testi 14 alanda sızma yok ·
-güvenlik başlıkları aktif (CSP dahil) · mimari sayfasındaki Mermaid diyagramları
-render ediliyor.
+**5. Sessiz geri düşüş yasak.**
+Model çağrısı başarısız olursa simülasyona düşüp sahte çıktıyı "AI üretti"
+diye gösterme. Kullanıcının ilk şikâyeti buydu. Ne olduğu **ekranda yazar:**
+yedek model kullanıldıysa, sonuç önbellekten geldiyse, veri simüleyse.
 
----
+**6. Model çıktısı güvenilmezdir — sunucuda normalleştir.**
+Şema doğrulaması yeterli değil. Örnekler: `studentCount` analiz edilen yanıt
+sayısını aşamaz; hizalama önerisi aday listesinde yoksa temizlenir (model kod
+uyduramaz); `needsSource` gövdeden deterministik olarak da denetlenir.
 
-## 6. Çözülmemiş Sorunlar ve Sonraki Adımlar
+**7. İnline module script CSP ile çalışmaz.**
+`unsafe-inline` izni inline `<script type="module">` için **geçersizdir**
+(modüller nonce/hash ister). `mimari.html`'in yükleyicisi bu yüzden
+`mimari.js`'e taşındı. Yeni sayfa eklerken script'i harici dosyaya koy.
 
-### 🔴 KALDIĞIMIZ NOKTA — buradan devam et
+**8. JSONC'u regex ile ayrıştırma.**
+`//` dizisi URL'lerin içinde de geçer. `npm run check:config` kullan.
+Bu dosyada daha önce sondaki virgül deploy'u kırdı.
 
-**Teslim 27 Ağustos 2026.** Kod tarafı güçlü durumda; sıradaki iş **kod dışı
-teslimatlar**.
+**9. Yama dosyaya yazılmadan hata verirse dur.**
+Sonraki adımlar o değişikliklere bağımlı kod yazmasın. Bir kez oldu, uygulama
+tutarsız kaldı.
 
-#### Bitmiş olanlar (ayrıntı: `PROGRESS.md` §10-§14)
+**10. Hız sınırı isolate başınadır.**
+`hits` Map'i bellek içidir ve Cloudflare Workers'da her isolate için ayrıdır;
+dağıtık garanti değildir. `agents.md` §7.4 buna izin veriyor ama jüri sorarsa
+dürüst cevap: *"tek isolate içinde çalışır, üretimde D1/KV'ye taşınır."*
 
-| Konu | Durum |
-|---|---|
-| Gemini yedek sağlayıcı testi | ✅ `gemini-3.7-flash` canlıda doğrulandı (§10f) |
-| Prompt injection savunması | ✅ 6/6 istemde sertleştirme, 5 vektörle test (§10e, §14e) |
-| Madde analizi · kalibrasyon · kavram yanılgısı | ✅ (§11) |
-| MEB müfredat kataloğu (96 kazanım) | ✅ (§12) |
-| Bloom dengesi · kazanım-soru hizalama denetimi | ✅ (§13) |
-| Ders-sınıf-kazanım tutarlılığı | ✅ (§14a) |
-| **Uyaran metin** — "Metne göre…" sorusu artık metinle gösteriliyor | ✅ (§14c) |
-| Öğrenciye geri bildirim taslağı | ✅ (§14d) |
-| Güvenlik denetimi (rate limit, CSP, gizlilik metni) | ✅ (§14e) |
-| Mobil uyum ve erişilebilirlik turu | ✅ (§10h) |
+## 6.4 Kullanıcının açıkça istediği çalışma biçimi
 
-#### 🔴 Sıradaki iş — KOD DIŞI TESLİMATLAR
-
-1. **İş Modeli Kanvası — hâlâ hiç yok, ZORUNLU TESLİMAT.**
-2. **Deck bugünkü işlerin hiçbirini bilmiyor.** Eklenen ~12 ayrıştırıcı
-   özelliğin hiçbiri sunumda yok. Jüri kodu okumaz; anlatılmayan özellik yok
-   sayılır. Malzeme `README.md` §11 ve `PROGRESS.md` §11-§14'te hazır.
-3. Deck'te **"hile önleyici kontroller"** → **"sınav bütünlüğü kaydı"**
-   olarak düzeltilmeli (üründe engelleme yok, kayıt var).
-4. Rakip analizi tablosu `canva.docx`'te var, deck'e taşınmadı.
-5. Demo videosu.
-
-#### ⚠️ Demo günü için bilinmesi gerekenler
-
-- **Workers AI günlük kotası 26 Ağustos'ta doldu.** Kota dolduğunda sistem
-  yedeğe düşer; yedek **Gemini ücretsiz katmanı günde yalnızca 20 istek**
-  kabul eder (ölçüldü, §14f). İkisi de tükendiğinde AI uçları 502 döner ve
-  bu ekranda açıkça yazılır (sessiz düşüş yok) — ama demo yapılamaz.
-  **Sunumdan önce kota tazeliğini kontrol edin** ve gereksiz deneme yapmayın.
-- Değerlendirme önbelleği (§7h) aynı yanıt+rubrik için yeniden ücret ödemez;
-  provada bunu kullanın.
-- `v-demo` tag'i (`agents.md` §8) sunumdan 24 saat önce atılmalı.
-
-### Diğer açık işler (kod tarafı)
-
-Aşağıdakiler bilinçli olarak finale (5-6 Eylül) bırakıldı; hiçbiri jüri
-demosunu engellemez:
-
-- **`label`/`for` erişilebilirlik turu** — `app.js` genelinde
-  `<div class="field"><label>…</label><input></div>` kalıbı var; `label`'da
-  `for`, `input`'ta `id` yok, ekran okuyucu ikisini bağlamıyor. Rubrik
-  ekranındaki kritik alanlar `aria-label` ile tek tek düzeltildi (§10h);
-  kalanı onlarca yerde tekrarlanıyor, teslim günü toplu değişiklik riskli
-  görüldü.
-- **`npm test` boş** — `agents.md` §6 vitest testlerini zorunlu tutuyor.
-  Bugün eklenen saf hesap fonksiyonları (madde analizi, kalibrasyon, Bloom,
-  rate limit) birim testine çok uygun; tarayıcıda ve Node'da doğrulandılar
-  ama kalıcı test dosyası yok.
-- Isı haritasındaki "(örnek)" satırları hâlâ demo verisi. Canlı şubeler
-  (7-A, 7-B) gerçek veriden hesaplanıyor; yalnızca karşılaştırma sınıfları
-  (6-A, 8-B, 8-C) simüle ve arayüzde "(örnek)" etiketli.
-- Yerel yedek (simülasyon) modu soru türü/adet seçimini yok sayıyor.
-  Gerçek model seçime uyuyor (ölçüldü, §10a).
-- **CSP'de `style-src 'unsafe-inline'`** gerekli çünkü `app.js` 87 yerde
-  inline `style="…"` kullanıyor. Stiller sınıflara taşınırsa bu izin de
-  kaldırılabilir.
-- Gemini yedeğinin günlük 20 istek limiti (§14f). Dayanıklı çözüm zincir
-  yedek (Workers AI → Gemini → OpenAI) ya da kredi bazlı bir sağlayıcı.
-
----
-
-## 7. Geliştirme Kuralları
-
-### Kullanıcının açıkça istediği çalışma biçimi
-1. **Önce kontrol, sonra işlem.** "Önemli kararları alırken gerekli kontrolleri
-   sağla, önlemlerini al, sonra işleme geç. Hata istemem."
+1. **Önce kontrol, sonra işlem.** Önemli değişikliklerde önce riskleri
+   listele, önlemini al, sonra uygula. *"Hata istemem."*
 2. **Rasyonel ol, karşı çık.** Yanlış bir şey görürsen söyle; katılmıyorsan
    gerekçesiyle itiraz et. Kullanıcı bunu açıkça istedi.
-3. **Uydurma.** Fiyat, limit, sürüm gibi bilgileri hafızadan verme — kaynağa bak.
-   Bu oturumda "anahtar AIza ile başlar" varsayımı yanlış çıktı ve kullanıcıyı
-   boşuna uğraştırdı.
-4. **Her değişikliği test et, sonra commit et.** Ölçülen sayıları raporla.
-5. **`PROGRESS.md`'yi güncel tut** — bağlam kaybına karşı tek sigorta.
-6. **ETA ver.** İşlem öncesi tahmini süreyi söyle.
+3. **Uydurma.** Fiyat, limit, sürüm gibi bilgileri hafızadan verme — kaynağa
+   bak. Bu projede "anahtar AIza ile başlar" varsayımı yanlış çıktı ve
+   kullanıcıyı boşuna uğraştırdı.
+4. **Her değişikliği test et, ölçtüğün sayıları raporla, sonra commit et.**
+5. **`PROGRESS.md`'yi her adımda güncel tut** — bağlam kaybına karşı tek
+   sigorta.
+6. **İşlem öncesi tahmini süre (ETA) ver.**
+7. Türkçe konuş. Kullanıcıya görünen metinler Türkçe, kod içi adlar İngilizce.
 
-### Mimari kurallar (`agents.md` özeti)
-- **§7.1 HITL değiştirilemez.** Otomatik onay eşiği eklenemez.
-- Her `POST` gövdesi Zod ile doğrulanır.
-- Her hata yanıtı `{ error, message }` biçiminde döner.
-- `max_tokens` her çağrıda açıkça verilir; rate limit dakikada 5.
-- Kaynak metin 6000 karakterle sınırlı.
-- Sırlar `wrangler secret` ile yönetilir, koda/deponun içine ASLA girmez.
-- Öğrenci verisiyle ilgili değişiklikte `privacy-policy.html` güncellenir.
+---
 
-### Bu projeye özgü, sert öğrenilmiş dersler
-- **Sessiz geri düşüş yasak.** Model çağrısı başarısız olursa simülasyona düşüp
-  sahte çıktıyı "AI üretti" diye gösterme. Kullanıcının ilk şikâyeti buydu.
-- **Ne olduğunu ekranda yaz.** Yedek model kullanıldıysa, sonuç önbellekten
-  geldiyse, veri simüleyse — hepsi arayüzde görünür.
-- **Prompt'taki örnek değerler kopyalanır.** `"confidence": 0.72` örneği
-  yüzünden model her yanıta 0.72 yazıyordu; sıralama özelliği işlevsizdi.
-  Örneklere sabit sayı koyma.
-- **Blok değiştirirken sınırları doğrula.** Bir yeniden yazımda `critRowHtml`
-  ile `teacherTab3Html` arasındaki aralık fazladan 4 fonksiyon kapsadı ve
-  onlar silindi; öğretmen sekmesi canlıda kırıldı. Bunun için `app.js` başında
-  **öz-kontrol** var (50+ fonksiyonun varlığını denetler) — listeye yeni
-  fonksiyon eklemeyi unutma.
-- **JSONC'u regex ile ayrıştırma.** `//` dizisi URL'lerin içinde de geçiyor.
-  `npm run check:config` kullan.
-- **Yapılandırma değiştirdiysen `npm run check:config` çalıştır.** Bu dosyada
-  daha önce sondaki virgül deploy'u kırdı.
-- **Metin girdilerinde `renderAll()` çağırma** (odak kaybolur); `saveSoon()` ile
-  diske yaz. Açık uçlu yanıtlar bir dönem hiç kaydedilmiyordu, "Kaydedildi ✓"
-  göstergesi tamamen görseldi.
-- **Yama dosyaya yazılmadan hata verirse, sonraki adımlar o değişikliklere
-  bağımlı kod yazmasın.** Bu oturumda bir kez oldu, uygulama tutarsız kaldı.
+## Okuma sırası (yeni asistan için)
+
+1. Bu dosya (§5 İlk Görev'e özellikle dikkat)
+2. `agents.md` — bağlayıcı kurallar
+3. `PROGRESS.md` §0 → §14 (özellikle §14f kota gerçeği)
+4. `src/lib/prompts.ts` — ürünün kalbi, jüriye gösterilen dosya
+5. `src/routes/ai.ts` → `src/schemas/ai.ts` → `src/lib/ai.ts`
+6. `public/app.js` — yalnızca değiştireceğin bölümü, sınırlarını doğrulayarak
