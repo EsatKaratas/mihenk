@@ -8,139 +8,162 @@
    "kod": "MAT.8.1.1",
    "alan": "Matematik",
    "metin": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.2.1",
-   "alan": "Matematik",
-   "metin": "Gerçek yaşam durumları üzerinden dik koordinat sistemini çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.3.1",
-   "alan": "Matematik",
-   "metin": "Matematiksel araç ve teknoloji yardımıyla üçgenin kenarları ve açıları arasındaki ilişkiyi yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.4.1",
-   "alan": "Matematik",
-   "metin": "Dik prizmalar, dikdörtgen dik piramit, dik dairesel silindir ve dik dairesel koninin yüzey açınımlarını çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.5.1",
-   "alan": "Matematik",
-   "metin": "Matematiksel araç ve teknoloji yardımıyla öteleme dönüşümünü çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.6.1",
-   "alan": "Matematik",
-   "metin": "Kategorik veya nicel (kesikli-sürekli) veri ile çalışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.7.1",
-   "alan": "Matematik",
-   "metin": "Gerçek yaşamda karşılaşabileceği bir olayın olasılığına ilişkin farklı olasılık yaklaşımlarından (öznel, deneysel, teorik) uygun olanı belirleyerek karar verebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.8.1.2",
    "alan": "Matematik",
    "metin": "Karşılaştığı problem durumlarında kareköklü ifadeler ile ilgili muhakeme yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.2.2",
-   "alan": "Matematik",
-   "metin": "Gerçek yaşam durumlarındaki doğrusal ilişkileri doğrusal fonksiyonlarla temsil edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.3.2",
-   "alan": "Matematik",
-   "metin": "Matematiksel araç ve teknoloji yardımıyla üçgenin kenar uzunlukları arasındaki ilişkiye yönelik çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.4.2",
-   "alan": "Matematik",
-   "metin": "Dik dairesel silindirin yüzey açınımına ilişkin deneyimlerini dik dairesel silindirin yüzey alanına yansıtabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.5.2",
-   "alan": "Matematik",
-   "metin": "Dik koordinat sisteminde geometrik şekillere ait noktaların apsis ve ordinatlarının öteleme dönüşümündeki değişimlerine ve eksenlere göre yansıma dönüşümündeki değişimlerine ilişkin çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.6.2",
-   "alan": "Matematik",
-   "metin": "Başkaları tarafından oluşturulan kategorik veya nicel (kesikli-sürekli) veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.8.1.3",
    "alan": "Matematik",
    "metin": "Sayıların rasyonel ya da irrasyonelliğini değerlendirebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.2.3",
-   "alan": "Matematik",
-   "metin": "Dik koordinat sisteminde iki doğrusal fonksiyonun birbirine göre durumuna ilişkin çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.3.3",
-   "alan": "Matematik",
-   "metin": "Bir üçgene eş üçgen oluşturmak için üçgenle ilgili bilinmesi yeterli olan elemanlara dair çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.4.3",
-   "alan": "Matematik",
-   "metin": "Dairenin alan bağıntısının oluşturulma sürecinden hareketle dik dairesel silindirin hacim bağıntısına yönelik analojik akıl yürütebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.8.5.3",
-   "alan": "Matematik",
-   "metin": "Öteleme ve yansıma dönüşümlerini içeren problemleri çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.8.1.4",
    "alan": "Matematik",
    "metin": "Gerçek sayıları ve aralıklarını sayı doğrusunda yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
+  },
+  {
+   "kod": "MAT.8.2.1",
+   "alan": "Matematik",
+   "metin": "Gerçek yaşam durumları üzerinden dik koordinat sistemini çözümleyebilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.8.2.2",
+   "alan": "Matematik",
+   "metin": "Gerçek yaşam durumlarındaki doğrusal ilişkileri doğrusal fonksiyonlarla temsil edebilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.8.2.3",
+   "alan": "Matematik",
+   "metin": "Dik koordinat sisteminde iki doğrusal fonksiyonun birbirine göre durumuna ilişkin çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
   },
   {
    "kod": "MAT.8.2.4",
    "alan": "Matematik",
    "metin": "Doğrusal fonksiyonlara ilişkin problemlerin çözümlerini algoritma ifade yöntemlerini kullanarak yapılandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.8.3.1",
+   "alan": "Matematik",
+   "metin": "Matematiksel araç ve teknoloji yardımıyla üçgenin kenarları ve açıları arasındaki ilişkiyi yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.8.3.2",
+   "alan": "Matematik",
+   "metin": "Matematiksel araç ve teknoloji yardımıyla üçgenin kenar uzunlukları arasındaki ilişkiye yönelik çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.8.3.3",
+   "alan": "Matematik",
+   "metin": "Bir üçgene eş üçgen oluşturmak için üçgenle ilgili bilinmesi yeterli olan elemanlara dair çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.8.3.4",
    "alan": "Matematik",
    "metin": "Bir üçgene benzer üçgen oluşturmak için üçgenle ilgili bilinmesi yeterli olan elemanlara dair çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.8.3.5",
    "alan": "Matematik",
    "metin": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.8.3.6",
    "alan": "Matematik",
    "metin": "Üçgende açı-kenar ilişkisi, üçgen eşitsizliği ve Pisagor bağıntısını içeren problemleri çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.8.4.1",
+   "alan": "Matematik",
+   "metin": "Dik prizmalar, dikdörtgen dik piramit, dik dairesel silindir ve dik dairesel koninin yüzey açınımlarını çözümleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.8.4.2",
+   "alan": "Matematik",
+   "metin": "Dik dairesel silindirin yüzey açınımına ilişkin deneyimlerini dik dairesel silindirin yüzey alanına yansıtabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.8.4.3",
+   "alan": "Matematik",
+   "metin": "Dairenin alan bağıntısının oluşturulma sürecinden hareketle dik dairesel silindirin hacim bağıntısına yönelik analojik akıl yürütebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.8.5.1",
+   "alan": "Matematik",
+   "metin": "Matematiksel araç ve teknoloji yardımıyla öteleme dönüşümünü çözümleyebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · DÖNÜŞÜM"
+  },
+  {
+   "kod": "MAT.8.5.2",
+   "alan": "Matematik",
+   "metin": "Dik koordinat sisteminde geometrik şekillere ait noktaların apsis ve ordinatlarının öteleme dönüşümündeki değişimlerine ve eksenlere göre yansıma dönüşümündeki değişimlerine ilişkin çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · DÖNÜŞÜM"
+  },
+  {
+   "kod": "MAT.8.5.3",
+   "alan": "Matematik",
+   "metin": "Öteleme ve yansıma dönüşümlerini içeren problemleri çözebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · DÖNÜŞÜM"
+  },
+  {
+   "kod": "MAT.8.6.1",
+   "alan": "Matematik",
+   "metin": "Kategorik veya nicel (kesikli-sürekli) veri ile çalışabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.8.6.2",
+   "alan": "Matematik",
+   "metin": "Başkaları tarafından oluşturulan kategorik veya nicel (kesikli-sürekli) veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.8.7.1",
+   "alan": "Matematik",
+   "metin": "Gerçek yaşamda karşılaşabileceği bir olayın olasılığına ilişkin farklı olasılık yaklaşımlarından (öznel, deneysel, teorik) uygun olanı belirleyerek karar verebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · VERİDEN OLASILIĞA"
   }
  ]
 }

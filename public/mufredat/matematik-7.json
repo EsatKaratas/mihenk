@@ -8,181 +8,211 @@
    "kod": "MAT.7.1.1",
    "alan": "Matematik",
    "metin": "Gerçek yaşam ya da matematiksel durumlarda doğal sayı, tam sayı ve rasyonel sayıları yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.2.1",
-   "alan": "Matematik",
-   "metin": "Gerçek yaşam durumları ya da matematiksel durumlar üzerinden cebirsel ifadelerle toplama, çıkarma ve bir rasyonel sayıyla çarpma işlemlerini yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.3.1",
-   "alan": "Matematik",
-   "metin": "Şekillerin yansıma dönüşümü altındaki görüntülerinin oluşturulmasına dair çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.1",
-   "alan": "Matematik",
-   "metin": "Eş küplerle oluşturulan yapılar ile görünümleri arasındaki ilişkiyi çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.5.1",
-   "alan": "Matematik",
-   "metin": "Matematiksel araç ve teknolojiden yararlanarak üçgende kenarortayı, açıortayı ve yüksekliği çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.6.1",
-   "alan": "Matematik",
-   "metin": "Kategorik veya nicel (sürekli) veri ile çalışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.7.1",
-   "alan": "Matematik",
-   "metin": "Bir olayın ve tümleyeninin olasılığına ilişkin tümevarımsal akıl yürütebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.2",
    "alan": "Matematik",
    "metin": "Gerçek yaşam durumlarında rasyonel sayıların ondalık gösterimlerini yansıtabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.2.2",
-   "alan": "Matematik",
-   "metin": "Birinci dereceden bir bilinmeyenli denklem ve birinci dereceden bir bilinmeyenli eşitsizlik içeren gerçek yaşam problemlerini çözebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.3.2",
-   "alan": "Matematik",
-   "metin": "Yansıma dönüşümündeki deneyimlerini orta dikme ve açıortay inşasına yansıtabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.2",
-   "alan": "Matematik",
-   "metin": "Dikdörtgenler prizmasının yüzey alanını yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.5.2",
-   "alan": "Matematik",
-   "metin": "Orta dikme inşasına yönelik deneyimlerini üçgende kenarortay inşasına yansıtabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.6.2",
-   "alan": "Matematik",
-   "metin": "Başkaları tarafından oluşturulan kategorik veya nicel (sürekli) veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.7.2",
-   "alan": "Matematik",
-   "metin": "Aynı deneye ait olayların eşit olasılıklı olma durumlarını değerlendirebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.3",
    "alan": "Matematik",
    "metin": "Rasyonel sayıların karşılaştırma ve sıralama ilişkilerini yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.2.3",
-   "alan": "Matematik",
-   "metin": "Sayılar ve özelliklerini içeren ispatlara ilişkin matematiksel muhakeme yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.3",
-   "alan": "Matematik",
-   "metin": "Dikdörtgenler prizmasının hacmini eş nesneler aracılığıyla yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.7.3",
-   "alan": "Matematik",
-   "metin": "Olayları ayrık olma ve ayrık olmama durumlarına göre sınıflandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.4",
    "alan": "Matematik",
    "metin": "Rasyonel sayılar ve işlemler içeren gerçek yaşam problemlerini çözebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.2.4",
-   "alan": "Matematik",
-   "metin": "Temel aritmetik ve cebirsel ifadelerle işlem içeren durumlardaki süreci algoritma ifade yöntemlerini kullanarak yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.4",
-   "alan": "Matematik",
-   "metin": "Dikdörtgenler prizmasının hacim bağıntısını değerlendirebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.5",
    "alan": "Matematik",
    "metin": "Gerçek yaşam durumları üzerinden oran ilişkileri hakkında muhakeme yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.5",
-   "alan": "Matematik",
-   "metin": "Hacim ölçme birimleri arasındaki ilişkileri değerlendirebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.6",
    "alan": "Matematik",
    "metin": "Gerçek yaşam durumları üzerinden orantılı durumları yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.7.4.6",
-   "alan": "Matematik",
-   "metin": "Günlük hayat durumlarında dikdörtgenler prizmaları ile modellenen cisimlerin yüzey alanı ve hacmine yönelik problem çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.7.1.7",
    "alan": "Matematik",
    "metin": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.2.1",
+   "alan": "Matematik",
+   "metin": "Gerçek yaşam durumları ya da matematiksel durumlar üzerinden cebirsel ifadelerle toplama, çıkarma ve bir rasyonel sayıyla çarpma işlemlerini yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.7.2.2",
+   "alan": "Matematik",
+   "metin": "Birinci dereceden bir bilinmeyenli denklem ve birinci dereceden bir bilinmeyenli eşitsizlik içeren gerçek yaşam problemlerini çözebilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.7.2.3",
+   "alan": "Matematik",
+   "metin": "Sayılar ve özelliklerini içeren ispatlara ilişkin matematiksel muhakeme yapabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.7.2.4",
+   "alan": "Matematik",
+   "metin": "Temel aritmetik ve cebirsel ifadelerle işlem içeren durumlardaki süreci algoritma ifade yöntemlerini kullanarak yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME VE DEĞİŞİMLER"
+  },
+  {
+   "kod": "MAT.7.3.1",
+   "alan": "Matematik",
+   "metin": "Şekillerin yansıma dönüşümü altındaki görüntülerinin oluşturulmasına dair çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · DÖNÜŞÜM"
+  },
+  {
+   "kod": "MAT.7.3.2",
+   "alan": "Matematik",
+   "metin": "Yansıma dönüşümündeki deneyimlerini orta dikme ve açıortay inşasına yansıtabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · DÖNÜŞÜM"
+  },
+  {
+   "kod": "MAT.7.4.1",
+   "alan": "Matematik",
+   "metin": "Eş küplerle oluşturulan yapılar ile görünümleri arasındaki ilişkiyi çözümleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.4.2",
+   "alan": "Matematik",
+   "metin": "Dikdörtgenler prizmasının yüzey alanını yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.4.3",
+   "alan": "Matematik",
+   "metin": "Dikdörtgenler prizmasının hacmini eş nesneler aracılığıyla yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.4.4",
+   "alan": "Matematik",
+   "metin": "Dikdörtgenler prizmasının hacim bağıntısını değerlendirebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.4.5",
+   "alan": "Matematik",
+   "metin": "Hacim ölçme birimleri arasındaki ilişkileri değerlendirebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.4.6",
+   "alan": "Matematik",
+   "metin": "Günlük hayat durumlarında dikdörtgenler prizmaları ile modellenen cisimlerin yüzey alanı ve hacmine yönelik problem çözebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
   },
   {
    "kod": "MAT.7.4.7",
    "alan": "Matematik",
    "metin": "Dikdörtgenin, paralelkenarın alanına ve çemberin uzunluğuna ilişkin deneyimlerini dairenin alan bağıntısına yansıtabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
   },
   {
    "kod": "MAT.7.4.8",
    "alan": "Matematik",
    "metin": "Çemberde merkez açı ve gördüğü yay uzunluğu arasındaki ilişkiden yola çıkarak daire ve daire diliminin alanları arasındaki ilişkiye yönelik analojik akıl yürütebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
   },
   {
    "kod": "MAT.7.4.9",
    "alan": "Matematik",
    "metin": "Eşkenar dörtgen ve yamuğun alan bağıntılarına dair çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
   },
   {
    "kod": "MAT.7.4.10",
    "alan": "Matematik",
    "metin": "Günlük hayat durumlarında daire, daire dilimi, eşkenar dörtgen ve yamuğun alanına ilişkin problem çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.7.5.1",
+   "alan": "Matematik",
+   "metin": "Matematiksel araç ve teknolojiden yararlanarak üçgende kenarortayı, açıortayı ve yüksekliği çözümleyebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.7.5.2",
+   "alan": "Matematik",
+   "metin": "Orta dikme inşasına yönelik deneyimlerini üçgende kenarortay inşasına yansıtabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.7.6.1",
+   "alan": "Matematik",
+   "metin": "Kategorik veya nicel (sürekli) veri ile çalışabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.7.6.2",
+   "alan": "Matematik",
+   "metin": "Başkaları tarafından oluşturulan kategorik veya nicel (sürekli) veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.7.7.1",
+   "alan": "Matematik",
+   "metin": "Bir olayın ve tümleyeninin olasılığına ilişkin tümevarımsal akıl yürütebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · VERİDEN OLASILIĞA"
+  },
+  {
+   "kod": "MAT.7.7.2",
+   "alan": "Matematik",
+   "metin": "Aynı deneye ait olayların eşit olasılıklı olma durumlarını değerlendirebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · VERİDEN OLASILIĞA"
+  },
+  {
+   "kod": "MAT.7.7.3",
+   "alan": "Matematik",
+   "metin": "Olayları ayrık olma ve ayrık olmama durumlarına göre sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · VERİDEN OLASILIĞA"
   }
  ]
 }

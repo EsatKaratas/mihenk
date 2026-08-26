@@ -8,259 +8,302 @@
    "kod": "FB.8.1.1",
    "alan": "Fen Bilimleri",
    "metin": "Dünya’nın Güneş etrafındaki hareketi ve eksen eğikliğinin sonuçları ile ilgili bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.2.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Basit makineleri sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.3.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Nükleotid, gen, DNA ve kromozom kavramları arasındaki ilişkiyi yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Sesin oluşumuna yönelik bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.5.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Elementleri periyodik tablo üzerinde metal, ametal, yarı metal ve soy gaz olarak sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Ampullerin bağlanma durumunun ampul parlaklığına etkisine yönelik deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.7.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Bitkilerde besin üretiminde fotosentezin önemini yapılandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · MEVSİMLER VE İKLİM"
   },
   {
    "kod": "FB.8.1.2",
    "alan": "Fen Bilimleri",
    "metin": "İklim ve hava olaylarını karşılaştırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · MEVSİMLER VE İKLİM"
+  },
+  {
+   "kod": "FB.8.2.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Basit makineleri sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · YAŞAMI KOLAYLAŞTIRAN KUVVET"
   },
   {
    "kod": "FB.8.2.2",
    "alan": "Fen Bilimleri",
    "metin": "Günlük yaşamda iş kolaylığı sağlayacak bilimsel model oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "2. Ünite · YAŞAMI KOLAYLAŞTIRAN KUVVET"
+  },
+  {
+   "kod": "FB.8.3.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Nükleotid, gen, DNA ve kromozom kavramları arasındaki ilişkiyi yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.2",
    "alan": "Fen Bilimleri",
    "metin": "DNA’nın yapısını model üzerinde bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Sesin yayılabildiği ortamlara yönelik deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.5.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Fiziksel ve kimyasal değişimler ile ilgili bilimsel gözleme dayalı tahmin edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Elektrik akımını operasyonel olarak tanımlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.7.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Fotosentez hızını etkileyen faktörler ile ilgili hipotez oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.3",
    "alan": "Fen Bilimleri",
    "metin": "Mitoz ve mayoz kavramları arasındaki ilişkiyi karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Sesin frekansına göre ince veya kalın olarak işitilmesine neden olan ses özellikleri ile ilgili deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.5.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Kimyasal tepkimelerle ilgili bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir devre elemanının uçları arasındaki potansiyel farkı (gerilimi) operasyonel olarak tanımlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.7.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Canlılarda solunumun önemini yapılandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.4",
    "alan": "Fen Bilimleri",
    "metin": "Kalıtımla ilgili kavramları yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Ses ile ilgili değişkenlerin işitmeye etkisi hakkında hipotez oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.5.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Kimyasal tepkimelerin günlük yaşamdaki etkilerine yönelik bilgi toplayabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.6.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir devre elemanının uçları arasındaki gerilim ile üzerinden geçen akım ilişkisine yönelik tümevarımsal akıl yürütebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.7.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Madde döngülerine ilişkin şema üzerinden bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.5",
    "alan": "Fen Bilimleri",
    "metin": "Tek karakter çaprazlamaları ile ilgili problemler çözerek sonuçlarına ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Farklı maddeler ile etkileşimi sonucunda sesin iletilmesi, yansıması ve soğurulmasına ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.5.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Asit ve bazların genel özelliklerini karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Özgün bir aydınlatma aracı modeli oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.7.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Madde döngülerinin yaşam açısından önemini yapılandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.6",
    "alan": "Fen Bilimleri",
    "metin": "Akraba evliliklerinin genetik sonuçlarını tartışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.4.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Ses kirliliğini önlemeye yönelik önlemleri bilimsel olarak sorgulayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.5.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddelerin asit veya baz olduğunu çeşitli ayıraçlar kullanarak bilimsel gözleme dayalı tahmin edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Elektrik enerjisinin dönüştüğü enerjileri sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.7.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Küresel iklim değişikliklerinin nedenlerini ve olası sonuçlarını tartışabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.7",
    "alan": "Fen Bilimleri",
    "metin": "Mutasyonla ilgili bilgi toplayabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.5.7",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.8.6.7",
-   "alan": "Fen Bilimleri",
-   "metin": "Elektrik enerjisinin ısı, ışık, ses veya hareket enerjisine dönüşümüne yönelik bilimsel model oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.8.7.7",
-   "alan": "Fen Bilimleri",
-   "metin": "Ülkemizdeki küresel iklim değişikliğinin sebep olduğu bir problemi çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "performans",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
   },
   {
    "kod": "FB.8.3.8",
    "alan": "Fen Bilimleri",
    "metin": "Canlıların yaşadıkları çevreye uyumlarına ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · YAŞAMIN GİZEMİ"
+  },
+  {
+   "kod": "FB.8.4.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Sesin oluşumuna yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.4.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Sesin yayılabildiği ortamlara yönelik deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.4.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Sesin frekansına göre ince veya kalın olarak işitilmesine neden olan ses özellikleri ile ilgili deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.4.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Ses ile ilgili değişkenlerin işitmeye etkisi hakkında hipotez oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.4.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Farklı maddeler ile etkileşimi sonucunda sesin iletilmesi, yansıması ve soğurulmasına ilişkin bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.4.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Ses kirliliğini önlemeye yönelik önlemleri bilimsel olarak sorgulayabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · SESİN DÜNYASI"
+  },
+  {
+   "kod": "FB.8.5.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Elementleri periyodik tablo üzerinde metal, ametal, yarı metal ve soy gaz olarak sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Fiziksel ve kimyasal değişimler ile ilgili bilimsel gözleme dayalı tahmin edebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Kimyasal tepkimelerle ilgili bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Kimyasal tepkimelerin günlük yaşamdaki etkilerine yönelik bilgi toplayabilme",
+   "uygunluk": "performans",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Asit ve bazların genel özelliklerini karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddelerin asit veya baz olduğunu çeşitli ayıraçlar kullanarak bilimsel gözleme dayalı tahmin edebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.5.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
   },
   {
    "kod": "FB.8.5.8",
    "alan": "Fen Bilimleri",
    "metin": "Asit ve bazların çeşitli maddeler üzerindeki etkilerine yönelik deney yapabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ"
+  },
+  {
+   "kod": "FB.8.6.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Ampullerin bağlanma durumunun ampul parlaklığına etkisine yönelik deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektrik akımını operasyonel olarak tanımlayabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir devre elemanının uçları arasındaki potansiyel farkı (gerilimi) operasyonel olarak tanımlayabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir devre elemanının uçları arasındaki gerilim ile üzerinden geçen akım ilişkisine yönelik tümevarımsal akıl yürütebilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Özgün bir aydınlatma aracı modeli oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektrik enerjisinin dönüştüğü enerjileri sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.6.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektrik enerjisinin ısı, ışık, ses veya hareket enerjisine dönüşümüne yönelik bilimsel model oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
   },
   {
    "kod": "FB.8.6.8",
    "alan": "Fen Bilimleri",
    "metin": "Elektrik enerjisi üretim santrallerini sınıflandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
   },
   {
    "kod": "FB.8.6.9",
    "alan": "Fen Bilimleri",
    "metin": "Elektrik enerjisi üretim santrallerinin avantaj ve dezavantajlarını tartışabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
   },
   {
    "kod": "FB.8.6.10",
    "alan": "Fen Bilimleri",
    "metin": "Elektrik enerjisinin bilinçli ve tasarruflu kullanılmasının önemini tartışabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN YOLCULUĞU"
+  },
+  {
+   "kod": "FB.8.7.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Bitkilerde besin üretiminde fotosentezin önemini yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Fotosentez hızını etkileyen faktörler ile ilgili hipotez oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Canlılarda solunumun önemini yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Madde döngülerine ilişkin şema üzerinden bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Madde döngülerinin yaşam açısından önemini yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Küresel iklim değişikliklerinin nedenlerini ve olası sonuçlarını tartışabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
+  },
+  {
+   "kod": "FB.8.7.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Ülkemizdeki küresel iklim değişikliğinin sebep olduğu bir problemi çözebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE MADDE DÖNGÜLERİ"
   }
  ]
 }

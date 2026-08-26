@@ -8,139 +8,162 @@
    "kod": "MAT.5.1.1",
    "alan": "Matematik",
    "metin": "Altı basamaklı sayıları okuma ve yazmayı daha çok basamaklı sayılara genelleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.2.1",
-   "alan": "Matematik",
-   "metin": "Eşitliğin korunumuna ve işlem özelliklerine yönelik çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.3.1",
-   "alan": "Matematik",
-   "metin": "Temel geometrik çizimler için matematiksel araç ve teknolojiden yararlanabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.4.1",
-   "alan": "Matematik",
-   "metin": "Kenar uzunlukları doğal sayı olan bir dikdörtgenin çevre uzunluğu verildiğinde kenar uzunluklarını yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.5.1",
-   "alan": "Matematik",
-   "metin": "Kategorik veri ile çalışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.6.1",
-   "alan": "Matematik",
-   "metin": "Herhangi bir olayın olasılığının 0 (imkânsız) ile 1 (kesin) arasında (0 ve 1 dâhil) olduğunu (olasılık spektrumu) yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.5.1.2",
    "alan": "Matematik",
    "metin": "Doğal sayılar ve işlemler içeren gerçek yaşam problemlerini çözebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.2.2",
-   "alan": "Matematik",
-   "metin": "Karşılaştığı günlük hayat ya da matematiksel durumlarda işlem önceliğini yorumlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.3.2",
-   "alan": "Matematik",
-   "metin": "Temel geometrik çizimlere dayalı deneyimlerini yansıtabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.4.2",
-   "alan": "Matematik",
-   "metin": "Birim karelerden yola çıkarak dikdörtgenin alanını değerlendirebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.5.2",
-   "alan": "Matematik",
-   "metin": "Başkaları tarafından oluşturulan kategorik veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.6.2",
-   "alan": "Matematik",
-   "metin": "Olayları az ya da çok olasılıklı şeklinde yapılandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.5.1.3",
    "alan": "Matematik",
    "metin": "Gerçek yaşam durumlarına karşılık gelen kesirleri farklı biçimlerde temsil edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.2.3",
-   "alan": "Matematik",
-   "metin": "Sayı ve şekil örüntülerinin kuralına ilişkin muhakeme yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.3.3",
-   "alan": "Matematik",
-   "metin": "Açıları ölçmek için matematiksel araç ve teknolojiden yararlanabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.4.3",
-   "alan": "Matematik",
-   "metin": "Kenar uzunlukları doğal sayı olan bir dikdörtgenin alanının ölçüsü verildiğinde çevre uzunluğunu, çevre uzunluğu verildiğinde alanını yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
   },
   {
    "kod": "MAT.5.1.4",
    "alan": "Matematik",
    "metin": "Farklı gösterimlerle ifade edilen kesirlerin karşılaştırılmasına yönelik çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · SAYILAR VE NİCELİKLER"
+  },
+  {
+   "kod": "MAT.5.2.1",
+   "alan": "Matematik",
+   "metin": "Eşitliğin korunumuna ve işlem özelliklerine yönelik çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME"
+  },
+  {
+   "kod": "MAT.5.2.2",
+   "alan": "Matematik",
+   "metin": "Karşılaştığı günlük hayat ya da matematiksel durumlarda işlem önceliğini yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME"
+  },
+  {
+   "kod": "MAT.5.2.3",
+   "alan": "Matematik",
+   "metin": "Sayı ve şekil örüntülerinin kuralına ilişkin muhakeme yapabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME"
   },
   {
    "kod": "MAT.5.2.4",
    "alan": "Matematik",
    "metin": "Temel aritmetik işlem içeren durumlardaki algoritmaları yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · İŞLEMLERLE CEBİRSEL DÜŞÜNME"
+  },
+  {
+   "kod": "MAT.5.3.1",
+   "alan": "Matematik",
+   "metin": "Temel geometrik çizimler için matematiksel araç ve teknolojiden yararlanabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.5.3.2",
+   "alan": "Matematik",
+   "metin": "Temel geometrik çizimlere dayalı deneyimlerini yansıtabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.5.3.3",
+   "alan": "Matematik",
+   "metin": "Açıları ölçmek için matematiksel araç ve teknolojiden yararlanabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.5.3.4",
    "alan": "Matematik",
    "metin": "Düzlemde iki veya üç doğrunun birbirine göre durumuna bağlı olarak oluşabilecek açılara dair çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "MAT.5.4.4",
-   "alan": "Matematik",
-   "metin": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.5.3.5",
    "alan": "Matematik",
    "metin": "Çokgenleri düzlemde ardışık olarak kesişen doğruların oluşturduğu kapalı şekiller olarak yorumlayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.5.3.6",
    "alan": "Matematik",
    "metin": "Çokgenlerin özellikleri ile ilgili edindiği deneyimleri yansıtabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
   },
   {
    "kod": "MAT.5.3.7",
    "alan": "Matematik",
    "metin": "Matematiksel araç ve teknoloji yardımıyla düzlemde iki noktada kesişen çember çiftinin merkezleri ve kesişim noktalarından biri ile inşa edilen üçgenlerin kenar özelliklerine yönelik çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · GEOMETRİK ŞEKİLLER"
+  },
+  {
+   "kod": "MAT.5.4.1",
+   "alan": "Matematik",
+   "metin": "Kenar uzunlukları doğal sayı olan bir dikdörtgenin çevre uzunluğu verildiğinde kenar uzunluklarını yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.5.4.2",
+   "alan": "Matematik",
+   "metin": "Birim karelerden yola çıkarak dikdörtgenin alanını değerlendirebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.5.4.3",
+   "alan": "Matematik",
+   "metin": "Kenar uzunlukları doğal sayı olan bir dikdörtgenin alanının ölçüsü verildiğinde çevre uzunluğunu, çevre uzunluğu verildiğinde alanını yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.5.4.4",
+   "alan": "Matematik",
+   "metin": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · GEOMETRİK NİCELİKLER"
+  },
+  {
+   "kod": "MAT.5.5.1",
+   "alan": "Matematik",
+   "metin": "Kategorik veri ile çalışabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.5.5.2",
+   "alan": "Matematik",
+   "metin": "Başkaları tarafından oluşturulan kategorik veriye dayalı istatistiksel sonuç veya yorumları tartışabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · İSTATİSTİKSEL ARAŞTIRMA SÜRECİ"
+  },
+  {
+   "kod": "MAT.5.6.1",
+   "alan": "Matematik",
+   "metin": "Herhangi bir olayın olasılığının 0 (imkânsız) ile 1 (kesin) arasında (0 ve 1 dâhil) olduğunu (olasılık spektrumu) yorumlayabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · VERİDEN OLASILIĞA"
+  },
+  {
+   "kod": "MAT.5.6.2",
+   "alan": "Matematik",
+   "metin": "Olayları az ya da çok olasılıklı şeklinde yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · VERİDEN OLASILIĞA"
   }
  ]
 }

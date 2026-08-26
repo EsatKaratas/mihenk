@@ -8,217 +8,253 @@
    "kod": "FB.6.1.1",
    "alan": "Fen Bilimleri",
    "metin": "Güneş sistemindeki gezegenleri niteliklerine göre sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.2.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir cisme etki eden aynı doğrultudaki kuvvetler arasındaki ilişkileri açıklayarak bileşke kuvveti yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.3.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Eşeyli ve eşeysiz üremeyi karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Işığın farklı yüzeylerdeki yansıma olaylarına ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Isı etkisiyle maddelerin genleşip büzüleceğine yönelik bilimsel gözleme dayalı tahmin edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.6.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddelerin elektriği iletme durumlarını gösteren deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.7.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Biyoçeşitliliğin doğal yaşam için önemini sorgulayabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · GÜNEŞ SİSTEMİ VE TUTULMALAR"
   },
   {
    "kod": "FB.6.1.2",
    "alan": "Fen Bilimleri",
    "metin": "Güneş sistemi ile ilgili bilimsel model oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.2.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Dengelenmiş ve dengelenmemiş kuvvetlerin etkisi altındaki bir cismin hareketine yönelik deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.3.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Bitkilerde üreme, büyüme ve gelişme hakkında bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Işığın yansımasında gelen ışın, yansıyan ışın ve yüzeyin normali arasındaki ilişki ile ilgili kanıt kullanabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddelerin erime, donma ve kaynama noktasını gösteren deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.6.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Elektrik devresindeki ampulün parlaklığının bağlı olduğu değişkenleri belirlemeye yönelik deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.7.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Biyoçeşitliliği tehdit eden faktörleri araştırma verilerine dayalı tahmin edebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "performans",
+   "grup": "1. Ünite · GÜNEŞ SİSTEMİ VE TUTULMALAR"
   },
   {
    "kod": "FB.6.1.3",
    "alan": "Fen Bilimleri",
    "metin": "Güneş ve Ay tutulması ile ilgili bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.2.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Sürat ve hız kavramlarını karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.3.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Tohumun çimlenmesine etki eden faktörlere ilişkin hipotez oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.6.4.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Günlük hayattaki ayna çeşitlerine ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Yoğunluğa ilişkin hesaplamalar yaparak bilimsel veriye dayalı tahmin edebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.6.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Ayarlanabilir direncin ampulün parlaklığına etkilerine yönelik bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.7.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Isınma amaçlı yakıt kullanımının insan ve çevre üzerine etkilerini tartışabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · GÜNEŞ SİSTEMİ VE TUTULMALAR"
   },
   {
    "kod": "FB.6.1.4",
    "alan": "Fen Bilimleri",
    "metin": "Güneş ve Ay tutulması ile ilgili bilimsel model oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "1. Ünite · GÜNEŞ SİSTEMİ VE TUTULMALAR"
+  },
+  {
+   "kod": "FB.6.2.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir cisme etki eden aynı doğrultudaki kuvvetler arasındaki ilişkileri açıklayarak bileşke kuvveti yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET"
+  },
+  {
+   "kod": "FB.6.2.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Dengelenmiş ve dengelenmemiş kuvvetlerin etkisi altındaki bir cismin hareketine yönelik deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET"
+  },
+  {
+   "kod": "FB.6.2.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Sürat ve hız kavramlarını karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET"
+  },
+  {
+   "kod": "FB.6.3.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Eşeyli ve eşeysiz üremeyi karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
+  },
+  {
+   "kod": "FB.6.3.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Bitkilerde üreme, büyüme ve gelişme hakkında bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
+  },
+  {
+   "kod": "FB.6.3.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Tohumun çimlenmesine etki eden faktörlere ilişkin hipotez oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.4",
    "alan": "Fen Bilimleri",
    "metin": "Hayvanlarda üreme, büyüme ve gelişme hakkında bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Işığın madde ile etkileşimi sonucunda soğurulabileceğini bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Deneyler sonucunda çeşitli maddelerin yoğunluklarına ilişkin tümdengelimsel akıl yürütebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.7.4",
-   "alan": "Fen Bilimleri",
-   "metin": "Yakın çevresindeki veya ülkemizdeki bir çevre problemini çözebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.5",
    "alan": "Fen Bilimleri",
    "metin": "İnsanda üremeyi sağlayan yapı ve organlar arasındaki ilişkileri çözümleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Beyaz ışığın tüm ışık renklerinin bileşiminden oluştuğuna ilişkin bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.5",
-   "alan": "Fen Bilimleri",
-   "metin": "Suyun katı ve sıvı hâllerine ait yoğunlukları karşılaştırarak bu durumun canlılar için önemi hakkında bilimsel çıkarımlar yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.6",
    "alan": "Fen Bilimleri",
    "metin": "Sinir sisteminin görevlerini model üzerinde bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Cisimlerin siyah, beyaz ve renkli görünmesini bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.5.6",
-   "alan": "Fen Bilimleri",
-   "metin": "Yoğunluk ile ilgili bilimsel model oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.7",
    "alan": "Fen Bilimleri",
    "metin": "İç salgı bezlerinin vücut için önemini yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.6.4.7",
-   "alan": "Fen Bilimleri",
-   "metin": "Güneş enerjisinin günlük hayat ve teknolojideki yenilikçi uygulamalarına ilişkin eleştirel düşünebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.8",
    "alan": "Fen Bilimleri",
    "metin": "Çocukluktan ergenliğe geçişte oluşan bedensel ve ruhsal değişimleri genelleyebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
   },
   {
    "kod": "FB.6.3.9",
    "alan": "Fen Bilimleri",
    "metin": "Denetleyici ve düzenleyici sistemlerin sağlığı için yapılması gerekenlerle ilgili bilgi toplayabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "3. Ünite · CANLILARDA SİSTEMLER"
+  },
+  {
+   "kod": "FB.6.4.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Işığın farklı yüzeylerdeki yansıma olaylarına ilişkin bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Işığın yansımasında gelen ışın, yansıyan ışın ve yüzeyin normali arasındaki ilişki ile ilgili kanıt kullanabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Günlük hayattaki ayna çeşitlerine ilişkin bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Işığın madde ile etkileşimi sonucunda soğurulabileceğini bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Beyaz ışığın tüm ışık renklerinin bileşiminden oluştuğuna ilişkin bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Cisimlerin siyah, beyaz ve renkli görünmesini bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.4.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Güneş enerjisinin günlük hayat ve teknolojideki yenilikçi uygulamalarına ilişkin eleştirel düşünebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN YANSIMASI VE RENKLER"
+  },
+  {
+   "kod": "FB.6.5.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Isı etkisiyle maddelerin genleşip büzüleceğine yönelik bilimsel gözleme dayalı tahmin edebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.5.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddelerin erime, donma ve kaynama noktasını gösteren deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.5.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Yoğunluğa ilişkin hesaplamalar yaparak bilimsel veriye dayalı tahmin edebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.5.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Deneyler sonucunda çeşitli maddelerin yoğunluklarına ilişkin tümdengelimsel akıl yürütebilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.5.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Suyun katı ve sıvı hâllerine ait yoğunlukları karşılaştırarak bu durumun canlılar için önemi hakkında bilimsel çıkarımlar yapabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.5.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Yoğunluk ile ilgili bilimsel model oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "5. Ünite · MADDENİN AYIRT EDİCİ ÖZELLİKLERİ"
+  },
+  {
+   "kod": "FB.6.6.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddelerin elektriği iletme durumlarını gösteren deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · ELEKTRİĞİN İLETİMİ VE DİRENÇ"
+  },
+  {
+   "kod": "FB.6.6.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektrik devresindeki ampulün parlaklığının bağlı olduğu değişkenleri belirlemeye yönelik deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · ELEKTRİĞİN İLETİMİ VE DİRENÇ"
+  },
+  {
+   "kod": "FB.6.6.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Ayarlanabilir direncin ampulün parlaklığına etkilerine yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · ELEKTRİĞİN İLETİMİ VE DİRENÇ"
+  },
+  {
+   "kod": "FB.6.7.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Biyoçeşitliliğin doğal yaşam için önemini sorgulayabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE ETKİLEŞİM"
+  },
+  {
+   "kod": "FB.6.7.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Biyoçeşitliliği tehdit eden faktörleri araştırma verilerine dayalı tahmin edebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE ETKİLEŞİM"
+  },
+  {
+   "kod": "FB.6.7.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Isınma amaçlı yakıt kullanımının insan ve çevre üzerine etkilerini tartışabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE ETKİLEŞİM"
+  },
+  {
+   "kod": "FB.6.7.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Yakın çevresindeki veya ülkemizdeki bir çevre problemini çözebilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE ETKİLEŞİM"
   }
  ]
 }

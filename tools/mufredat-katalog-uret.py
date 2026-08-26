@@ -57,7 +57,7 @@ def sinif_no(kod):
     return int(re.match(r'(?:T\.[ODKY]|FB|MAT)\.(\d+)\.', kod).group(1))
 
 
-def uret(ders, kaynak_ad, kayitlar, uyg_fn, alan_fn, cikti_onek):
+def uret(ders, kaynak_ad, kayitlar, uyg_fn, alan_fn, cikti_onek, unite_map=None):
     gruplar = collections.defaultdict(list)
     for kod, metin in kayitlar.items():
         gruplar[sinif_no(kod)].append((kod, metin))
@@ -65,15 +65,34 @@ def uret(ders, kaynak_ad, kayitlar, uyg_fn, alan_fn, cikti_onek):
     ozet = []
     for sinif in sorted(gruplar):
         kazanimlar = []
-        for kod, metin in sorted(gruplar[sinif], key=lambda x: (
-                x[0].split(".")[1] if ders == "Türkçe" else "",
-                int(x[0].split(".")[-1]), x[0])):
-            kazanimlar.append({
+        # SIRALAMA: seçicide gruplar doğru sırada çıksın diye ÖNCE ünite/alan,
+        # SONRA kazanım numarası. Eskiden yalnızca kazanım numarasına göre
+        # sıralanıyordu ve Fen 5'te "2. Ünite" başta, "1. Ünite" sonda çıkıyordu.
+        def sira(x):
+            p = x[0].split(".")
+            if ders == "Türkçe":
+                return (["O", "Y", "D", "K"].index(p[1]) if p[1] in "OYDK" else 9,
+                        int(p[-1]), x[0])
+            return (int(p[2]), int(p[-1]), x[0])   # ünite no, kazanım no
+
+        for kod, metin in sorted(gruplar[sinif], key=sira):
+            kayit = {
                 "kod": kod,
                 "alan": alan_fn(kod),
                 "metin": metin,
                 "uygunluk": uyg_fn(kod, metin),
-            })
+            }
+            # GRUP: seçicide başlık olarak kullanılır.
+            #   Fen/Matematik -> ünite adı (kodun 2. sayısı ünite numarasıdır)
+            #   Türkçe        -> beceri alanı (kodda ünite YOKTUR; temalar
+            #                    kazanımlara diktir, aynı okuma kazanımı her
+            #                    temada çalışılır — uydurma yapı kurulmadı)
+            if unite_map is not None:
+                u = unite_map.get(kod)
+                kayit["grup"] = (kod.split(".")[2] + ". Ünite · " + u) if u else "Ünite belirtilmemiş"
+            else:
+                kayit["grup"] = kayit["alan"]
+            kazanimlar.append(kayit)
         veri = {
             "ders": ders,
             "sinif": sinif,
@@ -101,13 +120,16 @@ if __name__ == "__main__":
         sys.exit(1)
     print()
 
-    for ders, kaynak, veri, uyg, alan_fn, onek in [
+    fen_u = json.load(io.open("fen-unite.json", encoding="utf-8"))
+    mat_u = json.load(io.open("mat-unite.json", encoding="utf-8"))
+
+    for ders, kaynak, veri, uyg, alan_fn, onek, umap in [
         ("Türkçe", "MEB Ortaokul Türkçe Dersi Öğretim Programı", tr,
-         uygunluk_turkce, lambda k: ALAN[k.split(".")[1]], "turkce"),
+         uygunluk_turkce, lambda k: ALAN[k.split(".")[1]], "turkce", None),
         ("Fen Bilimleri", "MEB Ortaokul Fen Bilimleri Dersi Öğretim Programı", fen,
-         uygunluk_fenmat, lambda k: "Fen Bilimleri", "fen"),
+         uygunluk_fenmat, lambda k: "Fen Bilimleri", "fen", fen_u),
         ("Matematik", "MEB Ortaokul Matematik Dersi Öğretim Programı", mat,
-         uygunluk_fenmat, lambda k: "Matematik", "matematik"),
+         uygunluk_fenmat, lambda k: "Matematik", "matematik", mat_u),
     ]:
-        ozet = uret(ders, kaynak, veri, uyg, alan_fn, onek)
+        ozet = uret(ders, kaynak, veri, uyg, alan_fn, onek, umap)
         print("%-14s" % ders, " ".join("%d.sınıf:%d %s" % (s, n, d) for s, n, d in ozet))

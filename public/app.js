@@ -871,7 +871,8 @@ function katalogKazanimlari() {
   if (!k || !k.kazanimlar) return [];
   return k.kazanimlar.map(function (x) {
     return { code: x.kod, label: x.kod + " — " + x.metin, subject: k.ders,
-             grade: k.sinif, uygunluk: x.uygunluk, alan: x.alan, katalogdan: true };
+             grade: k.sinif, uygunluk: x.uygunluk, alan: x.alan,
+             grup: x.grup || x.alan || "", katalogdan: true };
   });
 }
 
@@ -949,11 +950,30 @@ function kazanimSecenekleriHtml() {
       liste.map(function (o) { return secenek(o, uyarEtiketi); }).join("") + "</optgroup>";
   };
 
+  /* KONU + KAZANIM — iki katmanlı seçici (kullanıcı isteği).
+     AYRI BİR "Konu" ALANI AÇILMADI. Sebep: konu bağımsız bir seçim değil,
+     her kazanım tam olarak bir konuya ait. Ayrı alan olsaydı ders/sınıf/kazanım
+     uyuşmazlığının (§14a) aynısı konu düzeyinde tekrarlanırdı — öğretmen
+     "Kesirler" seçip "Geometri" kazanımı seçebilirdi.
+     Bunun yerine konu, seçicinin içinde BAŞLIK olarak görünür.
+
+     Gruplama dersin kendi yapısını izler, uydurulmaz:
+       Fen / Matematik -> ünite ("3. Ünite · CANLILARIN YAPISINA YOLCULUK")
+       Türkçe          -> beceri alanı (Okuma / Yazma / Dinleme / Konuşma)
+     Türkçe'de kodda ünite YOKTUR; temalar kazanımlara diktir (aynı okuma
+     kazanımı her temada çalışılır), bu yüzden tema dayatmak yanlış olurdu. */
+  const konuGruplari = {};
+  const konuSirasi = [];
+  katalog.forEach(function (o) {
+    const g = o.grup || "Diğer";
+    if (!konuGruplari[g]) { konuGruplari[g] = []; konuSirasi.push(g); }
+    konuGruplari[g].push(o);
+  });
+
   return yerTutucu +
     (katalog.length
       ? grupla("Eklenen kazanımlar", gosterilecek, true) +
-        grupla("MEB müfredatı — " + escapeHtml(String(state.ceForm.subject)) + " " +
-               escapeHtml(String(state.ceForm.grade)) + ". sınıf", katalog, false)
+        konuSirasi.map(function (g) { return grupla(g, konuGruplari[g], false); }).join("")
       : gosterilecek.map(function (o) { return secenek(o, true); }).join(""));
 }
 
@@ -2082,7 +2102,7 @@ function ceCreateHtml() {
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
     GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
     '</select></div>' +
-    '<div class="field field-outcome"><label>Kazanım</label>' +
+    '<div class="field field-outcome"><label for="ceOutcome">Konu ve Kazanım</label>' +
     '<div class="input-with-actions">' +
     '<select id="ceOutcome">' +
     // Yalnızca seçili ders + sınıfa ait kazanımlar listelenir. "Tümünü göster"
@@ -5429,6 +5449,12 @@ loadState();
 // localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
 // doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
 ensureOutcomeMeta();
+/* AÇILIŞTA SEÇİMİ NORMALLEŞTİR (kullanıcı bildirdi).
+   `outcomeSeciminiTazele()` yalnızca ders/sınıf DEĞİŞİNCE çağrılıyordu.
+   localStorage'dan uyumsuz bir seçim gelirse (ör. ders Türkçe, sınıf 7 ama
+   kazanım FEN.7.1.2) hiç düzeltilmiyor, ekranda "(başka ders/sınıf)" etiketiyle
+   duruyordu. Kullanıcı seçimi kendisi bozmadı — eski durum öyle kalmıştı. */
+outcomeSeciminiTazele();
 ensureSources();
 ensureStudents();
 ensureExamList();

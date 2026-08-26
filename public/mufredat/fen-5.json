@@ -8,163 +8,190 @@
    "kod": "FB.5.1.1",
    "alan": "Fen Bilimleri",
    "metin": "Güneş’in yapısı ve dönme hareketi ile ilgili bilgi toplayabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.5.2.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Kuvveti büyüklüğü ile operasyonel tanımlayabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.3.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Bitki ve hayvan hücrelerini temel kısımları ve özellikleri açısından karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.4.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir kaynaktan çıkan ışığın her yönde doğrusal bir yol izlediğini bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.5.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddeleri tanecikli, boşluklu ve hareketli yapısına göre sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.6.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir elektrik devresindeki elemanları sembollerinin olup olmamasına göre sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.7.1",
-   "alan": "Fen Bilimleri",
-   "metin": "Evsel atıklarda geri dönüştürülebilen ve dönüştürülemeyen maddeleri sınıflandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "performans",
+   "grup": "1. Ünite · GÖKYÜZÜNDEKİ KOMŞULARIMIZ VE BİZ"
   },
   {
    "kod": "FB.5.1.2",
    "alan": "Fen Bilimleri",
    "metin": "Ay’ın özellikleri, dönme ve dolanma hareketleri ile ilgili bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.2.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Basit araç gereçle bilimsel bir dinamometre modeli oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.5.3.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Hücre-doku-organ-sistem-organizma kavramlarını yapılandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.4.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Maddeleri ışığı geçirme durumlarına göre sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.5.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Isı ve sıcaklık kavramlarını karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.6.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Şemasını çizdiği elektrik devresine uygun deney yapabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.5.7.2",
-   "alan": "Fen Bilimleri",
-   "metin": "Kaynakların etkili kullanımı konusunda geri dönüşümün önemli olduğuna yönelik bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "1. Ünite · GÖKYÜZÜNDEKİ KOMŞULARIMIZ VE BİZ"
   },
   {
    "kod": "FB.5.1.3",
    "alan": "Fen Bilimleri",
    "metin": "Ay’ın evrelerini temsil eden bilimsel model oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.5.2.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Kütle ve ağırlık kavramlarını karşılaştırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.3.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Destek ve hareket sistemine ait yapıları sınıflandırabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.4.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Tam gölgeyi bilimsel olarak gözlemleyebilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.5.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
-   "uygunluk": "yazili"
-  },
-  {
-   "kod": "FB.5.6.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Bir elektrik devresindeki ampul parlaklığını etkileyen değişkenlerin neler olduğuna ilişkin hipotez oluşturabilme",
-   "uygunluk": "performans"
-  },
-  {
-   "kod": "FB.5.7.3",
-   "alan": "Fen Bilimleri",
-   "metin": "Yakın çevresinde atık yönetiminin uygulanabilirliğine ilişkin deneyimlerini yansıtabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "performans",
+   "grup": "1. Ünite · GÖKYÜZÜNDEKİ KOMŞULARIMIZ VE BİZ"
   },
   {
    "kod": "FB.5.1.4",
    "alan": "Fen Bilimleri",
    "metin": "Güneş, Dünya ve Ay’ın birbirlerine göre hareketlerini ve hacimsel büyüklüklerini temsil eden bilimsel model oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "1. Ünite · GÖKYÜZÜNDEKİ KOMŞULARIMIZ VE BİZ"
+  },
+  {
+   "kod": "FB.5.2.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Kuvveti büyüklüğü ile operasyonel tanımlayabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · KUVVETİ TANIYALIM"
+  },
+  {
+   "kod": "FB.5.2.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Basit araç gereçle bilimsel bir dinamometre modeli oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "2. Ünite · KUVVETİ TANIYALIM"
+  },
+  {
+   "kod": "FB.5.2.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Kütle ve ağırlık kavramlarını karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · KUVVETİ TANIYALIM"
   },
   {
    "kod": "FB.5.2.4",
    "alan": "Fen Bilimleri",
    "metin": "Sürtünme kuvvetinin çeşitli ortamlardaki etkilerine yönelik tümevarımsal akıl yürütebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "2. Ünite · KUVVETİ TANIYALIM"
+  },
+  {
+   "kod": "FB.5.3.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Bitki ve hayvan hücrelerini temel kısımları ve özellikleri açısından karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARIN YAPISINA YOLCULUK"
+  },
+  {
+   "kod": "FB.5.3.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Hücre-doku-organ-sistem-organizma kavramlarını yapılandırabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARIN YAPISINA YOLCULUK"
+  },
+  {
+   "kod": "FB.5.3.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Destek ve hareket sistemine ait yapıları sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "3. Ünite · CANLILARIN YAPISINA YOLCULUK"
   },
   {
    "kod": "FB.5.3.4",
    "alan": "Fen Bilimleri",
    "metin": "Destek ve hareket sisteminin sağlığı için yapılması gerekenler konusunda bilgi toplayabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "3. Ünite · CANLILARIN YAPISINA YOLCULUK"
+  },
+  {
+   "kod": "FB.5.4.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir kaynaktan çıkan ışığın her yönde doğrusal bir yol izlediğini bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN DÜNYASI"
+  },
+  {
+   "kod": "FB.5.4.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddeleri ışığı geçirme durumlarına göre sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN DÜNYASI"
+  },
+  {
+   "kod": "FB.5.4.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Tam gölgeyi bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili",
+   "grup": "4. Ünite · IŞIĞIN DÜNYASI"
+  },
+  {
+   "kod": "FB.5.5.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Maddeleri tanecikli, boşluklu ve hareketli yapısına göre sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
+  },
+  {
+   "kod": "FB.5.5.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Isı ve sıcaklık kavramlarını karşılaştırabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
+  },
+  {
+   "kod": "FB.5.5.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
   },
   {
    "kod": "FB.5.5.4",
    "alan": "Fen Bilimleri",
    "metin": "Maddenin ısı etkisiyle hâl değiştirebileceğini bilimsel gözleme dayalı tahmin edebilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
   },
   {
    "kod": "FB.5.5.5",
    "alan": "Fen Bilimleri",
    "metin": "Maddeleri ısı iletimi bakımından sınıflandırabilme",
-   "uygunluk": "yazili"
+   "uygunluk": "yazili",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
   },
   {
    "kod": "FB.5.5.6",
    "alan": "Fen Bilimleri",
    "metin": "Isı yalıtımını gösteren bilimsel model oluşturabilme",
-   "uygunluk": "performans"
+   "uygunluk": "performans",
+   "grup": "5. Ünite · MADDENİN DOĞASI"
+  },
+  {
+   "kod": "FB.5.6.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir elektrik devresindeki elemanları sembollerinin olup olmamasına göre sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "6. Ünite · YAŞAMIMIZDAKİ ELEKTRİK"
+  },
+  {
+   "kod": "FB.5.6.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Şemasını çizdiği elektrik devresine uygun deney yapabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · YAŞAMIMIZDAKİ ELEKTRİK"
+  },
+  {
+   "kod": "FB.5.6.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Bir elektrik devresindeki ampul parlaklığını etkileyen değişkenlerin neler olduğuna ilişkin hipotez oluşturabilme",
+   "uygunluk": "performans",
+   "grup": "6. Ünite · YAŞAMIMIZDAKİ ELEKTRİK"
+  },
+  {
+   "kod": "FB.5.7.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Evsel atıklarda geri dönüştürülebilen ve dönüştürülemeyen maddeleri sınıflandırabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE GERİ DÖNÜŞÜM"
+  },
+  {
+   "kod": "FB.5.7.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Kaynakların etkili kullanımı konusunda geri dönüşümün önemli olduğuna yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE GERİ DÖNÜŞÜM"
+  },
+  {
+   "kod": "FB.5.7.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Yakın çevresinde atık yönetiminin uygulanabilirliğine ilişkin deneyimlerini yansıtabilme",
+   "uygunluk": "yazili",
+   "grup": "7. Ünite · SÜRDÜRÜLEBİLİR YAŞAM VE GERİ DÖNÜŞÜM"
   }
  ]
 }
