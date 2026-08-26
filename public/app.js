@@ -4100,7 +4100,15 @@ function studentTab3Html() {
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="' + (res.correct ? "pill pill-success" : "pill pill-critical") + '">' + (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
         '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + escapeHtml(a.selectedKey || "—") + " · Doğru cevap: " + escapeHtml(q.correctKey) + '</div></div>';
     } else {
-      const rv = state.reviews[q.id], rub = state.rubrics[q.id], ev = state.aiEvals[q.id];
+      const rv = state.reviews[q.id], rub = state.rubrics[q.id];
+      /* AI DEĞERLENDİRMESİ OLMAYABİLİR — ve bu olağan bir durumdur:
+         model çağrısı başarısız olduğunda öğretmene "Elle Puanla ve Onayla"
+         seçeneği sunuluyor (§3.4 sessiz geri düşüş yasağı). O yol seçilirse
+         `aiEvals[q.id]` hiç oluşmaz.
+         Eskiden burada doğrudan `ev.breakdown` okunuyordu ve karne
+         ÇÖKÜYORDU — §4.4'te `mcResults` için düzeltilen hatanın birebir
+         aynısı, bu kez AI değerlendirmesi için. */
+      const ev = state.aiEvals[q.id] || {};
       // SAVUNMA: onay ya da rubrik kaydı yoksa çökmek yerine durumu söyle.
       if (!rv || !rub) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
@@ -4113,11 +4121,18 @@ function studentTab3Html() {
       const revize = rv.decision === "revised";
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
         '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
-        (revize
-          ? (rv.aiScore != null
-              ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
-              : 'Bu puanı öğretmeniniz doğrudan belirledi.')
-          : 'Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti.') + '</div>' +
+        /* DÜRÜSTLÜK: ortada hiç yapay zekâ önerisi yokken öğrenciye "yapay zekâ
+           önerisi onaylandı" demek yanlış beyandır. Öğretmen elle puanladıysa
+           (AI çağrısı başarısız olduğu için ya da tercihen) bunu olduğu gibi
+           söyle. HITL tezinin gereği: öğrenci puanın nasıl oluştuğunu doğru
+           bilmeli. */
+        (rv.aiScore == null && ev.aiScore == null
+          ? 'Bu puanı öğretmeniniz doğrudan belirledi; bu soruda yapay zekâ önerisi kullanılmadı.'
+          : revize
+            ? (rv.aiScore != null
+                ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
+                : 'Bu puanı öğretmeniniz doğrudan belirledi.')
+            : 'Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti.') + '</div>' +
         ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puan kırılımı</div>' : "") +
         (ev.breakdown || []).map(function (b) {
           return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
