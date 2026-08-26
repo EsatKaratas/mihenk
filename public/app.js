@@ -397,19 +397,94 @@ async function retryEvaluation(qid, sid) {
   }
 }
 
+/**
+ * Model kimliğini insan okunur kısa ada çevirir.
+ *
+ * NEDEN: Sağ üstte "@cf/meta/llama-3.3-70b-instruct-fp8-fast" yazıyordu —
+ * 38 karakterlik teknik gürültü. Öğretmenin bu kimliğe ihtiyacı yok; jürinin
+ * var, o yüzden SİLİNMİYOR, ayrıntı panelinde tam hâliyle duruyor.
+ *
+ * Sabit bir eşleme tablosu YAZILMADI: sağlayıcılar model adlarını sık
+ * değiştiriyor, tablo bayatlar. Bunun yerine kimlik biçimsel olarak
+ * sadeleştiriliyor; tanınmayan bir ad gelirse olduğu gibi gösterilir.
+ */
+function modelKisaAd(kimlik) {
+  var s = String(kimlik || "").trim();
+  if (!s) return "";
+  s = s.replace(/^@[^/]+\//, "").replace(/^[^/]+\//, "");   // @cf/meta/ önekini at
+  s = s.replace(/-instruct|-fp8|-fast|-preview|-latest/gi, ""); // teknik son ekler
+  s = s.replace(/[-_]+/g, " ").trim();
+  // "llama 3.3 70b" -> "Llama 3.3 70B" · "gpt 5.6 luna" -> "GPT 5.6 Luna"
+  var KISALTMA = { gpt: "GPT", ai: "AI", llm: "LLM", cf: "CF" };
+  return s.split(" ").map(function (k) {
+    var alt = k.toLocaleLowerCase("tr");
+    if (KISALTMA[alt]) return KISALTMA[alt];
+    if (/^\d/.test(k)) return k.toUpperCase();
+    return k.charAt(0).toLocaleUpperCase("tr") + k.slice(1);
+  }).join(" ");
+}
+
+/** Sağlayıcı kimliğini okunur ada çevirir. */
+function saglayiciAdi(p) {
+  var m = { "workers-ai": "Cloudflare Workers AI", openai: "OpenAI uyumlu uç", anthropic: "Anthropic" };
+  return m[String(p || "").toLowerCase()] || String(p || "bilinmiyor");
+}
+
+/** Durum çipinin ayrıntı panelini açar/kapatır. */
+function aiAyrintiToggle() {
+  state.aiAyrintiAcik = !state.aiAyrintiAcik;
+  renderAiBadge();
+}
+
+function aiAyrintiHtml() {
+  if (!state.aiAyrintiAcik) return "";
+  var a = state.ai;
+  var satir = function (etiket, deger, mono) {
+    return '<div class="aim-satir"><span class="aim-etiket">' + escapeHtml(etiket) + "</span>" +
+      '<span class="aim-deger' + (mono ? " mono" : "") + '">' + escapeHtml(deger) + "</span></div>";
+  };
+  var icerik = "";
+  if (a.mode === "live") {
+    icerik += satir("Sağlayıcı", saglayiciAdi(a.provider));
+    icerik += satir("Model", a.model || "—", true);
+    icerik += a.fallback
+      ? satir("Yedek", saglayiciAdi(a.fallback.provider) + " · " + (a.fallback.model || "—"))
+      : satir("Yedek", "yapılandırılmamış");
+    icerik += '<div class="aim-not">' +
+      (a.usingFallback
+        ? "Şu an <b>yedek model</b> yanıtlıyor — birincil sağlayıcı başarısız oldu."
+        : "Yedek yalnızca birincil sağlayıcı başarısız olursa devreye girer. " +
+          "Devreye girerse burada ve yanıtın kendisinde <b>açıkça yazar</b>; sessiz geçiş yoktur.") +
+      "</div>";
+  } else if (a.mode === "simulation") {
+    icerik += satir("Durum", "Yerel simülasyon");
+    if (a.error) icerik += satir("Sebep", a.error);
+    icerik += '<div class="aim-not">Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı ' +
+      "yerel yedeğe düştü. Üretilen içerik <b>gerçek model çıktısı değildir</b> ve ekranda böyle işaretlenir.</div>";
+  } else {
+    icerik += satir("Durum", "Denetleniyor…");
+  }
+  return '<div class="ai-mode-detay" id="aiModeDetay">' + icerik + "</div>";
+}
+
 function renderAiBadge() {
   const el = document.getElementById("aiModeSlot");
   if (el) {
     const live = state.ai.mode === "live";
-    const txt = state.ai.mode === "unknown" ? "AI modu denetleniyor…"
-      : live ? ((state.ai.usingFallback ? "Yedek model · " : "Gerçek model · ") + (state.ai.model || state.ai.provider))
-      : "Yerel simülasyon" + (state.ai.error ? " · " + state.ai.error : "");
+    const kisa = modelKisaAd(state.ai.model) || saglayiciAdi(state.ai.provider);
+    const txt = state.ai.mode === "unknown" ? "Model denetleniyor…"
+      : live ? ((state.ai.usingFallback ? "Yedek model · " : "Gerçek model · ") + kisa)
+      : "Yerel simülasyon";
     const cls = !live ? "pill-warning" : (state.ai.usingFallback ? "pill-accent2" : "pill-success");
-    el.innerHTML = '<span class="pill ' + cls + '" title="' +
-      (state.ai.fallback ? "Yedek sağlayıcı hazır: " + escapeHtml(state.ai.fallback.model || state.ai.fallback.provider) : "Yedek sağlayıcı yapılandırılmamış") +
-      '">' + (live ? "●" : "○") + " " + escapeHtml(txt) + "</span>" +
-      (state.ai.fallback && !state.ai.usingFallback
-        ? '<span class="fb-hint" title="Birincil sağlayıcı kotası dolarsa otomatik devreye girer">yedek hazır</span>' : "");
+    el.innerHTML =
+      '<button class="ai-chip ' + cls + '" id="btnAiDetay" aria-expanded="' + (state.aiAyrintiAcik ? "true" : "false") +
+      '" title="Model ayrıntılarını göster/gizle">' +
+      '<span class="ai-nokta">' + (live ? "●" : "○") + "</span>" +
+      '<span class="ai-metin">' + escapeHtml(txt) + "</span>" +
+      '<span class="ai-ok">' + (state.aiAyrintiAcik ? "▴" : "▾") + "</span></button>" +
+      aiAyrintiHtml();
+    const btn = document.getElementById("btnAiDetay");
+    if (btn) btn.onclick = aiAyrintiToggle;
   }
   const col = document.getElementById("colophon");
   if (col) {
@@ -2721,6 +2796,13 @@ function poolEditHtml(q) {
 }
 
 function poolFilterHtml() {
+  /* Filtreler yalnızca filtrelenecek bir şey varken görünür.
+     ÖNCEDEN: havuz BOŞKEN bile üç açılır liste duruyordu — kullanılamayan
+     kontroller ekranı doldurup "burada bir şey yapmam mı gerekiyor?"
+     hissi veriyordu (kullanıcı bildirdi). Tek soruda da filtrelemenin
+     anlamı yok. Eşik: 2 onaylı soru. */
+  const onayliSayisi = state.questions.filter(function (q) { return q.status === "approved"; }).length;
+  if (onayliSayisi < 2) return "";
   const f = state.poolFilter;
   const kazanimlar = {};
   state.questions.filter(function (q) { return q.status === "approved"; })
@@ -2759,14 +2841,26 @@ function teacherTab1Html() {
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
-    }).join("") : '<div class="empty-state">' + (tumOnayli ? 'Bu filtreye uyan soru yok. Filtreyi genişletin.' : 'Havuzda onaylı soru yok — önce İçerik Uzmanı panelinden soru onaylatın.') + '</div>') + '</div>' +
+    }).join("")
+      : '<div class="empty-state empty-rich">' +
+        (tumOnayli
+          ? '<div class="es-baslik">Bu filtreye uyan soru yok</div>' +
+            '<div class="es-alt">Havuzda ' + tumOnayli + ' onaylı soru var ama seçtiğiniz filtreye uymuyor.</div>' +
+            '<button class="btn btn-secondary btn-sm" id="btnFiltreTemizle">Filtreleri temizle</button>'
+          /* Boş durum artık ne yapılacağını söylemekle kalmıyor, ORAYA GÖTÜRÜYOR.
+             Kullanıcı "havuzda soru yok" yazısını okuyup hangi panele gideceğini
+             kendi bulmak zorunda kalıyordu. */
+          : '<div class="es-baslik">Havuzda henüz onaylı soru yok</div>' +
+            '<div class="es-alt">Sınav kurabilmek için önce İçerik Uzmanı panelinde soru üretip onaylamanız gerekiyor.</div>' +
+            '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
+        '</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
     '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Öğrenciye verilecek toplam süre (dk)</label>' +
     '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
     (locked ? "" : '<button class="btn btn-secondary btn-sm" id="btnUseSuggested" title="Soru sürelerinin toplamını uygula">Öneriyi uygula</button>') + '</div>' +
-    '<span class="field-note">Sınav bu süre dolunca otomatik biter. Yukarıdaki soru süreleri yalnızca öneridir.</span></div>' +
+    '<span class="field-note">Süre dolunca sınav otomatik biter.</span></div>' +
     '<div class="field"><label>Sınav ne zaman açılsın?</label>' +
     '<select id="examStartMode" ' + (locked ? "disabled" : "") + '>' +
     '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
@@ -2776,7 +2870,7 @@ function teacherTab1Html() {
       ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
         '<input id="examStartAt" type="datetime-local" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
         '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
-      : '<div class="lbl-hint" style="margin:-4px 0 12px;">Sınav, yayınladığınız anda öğrencilerin listesinde açılır.</div>') +
+      : "") +
     (locked && state.exam.startsAt
       ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
         new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
@@ -2790,6 +2884,14 @@ function teacherTab1Html() {
 function wireTeacherTab1() {
   wireExamSwitcher();
   wireRejectedPool();
+  // Boş durumdaki yönlendirme düğmeleri.
+  const git = document.getElementById("btnIcerikUzmaninaGit");
+  if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
+  const flt = document.getElementById("btnFiltreTemizle");
+  if (flt) flt.onclick = function () {
+    state.poolFilter = { outcome: "", difficulty: "", type: "" };
+    saveSoon(); renderAll();
+  };
   const fo = document.getElementById("fltOutcome");
   if (fo) fo.onchange = function (e) { state.poolFilter.outcome = e.target.value; renderAll(); };
   const fd = document.getElementById("fltDiff");
@@ -5179,6 +5281,7 @@ setInterval(function () {
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
     "injectionWarnHtml", "dilUyarisiHtml",
+    "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",

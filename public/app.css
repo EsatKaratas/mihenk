@@ -981,3 +981,42 @@
   .au-aynen { color: var(--success); font-weight: 600; }
   .au-elle { color: var(--warning); font-weight: 600; }
   .au-inj { color: var(--critical); font-weight: 600; }
+
+  /* --- Model durum çipi (sağ üst) ---------------------------------------
+     ÖNCEDEN: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" düz metin olarak
+     yazıyordu — 38 karakterlik teknik gürültü. Artık kısa ad görünüyor,
+     tam kimlik tıklayınca açılan panelde. Jüri şeffaflığı kaybolmuyor;
+     "şuna bakın" diye açmak iyi bir demo anı.
+     Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
+  .ai-mode { position: relative; }
+  .ai-chip { display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 10px; border-radius: 999px; border: 1px solid transparent;
+    font: 600 11.5px/1.4 inherit; cursor: pointer; max-width: 100%; }
+  .ai-chip .ai-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ai-chip .ai-nokta { flex: none; font-size: 9px; line-height: 1; }
+  .ai-chip .ai-ok { flex: none; font-size: 9px; opacity: .75; }
+  .ai-chip:hover { filter: brightness(1.08); }
+  .ai-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .ai-mode-detay { position: absolute; top: calc(100% + 7px); right: 0; z-index: 60;
+    width: min(370px, calc(100vw - 32px)); padding: 12px 14px;
+    border: 1px solid var(--border-strong); border-radius: 11px;
+    background: var(--surface); box-shadow: var(--shadow); text-align: left; }
+  .aim-satir { display: flex; gap: 10px; align-items: baseline;
+    padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .aim-satir:last-of-type { border-bottom: none; }
+  .aim-etiket { flex: none; width: 78px; font-size: 11px; color: var(--text-muted); }
+  .aim-deger { flex: 1; min-width: 0; font-size: 12px; color: var(--text);
+    overflow-wrap: anywhere; }
+  .aim-deger.mono { font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .aim-not { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--border);
+    font-size: 11.5px; line-height: 1.6; color: var(--text-muted); }
+
+  /* Zengin boş durum: ne yapılacağını söylemekle kalmayıp oraya götürür.
+     Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
+  .empty-state.empty-rich { display: flex; flex-direction: column; align-items: center;
+    gap: 8px; padding: 26px 18px; }
+  .empty-rich .es-baslik { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .empty-rich .es-alt { font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
+    max-width: 40ch; }
+  .empty-rich button { margin-top: 4px; }
