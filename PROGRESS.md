@@ -5,7 +5,7 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§17 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§20 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
@@ -13,7 +13,8 @@
 > §15 Müfredat Kitaplığı (PDF kalıcılığı) ·
 > §16 yedek sağlayıcı OpenAI'a alındı (§16d KRİTİK) ·
 > §17 geniş denetim (3 gerçek hata bulundu ve düzeltildi) ·
-> **§18 AÇIK KARAR: model stratejisi — ekip istişaresinde, sonuç yazılmalı.**
+> §18 model stratejisi (KAPANDI, bkz. §19) ·
+> **§19 Workers Paid + tek model kararı · §20 Kiril sızması — en yeni.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -1440,7 +1441,13 @@ Düzeltme: yükleyici `mimari.js`'e taşındı (inline module script CSP'nin
 kaldırıldı, **politika güçlendi**) ve render açıkça `run()` ile tetiklendi.
 Doğrulandı: 2 diyagram render edildi, `data-processed=true`, ham kod kalmadı.
 
-### 14f. 🔴 KOTA GERÇEĞİ — demo günü için kritik
+### 14f. ~~🔴 KOTA GERÇEĞİ~~ — ✅ ÇÖZÜLDÜ (bkz. §19)
+
+> **BU BÖLÜM ARTIK GEÇERSİZ.** 26 Ağustos'ta Workers Paid planına geçildi;
+> kota aşımı artık hata değil fatura üretiyor ve doğrulandı (§19a).
+> Aşağısı tarihsel kayıt olarak duruyor.
+
+#### Eski kayıt
 
 Test sırasında **Workers AI günlük kotası doldu.** Sistem yedeğe düştü ve
 Gemini de hata verdi. Gemini'nin döndürdüğü mesaj kotanın gerçek boyutunu
@@ -2165,3 +2172,162 @@ Karar verilene kadar mevcut kurgu şu korumalarla çalışıyor:
 **Bilinmesi gereken risk:** Yoğun test yapılan bir günde llama'nın kotası
 dolarsa, o günkü demo luna ile çalışır. 26 Ağustos'ta bu fiilen yaşandı.
 Sunum öncesi `/api/ai/status` ve ilk çağrının `meta.fellBack` alanına bakın.
+
+---
+
+## 19. ✅ KARAR VERİLDİ — Workers Paid, tek model (26 Ağustos)
+
+**§18 kapandı.** Kullanıcı **Cloudflare Workers Paid** planına geçti ($5/ay).
+
+### 19a. Doğrulama — kota duvarı gerçekten kalktı
+
+Ödeme sonrası, günlük ücretsiz kota **hâlâ doluyken** canlıya istek atıldı:
+
+```
+SAĞLAYICI : workers-ai
+MODEL     : @cf/meta/llama-3.3-70b-instruct-fp8-fast
+fellBack  : false          ← kritik
+HTTP 200 · 5,0 sn
+```
+
+Ücretsiz planda bu istek `4006` ile ölüyordu. Artık kota aşımı **hata değil
+fatura** üretiyor ($0,011 / 1.000 neuron; ölçülen tur ≈ 1.055 neuron).
+
+### 19b. Nihai yapılandırma
+
+```
+Birincil : workers-ai · @cf/meta/llama-3.3-70b-instruct-fp8-fast
+Yedek    : openai     · gpt-5.6-luna   (kesinti sigortası, ~309 tur kredi)
+```
+
+Yedek KALDIRILMADI. Gerekçe: artık kota için değil, **Cloudflare kesintisi /
+model kaldırılması** sigortası. Boşta maliyeti yok, tetiklenmesi çok düşük
+olasılık. Jüriye anlatımı: *"Tek model kullanıyoruz; ama sağlayıcı çökerse
+sistem durmuyor."* §18'deki adalet endişesi de pratikte ortadan kalkıyor —
+yedek ancak gerçek bir kesintide devreye girer.
+
+### 19c. 🔬 llama ↔ luna ayırt edicilik ölçümü (§18'i kapatan veri)
+
+Aynı soru, aynı rubrik, **dört farklı kalite düzeyinde** öğrenci cevabı.
+luna'yı ölçmek için birincil kasten bozulup yedeğe düşürüldü, sonra geri alındı.
+
+| Cevap | llama | luna |
+|---|---:|---:|
+| A · mükemmel | 16,0 | 20,0 |
+| B · iyi | 16,0 | 20,0 |
+| C · orta | 12,0 | 17,5 |
+| D · zayıf | **0,0** | 3,5 |
+| **Puan aralığı** | **16,0** | **16,5** |
+| Sıralama doğru mu | ✅ | ✅ |
+| Güven skoru aralığı | 0,70-0,90 | 0,92-0,96 |
+
+**Sonuç: "ChatGPT cıvık" gözlemi yarı doğru.**
+
+- ✅ **Doğru:** luna sistematik olarak ~4 puan daha cömert.
+- ❌ **Yanlış:** luna daha az ayırt edici DEĞİL — puan aralığı neredeyse aynı
+  (16,0 vs 16,5) ve sıralama iki modelde de doğru.
+- İkisi de **A ile B'yi ayıramıyor** (mükemmel ve iyi cevaba aynı puan).
+  Bu ortak bir sınırlılık, luna'ya özgü değil.
+- D'ye llama 0 veriyor (sert), luna 3,5 (kısmi kredi). Cevap tümüyle boş
+  değil — hangisinin doğru olduğu tartışmalı.
+- luna'nın güven skoru sürekli daha yüksek; **aşırı özgüvenli** olabilir.
+
+**Ürün açısından:** iki model de eşit ayırt ediyor, dolayısıyla asıl risk
+"kötü puanlama" değil, **bir sınıfın iki model arasında bölünmesi** (~4 puanlık
+kayma). Yedek artık ancak kesintide devreye girdiği için bu risk pratikte yok.
+
+### 19d. llama üzerinde tam doğrulama
+
+Bugünkü testlerin tamamı ChatGPT üzerinde koşmuştu (kota dolu olduğu için).
+Birincil erişilebilir olunca hepsi asıl model üzerinde tekrarlandı:
+
+| Kontrol | Sonuç |
+|---|---|
+| **Prompt injection** (5 vektör × 2 koşum) | ✅ **5/5 · 5/5** |
+| `injectionAttempt` güvenilirliği | ✅ **10 saldırı gözleminin 10'u** doğru (luna 4'te 1 kaçırmıştı) |
+| 3. vektör (gömülü talimat) | ✅ temiz cevapla **aynı puan** (16/20) — şişme yok, aşırı tepki yok |
+| 7 AI ucu | ✅ hepsi çalışıyor · 2,7-8,3 sn |
+| Kavram yanılgısı kümeleme | ✅ kurgulanan yanılgıyı yakaladı |
+| Kazanım hizalama | ✅ ilgisiz soruyu "ölçmüyor" işaretleyip doğru kodu önerdi |
+
+### 19e. Süre ölçümleri (llama, canlı, ücretli plan)
+
+| İşlem | Süre |
+|---|---|
+| Soru üretimi (1 ÇSS + 1 açık uçlu) | 7,2 sn |
+| Değerlendirme | 6,0-8,3 sn (bir ölçümde 19,9 sn) |
+| Rubrik | 5,0 sn |
+| Örnek yanıtlar | 6,8 sn |
+| Kavram yanılgısı | 4,2 sn |
+| Kazanım hizalama | 2,7 sn |
+| Injection vektörleri | 4,8-9,3 sn |
+
+> Değişkenlik yüksek: aynı uç 6,0 sn ile 19,9 sn arasında ölçüldü. Demo
+> senaryosu ve değerlendirme önbelleği (§7h) bu yüzden önemli.
+
+### 19f. Bu turda bulunan ve düzeltilen kusur
+
+Kiril harfi sızması — §20'ye bakın.
+
+### 19g. Hatırlatma: abonelik aylık yenilenir
+
+Workers Paid **$5/ay**, otomatik yenilenir. Yarışma bittiğinde (Eylül sonrası)
+kullanılmayacaksa **iptal edilmeli.** Final: 5-6 Eylül 2026.
+
+---
+
+## 20. KİRİL HARFİ SIZMASI — bulundu, ölçüldü, insana bildirildi (26 Ağustos)
+
+### 20a. Olay
+
+llama üzerinde soru üretimi test edilirken üretilen açık uçlu soru şuydu:
+
+> *"Sait Faik Abasıyanık'ın Türk öykücülüğüne katkılarını **açıklaйте**."*
+
+`açıkla` + **`йте`** (Rusça emir eki). Model Türkçe üretirken araya Kiril
+harfi karıştırmış. Bu soru öğrenciye gitseydi cevaplanamaz ve ürün bozuk
+görünürdü.
+
+### 20b. Sıklık ölçüldü (tahmin edilmedi)
+
+Düzeltme tasarlamadan önce sıklık ölçüldü: 4 ayrı üretim çağrısı, 8 soru →
+**0 sızma.** Olayın yaşandığı turla birlikte: **10 soruda 1 (~%10).**
+
+Sistematik değil, ara sıra olan bir kusur. Ama %10, jüri demosunda göze
+alınacak bir oran değil.
+
+### 20c. Çözüm: düzeltme değil, İNSANA BİLDİRME
+
+`agents.md` §6.3-6 ("model çıktısı güvenilmezdir, sunucuda normalleştir")
+kuralının konusu. Ama **otomatik düzeltme bilinçli olarak yapılmadı:**
+Kiril→Latin çevirisi tahmine dayanır ve anlamı bozabilir. Karar zaten insanda
+(§1: İçerik Uzmanı her soruyu onaylıyor). Doğru davranış gizlemek ya da
+tahminle düzeltmek değil, **göstermek** (§6.3-5).
+
+| Katman | Ne yapıldı |
+|---|---|
+| `src/lib/guards.ts` | `YABANCI_ALFABE` (Kiril, Yunan, Arap, İbrani, CJK, Hangul) · `yabanciAlfabeVarMi()` · `soruDilUyarisi()` |
+| `src/routes/ai.ts` | Her üretilen soruya `dilUyarisi` alanı |
+| `public/app.js` | Alan state'e taşınıyor · `dilUyarisiHtml()` onay kartında uyarı çiziyor |
+| `public/app.css` | `.dil-uyari` — kapsayıcıdan bağımsız (§6.3-2) |
+
+**Kapsam yalnızca soru gövdesi değil:** şık metinleri ve çeldirici gerekçeleri
+de taranıyor. Gövde temiz olup şıkta sızma olması mümkün ve bu da yakalanıyor
+(birim testi var).
+
+### 20d. Doğrulama
+
+- **10 yeni birim testi** (88 → 98). Gerçek olayın kendisi kalıcı test vakası
+  oldu (`"Katkılarını açıklaйте."`).
+- Canlıda `dilUyarisi` alanı geliyor ve metindeki gerçek durumla **tutarlı**.
+- Arayüzde: işaretli soruda uyarı çiziliyor, temiz soruda çizilmiyor, stil
+  uygulanıyor, render hatası yok.
+- Öz-kontrol listesi 136 → **137 ad**.
+
+### 20e. Jüriye anlatım
+
+*"Kullandığımız model bazen Türkçe metne başka bir alfabeden harf karıştırıyor
+— ölçtük, 10 soruda 1. Bunu otomatik düzeltmiyoruz çünkü çeviri tahmine
+dayanır ve anlamı bozabilir. Bunun yerine tespit edip içerik uzmanına
+gösteriyoruz. Sistemin tezi zaten bu: yapay zekâ önerir, insan karar verir —
+modelin hata yaptığı yerde de aynı kural geçerli."*

@@ -125,7 +125,7 @@ sayfasında da yazılıdır.
 | Bileşen | Hedef mimari | Canlı demo |
 |---|---|---|
 | Cloudflare Workers + Hono | ✅ | ✅ **çalışıyor** |
-| Workers AI | ✅ | ✅ **çalışıyor** |
+| Workers AI (Workers **Paid**, $5/ay) | ✅ | ✅ **çalışıyor, kota duvarı yok** |
 | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** |
 | D1 (SQLite, 14 tablo) | ✅ | ❌ şema hazır, **yazım yok** |
 | R2 nesne depolama | ✅ | ❌ bağlı değil (PDF istemcide işlenir) |
@@ -414,7 +414,14 @@ secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
 1 açık uçlu) · değerlendirme 3,3-5,5 sn · rubrik ~2,7 sn · kavram yanılgısı
 ~5,1 sn · hizalama denetimi 2,5-3,3 sn · önbellekten **0-6 ms**.
 
-## 4.6 🔴 KOTA GERÇEĞİ — demo öncesi mutlaka okunmalı
+## 4.6 ~~🔴 KOTA GERÇEĞİ~~ — ✅ ÇÖZÜLDÜ (Workers Paid, `PROGRESS.md` §19)
+
+> **Bu bölüm geçersizdir.** 26 Ağustos'ta Workers Paid planına ($5/ay)
+> geçildi; kota aşımı artık hata değil fatura üretiyor ve canlıda doğrulandı.
+> Yedek sağlayıcı (OpenAI `gpt-5.6-luna`) kesinti sigortası olarak duruyor.
+> **Abonelik aylık yenilenir — yarışma sonrası iptal edilmeli.**
+>
+> Aşağısı tarihsel kayıttır.
 
 26 Ağustos'ta test sırasında **Workers AI günlük kotası doldu.** Sistem
 yedeğe düştü ve Gemini'nin gerçek sınırı ortaya çıktı:
