@@ -65,6 +65,14 @@ Kurallar:
 1. Soruların tamamı SADECE kaynak metindeki bilgilere dayanmalıdır. Metinde
    olmayan bilgiyi soruya veya şıklara ekleme.
 2. Dil Türkçe, sınıf düzeyine uygun ve açık olmalıdır. Belirsiz ifade kullanma.
+   Bu kural soru gövdesi, şıklar VE çeldirici gerekçelerinin hepsi için geçerlidir:
+   - Yalnızca gerçek Türkçe sözcük kullan. Uydurma kelime türetme, sözcüğü
+     bozma ("sürtünme" yerine "sürünme", "canlıdır" yerine "cânlıdır" gibi).
+   - Emin olmadığın bir sözcüğü hiç kullanma; yerine bildiğin karşılığını yaz.
+   - Türkçe metnin içine başka bir dilden kelime ya da başka bir alfabeden
+     harf karıştırma.
+   Bu soru doğrudan öğrenciye gidecek; bozuk bir sözcük soruyu cevaplanamaz
+   hâle getirir.
 3. Çoktan seçmeli sorularda tek bir doğru şık bulunur; çeldiriciler makul
    olmalı, "hepsi"/"hiçbiri" kalıplarını en fazla bir soruda kullan.
 4. Her çeldirici için, o şıkkı seçen öğrencinin hangi kavram yanılgısına

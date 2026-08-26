@@ -683,6 +683,16 @@ function tickBusy() {
   el.textContent = Math.round((Date.now() - busySince) / 1000) + " sn";
 }
 
+/* Çoktan seçmeli soru başına varsayılan puan.
+
+   BURADA TANIMLI, `mcPuani()`'nin yanında DEĞİL: aşağıdaki `state` nesnesi
+   bu değeri `exam.mcPoint` başlangıcı olarak kullanıyor. `const` hoist
+   edilmez (temporal dead zone) — tanım `state`'ten sonra kalırsa sayfa
+   "Cannot access 'MC_VARSAYILAN_PUAN' before initialization" ile açılışta
+   ölür. Bu bir kez yaşandı; tarayıcıda çalıştırılmasa fark edilmezdi.
+   Gerekçe ve kullanım için `mcPuani()` / `examTotalPoints()`. */
+const MC_VARSAYILAN_PUAN = 5;
+
 /* ============================== Durum ============================== */
 const state = {
   role: "content_expert",
@@ -718,7 +728,9 @@ const state = {
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
   exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10,
-          startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null },
+          startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null,
+          // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
+          mcPoint: MC_VARSAYILAN_PUAN },
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -736,7 +748,14 @@ const state = {
   // burada yalnızca listelemeye yetecek küçük üstveri durur.
   library: [],
   baseline: {
-    totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
+    /* 🔴 KALDIRILDI: totalAssigned/totalCompleted/pendingApprovalsOther.
+       Bu üç sabit, Eğitim Yöneticisi panelindeki kutuları besliyordu ve
+       ekranda "%88,8 · 142/160 sınav tamamlandı" gibi UYDURMA bir sayı
+       çıkarıyordu — üstelik hemen altındaki ısı haritası aynı ekranda
+       "7-A (0/2)" diyordu. Gerekçe ve yerine geçen hesap için
+       `okulGercekDurum()` fonksiyonunun başındaki nota bakın.
+       `classes` KALDI: onlar ısı haritasında "(örnek)" etiketiyle görünen
+       karşılaştırma satırlarıdır, etiketli oldukları için yanıltmazlar. */
     classes: [
       // Karşılaştırma amaçlı okul geneli örnek veriler. Gerçek şubelerle
       // (7-A, 7-B) karışmasın diye bilinçli olarak farklı düzeyler seçildi.
@@ -2640,10 +2659,14 @@ function activateExam(id) {
   const kayit = state.exams.find(function (x) { return x.id === id; });
   if (!kayit) return;
   state.activeExamId = id;
+  /* DİKKAT: burada alanlar TEK TEK sayılıyor. state.exam'e yeni bir alan
+     eklendiğinde bu listeye de eklenmezse, sınav değiştirilince o alan
+     sessizce kaybolur. `mcPoint` bu yüzden burada da var. */
   state.exam = { title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
                  status: kayit.status, durationMin: kayit.durationMin,
                  startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
-                 startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt };
+                 startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt,
+                 mcPoint: mcPuani(kayit) };
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
   renderAll();
@@ -2654,7 +2677,7 @@ function createExam(baslik) {
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
-                 startDelaySec: 0, startsAt: null, sessions: {} };
+                 startDelaySec: 0, startsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
@@ -2779,9 +2802,37 @@ function ensureRubric(qid) {
 
 // Sınavın toplam puanı: her çoktan seçmeli 1 puan, her açık uçlu kendi
 // rubriğinin maksimum puanı kadar. Öğrenci karnesindeki hesapla aynıdır.
+/* ÇOKTAN SEÇMELİ SORU PUANI — sınav düzeyinde, öğretmen belirler.
+
+   🔴 NEDEN EKLENDİ (ekip denemesi geri bildirimi): Çoktan seçmeli sorular
+   puanlanıyordu ama puan SABİT 1'di ve hiçbir yerde değiştirilemiyordu.
+   Açık uçlu bir soru 20 puanken 3 ÇSS + 1 açık uçludan oluşan bir sınavda
+   ÇSS'ler toplamın yalnızca %13'ünü oluşturuyordu. Bir ölçme aracında
+   soru ağırlığı öğretmenin kararıdır, kodun sabiti değil.
+
+   NEDEN SORU BAŞINA DEĞİL SINAV BAŞINA: Türkiye'deki yazılı pratiğinde
+   çoktan seçmeli sorular birbirine eşit puan taşır ("10 soru × 5 puan").
+   Soru başına alan açmak her ÇSS için ayrı bir girdi demekti; ekranı
+   kalabalıklaştırır, karşılığı olmayan bir esneklik sunardı.
+
+   GERİYE DÖNÜK UYUM: localStorage'daki eski sınavlarda `mcPoint` yoktur;
+   o durumda varsayılan kullanılır (§6.3-12: alanın dolu olduğunu VARSAYMA).
+   Not: eski kayıtlarda ÇSS başına 1 puan görünüyordu, artık varsayılan
+   üzerinden yeniden hesaplanır. ÇSS tavanı hiçbir zaman saklanmıyordu,
+   türetiliyordu; bu yüzden veri kaybı yok, yalnızca ağırlık düzeliyor.
+
+   `MC_VARSAYILAN_PUAN` bilinçli olarak `state` tanımının HEMEN ÜSTÜNDE
+   duruyor; sebebi orada yazılı. */
+function mcPuani(ex) {
+  const e = ex || state.exam || {};
+  const v = Number(e.mcPoint);
+  return Number.isFinite(v) && v > 0 ? v : MC_VARSAYILAN_PUAN;
+}
+
 function examTotalPoints(items) {
+  const mcP = mcPuani();
   return items.reduce(function (s, q) {
-    if (q.type === "mc") return s + 1;
+    if (q.type === "mc") return s + mcP;
     const rub = state.rubrics[q.id];
     return s + (rub ? rub.maxScore : 0);
   }, 0);
@@ -2804,7 +2855,7 @@ function examTrayHtml() {
 
   return items.map(function (q, i) {
     const sure = state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime;
-    const qPuan = q.type === "mc" ? 1 : ((state.rubrics[q.id] || {}).maxScore || 0);
+    const qPuan = q.type === "mc" ? mcPuani() : ((state.rubrics[q.id] || {}).maxScore || 0);
     return '<div class="tray-item">' +
       '<span class="t-no">' + (i + 1) + '</span>' +
       '<span class="t-text">' + escapeHtml(truncate(q.body, 62)) +
@@ -2820,6 +2871,18 @@ function examTrayHtml() {
   }).join("") +
   '<div class="tray-summary">' +
   '<div class="ts-row"><span>' + items.length + ' soru</span><span>' + mc + ' çoktan seçmeli · ' + acik + ' açık uçlu</span></div>' +
+  (mc
+    ? '<div class="ts-row"><span><label for="mcPointInput">Çoktan seçmeli soru başına puan</label></span>' +
+      /* SINIF ADI BİLİNÇLİ OLARAK `tray-time` DEĞİL: o sınıfın işleyicisi
+         `el.dataset.qid` okuyup `timeOverrides[...]`'a yazıyor; burada qid
+         olmadığı için `timeOverrides[NaN]` üretirdi. Görünüm CSS'te
+         `.tray-time, .tray-point` ortak kuralıyla aynı tutuluyor. */
+      '<span><input type="number" id="mcPointInput" class="tray-point" min="1" max="100" step="1" value="' +
+      mcPuani() + '" ' + (locked ? "disabled" : "") +
+      ' title="Her çoktan seçmeli soru kaç puan değerinde olsun"> puan</span></div>' +
+      '<div class="ts-row ts-note"><span>' + mc + ' çoktan seçmeli × ' + mcPuani() + ' puan = ' +
+      (mc * mcPuani()) + ' puan · açık uçlu ' + (puan - mc * mcPuani()) + ' puan</span><span></span></div>'
+    : "") +
   '<div class="ts-row strong"><span>Toplam puan</span><span class="tabular">' + puan + ' puan</span></div>' +
   '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + onerilenDk + ' dk</span></div>' +
   '</div>';
@@ -3176,6 +3239,15 @@ function wireTeacherTab1() {
   document.querySelectorAll(".tray-time").forEach(function (el) {
     el.oninput = function () { state.exam.timeOverrides[Number(el.dataset.qid)] = Number(el.value) || 10; };
   });
+  /* ÇSS puanı: `change` olayında bağlanır, `input`'ta değil. Sebep §6.3-3:
+     her tuş vuruşunda renderAll() çağırmak odağı kaybettirir; ayrıca
+     kullanıcı "5"i silip "10" yazarken ara adımda boş/0 değer okunurdu.
+     Alandan çıkınca bir kez okunur, sınırlanır ve toplam puan tazelenir. */
+  const mcPointEl = document.getElementById("mcPointInput");
+  if (mcPointEl) mcPointEl.onchange = function () {
+    state.exam.mcPoint = Math.max(1, Math.min(100, Math.round(Number(mcPointEl.value) || MC_VARSAYILAN_PUAN)));
+    renderAll();
+  };
   const pubBtn = document.getElementById("btnPublishExam");
   if (pubBtn) pubBtn.onclick = function () {
     if (state.exam.startMode === "scheduled" && state.exam.startAtLocal) {
@@ -4277,27 +4349,57 @@ function calibrationHtml() {
       c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + c.enFarkli.fark.toFixed(1) + ")</div></div>"
     : "";
 
-  const azVeri = !c.guvenilir
-    ? '<div class="cal-warn-box"><b>Bu sayılar gösterge niteliğindedir.</b> Yalnızca ' + c.n +
-      " onaylanmış değerlendirme var. Eğilimin netleşmesi için daha fazla onay gerekir.</div>"
-    : "";
+
+  /* 🔴 SADELEŞTİRME (ekip denemesi geri bildirimi: "bu kısmı hiç anlamadım").
+
+     Panel `n≈20` onay için tasarlanmıştı: yedi ayrı metin bloğu basıyordu ve
+     `n=1` iken bunların DÖRDÜ "bu sayı henüz anlamlı değil" diyen çekinceydi.
+     Yani panel, en çok görüleceği durumda (demo/jüri: n=1-3) en anlaşılmaz
+     hâlindeydi.
+
+     İki değişiklik:
+
+     1. AZ VERİDE YÜZDE GÖSTERİLMEZ. Tek onayda "%100 uyum" yazmak matematiksel
+        olarak doğru ama bilgi olarak yanlış: hiçbir şey ölçmüyor, üstelik
+        "yapay zekâ mükemmel" izlenimi veriyor. Az veride ham sayım gösterilir
+        (kaç onay, kaçında puan değişti) — bu her zaman doğrudur.
+     2. Geri kalan her şey `<details>` içine alındı. Silinmedi: jüri "derinlik
+        var mı" diye sorarsa tek tıkla açılıyor. Katlama idiyomu `.src-blok`
+        ile aynı (inline betik yok — §6.3-7). */
+  const azVeriModu = !c.guvenilir || c.n < 5;
+
+  const buyukSayi = azVeriModu ? String(c.n) : (c.uyum != null ? "%" + c.uyum : "—");
+  const buyukEtiket = azVeriModu ? "onaylanan değerlendirme" : "uyum";
+
+  const tekCumle = azVeriModu
+    ? (c.degistirilen === 0
+        ? "Bu değerlendirmelerin hepsini yapay zekânın önerdiği puanla onayladınız. " +
+          "Uyum oranı, en az 5 onaydan sonra anlamlı bir sayı verir."
+        : "Bunların <b>" + c.degistirilen + "</b> tanesinde yapay zekânın önerdiği puanı değiştirdiniz. " +
+          "Uyum oranı, en az 5 onaydan sonra anlamlı bir sayı verir.")
+    : yonMetni + " <b>" + c.aynenOnay + "</b> yanıtı olduğu gibi onayladınız, <b>" + c.degistirilen +
+      "</b> yanıtta puanı değiştirdiniz. Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+      (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".";
+
+  const ayrintiIc =
+    (azVeriModu
+      ? "<div>Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+        (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".</div>" +
+        (c.uyum != null ? "<div>Ham uyum oranı: <b>%" + c.uyum + "</b> — yalnızca " + c.n +
+          " onay üzerinden hesaplandığı için tek bir puan değişikliği bu sayıyı büyük ölçüde oynatır.</div>" : "")
+      : "") +
+    bantSatir + kalibreNotu + enFarkliKutu +
+    '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır. Öğretmen puanı kriter bazında değil toplam olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>';
 
   return '<div class="card" style="margin-top:18px;">' +
-    '<div class="card-head"><h3>Öğretmen - Yapay Zekâ Uyumu</h3>' +
-    '<span class="hint">brief: "değerlendiriciler arasında tutarsızlık" · saf hesap</span></div>' +
+    '<div class="card-head"><h3>Öğretmen – Yapay Zekâ Uyumu</h3>' +
+    '<span class="hint">yapay zekânın önerdiği puanı ne sıklıkla değiştiriyorsunuz</span></div>' +
     '<div class="cal-top">' +
-      '<div class="cal-big"><div class="cal-big-sayi">' + (c.uyum != null ? "%" + c.uyum : "—") + "</div>" +
-      '<div class="cal-big-etiket">uyum</div></div>' +
-      '<div class="cal-detay">' +
-        "<div>" + yonMetni + "</div>" +
-        "<div>Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
-          (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + "</div>" +
-        "<div><b>" + c.aynenOnay + "</b> yanıtı olduğu gibi onayladınız, <b>" + c.degistirilen +
-          "</b> yanıtta puanı değiştirdiniz.</div>" +
-      "</div>" +
+      '<div class="cal-big"><div class="cal-big-sayi">' + buyukSayi + "</div>" +
+      '<div class="cal-big-etiket">' + buyukEtiket + "</div></div>" +
+      '<div class="cal-detay"><div>' + tekCumle + "</div></div>" +
     "</div>" +
-    azVeri + bantSatir + kalibreNotu + enFarkliKutu +
-    '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır. Öğretmen puanı kriter bazında değil toplam olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
+    '<details class="cal-ayrinti"><summary>Ayrıntılı analiz</summary>' + ayrintiIc + "</details>" +
     "</div>";
 }
 
@@ -4749,13 +4851,34 @@ function studentTab3Html() {
       if (!res) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
-          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıt kaydı bulunamadı — ' +
-          'soru siz sınavı tamamladıktan sonra eklenmiş olabilir. Puanınıza dahil edilmedi; ' +
-          'öğretmeninize bildirin.</div></div>';
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtın kaydedilmemiş — ' +
+          'soru sen sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanına eklenmedi; ' +
+          'öğretmenine söyle.</div></div>';
       }
-      totalScore += res.correct ? 1 : 0; totalMax += 1;
-      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="' + (res.correct ? "pill pill-success" : "pill pill-critical") + '">' + (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
-        '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + escapeHtml(a.selectedKey || "—") + " · Doğru cevap: " + escapeHtml(q.correctKey) + '</div></div>';
+      /* PUAN GÖRÜNÜR OLMALI (ekip denemesi geri bildirimi): burada eskiden
+         yalnızca "✓ Doğru" rozeti vardı; soru puanlanıyordu ama öğrenci o
+         sorudan kaç puan aldığını göremiyordu. Puan artık açık uçlu
+         sorularla aynı biçimde ("N / M") yazılır. */
+      const mcP = mcPuani();
+      const kazanilan = res.correct ? mcP : 0;
+      totalScore += kazanilan; totalMax += mcP;
+      /* Şık HARFİ tek başına öğrenciye ne işaretlediğini hatırlatmaz
+         ("C" neydi?). Şıkkın metni de yazılır; silinmiş/bozuk şık
+         durumunda harfe düşülür (§6.3-12: alan dolu VARSAYILMAZ). */
+      const sikMetni = function (key) {
+        const o = (q.options || []).find(function (x) { return x.key === key; });
+        return o && o.text ? key + ") " + o.text : (key || "—");
+      };
+      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span>' +
+        '<span class="rr-score tabular">' + kazanilan + " / " + mcP + '</span></div>' +
+        '<div class="rr-answer"><div class="rr-answer-lbl">Sizin yanıtınız</div>' +
+        '<div class="rr-answer-txt' + (res.correct ? " ok" : " no") + '">' + escapeHtml(sikMetni(a.selectedKey)) +
+        ' <span class="pill ' + (res.correct ? "pill-success" : "pill-critical") + '">' +
+        (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
+        (res.correct ? "" :
+          '<div class="rr-answer-lbl" style="margin-top:8px;">Doğru yanıt</div>' +
+          '<div class="rr-answer-txt ok">' + escapeHtml(sikMetni(q.correctKey)) + '</div>') +
+        '</div></div>';
     } else {
       const rv = state.reviews[q.id], rub = state.rubrics[q.id];
       /* AI DEĞERLENDİRMESİ OLMAYABİLİR — ve bu olağan bir durumdur:
@@ -4770,27 +4893,43 @@ function studentTab3Html() {
       if (!rv || !rub) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
-          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için ' +
-          (!rub ? "değerlendirme ölçütü" : "öğretmen onayı") +
-          ' bulunamadı. Puanınıza dahil edilmedi; öğretmeninize bildirin.</div></div>';
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru ' +
+          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmenin tarafından onaylanmamış") +
+          '. Toplam puanına eklenmedi — öğretmenine söyle.</div></div>';
       }
       totalScore += rv.finalScore; totalMax += rub.maxScore;
-      const revize = rv.decision === "revised";
+      /* "Değiştirildi mi" sorusu ETİKETTEN DEĞİL, PUANDAN türetilir.
+         Eskiden `rv.decision === "revised"` yeterli sayılıyordu; öğretmen
+         düzenleme alanını açıp AYNI puanı onaylarsa karar "revised" olur ve
+         öğrenciye "öğretmenin bunu değiştirdi" denirdi — oysa değişmemiştir.
+         Bu, öğrenciye puanının nasıl oluştuğunu YANLIŞ anlatmaktır (§17a-3
+         ile aynı sınıf). `auditKaydet` zaten `Math.abs(nihai-ai) > 0.001`
+         kullanıyordu; karne artık onunla aynı ölçütü kullanıyor, böylece
+         karne ile denetim günlüğü birbirini yalanlayamaz. */
+      const aiOneri = rv.aiScore != null ? Number(rv.aiScore) : (ev.aiScore != null ? Number(ev.aiScore) : null);
+      const revize = aiOneri != null && Math.abs(Number(rv.finalScore) - aiOneri) > 0.001;
+      /* ÖĞRENCİ KENDİ YANITINI GÖRMELİ (ekip denemesi geri bildirimi).
+         Karne, öğrenciye "şu kriterden 1/6 aldın" diyordu ama ne yazdığını
+         göstermiyordu — geri bildirim, neye verildiği görünmeden öğrenilebilir
+         bir şey söylemez. Çoktan seçmelide "Yanıtınız: A" zaten vardı;
+         açık uçluda hiç yoktu, yani ürün kendi içinde tutarsızdı. */
+      const yanitMetni = String(((state.answers[q.id] || {}).text || "")).trim();
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
+        '<div class="rr-answer"><div class="rr-answer-lbl">Sizin yanıtınız</div>' +
+        '<div class="rr-answer-txt' + (yanitMetni ? "" : " bos") + '">' +
+        (yanitMetni ? escapeHtml(yanitMetni) : "Bu soruya yanıt yazmamışsınız.") + '</div></div>' +
         '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
         /* DÜRÜSTLÜK: ortada hiç yapay zekâ önerisi yokken öğrenciye "yapay zekâ
            önerisi onaylandı" demek yanlış beyandır. Öğretmen elle puanladıysa
            (AI çağrısı başarısız olduğu için ya da tercihen) bunu olduğu gibi
            söyle. HITL tezinin gereği: öğrenci puanın nasıl oluştuğunu doğru
            bilmeli. */
-        (rv.aiScore == null && ev.aiScore == null
-          ? 'Bu puanı öğretmeniniz doğrudan belirledi; bu soruda yapay zekâ önerisi kullanılmadı.'
+        (aiOneri == null
+          ? 'Bu puanı öğretmenin kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
           : revize
-            ? (rv.aiScore != null
-                ? 'Bu puanı öğretmeniniz yapay zekâ önerisini (' + rv.aiScore + ') değiştirerek belirledi.'
-                : 'Bu puanı öğretmeniniz doğrudan belirledi.')
-            : 'Bu puan, yapay zekâ önerisi öğretmeniniz tarafından onaylanarak kesinleşti.') + '</div>' +
-        ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puan kırılımı</div>' : "") +
+            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmenin okuyup ' + rv.finalScore + ' puana çevirdi.'
+            : 'Yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı.') + '</div>' +
+        ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
         (ev.breakdown || []).map(function (b) {
           return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
             (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
@@ -4801,7 +4940,27 @@ function studentTab3Html() {
           : "") + '</div>';
     }
   }).join("");
-  return '<div class="card"><div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3><span class="pill pill-accent">Toplam ' + (Math.round(totalScore * 10) / 10) + "/" + totalMax + '</span></div>' + rows + '</div>';
+  /* NİHAİ PUAN BARİZ OLMALI (ekip denemesi geri bildirimi).
+     Toplam puan eskiden kart başlığının sağ köşesindeki küçük bir rozetti
+     ("Toplam 5/22") — karnenin en çok aranan bilgisi en az göze çarpan
+     yerdeydi. Artık kendi bloğunda, puan + yüzde olarak en üstte duruyor.
+
+     YÜZDE NEDEN VAR: "5/22" öğrenciye tek başına bir şey söylemiyor;
+     sınavdan sınava tavan değiştiği için karşılaştırılabilir de değil.
+     totalMax 0 ise bölme yapılmaz (§6.3-12). */
+  const puan = Math.round(totalScore * 10) / 10;
+  const yuzde = totalMax > 0 ? Math.round(totalScore / totalMax * 100) : null;
+
+  return '<div class="card">' +
+    '<div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3>' +
+    '<span class="hint">öğretmeniniz onayladı</span></div>' +
+    '<div class="karne-toplam">' +
+      '<div class="kt-sayi"><span class="kt-puan tabular">' + puan + '</span>' +
+      '<span class="kt-tavan tabular">/ ' + totalMax + '</span></div>' +
+      (yuzde == null ? "" : '<div class="kt-yuzde tabular">%' + yuzde + '</div>') +
+      '<div class="kt-not">Bu senin bu sınavdan aldığın <b>nihai puan</b>. ' +
+      'Aşağıda her soruda ne yazdığını, kaç puan aldığını ve neden o puanı aldığını görebilirsin.</div>' +
+    '</div>' + rows + '</div>';
 }
 
 // Öğrenci panelinde "hangi öğrenciyim?" seçici. Gerçek üründe bu kimlik
@@ -4937,22 +5096,71 @@ function buildAdminHeatmapRows() {
     state.baseline.classes.map(function (c) { return { name: c.name + " (örnek)", scores: c.scores }; })
   );
 }
-function renderAdmin() {
-  const root = document.getElementById("panel-admin");
-  const pendingLive = Object.keys(state.aiEvals).filter(function (qid) { return !state.reviews[qid]; }).length;
-  const pendingCount = pendingLive + state.baseline.pendingApprovalsOther;
-  const completed = state.baseline.totalCompleted + ((state.examStatus === "submitted" || state.examStatus === "graded") ? 1 : 0);
-  const rate = Math.round(completed / state.baseline.totalAssigned * 1000) / 10;
 
-  // En zayif kazanimi bul: yoneticiye "ne yapmali" sorusunun cevabini ver.
-  const rows = buildAdminHeatmapRows();
-  let enZayif = null;
-  rows.forEach(function (r) {
-    OUTCOMES_LIST().forEach(function (c) {
-      const v = r.scores[c.code];
-      if (v != null && (!enZayif || v < enZayif.v)) enZayif = { sinif: r.name, kod: c.code, etiket: outcomeLabel(c.code), v: v };
+/* Okul geneli GERÇEK ölçme durumu.
+
+   🔴 NEDEN YAZILDI (ekip denemesi geri bildirimi): Bu üç kutu eskiden
+   `state.baseline.totalAssigned / totalCompleted / pendingApprovalsOther`
+   sabitlerinden besleniyordu — yani "%88,8 · 142/160 sınav tamamlandı"
+   yazısı UYDURMA bir sayıydı. Üç ayrı sorun üretiyordu:
+
+     1. Ekran kendi kendini yalanlıyordu: kutu "142/160 tamamlandı" derken
+        hemen altındaki ısı haritası aynı ekranda "7-A (0/2)" diyordu.
+     2. Kutuların üstündeki açıklama "buradaki sayılar yalnızca öğretmen
+        onayından geçmiş sonuçları yansıtır" diyordu; sabit sayı için bu
+        YANLIŞ BEYANDIR (§17a-3'te düzeltilen hatanın aynı sınıfı).
+     3. Isı haritası satırları "(örnek)" etiketliyken bu kutular etiketsizdi
+        — ürün kendi dürüstlük standardına (§6.3-5) uymuyordu.
+
+   Artık sayılar yayınlanmış sınavlardan ve gerçek öğrenci oturumlarından
+   hesaplanır. Veri yoksa uydurulmaz; "henüz yok" denir.
+
+   Bir atama = (yayınlanmış sınav × öğrenci) çifti. Aktif sınavın aktif
+   öğrencisinin oturumu state kökünde durduğu için okuma `readSession()`
+   üzerinden yapılır (§3.2). */
+function okulGercekDurum() {
+  const ogrenciler = state.students || [];
+  let atanan = 0, tamamlanan = 0, bekleyen = 0;
+  (state.exams || []).forEach(function (kayit) {
+    if (kayit.status !== "published") return;
+    ogrenciler.forEach(function (ogr) {
+      atanan++;
+      const ss = (kayit.id === state.activeExamId)
+        ? readSession(ogr.id)
+        : ((kayit.sessions || {})[ogr.id] || null);
+      if (!ss) return;
+      if (ss.examStatus === "submitted" || ss.examStatus === "graded") tamamlanan++;
+      const evals = ss.aiEvals || {}, revs = ss.reviews || {};
+      Object.keys(evals).forEach(function (qid) { if (!revs[qid]) bekleyen++; });
     });
   });
+  return { atanan: atanan, tamamlanan: tamamlanan, bekleyen: bekleyen };
+}
+function renderAdmin() {
+  const root = document.getElementById("panel-admin");
+  const durum = okulGercekDurum();
+  const rate = durum.atanan ? Math.round(durum.tamamlanan / durum.atanan * 1000) / 10 : null;
+
+  /* En zayif kazanimi bul: yoneticiye "ne yapmali" sorusunun cevabini ver.
+
+     GERÇEK VERİ ÖNCELİKLİ: Bu kutu eskiden "(örnek)" satırları da tarıyordu ve
+     pratikte hep demo sınıfını işaret ediyordu — yönetici, var olmayan bir
+     şubenin öğretmeniyle çalışma planlamaya yönlendiriliyordu. Artık önce
+     gerçek şubelere bakılır; gerçek veri yoksa örneğe düşülür ve bunun örnek
+     veri olduğu ekranda YAZAR (§6.3-5: simüle veri simüle olduğunu söyler). */
+  function enDusukKazanim(satirlar) {
+    let en = null;
+    satirlar.forEach(function (r) {
+      OUTCOMES_LIST().forEach(function (c) {
+        const v = r.scores[c.code];
+        if (v != null && (!en || v < en.v)) en = { sinif: r.name, kod: c.code, etiket: outcomeLabel(c.code), v: v };
+      });
+    });
+    return en;
+  }
+  let enZayif = enDusukKazanim(realClassRows());
+  const enZayifOrnek = !enZayif;
+  if (!enZayif) enZayif = enDusukKazanim(buildAdminHeatmapRows());
 
   root.innerHTML =
     '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
@@ -4960,15 +5168,23 @@ function renderAdmin() {
     '<div style="font-size:13px;color:var(--text-muted);line-height:1.6;">' +
     'Bu ekran, okuldaki ölçme sürecinin ne kadarının tamamlandığını ve hangi kazanımlarda ' +
     'eksik kalındığını tek bakışta gösterir. Puanların hiçbiri yapay zekâ tarafından ' +
-    'kesinleştirilmemiştir; buradaki sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçları yansıtır.' +
+    'kesinleştirilmemiştir; buradaki sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçları yansıtır. ' +
+    'Aşağıdaki üç kutu <b>yalnızca bu sistemde gerçekten yürütülen</b> sınavlardan hesaplanır. ' +
+    'Isı haritasındaki <b>“(örnek)”</b> etiketli satırlar ise karşılaştırma için konmuş demo verisidir ' +
+    've bu kutulara dahil <b>edilmez</b>.' +
     '</div></div>' +
 
     '<div class="grid-3col" style="margin-bottom:18px;">' +
-    '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">%' + rate + '</div>' +
-    '<div class="s-sub tabular">' + completed + '/' + state.baseline.totalAssigned + ' sınav tamamlandı</div>' +
-    '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">' +
+    (rate == null ? "—" : "%" + rate) + '</div>' +
+    '<div class="s-sub tabular">' +
+    (durum.atanan
+      ? durum.tamamlanan + '/' + durum.atanan + ' sınav tamamlandı'
+      : 'henüz yayınlanmış sınav yok') + '</div>' +
+    '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı ' +
+    '(yayınlanmış her sınav × her öğrenci bir atama sayılır)</div></div>' +
 
-    '<div class="stat-tile"><div class="s-label">Öğretmen Onayı Bekleyen</div><div class="s-value tabular">' + pendingCount + '</div>' +
+    '<div class="stat-tile"><div class="s-label">Öğretmen Onayı Bekleyen</div><div class="s-value tabular">' + durum.bekleyen + '</div>' +
     '<div class="s-sub">açık uçlu yanıt</div>' +
     '<div class="s-note">AI puan önerdi, öğretmen henüz onaylamadı. Bu sayı büyürse sonuçlar gecikiyor demektir.</div></div>' +
 
@@ -4977,10 +5193,15 @@ function renderAdmin() {
     '<div class="s-note">Bu dönem en az bir ölçme süreci yürütülen sınıf sayısı</div></div></div>' +
 
     (enZayif
-      ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Önce Buraya Bakın</h3><span class="hint">en düşük kazanım</span></div>' +
-        '<div style="font-size:14px;line-height:1.65;"><b>' + escapeHtml(enZayif.sinif) + '</b> sinifi, ' +
+      ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Önce Buraya Bakın</h3><span class="hint">' +
+        (enZayifOrnek ? "örnek veri — gerçek sonuç henüz yok" : "en düşük kazanım") + '</span></div>' +
+        '<div style="font-size:14px;line-height:1.65;"><b>' + escapeHtml(enZayif.sinif) + '</b> sınıfı, ' +
         '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarı gösterdi. ' +
-        'Bu, okuldaki en düşük değer. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.</div></div>'
+        (enZayifOrnek
+          ? 'Bu satır <b>örnek karşılaştırma verisidir</b>; sistemde henüz öğretmen onayından geçmiş gerçek sonuç yok. ' +
+            'Gerçek sonuçlar girdikçe bu kutu onlara göre güncellenir.'
+          : 'Bu, okuldaki en düşük değer. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.') +
+        '</div></div>'
       : "") +
 
     '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası</h3><span class="hint">satır: sınıf, sütun: kazanım</span></div>' +
@@ -5005,7 +5226,10 @@ function renderAdmin() {
   // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
   root.insertAdjacentHTML("beforeend", auditGunluguHtml());
   wireAudit();
-  renderHeatmap("adminHeatmap", rows);
+  /* Isı haritası GERÇEK + "(örnek)" satırların ikisini birden gösterir
+     (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
+     ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
+  renderHeatmap("adminHeatmap", buildAdminHeatmapRows());
 }
 
 
@@ -5537,7 +5761,7 @@ setInterval(function () {
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
-    "siniflar", "classOutcomeScores", "realClassRows",
+    "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });

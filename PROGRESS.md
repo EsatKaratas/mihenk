@@ -2689,6 +2689,11 @@ kartsız kullanıldığı tek yerde lacivert üstünde 1,88:1'e düşüyordu
 
 ### 23e. Bayat doküman notu
 
+> ✅ **KAPANDI (§25 turunda doğrulandı):** `AKTARIM.md §2` artık "2 mermaid
+> diyagram" diyor — 26 Ağustos'taki AKTARIM yeniden yazımında düzeltilmiş.
+> Bayat olan bu maddenin kendisiydi. Ölçüm: `mimari.html`'de
+> `class="mermaid"` sayısı **2**.
+
 `AKTARIM.md §2`, `mimari.html` için "4 mermaid diyagram" diyor. Sayfada **2**
 var ve ikisi de render ediliyor (§14e zaten "2 diyagram" diyor). Düzeltilmeli.
 
@@ -2758,3 +2763,203 @@ Kayda geçiriliyor ki ileride bulgu sanılmasın:
 5. Rol sıçramaları ve 18×18 dokunma hedefi — ekran görüntüsü/gerçek görünüm
    ölçek farkından ıskalayan tıklamalar ve yanlış öğe ölçümü (radyonun hedefi
    onu saran 871×54 px'lik `<label>`).
+
+---
+
+## 25. EKİP DENEMESİ GERİ BİLDİRİMİ — 5 madde (26 Ağustos, gece)
+
+§5.2(a)'daki ilk görev. Kullanıcı uygulamayı ekiple denerken beş madde
+bildirdi. **Hepsi önce kodda doğrulandı** (§6.5), sonra düzeltildi. Biri
+kısmen yanlış alarm çıktı, biri kullanıcının bildirdiğinden daha ciddiydi.
+
+### 25a. Doğrulama sonuçları
+
+| # | Kullanıcının bildirdiği | Doğrulama sonucu |
+|---|---|---|
+| 1 | "3. soruda garip Türkçe" (*"hangi bilgi **cânlıdır**"*) | **Model çıktısı, kod hatası değil.** §4.8'deki "Sürünme" olayının ikinci örneği. Ölçüldü: `dilUyarisi` Kiril'i yakalıyor (`açıklaйте` → true) ama `cânlıdır` → **false**, çünkü hepsi Latin harfi. Ürünün madde analizi bu soruyu zaten yakalamıştı (`p=1.00`, `d=0.00`, 3 işlevsiz çeldirici) |
+| 2 | "Eğitim yöneticisi istatistikleri bir garip duruyor" | **En ciddi bulgu — bildirilenden ağır.** Sayılar UYDURMA sabitlerdi |
+| 3 | "ÇSS için de puan vermeliyiz" | **Kısmen yanlış alarm.** ÇSS zaten puanlanıyordu (sabit 1 puan); sorun puanın görünmemesi ve ağırlığın sabit olmasıydı |
+| 4 | "Uyum panelini hiç anlamadım" | **Doğrulandı.** `n=1` iken panel 7 metin bloğu basıyor, 4'ü "bu sayı anlamlı değil" çekincesi |
+| 5 | "Karne öğrenci diline uygun olmalı, nihai puan bariz olmalı, öğrenci ne yazdığını görmeli" | **Doğrulandı.** Nihai puan başlıktaki küçük rozetti; `state.answers[qid].text` karnede **hiç basılmıyordu** |
+
+### 25b. 🔴 Madde 2 — uydurma yönetici istatistikleri (dürüstlük ihlali)
+
+```js
+baseline: { totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7 }
+```
+
+Üç sorun üst üste binmişti:
+
+1. **Ekran kendi kendini yalanlıyordu.** Kutu *"%88,8 · 142/160 sınav
+   tamamlandı"* derken hemen altındaki ısı haritası aynı ekranda
+   *"7-A (0/2)"*, *"7-B (0/2)"* diyordu. Gerçek veri 0/4 idi.
+2. **Yanlış beyan.** Kutuların üstündeki açıklama *"buradaki sayılar yalnızca
+   öğretmen onayından geçmiş sonuçları yansıtır"* diyordu; sabit sayı için bu
+   doğru değil. **§17a-3'te düzeltilen hatanın aynı sınıfı.**
+3. **Ürün kendi standardına uymuyordu.** Isı haritası satırları "(örnek)"
+   etiketliydi (§5.3-3 bilinçli karar), bu üç kutu etiketsizdi (§6.3-5).
+
+**Çözüm:** `okulGercekDurum()` eklendi — yayınlanmış her sınav × her öğrenci
+bir atama sayılır, gerçek oturumlardan hesaplanır. Üç sabit **silindi**
+(`baseline.classes` kaldı: onlar etiketli). "Önce Buraya Bakın" kutusu artık
+önce **gerçek** şubelere bakar; gerçek veri yoksa örneğe düşer ve **bunu
+ekranda yazar**.
+
+**Ölçüldü (demo senaryosu):** kutu artık `%0 · 0/4 sınav tamamlandı` diyor ve
+ısı haritasındaki `7-A (0/2)` ile **çelişmiyor**. Bir öğrenci sınavı bitirip
+onaylanınca `okulGercekDurum()` → `{atanan:4, tamamlanan:1}`.
+
+### 25c. Madde 3 — ÇSS puanı öğretmen tarafından belirleniyor
+
+**Karar (kullanıcı asistana bıraktı):** sabit değer sorunu gizler, çözmez.
+Puan ağırlığı bir ölçme aracında öğretmenin kararıdır.
+
+- `MC_VARSAYILAN_PUAN = 5` · `mcPuani(ex)` · `state.exam.mcPoint`
+- **Sınav başına, soru başına değil:** Türkiye'deki yazılı pratiğinde ÇSS'ler
+  eşit puan taşır ("10 soru × 5 puan"); soru başına alan ekranı
+  kalabalıklaştırır, karşılığı olmayan bir esneklik sunardı
+- Sınav kurma ekranına girdi + kırılım satırı ("2 ÇSS × 5 = 10 puan · açık uçlu 20")
+- **Geriye dönük uyum:** eski kayıtlarda `mcPoint` yok → varsayılan. ÇSS tavanı
+  hiç saklanmıyordu, türetiliyordu; veri kaybı yok, yalnızca ağırlık düzeliyor
+
+> 🔴 **`activateExam()` ALANLARI TEK TEK SAYIYOR.** `state.exam`'e yeni alan
+> eklenip bu listeye eklenmezse sınav değiştirilince **sessizce kaybolur**.
+> `mcPoint` üç yere birden eklendi: `state.exam`, `activateExam`, `createExam`.
+
+**Ölçüldü:** `10 → toplam 20` · `0 → 5'e kırpıldı` · `999 → 100'e kırpıldı` ·
+`boş → 5` · sınav değiştir-geri dön → **7 korundu**.
+
+> **Kapsam dışı bırakıldı (bilinçli):** Isı haritası her soruyu eşit ağırlıkla
+> sayar (kazanım hâkimiyeti), karne puan ağırlıklı sayar (sınav puanı). İkisi
+> farklı şeyi ölçer ve ikisi de savunulabilir; ÇSS puanı bunları eşitlemez.
+> Isı haritası ağırlıklandırması daha büyük bir ölçme kararıdır, **teslimden
+> sonraya** bırakıldı.
+
+### 25d. Madde 5 — karne öğrenciye göre yeniden kuruldu
+
+- Nihai puan kendi bloğunda, **40 px** puan + yüzde (eskiden başlıktaki rozet)
+- **Öğrenci kendi yanıtını görüyor** — açık uçluda tam metin, ÇSS'de şıkkın
+  **metni** (tek harf "C" öğrenciye ne işaretlediğini hatırlatmıyor)
+- Yanlış ÇSS'de doğru yanıt da gösteriliyor
+- ÇSS satırında puan görünür ("5 / 5") — açık uçluyla aynı biçim
+- Dil öğrenciye çevrildi ("Puan kırılımı" → "Puanın nereden geldiği")
+
+**🔴 Bu tur bulunan ek hata:** *"değiştirildi mi"* cümlesi `rv.decision`
+etiketine bakıyordu. Öğretmen düzenleme alanını açıp **aynı** puanı onaylarsa
+karar `"revised"` olur ve öğrenciye *"öğretmenin bunu değiştirdi"* denirdi —
+oysa değişmemiştir. Yine **yanlış beyan** (§17a-3 sınıfı). `auditKaydet` zaten
+`Math.abs(nihai-ai) > 0.001` kullanıyordu; **karne artık aynı ölçütü
+kullanıyor**, böylece karne ile denetim günlüğü birbirini yalanlayamaz.
+
+**Ölçüldü:** AI 15 önerdi, öğretmen 12 verdi → *"Yapay zekâ 15 puan önermişti;
+öğretmenin okuyup 12 puana çevirdi."* (düzeltmeden önce "onayladı" diyordu).
+
+### 25e. Madde 4 — uyum paneli sadeleştirildi
+
+Panel `n≈20` için tasarlanmıştı ama **jüri her zaman n=1-3 görecek** — yani en
+anlaşılmaz olduğu durum tam da demo durumu.
+
+1. **Az veride yüzde gösterilmiyor.** Tek onayda "%100 uyum" matematiksel
+   olarak doğru ama bilgi olarak yanlış; "yapay zekâ mükemmel" izlenimi verir.
+   Yerine ham sayım: kaç onay, kaçında puan değişti.
+2. Geri kalan her şey `<details>` içine **katlandı, silinmedi** (idiyom
+   `.src-blok` ile aynı; inline betik yok — §6.3-7).
+
+**Ölçüldü (n=1):** kapalıyken görünen tüm metin *"1 · ONAYLANAN
+DEĞERLENDİRME · Bunların 1 tanesinde yapay zekânın önerdiği puanı
+değiştirdiniz. Uyum oranı, en az 5 onaydan sonra anlamlı bir sayı verir."* —
+açıldığında bant özeti, ham uyum, kalibrasyon notu ve en farklı yanıt kutusu
+tam olarak duruyor.
+
+### 25f. Madde 1 — soru üretim istemine dil kuralı
+
+`buildEvaluationPrompt`, öğrenciye giden geri bildirim için *"uydurma kelime
+türetme, emin olmadığın sözcüğü kullanma"* diyordu; `buildQuestionPrompt` ise
+yalnızca *"Dil Türkçe olmalıdır"*. **Öğrenciye giden geri bildirime konan
+kural, öğrenciye giden sorunun kendisine konmamıştı.** Asimetri kapatıldı.
+
+> **Dürüstlük:** Bu **garanti değildir**, sıklığı düşürür. `cânlıdır` tipi
+> bozuk sözcüğü tespit etmek Türkçe sözlük gerektirir; otomatik düzeltme
+> §20c'deki gerekçeyle (tahmin anlamı bozar) zaten reddedilmişti. Asıl savunma
+> insan onayı olarak kalıyor.
+
+### 25g. 🔴 Tarayıcıda çalıştırılmasa fark edilmeyecek hata
+
+`const MC_VARSAYILAN_PUAN`, `mcPuani()`'nin yanında tanımlanmıştı — yani
+`state` nesnesinden **sonra**. `state.exam.mcPoint` onu kullanıyordu ve `const`
+hoist edilmez: sayfa `Cannot access 'MC_VARSAYILAN_PUAN' before initialization`
+ile **açılışta ölüyordu**. `node --check` temiz, `tsc` temiz, 98/98 test
+geçiyordu. Yalnızca tarayıcıda açınca görüldü.
+
+**Ders:** `node --check` sözdizimi denetler, **çalışma zamanını denetlemez.**
+`public/app.js` değişikliği tarayıcıda açılmadan tamamlanmış sayılmaz.
+
+Aynı turda ikinci çalışma zamanı hatası: `renderAdmin` içindeki `const rows`
+kaldırılmıştı ama `renderHeatmap("adminHeatmap", rows)` çağrısı kalmıştı
+(§6.3-1: blok sınırlarını doğrula).
+
+### 25h. Üç yanlış alarm (hepsi ÖLÇÜM kusuru — §6.5)
+
+1. **"78 test var, belge 98 diyor"** — `grep -c "it("` ile sayılmıştı;
+   `guards.test.ts` döngüsel/`each` testler üretiyor (27 çağrı → 47 test).
+   `npm test` gerçek sayıyı veriyor: **98**.
+2. **"Türkçe'de 12 kod katalogda yok"** — Türkçe kodu `T.<beceri>.<sınıf>.<sıra>`
+   biçiminde; regex'te sınıf **yanlış gruptan** okunmuştu (sıra numarasına göre
+   kovalanıyordu). Düzeltilince **365/365**.
+3. **"Karne, puan değiştiği hâlde 'onayladı' diyor"** — teste `decision:"manual"`
+   geçilmişti; gerçek arayüz yalnızca `"approved_as_is"` ve `"revised"`
+   gönderiyor, üründe "manual" diye bir durum **yok**. (Ne var ki bu yanlış
+   alarm, §25d'deki gerçek hatanın bulunmasını sağladı.)
+
+Ayrıca: tarayıcı aracının konsol geçmişi **navigasyondan sonra da duruyor**;
+düzeltilmiş hatalar "hâlâ var" gibi göründü. Temiz ölçüm için **yeni sekme**
+gerekti. Sunucunun güncel dosyayı verdiği `curl` ile doğrulandı.
+
+### 25i. Gizlilik (agents.md §7)
+
+Karne artık öğrencinin **kendi yanıt metnini** basıyor. Yeni veri toplanmıyor,
+saklanmıyor, iletilmiyor — öğrencinin kendi verisi kendi cihazında kendisine
+gösteriliyor. Yine de §7 bağlayıcı olduğu için `privacy-policy.html`'e
+"Öğrencinin karnesinde ne görünür" paragrafı eklendi (şeffaflığı da artırır).
+
+### 25j. Doğrulama özeti (ölçülen sayılar)
+
+| Kontrol | Sonuç |
+|---|---|
+| `node --check` (app.js) | geçerli |
+| `npm run lint` (tsc --noEmit) | **temiz** |
+| `npm test` | **98/98** |
+| `npm run check:config` | 2/2 geçerli |
+| Öz-kontrol listesi | 154 → **155 ad** (`okulGercekDurum`), tanımı bulunamayan **0** |
+| 4 rol × 10 sekme (masaüstü) | render **0** · konsol **0** · yatay taşma **0** |
+| Mobil 375 px × 5 ekran | yatay taşma **0** |
+| **Kontrast** — yeni öğeler (10 seçici) | ihlal **0** · en düşük **5,6:1** (eşik 4,5) |
+| **XSS** — karnedeki öğrenci yanıtı + şık metni | enjekte eleman **0** · tetiklenme **0** · payload metin olarak |
+| `privacy-policy` HTML yapısı + HTTP | hatasız · 200 |
+| ÇSS puanı sınır davranışı | 0→5 · 999→100 · boş→5 · sınav geçişinde korunuyor |
+
+### 25k. Bu turda yapılmayanlar (bilinçli)
+
+1. **Isı haritası ağırlıklandırması** — §25c'deki gerekçe. Teslimden sonra.
+2. **`cânlıdır` tipi bozuk sözcük dedektörü** — Türkçe sözlük gerektirir,
+   §20c'deki "tahminle düzeltme" reddi burada da geçerli.
+3. **"Önce Buraya Bakın" kutusunun örnek veriye düşmesi** — kaldırılmadı,
+   çünkü gerçek veri yokken panel tamamen boş kalırdı; bunun yerine örnek
+   olduğu ekranda **yazılıyor**.
+
+### 25l. Kaynağından doğrulananlar (bu oturumun başında)
+
+Kullanıcı MEB müfredat PDF'lerini ve Creathon problem kitapçığını sağladı.
+
+- **Problem 2 brief'i ilk kez kaynağından okundu** (kitapçık s. 7-11). Altı
+  zorunlu MVP maddesinin tamamı üründe karşılanıyor; dört rol ve üç akış
+  birebir örtüşüyor. Ürünün tezi *"nihai kontrolü eğitmende tutmak"*
+  ifadesinin doğrudan karşılığı — yaratıcı bir seçim değil, brief'in şartı.
+- **606 kazanım bağımsız olarak yeniden doğrulandı:** katalogdaki 606 kodun
+  606'sı PDF'te var; her kazanımın metni PDF'te **birebir** geçiyor; ters
+  yönde PDF'te olup katalogda olmayan kod **0** (Fen 141 · Mat 100 · Tür 365).
+  Negatif kontrol: 3 uydurma kod/metin **elendi** — ölçüt ayırt ediyor.
+- **Açık kalan iki not (kullanıcıya bildirildi, karar bekliyor):**
+  brief tutarlı biçimde **"eğitmen"** derken ürün **"öğretmen"** diyor;
+  brief madde 02'deki **"seviye"** ürün tarafından *sınıf seviyesi* olarak
+  okunmuş (alternatif okuma: *zorluk seviyesi*).

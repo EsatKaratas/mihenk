@@ -437,6 +437,13 @@
   .tray-summary .ts-row { display: flex; justify-content: space-between; gap: 12px;
     font-size: 12.5px; color: var(--text-muted); padding: 3px 0; }
   .tray-summary .ts-row.strong { color: var(--text); font-weight: 700; font-size: 14px; }
+  .tray-summary .ts-row.ts-note { font-size: 11.5px; padding-top: 0; }
+  /* ÇSS puanı girdisi. BAĞIMSIZ TANIMLI (§6.3-2): kardeşi `.tray-time`
+     yalnızca `.tray-item` içinde tanımlı ve bu alan `.tray-summary`
+     içinde duruyor — aynı kurala yaslansaydı hiç stil almazdı.
+     `.opt-row` / `.cv-warn` / `.empty-state` bu hatanın üç önceki örneği. */
+  .tray-point { width: 62px; text-align: right; }
+  .tray-summary label { cursor: pointer; }
 
   .ce-source { margin-bottom: 16px; }
   .ce-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
@@ -635,6 +642,36 @@
   .report-row .rr-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; align-items: baseline; }
   .report-row .rr-score { font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--accent-strong); }
 
+  /* ---------- Karne: nihai puan ve öğrencinin kendi yanıtı ----------
+     Ekip denemesi geri bildirimi: nihai puan kart başlığındaki küçük bir
+     rozetteydi ve öğrenci açık uçlu soruya ne yazdığını göremiyordu.
+
+     🔴 BU KURALLAR BİLİNÇLİ OLARAK KAPSAYICIDAN BAĞIMSIZ (§6.3-2):
+     `.tray-time`, `.opt-row`, `.cv-warn` ve `.empty-state` bir kapsayıcının
+     içine hapsedildikleri için başka yerde kullanılınca stilsiz kaldılar.
+     Buradaki öğeler kart İÇİNDE durduğu için renkler `--text` katmanından
+     gelir, `--on-bg`'den DEĞİL (§1.7 — iki ayrı metin rengi). */
+  .karne-toplam { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px;
+    background: var(--accent-soft); border: 1px solid var(--border-strong);
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .karne-toplam .kt-sayi { display: flex; align-items: baseline; gap: 4px; }
+  .karne-toplam .kt-puan { font-family: "Archivo", sans-serif; font-weight: 800;
+    font-size: 40px; line-height: 1.05; color: var(--accent-strong); }
+  .karne-toplam .kt-tavan { font-size: 20px; font-weight: 700; color: var(--text-muted); }
+  .karne-toplam .kt-yuzde { font-size: 20px; font-weight: 700; color: var(--accent-strong);
+    padding-left: 14px; border-left: 1px solid var(--border-strong); }
+  .karne-toplam .kt-not { flex-basis: 100%; font-size: 12.5px; line-height: 1.6;
+    color: var(--text-muted); margin-top: 6px; }
+
+  .rr-answer { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .rr-answer .rr-answer-lbl { font-size: 10.5px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .rr-answer .rr-answer-txt { font-size: 13px; line-height: 1.6; color: var(--text);
+    white-space: pre-wrap; overflow-wrap: anywhere; }
+  .rr-answer .rr-answer-txt.bos { color: var(--text-muted); font-style: italic; }
+  .rr-answer .rr-answer-txt.ok { border-left: 3px solid var(--success); padding-left: 8px; }
+  .rr-answer .rr-answer-txt.no { border-left: 3px solid var(--critical); padding-left: 8px; }
+
   /* ---------- Stat tiles ---------- */
   .stat-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
   .stat-tile .s-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
@@ -806,6 +843,18 @@
   .cal-warn-box { font-size: 11.5px; line-height: 1.6; color: var(--warning);
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 9px 11px; margin-bottom: 10px; }
+
+  /* Uyum panelinin ayrıntı katlaması. Panel az veriyle (jürinin göreceği
+     durum) yedi blok metin basıyordu; ayrıntılar buraya alındı — silinmedi,
+     katlandı. Kart İÇİNDE olduğu için renkler `--text` katmanından (§1.7).
+     Bağımsız tanımlı (§6.3-2): `.cal-*` kardeşleri gibi bir kapsayıcıya
+     yaslanmıyor. */
+  .cal-ayrinti { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .cal-ayrinti > summary { cursor: pointer; font-size: 12.5px; font-weight: 600;
+    color: var(--accent-strong); padding: 4px 0; list-style-position: inside; }
+  .cal-ayrinti > summary:hover { text-decoration: underline; }
+  .cal-ayrinti > div:first-of-type { margin-top: 8px; }
+  .cal-ayrinti > div { font-size: 12.5px; line-height: 1.6; color: var(--text-muted); padding: 3px 0; }
 
   .cal-worst { font-size: 12px; line-height: 1.55; padding: 10px 12px;
     border-radius: 8px; background: var(--surface-2);
