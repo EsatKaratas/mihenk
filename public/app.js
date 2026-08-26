@@ -292,6 +292,10 @@ async function aiEvaluate(q, answerText, rubric, force) {
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
     const sonuc = { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification,
+                    // Öğrenciye geri bildirim TASLAĞI. Öğretmen "Nota Aktar" demeden
+                    // öğrenciye gitmez; otomatik doldurma bilinçli olarak yapılmadı
+                    // (öğretmen farkında olmadan AI metnini onaylamasın).
+                    studentFeedback: j.studentFeedback || "",
                     breakdown: j.breakdown, confidence: j.confidence,
                     // Sunucu, ogrenci yanitinin modele talimat vermeye calistigini bildirir.
                     // Engelleme DEGIL, ogretmene sinyal (agents.md §7.1: karar insanda).
@@ -2573,7 +2577,8 @@ function evalCardHtml(q, student, ev) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
         (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
-    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div></div></div>' +
+    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div>' +
+    feedbackDraftHtml(q, student, ev) + '</div></div>' +
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
     '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
@@ -2620,6 +2625,28 @@ function doneCardHtml(q, student, ev, rv) {
       : '<span class="pill pill-accent">AI önerisiyle aynı</span>') +
     (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
     '</div></div>';
+}
+
+/* ===========================================================================
+   ÖĞRENCİYE GERİ BİLDİRİM TASLAĞI
+   ===========================================================================
+   NEDEN: Karnede puanın gerekçesi vardı ama öğrenciye YÖNLENDİRME yoktu.
+   Ölçmenin amacı not vermek değil öğrenmeyi düzeltmektir; öğrenci "neden 16
+   aldım" değil "ne yapmalıyım" sorusunun cevabını arar.
+
+   NEDEN OTOMATİK DOLDURULMUYOR: Taslağı doğrudan "Not" alanına yazmak,
+   öğretmenin farkında olmadan AI metnini onaylamasına yol açar. Bu, HITL
+   ilkesini biçimsel hale getirirdi. Bunun yerine taslak ayrı bir kutuda
+   durur ve öğretmen "Nota Aktar" ile bilinçli olarak alır; sonra düzenler.
+   =========================================================================== */
+function feedbackDraftHtml(q, student, ev) {
+  const t = (ev && ev.studentFeedback ? String(ev.studentFeedback) : "").trim();
+  if (!t) return "";
+  return '<div class="fb-draft"><div class="fb-draft-bas">Öğrenciye geri bildirim taslağı' +
+    '<span class="fb-draft-not">yapay zekâ önerisi · siz aktarmadan öğrenciye gitmez</span></div>' +
+    '<div class="fb-draft-metin">' + escapeHtml(t) + '</div>' +
+    '<button class="btn btn-secondary btn-sm fb-apply" data-qid="' + q.id +
+    '" data-sid="' + student.id + '">Nota Aktar</button></div>';
 }
 
 function confBadge(c) {
@@ -2765,6 +2792,21 @@ function wireTeacherTab3() {
   if (ccBtn) ccBtn.onclick = evalCacheClear;
   document.querySelectorAll(".retry-eval").forEach(function (b) {
     b.onclick = function () { retryEvaluation(Number(b.dataset.qid), Number(b.dataset.sid)); };
+  });
+  // Geri bildirim taslağını "Not" alanına aktar. renderAll ÇAĞRILMAZ: metin
+  // girdisinde yeniden çizim odağı kaybettirir (PROGRESS §5'te kayıtlı ders).
+  document.querySelectorAll(".fb-apply").forEach(function (b) {
+    b.onclick = function () {
+      const qid = b.dataset.qid, sid = b.dataset.sid;
+      const ss = readSession(Number(sid));
+      const ev = (ss.aiEvals || {})[qid] || {};
+      const alan = document.querySelector('.teacher-comment[data-qid="' + qid + '"][data-sid="' + sid + '"]');
+      if (!alan || !ev.studentFeedback) return;
+      alan.value = String(ev.studentFeedback).trim();
+      alan.focus();
+      b.textContent = "Nota aktarıldı ✓";
+      b.disabled = true;
+    };
   });
   const pubBtn = document.getElementById("btnPublishResults");
   if (pubBtn) pubBtn.onclick = publishResults;
@@ -3698,11 +3740,30 @@ function studentTab3Html() {
   const rows = items.map(function (q) {
     if (q.type === "mc") {
       const res = state.mcResults[q.id], a = state.answers[q.id] || {};
+      // SAVUNMA: sonuç kaydı yoksa çökmek yerine durumu açıkça söyle.
+      // Bu, sınav yayınlandıktan SONRA soru eklenmesi ya da eksik/bozuk
+      // oturum verisi yüklenmesi durumunda olur. Sessizce "yanlış" saymak
+      // öğrenciye haksızlıktır; puanlamaya da dahil edilmez.
+      if (!res) {
+        return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
+          '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıt kaydı bulunamadı — ' +
+          'soru siz sınavı tamamladıktan sonra eklenmiş olabilir. Puanınıza dahil edilmedi; ' +
+          'öğretmeninize bildirin.</div></div>';
+      }
       totalScore += res.correct ? 1 : 0; totalMax += 1;
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="' + (res.correct ? "pill pill-success" : "pill pill-critical") + '">' + (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
         '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + (a.selectedKey || "—") + " · Doğru cevap: " + q.correctKey + '</div></div>';
     } else {
       const rv = state.reviews[q.id], rub = state.rubrics[q.id], ev = state.aiEvals[q.id];
+      // SAVUNMA: onay ya da rubrik kaydı yoksa çökmek yerine durumu söyle.
+      if (!rv || !rub) {
+        return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
+          '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için ' +
+          (!rub ? "değerlendirme ölçütü" : "öğretmen onayı") +
+          ' bulunamadı. Puanınıza dahil edilmedi; öğretmeninize bildirin.</div></div>';
+      }
       totalScore += rv.finalScore; totalMax += rub.maxScore;
       const revize = rv.decision === "revised";
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
@@ -4326,6 +4387,7 @@ setInterval(function () {
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
     "ensureSources", "kaynakEkle", "kaynakBul", "soruKaynakIster", "kaynakBlokHtml",
+    "feedbackDraftHtml",
     "kaynakRozetHtml", "sinavKaynakUyarisiHtml",
     "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimSecenekleriHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",

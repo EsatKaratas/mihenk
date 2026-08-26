@@ -855,6 +855,18 @@
     background: var(--accent2-soft); border-left-color: var(--critical); }
   .src-uyari.src-uyari-kritik b { color: var(--critical); }
 
+
+  /* --- Öğrenciye geri bildirim taslağı ------------------------------------- */
+  .fb-draft { margin-top: 12px; padding: 10px 12px; border-radius: 8px;
+    background: var(--surface-2); border-left: 3px solid var(--success); }
+  .fb-draft-bas { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--success); margin-bottom: 6px; }
+  .fb-draft-not { font-weight: 400; text-transform: none; letter-spacing: 0;
+    font-size: 10.5px; color: var(--text-muted); }
+  .fb-draft-metin { font-size: 12.5px; line-height: 1.65; color: var(--text);
+    margin-bottom: 9px; }
+
   .cache-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
     margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
     font-size: 12.5px; color: var(--text-muted); }

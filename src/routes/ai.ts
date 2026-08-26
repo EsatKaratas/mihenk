@@ -251,7 +251,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
   });
 
   try {
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 700, temperature: 0.2 });
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 820, temperature: 0.2 });  // +120: studentFeedback alanı eklendi
     const parsed = modelEvaluationSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -283,6 +283,8 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       aiScore,
       maxScore: b.maxScore,
       justification: parsed.data.justification.trim(),
+      // Öğrenciye geri bildirim TASLAĞI — öğretmen onaylamadan gitmez.
+      studentFeedback: parsed.data.studentFeedback.trim(),
       confidence: parsed.data.confidence,
       injectionAttempt: parsed.data.injectionAttempt,
       breakdown,
