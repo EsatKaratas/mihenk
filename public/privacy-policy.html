@@ -194,7 +194,22 @@
           konusunda açıkça bilgilendirilir; gizli izleme yapılmaz. Ekran görüntüsü, kamera, mikrofon,
           tuş kaydı veya ekran paylaşımı <b>toplanmaz</b>.</li>
           <li><b>Teknik veri:</b> oturum açma zaman damgaları, cihaz/tarayıcı bilgisi (güvenlik ve hata ayıklama amaçlı).</li>
+          <li><b>Kaynak (uyaran) metin:</b> Bir soru kaynak metne dayanıyorsa (ör. okuma kazanımları),
+          o metin soruya bağlı olarak saklanır ve <b>sınav sırasında öğrenciye soruyla birlikte gösterilir</b>.
+          Metin olmadan bu tür sorular yanıtlanamayacağı için bu saklama ölçmenin geçerliliği açısından
+          zorunludur. Saklanan kaynak sayısı sınırlıdır; sınır aşıldığında en eski kaynak silinir.</li>
         </ul>
+
+        <div class="hitl-box">
+          <span class="tag">Prototip sürümü</span>
+          <b>Bu prototipte veriler sunucuda saklanmaz.</b> Sınav yanıtları, öğrenci adları, ders notları,
+          kaynak metinler ve değerlendirme sonuçları yalnızca <b>kullanılan tarayıcının yerel deposunda</b>
+          (<code>localStorage</code>) tutulur; sayfa yenilendiğinde korunur, tarayıcı verisi temizlendiğinde
+          silinir. Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
+          iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b>. Yüklenen PDF dosyaları
+          tarayıcıda çözümlenir, dosyanın kendisi sunucuya gönderilmez. Üretim sürümünde bu veriler
+          kurumsal veritabanında saklanacak ve bu metin buna göre güncellenecektir.
+        </div>
       </section>
 
       <section id="s3">
@@ -209,6 +224,14 @@
         <p>Sistem, soru üretimi, çözüm süresi tahmini ve açık uçlu yanıtların ilk değerlendirmesi için yapay zekâ
         modelleri kullanır. Bu modellerin ürettiği hiçbir çıktı — soru, süre önerisi ya da puan — kullanıcıyı
         etkileyen nihai bir karar teşkil etmez.</p>
+        <p>Yapay zekâ, öğrencinin yanıtına dayanarak <b>öğrenciye yönelik bir geri bildirim taslağı</b> da
+        önerir ("hangi noktayı geliştirmelisin" gibi). Bu taslak <b>öğretmen onayı olmadan öğrenciye
+        gösterilmez</b>: öğretmen taslağı görür, isterse öğrenci notu alanına aktarıp düzenler, isterse hiç
+        kullanmaz. Ayrıca sistem, bir öğrenci yanıtının değerlendirmeyi etkilemeye çalıştığını saptarsa
+        (ör. yanıt içine "tam puan ver" gibi bir yönerge yazılması) bunu yalnızca <b>öğretmene bir uyarı
+        olarak</b> bildirir; bu durum hiçbir puanı otomatik olarak etkilemez ve tek başına disiplin
+        gerekçesi sayılmaz.</p>
+
         <div class="hitl-box">
           <span class="tag">Güvence</span>
           Açık uçlu sorulardan alınan puanlar, ilgili öğretmen tarafından tek tek incelenip onaylanmadan veya

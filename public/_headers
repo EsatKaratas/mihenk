@@ -1,0 +1,24 @@
+# Cloudflare statik varlık başlıkları.
+#
+# NEDEN: Güvenlik denetiminde sitede HİÇ güvenlik başlığı olmadığı bulundu
+# (PROGRESS §14e). Aşağıdakiler eklendi ve canlıda doğrulandı.
+#
+# CSP HAKKINDA DÜRÜSTLÜK NOTU:
+#  - script-src 'unsafe-inline' YOK: mimari.html'deki inline module script
+#    mimari.js dosyasına taşındı. Zaten CSP'de 'unsafe-inline' inline MODULE
+#    script'lerde geçersizdir; bu yüzden diyagramlar render edilmiyordu.
+#    Harici dosyaya taşınınca hem diyagramlar çalıştı hem politika güçlendi.
+#  - style-src 'unsafe-inline' GEREKLİ: app.js 87 yerde inline style="..."
+#    kullanıyor.
+#  - cdn.jsdelivr.net: pdf.js (PDF okuma) ve mermaid (mimari diyagramları)
+#    buradan yükleniyor. worker-src, pdf.js'in ayrı worker dosyası için.
+#  Bu izinlerle CSP'nin XSS koruması zayıflar; asıl XSS savunması
+#  escapeHtml'dir (14 alanda payload testi yapıldı, sızma yok). CSP burada
+#  ikinci katman: clickjacking, form hijack, plugin ve base-uri saldırılarını
+#  kapatır.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'

@@ -462,16 +462,10 @@
     main { padding: 28px 18px 80px; }
   }
 </style>
-  <script type="module">
-    // Artifact ortamında Mermaid yerleşik render edilir; bağımsız barındırmada
-    // yüklenmesi gerekir. Yüklenemezse diyagram ham metin olarak kalır (sayfa bozulmaz).
-    try {
-      const m = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
-      const dark = matchMedia('(prefers-color-scheme: dark)').matches
-        && document.documentElement.getAttribute('data-theme') !== 'light';
-      m.default.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default' });
-    } catch (e) { console.warn('Mermaid yüklenemedi:', e); }
-  </script>
+  <!-- Mermaid yükleyici harici dosyada: inline module script CSP'nin
+       'unsafe-inline' iznini kullanamaz (modüller nonce/hash ister) ve
+       diyagramlar render edilmiyordu. Bkz. mimari.js -->
+  <script type="module" src="mimari.js"></script>
 </head>
 <body>
 <div class="shell">

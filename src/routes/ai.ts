@@ -40,16 +40,38 @@ type Bindings = AiEnv & { DB?: D1Database };
 const RATE_LIMIT_PER_MIN = 5;
 const hits = new Map<string, number[]>();
 
-function rateLimited(key: string): boolean {
+/**
+ * Dakika penceresinde istek sayar. Limit uca göre değişir çünkü meşru
+ * kullanım desenleri farklıdır:
+ *   - soru üretimi / rubrik / örnek yanıt: öğretmen nadiren tekrarlar -> 5
+ *   - değerlendirme: BİR SINIFIN TAMAMI değerlendirilirken onlarca meşru
+ *     çağrı olur (40 kişilik sınıf). Buraya 5 koymak gerçek kullanımı
+ *     bozardı; amaç kazara sonsuz döngüyü ve kötü niyetli kota tüketimini
+ *     kesmek, öğretmeni engellemek değil.
+ * agents.md §7.4 soru üretimi için 5/dk şartını koyuyor; diğer uçlar o
+ * kuralın kapsamı dışındaydı ve KORUMASIZDI (güvenlik denetiminde bulundu).
+ */
+function rateLimited(key: string, limit: number = RATE_LIMIT_PER_MIN): boolean {
   const now = Date.now();
   const win = (hits.get(key) || []).filter((t) => now - t < 60_000);
-  if (win.length >= RATE_LIMIT_PER_MIN) {
+  if (win.length >= limit) {
     hits.set(key, win);
     return true;
   }
   win.push(now);
   hits.set(key, win);
   return false;
+}
+
+/** Sınıf mevcudu üst sınırı — değerlendirme ucu için makul dakika limiti. */
+const RATE_LIMIT_EVAL_PER_MIN = 45;
+
+/** Uzun metinlerden kısa, kararlı bir anahtar üretir (rate limit için). */
+function anahtarla(s: string): string {
+  let h = 0;
+  const t = String(s || '').slice(0, 300);
+  for (let i = 0; i < t.length; i++) h = (Math.imul(31, h) + t.charCodeAt(i)) | 0;
+  return String(h >>> 0);
 }
 
 const round05 = (n: number) => Math.round(n * 2) / 2;
@@ -221,6 +243,15 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
 ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
 
+  // Soru başına dakika limiti. Bir sınıfın tamamının değerlendirilmesi
+  // meşrudur; buradaki sınır kazara döngüyü ve kota tüketimini keser.
+  if (rateLimited(`eval:${anahtarla(b.questionBody)}`, RATE_LIMIT_EVAL_PER_MIN)) {
+    return c.json(
+      { error: 'rate_limited', message: `Aynı soru için dakikada en fazla ${RATE_LIMIT_EVAL_PER_MIN} değerlendirme yapılabilir. Bir dakika bekleyip tekrar deneyin.` },
+      429
+    );
+  }
+
   // Kriter başına tavan puan — modelin döndürdüğü değer bununla kırpılır.
   const maxOf = (weight: number) => Math.round(b.maxScore * (Number(weight) / 100) * 10) / 10;
 
@@ -305,6 +336,13 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
 // ---------------------------------------------------------------------------
 ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
+
+  if (rateLimited(`rubric:${anahtarla(b.questionBody)}`)) {
+    return c.json(
+      { error: 'rate_limited', message: 'Aynı soru için dakikada en fazla 5 rubrik taslağı isteyebilirsiniz.' },
+      429
+    );
+  }
   try {
     const prompt = buildRubricPrompt({
       questionBody: b.questionBody,
@@ -362,6 +400,14 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
 // ---------------------------------------------------------------------------
 ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
+
+  if (rateLimited(`sample:${anahtarla(b.questionBody)}`)) {
+    return c.json(
+      { error: 'rate_limited', message: 'Aynı soru için dakikada en fazla 5 örnek yanıt seti isteyebilirsiniz.' },
+      429
+    );
+  }
+
   try {
     const prompt = buildSampleAnswerPrompt({
       questionBody: b.questionBody,
