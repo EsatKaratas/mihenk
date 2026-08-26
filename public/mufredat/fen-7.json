@@ -1,0 +1,218 @@
+{
+ "ders": "Fen Bilimleri",
+ "sinif": 7,
+ "kaynak": "MEB Ortaokul Fen Bilimleri Dersi Öğretim Programı — 7. sınıf öğrenme çıktıları",
+ "not": "uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir. yazili: yazılı sınavla ölçülebilir · performans: gözlem/performans gerektirir · surec: öğrenme sürecine aittir, sınav sorusu olmaz.",
+ "kazanimlar": [
+  {
+   "kod": "FB.7.1.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Uzay araştırmaları için geliştirilen teknolojileri karşılaştırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.2.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Fiziksel anlamda yapılan işin bağlı olduğu faktörlere ilişkin bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Sindirim sistemini oluşturan yapı ve organların görevlerini model üzerinde bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.4.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Ortam değiştiren ışığın izlediği yolu gözlemleyerek kırılma olayına yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Atomun yapısını ve yapısındaki temel parçacıkları çözümleyebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.6.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektriklenme ile ilgili bilgi toplayabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.7.1",
+   "alan": "Fen Bilimleri",
+   "metin": "Besin zincirindeki canlılar arasındaki ilişkileri yapılandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.1.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Uzay gözlem araçları ile ilgili bilimsel model oluşturabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.2.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Enerji çeşitlerinden kinetik ve potansiyel enerjiyi karşılaştırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Sindirim sisteminin sağlığı için yapılması gerekenler konusunda bilgi toplayabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.4.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Mercek çeşitlerine yönelik bilimsel çıkarım yapabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Geçmişten günümüze atom kavramı ile ilgili bilimsel bilgilerin değişebileceğini sorgulayabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.6.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Elektriklenme çeşitlerini belirlemeye yönelik deney yapabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.7.2",
+   "alan": "Fen Bilimleri",
+   "metin": "Kaynakların tasarruflu kullanımının önemini sorgulayabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.1.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Uzay araştırmalarının yol açabileceği problemleri çözebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.2.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Enerji dönüşümünden hareketle enerjinin korunduğuna yönelik tümevarımsal akıl yürütebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Dolaşım sistemini oluşturan yapı ve organların görevlerini model üzerinde bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.4.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Merceklerin günlük hayatta kullanım alanlarını örneklerle sınıflandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Farklı moleküllere ait bilimsel model oluşturabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.6.3",
+   "alan": "Fen Bilimleri",
+   "metin": "Cisimlerin elektrik yüklerini sınıflandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.1.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Yıldızların yaşamını açıklayarak yapılandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Kan bağışının toplumsal dayanışma açısından önemini tartışabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.4",
+   "alan": "Fen Bilimleri",
+   "metin": "Saf maddeleri element ve bileşik olarak sınıflandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.1.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Yıldız, galaksi ve evren kavramlarını açıklayarak yapılandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Dolaşım sisteminin sağlığı için yapılması gerekenler konusunda bilgi toplayabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.5.5",
+   "alan": "Fen Bilimleri",
+   "metin": "Periyodik tablodaki ilk 18 elementin isimlerini sembolleriyle yapılandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Solunum sistemini oluşturan yapı ve organların görevlerini model üzerinde bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.6",
+   "alan": "Fen Bilimleri",
+   "metin": "Periyodik tabloda grup ve periyotları karşılaştırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Solunum sisteminin sağlığı için yapılması gerekenler konusunda bilgi toplayabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.5.7",
+   "alan": "Fen Bilimleri",
+   "metin": "Bileşiklerin isimlerini formülleriyle yapılandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.8",
+   "alan": "Fen Bilimleri",
+   "metin": "Boşaltım sistemini oluşturan yapı ve organları model üzerinde bilimsel olarak gözlemleyebilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.5.8",
+   "alan": "Fen Bilimleri",
+   "metin": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+   "uygunluk": "yazili"
+  },
+  {
+   "kod": "FB.7.3.9",
+   "alan": "Fen Bilimleri",
+   "metin": "Boşaltım sisteminin sağlığı için yapılması gerekenler konusunda bilgi toplayabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.5.9",
+   "alan": "Fen Bilimleri",
+   "metin": "Çözünme hızına etki eden faktörler ile ilgili hipotez oluşturabilme",
+   "uygunluk": "performans"
+  },
+  {
+   "kod": "FB.7.5.10",
+   "alan": "Fen Bilimleri",
+   "metin": "Karışımları ayırmak için deney yapabilme",
+   "uygunluk": "performans"
+  }
+ ]
+}
