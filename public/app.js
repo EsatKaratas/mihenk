@@ -391,7 +391,13 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library"];
+
+/* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
+   Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
+   devam ederken hiçbir şey kaydedilmiyor olabilirdi. Sessiz düşüş yasağı
+   (§6.3-5) burada da geçerlidir. */
+var depoHatasi = "";
 
 function saveState() {
   if (_resetting) return;
@@ -399,7 +405,15 @@ function saveState() {
     const d = { _qIdSeq: qIdSeq };
     KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
     localStorage.setItem(STORE_KEY, JSON.stringify(d));
-  } catch (e) { /* kota dolu ya da gizli sekme — sessizce geç */ }
+    depoHatasi = "";
+  } catch (e) {
+    // Kota dolu ya da gizli sekme. Sessizce geçilirse kullanıcı çalışmasının
+    // kaydedildiğini sanır ve yenilemede her şeyi kaybeder.
+    depoHatasi = "Çalışmanız bu tarayıcıya kaydedilemiyor (" +
+      String((e && e.name) || "depolama hatası") + "). Sekmeyi kapatırsanız " +
+      "kaydedilmemiş veriler kaybolur. Müfredat Kitaplığı'ndan kullanmadığınız " +
+      "kitapları silmeyi ya da tarayıcı verisini temizlemeyi deneyin.";
+  }
 }
 
 function loadState() {
@@ -429,7 +443,31 @@ function resetState() {
   _resetting = true;
   if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
   try { localStorage.removeItem(STORE_KEY); } catch (e) {}
-  location.reload();
+  // Kitaplık ayrı bir depoda (IndexedDB). Yalnızca localStorage silinirse
+  // kitap içerikleri diskte kalır ve arayüzde onları silecek bir liste de
+  // kalmaz — erişilemeyen artık veri olur. Silme bloklanırsa (başka sekme
+  // açıksa) sıfırlama yine de sürer; süresiz beklemez.
+  kitapligiSil().then(function () { location.reload(); });
+}
+
+/** Kitaplık veritabanını tümüyle siler. Bloklanırsa en fazla 1,5 sn bekler. */
+function kitapligiSil() {
+  return new Promise(function (resolve) {
+    var bitti = false;
+    var bitir = function () { if (!bitti) { bitti = true; resolve(); } };
+    setTimeout(bitir, 1500);
+    try {
+      // Açık bağlantı varken deleteDatabase bloklanır; önce kapat.
+      if (dbPromise) {
+        dbPromise.then(function (db) { try { db.close(); } catch (e) {} }, function () {});
+        dbPromise = null;
+      }
+      var istek = indexedDB.deleteDatabase(KITAPLIK_DB);
+      istek.onsuccess = bitir;
+      istek.onerror = bitir;
+      istek.onblocked = bitir;
+    } catch (e) { bitir(); }
+  });
 }
 
 /* ==================== Demo senaryosu ====================
@@ -578,6 +616,9 @@ const state = {
   misconceptions: {},
   alignment: {},
   sources: [],
+  // Müfredat Kitaplığı indeksi. İçerik (sayfa metinleri) IndexedDB'dedir;
+  // burada yalnızca listelemeye yetecek küçük üstveri durur.
+  library: [],
   baseline: {
     totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
     classes: [
@@ -792,9 +833,11 @@ function addSubject(ad) {
    Ders notu, müfredat ya da kitap bölümü PDF olarak yüklenebilir.
    pdf.js istemci tarafında çalışır; DOSYA SUNUCUYA GÖNDERİLMEZ.
 
-   Sayfa metinleri bilinçli olarak state dışında (pdfPages) tutulur:
-   büyük bir PDF localStorage kotasını doldurabilirdi. Kullanıcının seçtiği
-   sayfa aralığının metni state.ceForm.text'e yazılır, kalıcı olan odur.   */
+   Sayfa metinleri state (localStorage) DIŞINDA tutulur: büyük bir PDF
+   localStorage kotasını doldurup uygulamanın tüm kaydını bozardı. Çalışma
+   kopyası `pdfPages` değişkenindedir; kalıcı kopya ise Müfredat Kitaplığı
+   aracılığıyla IndexedDB'ye yazılır (aşağıdaki bölüme bakın). Kullanıcının
+   seçtiği sayfa aralığının metni ayrıca state.ceForm.text'e yazılır.       */
 let pdfPages = null;      // [{ n, text }]
 let pdfLibPromise = null;
 
@@ -864,6 +907,259 @@ function pdfPickerHtml() {
     '<button class="btn btn-primary btn-sm" id="btnApplyPdf">Bu sayfaları kullan</button> ' +
     '<button class="btn btn-secondary btn-sm" id="btnClearPdf">PDF\'i kaldır</button></div>';
 }
+
+/* ==================== MÜFREDAT KİTAPLIĞI ====================
+   BULUNAN SORUN (kullanıcı bildirdi): Öğretmen 170 sayfalık müfredat/kitap
+   PDF'ini yüklüyor, sayfa aralığı seçip soru üretiyor. Ama sayfa metinleri
+   yalnızca `pdfPages` modül değişkeninde tutuluyor ve `state.pdf`
+   KALICI_ALANLAR'da olmadığı için SAYFA YENİLENDİĞİNDE HEPSİ GİDİYORDU.
+   Öğretmen ertesi gün aynı PDF'i baştan yüklemek zorunda kalıyordu.
+
+   NEDEN localStorage DEĞİL: Uygulamanın tüm durumu tek bir localStorage
+   anahtarında ve ~5 MB paylaşımlı kotada. 200 sayfalık bir kitabın metni
+   400-800 KB; birkaç kitap kotayı doldurur ve `saveState()` başarısız olur —
+   yani sorular, sınavlar ve puanlar kaydedilmemeye başlar. Kitap metnini
+   oraya koymak, ana veriyi riske atmak demektir.
+
+   ÇÖZÜM: İki katmanlı depolama.
+     · IndexedDB (`t3-mufredat`)  -> sayfa metinleri (ayrı ve çok daha büyük
+       kota; dolsa bile uygulama durumuna dokunmaz)
+     · state.library[]            -> yalnızca İNDEKS (ad, sayfa sayısı, ders,
+       sınıf, karakter, tarih). Küçüktür, localStorage'da kalır.
+
+   İndeksin state'te tutulmasının sebebi mimaridir: bu uygulamanın tamamı
+   senkron `renderAll()` ile HTML dizesi üretir. Liste senkron veriden
+   çizilir; IndexedDB'ye yalnızca kitap AÇILIRKEN ve KAYDEDİLİRKEN gidilir.
+
+   SESSİZ DÜŞÜŞ YOK (§6.3-5): IndexedDB kullanılamıyorsa (gizli sekme, kota,
+   tarayıcı ayarı) sebep ekranda yazılır ve PDF yalnızca o oturum için
+   geçerli olur; kullanıcı kitabın saklandığını sanmaz.
+   ============================================================ */
+
+var KITAPLIK_DB = "t3-mufredat";
+var KITAPLIK_STORE = "kitaplar";
+var KITAPLIK_LIMIT = 20;
+var kitapIdSeq = 1;
+var kitaplikHata = "";      // boş değilse kitaplık kullanılamıyor demektir
+var dbPromise = null;
+
+/** IndexedDB bağlantısı (bir kez açılır, sonuç önbelleklenir). */
+function dbAc() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise(function (resolve, reject) {
+    if (!window.indexedDB) { reject(new Error("Bu tarayıcı IndexedDB desteklemiyor.")); return; }
+    var istek;
+    // Gizli sekmede open() doğrudan istisna fırlatabiliyor.
+    try { istek = indexedDB.open(KITAPLIK_DB, 1); }
+    catch (e) { reject(e); return; }
+    istek.onupgradeneeded = function () {
+      var db = istek.result;
+      if (!db.objectStoreNames.contains(KITAPLIK_STORE)) {
+        db.createObjectStore(KITAPLIK_STORE, { keyPath: "id" });
+      }
+    };
+    istek.onsuccess = function () { resolve(istek.result); };
+    istek.onerror = function () { reject(istek.error || new Error("Yerel depo açılamadı.")); };
+    istek.onblocked = function () { reject(new Error("Yerel depo başka bir sekme tarafından kilitlenmiş.")); };
+  });
+  return dbPromise;
+}
+
+/** Tek bir IndexedDB işlemi; işlem tamamlanana kadar bekler. */
+function dbIslem(mod, fn) {
+  return dbAc().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx, store, istek;
+      try {
+        tx = db.transaction(KITAPLIK_STORE, mod);
+        store = tx.objectStore(KITAPLIK_STORE);
+        istek = fn(store);
+      } catch (e) { reject(e); return; }
+      // put() başarılı görünüp işlem sonradan iptal olabilir (kota); bu yüzden
+      // istek değil İŞLEM beklenir.
+      tx.oncomplete = function () { resolve(istek ? istek.result : undefined); };
+      tx.onerror = function () { reject(tx.error || new Error("Depolama işlemi başarısız.")); };
+      tx.onabort = function () {
+        reject(tx.error || new Error("Depolama işlemi iptal edildi — cihaz depolama alanı dolmuş olabilir."));
+      };
+    });
+  });
+}
+
+function kitapKaydet(id, sayfalar) {
+  return dbIslem("readwrite", function (s) { return s.put({ id: id, pages: sayfalar }); });
+}
+function kitapYukle(id) {
+  return dbIslem("readonly", function (s) { return s.get(id); });
+}
+function kitapSil(id) {
+  return dbIslem("readwrite", function (s) { return s.delete(id); });
+}
+
+function ensureLibrary() {
+  state.library = state.library || [];
+  state.library.forEach(function (k) { if (k.id >= kitapIdSeq) kitapIdSeq = k.id + 1; });
+}
+
+function kitapBul(id) {
+  ensureLibrary();
+  return state.library.filter(function (k) { return String(k.id) === String(id); })[0] || null;
+}
+
+/**
+ * Çıkarılmış sayfaları kitaplığa yazar ve indeks kaydını döndürür.
+ * Aynı kitap (ad + sayfa sayısı + karakter) tekrar yüklenirse çoğaltılmaz.
+ * Hata durumunda `kitaplikHata` doldurulur ve null döner — çağıran taraf
+ * PDF'i oturumluk kullanmaya devam eder.
+ */
+async function kitapligaEkle(dosyaAdi, sayfalar) {
+  ensureLibrary();
+  var karakter = sayfalar.reduce(function (t, s) { return t + s.text.length; }, 0);
+  var ayni = state.library.filter(function (k) {
+    return k.ad === dosyaAdi && k.sayfaSayisi === sayfalar.length && k.karakter === karakter;
+  })[0];
+  if (ayni) { ayni.at = Date.now(); saveState(); return ayni; }
+
+  var kayit = {
+    id: kitapIdSeq++,
+    ad: dosyaAdi,
+    sayfaSayisi: sayfalar.length,
+    karakter: karakter,
+    subject: state.ceForm.subject || "",
+    grade: state.ceForm.grade || "",
+    at: Date.now()
+  };
+  try {
+    await kitapKaydet(kayit.id, sayfalar);
+  } catch (e) {
+    kitapIdSeq--;   // id tüketilmesin
+    kitaplikHata = "Kitaplığa kaydedilemedi: " + String((e && e.message) || e) +
+      " Bu PDF yalnızca bu oturumda kullanılabilir.";
+    return null;
+  }
+  kitaplikHata = "";
+  state.library.push(kayit);
+  // Sınır aşılırsa en eski kitap düşer. Liste ekranda görünür olduğu için
+  // bu kayıp sessiz değildir.
+  while (state.library.length > KITAPLIK_LIMIT) {
+    var atilan = state.library.shift();
+    try { await kitapSil(atilan.id); } catch (e) { /* kayıt zaten yoksa sorun değil */ }
+  }
+  saveState();
+  return kayit;
+}
+
+/** Kitaplıktaki bir kitabı açar: sayfa metinlerini belleğe alır, seçiciyi gösterir. */
+async function kitapAc(id) {
+  var kayit = kitapBul(id);
+  if (!kayit) return;
+  state.ceForm.pdfLoading = true;
+  state.ceForm.error = "";
+  renderAll();
+  try {
+    var veri = await kitapYukle(kayit.id);
+    if (!veri || !veri.pages || !veri.pages.length) {
+      // İndeks duruyor ama içerik yok: tarayıcı verisi kısmen temizlenmiş
+      // olabilir. "Açılmadı" demek yetmez; sebebini söyle ve ölü kaydı kaldır.
+      state.library = state.library.filter(function (k) { return k.id !== kayit.id; });
+      saveState();
+      state.ceForm.error = "“" + kayit.ad + "” kitaplıkta görünüyordu ama içeriği bulunamadı " +
+        "(tarayıcı verisi temizlenmiş olabilir). Kayıt listeden kaldırıldı; PDF'i yeniden yükleyin.";
+      return;
+    }
+    pdfPages = veri.pages;
+    state.pdf = {
+      ad: kayit.ad,
+      sayfaSayisi: veri.pages.length,
+      from: 1,
+      to: Math.min(3, veri.pages.length),
+      kitapId: kayit.id
+    };
+    if (!state.ceForm.title) state.ceForm.title = kayit.ad.replace(/\.pdf$/i, "");
+    state.ceForm.fileName = kayit.ad + " — kitaplıktan açıldı, sayfa aralığı seçin";
+  } catch (e) {
+    state.ceForm.error = "Kitap açılamadı: " + String((e && e.message) || e);
+  } finally {
+    state.ceForm.pdfLoading = false;
+    renderAll();
+  }
+}
+
+/** Kitabı kitaplıktan siler (hem indeks hem içerik). */
+async function kitapKaldir(id) {
+  var kayit = kitapBul(id);
+  if (!kayit) return;
+  state.library = state.library.filter(function (k) { return k.id !== kayit.id; });
+  // Açık olan kitap silindiyse seçici de kapanmalı; yoksa var olmayan bir
+  // kitabın sayfa aralığı seçiliyormuş gibi görünür.
+  if (state.pdf && state.pdf.kitapId === kayit.id) {
+    state.pdf = null; pdfPages = null; state.ceForm.fileName = "";
+  }
+  saveState();
+  renderAll();
+  try { await kitapSil(kayit.id); }
+  catch (e) { kitaplikHata = "Kitap içeriği silinemedi: " + String((e && e.message) || e); renderAll(); }
+}
+
+function kitapBoyutEtiketi(karakter) {
+  var kb = karakter / 1024;
+  return kb >= 1024 ? (kb / 1024).toFixed(1).replace(".", ",") + " MB"
+                    : Math.max(1, Math.round(kb)) + " KB";
+}
+
+function kitapTarihEtiketi(ts) {
+  try { return new Date(ts).toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }); }
+  catch (e) { return ""; }
+}
+
+/** Kitaplık listesi. Tamamen senkron — yalnızca state.library'den çizilir. */
+function kitaplikHtml() {
+  ensureLibrary();
+  var uyari = kitaplikHata ? '<div class="kit-uyari">' + escapeHtml(kitaplikHata) + '</div>' : "";
+  if (!state.library.length) return uyari ? '<div class="kit-wrap">' + uyari + '</div>' : "";
+
+  var sirali = state.library.slice().sort(function (a, b) { return b.at - a.at; });
+  var toplam = state.library.reduce(function (t, k) { return t + k.karakter; }, 0);
+
+  var satirlar = sirali.map(function (k) {
+    var acik = !!(state.pdf && state.pdf.kitapId === k.id);
+    var etiket = [k.subject, k.grade ? k.grade + ". sınıf" : ""].filter(Boolean).join(" · ");
+    return '<div class="kit-satir' + (acik ? " acik" : "") + '">' +
+      '<div class="kit-bilgi">' +
+      '<div class="kit-ad">📕 ' + escapeHtml(k.ad) + (acik ? ' <span class="kit-rozet">açık</span>' : "") + '</div>' +
+      '<div class="kit-alt">' + k.sayfaSayisi + ' sayfa · ' + kitapBoyutEtiketi(k.karakter) +
+      (etiket ? ' · ' + escapeHtml(etiket) : "") + ' · ' + kitapTarihEtiketi(k.at) + '</div></div>' +
+      '<div class="kit-islem">' +
+      '<button class="btn btn-secondary btn-sm" data-kitap="' + k.id + '"' + (acik ? " disabled" : "") + '>' +
+      (acik ? "Açık" : "Aç") + '</button>' +
+      '<button class="icon-btn kit-sil" data-kitap-sil="' + k.id + '" title="Kitaplıktan sil" aria-label="' +
+      escapeHtml(k.ad) + ' kitabını kitaplıktan sil">×</button>' +
+      '</div></div>';
+  }).join("");
+
+  return '<div class="kit-wrap">' + uyari +
+    '<div class="kit-bas">📚 Müfredat Kitaplığı' +
+    '<span class="kit-ozet">' + state.library.length + ' kitap · ' + kitapBoyutEtiketi(toplam) + '</span></div>' +
+    '<div class="kit-desc">Yüklediğiniz PDF\'ler bu tarayıcıda saklanır; her seferinde yeniden ' +
+    'yüklemeniz gerekmez. Bir kitabı açıp farklı sayfa aralıklarından soru üretebilirsiniz.</div>' +
+    '<div class="kit-liste">' + satirlar + '</div></div>';
+}
+
+function wireKitaplik() {
+  document.querySelectorAll("[data-kitap]").forEach(function (b) {
+    b.onclick = function () { kitapAc(b.getAttribute("data-kitap")); };
+  });
+  document.querySelectorAll("[data-kitap-sil]").forEach(function (b) {
+    b.onclick = function () {
+      var k = kitapBul(b.getAttribute("data-kitap-sil"));
+      if (!k) return;
+      if (confirm("“" + k.ad + "” kitaplıktan silinsin mi? Bu kitaptan üretilmiş sorular silinmez.")) {
+        kitapKaldir(k.id);
+      }
+    };
+  });
+}
+
 
 /* ============================== İçerik Uzmanı ============================== */
 /* ===========================================================================
@@ -1313,10 +1609,12 @@ function ceCreateHtml() {
       : '<div class="dz-icon">📄</div>' +
         '<div class="dz-title">Dosyayı buraya sürükleyin<span class="dz-or"> veya </span>' +
         '<button class="dz-browse" id="btnUpload" type="button">bilgisayarınızdan seçin</button></div>' +
-        '<div class="dz-sub">PDF · TXT · MD — dosya sunucuya gönderilmez, tarayıcınızda okunur</div>' +
+        '<div class="dz-sub">PDF · TXT · MD — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
+        'PDF\'ler kitaplığa kaydedilir; aynı dosyayı tekrar yüklemeniz gerekmez.</div>' +
         (state.ceForm.fileName ? '<div class="dz-file">✓ ' + escapeHtml(state.ceForm.fileName) + '</div>' : "")) +
     '</div>' +
     pdfPickerHtml() +
+    kitaplikHtml() +
     '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
     '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
     (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
@@ -1443,7 +1741,10 @@ function renderContentExpert() {
   const pa = document.getElementById("btnApplyPdf");
   if (pa) pa.onclick = applyPdfRange;
   const pc = document.getElementById("btnClearPdf");
+  // "PDF'i kaldır" yalnızca AÇIK olan kitabı kapatır; kitaplıktan SİLMEZ.
+  // Silme işlemi kitaplık listesindeki × düğmesindedir ve onay ister.
   if (pc) pc.onclick = function () { state.pdf = null; pdfPages = null; state.ceForm.fileName = ""; renderAll(); };
+  wireKitaplik();
 
   fileEl.onchange = async function () {
     const f = fileEl.files && fileEl.files[0];
@@ -1461,9 +1762,19 @@ function renderContentExpert() {
           state.ceForm.error = "Bu PDF'te metin katmanı bulunamadı — taranmış görüntü olabilir. " +
             "Böyle dosyalar için metni kopyalayıp aşağıya yapıştırın.";
         } else {
-          state.pdf = { ad: f.name, sayfaSayisi: pdfPages.length, from: 1, to: Math.min(3, pdfPages.length) };
+          // Kitaplığa yaz: öğretmen aynı PDF'i her oturumda yeniden
+          // yüklemek zorunda kalmasın. Başarısız olursa kitapligaEkle null
+          // döner, `kitaplikHata` ekranda görünür ve PDF oturumluk kullanılır.
+          const kayit = await kitapligaEkle(f.name, pdfPages);
+          state.pdf = {
+            ad: f.name,
+            sayfaSayisi: pdfPages.length,
+            from: 1,
+            to: Math.min(3, pdfPages.length),
+            kitapId: kayit ? kayit.id : null
+          };
           if (!state.ceForm.title) state.ceForm.title = f.name.replace(/\.pdf$/i, "");
-          state.ceForm.fileName = f.name + " yüklendi — sayfa aralığı seçin";
+          state.ceForm.fileName = f.name + (kayit ? " kitaplığa eklendi" : " yüklendi") + " — sayfa aralığı seçin";
         }
       } catch (err) {
         state.pdf = null; pdfPages = null;
@@ -4397,10 +4708,29 @@ function bindFieldLabels(kok) {
   });
 }
 
+/**
+ * Depolama uyarısı şeridi. Kasten gövdeye eklenir ve konumu sabittir:
+ * hangi rol/sekme açık olursa olsun görünmelidir (§6.3-2: kapsayıcıya
+ * bağlı tanım yapma dersi).
+ */
+function renderDepoUyarisi() {
+  var el = document.getElementById("depoUyari");
+  if (!depoHatasi) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "depoUyari";
+    el.className = "depo-uyari";
+    el.setAttribute("role", "alert");
+    document.body.appendChild(el);
+  }
+  el.textContent = "⚠ " + depoHatasi;
+}
+
 function renderAll() {
   renderAiBadge();
   syncActiveExam();
   saveState();
+  renderDepoUyarisi();
   renderRoleNav();
   renderPipeline();
   renderContentExpert();
@@ -4459,6 +4789,9 @@ setInterval(function () {
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
     "ensureSources", "kaynakEkle", "kaynakBul", "soruKaynakIster", "kaynakBlokHtml",
+    "dbAc", "dbIslem", "kitapKaydet", "kitapYukle", "kitapSil", "ensureLibrary", "kitapBul",
+    "kitapligaEkle", "kitapAc", "kitapKaldir", "kitaplikHtml", "wireKitaplik",
+    "kitapBoyutEtiketi", "kitapTarihEtiketi", "kitapligiSil", "renderDepoUyarisi",
     "feedbackDraftHtml",
     "bindFieldLabels",
     "kaynakRozetHtml", "sinavKaynakUyarisiHtml",

@@ -198,6 +198,13 @@
           o metin soruya bağlı olarak saklanır ve <b>sınav sırasında öğrenciye soruyla birlikte gösterilir</b>.
           Metin olmadan bu tür sorular yanıtlanamayacağı için bu saklama ölçmenin geçerliliği açısından
           zorunludur. Saklanan kaynak sayısı sınırlıdır; sınır aşıldığında en eski kaynak silinir.</li>
+          <li><b>Müfredat Kitaplığı (yüklenen PDF'ler):</b> Eğitmenin yüklediği müfredat, ders kitabı ya da
+          ders notu PDF'lerinden <b>çıkarılan metin</b>, aynı dosyanın her oturumda yeniden yüklenmesini
+          önlemek için <b>kullanılan tarayıcının yerel veritabanında</b> (<code>IndexedDB</code>) saklanır.
+          <b>Dosyanın kendisi hiçbir zaman sunucuya gönderilmez</b> ve bu metin başka bir cihazdan
+          erişilebilir değildir. Eğitmen her kitabı arayüzdeki kitaplık listesinden tek tek silebilir;
+          "Verileri sıfırla" işlemi kitaplığın tamamını siler. Saklanan kitap sayısı sınırlıdır
+          (en fazla 20); sınır aşıldığında en eski kitap silinir.</li>
         </ul>
 
         <div class="hitl-box">
@@ -207,8 +214,10 @@
           (<code>localStorage</code>) tutulur; sayfa yenilendiğinde korunur, tarayıcı verisi temizlendiğinde
           silinir. Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
           iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b>. Yüklenen PDF dosyaları
-          tarayıcıda çözümlenir, dosyanın kendisi sunucuya gönderilmez. Üretim sürümünde bu veriler
-          kurumsal veritabanında saklanacak ve bu metin buna göre güncellenecektir.
+          tarayıcıda çözümlenir, dosyanın kendisi sunucuya gönderilmez; bu dosyalardan çıkarılan metin
+          Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında (<code>IndexedDB</code>)
+          tutulur. Üretim sürümünde bu veriler kurumsal veritabanında saklanacak ve bu metin buna göre
+          güncellenecektir.
         </div>
       </section>
 

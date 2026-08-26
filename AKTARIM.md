@@ -60,7 +60,7 @@ Bu tez ürünün her katmanında görünür:
 ```
 Tarayıcı (vanilla JS, build adımı YOK)
   public/index.html   ~2 KB iskelet
-  public/app.js       237 KB — 4 rolün tüm mantığı, tek dosya
+  public/app.js       252 KB — 4 rolün tüm mantığı, tek dosya
   public/app.css      54 KB
         │
         │ fetch  (yalnızca /api/ai/* — başka sunucu çağrısı yok)
@@ -146,7 +146,7 @@ yapılandırma dosyası var (§6.1).
 t3-olcme-degerlendirme/
 │
 ├── AKTARIM.md              15 KB  bu dosya — devir özeti
-├── PROGRESS.md             82 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§14)
+├── PROGRESS.md             89 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§15)
 ├── README.md               36 KB  jüri odaklı tanıtım (rozetler, mermaid akış)
 ├── agents.md              7,7 KB  ★ ZORUNLU kurallar (HITL, mimari, sınırlar)
 │
@@ -175,8 +175,8 @@ t3-olcme-degerlendirme/
 │
 ├── public/
 │   ├── index.html         1,9 KB  iskelet
-│   ├── app.js             238 KB  ★ 4 rolün TÜM mantığı (tek dosya)
-│   ├── app.css             54 KB  tüm stiller
+│   ├── app.js             252 KB  ★ 4 rolün TÜM mantığı (tek dosya)
+│   ├── app.css             57 KB  tüm stiller
 │   ├── _headers           1,6 KB  ★ güvenlik başlıkları (CSP dahil)
 │   ├── mimari.html         51 KB  mimari dokümantasyonu (4 mermaid diyagram)
 │   ├── mimari.js          1,5 KB  mermaid yükleyici (inline OLAMAZ — §6.3)
@@ -212,14 +212,14 @@ t3-olcme-degerlendirme/
 **Prototipte sunucuda hiçbir veri saklanmaz.** Tüm durum tarayıcının
 `localStorage`'ında, tek bir anahtar altındadır: `t3-olcme-durum-v1`.
 
-Kalıcı yazılan 30 üst düzey alan (`KALICI_ALANLAR`, `public/app.js`):
+Kalıcı yazılan 31 üst düzey alan (`KALICI_ALANLAR`, `public/app.js`):
 
 ```
 role · teacherTab · studentTab · ceTab · genCount · ceForm · questions ·
 rubrics · rubricSelectedQ · exam · answers · examStatus · currentQIndex ·
 remainingSec · aiEvals · reviews · mcResults · remedial · integrity ·
 outcomes · subjects · poolFilter · exams · activeExamId · students ·
-activeStudentId · evalCache · misconceptions · alignment · sources
+activeStudentId · evalCache · misconceptions · alignment · sources · library
 ```
 
 D1 şeması (`schema.sql`, 14 tablo) hazırdır ama **canlıda bağlı değildir**:
@@ -352,6 +352,7 @@ Kaynak silinmişse (limit aşımı) **sessizce metinsiz soru gösterilmez**;
 | 1 | Ders/sınıf/kazanım **birbirinden bağımsızdı** ("Türkçe + MAT.7.3.4 + Kuvvet ve Hareket" mümkündü) | Kazanıma `subject`/`grade` eklendi, seçici filtreleniyor, uyuşmazlıkta gerekçeli uyarı. Sert engelleme yok |
 | 2 | 8. sınıf seçiliyken **7. sınıf kataloğu** açılıyordu | Katalog anahtarı artık ders **ve** sınıf birlikte |
 | 3 | 🔴 **"Metne göre…" sorusu ama ortada metin yok** — soru cevaplanamazdı | Uyaran metin sistemi (§3.5): kaynak saklanıyor, soruya bağlanıyor, sınavda gösteriliyor. Sunucuda deterministik güvence (regex 10/10) |
+| 4 | **Yüklenen müfredat PDF'i sayfa yenilenince kayboluyordu** — öğretmen aynı dosyayı her oturumda baştan yüklüyordu | **Müfredat Kitaplığı** (`PROGRESS.md` §15): sayfa metinleri IndexedDB'de, indeks `state.library`'de. Yükle → yenile → "Aç" ile 36 sayfa geri geldi, yeniden yükleme yok |
 
 ## 4.2 Ayrıştırıcı özellikler (bu takımı diğerlerinden ayıran kısım)
 
@@ -401,7 +402,7 @@ secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
 | `npm test` | **88/88 geçti** (3 dosya, 1,1 sn) |
 | `npm run check:config` | 2/2 geçerli |
 | `node --check public/app.js` | geçerli |
-| Açılış öz-kontrolü | temiz (**107 fonksiyon** denetleniyor) |
+| Açılış öz-kontrolü | temiz (**136 fonksiyon** denetleniyor) |
 | 4 rol × tüm sekmeler | render hatasız, konsol hatası 0 |
 | Canlı statik yollar | `/` `/app.js` `/app.css` `/mimari` `/privacy-policy` `/robots.txt` `/mufredat/turkce-7.json` `/mimari.js` → 200, bilinmeyen → 404 |
 | Güvenlik başlıkları | 5/5 aktif |
@@ -455,13 +456,21 @@ kararı, tasarım aracı ya da kamera gerektirir. Yeni oturumda asistan bunlara
 
 ## 5.2 ★ İLK GÖREV — yeni oturumda buradan başla
 
-> **Kullanıcı başka bir şey söylemediyse: İş Modeli Kanvası taslağını yaz
-> (§5.1 madde 1), ardından deck için slayt metinlerini hazırla (madde 2-4).**
+> **GÜNCELLEME (26 Ağustos akşamı, kullanıcı kararı):** Yukarıdaki 1-5 numaralı
+> teslimatlar (İş Modeli Kanvası, Pitch Deck, rakip analizi, demo videosu)
+> **ekip arkadaşlarına devredildi.** Kullanıcının kendi görevi **çalışan,
+> eksiksiz ürün.** Bu yüzden yeni oturumun varsayılan görevi artık kanvas
+> yazmak değildir.
+>
+> **Yeni varsayılan: ürün açıklarını kapatmak.** Sıradaki iş listesi §5.3'tedir;
+> tamamlananlar `PROGRESS.md` §15'te kayıtlıdır. Kullanıcı bir eksik bildirirse
+> o önceliklidir — bu projede en değerli düzeltmelerin tamamı kullanıcının
+> ürünü elle kullanırken bulduğu hatalardan çıktı (§14c, §15a).
 
-**Gerekçe:** Kod tarafı güçlü ve doğrulanmış durumda (§4.5). Ama **jüri kodu
-okumaz, deck'i izler.** 26 Ağustos'ta eklenen 12 ayrıştırıcı özelliğin hiçbiri
-sunumda yok ve zorunlu bir teslimat (kanvas) hâlâ eksik. Bu noktada 13.
-özelliği eklemek, 12'sinin görünmemesi sorununu çözmez.
+**Eski gerekçe (kayıt için):** Kod tarafı güçlü ve doğrulanmış durumdaydı
+(§4.5), ama **jüri kodu okumaz, deck'i izler**; 12 ayrıştırıcı özelliğin
+hiçbiri sunumda değildi. Bu değerlendirme hâlâ doğrudur — yalnızca işi
+yapacak kişi değişti.
 
 Kanvas yazarken kullanılacak gerçek malzeme:
 - **Değer önerisi:** `README.md` "Neden bu proje farklı" tablosu
@@ -568,7 +577,7 @@ yazarken bunlara uyulmazsa aynı hatalar tekrarlanır.
 **1. `public/app.js` 238 KB — blok değiştirirken sınırları doğrula.**
 Bir yeniden yazımda `critRowHtml` ile `teacherTab3Html` arasındaki aralık
 fazladan 4 fonksiyon kapsadı ve onlar silindi; öğretmen sekmesi canlıda
-kırıldı. Bu yüzden dosya başında **öz-kontrol** var: 107 fonksiyonun varlığını
+kırıldı. Bu yüzden dosya başında **öz-kontrol** var: 136 fonksiyonun varlığını
 denetler, eksikse ekranda kırmızı uyarı basar.
 **Yeni fonksiyon eklediysen `selfCheck` listesine eklemeyi unutma.**
 

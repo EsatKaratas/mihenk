@@ -5,11 +5,12 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§14 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§15 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
-> hizalama denetimi · **§14 ürün açıkları ve güvenlik turu — en yeni.**
+> hizalama denetimi · §14 ürün açıkları ve güvenlik turu ·
+> **§15 Müfredat Kitaplığı (PDF kalıcılığı) — en yeni.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -1517,3 +1518,120 @@ başındaki görünmez BOM).
 | `AKTARIM.md` | "Kaldığımız nokta" tamamen yeniden yazıldı (bitenler + sıradaki kod dışı teslimatlar + demo günü kota uyarısı); ölçülen değerler ve özellik listesi güncellendi; başa "tek doğruluk kaynağı PROGRESS.md" uyarısı |
 | `privacy-policy.html` | §14e madde 4 |
 | `README.md` | Yeni özellikler §11.2'ye eklendi |
+
+---
+
+## 15. MÜFREDAT KİTAPLIĞI — PDF KALICILIĞI (26 Ağustos, akşam)
+
+> **Teslim tarihi notu:** Kullanıcı teslimin **27 Ağustos 2026** olduğunu
+> bildirdi. Kreaton rehberinin metninde "26 Ağustos 2026" yazıyor; çelişki
+> kullanıcıya bildirildi ve **27 Ağustos** teyit edildi. Üç zorunlu teslimat
+> (İş Modeli Kanvası, Pitch Deck, Tanıtım/Demo Videosu) **ekip arkadaşlarına
+> devredildi**; bu oturumun kapsamı yalnızca çalışan üründür.
+
+### 15a. Bulunan sorun (kullanıcı bildirdi)
+
+Öğretmen müfredat/ders kitabı PDF'ini yüklüyor, sayfa aralığı seçip soru
+üretiyor. **Sayfayı yenilediğinde PDF tamamen kayboluyordu** ve aynı dosyayı
+baştan yükleyip yeniden çıkarması gerekiyordu.
+
+Kök neden ölçüldü, iki ayrı yerdeydi:
+
+| Yer | Durum |
+|---|---|
+| `pdfPages` | Modül değişkeni — sayfa metinleri yalnızca bellekte |
+| `state.pdf` | `KALICI_ALANLAR` listesinde **yok** — diske hiç yazılmıyordu |
+
+Bu bilinçli bir karardı (eski yorum satırı bunu yazıyordu): büyük bir PDF
+`localStorage` kotasını doldurabilirdi. Yani sorun "unutulmuş" değil,
+**çözülmemiş** bir sorundu.
+
+### 15b. Depolama kararı — neden IndexedDB, neden localStorage değil
+
+| Seçenek | Değerlendirme |
+|---|---|
+| **localStorage** | Uygulamanın **tüm durumu tek anahtarda** ve ~5 MB paylaşımlı kotada. 200 sayfalık bir kitabın metni 400-800 KB; birkaç kitap kotayı doldurur. Daha kötüsü: `saveState()` kota hatasını **sessizce yutuyordu** → sorular, sınavlar ve puanlar kaydedilmemeye başlar ve kullanıcı bunu bilmez. ❌ |
+| **Sunucu (D1/R2)** | D1 canlıda bağlı değil, R2 yok (§6 kapsam kararı). Ayrıca PDF'in tarayıcıdan çıkmaması ürünün ilan ettiği gizlilik güvencesi. ❌ |
+| **IndexedDB + state'te küçük indeks** | Ayrı kota (yüzlerce MB); dolsa bile uygulama durumuna dokunmaz. İndeks `localStorage`'da kaldığı için **render senkron kalır** — mimarinin tamamı senkron `renderAll()` ile HTML dizesi üretiyor. ✅ |
+
+**Uygulanan:** İki katmanlı depolama.
+
+```
+state.library[]  (localStorage, KALICI_ALANLAR'a eklendi)
+   └── yalnızca İNDEKS: { id, ad, sayfaSayisi, karakter, subject, grade, at }
+
+IndexedDB "t3-mufredat" / store "kitaplar"
+   └── { id, pages: [{ n, text }] }        ← ağır veri
+```
+
+IndexedDB'ye yalnızca **kitap kaydedilirken ve açılırken** gidilir; liste
+senkron veriden çizilir.
+
+### 15c. Yeni davranış
+
+- PDF yüklenince otomatik olarak kitaplığa yazılır (`… kitaplığa eklendi`).
+- İçerik Uzmanı panelinde **📚 Müfredat Kitaplığı** listesi: ad, sayfa sayısı,
+  boyut, ders/sınıf, tarih; açık olan kitap işaretli.
+- "Aç" → sayfalar IndexedDB'den yüklenir, **PDF yeniden yüklenmez**.
+- Aynı kitap tekrar yüklenirse çoğaltılmaz (ad + sayfa sayısı + karakter).
+- Her kitap tek tek silinebilir (onay ister). En fazla **20 kitap**; sınır
+  aşılırsa en eski düşer ve liste ekranda görünür olduğu için sessiz değildir.
+- "PDF'i kaldır" yalnızca açık kitabı **kapatır**, kitaplıktan silmez.
+- `resetState()` artık IndexedDB veritabanını da siler — yoksa arayüzden
+  erişilemeyen artık veri diskte kalırdı. Silme bloklanırsa en fazla 1,5 sn
+  beklenir, sıfırlama takılmaz.
+
+### 15d. Yan düzeltme — `saveState()` sessiz kota yutması
+
+Eski hâli: `catch (e) { /* kota dolu ya da gizli sekme — sessizce geç */ }`.
+
+Bu, projenin kendi **sessiz düşüş yasağı** kuralının (§6.3-5) ihlaliydi:
+öğretmen soru üretmeye devam ederken hiçbir şey kaydedilmiyor olabilirdi ve
+bunu ancak sekmeyi kapattığında anlardı. Depolama baskısını artıran bir
+özellik eklenirken bu açık bırakılamazdı.
+
+Artık `depoHatasi` doldurulur ve `renderDepoUyarisi()` gövdeye sabit konumlu
+bir uyarı şeridi basar (`role="alert"`). Kota düzelince şerit kaybolur.
+
+### 15e. Doğrulama (yerel, gerçek PDF ile uçtan uca)
+
+Test dosyası: 3,0 MB / 36 sayfa gerçek PDF, `pdf.js` ile çıkarıldı (19.882
+karakter metin).
+
+| Test | Sonuç |
+|---|---|
+| PDF yükle → kitaplığa yaz | ✅ 36 sayfa, indeks yazıldı |
+| **Sayfayı yenile → kitap duruyor mu** | ✅ liste ve "Aç" düğmesi geldi |
+| **Yenileme sonrası "Aç"** | ✅ 36 sayfa IndexedDB'den yüklendi, **yeniden yükleme yok** |
+| Sayfa aralığı uygula (4-6) | ✅ 1.866 karakter `ceForm.text`'e yazıldı |
+| Aynı dosyayı tekrar yükle | ✅ kitap sayısı 1 → 1 (çoğaltmadı) |
+| Farklı adla yükle | ✅ 1 → 2 (ayrı kitap) |
+| Kitabı sil (gerçek düğme + onay) | ✅ indeks 2 → 1, IndexedDB anahtarları `[1]` |
+| **İndeks var ama içerik yok** (veri kısmen temizlenmiş) | ✅ gerekçeli hata, ölü kayıt kaldırıldı, çökme yok |
+| **IndexedDB hiç kullanılamıyor** (gizli sekme) | ✅ ekranda gerekçe, **PDF o oturumda kullanılabilir kaldı** — sessiz düşüş yok |
+| localStorage kota hatası | ✅ uyarı şeridi çıktı, düzelince kayboldu |
+| 4 rol × render | ✅ hata yok, **konsol hatası 0** |
+| Mobil 375 px | ✅ yatay taşma yok |
+| Silme düğmesi dokunma hedefi | ✅ 34×34 px (WCAG 2.5.8 sınırı 24×24) |
+| `aria-label` | ✅ kitap adıyla birlikte |
+
+**Statik kontroller:** `node --check public/app.js` geçerli ·
+`npm run lint` temiz · `npm test` **88/88** · öz-kontrol listesi
+**120 → 136 ad, tanımsız 0**.
+
+> Not: `AKTARIM.md`'de öz-kontrolün "107 fonksiyon" denetlediği yazıyor;
+> bu sayı bayattı, ölçülen değer değişiklikten önce **120**, sonra **136**.
+
+**Yapılmayan doğrulama (dürüstlük notu):** Kitaplıktan açılan bir PDF ile
+uçtan uca **canlı model çağrısı yapılmadı.** Sebep §14f'deki kota gerçeği —
+Workers AI günlük kotası sunum öncesi korunmalı. Kitaplık AI yoluna
+dokunmuyor: yalnızca `state.ceForm.text` alanını dolduruyor ve o alandan
+sonraki akış değişmedi (aralık uygulaması ayrıca doğrulandı).
+
+### 15f. Değişen dosyalar
+
+| Dosya | Değişiklik |
+|---|---|
+| `public/app.js` | Kitaplık modülü (16 fonksiyon), `library` alanı `KALICI_ALANLAR`'a, `saveState()` uyarısı, `resetState()` IndexedDB temizliği, öz-kontrol listesi |
+| `public/app.css` | `.kit-*` ve `.depo-uyari` sınıfları — **kapsayıcıdan bağımsız** tanımlı (§6.3-2) |
+| `public/privacy-policy.html` | `agents.md` §7 gereği: yüklenen PDF'lerden çıkarılan metnin IndexedDB'de saklandığı, silinebildiği ve cihazdan çıkmadığı yazıldı |
