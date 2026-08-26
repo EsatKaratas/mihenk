@@ -407,7 +407,7 @@ secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
 | Canlı statik yollar | `/` `/app.js` `/app.css` `/mimari` `/privacy-policy` `/robots.txt` `/mufredat/turkce-7.json` `/mimari.js` → 200, bilinmeyen → 404 |
 | Güvenlik başlıkları | 5/5 aktif |
 | Mobil (375 px) | 4 rol × tüm sekmeler, yatay taşma **yok** |
-| Erişilebilirlik | bağlanmamış label **0**, WCAG 2.5.8 ihlali **0** |
+| Erişilebilirlik | bağlanmamış label **0** · WCAG 2.5.8: ilk ölçüm eksikti, `PROGRESS.md` §15g'de 9 ihlal bulundu ve **düzeltildi** |
 | XSS | 14 alanda sızma yok |
 
 **Ölçülen süreler (canlı, gerçek model):** soru üretimi ~9,7 sn (1 ÇSS +

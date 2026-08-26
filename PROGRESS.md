@@ -1635,3 +1635,74 @@ sonraki akış değişmedi (aralık uygulaması ayrıca doğrulandı).
 | `public/app.js` | Kitaplık modülü (16 fonksiyon), `library` alanı `KALICI_ALANLAR`'a, `saveState()` uyarısı, `resetState()` IndexedDB temizliği, öz-kontrol listesi |
 | `public/app.css` | `.kit-*` ve `.depo-uyari` sınıfları — **kapsayıcıdan bağımsız** tanımlı (§6.3-2) |
 | `public/privacy-policy.html` | `agents.md` §7 gereği: yüklenen PDF'lerden çıkarılan metnin IndexedDB'de saklandığı, silinebildiği ve cihazdan çıkmadığı yazıldı |
+
+### 15g. Açık arama turu — 4 rol uçtan uca (26 Ağustos, akşam)
+
+Kitaplık işinden sonra ürün baştan sona gezildi. **AI kotası harcanmadı:**
+demo senaryosu ve yerel simülasyon kullanıldı (§14f).
+
+**Temiz çıkanlar:**
+
+| Kontrol | Sonuç |
+|---|---|
+| Boş durumda 4 rol × tüm sekmeler | render hatasız, konsol hatası 0 |
+| Demo senaryosuyla 4 rol × tüm sekmeler | hatasız; `undefined` / `NaN` / `[object Object]` sızıntısı **0** |
+| Tam zincir: sınav başlat → yanıtla → gönder → **elle puanla** → yayımla → karne → analitik | ✅ karne 18/22, analitik doldu |
+| Çoklu öğrenci oturum takası (§3.2'nin "kolay hata yapılır" dediği yer) | ✅ 1. öğrenciye dönünce 3 yanıt + 1 inceleme + `graded` **bozulmadan** duruyor |
+| Simülasyonda soru üretimi | ✅ istenen adet (2 ÇSS + 1 açık uçlu), `needsSource=true`, `srcId` bağlı |
+| Uyaran metin gösterimi | ✅ öğrencide açık, öğretmende katlanabilir, kayıp kaynakta gerekçeli uyarı |
+| **79 düğme** × 4 rol | **işleyicisiz düğme 0** (ölü arayüz yok) |
+| Bağlanmamış `label` | **0** |
+| Adsız düğme (erişilebilir ad yok) | **0** |
+| Yayımlanmış sınavda soru havuzu | ✅ 6/6 kutu kilitli (doğru davranış) |
+
+**Not:** `examOutcomeScores()` ve `examTotalPoints()` ilk taramada hata verdi;
+incelendi, **ürün hatası değil** — ikisi de zorunlu argüman alıyor ve tüm
+çağrı yerleri argümanı geçiyor. Tarama betiği argümansız çağırmıştı.
+
+#### 🔴 Bulunan gerçek açık: WCAG 2.5.8 dokunma hedefi
+
+`AKTARIM.md` §4.5 tablosu "**WCAG 2.5.8 ihlali 0**" diyordu. Yeniden
+ölçüldü: **24×24 CSS pikselinin altında 11 hedef** vardı. Satır içi istisnası
+ayıklandıktan sonra **9 gerçek ihlal**.
+
+> **§10h'ye haksızlık edilmemeli:** O tur `.dz-browse`'u bulup düzeltmişti ve
+> kaydı dürüsttü ("1 ihlal bulundu → düzeltildi"). Düzeltme mobil media
+> query'sinde; doğrulandı: `#btnUpload` mobilde **31 px**, masaüstünde 21 px
+> (masaüstünde satır içi istisnası geçerli). Eksik olan, taramanın **onay
+> kutularını ve rubrik düğmelerini kapsamamasıydı**.
+
+| Öğe | Ölçülen | Yer | Karar |
+|---|---|---|---|
+| `.pool-check` × 6 | **13×13** | Öğretmen · Sınav Oluştur | 🔴 İhlal — **sınav kurmanın ana etkileşimi**; tabletle soru seçilemez |
+| `.crit-desc-add` × 3 | 157×**17** | Öğretmen · Rubrik | 🔴 İhlal — kendi satırında bağımsız kontrol |
+| `.oc-link` (`ceShowAllOutcomes`) | 174×16 | İçerik Uzmanı | ✅ Muaf — cümle akışı içinde ("… · başka ders/sınıfa ait 3 kazanım gizlendi — tümünü göster") |
+| `#btnUpload` | 132×21 | İçerik Uzmanı | ✅ Muaf — cümle içinde ("Dosyayı buraya sürükleyin veya **bilgisayarınızdan seçin**") |
+
+**Düzeltme:**
+- `.pool-check` → **24×24**, `accent-color`, `flex: none`. Boyut JS içindeki
+  `style="margin-top:3px"` yerine CSS'e alındı (§5.3-2'deki CSP hedefi için
+  inline stiller azaltılmalı: **88 → 87**). Ayrıca kutuya
+  `aria-label="Bu soruyu sınava ekle"` eklendi — daha önce erişilebilir adı
+  yoktu, ekran okuyucu yalnızca "onay kutusu" diyordu.
+- `.crit-desc-add` → `min-height: 24px` + `display:flex; align-items:center`.
+  Bağlantı görünümü korundu.
+
+**Düzeltme sonrası doğrulama:**
+
+| Kontrol | Sonuç |
+|---|---|
+| 24×24 altı hedef | 11 → **2**, ikisi de satır içi istisnası (doğrulandı) |
+| Soru seçme kutusu | 13×13 → **24×24** (mobilde de 24×24) |
+| İşlev bozuldu mu | ✅ taslak sınavda tıklama ekliyor (0→1) ve geri alıyor (1→0) |
+| Düzen | ✅ kutu gövde metniyle çakışmıyor, satır taşması yok |
+| Mobil 375 px | ✅ 10 sekmenin hiçbirinde yatay taşma yok |
+| **Mobilde 24×24 altı hedef** | **0** — `.oc-link`'e de mobil boşluk verildi (`.dz-browse` kalıbı izlendi) |
+| Masaüstünde kalan | 2 (`ceShowAllOutcomes`, `btnUpload`) — ikisi de cümle içi, istisna geçerli |
+| `node --check` · `lint` · `npm test` · öz-kontrol | ✅ geçerli · temiz · **88/88** · 136 ad, tanımsız 0 |
+
+**Ders:** "İhlal 0" gibi bir iddia, ölçümü tekrarlanabilir bir betikle
+yapılmadıysa güvenilmez. Önceki tur muhtemelen yalnızca bazı öğeleri
+denetlemişti. Bu turda kullanılan tarama tüm rol/sekme kombinasyonlarında
+`button, a[href], input, select` öğelerini gezip `getBoundingClientRect()`
+ölçüyor; yeniden koşulabilir.
