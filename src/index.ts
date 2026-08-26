@@ -22,7 +22,7 @@ type Bindings = AiEnv & {
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/api/health', (c) =>
-  c.json({ ok: true, app: c.env.APP_NAME ?? 'T3 Ölçme ve Değerlendirme Sistemi', env: c.env.APP_ENV ?? 'development' })
+  c.json({ ok: true, app: c.env.APP_NAME ?? 'Mihenk — Ölçme ve Değerlendirme Sistemi', env: c.env.APP_ENV ?? 'development' })
 );
 
 app.route('/api/ai', aiRoutes);

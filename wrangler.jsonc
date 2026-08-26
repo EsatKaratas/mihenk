@@ -23,7 +23,7 @@
   // Gizli olmayan yapılandırma. Sırlar (OAuth secret, Better Auth secret) buraya YAZILMAZ;
   // bkz. README → "Ortam Değişkenleri ve Sırlar" (wrangler secret put ... ).
   "vars": {
-    "APP_NAME": "T3 Ölçme ve Değerlendirme Sistemi",
+    "APP_NAME": "Mihenk — Ölçme ve Değerlendirme Sistemi",
     "APP_ENV": "development"
   },
 

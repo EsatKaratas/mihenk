@@ -29,7 +29,7 @@
   "workers_dev": true,
 
   "vars": {
-    "APP_NAME": "T3 Ölçme ve Değerlendirme Sistemi",
+    "APP_NAME": "Mihenk — Ölçme ve Değerlendirme Sistemi",
     "APP_ENV": "demo",
 
     // Model sağlayıcısı. Workers AI'ın Türkçe kalitesi yetersiz kalırsa

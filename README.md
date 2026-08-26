@@ -1,8 +1,10 @@
 <div align="center">
 
-# Onay Döngüsü
+# Mihenk
 
-### Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
+### Yapay zekâ önerir, öğretmen karar verir.
+
+Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 **Takım BIES** — Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik
 
