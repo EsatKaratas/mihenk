@@ -923,3 +923,8 @@
     padding: 11px 15px; border-radius: 10px; background: var(--critical);
     color: #fff; font-size: 12.5px; font-weight: 600; line-height: 1.55;
     box-shadow: 0 4px 18px rgba(0,0,0,.32); }
+
+  /* Model çıktısında yabancı alfabe uyarısı — kapsayıcıdan bağımsız (§6.3-2). */
+  .dil-uyari { margin: 8px 0 4px; padding: 9px 12px; border-radius: 8px;
+    background: var(--warning-soft); color: var(--text);
+    border-left: 3px solid var(--warning); font-size: 12.5px; line-height: 1.6; }

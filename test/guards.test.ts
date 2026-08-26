@@ -11,6 +11,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   rateLimited,
+  yabanciAlfabeVarMi,
+  soruDilUyarisi,
   anahtarla,
   round05,
   clamp,
@@ -156,5 +158,66 @@ describe('clamp — aralığa kırpma', () => {
   it('sınır değerlerini korur', () => {
     expect(clamp(0, 0, 10)).toBe(0);
     expect(clamp(10, 0, 10)).toBe(10);
+  });
+});
+
+describe('yabanciAlfabeVarMi — model çıktısında Türkçe dışı alfabe', () => {
+  it('temiz Türkçe metinde uyarı vermez', () => {
+    expect(yabanciAlfabeVarMi('Sürtünme kuvvetinin etkilerini açıklayınız.')).toBe(false);
+    expect(yabanciAlfabeVarMi('Çığır açan bir öykü; şiirsel, ıslak, ünlü.')).toBe(false);
+  });
+
+  it('GERÇEK OLAY: llama Kiril harfi karıştırdı — yakalar', () => {
+    // 26 Ağustos'ta canlıda üretilen gerçek çıktı.
+    expect(yabanciAlfabeVarMi('Katkılarını açıklaйте.')).toBe(true);
+  });
+
+  it('diğer alfabeleri de yakalar', () => {
+    expect(yabanciAlfabeVarMi('Soru: αβγ nedir?')).toBe(true);   // Yunan
+    expect(yabanciAlfabeVarMi('Metinde 漢字 geçiyor')).toBe(true); // CJK
+    expect(yabanciAlfabeVarMi('Arapça: مرحبا')).toBe(true);
+  });
+
+  it('boş/tanımsız girdide çökmez', () => {
+    expect(yabanciAlfabeVarMi('')).toBe(false);
+    expect(yabanciAlfabeVarMi(undefined as unknown as string)).toBe(false);
+  });
+
+  it('sayı ve noktalama uyarı vermez', () => {
+    expect(yabanciAlfabeVarMi('1906 yılında — %50; (iki) "üç"')).toBe(false);
+  });
+});
+
+describe('soruDilUyarisi — sorunun tüm görünen metinleri', () => {
+  it('temiz soruda false', () => {
+    expect(soruDilUyarisi({
+      body: 'Ana fikir nedir?',
+      options: [{ text: 'Birinci' }, { text: 'İkinci' }],
+      distractorRationale: { B: 'Öğrenci karıştırıyor.' },
+    })).toBe(false);
+  });
+
+  it('gövdede yabancı alfabe varsa true', () => {
+    expect(soruDilUyarisi({ body: 'Açıklaйте.' })).toBe(true);
+  });
+
+  it('ŞIKTA yabancı alfabe varsa true (gövde temiz olsa bile)', () => {
+    expect(soruDilUyarisi({
+      body: 'Ana fikir nedir?',
+      options: [{ text: 'Temiz şık' }, { text: 'Бозук şık' }],
+    })).toBe(true);
+  });
+
+  it('ÇELDİRİCİ GEREKÇESİNDE yabancı alfabe varsa true', () => {
+    expect(soruDilUyarisi({
+      body: 'Ana fikir nedir?',
+      options: [{ text: 'Temiz' }],
+      distractorRationale: { B: 'Öğrenci неправильно düşünüyor.' },
+    })).toBe(true);
+  });
+
+  it('alanlar eksikse çökmez', () => {
+    expect(soruDilUyarisi({})).toBe(false);
+    expect(soruDilUyarisi({ body: undefined, options: undefined })).toBe(false);
   });
 });

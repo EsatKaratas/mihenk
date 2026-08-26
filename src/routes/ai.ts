@@ -22,6 +22,7 @@ import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
   rateLimited as rateLimitedRaw,
+  soruDilUyarisi,
   anahtarla,
   round05,
   clamp,
@@ -162,6 +163,10 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
             aiTime: clamp(q.aiTime, 30, 180),
             needsSource: kaynakGerektirirMi(q.body, q.needsSource),
             refKeywords: q.refKeywords.slice(0, 6),
+            // Model Türkçe metne yabancı alfabe karıştırabiliyor (ölçüldü:
+            // ~10 soruda 1). Otomatik düzeltmek yerine İÇERİK UZMANINA
+            // bildiriyoruz — onay zaten onda (agents.md §1).
+            dilUyarisi: soruDilUyarisi({ body: q.body, options: opts, distractorRationale: q.distractorRationale }),
           };
         }
         return {
@@ -172,6 +177,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
           aiTime: clamp(q.aiTime, 90, 600),
           needsSource: kaynakGerektirirMi(q.body, q.needsSource),
           refKeywords: q.refKeywords.slice(0, 6),
+          dilUyarisi: soruDilUyarisi({ body: q.body }),
         };
       })
       .filter(Boolean);

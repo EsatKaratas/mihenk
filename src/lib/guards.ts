@@ -87,3 +87,43 @@ export const KAYNAK_ATIF = new RegExp(
 
 export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
   modelKarari || KAYNAK_ATIF.test(String(body || ''));
+
+/**
+ * Model çıktısında Türkçe olmayan alfabe var mı?
+ *
+ * ÖLÇÜLEN SORUN (26 Ağustos): `llama-3.3-70b` Türkçe üretirken araya Kiril
+ * harfi karıştırdı — üretilen açık uçlu soru şöyleydi:
+ *
+ *   "Sait Faik'in Türk öykücülüğüne katkılarını açıklaйте."
+ *                                              ^^^ Kiril
+ *
+ * Ölçülen sıklık: 10 sorunun 1'i (~%10). Sistematik değil ama jüri demosunda
+ * göze alınacak bir oran değil; öğrenciye bozuk metinli soru gitmemeli.
+ *
+ * NEDEN OTOMATİK DÜZELTMİYORUZ: Kiril→Latin çevirisi tahmine dayanır ve
+ * anlamı bozabilir. `agents.md` §1 gereği karar zaten insanda: İçerik Uzmanı
+ * her soruyu onaylıyor. Doğru davranış, sorunu GİZLEMEK ya da tahminle
+ * düzeltmek değil, insana GÖSTERMEKTİR (§6.3-5 sessiz düşüş yasağı).
+ *
+ * Kapsam: Kiril, Yunan, Arap, İbrani, CJK ve Hangul blokları. Türkçenin
+ * kendi harfleri (çğıöşü) ve noktalama kapsam dışıdır.
+ */
+export const YABANCI_ALFABE =
+  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/;
+
+/** Metinde Türkçe dışı alfabe geçiyorsa true. */
+export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));
+
+/**
+ * Bir sorunun görünen tüm metinlerini tarar (gövde + şıklar + gerekçeler).
+ * Herhangi birinde yabancı alfabe varsa true döner.
+ */
+export function soruDilUyarisi(q: {
+  body?: string;
+  options?: Array<{ text?: string }>;
+  distractorRationale?: Record<string, string>;
+}): boolean {
+  if (yabanciAlfabeVarMi(q.body || '')) return true;
+  if ((q.options || []).some((o) => yabanciAlfabeVarMi(o?.text || ''))) return true;
+  return Object.values(q.distractorRationale || {}).some((v) => yabanciAlfabeVarMi(v));
+}

@@ -224,6 +224,10 @@ async function aiGenerateQuestions(doc) {
         // Soru bir kaynak metne dayanıyorsa, o metin sınavda öğrenciye
         // gösterilmek üzere saklanır ve soruya bağlanır (uyaran metin).
         needsSource: !!q.needsSource, srcId: doc.srcId != null ? doc.srcId : null,
+        // Sunucu, model çıktısında Türkçe dışı alfabe saptadıysa işaretler
+        // (ölçüldü: llama ~10 soruda 1 kez Kiril harfi karıştırıyor).
+        // Otomatik düzeltilmez; İçerik Uzmanına gösterilir.
+        dilUyarisi: !!q.dilUyarisi,
       };
     });
   } catch (e) {
@@ -1473,6 +1477,22 @@ function wireAlignment() {
   });
 }
 
+/**
+ * Model çıktısında Türkçe dışı alfabe saptandıysa İçerik Uzmanına uyarı.
+ *
+ * ÖLÇÜLEN GERÇEK OLAY (26 Ağustos): llama-3.3-70b üretilen soruya Kiril harfi
+ * karıştırdı — "…katkılarını açıklaйте." Ölçülen sıklık ~10 soruda 1.
+ * Otomatik düzeltilmiyor: Kiril→Latin çevirisi tahmine dayanır ve anlamı
+ * bozabilir. Karar zaten insanda (agents.md §1); doğru davranış gizlemek
+ * değil GÖSTERMEK (§6.3-5).
+ */
+function dilUyarisiHtml(q) {
+  if (!q || !q.dilUyarisi) return "";
+  return '<div class="dil-uyari">⚠ <b>Bu soruda Türkçe olmayan karakterler var.</b> ' +
+    'Model, metne başka bir alfabeden harf karıştırmış olabilir. ' +
+    'Onaylamadan önce soruyu ve şıkları okuyup düzeltin.</div>';
+}
+
 function renderPendingQuestionCard(q) {
   const optsHtml = q.type === "mc" ? q.options.map(function (o) {
     return '<div class="opt-row">' +
@@ -1489,6 +1509,7 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
+    dilUyarisiHtml(q) +
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
@@ -4805,7 +4826,7 @@ setInterval(function () {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml",
+    "injectionWarnHtml", "dilUyarisiHtml",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
