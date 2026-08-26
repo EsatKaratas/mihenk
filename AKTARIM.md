@@ -16,7 +16,11 @@
 >    şey söylemediyse oradan başla, kendi başına yeni bir yön seçme.
 > 5. Kullanıcıya görünen tüm metinler **Türkçe**, kod içindeki adlar İngilizce.
 >
-> Doküman tarihi: 25 Ağustos 2026
+> Doküman tarihi: **26 Ağustos 2026** (son güncelleme)
+>
+> ⚠️ **Bu dosya bir özettir. Tek doğruluk kaynağı `PROGRESS.md`'dir** ve orada
+> §10-§14 arası bu dosyadan daha yeni bilgi vardır. Çelişki görürsen
+> `PROGRESS.md`'ye güven.
 
 ---
 
@@ -47,8 +51,9 @@ public/app.css      37 KB  — tüm stiller
 public/app.js       176 KB — 4 rol prototipi (vanilla JS, build adımı yok)
    └─ fetch ─▶ Cloudflare Worker (Hono)
                  src/index.ts        giriş noktası
-                 src/routes/ai.ts    /api/ai/{status,generate-questions,
-                                              evaluate,rubric,sample-answers}
+                 src/routes/ai.ts    7 uç: /api/ai/{status,generate-questions,
+                                              evaluate,rubric,sample-answers,
+                                              misconceptions,outcome-alignment}
                  src/lib/prompts.ts  model istemleri ← JÜRİYE GÖSTERİLECEK DOSYA
                  src/lib/ai.ts       sağlayıcı bağımsız çağrı + yedek + JSON onarımı
                  src/schemas/ai.ts   Zod şemaları
@@ -160,17 +165,33 @@ sıralama · Bloom etiketi · çeldirici gerekçeleri · çoklu sınav · çoklu
 sınıflar arası ısı haritası · gelişim trendi · değerlendirme önbelleği ·
 otomatik yedek sağlayıcı · KVKK metni
 
-### Ölçülen değerler (canlı)
+**26 Ağustos'ta eklenenler** (ayrıntı `PROGRESS.md` §11-§14):
+prompt injection sertleştirmesi + öğretmene sinyal · **madde analizi**
+(güçlük/ayırt edicilik/işlevsiz çeldirici) · **öğretmen-AI uyumu** ve güven
+skoru kalibrasyonu · **kavram yanılgısı kümeleme** · **gerçek MEB müfredat
+kataloğu** (96 kazanım, yazılı/performans/süreç ayrımıyla) · **Bloom düzey
+dengesi** · **kazanım-soru hizalama denetimi** (içerik geçerliği) ·
+**uyaran metin** (metne dayalı soru artık metinle birlikte sunuluyor) ·
+**öğrenciye geri bildirim taslağı** · mobil uyum · güvenlik başlıkları
+
+### Ölçülen değerler (canlı, 26 Ağustos)
 | İşlem | Süre |
 |---|---|
+| Soru üretimi (1 ÇSS + 1 açık uçlu) | ~9,7 sn |
 | Soru üretimi (2 ÇSS + 1 açık uçlu) | 10-17 sn |
-| Açık uçlu değerlendirme | 3-10 sn |
+| Açık uçlu değerlendirme | 3,3-5,5 sn |
+| Rubrik taslağı | ~2,7 sn |
+| Kavram yanılgısı kümeleme | ~5,1 sn |
+| Kazanım hizalama denetimi | 2,5-3,3 sn |
 | Önbellekten değerlendirme | **0-6 ms** |
-| Prompt injection denemesi | 0/20 ile reddedildi |
+| **Prompt injection (5 vektör)** | **5/5 savunuldu** |
 
-### Doğrulanmış son durum
-`npm run lint` temiz · açılıştaki öz-kontrol temiz · 4 rol × tüm sekmeler
-render hatasız · üretim 200 dönüyor (son test: puan 8, 3,7 sn, birincil model).
+### Doğrulanmış son durum (26 Ağustos)
+`npm run lint` temiz · `npx tsc --noEmit` temiz · `npm run check:config` 2/2 ·
+açılıştaki öz-kontrol temiz · 4 rol × tüm sekmeler render hatasız · 7 AI ucu
+canlıda 200 · mobilde yatay taşma yok (375 px) · XSS testi 14 alanda sızma yok ·
+güvenlik başlıkları aktif (CSP dahil) · mimari sayfasındaki Mermaid diyagramları
+render ediliyor.
 
 ---
 
@@ -178,49 +199,71 @@ render hatasız · üretim 200 dönüyor (son test: puan 8, 3,7 sn, birincil mod
 
 ### 🔴 KALDIĞIMIZ NOKTA — buradan devam et
 
-**Gemini yedek sağlayıcısının son testi tamamlanmadı.**
+**Teslim 27 Ağustos 2026.** Kod tarafı güçlü durumda; sıradaki iş **kod dışı
+teslimatlar**.
 
-Yaşanan zincir (hepsi çözüldü, sonuncusu doğrulanmadı):
-1. Anahtar sohbete yapıştırıldı → iptal edildi, yenisi alındı
-2. Terminale yapıştırma çalışmadı (tek karakter gitti) → dosya tabanlı
-   yükleme aracı yazıldı (`ANAHTAR-EKLE.bat`)
-3. Google "Please pass a valid API key" dedi → geçici `/api/ai/_diag` ucu
-   eklendi, **saklanan anahtarın başında UTF-8 BOM (U+FEFF) olduğu görüldü**
-4. `temizAnahtar()` eklendi (BOM + sıfır genişlikli karakter + boşluk temizliği),
-   sunucu tarafında da uygulanıyor → anahtar hatası bitti
-5. Yeni hata: **Gemini yanıtı token sınırında kesiliyordu**
-   (`JSON dengeli biçimde kapanmıyor`)
-6. `callOne()` içine **kesilme tespitinde token bütçesini 2 katına çıkarma**
-   eklendi (`src/lib/ai.ts`) — TypeScript temiz, deploy edildi
-   **ANCAK BU DÜZELTMENİN GEMİNİ ÜZERİNDE TESTİ YAPILMADI**
+#### Bitmiş olanlar (ayrıntı: `PROGRESS.md` §10-§14)
 
-**Yapılacak ilk iş:**
-```bash
-# 1) Birincili geçici boz
-#    wrangler.demo.jsonc → "AI_MODEL": "@cf/meta/GECICI-TEST"
-npm run deploy:demo
-# 2) Bir değerlendirme isteği at, meta.fellBack true mu ve puan geliyor mu bak
-# 3) BAŞARILI OLSUN OLMASIN birincili GERİ AL:
-#    "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-npm run deploy:demo
-```
-⚠️ **Test sırasında üretim birincil model bozuk çalışır.** Bu oturumda iki kez
-geri almayı geciktirdik ve site kısa süre AI'sız kaldı. Testten hemen sonra
-geri al ve 200 döndüğünü doğrula.
+| Konu | Durum |
+|---|---|
+| Gemini yedek sağlayıcı testi | ✅ `gemini-3.7-flash` canlıda doğrulandı (§10f) |
+| Prompt injection savunması | ✅ 6/6 istemde sertleştirme, 5 vektörle test (§10e, §14e) |
+| Madde analizi · kalibrasyon · kavram yanılgısı | ✅ (§11) |
+| MEB müfredat kataloğu (96 kazanım) | ✅ (§12) |
+| Bloom dengesi · kazanım-soru hizalama denetimi | ✅ (§13) |
+| Ders-sınıf-kazanım tutarlılığı | ✅ (§14a) |
+| **Uyaran metin** — "Metne göre…" sorusu artık metinle gösteriliyor | ✅ (§14c) |
+| Öğrenciye geri bildirim taslağı | ✅ (§14d) |
+| Güvenlik denetimi (rate limit, CSP, gizlilik metni) | ✅ (§14e) |
+| Mobil uyum ve erişilebilirlik turu | ✅ (§10h) |
 
-Kesilme sorunu devam ederse: yedek için `maxTokens`'ı taban seviyede artır ya da
-`gemini-2.0-flash` (düşünme yapmayan, daha kısa yazan) modeline geç.
+#### 🔴 Sıradaki iş — KOD DIŞI TESLİMATLAR
 
-### Diğer açık işler
-- **Mobil uyum ve erişilebilirlik turu** — hiç yapılmadı
-- Öğretmen kalibrasyonu (AI'dan ortalama sapma göstergesi)
-- Isı haritasındaki "(örnek)" satırları hâlâ demo verisi (gerçek şubeler
-  gerçek veriden; bu dürüstlük notu `PROGRESS.md`'de yazılı)
-- Yerel yedek (simülasyon) modu soru türü/adet seçimini yok sayıyor
-- **Kod dışı teslimatlar:** İş Modeli Kanvası (HİÇ YOK, zorunlu teslimat),
-  pitch deck düzeltmeleri, demo videosu — bunları ekip arkadaşları yapıyor
-- Deck'te **"hile önleyici kontroller"** ifadesi **"sınav bütünlüğü kaydı"**
-  olarak düzeltilmeli (üründe engelleme yok, kayıt var)
+1. **İş Modeli Kanvası — hâlâ hiç yok, ZORUNLU TESLİMAT.**
+2. **Deck bugünkü işlerin hiçbirini bilmiyor.** Eklenen ~12 ayrıştırıcı
+   özelliğin hiçbiri sunumda yok. Jüri kodu okumaz; anlatılmayan özellik yok
+   sayılır. Malzeme `README.md` §11 ve `PROGRESS.md` §11-§14'te hazır.
+3. Deck'te **"hile önleyici kontroller"** → **"sınav bütünlüğü kaydı"**
+   olarak düzeltilmeli (üründe engelleme yok, kayıt var).
+4. Rakip analizi tablosu `canva.docx`'te var, deck'e taşınmadı.
+5. Demo videosu.
+
+#### ⚠️ Demo günü için bilinmesi gerekenler
+
+- **Workers AI günlük kotası 26 Ağustos'ta doldu.** Kota dolduğunda sistem
+  yedeğe düşer; yedek **Gemini ücretsiz katmanı günde yalnızca 20 istek**
+  kabul eder (ölçüldü, §14f). İkisi de tükendiğinde AI uçları 502 döner ve
+  bu ekranda açıkça yazılır (sessiz düşüş yok) — ama demo yapılamaz.
+  **Sunumdan önce kota tazeliğini kontrol edin** ve gereksiz deneme yapmayın.
+- Değerlendirme önbelleği (§7h) aynı yanıt+rubrik için yeniden ücret ödemez;
+  provada bunu kullanın.
+- `v-demo` tag'i (`agents.md` §8) sunumdan 24 saat önce atılmalı.
+
+### Diğer açık işler (kod tarafı)
+
+Aşağıdakiler bilinçli olarak finale (5-6 Eylül) bırakıldı; hiçbiri jüri
+demosunu engellemez:
+
+- **`label`/`for` erişilebilirlik turu** — `app.js` genelinde
+  `<div class="field"><label>…</label><input></div>` kalıbı var; `label`'da
+  `for`, `input`'ta `id` yok, ekran okuyucu ikisini bağlamıyor. Rubrik
+  ekranındaki kritik alanlar `aria-label` ile tek tek düzeltildi (§10h);
+  kalanı onlarca yerde tekrarlanıyor, teslim günü toplu değişiklik riskli
+  görüldü.
+- **`npm test` boş** — `agents.md` §6 vitest testlerini zorunlu tutuyor.
+  Bugün eklenen saf hesap fonksiyonları (madde analizi, kalibrasyon, Bloom,
+  rate limit) birim testine çok uygun; tarayıcıda ve Node'da doğrulandılar
+  ama kalıcı test dosyası yok.
+- Isı haritasındaki "(örnek)" satırları hâlâ demo verisi. Canlı şubeler
+  (7-A, 7-B) gerçek veriden hesaplanıyor; yalnızca karşılaştırma sınıfları
+  (6-A, 8-B, 8-C) simüle ve arayüzde "(örnek)" etiketli.
+- Yerel yedek (simülasyon) modu soru türü/adet seçimini yok sayıyor.
+  Gerçek model seçime uyuyor (ölçüldü, §10a).
+- **CSP'de `style-src 'unsafe-inline'`** gerekli çünkü `app.js` 87 yerde
+  inline `style="…"` kullanıyor. Stiller sınıflara taşınırsa bu izin de
+  kaldırılabilir.
+- Gemini yedeğinin günlük 20 istek limiti (§14f). Dayanıklı çözüm zincir
+  yedek (Workers AI → Gemini → OpenAI) ya da kredi bazlı bir sağlayıcı.
 
 ---
 

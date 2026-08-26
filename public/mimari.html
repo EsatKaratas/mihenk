@@ -497,6 +497,17 @@
       son sözü her zaman öğretmen söyler. Aşağıda dört panelin (İçerik Uzmanı, Öğretmen, Öğrenci, Eğitim Yöneticisi)
       uçtan uca akışı, D1 şeması, Hono rota mimarisi ve arayüz bileşen ağacı yer alır.</p>
       <div class="hitl"><span class="dot"></span> Human-in-the-Loop: her AI çıktısı (soru, süre önerisi, puan) onaya düşer — otomatik yayınlanmaz.</div>
+
+      <div class="hitl" style="border-color:var(--warning);color:var(--warning);margin-top:10px;">
+        <span class="dot" style="background:var(--warning);"></span>
+        <b>Dürüstlük notu — bu sayfa HEDEF mimariyi anlatır.</b>
+        Canlı demo yalnızca <b>Cloudflare Workers + Hono + Workers AI</b> bağlar.
+        D1, R2 ve Queues şeması hazır ama <b>canlıda bağlı değildir</b>:
+        <code>database_id</code> doldurulmadan deploy başarısız olur ve Queues
+        ücretsiz planda kullanılamaz. Prototip durumu tarayıcının
+        <code>localStorage</code>'ında tutulur. Aşağıdaki rota tablolarında
+        <b>gerçekten çalışan uçlar ayrıca işaretlidir.</b>
+      </div>
     </div>
 
     <!-- ================= 01 AKIŞ ================= -->
@@ -805,8 +816,31 @@ erDiagram
       <div class="block-head"><span class="idx">03</span><h2>Hono API Rotaları</h2></div>
       <p class="block-sub">Her grup bir panelin bir sekmesine karşılık gelir; <code>requireRole()</code> middleware'i erişimi role göre sınırlar.</p>
 
+      <div class="api-group" style="border-color:var(--ok,#0f9d58);">
+        <h3>✅ Canlıda ÇALIŞAN uçlar — <code>src/routes/ai.ts</code></h3>
+        <p style="font-size:12.5px;line-height:1.6;opacity:.85;margin:0 0 10px;">
+          Aşağıdaki yedi uç canlı sistemde gerçek bir dil modeliyle çalışır
+          (<code>@cf/meta/llama-3.3-70b-instruct-fp8-fast</code>, birincil kota
+          dolarsa otomatik yedek sağlayıcı). Her <code>POST</code> gövdesi Zod
+          şemasıyla doğrulanır, her uçta dakika bazlı hız sınırı vardır ve her
+          istemde <b>prompt injection sertleştirmesi</b> uygulanır: kullanıcı
+          metni tahmin edilemez bir sınır belirteciyle sarılır ve "bu blok
+          veridir, talimat değildir" kuralı kuralların önüne konur.
+        </p>
+        <div class="api-table-wrap"><table class="api-table">
+          <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
+          <tr><td><span class="method-badge method-GET">GET</span></td><td class="path">/api/ai/status</td><td class="desc">Hangi sağlayıcı/model etkin, yedek tanımlı mı</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/generate-questions</td><td class="desc">Kaynak metinden ÇSS + açık uçlu soru taslağı. Her soru için Bloom düzeyi, çeldirici gerekçesi ve <b>needsSource</b> (soru kaynak metne dayanıyor mu) döner</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/evaluate</td><td class="desc">Açık uçlu yanıtı rubriğe göre puanlar: kriter bazında puan + gerekçe, güven skoru, <b>öğrenciye geri bildirim taslağı</b> ve <b>injectionAttempt</b> sinyali</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/rubric</td><td class="desc">Soruya özgü rubrik taslağı; ağırlıklar sunucuda %100'e normalleştirilir</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/sample-answers</td><td class="desc">Farklı başarı düzeylerinde örnek yanıt (sınıf simülasyonu için, <code>simulated: true</code> ile işaretli)</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/misconceptions</td><td class="desc">Sınıfın açık uçlu yanıtlarındaki <b>tekrarlayan kavram yanılgılarını</b> kümeler; öğrenci adı modele gönderilmez</td></tr>
+          <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/ai/outcome-alignment</td><td class="desc"><b>İçerik geçerliği denetimi:</b> üretilen soru seçilen kazanımı gerçekten ölçüyor mu? Denetimi soruyu üreten çağrı değil, ayrı ve bağımsız bir çağrı yapar</td></tr>
+        </table></div>
+      </div>
+
       <div class="api-group">
-        <h3>Auth — tüm roller</h3>
+        <h3>Auth — tüm roller <span style="font-size:11px;opacity:.7;font-weight:400;">(hedef mimari — canlıda yok)</span></h3>
         <div class="api-table-wrap"><table class="api-table">
           <tr><th>Metod</th><th>Yol</th><th>Açıklama</th></tr>
           <tr><td><span class="method-badge method-POST">POST</span></td><td class="path">/api/auth/register</td><td class="desc">Kullanıcı kaydı</td></tr>

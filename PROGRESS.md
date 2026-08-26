@@ -3,11 +3,15 @@
 > Bu dosya, oturumlar arası bağlam kaybına karşı tutulan **tek doğruluk kaynağıdır.**
 > Yeni bir yapay zekâ oturumu veya yeni bir ekip arkadaşı buradan devralabilir.
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
-> Son güncelleme: 25 Ağustos 2026
+> Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum önce §10'u okusun.** Orada ikinci kontrol turunun ölçümleri ve
-> **açık bir kritik güvenlik bulgusu** (§10e — prompt injection) var. §4, §6,
-> §7b, §7g, §8-D ve §9 o turda düzeltildi; eski hâlleri artık geçerli değil.
+> **Yeni oturum §10-§14 arasını okusun.** Kronolojik sıra:
+> §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
+> §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
+> §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
+> hizalama denetimi · **§14 ürün açıkları ve güvenlik turu — en yeni.**
+> §14f'deki **kota gerçeği** demo günü için kritiktir.
+> §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
 ---
 
@@ -1271,3 +1275,192 @@ denetliyoruz. Üstelik denetimi soruyu üreten çağrı değil, ayrı ve bağım
 
 Bu, §11f seçenek havuzundaki **"kazanım-soru hizalama denetimi"** ve
 **"Bloom taksonomisi dengesi"** maddelerinin karşılığıdır.
+
+
+---
+
+## 14. ÜRÜN AÇIKLARI VE GÜVENLİK TURU (26 Ağustos)
+
+Kullanıcı üç ürün hatası bildirdi; üçü de doğrulandı ve düzeltildi. Ardından
+sistematik bir güvenlik denetimi yapıldı ve dört bulgu daha çıktı.
+
+### 14a. Ders–sınıf–kazanım tutarsızlığı
+
+**Bulgu:** Kaynak içerik formundaki alanlar birbirinden tamamen bağımsızdı.
+Ders "Türkçe", kazanım "MAT.7.3.4 — Cebirsel İfadeler", başlık "Kuvvet ve
+Hareket" aynı anda seçilebiliyor ve soru bu tutarsız bağlamla üretiliyordu.
+
+**Çözüm:** Kazanım nesnesine `subject` + `grade` eklendi. Seçici varsayılan
+olarak yalnızca seçili ders + sınıfa ait kazanımları gösterir; uyuşmazlık
+varsa gerekçeli uyarı çıkar:
+
+> *"Seçili kazanım MAT.7.3.4 Matematik dersine ait; siz Türkçe · 7. sınıf
+> seçtiniz. Bu haliyle soru üretilirse kaynak, kazanım ve sınıf düzeyi
+> birbirini tutmaz."*
+
+**Sert engelleme yok** — "tümünü göster" ile hepsi listelenebilir. Amaç
+yasaklamak değil yanlışı görünür kılmak.
+
+**Geriye dönük uyum:** `localStorage`'daki eski kazanımlarda bu alanlar yok.
+`ensureOutcomeMeta()` açılışta kod önekinden çıkarır: `MAT.` → Matematik,
+`T.O.` → Türkçe, `FEN.` → Fen Bilimleri, koddaki `.7.` → 7. sınıf.
+Çıkarılamayan kodlar boş kalır ve her derse uyar; veri kaybı yok.
+
+Doğrulama: `MAT.7.2.1` → Matematik/7 · `T.O.7.5` → Türkçe/7 · `FEN.8.1.2` →
+Fen/8 · `ABC.9.9` → (ders yok)/9. Türkçe 7 seçiliyken MAT kazanımları
+gizlendi, seçili olan "(başka ders/sınıf)" etiketiyle listede kaldı; ders
+değişince seçim uyan kazanıma taşındı.
+
+### 14b. Sınıf–müfredat bağlantısı
+
+**Bulgu:** Katalog anahtarı yalnızca dersti; 8. sınıf seçiliyken bile
+7. sınıf kataloğu açılıyordu. Oysa kazanımlar sınıfa özeldir.
+
+**Çözüm:** Anahtar `ders|sınıf` oldu. Kataloğu olmayan ders/sınıf için hangi
+katalogların bulunduğu listelenir ve gerekçe yazılır. Bu ders/sınıf için hiç
+kazanım yoksa öğretmen yönlendirilir (katalog varsa **Katalog** düğmesi,
+yoksa **+** ile elle tanımlama).
+
+### 14c. 🔴 "Metne göre…" sorusu ama ortada metin yok — UYARAN METİN
+
+**Bulgu (en ciddisi):** Model *"Metne göre yazar ilk kitabını kaç yaşında
+yazmıştır?"* gibi soru üretiyordu ama **kaynak metin hiçbir yerde
+saklanmıyordu.** Öğrenci sınavda o metni asla görmüyordu; yani soru
+**cevaplanamazdı.**
+
+Bu yapısal bir sorundu: Türkçe/Sosyal Bilgiler okuma kazanımları **metin
+olmadan ölçülemez.** Ölçmede soruya eşlik eden metne *uyaran metin*
+(stimulus) denir.
+
+**Çözüm — dört katman:**
+
+1. Kaynak metin üretimden **önce** `state.sources[]` içinde saklanır, soruya
+   `srcId` bağlanır. En fazla 10 kaynak tutulur (localStorage yükü); sınır
+   aşılırsa en eski atılır.
+2. Model her soru için `needsSource` döndürür: *"kaynak metin öğrencinin
+   önünde olmadan yanıtlanabilir mi?"*
+3. **Sunucuda deterministik güvence.** Model bu alanı unutabilir ya da yanlış
+   işaretleyebilir. Soru gövdesinde `metne göre`, `parçada`, `yukarıdaki`,
+   `şiirde`, `okuduğunuz` gibi kalıp varsa `needsSource` **zorla true**
+   yapılır. Yanlış negatif kabul edilemez (öğrenci cevaplanamaz soruyla
+   karşılaşır); tersi yapılmaz. Regex 10/10 test geçti.
+4. Üç arayüz noktası: öğrenci sınav ekranında metin **açık** gösterilir;
+   öğretmen inceleme kartında "metne dayalı" rozeti + katlanabilir metin;
+   sınav kurarken kaç sorunun metne dayandığı uyarısı.
+
+**Reddedilen alternatif:** modelden "kendi kendine yeten soru üret" istemek.
+Bu, Türkçe okuma kazanımlarını **imkânsız** kılardı.
+
+Doğrulama: Türkçe 7 + `T.O.7.5` ile 3 soru üretildi (12,7 sn); kaynak
+saklandı (445 karakter), 3 sorunun da `needsSource=true`, `srcId=1`. Öğrenci
+sınav ekranında metin açık halde göründü → soru cevaplanabilir hale geldi.
+6 sınır durumu: `needsSource=false` → blok yok · eski sorular → hata yok ·
+kaynak silinmiş → öğrenciye ve öğretmene **farklı** açık uyarı, rozet kritik ·
+limit 12 eklendi 10 kaldı · aynı metin iki kez → tek kayıt · sınav uyarısı
+üç durumda doğru.
+
+### 14d. Öğrenciye geri bildirim taslağı
+
+Karnede puanın gerekçesi vardı ama **yönlendirme** yoktu. `/api/ai/evaluate`
+artık `studentFeedback` döndürüyor (`maxTokens` 700 → 820).
+
+**Otomatik doldurulmuyor:** taslağı doğrudan "Not" alanına yazmak,
+öğretmenin farkında olmadan AI metnini onaylamasına yol açardı ve HITL'i
+biçimsel hale getirirdi. Taslak ayrı kutuda durur, öğretmen **"Nota Aktar"**
+ile bilinçli olarak alır ve düzenler. Kutuda yazar: *"siz aktarmadan
+öğrenciye gitmez."*
+
+**Kalite hatası yakalandı:** ilk sürümde model *"thoughtsini
+güçlendirebilirsin"* gibi İngilizce-Türkçe karışık kelime üretiyor ve aynı
+öneriyi tekrar ediyordu. İsteme eklenen kurallar (yalnızca Türkçe, uydurma
+kelime yok, tekrar yok, `justification`'dan farklı olsun) sonrası 3 yanıt
+düzeyinde İngilizce kalıntı **yok**; boş yanıtta suçlamıyor, nereden
+başlanacağını söylüyor.
+
+**Ayrıca bir çökme hatası bulundu (karne ekranı):** `studentTab3Html` içinde
+`state.mcResults[q.id].correct` ve `state.reviews[q.id].finalScore` doğrudan
+okunuyordu. Kayıt yoksa ekran çöküyor ve öğrenci karnede **hiçbir şey**
+göremiyordu. Gerçek hayatta sınav yayınlandıktan sonra soru eklenmesi ya da
+eksik oturum verisi bunu tetikler. İki dalda savunma eklendi: soru
+"puanlanmadı" etiketiyle, sebebiyle gösterilir ve **puana dahil edilmez**
+(sessizce "yanlış" saymak öğrenciye haksızlık olurdu). Aynı desenin diğer
+kullanımları denetlendi, zaten savunmalıydı.
+
+### 14e. Güvenlik denetimi
+
+**Temiz çıkanlar**
+
+| Kontrol | Sonuç |
+|---|---|
+| XSS | `escapeHtml` doğru. **14 alana gerçek payload** enjekte edildi, 4 rol × tüm sekmeler render edildi → **hiçbiri çalışmadı** |
+| Secret sızıntısı | Yok. `.gitignore` doğru, takipli tek dosya `.dev.vars.example` |
+| Zod doğrulaması | 6/6 POST ucunda var |
+| CORS | Başlık yok; varsayılan same-origin |
+
+**Düzeltilen dört bulgu**
+
+1. **İnjection savunması 2 istemde eksikti.** `buildRubricPrompt` ve
+   `buildSampleAnswerPrompt` sabit metin kullanıyordu. Bunlar `questionBody`
+   alıyor, o da kaynak metinden türetiliyor → **dolaylı injection zinciri**
+   mümkündü. Her ikisi sertleştirildi; artık **6/6 istem** korumalı.
+2. **Rate limit 3 uçta yoktu:** `/evaluate` (kotayı en çok tüketen uç!),
+   `/rubric`, `/sample-answers`. `agents.md` §7.4 yalnızca soru üretimi için
+   5/dk şartı koyuyordu. Limitler meşru kullanıma göre ayarlandı:
+   `/evaluate` **45/dk** (bir sınıfın tamamı değerlendirilirken onlarca meşru
+   çağrı olur; 5 koymak gerçek kullanımı bozardı), diğerleri 5/dk, anahtar
+   soru bazlı. Birim testi: 5/dk → 6. bloke · 45/dk → 50 istekte 45 geçti ·
+   farklı sorular birbirini etkilemiyor.
+3. **Hiç güvenlik başlığı yoktu.** `public/_headers` eklendi (Workers
+   Assets'te çalıştığı doğrulandı): `X-Content-Type-Options`,
+   `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`
+   (kamera/mikrofon/konum kapalı) ve **CSP**. CSP pdf.js + mermaid + fontlar
+   + API ile test edildi, hiçbiri bozulmadı. `style-src 'unsafe-inline'`
+   gerekli (`app.js`'te 87 inline `style`) ve bu dürüstçe not düşüldü.
+4. **Gizlilik politikası güncellendi** (`agents.md` §7 gereği). Eksikti:
+   kaynak metnin saklanması ve öğrenciye gösterilmesi, geri bildirim
+   taslağı, injection uyarısı. Ayrıca **verilerin nerede saklandığı** hiç
+   yazılmamıştı: prototipte veriler sunucuda değil `localStorage`'da,
+   öğrenci adı modele gönderilmiyor, PDF tarayıcıda çözümleniyor.
+
+**Denetim sırasında ortaya çıkan gizli hata (CSP'den önce de vardı)**
+
+`mimari.html`'deki **Mermaid diyagramları hiç render edilmiyordu.** Sebep:
+mermaid `startOnLoad: true` ile başlatılıyor ama `startOnLoad`
+`DOMContentLoaded`'ı bekliyor; `await import(...)` asenkron olduğu için
+mermaid yüklendiğinde o olay çoktan geçmiş oluyordu. `try/catch` de hata
+yakalamadığı için **sessizce** başarısız oluyordu — jüriye gösterilen
+sayfada diyagram yerine ham kod duruyordu.
+
+Düzeltme: yükleyici `mimari.js`'e taşındı (inline module script CSP'nin
+`unsafe-inline` iznini kullanamaz; taşıma sayesinde o izin CSP'den de
+kaldırıldı, **politika güçlendi**) ve render açıkça `run()` ile tetiklendi.
+Doğrulandı: 2 diyagram render edildi, `data-processed=true`, ham kod kalmadı.
+
+### 14f. 🔴 KOTA GERÇEĞİ — demo günü için kritik
+
+Test sırasında **Workers AI günlük kotası doldu.** Sistem yedeğe düştü ve
+Gemini de hata verdi. Gemini'nin döndürdüğü mesaj kotanın gerçek boyutunu
+gösterdi: `generate_content_free_tier_requests, limit: 20`.
+
+Yani **Gemini ücretsiz katmanı günde 20 istek.** §10f'de "dakikalık limit"
+diye kaydedilen sınır aslında bundan daha kısıtlayıcıymış.
+
+**Sonuçlar:**
+- Workers AI ücretsiz kotası ≈ günde 10 tam demo turu (§7g); yoğun test
+  günü bu tükenir.
+- Yedek 20 istekle sınırlı olduğu için **gerçek bir emniyet ağı değil.**
+- İkisi de tükenince AI uçları 502 döner; sistem bunu ekranda açıkça yazar
+  (sessiz düşüş yok) ama demo yapılamaz.
+
+**Demo günü önlemleri:** sunum öncesi kota tazeliğini kontrol et · gereksiz
+deneme yapma · değerlendirme önbelleğini (§7h) kullan · dayanıklı çözüm
+zincir yedek (Workers AI → Gemini → OpenAI) ya da kredi bazlı sağlayıcı.
+
+### 14g. Doküman tutarlılığı
+
+| Dosya | Yapılan |
+|---|---|
+| `mimari.html` | 25 Ağustos'tan beri bayattı. Girişe **dürüstlük notu** (D1/R2/Queues canlıda bağlı değil), API bölümüne **gerçekten çalışan 7 uç** tablosu; hedef mimari rotaları "canlıda yok" olarak işaretlendi |
+| `AKTARIM.md` | "Kaldığımız nokta" tamamen yeniden yazıldı (bitenler + sıradaki kod dışı teslimatlar + demo günü kota uyarısı); ölçülen değerler ve özellik listesi güncellendi; başa "tek doğruluk kaynağı PROGRESS.md" uyarısı |
+| `privacy-policy.html` | §14e madde 4 |
+| `README.md` | Yeni özellikler §11.2'ye eklendi |

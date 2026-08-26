@@ -543,10 +543,25 @@ python tools/injection-test.py https://t3-olcme-degerlendirme.t3-olcme-degerlend
 
 **5/5** — yerel ve canlı ortamda ayrı ayrı doğrulandı.
 
+Sertleştirme **altı istemin tamamında** uygulanır (soru üretimi, değerlendirme,
+rubrik, örnek yanıt, kavram yanılgısı, hizalama denetimi). Güvenlik denetiminde
+rubrik ve örnek yanıt istemlerinin savunmasız olduğu bulundu: bunlar soru
+metnini alıyor, o da kaynak metinden türetiliyordu — yani **dolaylı bir
+injection zinciri** mümkündü. İkisi de kapatıldı.
+
+Ayrıca canlı sistemde güvenlik başlıkları etkindir: `Content-Security-Policy`,
+`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`
+ve `Permissions-Policy` (kamera, mikrofon ve konum kapalı). Her `POST` gövdesi
+Zod şemasıyla doğrulanır ve **altı AI ucunun tamamında** dakika bazlı hız
+sınırı vardır.
+
 ### 11.2 Diğer eklemeler
 
 | Özellik | Ne yapar |
 |---|---|
+| **Uyaran metin** *(soru + metin birlikte)* | Bir soru kaynak metne dayanıyorsa (*"Metne göre…"*) o metin **sınavda öğrenciye soruyla birlikte gösterilir**. Türkçe okuma kazanımları metin olmadan ölçülemez; metinsiz sorulan böyle bir soru cevaplanamaz. Model her soru için "metin gerekli mi" bilgisini döndürür, **sunucu ayrıca soru gövdesinden deterministik olarak denetler** (*metne göre, parçada, şiirde…*) — yanlış negatif kabul edilmez |
+| **Öğrenciye geri bildirim taslağı** | Puanın gerekçesi değil, **"ne yapmalısın"**. AI taslak yazar; öğretmen *"Nota Aktar"* ile bilinçli olarak alır, düzenler, onaylar. **Otomatik doldurulmaz** — öğretmen farkında olmadan AI metnini onaylamasın diye |
+| **Ders–sınıf–kazanım tutarlılığı** | Kazanım seçicisi yalnızca seçili ders ve sınıfa ait kazanımları gösterir; uyuşmazlık varsa gerekçeli uyarı çıkar. Sert engelleme yok — öğretmen "tümünü göster" diyebilir |
 | **Gerçek MEB müfredat kataloğu** | Kazanımlar uydurulmadı: **MEB Ortaokul Türkçe Dersi Öğretim Programı'nın 96 öğrenme çıktısı** ürünün içinde (`public/mufredat/turkce-7.json`), öğretmen katalogdan seçiyor. Üstelik **yazılı sınavla ölçülebilen (39)**, **performans gerektiren (43)** ve **süreç kazanımı (14)** olarak ayrılıyor — çünkü bir konuşma kazanımı çoktan seçmeli soruyla ölçülmez. Bu ayrım ürünün kendi değerlendirmesidir ve arayüzde açıkça yazar |
 | **Kazanım–soru hizalama denetimi** *(içerik geçerliği)* | Model `T.O.7.5` (yüzey anlam) için soru üretti — ama gerçekten yüzey anlam mı ölçüyor? Her soru **ölçüyor / kısmen / ölçmüyor** olarak denetlenir, gerekçe verilir ve uygun değilse daha doğru kazanım önerilir. **Denetimi soruyu üreten çağrı yapmaz**, ayrı ve bağımsız bir çağrı yapar — çünkü bir model kendi ürettiğini onaylamaya eğilimlidir. Model kod uyduramaz: öneri yalnızca gerçek kazanım listesinden gelir, sunucu ayrıca doğrular |
 | **Bloom bilişsel düzey dengesi** | Sınav ezber mi ölçüyor? Alt düzey (hatırlama/anlama) ve üst düzey (uygulama/analiz/değerlendirme/yaratma) dağılımı sınav kurarken görünür. **Hedef oran dayatılmaz** — ölçmede sabit bir "doğru oran" yoktur; yalnızca iki uç bildirilir: hiç üst düzey soru yoksa *"sınav büyük olasılıkla ezber ölçüyor"*, hiç alt düzey yoksa *"temel bilgi hiç ölçülmüyor"* |
