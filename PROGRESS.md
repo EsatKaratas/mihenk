@@ -12,7 +12,8 @@
 > hizalama denetimi · §14 ürün açıkları ve güvenlik turu ·
 > §15 Müfredat Kitaplığı (PDF kalıcılığı) ·
 > §16 yedek sağlayıcı OpenAI'a alındı (§16d KRİTİK) ·
-> **§17 geniş denetim — en yeni. 3 gerçek hata bulundu ve düzeltildi.**
+> §17 geniş denetim (3 gerçek hata bulundu ve düzeltildi) ·
+> **§18 AÇIK KARAR: model stratejisi — ekip istişaresinde, sonuç yazılmalı.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -2100,3 +2101,67 @@ Hiçbiri demoyu engellemez; hepsi kayıtlı ve gerekçeli:
    1'inde kaçtı; puan hiçbir zaman etkilenmedi.
 5. **D1/R2/Queues/Better Auth canlıda bağlı değil** (§1.6) — bilinçli kapsam.
 6. **AI karar günlüğü / denetim izi** (§5.3-5) — yapılmadı, sıradaki iş.
+
+---
+
+## 18. ⏸️ AÇIK KARAR — model stratejisi (26 Ağustos, ekip istişaresine bırakıldı)
+
+**Durum: KARARLAŞTIRILMADI.** Takım WhatsApp'ta tartışıyor; karar sonra
+verilecek. Bu bölüm karar verilirken gereken tüm ölçülmüş veriyi tutar.
+**Karar verilince buraya sonucu yazın.**
+
+### 18a. Sorun
+
+Şu anki kurgu iki modelli: birincil `llama-3.3-70b` (ücretsiz kota), yedek
+`gpt-5.6-luna` (ön ödemeli kredi). Ölçülen davranış farkı:
+
+> Aynı öğrenci cevabına **llama 15-16/20**, **luna 20/20** veriyor (§16i).
+
+Takımın jüri kaygısı yerinde: *"2 model kullanmışsınız, burada bir adaletsizlik
+olmuyor mu?"* — Bir sınıfın bir kısmı llama, bir kısmı luna ile
+değerlendirilirse **ölçme ölçütü kayar.** Bu bir ölçme geçerliği sorunudur.
+
+### 18b. Seçenekler ve ÖLÇÜLMÜŞ maliyetler
+
+Fiyatlar 26 Ağustos 2026'da sağlayıcı sayfalarından doğrulandı.
+
+| | Aylık sabit | Aşım maliyeti | Model sayısı |
+|---|---|---|---|
+| **A. Mevcut** (llama ücretsiz + luna yedek) | $0 | $0,0162/tur (luna) | 2 |
+| **B. Workers Paid** ($5/ay) | **$5** | **$0,0116/tur** (llama) | **1** |
+| **C. İkisi birden** | $5 | llama devam eder, luna emniyet | 1 + yedek |
+
+**⚠️ Yaygın yanılgının düzeltmesi:** "Llama'nın ücretli modeli ChatGPT'den daha
+maliyetli" ifadesi **tur başına YANLIŞ**, **toplamda DOĞRU**:
+
+- Tur başına Workers AI **daha ucuz** ($0,0116 < $0,0162)
+- Ama Workers Paid'in **$5/ay sabit tabanı** var
+- Başabaş noktası: **ayda ~1.087 aşım turu.** Yarışma için 50-100 tur
+  bekleniyor → **bu hacimde A seçeneği toplamda daha ucuz.**
+
+Yani **karar maliyet meselesi değil.** İki seçenek arasındaki fark yarışma
+dönemi için ~$10 — gürültü. Karar **ölçme tutarlılığı** meselesidir.
+
+### 18c. Üçüncü bir yol: ürün düzeyinde çözüm (henüz değerlendirilmedi)
+
+Faturalandırma yerine **koda** çözüm: **bir sınavın tüm değerlendirmeleri aynı
+modele sabitlensin.** Sınav oluşturulurken kullanılan model kaydedilir; o
+sınavın tüm puanları o modelle üretilir, model değişirse öğretmen uyarılır.
+
+Bu, jüri sorusuna en güçlü cevabı verir: *"Bu riski fark ettik ve üründe
+çözdük — bir sınav içinde ölçüt asla değişmez."* Ücret gerektirmez.
+Uygulanmadı; karar verilirse iş listesine girer.
+
+### 18d. Şu an geçerli olan hafifletmeler
+
+Karar verilene kadar mevcut kurgu şu korumalarla çalışıyor:
+
+- Her puanı **öğretmen onaylıyor** (HITL, `agents.md` §1) — model önerisi
+  nihai karar değil
+- Arayüz **hangi modelin yanıtladığını yazıyor** (`meta.fellBack` + rozet),
+  geçiş sessiz değil
+- Yedek yalnızca birincil kotası dolduğunda devreye giriyor
+
+**Bilinmesi gereken risk:** Yoğun test yapılan bir günde llama'nın kotası
+dolarsa, o günkü demo luna ile çalışır. 26 Ağustos'ta bu fiilen yaşandı.
+Sunum öncesi `/api/ai/status` ve ilk çağrının `meta.fellBack` alanına bakın.
