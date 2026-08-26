@@ -228,6 +228,9 @@ async function aiGenerateQuestions(doc) {
         // (ölçüldü: llama ~10 soruda 1 kez Kiril harfi karıştırıyor).
         // Otomatik düzeltilmez; İçerik Uzmanına gösterilir.
         dilUyarisi: !!q.dilUyarisi,
+        // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
+        // farkli davraniyor, kayitta gorunmeli).
+        uretenModel: (j.meta && j.meta.model) || null,
       };
     });
   } catch (e) {
@@ -301,7 +304,17 @@ function evalCacheClear() { state.evalCache = {}; renderAll(); }
 
 async function aiEvaluate(q, answerText, rubric, force) {
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır.
-  if (state.ai.mode !== "live") return simulateAIEvaluation(q, answerText, rubric);
+  if (state.ai.mode !== "live") {
+    const sim = simulateAIEvaluation(q, answerText, rubric);
+    // Denetim izi simülasyonu da kaydeder — ama SİMÜLASYON OLDUĞUNU yazarak.
+    // Kayıtta gerçek model adı görünmesi denetim izini yalancı yapardı.
+    auditKaydet("degerlendirme_onerildi", {
+      qid: q.id, sid: state.activeStudentId, soru: auditKisalt(q.body),
+      aiScore: sim ? sim.aiScore : null, confidence: sim ? sim.confidence : null,
+      model: "yerel simülasyon (model çağrılmadı)",
+    });
+    return sim;
+  }
   // Gerçek model modundayken çağrı başarısız olursa YEDEĞE DÜŞMEYİZ:
   // simüle edilmiş bir puanı "yapay zekâ önerisi" diye göstermek yanıltıcı olur.
   // Bunun yerine değerlendirme "yapılamadı" işaretlenir; öğretmen yeniden
@@ -333,10 +346,25 @@ async function aiEvaluate(q, answerText, rubric, force) {
                     injectionAttempt: !!j.injectionAttempt };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
+    // Denetim izi: yapay zekâ PUAN ÖNERDİ. Nihai puan değil — öğretmen
+    // onaylayınca "puan_karari" kaydı düşer ve ikisi karşılaştırılabilir.
+    auditKaydet("degerlendirme_onerildi", {
+      qid: q.id, sid: state.activeStudentId, soru: auditKisalt(q.body),
+      aiScore: sonuc.aiScore, confidence: sonuc.confidence,
+      model: (j.meta && j.meta.model) || null,
+      fellBack: !!(j.meta && j.meta.fellBack),
+      injectionAttempt: sonuc.injectionAttempt || undefined,
+    });
     return sonuc;
   } catch (e) {
     const mesaj = String((e && e.message) || e);
     state.ai.error = mesaj;
+    // Denetim izi: başarısızlık da kayda geçer — öğretmenin neden elle
+    // puanladığı sonradan anlaşılabilsin (§3.4 sessiz geri düşüş yasağı).
+    auditKaydet("degerlendirme_basarisiz", {
+      qid: q.id, sid: state.activeStudentId, soru: auditKisalt(q.body),
+      not: mesaj.slice(0, 120),
+    });
     return { failed: true, error: mesaj, maxScore: rubric.maxScore, aiScore: null,
              justification: "", confidence: null, breakdown: [] };
   }
@@ -395,7 +423,7 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -620,6 +648,9 @@ const state = {
   misconceptions: {},
   alignment: {},
   sources: [],
+  // Yapay zekâ karar günlüğü (denetim izi).
+  auditLog: [],
+  auditDusen: 0,
   // Müfredat Kitaplığı indeksi. İçerik (sayfa metinleri) IndexedDB'dedir;
   // burada yalnızca listelemeye yetecek küçük üstveri durur.
   library: [],
@@ -1167,6 +1198,242 @@ function wireKitaplik() {
 }
 
 
+/* ==================== YAPAY ZEKÂ KARAR GÜNLÜĞÜ (DENETİM İZİ) ====================
+   NEDEN VAR: Bu ürünün tezi "yapay zekâ önerir, insan karar verir" (agents.md
+   §1). Bu tez ekranda görünüyor ama İSPATLANMIYORDU. Jüri "insan onayını nasıl
+   ispatlıyorsunuz" diye sorduğunda gösterilecek somut bir kayıt yoktu.
+
+   `calibration()` zaten AI-öğretmen puan farkını hesaplıyor, ama:
+     · yalnızca DEĞERLENDİRMELERİ kapsıyor (soru onay/red kararları yok),
+     · ANLIK DURUMDAN türetiliyor — soru silinirse geçmiş de kayboluyor,
+     · hangi MODELİN önerdiğini tutmuyor (§19c'den sonra kritik: iki model
+       aynı cevaba farklı puan veriyor),
+     · zaman damgası yok, dışa aktarılamıyor.
+
+   Bu günlük onun tamamlayıcısıdır: her AI önerisini ve o öneriye insanın ne
+   yaptığını zaman damgasıyla, model adıyla birlikte kalıcı olarak yazar.
+
+   DEPOLAMA SINIRI: localStorage'da tutulur (senkron render için gerekli).
+   En fazla AUDIT_LIMIT kayıt; sınır aşılırsa en eski düşer ve bu ekranda
+   AÇIKÇA yazar (§6.3-5 sessiz düşüş yasağı).
+
+   GİZLİLİK: Öğrenci adı YAZILMAZ, yalnızca öğrenci numarası (sid) tutulur.
+   Soru gövdesi 80 karaktere kırpılır — kayıt tek başına anlaşılsın diye
+   (soru sonradan silinse bile günlük okunabilir kalmalı).
+   ============================================================================ */
+
+var AUDIT_LIMIT = 500;
+
+function ensureAudit() {
+  state.auditLog = state.auditLog || [];
+}
+
+/** Günlüğe bir olay yazar. Asla hata fırlatmaz — günlük ana akışı bozmamalı. */
+function auditKaydet(tur, veri) {
+  try {
+    ensureAudit();
+    var kayit = { at: Date.now(), tur: tur };
+    Object.keys(veri || {}).forEach(function (k) {
+      if (veri[k] !== undefined && veri[k] !== null) kayit[k] = veri[k];
+    });
+    state.auditLog.push(kayit);
+    var dusen = 0;
+    while (state.auditLog.length > AUDIT_LIMIT) { state.auditLog.shift(); dusen++; }
+    if (dusen) state.auditDusen = (state.auditDusen || 0) + dusen;
+    saveSoon();
+  } catch (e) {
+    // Günlük tutulamıyorsa ürün çalışmaya devam etmeli.
+    console.warn("denetim izi yazılamadı:", e && e.message);
+  }
+}
+
+/** Soru gövdesini günlük için kısaltır. */
+function auditKisalt(s) {
+  s = String(s || "").replace(/\s+/g, " ").trim();
+  return s.length > 80 ? s.slice(0, 79) + "…" : s;
+}
+
+var AUDIT_ETIKET = {
+  soru_uretildi:        { ad: "Soru üretildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
+  soru_onaylandi:       { ad: "Soru onaylandı",           sinif: "pill-success", aktor: "içerik uzmanı" },
+  soru_reddedildi:      { ad: "Soru reddedildi",          sinif: "pill-critical",aktor: "içerik uzmanı" },
+  rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
+  degerlendirme_onerildi:{ad: "Puan önerildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
+  degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
+  puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
+  geri_bildirim_aktarildi:{ad:"Geri bildirim aktarıldı",  sinif: "pill-neutral", aktor: "öğretmen" },
+};
+
+/**
+ * Günlükten özet çıkarır. Jürinin sorduğu soruya doğrudan cevap:
+ * "AI kaç öneri yaptı, insan kaçını aynen kabul etti, kaçını değiştirdi?"
+ */
+function auditOzet() {
+  ensureAudit();
+  var g = state.auditLog;
+  var oneri = g.filter(function (k) { return k.tur === "degerlendirme_onerildi"; }).length;
+  var kararlar = g.filter(function (k) { return k.tur === "puan_karari"; });
+  var aynen = kararlar.filter(function (k) { return k.degisti === false; }).length;
+  var degisen = kararlar.filter(function (k) { return k.degisti === true; }).length;
+  var elle = kararlar.filter(function (k) { return k.aiScore == null; }).length;
+  var uretilen = g.filter(function (k) { return k.tur === "soru_uretildi"; })
+                  .reduce(function (t, k) { return t + (k.adet || 0); }, 0);
+  var onaylanan = g.filter(function (k) { return k.tur === "soru_onaylandi"; }).length;
+  var reddedilen = g.filter(function (k) { return k.tur === "soru_reddedildi"; }).length;
+
+  // Hangi modeller kullanılmış? (§19c: model farkı puanı etkiliyor)
+  var modeller = {};
+  g.forEach(function (k) { if (k.model) modeller[k.model] = (modeller[k.model] || 0) + 1; });
+
+  return {
+    toplamKayit: g.length, dusen: state.auditDusen || 0,
+    oneri: oneri, aynen: aynen, degisen: degisen, elle: elle,
+    uretilen: uretilen, onaylanan: onaylanan, reddedilen: reddedilen,
+    modeller: modeller,
+    ilk: g.length ? g[0].at : null, son: g.length ? g[g.length - 1].at : null,
+  };
+}
+
+function auditZaman(ts) {
+  try { return new Date(ts).toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+  catch (e) { return String(ts); }
+}
+
+/** Günlüğü CSV'ye çevirir (Excel'de açılabilsin diye ayraç noktalı virgül). */
+function auditCsv() {
+  ensureAudit();
+  var basliklar = ["zaman", "olay", "aktor", "model", "yedekMi", "soru", "ogrenciNo",
+                   "aiPuan", "nihaiPuan", "degisti", "guven", "not"];
+  var satirlar = state.auditLog.map(function (k) {
+    var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
+    return [
+      auditZaman(k.at), e.ad, e.aktor, k.model || "", k.fellBack === true ? "evet" : (k.fellBack === false ? "hayır" : ""),
+      k.soru || "", k.sid != null ? k.sid : "",
+      k.aiScore != null ? k.aiScore : "", k.finalScore != null ? k.finalScore : "",
+      k.degisti === true ? "evet" : (k.degisti === false ? "hayır" : ""),
+      k.confidence != null ? k.confidence : "", k.not || "",
+    ].map(function (h) {
+      h = String(h == null ? "" : h);
+      return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
+    }).join(";");
+  });
+  // BOM: Excel'in UTF-8'i doğru açması için gerekli (Türkçe karakterler).
+  return "﻿" + basliklar.join(";") + "\n" + satirlar.join("\n");
+}
+
+/** Tarayıcıda dosya indirtir. */
+function auditIndir(icerik, dosyaAdi, tur) {
+  try {
+    var blob = new Blob([icerik], { type: tur });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = dosyaAdi;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    return true;
+  } catch (e) {
+    alert("Dosya indirilemedi: " + ((e && e.message) || e));
+    return false;
+  }
+}
+
+function auditSatirHtml(k) {
+  var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, sinif: "pill-neutral", aktor: "" };
+  var detay = [];
+  if (k.model) detay.push((k.fellBack ? "yedek model: " : "model: ") + escapeHtml(k.model));
+  if (k.aiScore != null && k.finalScore != null) {
+    detay.push("AI önerisi <b>" + k.aiScore + "</b> → öğretmen <b>" + k.finalScore + "</b>" +
+      (k.degisti ? ' <span class="au-degisti">değiştirdi</span>' : ' <span class="au-aynen">aynen onayladı</span>'));
+  } else if (k.aiScore != null) {
+    detay.push("AI önerisi: <b>" + k.aiScore + "</b>" + (k.confidence != null ? " (güven " + k.confidence + ")" : ""));
+  } else if (k.tur === "puan_karari") {
+    detay.push('<span class="au-elle">yapay zekâ önerisi olmadan, öğretmen doğrudan puanladı</span>: <b>' + k.finalScore + "</b>");
+  }
+  if (k.adet) detay.push(k.adet + " soru");
+  if (k.injectionAttempt) detay.push('<span class="au-inj">yanıt modele talimat vermeye çalışmış</span>');
+  if (k.not) detay.push(escapeHtml(k.not));
+
+  return '<div class="au-satir">' +
+    '<div class="au-ust"><span class="pill ' + e.sinif + '">' + escapeHtml(e.ad) + "</span>" +
+    '<span class="au-aktor">' + escapeHtml(e.aktor) + "</span>" +
+    '<span class="au-zaman">' + escapeHtml(auditZaman(k.at)) + "</span></div>" +
+    (k.soru ? '<div class="au-soru">' + escapeHtml(k.soru) + "</div>" : "") +
+    (detay.length ? '<div class="au-detay">' + detay.join(" · ") + "</div>" : "") +
+    "</div>";
+}
+
+function auditGunluguHtml() {
+  ensureAudit();
+  var o = auditOzet();
+  if (!o.toplamKayit) {
+    return '<div class="card"><div class="card-head"><h3>Yapay Zekâ Karar Günlüğü</h3></div>' +
+      '<p class="au-bos">Henüz kayıt yok. Soru üretildikçe ve öğretmen puan onayladıkça ' +
+      "her adım buraya yazılır: hangi model ne önerdi, insan ne karar verdi.</p></div>";
+  }
+  var modelListesi = Object.keys(o.modeller).map(function (m) {
+    return '<span class="pill pill-neutral">' + escapeHtml(m) + " · " + o.modeller[m] + "</span>";
+  }).join(" ");
+
+  var kararToplam = o.aynen + o.degisen;
+  var yuzde = kararToplam ? Math.round((o.degisen / kararToplam) * 100) : null;
+
+  var sonKayitlar = state.auditLog.slice(-25).reverse().map(auditSatirHtml).join("");
+
+  return '<div class="card"><div class="card-head"><h3>Yapay Zekâ Karar Günlüğü</h3>' +
+    '<span class="pill pill-accent">' + o.toplamKayit + " kayıt</span></div>" +
+    '<p class="au-aciklama">Bu ürünün ilkesi <b>yapay zekâ önerir, insan karar verir</b>. ' +
+    "Bu günlük o ilkenin kanıtıdır: her yapay zekâ önerisi ve insanın o öneriye ne yaptığı " +
+    "zaman damgasıyla kayıtlıdır.</p>" +
+
+    '<div class="au-ozet">' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.uretilen + '</div><div class="au-etiket">AI soru önerdi</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.onaylanan + '</div><div class="au-etiket">insan onayladı</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.reddedilen + '</div><div class="au-etiket">insan reddetti</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.oneri + '</div><div class="au-etiket">AI puan önerdi</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.aynen + '</div><div class="au-etiket">aynen onaylandı</div></div>' +
+    '<div class="au-kutu au-vurgu"><div class="au-sayi">' + o.degisen + '</div><div class="au-etiket">öğretmen değiştirdi</div></div>' +
+    (o.elle ? '<div class="au-kutu"><div class="au-sayi">' + o.elle + '</div><div class="au-etiket">AI olmadan puanlandı</div></div>' : "") +
+    "</div>" +
+
+    (yuzde != null
+      ? '<div class="au-oran">Öğretmen, yapay zekâ puan önerilerinin <b>%' + yuzde +
+        "</b>'ini değiştirdi. Bu oran sıfırsa insan onayı biçimsel kalıyor demektir; " +
+        "çok yüksekse modelin rubriğe uyumu gözden geçirilmelidir.</div>"
+      : "") +
+
+    (modelListesi ? '<div class="au-modeller">Kullanılan modeller: ' + modelListesi + "</div>" : "") +
+
+    (o.dusen ? '<div class="au-uyari">⚠ Günlük en fazla ' + AUDIT_LIMIT + " kayıt tutar; " +
+      "sınır aşıldığı için <b>" + o.dusen + " eski kayıt düştü</b>. Kalıcı arşiv için indirin.</div>" : "") +
+
+    '<div class="au-butonlar">' +
+    '<button class="btn btn-secondary btn-sm" id="btnAuditCsv">CSV indir (Excel)</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnAuditJson">JSON indir</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnAuditTemizle">Günlüğü temizle</button></div>' +
+
+    '<div class="au-liste-bas">Son ' + Math.min(25, o.toplamKayit) + " kayıt (yeniden eskiye)</div>" +
+    '<div class="au-liste">' + sonKayitlar + "</div></div>";
+}
+
+function wireAudit() {
+  var csv = document.getElementById("btnAuditCsv");
+  if (csv) csv.onclick = function () {
+    auditIndir(auditCsv(), "yapay-zeka-karar-gunlugu.csv", "text/csv;charset=utf-8");
+  };
+  var js = document.getElementById("btnAuditJson");
+  if (js) js.onclick = function () {
+    ensureAudit();
+    auditIndir(JSON.stringify({ olusturuldu: new Date().toISOString(), ozet: auditOzet(), kayitlar: state.auditLog }, null, 2),
+      "yapay-zeka-karar-gunlugu.json", "application/json;charset=utf-8");
+  };
+  var tm = document.getElementById("btnAuditTemizle");
+  if (tm) tm.onclick = function () {
+    if (confirm("Karar günlüğü tamamen silinsin mi? Bu işlem geri alınamaz. İndirmediyseniz önce indirin.")) {
+      state.auditLog = []; state.auditDusen = 0; renderAll();
+    }
+  };
+}
+
 /* ============================== İçerik Uzmanı ============================== */
 /* ===========================================================================
    UYARAN METİN (kaynak metin) — sorunun dayandığı metnin saklanması
@@ -1320,6 +1587,22 @@ async function onGenerateQuestions() {
     if (qs.length) {
       state.questions = state.questions.concat(qs);
       state.ceForm.error = "";
+      // Denetim izi: yapay zekâ öneri üretti. Bu kaydın karşılığı, İçerik
+      // Uzmanı onaylayınca/reddedince yazılan "soru_onaylandi/reddedildi"dir;
+      // ikisi birlikte HITL zincirinin ilk halkasını belgeler.
+      auditKaydet("soru_uretildi", {
+        adet: qs.length,
+        /* DOĞRU ATIF: simülasyon modunda üretilen soruya GERÇEK model adı
+           yazmak denetim izini yalancı yapar. `state.ai.model` son yoklamadan
+           kalma olabilir; yalnızca gerçekten model çağrıldıysa (uretenModel
+           dolu) o ad kullanılır, aksi hâlde durum açıkça yazılır. */
+        model: qs[0].uretenModel || (state.ai.mode === "live" ? (state.ai.model || null) : "yerel simülasyon (model çağrılmadı)"),
+        fellBack: state.ai.mode === "live" ? state.ai.usingFallback === true : undefined,
+        soru: auditKisalt(qs[0].body),
+        not: (state.ceForm.subject || "") + " · " + (state.ceForm.grade || "") + ". sınıf · " +
+             (state.ceForm.outcomeCode || "kazanım yok") +
+             (qs.some(function (q) { return q.dilUyarisi; }) ? " · DİL UYARISI var" : ""),
+      });
     }
   } finally {
     state.ai.busy = false;
@@ -1544,10 +1827,24 @@ function wirePendingCards() {
     el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) q.correctKey = el.dataset.okey; };
   });
   document.querySelectorAll(".approve-btn").forEach(function (el) {
-    el.onclick = function () { const q = findQuestion(el.dataset.qid); if (q) { q.status = "approved"; renderAll(); } };
+    el.onclick = function () {
+      const q = findQuestion(el.dataset.qid);
+      if (q) {
+        // Denetim izi: AI'ın ürettiği soruyu İNSAN onayladı.
+        auditKaydet("soru_onaylandi", { qid: q.id, soru: auditKisalt(q.body),
+          model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null });
+        q.status = "approved"; renderAll();
+      }
+    };
   });
   document.querySelectorAll(".reject-btn").forEach(function (el) {
-    el.onclick = function () { const q = findQuestion(el.dataset.qid); if (q) { q.status = "rejected"; renderAll(); } };
+    el.onclick = function () {
+      const q = findQuestion(el.dataset.qid);
+      if (q) {
+        auditKaydet("soru_reddedildi", { qid: q.id, soru: auditKisalt(q.body), model: q.uretenModel || null });
+        q.status = "rejected"; renderAll();
+      }
+    };
   });
 }
 
@@ -3168,6 +3465,13 @@ function wireTeacherTab3() {
       if (!alan || !ev.studentFeedback) return;
       alan.value = String(ev.studentFeedback).trim();
       alan.focus();
+      // Denetim izi: AI geri bildirim taslağını öğretmen bilinçli olarak aldı.
+      // Otomatik doldurulmuyor; bu kayıt o bilinçli eylemi belgeler.
+      auditKaydet("geri_bildirim_aktarildi", {
+        qid: Number(qid), sid: Number(sid),
+        soru: auditKisalt((findQuestion(qid) || {}).body),
+        not: "öğretmen taslağı not alanına aldı (düzenleyebilir)",
+      });
       b.textContent = "Nota aktarıldı ✓";
       b.disabled = true;
     };
@@ -3204,6 +3508,18 @@ function finalizeReview(qid, score, comment, decision, sid) {
     aiScore: ev.aiScore != null ? ev.aiScore : null
   };
   writeSession(ogrId, { reviews: yeniReviews });
+  /* Denetim izi: NİHAİ KARAR. Bu kayıt HITL tezinin en doğrudan kanıtıdır —
+     yapay zekânın ne önerdiği (aiScore) ile insanın ne verdiği (finalScore)
+     yan yana durur ve değiştirilip değiştirilmediği açıkça yazılır. */
+  const ai = ev.aiScore != null ? Number(ev.aiScore) : null;
+  const nihai = yeniReviews[qid].finalScore;
+  auditKaydet("puan_karari", {
+    qid: qid, sid: ogrId,
+    soru: auditKisalt((findQuestion(qid) || {}).body),
+    aiScore: ai, finalScore: nihai,
+    degisti: ai == null ? undefined : Math.abs(nihai - ai) > 0.001,
+    not: comment ? auditKisalt(comment) : null,
+  });
   renderAll();
 }
 // Açık uçlu soruların tamamı incelendi mi? (Yalnızca ÇSS'den oluşan sınavda
@@ -4341,6 +4657,11 @@ function renderAdmin() {
     '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
     '<div id="adminHeatmap"></div></div>' + trendHtml();
 
+  // Yapay zeka karar gunlugu (denetim izi) — Egitim Yoneticisi gozetim rolu
+  // oldugu icin buraya konuldu. Isi haritasindan SONRA eklenir cunku
+  // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
+  root.insertAdjacentHTML("beforeend", auditGunluguHtml());
+  wireAudit();
   renderHeatmap("adminHeatmap", rows);
 }
 
@@ -4827,6 +5148,8 @@ setInterval(function () {
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
     "injectionWarnHtml", "dilUyarisiHtml",
+    "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
+    "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",

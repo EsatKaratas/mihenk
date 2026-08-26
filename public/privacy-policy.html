@@ -198,6 +198,15 @@
           o metin soruya bağlı olarak saklanır ve <b>sınav sırasında öğrenciye soruyla birlikte gösterilir</b>.
           Metin olmadan bu tür sorular yanıtlanamayacağı için bu saklama ölçmenin geçerliliği açısından
           zorunludur. Saklanan kaynak sayısı sınırlıdır; sınır aşıldığında en eski kaynak silinir.</li>
+          <li><b>Yapay Zekâ Karar Günlüğü (denetim izi):</b> Sistem, her yapay zekâ önerisini ve
+          eğitmenin o öneriye ne yaptığını kayıt altına alır: zaman damgası, olay türü, kullanılan
+          model, önerilen puan, eğitmenin verdiği nihai puan ve değiştirilip değiştirilmediği.
+          Amaç, <b>insan onayının ispatlanabilir olmasıdır</b>. Bu kayıtta <b>öğrenci adı
+          tutulmaz</b>; yalnızca sistem içi öğrenci numarası ve sorunun ilk 80 karakteri yer alır.
+          Günlük yalnızca <b>kullanılan tarayıcının yerel deposunda</b> tutulur, sunucuya
+          gönderilmez. Eğitmen günlüğü CSV/JSON olarak indirebilir ve tek tuşla tamamen
+          silebilir. En fazla 500 kayıt tutulur; sınır aşıldığında en eski kayıtlar düşer ve
+          bu durum ekranda açıkça bildirilir.</li>
           <li><b>Müfredat Kitaplığı (yüklenen PDF'ler):</b> Eğitmenin yüklediği müfredat, ders kitabı ya da
           ders notu PDF'lerinden <b>çıkarılan metin</b>, aynı dosyanın her oturumda yeniden yüklenmesini
           önlemek için <b>kullanılan tarayıcının yerel veritabanında</b> (<code>IndexedDB</code>) saklanır.
