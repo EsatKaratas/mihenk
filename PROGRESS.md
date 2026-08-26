@@ -5,12 +5,13 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§15 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§16 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
 > hizalama denetimi · §14 ürün açıkları ve güvenlik turu ·
-> **§15 Müfredat Kitaplığı (PDF kalıcılığı) — en yeni.**
+> §15 Müfredat Kitaplığı (PDF kalıcılığı) ·
+> **§16 yedek sağlayıcı OpenAI'a alındı — en yeni. §16d KRİTİK.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -1706,3 +1707,151 @@ yapılmadıysa güvenilmez. Önceki tur muhtemelen yalnızca bazı öğeleri
 denetlemişti. Bu turda kullanılan tarama tüm rol/sekme kombinasyonlarında
 `button, a[href], input, select` öğelerini gezip `getBoundingClientRect()`
 ölçüyor; yeniden koşulabilir.
+
+---
+
+## 16. YEDEK SAĞLAYICI: GEMINI → OPENAI (26 Ağustos, akşam)
+
+Kullanıcı kota duvarına takılmamak için ücretli API'ye geçmeye karar verdi
+($4,99 OpenAI kredisi). **Birincil model DEĞİŞMEDİ** — kullanıcının kararı ve
+gerekçesi doğruydu: `llama-3.3-70b` bu projede kanıtlanmış, teslimden bir gün
+önce kanıtlanmış bileşen kanıtlanmamışla değiştirilmez. Yalnızca **yedek**
+Gemini ücretsiz katmandan OpenAI'a alındı.
+
+### 16a. Maliyet hesabı (ölçülmüş istem boyutlarıyla)
+
+`src/lib/prompts.ts` derlenip gerçek istemler üretildi; çıktı tavanları
+`src/routes/ai.ts`'ten alındı. Bir tam demo turu (1 sınıf, 6 öğrenci):
+**19.807 girdi + 10.170 çıktı tokeni** (çıktı tavanı — gerçek kullanım daha az).
+
+| Sağlayıcı | Tur başına | $4,99 kaç tur |
+|---|---:|---:|
+| gpt-5-nano | $0,00506 | ~988 |
+| Gemini 2.5 Flash-Lite | $0,00605 | ~826 |
+| **gpt-5.6-luna** | **$0,0162** | **~309** |
+| gpt-5-mini | $0,0253 | ~197 |
+| Workers AI llama-3.3-70b | $0,0287 | ~174 |
+| Claude Haiku 4.5 | $0,0707 | ~70 |
+
+Fiyatlar 26 Ağustos 2026'da sağlayıcıların kendi fiyat sayfalarından
+doğrulandı (`agents.md` çalışma biçimi §3: fiyat hafızadan verilmez).
+
+**Sonuç: maliyet bu ölçekte belirleyici değil.** Gerçekçi okul kullanımı
+(gpt-5-nano): 500 öğrencili okulun tüm yılı **$2,58**. Seçim fiyata göre değil
+kaliteye ve erişilebilirliğe göre yapıldı.
+
+### 16b. 🔴 Bulunan kritik hata: `max_tokens` GPT-5 ailesinde reddediliyor
+
+Anahtar doğrulanırken ortaya çıktı:
+
+```
+gpt-5-nano   -> HTTP 400 "Unsupported parameter: 'max_tokens' is not
+                supported with this model. Use 'max_completion_tokens'"
+gpt-5.6-luna -> aynı hata
+gpt-5-mini   -> HTTP 404 "Your organization must be verified"
+```
+
+`src/lib/ai.ts` OpenAI uyumlu yolda **`max_tokens`** gönderiyordu. Yani yedek
+OpenAI'a alınsa ve test edilmeseydi, sistem sağlıklı görünecek ama Workers AI
+kotası dolduğu anda yedek de **her çağrıda 400** dönecekti. Kota yoğun
+kullanımda dolduğu için bu **tam olarak jüri demosunun ortasında** ortaya
+çıkardı.
+
+**Düzeltme (`callOpenAiUyumlu`):** ad kalıbına göre tahmin yetmez (sağlayıcılar
+model adlarını değiştiriyor), bu yüzden davranış **uyarlamalı**: bilinen
+aileler için doğru alanla başlanır, sunucu bir parametreden şikâyet ederse o
+alan değiştirilip BİR kez yeniden denenir. Üç durum kapsanır:
+`max_tokens` ↔ `max_completion_tokens` ve `temperature` reddi (bazı GPT-5
+modelleri varsayılan dışı temperature kabul etmiyor — sıradaki muhtemel tuzak).
+`agents.md` §7.4'ün "çıktı sınırı her çağrıda açıkça verilir" kuralı korunur;
+yalnızca alanın adı değişir.
+
+Aynı düzeltme `tools/anahtar-dogrula.mjs` ve `tools/anahtar-ekran.mjs`'e de
+uygulandı — doğrulama aracı gerçek çağrıyı temsil etmezse işe yaramaz.
+
+### 16c. Model seçimi: `gpt-5.6-luna`
+
+`gpt-5-mini` **kurum doğrulaması** istiyor (404) ve yayılması 15 dakika
+sürebiliyor — teslim gününde gereksiz risk. `gpt-5.6-luna` doğrulama istemeden
+çalıştı, daha yeni nesil ve mini'den ucuz.
+
+**Ölçülen (gerçek anahtar, canlı uç):** luna **1215 ms**, nano **994 ms**.
+
+### 16d. 🔴 Yedek daha kurulduğu gün hayat kurtardı
+
+Yapılandırma yayınlandıktan hemen sonra yapılan ilk gerçek istekte:
+
+```json
+"meta": { "provider": "openai", "model": "gpt-5.6-luna", "fellBack": true }
+```
+
+`wrangler tail` ile sebep doğrulandı:
+
+```
+ai_fallback  from=workers-ai  to=openai
+reason: 4006: you have used up your daily free allocation of 10,000 neurons
+```
+
+**Workers AI günlük ücretsiz kotası 26 Ağustos'ta zaten dolmuştu.** Yani §14f'de
+öngörülen senaryo teslimden bir gün önce gerçekleşti. Yedek bir saat önce
+kurulmasaydı sistem o an tamamen çalışmaz durumda olacaktı.
+
+Bu, yedeğin "olsa iyi olur" değil **çalışır ürünün önkoşulu** olduğunun canlı
+kanıtıdır ve jüriye anlatılmaya değer.
+
+### 16e. Yedek modelin kalite testi (canlı, gerçek istek)
+
+Kota dolu olduğu için **llama-3.3-70b ile doğrudan yan yana karşılaştırma
+YAPILAMADI** — bu dürüstlük notudur, karşılaştırma iddia edilmemektedir.
+Yedeğin çıktısı kendi başına ölçme ölçütlerine göre değerlendirildi.
+
+**Soru üretimi** (Sait Faik metni, 1 ÇSS + 1 açık uçlu, 7,5 sn):
+
+| Ölçüt | Sonuç |
+|---|---|
+| ÇSS kökü açık ve tek doğru cevaplı | ✅ |
+| Çeldiriciler makul | ✅ 3/3 |
+| **Çeldirici gerekçeleri** | ✅ her biri farklı bir yanılgıyı tarif ediyor ("'büyük olaylar yoktur' ifadesini ters anlıyor", "kitap sayısını ana fikir sanıyor") |
+| `needsSource` | ✅ true (metne dayalı) |
+| Açık uçlu sorunun düzeyi | ✅ analiz — en az iki örnek isteyip kavramla ilişkilendirmeyi şart koşuyor |
+| Türkçe akıcılık | ✅ hatasız |
+
+**Değerlendirme** (aynı soruya orta düzey öğrenci yanıtı, 6,5 sn):
+
+- AI puanı **15,5/20**, güven 0,9, `injectionAttempt: false`
+- Kriter kırılımı: içerik 8/10 · kanıt 4/6 · dil 3,5/4
+- Gerekçeler **öğrencinin kendi cümlelerine atıf yapıyor** ("'Durum öyküsünde
+  olay az olur, duygu çok olur' ifadeleriyle…")
+- Geri bildirim taslağı puan değil **ne yapılmalı** diyor
+
+Sonuç: yedek model bu iş için yeterli kalitede. Demo yedeğe düşerse ürün
+değer kaybetmiyor.
+
+> **Not:** İlk incelemede kriter puanları boş göründü; sebep okuma hatasıydı —
+> alan adı `score` değil **`points`**. Üründe sorun yok.
+
+### 16f. Güncel yapılandırma
+
+```
+Birincil : workers-ai · @cf/meta/llama-3.3-70b-instruct-fp8-fast  (ücretsiz)
+Yedek    : openai     · gpt-5.6-luna                              ($4,99 kredi ≈ 309 tur)
+```
+
+Gemini yedekten çıkarıldı (`wrangler.demo.jsonc`'ta seçenek olarak yorumlu
+duruyor). Sebep ölçülmüştü: ücretsiz katman **günde 20 istek**, bir tam tur 11
+istek — yani günde ~1,8 tur. Emniyet ağı değildi.
+
+**Kota dolu durumdayken davranış:** her istek önce Workers AI'a gidip
+başarısız oluyor, sonra yedeğe düşüyor. Ölçülen toplam süre yine de kabul
+edilebilir (6,5-7,5 sn). Kota UTC gününde sıfırlanıyor.
+
+### 16g. Yan düzeltme: `ANAHTAR-EKLE.bat` hiç çalışmıyordu
+
+`node toolsnahtar-dogrula.mjs` — ters eğik çizgi kaçış dizisi olarak
+yorumlanıp yutulmuş (`tools\anahtar` → `toolsnahtar`). Dosya var olduğundan
+beri çalışmamış olmalı. Düzeltildi; ayrıca araç sağlayıcı seçebiliyor
+(`openai` varsayılan, `gemini` isteğe bağlı).
+
+Ek olarak `tools/anahtar-ekran.mjs` yazıldı: yalnızca `127.0.0.1`'e bağlanan,
+anahtarı diske yazmayan, geçersizse yüklemeyen yerel bir giriş ekranı
+(`ANAHTAR-EKRAN.bat`). Windows'ta `anahtar.txt.txt` tuzağını ortadan kaldırır.

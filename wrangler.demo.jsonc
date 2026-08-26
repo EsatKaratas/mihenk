@@ -47,17 +47,28 @@
     // dolunca istekler YAVAŞLAMAZ, HATA VERİR. Yedek tanımlıysa sistem o an
     // otomatik devreye alır ve arayüzde "Yedek model" yazar (sessiz geçiş yok).
     //
-    // --- SEÇENEK A: Google Gemini (ücretsiz katman, kart istemiyor) --------
-    // Anahtar: https://aistudio.google.com/apikey
-    // Kotanızı AI Studio > Rate limit sayfasında görürsünüz.
-    , "AI_FALLBACK_PROVIDER": "openai"
-    , "AI_FALLBACK_MODEL": "gemini-3.7-flash"
-    , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
+    // --- ETKİN: OpenAI (kredi bazlı, GÜNLÜK SERT KOTA YOK) ----------------
+    // 26 Ağustos'ta Gemini ücretsiz katmandan buraya geçildi. Sebep ölçüldü:
+    // Gemini ücretsiz katman GÜNDE 20 İSTEK veriyor; bir tam demo turu 11
+    // istek, yani günde ~1,8 tur. Gerçek bir emniyet ağı değildi (PROGRESS
+    // §14f: birincil ve yedek AYNI GÜN birlikte tükendi).
     //
-    // --- SEÇENEK B: OpenAI (kredi bazlı, günlük sert kota yok) ------------
-    // Ölçülen: gpt-5-nano ile tam demo turu ~$0,0020 → $5 ≈ 2.450 tur.
+    // Model seçimi: gpt-5-mini "Verify Organization" istiyor (HTTP 404),
+    // gpt-5.6-luna doğrulama istemeden çalışıyor ve daha yeni nesil.
+    // Ölçülen (26 Ağustos, gerçek anahtar): luna 1215 ms, nano 994 ms.
+    // Fiyat: luna $0,20/M girdi + $1,20/M çıktı → tam tur ~$0,016.
+    , "AI_FALLBACK_PROVIDER": "openai"
+    , "AI_FALLBACK_MODEL": "gpt-5.6-luna"
+    //
+    // --- SEÇENEK B: Google Gemini (ücretsiz katman, kart istemiyor) --------
+    // Anahtar: https://aistudio.google.com/apikey
+    // UYARI: ücretsiz katman günde 20 istek — yedek olarak yetersiz.
     // , "AI_FALLBACK_PROVIDER": "openai"
-    // , "AI_FALLBACK_MODEL": "gpt-5-nano"
+    // , "AI_FALLBACK_MODEL": "gemini-3.7-flash"
+    // , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
+    //
+    // --- SEÇENEK C: OpenAI en ucuz ----------------------------------------
+    // , "AI_FALLBACK_MODEL": "gpt-5-nano"     // $0,05/$0,40 → tam tur ~$0,005
     //
     // Her iki seçenekte de anahtar KODA GİRMEZ:
     //   npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc

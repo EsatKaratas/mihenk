@@ -134,33 +134,89 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
 
   // OpenAI uyumlu (OpenAI, Gemini'nin OpenAI ucu, Groq, DeepSeek, OpenRouter...)
   const base = kirp(env.AI_BASE_URL || 'https://api.openai.com/v1');
-  const r = await fetch(`${base}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  return callOpenAiUyumlu(base, apiKey, model, prompt, opts.maxTokens, temperature);
+}
+
+/**
+ * GPT-5 ailesi `max_tokens` yerine `max_completion_tokens` istiyor ve bazı
+ * modeller varsayılan dışında `temperature` kabul etmiyor.
+ *
+ * ÖLÇÜLDÜ (26 Ağustos, gerçek anahtarla, canlı uçtan):
+ *   gpt-5-nano   -> HTTP 400 "Unsupported parameter: 'max_tokens' is not
+ *                   supported with this model. Use 'max_completion_tokens'"
+ *   gpt-5.6-luna -> aynı hata
+ * Yani bu düzeltme olmadan OpenAI yedeği HER çağrıda 400 döner; kota dolduğu
+ * an yedek de ölür. Jüri demosunda ortaya çıkacaktı.
+ *
+ * Ad kalıbına göre tahmin YETMEZ (sağlayıcılar model adlarını değiştiriyor),
+ * bu yüzden davranış uyarlamalı: sunucu hangi alandan şikâyet ederse o alan
+ * değiştirilip BİR kez yeniden denenir. `agents.md` §7.4'ün "çıktı sınırı her
+ * çağrıda açıkça verilir" kuralı korunur — yalnızca alanın adı değişir.
+ */
+async function callOpenAiUyumlu(
+  base: string,
+  apiKey: string,
+  model: string,
+  prompt: string,
+  maxTokens: number,
+  temperature: number
+): Promise<string> {
+  // Bilinen aileler için doğru alanla başla; bilinmeyenlerde uyarlama devreye girer.
+  let tokenAlani: 'max_tokens' | 'max_completion_tokens' =
+    /^(gpt-5|gpt-6|o[1-9])/i.test(model) ? 'max_completion_tokens' : 'max_tokens';
+  let temperatureGonder = true;
+
+  for (let deneme = 1; deneme <= 3; deneme++) {
+    const govdeNesne: Record<string, unknown> = {
       model,
-      max_tokens: opts.maxTokens,
-      temperature,
+      [tokenAlani]: maxTokens,
       messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-  if (!r.ok) {
-    // Gövde boş dönebiliyor; durum metnini ve uç adresini de ekle ki
-    // hata teşhis edilebilir olsun.
+    };
+    if (temperatureGonder) govdeNesne.temperature = temperature;
+
+    const r = await fetch(`${base}/chat/completions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(govdeNesne),
+    });
+
+    if (r.ok) {
+      const j: any = await r.json();
+      const icerik = j?.choices?.[0]?.message?.content;
+      if (icerik == null) {
+        throw new Error(`Yanıtta içerik yok: ${JSON.stringify(j).slice(0, 300)}`);
+      }
+      return String(icerik);
+    }
+
     const govde = (await r.text().catch(() => '')).slice(0, 400);
+
+    // Sunucu hangi parametreden şikâyet ediyorsa onu düzelt ve tekrar dene.
+    if (r.status === 400 && deneme < 3) {
+      const maxTokensSorunu = /max_tokens.*not supported|use ['"`]?max_completion_tokens/i.test(govde);
+      const maxCompSorunu = /max_completion_tokens.*(not supported|unsupported|unrecognized)/i.test(govde);
+      const tempSorunu = /temperature/i.test(govde) && /(not supported|unsupported|does not support)/i.test(govde);
+
+      if (maxTokensSorunu && tokenAlani === 'max_tokens') {
+        tokenAlani = 'max_completion_tokens';
+        continue;
+      }
+      if (maxCompSorunu && tokenAlani === 'max_completion_tokens') {
+        tokenAlani = 'max_tokens';
+        continue;
+      }
+      if (tempSorunu && temperatureGonder) {
+        temperatureGonder = false;
+        continue;
+      }
+    }
+
     throw new Error(
       `OpenAI-uyumlu ${r.status} ${r.statusText || ''} @ ${base}/chat/completions [model=${model}] ${govde || '(boş gövde)'}`
     );
   }
-  const j: any = await r.json();
-  const icerik = j?.choices?.[0]?.message?.content;
-  if (icerik == null) {
-    throw new Error(`Yanıtta içerik yok: ${JSON.stringify(j).slice(0, 300)}`);
-  }
-  return String(icerik);
+
+  throw new Error(`OpenAI-uyumlu istek uyarlanamadı [model=${model}]`);
 }
 
 /**

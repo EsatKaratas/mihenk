@@ -51,6 +51,20 @@ if (!SAG) {
 const BASE = SAG.base;
 const MODELLER = SAG.modeller;
 
+/**
+ * GPT-5 ailesi `max_tokens` kabul etmiyor, `max_completion_tokens` istiyor.
+ * (26 Agustos'ta gercek anahtarla olculdu: gpt-5-nano ve gpt-5.6-luna
+ * "Unsupported parameter: 'max_tokens'" dondu.) src/lib/ai.ts ayni mantigi
+ * uyarlamali olarak uyguluyor; bu arac da ayni davranisi taklit etmeli ki
+ * dogrulama gercek cagriyi temsil etsin.
+ */
+function istekGovdesi(model, tavan) {
+  const govde = { model, messages: [{ role: 'user', content: 'Sadece "tamam" yaz.' }] };
+  if (/^(gpt-5|gpt-6|o[1-9])/i.test(model)) govde.max_completion_tokens = tavan;
+  else govde.max_tokens = tavan;
+  return govde;
+}
+
 function bitir(kod) {
   if (existsSync(DOSYA)) {
     try { unlinkSync(DOSYA); console.log('\n(anahtar.txt silindi)'); } catch (e) { console.log('\nUYARI: anahtar.txt silinemedi, elle silin.'); }
@@ -83,11 +97,7 @@ for (const model of MODELLER) {
     const r = await fetch(BASE + '/chat/completions', {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key },
-      body: JSON.stringify({
-        model,
-        max_tokens: 30,
-        messages: [{ role: 'user', content: 'Sadece "tamam" yaz.' }],
-      }),
+      body: JSON.stringify(istekGovdesi(model, 30)),
     });
     const ms = Date.now() - t0;
     const govde = await r.text();
