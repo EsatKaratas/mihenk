@@ -670,8 +670,106 @@ function loadDemoScenario() {
   state.examStatus = "in_progress";
   state.remainingSec = state.exam.durationMin * 60;
   state.aiEvals = {}; state.reviews = {}; state.mcResults = {};
+  demoSinifOturumlari();
   state.role = "student"; state.studentTab = 2; state.currentQIndex = 0;
   renderAll();
+}
+
+/* DEMO SAHNESİ — sınıfın geri kalanı için TAMAMLANMIŞ oturumlar.
+
+   🔴 NEDEN GEREKTİ: Yönetici istatistikleri uydurma sabitlerden alınıp gerçek
+   oturumlardan hesaplanır hâle getirilince (§25b), demo senaryosu yüklendiğinde
+   Eğitim Yöneticisi paneli haklı olarak "%0 · 0/4" göstermeye başladı — çünkü
+   senaryo sınavı "çözülüyor" durumunda bırakıyor ve gerçekten kimse bitirmemiş
+   oluyordu. Doğru çözüm sayıyı geri uydurmak DEĞİL, sahnede gerçekten
+   tamamlanmış oturumlar oluşturmaktır: ısı haritası, kalibrasyon ve karar
+   günlüğü artık gerçek kayıtlardan doluyor.
+
+   DÜRÜSTLÜK SINIRI (§6.3-5):
+   - Bu öğrenciler `demo: true` işaretlenir; arayüzde "simüle" rozetiyle çıkar.
+   - Denetim izine yazılan model adı "yerel simülasyon (model çağrılmadı)"dır;
+     §21d'de düzeltilen "yalancı denetim izi" hatası tekrarlanmaz.
+   - Aktif öğrenci DIŞARIDA bırakılır: sunumu yapan kişi zinciri (çöz → değerlendir
+     → onayla → karne) canlı ve gerçek modelle gösterebilsin.
+   - Hiçbir sayı sabit değildir; hepsi buradaki oturumlardan HESAPLANIR. */
+function demoSinifOturumlari() {
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return 0;
+  const mcler = state.questions.filter(function (q) { return q.type === "mc"; });
+  const acik = state.questions.find(function (q) { return q.type === "open"; });
+  const rub = acik ? state.rubrics[acik.id] : null;
+  if (!acik || !rub) return 0;
+
+  const SIMULE_MODEL = "yerel simülasyon (model çağrılmadı)";
+  // Üç farklı başarı düzeyi: ısı haritası ve madde analizi ayrışsın diye
+  // ÇSS doğruluğu da öğrenciden öğrenciye değişir.
+  const desenler = [
+    { mc: [true, true],   ai: 16, nihai: 16, karar: "approved_as_is", guven: 0.88,
+      yanit: "Dengelenmemiş kuvvetler cismin hızını değiştirir. Duran bir topa vurulduğunda top hareket eder. Sürtünme ise harekete zıt yönde etki edip topu yavaşlatır, bu yüzden top bir süre sonra durur.",
+      kirilim: [8, 5, 3],
+      gerekce: ["Dengelenmemiş kuvvet ile hız değişimi arasındaki ilişkiyi ve sürtünmenin yönünü doğru kurmuş.",
+                "Topa vurma örneğini vermiş ancak sürtünmeye ait ayrı bir örnek eklememiş.",
+                "Anlatım anlaşılır fakat cümleler kısa; nedensellik bağlaçları zayıf."] },
+    { mc: [true, false],  ai: 13, nihai: 11, karar: "revised", guven: 0.62,
+      yanit: "Kuvvet cismi hareket ettirir. Sürtünme de onu yavaşlatır ama nasıl olduğunu tam bilmiyorum.",
+      kirilim: [5, 3, 3],
+      gerekce: ["Kuvvetin hareketi başlattığını söylemiş ama dengelenmiş/dengelenmemiş ayrımına girmemiş.",
+                "Hiç örnek vermemiş; kavram günlük hayatla ilişkilendirilmemiş.",
+                "İfade açık ancak öğrenci bilmediğini belirterek açıklamayı yarıda bırakmış."] },
+    { mc: [false, true],  ai: 7,  nihai: 7,  karar: "approved_as_is", guven: 0.71,
+      yanit: "Kuvvet itmek ve çekmektir. Sürtünme kuvveti vardır.",
+      kirilim: [4, 1, 2],
+      gerekce: ["Kuvvetin tanımını vermiş ama sorunun sorduğu HAREKETE etkisini hiç açıklamamış.",
+                "Örnek yok; sürtünme yalnızca adıyla anılmış.",
+                "İki cümlelik yanıt kazanımı karşılamak için yeterli değil."] },
+  ];
+
+  const digerleri = (state.students || []).filter(function (s) { return s.id !== state.activeStudentId; });
+  let yazilan = 0;
+
+  digerleri.forEach(function (ogr, i) {
+    const d = desenler[i % desenler.length];
+    ogr.demo = true;                       // arayüzde "simüle" rozeti
+    const ss = sessionOf(kayit, ogr.id);   // ürünün kendi oturum yazıcısı (§3.2)
+    ss.answers = {}; ss.mcResults = {}; ss.aiEvals = {}; ss.reviews = {};
+
+    mcler.forEach(function (q, j) {
+      const dogruMu = !!d.mc[j % d.mc.length];
+      // Yanlış cevapta doğru şıkkın DIŞINDA bir şık seçilmeli.
+      const yanlisSik = (q.options || []).find(function (o) { return o.key !== q.correctKey; });
+      ss.answers[q.id] = { selectedKey: dogruMu ? q.correctKey : (yanlisSik ? yanlisSik.key : q.correctKey) };
+      ss.mcResults[q.id] = { correct: dogruMu };
+    });
+
+    ss.answers[acik.id] = { text: d.yanit, savedAt: Date.now() };
+    ss.aiEvals[acik.id] = {
+      aiScore: d.ai,
+      confidence: d.guven,
+      breakdown: rub.criteria.map(function (c, k) {
+        const tavan = Math.round(rub.maxScore * (c.weight / 100) * 10) / 10;
+        return { label: c.label, points: Math.min(d.kirilim[k] != null ? d.kirilim[k] : 0, tavan), max: tavan,
+                 reason: (d.gerekce || [])[k] || "" };
+      }),
+      /* Simüle olduğu ÖZET satırında açıkça yazar; öğrenci çipinde "simüle"
+         rozeti, denetim izinde "model çağrılmadı" kaydı vardır. Kriter
+         gerekçeleri anlamlı yazıldı çünkü yer tutucu metin öğretmene de
+         jüriye de hiçbir şey göstermiyordu (§6.3-5: gizleme yok, ETİKETLE). */
+      justification: "Demo senaryosunun parçası olan simüle sınıf verisidir; bu yanıt için model çağrılmadı.",
+      studentFeedback: "Açıklamanı örneklerle biraz daha genişletmen gerekiyor.",
+      model: SIMULE_MODEL, simulated: true
+    };
+    ss.reviews[acik.id] = { finalScore: d.nihai, comment: "", decision: d.karar, aiScore: d.ai };
+    ss.examStatus = "graded";
+
+    auditKaydet("degerlendirme_onerildi", { qid: acik.id, sid: ogr.id,
+      soru: auditKisalt(acik.body), aiScore: d.ai, model: SIMULE_MODEL });
+    auditKaydet("puan_karari", { qid: acik.id, sid: ogr.id,
+      soru: auditKisalt(acik.body), aiScore: d.ai, finalScore: d.nihai,
+      degisti: Math.abs(d.nihai - d.ai) > 0.001, model: SIMULE_MODEL });
+    yazilan++;
+  });
+
+  return yazilan;
 }
 
 /* ==================== Model bekleme göstergesi ====================
@@ -2800,8 +2898,9 @@ function ensureRubric(qid) {
   }
 }
 
-// Sınavın toplam puanı: her çoktan seçmeli 1 puan, her açık uçlu kendi
-// rubriğinin maksimum puanı kadar. Öğrenci karnesindeki hesapla aynıdır.
+// Sınavın toplam puanı: her çoktan seçmeli `mcPuani()` kadar (öğretmen
+// belirler), her açık uçlu kendi rubriğinin maksimum puanı kadar.
+// Öğrenci karnesindeki hesapla aynıdır.
 /* ÇOKTAN SEÇMELİ SORU PUANI — sınav düzeyinde, öğretmen belirler.
 
    🔴 NEDEN EKLENDİ (ekip denemesi geri bildirimi): Çoktan seçmeli sorular
@@ -5761,7 +5860,7 @@ setInterval(function () {
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
-    "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum",
+    "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
