@@ -12,8 +12,8 @@
 >    cd t3-olcme-degerlendirme && npm install
 >    ```
 > 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (122 KB). Bu dosya bir özettir;
->    çelişki görürsen `PROGRESS.md`'ye güven. Oradaki §10-§20 en yeni bilgidir;
->    **§19 (model kararı) ve §20 (Kiril sızması) en günceli.**
+>    çelişki görürsen `PROGRESS.md`'ye güven. Oradaki §10-§22 en yeni bilgidir;
+>    **§22 (Mihenk: isim, arayüz, 606 MEB kazanımı) en günceli.**
 > 3. **`agents.md` oturum boyunca geçerli kısıtlardır.** Özellikle §1
 >    (Human-in-the-Loop) hiçbir gerekçeyle esnetilemez.
 > 4. Aşağıdaki **§5 "İlk Görev"** ile başla. Kullanıcı başka bir şey
@@ -147,7 +147,7 @@ yapılandırma dosyası var (§6.1).
 t3-olcme-degerlendirme/
 │
 ├── AKTARIM.md              15 KB  bu dosya — devir özeti
-├── PROGRESS.md            122 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§20)
+├── PROGRESS.md            122 KB  ★ TEK DOĞRULUK KAYNAĞI (§0-§22)
 ├── README.md               36 KB  jüri odaklı tanıtım (rozetler, mermaid akış)
 ├── agents.md              7,7 KB  ★ ZORUNLU kurallar (HITL, mimari, sınırlar)
 │
@@ -403,7 +403,7 @@ secret sızıntısı yok · Zod 6/6 uçta · CORS same-origin.
 | `npm test` | **98/98 geçti** (3 dosya) |
 | `npm run check:config` | 2/2 geçerli |
 | `node --check public/app.js` | geçerli |
-| Açılış öz-kontrolü | temiz (**137 fonksiyon** denetleniyor) |
+| Açılış öz-kontrolü | temiz (**154 fonksiyon** denetleniyor) |
 | 4 rol × tüm sekmeler | render hatasız, konsol hatası 0 |
 | Canlı statik yollar | `/` `/app.js` `/app.css` `/mimari` `/privacy-policy` `/robots.txt` `/mufredat/turkce-7.json` `/mimari.js` → 200, bilinmeyen → 404 |
 | Güvenlik başlıkları | 5/5 aktif |

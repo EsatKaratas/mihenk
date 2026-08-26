@@ -5,7 +5,7 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§21 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§22 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
@@ -15,7 +15,8 @@
 > §17 geniş denetim (3 gerçek hata bulundu ve düzeltildi) ·
 > §18 model stratejisi (KAPANDI, bkz. §19) ·
 > §19 Workers Paid + tek model kararı · §20 Kiril sızması ·
-> **§21 Yapay Zekâ Karar Günlüğü (HITL ispatı) — en yeni.**
+> §21 Yapay Zekâ Karar Günlüğü (HITL ispatı) ·
+> **§22 Mihenk: isim, arayüz ve 606 gerçek MEB kazanımı — en yeni.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -2428,3 +2429,176 @@ lint temiz · 98/98 test · öz-kontrol **137 → 147 ad**.
 zekâ önerisi ve o öneriye insanın ne yaptığı zaman damgasıyla, hangi modelin
 önerdiğiyle birlikte kayıtlı. İndirip inceleyebilirsiniz. Şu an öğretmen
 önerilerin %N'ini değiştirmiş — yani insan onayı biçimsel değil, gerçek."*
+
+---
+
+## 22. MİHENK — isim, arayüz ve GERÇEK MÜFREDAT (26 Ağustos, gece)
+
+Kullanıcı canlı sistemi elle denedi ve bir dizi düzeltme istedi. Bu bölüm o
+turun tamamıdır. **En önemli parçası §22d: 606 gerçek MEB kazanımı.**
+
+### 22a. Ürün adı: "Onay Döngüsü" → **Mihenk**
+
+"Onay Döngüsü" bir süreç adıydı, ürün adı değildi. Alt başlık
+(`İçerik → Sınav → Çözüm → Onay → Analiz — canlı rol prototipi`) bir boru
+hattı tarifiydi; değer söylemiyordu ve **"prototip" demek jüriye karşı ürünü
+küçültüyordu.**
+
+**Mihenk** — "mihenk taşı", kalitenin kendisiyle karşılaştırıldığı ölçüt.
+Ölçme ve değerlendirmenin tam karşılığı, tek kelime, Türkçe kök.
+
+Alt başlık artık ürünün tezi: **"Yapay zekâ önerir, öğretmen karar verir."**
+
+Değişen yüzeyler: `index.html` (title, marka, alt başlık) · `mimari.html` ·
+`404.html` · `privacy-policy.html` · `README.md` · `wrangler.jsonc` ×2 ·
+`src/index.ts` (`/api/health`). Eski ad hiçbir yerde kalmadı (tarandı).
+
+### 22b. Kullanıcının bildirdiği dört arayüz sorunu
+
+| # | Sorun | Kök neden ve çözüm |
+|---|---|---|
+| 1 | Ders açılır listesinde "sadece Matematik çıkıyor", görünüm kötü | Alan serbest metin girişi + `<datalist>`'ti. Yazdıkça liste filtreleniyordu (o yüzden tek seçenek görünüyordu) ve datalist açılır listesi **tarayıcının kendi çizimi**, biçimlendirilemiyor. → `<select>` |
+| 2 | 8. sınıf seçilince 7. sınıf kazanımı kalıyor ve uyarı çıkıyor | `outcomeSeciminiTazele()` uyan kazanım yoksa `return` ediyordu; **uymayan kazanım seçili kalıyordu.** Sistem kendi bıraktığı tutarsızlığı kullanıcıya hata gibi gösteriyordu. → seçim boşaltılıyor, uyarı yerine "ne yapmalı" notu |
+| 3 | Kapsam çok geniş | Sınıflar 1-12 → **5-8**; dersler 5 → **3** (Türkçe, Matematik, Fen). Katalogu olmayan sınıf/ders listelemek öğretmene karşılığı olmayan seçim sunmaktır |
+| 4 | Kazanım okunamıyor | Dört alan eşit bölünüyordu; iki ikon + "Katalog" düğmesinden sonra metne ~150 px kalıyordu. → kendi tam satırına alındı: **150 → 700 px** (mobilde düğmeler alt satıra: 149 → 297 px) |
+
+### 22c. Sağ üst ve sınav kurma ekranı
+
+**Model durumu:** `@cf/meta/llama-3.3-70b-instruct-fp8-fast` düz metin
+yazıyordu — 38 karakterlik teknik gürültü. Artık tıklanabilir tek çip:
+kapalı `● Gerçek model · Llama 3.3 70B` (212 px), açık hâlde sağlayıcı, **tam
+model kimliği**, yedek durumu ve *"yedek devreye girerse burada ve yanıtta
+açıkça yazar; sessiz geçiş yoktur"* notu.
+
+`modelKisaAd()` sabit eşleme tablosu KULLANMAZ — sağlayıcılar model adlarını
+sık değiştiriyor, tablo bayatlar. Kimlik biçimsel olarak sadeleştirilir,
+tanınmayan ad olduğu gibi gösterilir.
+
+**Sınav Oluştur:** havuz boşken bile üç filtre açılır listesi duruyordu
+(2 onaylı sorudan az varsa artık hiç çizilmiyor) · boş durum ne yapılacağını
+söylüyor ama **oraya götürmüyordu** — artık "İçerik Uzmanı paneline git"
+düğmesi var.
+
+### 22d. ★ GERÇEK MÜFREDAT — 606 öğrenme çıktısı
+
+Kullanıcı üç resmî MEB Maarif Modeli PDF'i sağladı (Türkçe, Matematik, Fen
+5-8). **Kazanımlar uydurulmadı**, betikle çıkarıldı: `tools/mufredat-cikar.py`
+ve `tools/mufredat-katalog-uret.py` (ikisi de depoda, tekrar koşulabilir).
+
+| Ders | 5 | 6 | 7 | 8 | Toplam |
+|---|---:|---:|---:|---:|---:|
+| Türkçe | 80 | 91 | 96 | 98 | **365** |
+| Fen Bilimleri | 27 | 36 | 35 | 43 | **141** |
+| Matematik | 23 | 24 | 30 | 23 | **100** |
+| | | | | | **606** |
+
+#### Çözülen dört tuzak
+
+1. **Satır sonu tiresi** — `değer -\nlendirir` → `değerlendirir`
+2. **Kod satır başında olmayabilir** — Matematik'te tablo başlığı aynı satıra
+   düşüyor: `ÖĞRENME ÇIKTILARI\nVE SÜREÇ BİLEŞENLERİ MAT.5.1.3. Gerçek…`
+   Satır başı şartı kaldırılınca **84 → 100** kazanım.
+3. **Aynı kod birden fazla yerde** — "Öğrenme-Öğretme Uygulamaları"
+   bölümünde kodun ardından **pedagojik not** var, kazanım değil. "İlk geçen
+   kazanır" yanlıştı; tüm adaylar toplanıp puanlanıyor.
+4. **`\bbilme` eşleşmiyordu** — "kullanabilme" içinde "bilme"den önce kelime
+   sınırı yoktur. Doğrusu: "bilme" ile BİTEN kelime ara.
+
+Türkçe ayrıca çok sütunlu tablo yapısında; kod üç bağlamda geçiyor
+(çok sınıflı tablo satırı · sınıf bazlı özet liste · anlatı içi atıf).
+**Sınıf bazlı özet listeler** kaynak alındı.
+
+#### 🎯 Doğrulama — bağımsız referansa karşı
+
+Depoda zaten **ayrı bir oturumda elle doğrulanmış** `turkce-7.json` vardı
+(96 kayıt, §12b). Yeni çıkarım aynı 96 kodu buldu ve **96/96 BİREBİR AYNI**
+metni üretti — eksik yok, fazla yok. Yöntemin doğruluğunun kanıtı budur.
+
+**Uygunluk sınıflandırması** (yazili/performans/surec) ürünün kendi katkısıdır
+(§12c) ve her katalog dosyasında böyle yazar. Kural uydurulmadı, doğrulanmış
+kataloğun kendisinden TÜRETİLDİ ve aynı 96 kaydı **0 uyuşmazlıkla** yeniden
+ürettiği sınandı.
+
+### 22e. "Konu ve Kazanım" — ayrı alan AÇILMADI
+
+Kullanıcı "kazanım kısmını Konu ve Kazanım yapmak daha mı mantıklı" diye sordu
+ve kararı asistana bıraktı.
+
+**Karar: etiket "Konu ve Kazanım" oldu ama ikinci bir seçici açılmadı.**
+
+Gerekçe: konu bağımsız bir seçim değil — her kazanım tam olarak bir konuya
+ait. Ayrı alan olsaydı **§14a'daki ders/sınıf/kazanım uyuşmazlığının aynısı
+konu düzeyinde tekrarlanırdı** (öğretmen "Kesirler" seçip "Geometri" kazanımı
+seçebilirdi). Ayrıca kullanıcı bir önceki turda ekranı sadeleştirmeyi
+istemişti; ikinci alan buna ters.
+
+Konu, seçicinin **içinde başlık** (`optgroup`) olarak görünüyor. Gruplama her
+dersin kendi yapısını izler:
+
+| Ders | Gruplama | Sebep |
+|---|---|---|
+| Fen · Matematik | **Ünite** (`3. Ünite · CANLILARIN YAPISINA YOLCULUK`) | Ünite numarası kodun içinde: `FB.5.**3**.2` |
+| Türkçe | **Beceri alanı** (Okuma/Yazma/Dinleme/Konuşma) | **Kodda ünite YOKTUR.** Temalar kazanımlara diktir — aynı okuma kazanımı "Oyun Dünyası"nda da "Gelenekler"de de çalışılır. Tema dayatmak müfredatta olmayan yapı uydurmak olurdu |
+
+**Ünite adları sıra numarasına göre TAHMİN EDİLMEDİ:** her kazanım kodunun
+metindeki konumu, kendisinden önceki en yakın ünite başlığıyla eşlendi. Sonra
+tutarlılık sınandı — *aynı (sınıf, ünite) numarasındaki tüm kodlar aynı adı
+aldı mı?* Fen **0 tutarsızlık**. Matematik'te 4 grup tutarsızdı; sebep hata
+değildi — müfredat `SAYILAR VE NİCELİKLER (1)` ve `(2)` diye aynı temayı iki
+parçada veriyor. Parça numarası normalleştirilince **0**.
+
+Başlıklar müfredattaki **BÜYÜK HARF** hâliyle bırakıldı: Türkçe küçük harf
+dönüşümü denendi ve `ELEKTRİĞİN İLETİMİ` → `Elektriğin I` diye bozdu
+(İ/I/ı/i tuzağı). Yeni hata üretmektense resmî hâli korumak doğru.
+
+### 22f. Ürüne bağlama — kritik tasarım kararı
+
+Katalog **`OUTCOMES_LIST()`'e KARIŞTIRILMADI.**
+
+Sebep: o liste **ısı haritasının sütunlarını** üretiyor. Katalog oraya
+dökülseydi 8. sınıf Türkçe'de **98 sütunlu, kullanılamaz** bir tablo çıkardı.
+
+Bunun yerine katalog yalnızca soru üretim seçicisinde görünür; öğretmen bir
+kazanım seçtiği anda o kazanım `state.outcomes`'a taşınır ve **ancak o zaman**
+ısı haritasına, filtrelere ve analitiğe girer. Yani "okulun çalıştığı
+kazanımlar" listesi kullanıldıkça büyür, baştan 606 kayıtla dolmaz.
+
+Doğrulandı: seçim sonrası ısı haritası **5 sütunda kaldı**.
+
+Varsayılan olarak yalnızca **`yazili`** kazanımlar listelenir (Türkçe 7'de
+96'nın 39'u) — konuşma kazanımı çoktan seçmeli soruyla ölçülemez.
+"Tümünü göster" hepsini getirir.
+
+### 22g. 🔴 Açılışta uyumsuz seçim düzelmiyordu
+
+Kullanıcının ekran görüntüsünde: ders **Türkçe**, sınıf **7**, seçili kazanım
+**`FEN.7.1.2 (başka ders/sınıf)`**.
+
+Kök neden: `outcomeSeciminiTazele()` yalnızca ders/sınıf **DEĞİŞİNCE**
+çağrılıyordu. `localStorage`'dan uyumsuz bir seçim gelirse hiç düzeltilmiyordu.
+**Kullanıcı seçimi kendisi bozmadı** — eski durum öyle kalmıştı.
+
+Düzeltme: açılışta `loadState()` ve `ensureOutcomeMeta()` sonrasında da
+çağrılıyor. `localStorage`'a bilerek uyumsuz durum yazılarak doğrulandı:
+açılışta seçim temizlendi, uyuşmazlık uyarısı ve "(başka ders/sınıf)" etiketi
+görünmedi.
+
+> **Not:** Aynı ekran görüntüsünde katalogda görünen
+> `<img src=x onerror=…>` satırı **ürün hatası değildi** — asistanın tarayıcı
+> panelindeki XSS testinin artığıydı (`state.katalog` kalıcı değildir).
+> Üstelik payload orada **metin olarak** duruyordu, yani kaçırma savunması
+> çalışıyordu.
+
+### 22h. Doğrulama özeti
+
+| Kontrol | Sonuç |
+|---|---|
+| Katalog yükleme (12 kombinasyon) | ✅ ders/sınıf değişince kendiliğinden |
+| Ünite sırası | ✅ Fen 5: 1→7 doğru |
+| Seçim kalıcı listeye taşınıyor | ✅ tekrar seçim çoğaltmıyor |
+| **Isı haritası** | ✅ 5 sütun, patlamadı |
+| **XSS** (katalog metni + grup adı) | ✅ enjekte 0, tetiklenme 0 |
+| 4 rol × tüm sekmeler | ✅ render 0 · label 0 · adsız düğme 0 · 24×24 altı 0 |
+| Mobil 375 px | ✅ taşma 0 |
+| Statik | ✅ lint temiz · **98/98** · öz-kontrol **154 ad** |
+| Canlı | ✅ 12 katalog dosyası 200 |
