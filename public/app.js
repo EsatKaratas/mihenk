@@ -737,7 +737,9 @@ function kazanimSecenekleriHtml() {
       });
   return gosterilecek.map(function (o) {
     const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
-    return '<option value="' + o.code + '" ' +
+    // value özniteliği de kaçırılmalı: kod serbest metindir ve tırnak içeren
+    // bir kod özniteliği kapatıp kendi HTML'ini yazabilirdi.
+    return '<option value="' + escapeHtml(o.code) + '" ' +
       (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' +
       escapeHtml(o.label) + (uyar ? "" : "  (başka ders/sınıf)") + "</option>";
   }).join("");
@@ -1484,7 +1486,7 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
     bloomPill(q.bloom) +
-    '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     kaynakBlokHtml(q, "review") +
@@ -1643,7 +1645,7 @@ function cePoolHtml() {
       return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
         '<span class="pill pill-success">Onaylı</span></div></div>' +
         '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
@@ -1861,7 +1863,7 @@ function rejectedPoolHtml(mod) {
           return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
             '<div class="p-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
             '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
-            '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+            '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
             '<span class="pill pill-critical">Reddedildi</span></div></div>' +
             '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">' +
             btn.replace(/QID/g, q.id) +
@@ -2361,7 +2363,7 @@ function poolEditHtml(q) {
     }).join("") + '</select></div>' +
     '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
     OUTCOMES_LIST().map(function (o) {
-      return '<option value="' + o.code + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
+      return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Süre (sn)</label>' +
     '<input type="number" class="pe-time" data-qid="' + q.id + '" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
@@ -2404,7 +2406,7 @@ function teacherTab1Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -2907,7 +2909,7 @@ function evalCardHtml(q, student, ev) {
   if (!ev) return "";
   return '<div class="eval-card" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
     '<div class="q-meta">' + studentChip(student) +
-    '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
     '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
@@ -2934,7 +2936,7 @@ function evalFailedCardHtml(q, student, ans, ev, rub) {
   return '<div class="eval-card eval-failed" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
     '<div class="q-meta">' + studentChip(student) +
     '<span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
-    '<span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
     '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
@@ -2955,7 +2957,7 @@ function doneCardHtml(q, student, ev, rv) {
   const rub = state.rubrics[q.id];
   return '<div class="eval-card" style="opacity:0.75;">' +
     '<div class="q-meta">' + studentChip(student) +
-    '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + q.outcome + '</span></div>' +
+    '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
     '<div style="margin-top:8px;font-size:13px;">' +
     'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
@@ -3087,8 +3089,8 @@ function teacherTab3Html() {
         return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
           '<div class="p-tags"><span class="pill ' + (oran >= 60 ? "pill-success" : oran >= 40 ? "pill-warning" : "pill-critical") + '">%' + oran + ' doğru</span>' +
           '<span class="pill pill-neutral">' + dogruSayisi + '/' + gonderenler.length + ' öğrenci</span>' +
-          '<span class="pill pill-neutral">Doğru şık: ' + q.correctKey + '</span>' +
-          '<span class="pill pill-neutral">' + q.outcome + '</span></div></div></div>';
+          '<span class="pill pill-neutral">Doğru şık: ' + escapeHtml(q.correctKey) + '</span>' +
+          '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div></div></div>';
       }).join("") + '</div>'
     : "";
 
@@ -3455,7 +3457,9 @@ function itemAnalysisHtml() {
       const dogruMu = key === m.q.correctKey;
       const oran = a.n ? Math.round(say / a.n * 100) : 0;
       const ek = dogruMu ? " ia-opt-correct" : (!say ? " ia-opt-dead" : "");
-      return '<span class="ia-opt' + ek + '">' + key + ": " + say +
+      // Şık harfi sunucuda A-D'ye normalleştiriliyor ama tarayıcıdaki
+      // durum elle de düzenlenebiliyor; kaçırmamak maliyetsiz.
+      return '<span class="ia-opt' + ek + '">' + escapeHtml(key) + ": " + say +
         ' <span class="ia-opt-pct">(%' + oran + ")</span>" + (dogruMu ? " &#10003;" : "") + "</span>";
     }).join("");
 
@@ -3470,7 +3474,7 @@ function itemAnalysisHtml() {
       '<div class="ia-opts">' + sikDagilimi +
         (m.bos ? '<span class="ia-opt">boş: ' + m.bos + "</span>" : "") + "</div>" +
       (m.islevsiz.length
-        ? '<div class="ia-note">İşlevsiz çeldirici: <b>' + m.islevsiz.join(", ") +
+        ? '<div class="ia-note">İşlevsiz çeldirici: <b>' + m.islevsiz.map(escapeHtml).join(", ") +
           "</b> - hiçbir öğrenci seçmedi, bu şık soruyu zorlaştırmıyor. Daha inandırıcı bir çeldiriciyle değiştirmeyi düşünün.</div>"
         : "") +
       "</div>";
@@ -4094,7 +4098,7 @@ function studentTab3Html() {
       }
       totalScore += res.correct ? 1 : 0; totalMax += 1;
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="' + (res.correct ? "pill pill-success" : "pill pill-critical") + '">' + (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
-        '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + (a.selectedKey || "—") + " · Doğru cevap: " + q.correctKey + '</div></div>';
+        '<div style="font-size:12.5px;color:var(--text-muted);">Yanıtınız: ' + escapeHtml(a.selectedKey || "—") + " · Doğru cevap: " + escapeHtml(q.correctKey) + '</div></div>';
     } else {
       const rv = state.reviews[q.id], rub = state.rubrics[q.id], ev = state.aiEvals[q.id];
       // SAVUNMA: onay ya da rubrik kaydı yoksa çökmek yerine durumu söyle.
@@ -4184,7 +4188,10 @@ function renderHeatmap(targetId, rows) {
   if (!el) return;
   const cols = OUTCOMES_LIST();
   el.innerHTML = '<div class="heatmap-wrap"><table class="heatmap"><tr><th></th>' +
-    cols.map(function (c) { return "<th>" + c.code + "</th>"; }).join("") + "</tr>" +
+    // GÜVENLİK: kazanım KODU da kullanıcı girdisidir. "+ Yeni kazanım tanımla"
+    // formundaki kod alanı serbest metindir; sabit bir kalıp (MAT.7.2.1)
+    // varsaymak yanlıştı. Etiketler kaçırılıyordu ama kodlar kaçırılmıyordu.
+    cols.map(function (c) { return "<th>" + escapeHtml(c.code) + "</th>"; }).join("") + "</tr>" +
     rows.map(function (r) {
       return "<tr><th class=\"outcome-col\">" + escapeHtml(r.name) + "</th>" + cols.map(function (c) {
         const v = r.scores[c.code];
@@ -4200,7 +4207,7 @@ function renderHeatmap(targetId, rows) {
     '"(örnek)" etiketli satırlar karşılaştırma amaçlı demo verileridir.</span></div>';
   el.querySelectorAll(".hm-cell[data-val]").forEach(bestTextColor);
   const low = [];
-  rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(r.name + " · " + c.code); }); });
+  rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code)); }); });
   if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
 
   /* ============ KAPALI DÖNGÜ ============
@@ -4222,9 +4229,9 @@ function renderHeatmap(targetId, rows) {
       '<div class="rb-desc">Aşağıdaki butonlar sizi, ilgili kazanım seçili hâlde soru üretim ekranına götürür. ' +
       'Böylece analizden doğrudan yeni ölçme aracına geçebilirsiniz.</div>' +
       zayif.slice(0, 4).map(function (z) {
-        return '<button class="btn btn-secondary btn-sm remedial-btn" data-kod="' + z.kod + '" data-sinif="' +
+        return '<button class="btn btn-secondary btn-sm remedial-btn" data-kod="' + escapeHtml(z.kod) + '" data-sinif="' +
           escapeHtml(z.sinif) + '" data-deger="' + z.deger + '">' +
-          escapeHtml(z.sinif) + ' · ' + z.kod + ' (%' + z.deger + ') → tekrar sorusu üret</button>';
+          escapeHtml(z.sinif) + ' · ' + escapeHtml(z.kod) + ' (%' + z.deger + ') → tekrar sorusu üret</button>';
       }).join("") + '</div>');
     el.querySelectorAll(".remedial-btn").forEach(function (b) {
       b.onclick = function () {
@@ -4526,8 +4533,11 @@ function katalogModalHtml(k, hata) {
     ? satirlar.map(function (x) {
         const u = UYGUNLUK_ETIKET[x.uygunluk];
         return '<label class="kat-satir' + (x.ekli ? " kat-ekli" : "") + '">' +
-          '<input type="checkbox" class="kat-sec" value="' + x.kod + '"' + (x.ekli ? " disabled checked" : "") + ">" +
-          '<span class="kat-icerik"><span class="kat-kod">' + x.kod + "</span>" +
+          // Katalog şu an depodaki kendi JSON'umuzdan geliyor, ama §5.3-4
+          // başka dersler için katalog eklemeyi planlıyor; kaynağın her zaman
+          // bizim olacağını varsaymak yanlış olur.
+          '<input type="checkbox" class="kat-sec" value="' + escapeHtml(x.kod) + '"' + (x.ekli ? " disabled checked" : "") + ">" +
+          '<span class="kat-icerik"><span class="kat-kod">' + escapeHtml(x.kod) + "</span>" +
           '<span class="kat-metin">' + escapeHtml(x.metin) + "</span>" +
           '<span class="kat-etiketler"><span class="pill pill-neutral">' + escapeHtml(x.alan) + "</span>" +
           '<span class="pill ' + u.sinif + '">' + u.ad + "</span>" +
