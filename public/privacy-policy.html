@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,18 +11,18 @@
   :root {
     --bg: #eef1f7;
     --surface: #ffffff;
-    --surface-2: #e3e8f2;
-    --text: #10141f;
-    --text-muted: #565f76;
-    --border: #d3d9e5;
-    --border-strong: #b7c0d4;
+    --surface-2: #e2e8f2;
+    --text: #131a26;
+    --text-muted: #505a6b;
+    --border: #dde3ed;
+    --border-strong: #b9c2d4;
     --accent: #2e4c8a;
     --accent-strong: #1f3766;
-    --accent-soft: #dbe4f7;
-    --accent2: #b5631a;
-    --accent2-soft: #f3e0c8;
-    --success: #266b45;
-    --success-soft: #dcf0e5;
+    --accent-soft: #dee7f7;
+    --accent2: #9e5514;
+    --accent2-soft: #f6e7d3;
+    --success: #256b44;
+    --success-soft: #deefe4;
     --shadow: 0 1px 2px rgba(20,30,60,0.06), 0 8px 24px rgba(20,30,60,0.05);
     color-scheme: light;
   }
@@ -357,14 +357,8 @@ app.get("/gizlilik-politikasi", (c) => c.html(PRIVACY_POLICY_HTML));
   </main>
 </div>
 
-<script>
-  try {
-    var cb = document.getElementById('policyConsent');
-    var btn = document.querySelector('.consent-preview button');
-    if (cb && btn) {
-      cb.addEventListener('change', function () { btn.disabled = !cb.checked; });
-    }
-  } catch (e) {}
-</script>
+  <!-- Inline betik CSP tarafindan engelleniyordu (PROGRESS §14e ile ayni hata);
+       harici dosyaya tasindi. -->
+  <script src="privacy-policy.js"></script>
 </body>
 </html>

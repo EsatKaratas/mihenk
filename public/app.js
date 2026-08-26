@@ -918,11 +918,9 @@ function kazanimSecenekleriHtml() {
         return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) ||
                o.code === state.ceForm.outcomeCode;
       });
-  // Seçim boşsa (bu ders/sınıf için kazanım yok) açık bir yer tutucu göster;
-  // <select> boş görünüp kullanıcıyı "bir şey seçili sandım"a düşürmesin.
-  const yerTutucu = state.ceForm.outcomeCode
-    ? ""
-    : '<option value="" selected>— bu ders/sınıf için kazanım seçilmedi —</option>';
+  // Yer tutucu AŞAĞIDA hesaplanır: metni, seçilebilir kazanım olup olmamasına
+  // göre değişir ve bunu bilmek için katalog listesinin de hesaplanmış olması
+  // gerekir.
   const secenek = function (o, uyarEtiketi) {
     const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
     // value özniteliği de kaçırılmalı: kod serbest metindir ve tırnak içeren
@@ -970,6 +968,18 @@ function kazanimSecenekleriHtml() {
     konuGruplari[g].push(o);
   });
 
+  /* Yer tutucu — seçim boşken <select>'te görünen satır.
+     Metin DURUMA GÖRE değişir (kullanıcı isteği): eskiden her hâlükârda
+     "— bu ders/sınıf için kazanım seçilmedi —" yazıyordu; bu hem soğuk bir
+     ifadeydi hem de seçilecek 39 kazanım varken sanki hiç yokmuş gibi
+     okunuyordu. Artık seçenek varsa DAVET eder, gerçekten yoksa durumu söyler. */
+  const secilebilirVar = gosterilecek.length + katalog.length > 0;
+  const yerTutucu = state.ceForm.outcomeCode
+    ? ""
+    : '<option value="" selected>' +
+      (secilebilirVar ? "Bir kazanım seçin…" : "— bu ders/sınıf için kazanım yok —") +
+      "</option>";
+
   return yerTutucu +
     (katalog.length
       ? grupla("Eklenen kazanımlar", gosterilecek, true) +
@@ -977,33 +987,87 @@ function kazanimSecenekleriHtml() {
       : gosterilecek.map(function (o) { return secenek(o, true); }).join(""));
 }
 
-/** Kazanım seçicisinin altındaki bilgi satırı. */
+/**
+ * Kazanım seçicisinin altındaki bilgi satırı.
+ *
+ * 🔴 DÜZELTİLEN HATA: Bu satır SEÇİCİYİ YALANLIYORDU. Ölçüldü — Türkçe 7'de
+ * seçicide 39 gerçek MEB kazanımı listeliyken (T.O.7.3 … T.Y.7.19) hemen
+ * altında "0 kazanım · bu ders ve sınıf için henüz kazanım tanımlı değil.
+ * Katalog düğmesiyle MEB müfredatından ekleyin." yazıyordu. 12 ders/sınıf
+ * kombinasyonundan 10'unda çıkıyordu; varsayılan açılış (Türkçe · 7) de
+ * bunlardan biriydi, yani ürünü ilk açan herkes bu çelişkiyi görüyordu.
+ * Kalan 2 kombinasyonda da sayı yanlıştı (seçicide 31, satırda "2 kazanım").
+ *
+ * Kök neden: sayı `uygunKazanimlar()`'dan geliyordu; o yalnızca
+ * `OUTCOMES_LIST()`'i (okula EKLENMİŞ kazanımları) süzer ve KATALOĞA hiç
+ * bakmaz. Oysa `kazanimSecenekleriHtml()` kataloğu da listeler. İki fonksiyon
+ * "neyin seçilebilir olduğu" konusunda anlaşmıyordu.
+ *
+ * Çözüm: sayı, seçicinin uyguladığı filtrenin BİREBİR AYNISIYLA hesaplanır.
+ * Bu bir yanlış beyandı; §4.1-7'de aynı sınıftan bir yanlış beyan
+ * ("AI önerisi onaylandı" denmesi) zaten düzeltilmişti.
+ */
 function kazanimNotuHtml() {
   const hepsi = OUTCOMES_LIST();
   const uygun = uygunKazanimlar();
   const gizli = hepsi.length - uygun.length;
-  const bas = '<span class="field-note">' + uygun.length + " kazanım · <b>" +
-    escapeHtml(state.ceForm.subject) + " · " + state.ceForm.grade + ". sınıf</b>";
-  // Bu ders/sınıf için hiç kazanım yoksa öğretmeni yönlendir: aksi halde
-  // "0 kazanım" yazısıyla baş başa kalır ve ne yapacağını bilemez.
-  if (!uygun.length) {
+
+  /* Seçicide GERÇEKTEN listelenenler. Aşağıdaki iki filtre
+     `kazanimSecenekleriHtml()` ile birebir aynıdır; ayrışırlarsa bu satır
+     yeniden seçiciyi yalanlamaya başlar. */
+  const gosterilenEklenmis = state.ceForm.showAllOutcomes
+    ? hepsi.length
+    : hepsi.filter(function (o) {
+        return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) ||
+               o.code === state.ceForm.outcomeCode;
+      }).length;
+  const eklenmisKodlar = {};
+  hepsi.forEach(function (o) { eklenmisKodlar[o.code] = true; });
+  const katalogSecilebilir = katalogKazanimlari().filter(function (o) {
+    if (eklenmisKodlar[o.code]) return false;
+    return state.ceForm.showAllOutcomes || o.uygunluk === "yazili";
+  }).length;
+  const secilebilir = gosterilenEklenmis + katalogSecilebilir;
+
+  const dersSinif = "<b>" + escapeHtml(state.ceForm.subject) + " · " +
+    state.ceForm.grade + ". sınıf</b>";
+
+  /* Sayı eki bilinçli olarak "tanesi" ile kuruldu. Türkçede ek sayının
+     OKUNUŞUNA göre değişir ("39'u" ama "23'ü", "%100'ünü"); sabit bir ek her
+     değerde doğru olamaz (§6.3-14 Türkçe ek tuzağı). "tanesi" her sayıda
+     doğrudur. */
+  const tumunuGoster = gizli
+    ? ' <button type="button" class="oc-link" id="ceShowAllOutcomes">' +
+      (state.ceForm.showAllOutcomes
+        ? "yalnızca bu ders/sınıfı göster"
+        : "başka ders/sınıfa ait " + gizli + " kazanım gizlendi — tümünü göster") +
+      "</button>"
+    : "";
+
+  // GERÇEKTEN hiç seçenek yok: öğretmeni yönlendir, yoksa "0 kazanım"
+  // yazısıyla baş başa kalır ve ne yapacağını bilemez.
+  if (!secilebilir) {
     const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
-    return bas + " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
+    return '<span class="field-note">0 kazanım · ' + dersSinif +
+      " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
       (katalogVar
         ? "<b>Katalog</b> düğmesiyle MEB müfredatından ekleyin."
         : "<b>+</b> düğmesiyle elle tanımlayın (bu ders/sınıf için hazır katalog yok).") +
-      (gizli ? ' <button type="button" class="oc-link" id="ceShowAllOutcomes">başka ders/sınıfa ait ' +
-        gizli + " kazanımı göster</button>" : "") + "</span>";
+      tumunuGoster + "</span>";
   }
-  if (!gizli) {
-    return bas + " · <b>Katalog</b> ile MEB müfredatından ekleyin, + ile elle tanımlayın</span>";
+
+  var satir = '<span class="field-note">' + secilebilir + " kazanım seçilebilir · " + dersSinif;
+  if (katalogSecilebilir === secilebilir) {
+    // Hepsi katalogdan geliyor: sayıyı iki kez yazmayalım.
+    satir += " · <b>tümü MEB öğretim programından</b>; seçtiğiniz kazanım " +
+      "okulun listesine eklenir";
+  } else if (katalogSecilebilir) {
+    satir += " · <b>" + katalogSecilebilir + " tanesi</b> MEB öğretim programından; " +
+      "seçtiğiniz kazanım okulun listesine eklenir";
+  } else {
+    satir += " · <b>Katalog</b> ile MEB müfredatından ekleyin, <b>+</b> ile elle tanımlayın";
   }
-  return bas + " · " +
-    '<button type="button" class="oc-link" id="ceShowAllOutcomes">' +
-    (state.ceForm.showAllOutcomes
-      ? "yalnızca bu ders/sınıfı göster"
-      : "başka ders/sınıfa ait " + gizli + " kazanım gizlendi — tümünü göster") +
-    "</button></span>";
+  return satir + tumunuGoster + "</span>";
 }
 
 /** Seçili kazanım ile ders/sınıf uyuşmazlığı varsa açıklama üretir. */
@@ -1593,9 +1657,16 @@ function auditGunluguHtml() {
     "</div>" +
 
     (yuzde != null
-      ? '<div class="au-oran">Öğretmen, yapay zekâ puan önerilerinin <b>%' + yuzde +
-        "</b>'ini değiştirdi. Bu oran sıfırsa insan onayı biçimsel kalıyor demektir; " +
-        "çok yüksekse modelin rubriğe uyumu gözden geçirilmelidir.</div>"
+      /* Cümle, sayı eki ALMAYACAK biçimde kuruldu. Eski hâli sabit "'ini" eki
+         kullanıyordu ve ekranda "%0'ini değiştirdi" yazıyordu — doğrusu
+         "%0'ını". Türkçede ek sayının okunuşuna göre değişir: %50'sini,
+         %100'ünü, %33'ünü… Sabit ek çoğu değerde yanlış olur (§6.3-14).
+         §7e'de aynı sınıf hata ("Sınıfın %67'i doğru") yine cümle yeniden
+         kurularak çözülmüştü. Bu satır §21c'de "özetin en değerli satırı"
+         diye geçiyor, yani jüriye gösterilecek cümle. */
+      ? '<div class="au-oran">Öğretmen, yapay zekâ puan önerilerinde <b>%' + yuzde +
+        "</b> oranında değişiklik yaptı. Bu oran sıfırsa insan onayı biçimsel " +
+        "kalıyor demektir; çok yüksekse modelin rubriğe uyumu gözden geçirilmelidir.</div>"
       : "") +
 
     (modelListesi ? '<div class="au-modeller">Kullanılan modeller: ' + modelListesi + "</div>" : "") +
@@ -4760,12 +4831,25 @@ function relLuminance(r, g, b) {
   const a = [r, g, b].map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
   return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
 }
+/* Isı haritası hücresinin metin rengini, hücrenin GERÇEK hesaplanmış zemin
+   parlaklığından seçer — böylece palet değişse de kendiliğinden uyar.
+
+   ÖLÇÜLEN HATA (düzeltildi): eşik 0,42 idi ve yanlış yerdeydi. `--seq-4`
+   (#6a86cf, L=0,246) eşiğin altında kalıp AÇIK metin alıyordu; kontrast
+   yalnızca 3,31:1 çıkıyordu — WCAG AA eşiği 4,5:1. Aynı hücrede KOYU metin
+   4,95:1 veriyor, yani doğru seçim koyuydu.
+
+   Doğru eşik tahmin edilmedi, hesaplandı: iki metin renginin kontrastı
+   L_zemin = sqrt((L_koyu+0,05)(L_acik+0,05)) - 0,05 noktasında eşitlenir;
+   bu palet için 0,195. Bu değerde her hücre iki seçenekten YÜKSEK kontrastlı
+   olanı alır (ölçüldü: seq-3 8,29:1 · seq-4 4,95:1 · seq-5 7,78:1). */
+const METIN_ESIGI = 0.195;
 function bestTextColor(el) {
   const bg = getComputedStyle(el).backgroundColor;
   const m = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
   if (!m) return;
   const L = relLuminance(+m[1], +m[2], +m[3]);
-  el.style.color = L > 0.42 ? "#10141f" : "#f5f7fb";
+  el.style.color = L > METIN_ESIGI ? "#1b1915" : "#f5f7fb";
 }
 function scaleStep(pct) { if (pct >= 85) return 5; if (pct >= 70) return 4; if (pct >= 55) return 3; if (pct >= 40) return 2; return 1; }
 
@@ -4886,8 +4970,18 @@ function renderAdmin() {
 
     '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası</h3><span class="hint">satır: sınıf, sütun: kazanım</span></div>' +
     '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
+    /* 🔴 DÜZELTİLEN YANLIŞ BEYAN (kullanıcı bildirdi): burada
+       "Koyu renk = düşük başarı, açık renk = yüksek başarı" yazıyordu —
+       TERSİ doğru. Kanıt kodun kendisinde:
+         · scaleStep(): 85+ -> 5, <40 -> 1  (yüksek yüzde = yüksek adım)
+         · hücre zemini var(--seq-<adım>); --seq-1 en AÇIK, --seq-5 en KOYU
+         · efsane de "Düşük [açık…koyu] Yüksek başarı" diyor
+       Yani hem hücreler hem efsane doğruydu, yalnızca bu cümle ters yazılmıştı
+       ve ikisiyle de çelişiyordu. Jüri bu cümleyi okusaydı en KOYU hücreleri
+       (yani en başarılı sınıfları) en başarısız sanardı — analitik ekranının
+       tamamı ters okunurdu. */
     'Her hücre, o sınıfın o kazanımdaki ortalama başarı yüzdesidir. ' +
-    '<b>Koyu renk = düşük başarı</b>, açık renk = yüksek başarı. ' +
+    '<b>Koyu renk = yüksek başarı</b>, açık renk = düşük başarı. ' +
     '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
     '<div id="adminHeatmap"></div></div>' + trendHtml();
 

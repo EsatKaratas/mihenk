@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,16 +12,16 @@
   :root {
     --bg: #eef1f7;
     --surface: #ffffff;
-    --text: #10141f;
-    --text-muted: #565f76;
-    --border: #d3d9e5;
-    --border-strong: #b7c0d4;
+    --text: #131a26;
+    --text-muted: #505a6b;
+    --border: #dde3ed;
+    --border-strong: #b9c2d4;
     --accent: #2e4c8a;
     --accent-strong: #1f3766;
-    --accent-soft: #dbe4f7;
-    --accent2: #b5631a;
-    --accent2-soft: #f3e0c8;
-    --critical: #ae3325;
+    --accent-soft: #dee7f7;
+    --accent2: #9e5514;
+    --accent2-soft: #f6e7d3;
+    --critical: #a82f21;
     --shadow: 0 1px 2px rgba(20,30,60,0.06), 0 8px 24px rgba(20,30,60,0.05);
     color-scheme: light;
   }
@@ -187,13 +187,9 @@
     <footer>Mihenk · T3 Vakfı Creathon — Ölçme ve Değerlendirme Sistemi</footer>
   </main>
 
-  <script>
-    // Gerçek Hono dağıtımında bu değeri sunucu tarafında doldurun (aşağıdaki not).
-    try {
-      var p = window.location && window.location.pathname;
-      if (p) document.getElementById('reqPath').textContent = p;
-    } catch (e) {}
-  </script>
+  <!-- Inline betik CSP tarafindan engelleniyordu (PROGRESS §14e ile ayni hata);
+       harici dosyaya tasindi. Boylece CSP gevsetilmeden calisir. -->
+  <script src="404.js"></script>
 
   <!--
     HONO ENTEGRASYONU

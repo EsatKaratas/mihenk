@@ -2602,3 +2602,92 @@ görünmedi.
 | Mobil 375 px | ✅ taşma 0 |
 | Statik | ✅ lint temiz · **98/98** · öz-kontrol **154 ad** |
 | Canlı | ✅ 12 katalog dosyası 200 |
+
+---
+
+## 23. LACİVERT TEMA + 7 DÜZELTME (26 Ağustos, gece — canlıya alındı)
+
+Kullanıcı görünüm değişikliği istedi; tur sırasında **yedi gerçek hata** çıktı.
+Hepsi ölçülerek bulundu, hiçbiri tahmin değil.
+
+### 23a. Tema: lacivert zemin + beyaz kutular
+
+Kullanıcının nihai kararı. Palet zaten token'lıydı ve açık tema `:root`
+varsayılanıydı; ürün yine de koyu görünüyordu çünkü `prefers-color-scheme: dark`
+bloğu işletim sistemi tercihine uyuyordu. **`data-theme="light"` dört sayfada da
+HTML'de sabitlendi** — jüri sunumunda hangi görünümün çıkacağı sunum yapılan
+bilgisayarın ayarına bırakılamaz. Koyu bloklar SİLİNMEDİ; öznitelik kaldırılırsa
+eski davranış geri döner.
+
+🔴 **Asıl mesele iki ayrı metin rengiydi.** Palet tek bir `--text` kullanıyordu
+çünkü hem zemin hem kartlar açıktı. Zemin laciverte dönünce bu varsayım çöker:
+doğrudan zemin üzerindeki yazılar (marka, boru hattı, alt bilgi) okunamaz hâle
+gelir. `--on-bg` / `--on-bg-muted` / `--on-bg-line` eklendi ve YALNIZCA zemin
+üstündeki öğelere uygulandı. `body` rengi bilinçli olarak koyu bırakıldı —
+kartlar onu miras alıyor.
+
+| Ölçüm | Değer |
+|---|---|
+| zemin `#173058` ↔ beyaz kart | 13,12:1 |
+| `--on-bg` lacivert üzerinde | 11,70:1 |
+| `--on-bg-muted` | 7,46:1 |
+| `--on-bg-line` (grafik eşiği 3,0) | 3,28:1 |
+| `--text` beyaz kart üzerinde | 17,45:1 |
+
+Sekmeler nötr griye alındı (`--neutral: #545a63`, beyaz metinle 8,23:1) ama
+DOLGU korundu — §7d'de alt çizgili yazıdan dolgulu segmente geçilmişti.
+Rozetler, rol kartları ve öğrenci çipleri lacivert kaldı.
+
+### 23b. Bulunan ve düzeltilen 7 hata
+
+| # | Hata | Nasıl bulundu |
+|---|---|---|
+| 1 | **Kazanım sayısı seçiciyi yalanlıyordu.** Türkçe 7'de seçicide 39 MEB kazanımı listeliyken altında "0 kazanım · henüz kazanım tanımlı değil" yazıyordu. 12 ders/sınıf kombinasyonunun **10'unda**, varsayılan açılış dâhil. Kök neden: `kazanimNotuHtml()` yalnızca `OUTCOMES_LIST()`'e bakıyor, `kazanimSecenekleriHtml()` ise kataloğu da listeliyordu | Elle kullanım |
+| 2 | **Isı haritası açıklaması TERSTİ.** "Koyu renk = düşük başarı" yazıyordu; oysa `scaleStep()` yüksek yüzdeye yüksek adım, `--seq-5` en koyu renk veriyor. Efsane de "Düşük→Yüksek" diyordu. Jüri en başarılı sınıfları en başarısız sanardı. Ölçüldü: %50 → parlaklık 0,681, %84 → 0,246 | Kullanıcı bildirdi |
+| 3 | **Isı haritası metin kontrastı AA altında.** `bestTextColor()` eşiği 0,42 idi ve yanlış yerdeydi; `--seq-4` açık metin alıp 3,31:1 veriyordu. Doğru eşik hesaplandı (iki rengin kontrastının eşitlendiği nokta): **0,195**. Sonuç: seq-4 4,95:1 | Kontrast taraması |
+| 4 | **404 sayfası hep yanlış yol gösteriyordu.** Gerçek yolu yazan betik inline olduğu için CSP tarafından bloklanıyordu; sabit `/bilinmeyen-sayfa` ekranda kalıyordu | Konsol ölçümü |
+| 5 | **Gizlilik sayfasındaki rıza kutusu çalışmıyordu.** Aynı sebep; düğme sonsuza dek pasif | Konsol ölçümü |
+| 6 | **`mimari.html` sayfayı yatay kaydırıyordu.** §14g'de eklenen "Dürüstlük notu" kutusu `inline-flex` + `nowrap` + `max-width` yokluğuyla 729 px'e büyüyordu. Ölçüldü: scrollWidth 1001 / viewport 953 = **48 px** | Taşma taraması |
+| 7 | **Türkçe ek hatası.** Karar günlüğü özeti "%0'ini değiştirdi" diyordu (doğrusu "%0'ını"). Sabit ek hiçbir sayıda güvenli değil: %50'sini, %100'ünü. Cümle ek almayacak biçimde yeniden kuruldu | Ekran incelemesi |
+
+**4 ve 5, §14e'nin tekrarıdır:** CSP güçlendirilirken mermaid yükleyicisi
+`mimari.js`'e taşınmıştı ama bu iki betik gözden kaçmıştı. Çözüm aynı:
+`public/404.js` ve `public/privacy-policy.js`. CSP gevşetilmedi.
+
+**Yan düzeltmeler (kullanıcı isteği):** kazanım seçicisi yer tutucusu
+"— bu ders/sınıf için kazanım seçilmedi —" → **"Bir kazanım seçin…"**
+(seçenek gerçekten yoksa "— bu ders/sınıf için kazanım yok —") ·
+havuzdaki soru gövdesi 13 px normal → **14,5 px / 600** (etiketler sorunun
+önüne geçiyordu; tek kural 5 listeyi birden besliyor) ·
+`.empty-state` artık **kendi zeminini taşıyor** — kapsayıcıya bağımlıydı ve
+kartsız kullanıldığı tek yerde lacivert üstünde 1,88:1'e düşüyordu
+(§6.3-2'deki `.opt-row` / `.cv-warn` hatasının aynısı).
+
+### 23c. Doğrulama (canlı, deploy sonrası)
+
+| Kontrol | Sonuç |
+|---|---|
+| `node --check` (4 js) · `tsc` · `vitest` · JSONC | geçerli · temiz · **98/98** · 2/2 |
+| Öz-kontrol (154 ad) | uyarı yok |
+| **Kontrast** — 545 öğe × 10 rol/sekme (masaüstü) | **0 ihlal** |
+| **Kontrast** — 525 öğe × 10 rol/sekme (canlı, 375 px) | **0 ihlal** |
+| 4 rol × 10 sekme | render **0** · konsol **0** · yatay taşma **0** |
+| Erişilebilirlik | bağsız label 0 · adsız düğme 0 · 24×24 altı 0 |
+| Isı haritası hücreleri | en düşük **4,95:1**; metin ↔ hücre ↔ efsane tutarlı |
+| `mimari` · `privacy-policy` · `404` | 560/130/10 öğe, kontrast 0, taşma 0 |
+| Canlı statik yollar (11) | hepsi 200 · bilinmeyen yol 404 |
+| Canlı gerçek model çağrısı | **HTTP 200, 11,2 sn**, 6/10, `fellBack: false` |
+
+### 23d. İki yanlış alarm (kayda geçirildi)
+
+- Tarama öğrenci şık radyolarını 18×18 diye işaretledi. **İhlal değil:** her
+  radyo `<label class="answer-opt">` içinde ve o etiket **871×54 px** — dokunma
+  hedefi tüm satır. Tarama yanlış öğeyi ölçmüştü.
+- `mimari.html`'in 48 px taşmasının mermaid tema değişikliğinden geldiği
+  sanıldı. **Değil:** SVG'ler `width="100%"` ve sınırlar içinde; diff'in
+  yalnızca renk satırlarından oluştuğu `git diff` ile kanıtlandı.
+
+### 23e. Bayat doküman notu
+
+`AKTARIM.md §2`, `mimari.html` için "4 mermaid diyagram" diyor. Sayfada **2**
+var ve ikisi de render ediliyor (§14e zaten "2 diyagram" diyor). Düzeltilmeli.

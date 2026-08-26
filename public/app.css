@@ -1,25 +1,75 @@
+  /* ==========================================================================
+     LACİVERT ZEMİN + BEYAZ KUTULAR — ürünün tek ve varsayılan görünümü.
+     (Kullanıcı kararı, nihai: "böyle bir lacivert rengini yapmanı istiyoruz,
+     son kararımız. kutular beyaz kalsın.")
+
+     NEDEN data-theme="light" index.html'de SABİTLENDİ:
+     Palet zaten token'lıydı ve açık tema `:root` varsayılanıydı; ürün yine de
+     koyu görünüyordu, çünkü aşağıdaki `prefers-color-scheme: dark` bloğu
+     işletim sisteminin tercihine uyuyordu. Jüri sunumunda hangi görünümün
+     çıkacağı sunum yapılan bilgisayarın ayarına bırakılamaz — provada
+     görülenle sahnede görülen aynı olmalıdır. Bu yüzden tema HTML'de
+     sabitlendi. Koyu blok SİLİNMEDİ: `data-theme` özniteliği kaldırılırsa
+     eski davranış aynen geri döner.
+
+     🔴 BURADAKİ ASIL MESELE — İKİ AYRI METİN RENGİ GEREKİYOR:
+     Palet başlangıçta tek bir `--text` kullanıyordu, çünkü zemin de kartlar da
+     AÇIKTI; aynı koyu metin ikisinde de okunuyordu. Zemin laciverte dönünce bu
+     varsayım çöker: doğrudan zemin üzerinde duran yazılar (marka adı, alt
+     başlık, boru hattı, alt bilgi) koyu kalırsa okunamaz hâle gelir.
+     Bu yüzden `--on-bg` / `--on-bg-muted` / `--on-bg-line` eklendi ve YALNIZCA
+     zemin üstünde duran öğelere uygulandı. `body` rengi bilinçli olarak koyu
+     (`--text`) BIRAKILDI: kartlar rengi ondan miras alıyor, tersini yapmak
+     onlarca kapsayıcıda tek tek düzeltme gerektirirdi.
+
+     KONTRAST ÖLÇÜLDÜ (tahmin edilmedi):
+       · zemin ↔ beyaz kart ayrımı        13,12:1  (kutular net ayrışıyor)
+       · --on-bg       lacivert üzerinde  11,70:1
+       · --on-bg-muted lacivert üzerinde   7,46:1
+       · --on-bg-line  lacivert üzerinde   3,28:1  (grafik eşiği 3,0)
+       · --text        beyaz kart üzerinde 17,45:1
+     accent2 ve warning koyu tutuldu: eski değerleri kendi -soft zeminlerinde
+     AA eşiğini geçmiyordu (ölçüldü: 3,42:1 ve 4,17:1 → 4,59 ve 5,00).
+     ========================================================================== */
   :root {
-    --bg: #eef1f7;
+    --bg: #173058;
     --surface: #ffffff;
-    --surface-2: #e3e8f2;
-    --surface-3: #d8dfec;
-    --text: #10141f;
-    --text-muted: #565f76;
-    --border: #d3d9e5;
-    --border-strong: #b7c0d4;
+    --surface-2: #eef1f7;
+    --surface-3: #e2e8f2;
+    --text: #131a26;
+    --text-muted: #505a6b;
+    --border: #dde3ed;
+    --border-strong: #b9c2d4;
+    /* Lacivert ZEMİN üzerinde kullanılacak renkler. Kartların içinde
+       KULLANILMAZ — orada --text / --text-muted geçerlidir. */
+    --on-bg: #eef2fa;
+    --on-bg-muted: #b6c4de;
+    --on-bg-line: #6b80a5;
     --accent: #2e4c8a;
     --accent-strong: #1f3766;
-    --accent-soft: #dbe4f7;
-    --accent2: #b5631a;
-    --accent2-soft: #f3e0c8;
-    --success: #266b45;
-    --success-soft: #dcf0e5;
-    --warning: #96631a;
-    --warning-soft: #f6e6c8;
-    --critical: #ae3325;
-    --critical-soft: #f7ddd6;
-    --shadow: 0 1px 2px rgba(20,30,60,0.07), 0 10px 28px rgba(20,30,60,0.07);
-    --seq-1: #eaf0fb; --seq-2: #c7d7f2; --seq-3: #9db3e6; --seq-4: #6a86cf; --seq-5: #2e4c8a;
+    --accent-soft: #dee7f7;
+    --accent2: #9e5514;
+    --accent2-soft: #f6e7d3;
+    --success: #256b44;
+    --success-soft: #deefe4;
+    --warning: #8a5a14;
+    --warning-soft: #f7ebd2;
+    --critical: #a82f21;
+    --critical-soft: #f8e0d9;
+    /* NÖTR (gri) dolgu — kullanıcı kararı: "baloncuk kutucuklar lacivert
+       olabilir ama ara tuşlar gri olsun." Rozet/çip (pill) ve rol kartları
+       lacivert kalır; sekme geçiş tuşları nötr griye alındı.
+       Sekmelerin DOLGULU olması korunuyor: §7d'de alt çizgili yazıdan dolgulu
+       segmente geçilmişti çünkü "hangi sekmede olunduğu anlaşılmıyordu" —
+       dolgu kaldırılsaydı o düzeltme geri alınırdı. Yalnızca rengi değişti.
+       Beyaz metinle kontrast ölçüldü: 8,23:1 (eşik 4,5). */
+    --neutral: #545a63;
+    --neutral-strong: #3f444b;
+    --neutral-soft: #e7eaf0;
+    /* Gölge lacivert zeminde derinleştirildi: beyaz kartların zeminden
+       "kalkması" ayrımı taşıyan asıl ipucu. */
+    --shadow: 0 1px 2px rgba(8,18,38,0.18), 0 10px 28px rgba(8,18,38,0.22);
+    --seq-1: #eff2fa; --seq-2: #cbd8f0; --seq-3: #9eb2e2; --seq-4: #6a86cf; --seq-5: #2e4c8a;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -30,6 +80,7 @@
       --accent2: #e2914f; --accent2-soft: #3a2a18;
       --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
       --critical: #e2685c; --critical-soft: #3a1c18;
+      --neutral: #39414f; --neutral-strong: #4a5464; --neutral-soft: #1e2433;
       --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
       --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
       color-scheme: dark;
@@ -42,6 +93,7 @@
     --accent2: #e2914f; --accent2-soft: #3a2a18;
     --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
     --critical: #e2685c; --critical-soft: #3a1c18;
+    --neutral: #39414f; --neutral-strong: #4a5464; --neutral-soft: #1e2433;
     --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
     --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
     color-scheme: dark;
@@ -72,25 +124,28 @@
   .app { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
 
   /* ---------- Topbar ---------- */
-  .topbar { padding: 22px 0 16px; display: flex; flex-direction: column; gap: 16px; }
+  /* Ust cubuk LACIVERT ZEMIN uzerindedir: metin rengi --on-bg. Marka adi
+     (.brand .titles .name) kendi rengini tanimlamiyor, bunu miras aliyor. */
+  .topbar { padding: 22px 0 16px; display: flex; flex-direction: column; gap: 16px;
+    color: var(--on-bg); }
   .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand .mark { width: 32px; height: 32px; border: 2px solid var(--accent); border-radius: 7px; display: grid; place-items: center; font-family:"Archivo",sans-serif; font-weight: 800; font-size: 12px; color: var(--accent-strong); background: var(--accent-soft); }
   .brand .titles { display: flex; flex-direction: column; }
   .brand .titles .name { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 15px; }
-  .brand .titles .sub { font-size: 11.5px; color: var(--text-muted); }
+  .brand .titles .sub { font-size: 11.5px; color: var(--on-bg-muted); }
 
-  .pipeline { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap; }
+  .pipeline { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--on-bg-muted); flex-wrap: wrap; }
   /* Model rozeti + üst çubuk düğmeleri. Eskiden yalnızca index.html'de inline
      stildi ve flex-wrap yoktu: 375 px genişlikte üç öğe tek satırda kalıp
      438 px'e ulaşıyor, sayfayı yatay kaydırıyordu. Ölçüldü, düzeltildi. */
   .ai-mode { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
   .ai-mode > span { min-width: 0; }
-  .pipeline .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); flex: none; }
+  .pipeline .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--on-bg-line); flex: none; }
   .pipeline .dot.active { background: var(--accent2); }
   .pipeline .dot.done { background: var(--success); }
   .pipeline .seg { display: flex; align-items: center; gap: 6px; }
-  .pipeline .bar { width: 20px; height: 1px; background: var(--border-strong); }
+  .pipeline .bar { width: 20px; height: 1px; background: var(--on-bg-line); }
 
   .role-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .role-btn {
@@ -126,8 +181,11 @@
     font-weight: 600; font-family: inherit; color: var(--text-muted); background: transparent;
     border: 1px solid transparent; border-radius: 8px; cursor: pointer; white-space: nowrap;
     transition: background .12s ease, color .12s ease, border-color .12s ease; }
-  .tab-btn:hover:not(.active) { background: var(--surface-3); color: var(--text); }
-  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent-strong);
+  .tab-btn:hover:not(.active) { background: var(--neutral-soft); color: var(--text); }
+  /* Aktif sekme NÖTR GRİ dolgu (kullanıcı kararı: "ara tuşlar gri olsun").
+     Dolgu kaldırılmadı, yalnızca rengi laciverten griye alındı — §7d'de
+     sekmeler bilinçli olarak dolgulu segmente çevrilmişti. */
+  .tab-btn.active { background: var(--neutral); color: #fff; border-color: var(--neutral-strong);
     box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   .tab-btn:disabled { opacity: .45; cursor: not-allowed; }
   .tab-btn:disabled:hover { background: transparent; color: var(--text-muted); }
@@ -168,7 +226,16 @@
   .pill-critical { background: var(--critical-soft); color: var(--critical); }
   .pill-accent { background: var(--accent-soft); color: var(--accent-strong); }
 
-  .empty-state { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border-strong); border-radius: 10px; }
+  /* .empty-state KENDİ ZEMİNİNİ TAŞIR — kapsayıcıya bağlı olmamalı (§6.3-2).
+     Ölçülen hata: sınıf zemin tanımlamıyordu ve 17 kullanım yerinin biri
+     (öğretmen 3. sekme, "Öğrenci sınavı henüz bitirmedi") kart İÇİNDE değil,
+     doğrudan sayfa zemininde duruyor. Zemin laciverte dönünce o metin
+     1,88:1 kontrasta düştü. Bu, `.opt-row` (yalnızca .q-card içinde tanımlı)
+     ve `.cv-warn` (yalnızca .coverage-box içinde) hatalarının aynısıydı.
+     Kendi açık zeminiyle her yerde doğru görünüyor: --text-muted üzerinde
+     6,15:1 ölçüldü. */
+  .empty-state { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13px;
+    background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px; }
 
   /* ---------- Question cards ---------- */
   .q-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--surface); }
@@ -510,7 +577,7 @@
   .crit-reason { font-size: 11.5px; color: var(--text-muted); line-height: 1.5;
     margin: -2px 0 9px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
 
-  .pool-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  .pool-item { display: flex; align-items: flex-start; gap: 10px; padding: 13px 4px; border-bottom: 1px solid var(--border); }
   /* WCAG 2.5.8: tarayıcı varsayılanı 13x13 idi. Sınav kurarken soru seçmek bu
      kutucuklarla yapılıyor — dokunmatik cihazda ana etkileşim. Boyut CSS'e
      alındı (eskiden JS içinde inline style vardı; §5.3-2 CSP hedefi için de
@@ -519,8 +586,14 @@
     accent-color: var(--accent); cursor: pointer; }
   .pool-check:disabled { cursor: not-allowed; opacity: .55; }
   .pool-item:last-child { border-bottom: none; }
-  .pool-item .p-body { flex: 1; font-size: 13px; }
-  .pool-item .p-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  /* Soru metni ONE CIKARILDI (kullanici istegi: "sorular daha belirgin olsun").
+     Onceden 13px normal agirliktaydi ve altindaki renkli etiketler sorunun
+     kendisinden daha cok dikkat cekiyordu. Havuzda asil okunmasi gereken
+     sorunun GOVDESI; etiketler yardimci bilgidir.
+     Bu kural 5 ayri havuz listesini birden besler (icerik uzmani onayli/
+     reddedilen, ogretmen sinav kurma, ogretmen inceleme, ogrenci sinav listesi). */
+  .pool-item .p-body { flex: 1; font-size: 14.5px; font-weight: 600; line-height: 1.5; color: var(--text); }
+  .pool-item .p-tags { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
 
   .tray-item { display: flex; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid var(--border); font-size: 12.5px; }
   .tray-item .t-text { flex: 1; }
@@ -586,7 +659,7 @@
   .modal p { font-size: 13.5px; color: var(--text-muted); margin: 0 0 18px; }
   .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
-  .colophon { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+  .colophon { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--on-bg-line); font-size: 12px; color: var(--on-bg-muted); }
 
   @media (max-width: 760px) {
     .grid-2 { grid-template-columns: 1fr; }
@@ -662,8 +735,9 @@
     .role-nav { grid-template-columns: 1fr; }
   }
 
-  .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); }
-  .team-sig b { color: var(--accent); letter-spacing: .04em; }
+  .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--on-bg-muted); }
+  /* Eskiden var(--accent) idi: lacivert zemin uzerinde lacivert yazi = okunamaz. */
+  .team-sig b { color: var(--on-bg); letter-spacing: .04em; }
 
   .fb-hint { margin-left: 7px; font-size: 10.5px; color: var(--text-muted);
     border: 1px dashed var(--border-strong); border-radius: 10px; padding: 2px 7px; }

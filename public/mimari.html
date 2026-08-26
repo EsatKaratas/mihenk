@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,19 +12,19 @@
   :root {
     --bg: #eef1f7;
     --surface: #ffffff;
-    --surface-2: #e3e8f2;
-    --text: #10141f;
-    --text-muted: #565f76;
-    --border: #d3d9e5;
-    --border-strong: #b7c0d4;
+    --surface-2: #e2e8f2;
+    --text: #131a26;
+    --text-muted: #505a6b;
+    --border: #dde3ed;
+    --border-strong: #b9c2d4;
     --accent: #2e4c8a;
     --accent-strong: #1f3766;
-    --accent-soft: #dbe4f7;
-    --accent2: #b5631a;
-    --accent2-soft: #f3e0c8;
-    --success: #266b45;
-    --warning: #96631a;
-    --critical: #ae3325;
+    --accent-soft: #dee7f7;
+    --accent2: #9e5514;
+    --accent2-soft: #f6e7d3;
+    --success: #256b44;
+    --warning: #8a5a14;
+    --critical: #a82f21;
     --shadow: 0 1px 2px rgba(20, 30, 60, 0.06), 0 8px 24px rgba(20, 30, 60, 0.05);
     color-scheme: light;
   }
@@ -211,8 +211,16 @@
     color: var(--text-muted);
     font-size: 15px;
   }
+  /* ÖLÇÜLEN HATA (düzeltildi): `inline-flex` + varsayılan `nowrap` +
+     `max-width` yokluğu, kutuyu içeriğinin max-content genişliğine büyütüyordu.
+     "Dürüstlük notu" kutusu 729 px'e çıkıp 649 px'lik .hero'yu aşıyor ve
+     SAYFAYI YATAY KAYDIRIYORDU (ölçüldü: scrollWidth 1001, viewport 953,
+     taşma tam 48 px). Bu, §10h'de `.ai-mode` ve `.crit-row` için düzeltilen
+     hatanın aynısı: flex kapsayıcıda sarmalama eksikliği. */
   .hero .hitl {
     display: inline-flex;
+    flex-wrap: wrap;
+    max-width: 100%;
     align-items: center;
     gap: 8px;
     margin-top: 16px;
