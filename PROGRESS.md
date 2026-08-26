@@ -5,7 +5,7 @@
 > Buradaki her madde **doğrulanmıştır** — doğrulanmamış olanlar açıkça öyle işaretlidir.
 > Son güncelleme: 26 Ağustos 2026
 >
-> **Yeni oturum §10-§20 arasını okusun.** Kronolojik sıra:
+> **Yeni oturum §10-§21 arasını okusun.** Kronolojik sıra:
 > §10 ikinci kontrol turu (injection açığı bulundu ve kapatıldı) ·
 > §11 ayrıştırıcı özellikler (madde analizi, kalibrasyon, kavram yanılgısı) ·
 > §12 gerçek MEB müfredat kataloğu · §13 Bloom dengesi ve kazanım-soru
@@ -14,7 +14,8 @@
 > §16 yedek sağlayıcı OpenAI'a alındı (§16d KRİTİK) ·
 > §17 geniş denetim (3 gerçek hata bulundu ve düzeltildi) ·
 > §18 model stratejisi (KAPANDI, bkz. §19) ·
-> **§19 Workers Paid + tek model kararı · §20 Kiril sızması — en yeni.**
+> §19 Workers Paid + tek model kararı · §20 Kiril sızması ·
+> **§21 Yapay Zekâ Karar Günlüğü (HITL ispatı) — en yeni.**
 > §14f'deki **kota gerçeği** demo günü için kritiktir.
 > §4, §6, §7b, §7g, §8-D ve §9 sonradan düzeltildi; eski hâlleri geçerli değil.
 
@@ -2331,3 +2332,99 @@ de taranıyor. Gövde temiz olup şıkta sızma olması mümkün ve bu da yakala
 dayanır ve anlamı bozabilir. Bunun yerine tespit edip içerik uzmanına
 gösteriyoruz. Sistemin tezi zaten bu: yapay zekâ önerir, insan karar verir —
 modelin hata yaptığı yerde de aynı kural geçerli."*
+
+---
+
+## 21. YAPAY ZEKÂ KARAR GÜNLÜĞÜ — HITL tezinin ispatı (26 Ağustos)
+
+§5.3-5'te "HITL tezinin en güçlü kanıtı olurdu" diye duran madde yapıldı.
+
+### 21a. Neden gerekliydi
+
+Ürünün tezi *"yapay zekâ önerir, insan karar verir"*. Bu tez **ekranda
+görünüyordu ama ispatlanmıyordu.** Jüri *"insan onayını nasıl ispatlıyorsunuz"*
+diye sorduğunda gösterilecek somut bir kayıt yoktu.
+
+`calibration()` (§11b) zaten AI-öğretmen puan farkını hesaplıyordu, ama:
+
+| calibration() | Karar günlüğü |
+|---|---|
+| Yalnızca **değerlendirmeler** | Soru onay/red kararları da |
+| **Anlık durumdan** türetilir — soru silinirse geçmiş kaybolur | **Kalıcı geçmiş** |
+| Hangi modelin önerdiğini tutmaz | **Model adı + yedeğe düşüldü mü** |
+| Zaman damgası yok | Zaman damgalı |
+| Dışa aktarılamaz | **CSV / JSON indirilebilir** |
+
+Yani çakışmıyor, tamamlıyor.
+
+### 21b. Kaydedilen zincir (7 nokta)
+
+```
+soru_uretildi ──▶ soru_onaylandi | soru_reddedildi
+degerlendirme_onerildi | degerlendirme_basarisiz ──▶ puan_karari
+geri_bildirim_aktarildi
+```
+
+Her kayıt: zaman damgası · olay · **aktör** (yapay zekâ / içerik uzmanı /
+öğretmen / sistem) · model adı · yedeğe düşüldü mü · AI önerisi · insanın
+verdiği nihai puan · **değiştirilip değiştirilmediği**.
+
+### 21c. Arayüz — Eğitim Yöneticisi paneli
+
+Gözetim rolü orası olduğu için oraya konuldu. Özet kutuları + son 25 kayıt +
+CSV/JSON indirme + temizleme.
+
+**Özetin en değerli satırı:**
+
+> *"Öğretmen, yapay zekâ puan önerilerinin **%N**'ini değiştirdi. Bu oran
+> sıfırsa insan onayı biçimsel kalıyor demektir; çok yüksekse modelin rubriğe
+> uyumu gözden geçirilmelidir."*
+
+Bu cümle jüriye iki şeyi birden söyler: insan gerçekten karar veriyor **ve**
+ekip bu oranın kendisini bir kalite göstergesi olarak okuyor.
+
+### 21d. 🔴 Geliştirirken kendi eklediğim kayıtta hata buldum
+
+İlk sürümde simülasyon modunda üretilen soruya `state.ai.model`'den **gerçek
+model adı** yazılıyordu (son yoklamadan kalma değer). Yani günlük, model hiç
+çağrılmamışken "llama-3.3-70b üretti" diyordu.
+
+**Denetim izinin bütün değeri doğru atıftadır**; yalancı bir denetim izi
+hiç olmamasından kötüdür. Düzeltildi: artık `"yerel simülasyon (model
+çağrılmadı)"` yazıyor. Ayrıca simülasyon değerlendirmeleri hiç
+kaydedilmiyordu (erken `return`), o da kapatıldı.
+
+### 21e. Gizlilik (agents.md §7)
+
+- Öğrenci **adı yazılmaz** — yalnızca sistem içi numara
+- Soru gövdesi **80 karaktere** kırpılır (kayıt tek başına anlaşılsın; soru
+  sonradan silinse bile günlük okunabilir kalsın)
+- Yalnızca tarayıcının yerel deposunda, sunucuya gitmez
+- Eğitmen indirebilir ve **tek tuşla tamamen silebilir**
+- `privacy-policy.html` güncellendi
+
+### 21f. Doğrulama
+
+Tam zincir sürülerek test edildi:
+
+| Kontrol | Sonuç |
+|---|---|
+| Kayıt sırası | ✅ `uretildi → onaylandi → onerildi ×2 → karari ×2` |
+| Aynen onay / değişiklik ayrımı | ✅ `degisti:false` ve `degisti:true` (5 → 2) |
+| Özet hesabı | ✅ "%50 değiştirdi" ekranda |
+| CSV | ✅ başlıklar + noktalı virgül + **UTF-8 BOM** (Excel Türkçe) |
+| İndirme zinciri | ✅ CSV 1.109 B · JSON 2.011 B blob üretildi |
+| **XSS** | ✅ günlüğe payload zerk edildi → enjekte eleman **0** |
+| Bilinmeyen olay türü | ✅ çökmüyor |
+| **Limit davranışı** | ✅ 507 kayıt → 500 tutuldu, 7 düştü, **uyarı göründü**, en eski düştü |
+| Erişilebilirlik | ✅ 3 düğme bağlı · adsız düğme 0 · 24×24 altı 0 |
+| Mobil 375 px | ✅ 10 rol/sekme, taşma 0, render hatası 0 |
+
+lint temiz · 98/98 test · öz-kontrol **137 → 147 ad**.
+
+### 21g. Jüriye anlatım
+
+*"Human-in-the-Loop dediğimizde bunu iddia etmiyoruz, kaydediyoruz. Her yapay
+zekâ önerisi ve o öneriye insanın ne yaptığı zaman damgasıyla, hangi modelin
+önerdiğiyle birlikte kayıtlı. İndirip inceleyebilirsiniz. Şu an öğretmen
+önerilerin %N'ini değiştirmiş — yani insan onayı biçimsel değil, gerçek."*
