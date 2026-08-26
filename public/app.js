@@ -5898,3 +5898,5 @@ probeAiMode();
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.
 katalogHazirla();
+
+/* deploy tazeleme — f600c17 */
