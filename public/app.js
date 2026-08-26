@@ -10,9 +10,12 @@ const STOPWORDS = new Set(["ve","veya","ile","bir","bu","şu","o","da","de","ki"
 const VARSAYILAN_DERSLER = ["Matematik", "Fen Bilimleri", "Türkçe", "Sosyal Bilgiler", "İngilizce"];
 const GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const VARSAYILAN_KAZANIMLAR = [
-  { code: "MAT.7.2.1", label: "MAT.7.2.1 — Oran ve Orantı" },
-  { code: "MAT.7.3.4", label: "MAT.7.3.4 — Cebirsel İfadeler" },
-  { code: "FEN.7.1.2", label: "FEN.7.1.2 — Kuvvet ve Hareket" },
+  // subject/grade: kazanım artık hangi ders ve sınıfa ait olduğunu taşır.
+  // Eskiden bu bilgi yoktu ve "Türkçe dersi + MAT.7.3.4 kazanımı" gibi
+  // tutarsız seçimler mümkündü (kullanıcı bildirdi, PROGRESS §14a).
+  { code: "MAT.7.2.1", label: "MAT.7.2.1 — Oran ve Orantı", subject: "Matematik", grade: 7 },
+  { code: "MAT.7.3.4", label: "MAT.7.3.4 — Cebirsel İfadeler", subject: "Matematik", grade: 7 },
+  { code: "FEN.7.1.2", label: "FEN.7.1.2 — Kuvvet ve Hareket", subject: "Fen Bilimleri", grade: 7 },
 ];
 
 // Canlı listeler: state üzerinden okunur, kullanıcı ekleyip silebilir.
@@ -521,7 +524,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1 },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -555,14 +558,178 @@ const state = {
 function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
 function outcomeLabel(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return o ? o.label : code; }
 
+/* ===========================================================================
+   KAZANIM META BİLGİSİ — ders ve sınıf bağlaması
+   ===========================================================================
+   BULUNAN HATA (kullanıcı bildirdi): Kaynak içerik formundaki dört alan
+   birbirinden tamamen bağımsızdı. Ders "Türkçe", kazanım "MAT.7.3.4 —
+   Cebirsel İfadeler", başlık "Kuvvet ve Hareket" olabiliyordu. Hiçbir alan
+   diğerini kısıtlamıyordu; üretilen soru da bu tutarsız bağlamla üretiliyordu.
+
+   ÇÖZÜM: Kazanım nesnesine `subject` ve `grade` eklendi. Seçici varsayılan
+   olarak yalnızca seçili ders + sınıfa ait kazanımları gösterir.
+
+   SERT ENGELLEME YOK — öğretmen "tümünü göster" diyebilir. Amaç yasaklamak
+   değil, yanlışı görünür kılmak (agents.md §7.1 ile aynı mantık: karar
+   insanda). Uyuşmazlık varsa ekranda gerekçeli uyarı çıkar.
+
+   GERİYE DÖNÜK UYUM: Alanı olmayan eski kazanımlar (localStorage'da duran
+   kayıtlar) elenmez; kod önekinden çıkarım yapılır, çıkarılamıyorsa kazanım
+   "tüm dersler" sayılır ve veri kaybı olmaz.
+   =========================================================================== */
+
+/* Kod öneki -> ders eşlemesi. MEB kodlama geleneğine dayanır:
+   MAT.7.2.1 (Matematik), FEN.7.1.2 (Fen), T.O.7.5 (Türkçe-Okuma),
+   SOS.7.1.1 (Sosyal Bilgiler), ING.7.1.1 (İngilizce). */
+var KOD_DERS_ONEK = [
+  { re: /^MAT\./i, ders: "Matematik" },
+  { re: /^FEN\./i, ders: "Fen Bilimleri" },
+  { re: /^T\.[DOKY]\./i, ders: "Türkçe" },
+  { re: /^TUR\.|^TÜR\./i, ders: "Türkçe" },
+  { re: /^SOS\./i, ders: "Sosyal Bilgiler" },
+  { re: /^ING\./i, ders: "İngilizce" }
+];
+
+/** Kazanım kodundan dersi çıkarır; çıkaramazsa "" döner. */
+function kodDanDers(code) {
+  const k = String(code || "");
+  for (let i = 0; i < KOD_DERS_ONEK.length; i++) {
+    if (KOD_DERS_ONEK[i].re.test(k)) return KOD_DERS_ONEK[i].ders;
+  }
+  return "";
+}
+
+/** Kazanım kodundan sınıfı çıkarır (MAT.7.2.1 -> 7); çıkaramazsa "" döner. */
+function kodDanSinif(code) {
+  const m = String(code || "").match(/\.(\d{1,2})\./);
+  if (!m) return "";
+  const n = parseInt(m[1], 10);
+  return n >= 1 && n <= 12 ? n : "";
+}
+
+/* Eski kayıtlarda subject/grade yok. Açılışta kod önekinden doldurulur;
+   böylece localStorage'daki veriler de tutarlı hale gelir. Çıkarılamayan
+   kodlar boş bırakılır ve filtreye takılmaz. */
+function ensureOutcomeMeta() {
+  const liste = state.outcomes && state.outcomes.length ? state.outcomes : null;
+  if (!liste) return;
+  liste.forEach(function (o) {
+    if (!o.subject) { const d = kodDanDers(o.code); if (d) o.subject = d; }
+    if (!o.grade) { const g = kodDanSinif(o.code); if (g) o.grade = g; }
+  });
+}
+
+/** Kazanım seçili ders/sınıfa uyuyor mu? Alanı yoksa uyar sayılır. */
+function outcomeUyar(o, ders, sinif) {
+  if (o.subject && ders && o.subject !== ders) return false;
+  if (o.grade && sinif && String(o.grade) !== String(sinif)) return false;
+  return true;
+}
+
+/** Seçili ders/sınıfa uyan kazanımlar. */
+function uygunKazanimlar() {
+  return OUTCOMES_LIST().filter(function (o) {
+    return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
+  });
+}
+
+/**
+ * Ders/sınıf değiştiğinde seçili kazanım artık uymuyorsa, uyan ilk kazanıma
+ * geçilir. Uyan hiç kazanım yoksa seçim OLDUĞU GİBİ BIRAKILIR — sessizce
+ * boşaltmak öğretmenin seçimini kaybettirir; bunun yerine ekranda uyarı çıkar.
+ */
+function outcomeSeciminiTazele() {
+  const uygun = uygunKazanimlar();
+  if (!uygun.length) return;
+  const secili = OUTCOMES_LIST().filter(function (o) { return o.code === state.ceForm.outcomeCode; })[0];
+  if (secili && outcomeUyar(secili, state.ceForm.subject, state.ceForm.grade)) return;
+  state.ceForm.outcomeCode = uygun[0].code;
+}
+
+/**
+ * Kazanım seçeneklerini üretir. Varsayılan: yalnızca seçili ders + sınıfa
+ * ait olanlar. Seçili kazanım uymasa bile listede kalır — aksi halde
+ * <select> onu gösteremez ve öğretmenin seçimi sessizce değişmiş görünür.
+ */
+function kazanimSecenekleriHtml() {
+  const hepsi = OUTCOMES_LIST();
+  const gosterilecek = state.ceForm.showAllOutcomes
+    ? hepsi
+    : hepsi.filter(function (o) {
+        return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) ||
+               o.code === state.ceForm.outcomeCode;
+      });
+  return gosterilecek.map(function (o) {
+    const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
+    return '<option value="' + o.code + '" ' +
+      (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' +
+      escapeHtml(o.label) + (uyar ? "" : "  (başka ders/sınıf)") + "</option>";
+  }).join("");
+}
+
+/** Kazanım seçicisinin altındaki bilgi satırı. */
+function kazanimNotuHtml() {
+  const hepsi = OUTCOMES_LIST();
+  const uygun = uygunKazanimlar();
+  const gizli = hepsi.length - uygun.length;
+  const bas = '<span class="field-note">' + uygun.length + " kazanım · <b>" +
+    escapeHtml(state.ceForm.subject) + " · " + state.ceForm.grade + ". sınıf</b>";
+  // Bu ders/sınıf için hiç kazanım yoksa öğretmeni yönlendir: aksi halde
+  // "0 kazanım" yazısıyla baş başa kalır ve ne yapacağını bilemez.
+  if (!uygun.length) {
+    const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
+    return bas + " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
+      (katalogVar
+        ? "<b>Katalog</b> düğmesiyle MEB müfredatından ekleyin."
+        : "<b>+</b> düğmesiyle elle tanımlayın (bu ders/sınıf için hazır katalog yok).") +
+      (gizli ? ' <button type="button" class="oc-link" id="ceShowAllOutcomes">başka ders/sınıfa ait ' +
+        gizli + " kazanımı göster</button>" : "") + "</span>";
+  }
+  if (!gizli) {
+    return bas + " · <b>Katalog</b> ile MEB müfredatından ekleyin, + ile elle tanımlayın</span>";
+  }
+  return bas + " · " +
+    '<button type="button" class="oc-link" id="ceShowAllOutcomes">' +
+    (state.ceForm.showAllOutcomes
+      ? "yalnızca bu ders/sınıfı göster"
+      : "başka ders/sınıfa ait " + gizli + " kazanım gizlendi — tümünü göster") +
+    "</button></span>";
+}
+
+/** Seçili kazanım ile ders/sınıf uyuşmazlığı varsa açıklama üretir. */
+function outcomeUyusmazlikHtml() {
+  const secili = OUTCOMES_LIST().filter(function (o) { return o.code === state.ceForm.outcomeCode; })[0];
+  if (!secili) return "";
+  if (outcomeUyar(secili, state.ceForm.subject, state.ceForm.grade)) return "";
+  const parcalar = [];
+  if (secili.subject && secili.subject !== state.ceForm.subject) {
+    parcalar.push("<b>" + escapeHtml(secili.subject) + "</b> dersine");
+  }
+  if (secili.grade && String(secili.grade) !== String(state.ceForm.grade)) {
+    parcalar.push("<b>" + secili.grade + ". sınıfa</b>");
+  }
+  if (!parcalar.length) return "";
+  return '<div class="oc-uyusmaz">Seçili kazanım <b>' + escapeHtml(secili.code) + "</b> " +
+    parcalar.join(" ve ") + " ait; siz <b>" + escapeHtml(state.ceForm.subject) + " · " +
+    state.ceForm.grade + ". sınıf</b> seçtiniz. Bu haliyle soru üretilirse kaynak, " +
+    "kazanım ve sınıf düzeyi birbirini tutmaz.</div>";
+}
+
 // ---- Kazanım tanımlama (brief MVP 1) --------------------------------------
-function addOutcome(code, label) {
+function addOutcome(code, label, subject, grade) {
   code = (code || "").trim().toUpperCase();
   const ad = (label || "").trim();
   if (!code) return "Kazanım kodu boş olamaz (örn. FEN.7.3.1).";
   if (!ad) return "Kazanım açıklaması boş olamaz.";
   if (OUTCOMES_LIST().some(function (o) { return o.code === code; })) return "Bu kazanım kodu zaten tanımlı.";
-  state.outcomes = OUTCOMES_LIST().concat([{ code: code, label: code + " — " + ad }]);
+  // Ders/sınıf verilmediyse koddan çıkarılır (MAT.7.2.1 -> Matematik, 7).
+  // Çıkarılamazsa boş kalır ve kazanım her derse uyar (geriye dönük uyum).
+  const ders = subject || kodDanDers(code);
+  const sinif = grade || kodDanSinif(code);
+  const kayit = { code: code, label: code + " — " + ad };
+  if (ders) kayit.subject = ders;
+  if (sinif) kayit.grade = sinif;
+  state.outcomes = OUTCOMES_LIST().concat([kayit]);
   state.ceForm.outcomeCode = code;
   return "";
 }
@@ -723,7 +890,7 @@ function alignAdaylari(ders) {
     const p = o.label.split(" — ");
     return { kod: o.code, metin: p.length > 1 ? p.slice(1).join(" — ") : o.label };
   });
-  const k = (state.katalog || {})[ders];
+  const k = (state.katalog || {})[katalogAnahtari(ders, state.ceForm.grade)];
   if (k) {
     const mevcut = {};
     liste.forEach(function (x) { mevcut[x.kod] = true; });
@@ -953,12 +1120,16 @@ function ceCreateHtml() {
     '<div class="field field-outcome"><label>Kazanım</label>' +
     '<div class="input-with-actions">' +
     '<select id="ceOutcome">' +
-    OUTCOMES_LIST().map(function (o) { return '<option value="' + o.code + '" ' + (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' + escapeHtml(o.label) + '</option>'; }).join("") +
+    // Yalnızca seçili ders + sınıfa ait kazanımlar listelenir. "Tümünü göster"
+    // açıksa hepsi gelir; seçili kazanım her durumda listede kalır ki
+    // öğretmenin mevcut seçimi sessizce kaybolmasın.
+    kazanimSecenekleriHtml() +
     '</select>' +
     '<button class="icon-btn" id="btnNewOutcome" title="Yeni kazanım tanımla" aria-label="Yeni kazanım tanımla">+</button>' +
     '<button class="icon-btn" id="btnDelOutcome" title="Seçili kazanımı sil" aria-label="Seçili kazanımı sil">−</button>' +
     '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="MEB öğretim programından kazanım seç">Katalog</button></div>' +
-    '<span class="field-note">' + OUTCOMES_LIST().length + ' kazanım tanımlı · <b>Katalog</b> ile MEB müfredatından ekleyin, + ile elle tanımlayın</span></div>' +
+    kazanimNotuHtml() + '</div>' +
+    outcomeUyusmazlikHtml() +
     '<!--meta-grid-end-->' +
     (state.newOutcome.open
       ? '<div class="new-outcome"><div class="field-row">' +
@@ -1033,9 +1204,22 @@ function renderContentExpert() {
   wireAlignment();
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
   const subEl = document.getElementById("ceSubject");
-  subEl.onchange = function (e) { addSubject(e.target.value); renderAll(); };
-  subEl.onkeydown = function (e) { if (e.key === "Enter") { addSubject(e.target.value); renderAll(); } };
-  document.getElementById("ceGrade").onchange = function (e) { state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value; };
+  const dersDegisti = function (deger) {
+    addSubject(deger);
+    // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
+    outcomeSeciminiTazele();
+    renderAll();
+  };
+  subEl.onchange = function (e) { dersDegisti(e.target.value); };
+  subEl.onkeydown = function (e) { if (e.key === "Enter") { dersDegisti(e.target.value); } };
+  document.getElementById("ceGrade").onchange = function (e) {
+    state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value;
+    outcomeSeciminiTazele(); saveSoon(); renderAll();
+  };
+  const tumKaz = document.getElementById("ceShowAllOutcomes");
+  if (tumKaz) tumKaz.onclick = function () {
+    state.ceForm.showAllOutcomes = !state.ceForm.showAllOutcomes; renderAll();
+  };
   document.getElementById("ceOutcome").onchange = function (e) { state.ceForm.outcomeCode = e.target.value; };
   document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
 
@@ -3741,18 +3925,33 @@ function finishExamModalHtml() {
    yalnızca "yazili" gösterir; diğerleri uyarı etiketiyle listelenir.
    =========================================================================== */
 
-const MUFREDAT_KATALOGLARI = { "Türkçe": "/mufredat/turkce-7.json" };
+/* Katalog anahtarı DERS + SINIF birlikte. Eskiden yalnızca ders vardı ve
+   8. sınıf seçiliyken bile 7. sınıf kataloğu açılıyordu (kullanıcı bildirdi,
+   PROGRESS §14b). Kazanımlar sınıfa özeldir; 7. sınıf kazanımı 8. sınıfta
+   ölçülmez. */
+const MUFREDAT_KATALOGLARI = { "Türkçe|7": "/mufredat/turkce-7.json" };
 
-async function katalogYukle(ders) {
-  const yol = MUFREDAT_KATALOGLARI[ders];
+function katalogAnahtari(ders, sinif) { return String(ders) + "|" + String(sinif); }
+
+async function katalogYukle(ders, sinif) {
+  const anahtar = katalogAnahtari(ders, sinif);
+  const yol = MUFREDAT_KATALOGLARI[anahtar];
   if (!yol) return null;
   state.katalog = state.katalog || {};
-  if (state.katalog[ders]) return state.katalog[ders];
+  if (state.katalog[anahtar]) return state.katalog[anahtar];
   const r = await fetch(yol, { headers: { accept: "application/json" } });
   if (!r.ok) throw new Error("Katalog yüklenemedi (HTTP " + r.status + ")");
   const j = await r.json();
-  state.katalog[ders] = j;
+  state.katalog[anahtar] = j;
   return j;
+}
+
+/** Hangi ders/sınıf çiftleri için katalog var? (hata mesajında listelenir) */
+function mevcutKataloglar() {
+  return Object.keys(MUFREDAT_KATALOGLARI).map(function (a) {
+    const p = a.split("|");
+    return p[0] + " " + p[1] + ". sınıf";
+  });
 }
 
 function katalogFiltreDurumu() {
@@ -3830,12 +4029,15 @@ function katalogModalHtml(k, hata) {
 
 async function katalogAc() {
   const ders = state.ceForm.subject;
+  const sinif = state.ceForm.grade;
   try {
-    const k = await katalogYukle(ders);
+    const k = await katalogYukle(ders, sinif);
     if (!k) {
-      openModal('<h3>Katalog bulunamadı</h3><p>"' + escapeHtml(ders) +
-        '" dersi için müfredat kataloğu yok. Şu an yalnızca <b>Türkçe 7. sınıf</b> kataloğu var; ' +
-        'diğer dersler için kazanımları + düğmesiyle elle ekleyebilirsiniz.</p>' +
+      openModal('<h3>Katalog bulunamadı</h3><p><b>' + escapeHtml(ders) + " · " + escapeHtml(String(sinif)) +
+        '. sınıf</b> için müfredat kataloğu yok.</p>' +
+        "<p>Şu an katalog bulunan ders/sınıflar: <b>" + mevcutKataloglar().join(", ") + "</b>. " +
+        "Kazanımlar sınıfa özeldir; bu yüzden başka bir sınıfın kataloğu açılmaz. " +
+        "Diğer ders ve sınıflar için kazanımları <b>+</b> düğmesiyle elle ekleyebilirsiniz.</p>" +
         '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
       return;
     }
@@ -3871,7 +4073,9 @@ function katalogModalGoster(k, hata) {
       const kz = k.kazanimlar.filter(function (x) { return x.kod === cb.value; })[0];
       if (!kz) return;
       // addOutcome kodu büyük harfe çevirir ve kod+" — "+ad biçiminde etiketler.
-      const h = addOutcome(kz.kod, kz.metin);
+      // Ders ve sınıf katalogdan gelir; böylece kazanım hangi ders/sınıfa ait
+      // olduğunu taşır ve seçici filtresi doğru çalışır.
+      const h = addOutcome(kz.kod, kz.metin, k.ders, k.sinif);
       if (h) atlanan++; else eklenen++;
     });
     closeModal();
@@ -3988,9 +4192,12 @@ setInterval(function () {
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "bloomDagilimi", "bloomBalanceHtml",
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
+    "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
+    "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimSecenekleriHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
+    "katalogAnahtari", "mevcutKataloglar",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
@@ -4015,6 +4222,9 @@ setInterval(function () {
 
 initPanels();
 loadState();
+// localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
+// doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
+ensureOutcomeMeta();
 ensureStudents();
 ensureExamList();
 document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
