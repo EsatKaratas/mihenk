@@ -578,18 +578,18 @@ olarak sunar. Karar insanındır — projenin HITL ilkesiyle aynı mantık.
   hesaplanır; yalnızca *karşılaştırma* sınıfları (6-A, 8-B, 8-C) `state.baseline`
   demo verisinden gelir ve arayüzde "(örnek)" etiketiyle işaretlidir.
   ~~Tek demo öğrenci~~
-- Yerel yedek (simülasyon) modu soru türü/adet seçimini yok sayar (hep 2 ÇSS +
-  1 açık uçlu). Gerçek model seçime uyar — §10'da ölçüldü: `mcCount:1,
-  openCount:1` istendi, model tam olarak 1+1 üretti.
+- ~~Yerel yedek (simülasyon) modu soru türü/adet seçimini yok sayar~~ →
+  **§14h'de düzeltildi.** Simülasyon artık istenen adetlere uyuyor ve
+  ürettiği sorulara kaynak metin bağlıyor.
 - Backend yalnızca `/api/ai/*` uçlarını kapsar; `routes.ts`'teki diğer rotalar iskelettir.
 - Rate limit (`src/routes/ai.ts`) bellek-içi `Map` ile tutulur; Cloudflare
   Workers'da bu **isolate başınadır**, dağıtık garanti değildir. `agents.md`
   §7.4 buna açıkça izin veriyor ("basit bellek-içi ya da D1 tabanlı sayaç
   yeterlidir") ama jüri sorarsa dürüst cevap: *"tek isolate içinde çalışır,
   üretimde D1/KV'ye taşınır."*
-- `npm test` tanımlı ama **test dosyası yok**. `agents.md` §6 vitest testlerini
-  zorunlu tutuyor, §6 (bu dosya) bilinçli kapsam dışı bırakmış — **iki belge
-  çelişiyor.** Karar: teslim sonrası `agents.md` gerçeğe göre güncellenecek.
+- ~~`npm test` tanımlı ama test dosyası yok~~ → **§14h'de kapatıldı.**
+  `test/` altında 88 test var (`npm test` → 88/88). `agents.md` §6 ile
+  çelişki giderildi.
 
 ---
 
@@ -1455,6 +1455,59 @@ diye kaydedilen sınır aslında bundan daha kısıtlayıcıymış.
 **Demo günü önlemleri:** sunum öncesi kota tazeliğini kontrol et · gereksiz
 deneme yapma · değerlendirme önbelleğini (§7h) kullan · dayanıklı çözüm
 zincir yedek (Workers AI → Gemini → OpenAI) ya da kredi bazlı sağlayıcı.
+
+### 14h. Kalan ürün açıkları kapatıldı
+
+**1. Erişilebilirlik — label/input bağlama** (§10h'de finale bırakılmıştı)
+
+Arayüz genelinde `<div class="field"><label>Başlık</label><input id="ceTitle"></div>`
+kalıbı vardı; `label`'da `for` yoktu, ekran okuyucu ikisini bağlamıyordu.
+Ölçüldü: **14 çiftin 14'ü bağlı değildi.**
+
+Elle onlarca yeri düzenlemek yerine render sonrası tek geçişli
+`bindFieldLabels()` yazıldı. Gerekçe: 176 KB'lık dosyada toplu düzenleme
+regresyon riski (§5'te blok sınırı hatası yaşandı).
+
+İki koruma: **dosya (`type=file`) ve gizli girişler atlanır**, kapsayıcıda
+**textarea varsa tercih edilir**. "Ders notu" etiketi gizli dosya seçiciye
+değil metin alanına işaret etmelidir — koruma çalıştı, otomatik bağlayıcı o
+etiketi bilinçli olarak atladı ve elle `for="ceText"` eklendi.
+
+Doğrulama: 4 rol × tüm sekmeler. Bağlı olmayan label **0**, yanlış hedefe
+bağlanan **0**, kayıp hedef **0**. İçerik Uzmanı panelinde 7 etiketin 7'si
+doğru kontrole bağlı (Başlık→input, Sınıf→select, Ders notu→textarea).
+
+**2. Yerel simülasyon — iki hata**
+
+- Öğretmenin seçtiği soru adetlerini **yok sayıyordu** (her zaman 2 ÇSS +
+  1 açık uçlu; §9'da bilinen sınırlama olarak kayıtlıydı). Artık uyuyor.
+- **Daha önemlisi:** ürettiği sorular *"Metne göre…"* diyordu ama
+  `needsSource`/`srcId` alanları **yoktu**. Yani §14c'deki uyaran metin
+  düzeltmesi simülasyon modunda çalışmıyor, "metin yok" hatası burada
+  sessizce devam ediyordu. Artık kaynak metin bağlanıyor.
+
+Doğrulama: 4 kombinasyon (3+1, 1+2, 2+0, 0+1) — hepsi istenen adette
+üretti, hepsinde `needsSource=true` ve `srcId` doğru.
+
+**3. Birim testleri — `agents.md` §6 uyumu**
+
+`npm test` boştu; §6 vitest testlerini **zorunlu** tutuyor. Test edilebilir
+saf yardımcılar `src/lib/guards.ts`'e taşındı (dışa açık olmadıkları için
+test edilemiyorlardı) ve **88 test** yazıldı:
+
+| Dosya | Test | Kapsam |
+|---|---|---|
+| `test/guards.test.ts` | 37 | Kaynak metin tespiti (10 pozitif + 4 negatif kalıp, yanlış negatif koruması), hız sınırı (limit, pencere kayması, anahtar yalıtımı), `anahtarla`, `round05`, `clamp` |
+| `test/schemas.test.ts` | 27 | Girdi şemalarının sınırları, model çıktısı normalleştirme, **geçici `forceFallback` alanının kaldırıldığının doğrulanması** |
+| `test/ai-lib.test.ts` | 24 | `extractJson` (nesne dönen model, ``` çitleri, kesilmiş yanıt, dize içi süslü parantez, kaçışlı tırnak), sağlayıcı seçimi, **anahtar BOM temizliği** |
+
+Testler bu projede **gerçekten yaşanmış hataları** kalıcı olarak koruyor:
+§5 madde 6 (Zod varsayılanı da doğruladığı için opsiyonel alanın zorunlu
+olması), §5 madde 8 (model nesne döndürünce `String(...)` ile
+`"[object Object]"` olması), §5 madde 9 (kesilmiş JSON), AKTARIM §6 (anahtar
+başındaki görünmez BOM).
+
+`npm test` → **88/88 geçti** (3 dosya, 1,1 sn).
 
 ### 14g. Doküman tutarlılığı
 

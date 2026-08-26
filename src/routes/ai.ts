@@ -19,6 +19,15 @@ import {
 } from '../lib/prompts';
 import { callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv, type AiEnv } from '../lib/ai';
 import {
+  RATE_LIMIT_PER_MIN,
+  RATE_LIMIT_EVAL_PER_MIN,
+  rateLimited as rateLimitedRaw,
+  anahtarla,
+  round05,
+  clamp,
+  kaynakGerektirirMi,
+} from '../lib/guards';
+import {
   generateQuestionsSchema,
   evaluateSchema,
   modelQuestionsSchema,
@@ -36,66 +45,12 @@ import {
 
 type Bindings = AiEnv & { DB?: D1Database };
 
-// --- agents.md §7.4: aynı kaynak doküman için dakikada en fazla 5 istek ------
-const RATE_LIMIT_PER_MIN = 5;
+// Hız sınırı, kaynak metin tespiti ve sayısal yardımcılar ayrı bir modülde:
+// dışa açık olmadıkları için test edilemiyorlardı (agents.md §6 birim testi
+// zorunlu tutuyor). Bkz. src/lib/guards.ts ve test/guards.test.ts.
 const hits = new Map<string, number[]>();
-
-/**
- * Dakika penceresinde istek sayar. Limit uca göre değişir çünkü meşru
- * kullanım desenleri farklıdır:
- *   - soru üretimi / rubrik / örnek yanıt: öğretmen nadiren tekrarlar -> 5
- *   - değerlendirme: BİR SINIFIN TAMAMI değerlendirilirken onlarca meşru
- *     çağrı olur (40 kişilik sınıf). Buraya 5 koymak gerçek kullanımı
- *     bozardı; amaç kazara sonsuz döngüyü ve kötü niyetli kota tüketimini
- *     kesmek, öğretmeni engellemek değil.
- * agents.md §7.4 soru üretimi için 5/dk şartını koyuyor; diğer uçlar o
- * kuralın kapsamı dışındaydı ve KORUMASIZDI (güvenlik denetiminde bulundu).
- */
-function rateLimited(key: string, limit: number = RATE_LIMIT_PER_MIN): boolean {
-  const now = Date.now();
-  const win = (hits.get(key) || []).filter((t) => now - t < 60_000);
-  if (win.length >= limit) {
-    hits.set(key, win);
-    return true;
-  }
-  win.push(now);
-  hits.set(key, win);
-  return false;
-}
-
-/** Sınıf mevcudu üst sınırı — değerlendirme ucu için makul dakika limiti. */
-const RATE_LIMIT_EVAL_PER_MIN = 45;
-
-/** Uzun metinlerden kısa, kararlı bir anahtar üretir (rate limit için). */
-function anahtarla(s: string): string {
-  let h = 0;
-  const t = String(s || '').slice(0, 300);
-  for (let i = 0; i < t.length; i++) h = (Math.imul(31, h) + t.charCodeAt(i)) | 0;
-  return String(h >>> 0);
-}
-
-const round05 = (n: number) => Math.round(n * 2) / 2;
-
-/**
- * Soru gövdesi kaynak metne atıf yapıyor mu? Model "needsSource" alanını
- * unutabilir ya da yanlış işaretleyebilir; bu deterministik kontrol ikinci
- * güvencedir. YANLIŞ NEGATİF kabul edilemez: metne atıf yapan bir soru
- * metinsiz sorulursa öğrenci cevaplanamaz bir soruyla karşılaşır. Bu yüzden
- * kalıp yakalanırsa needsSource ZORLA true yapılır (tersi yapılmaz).
- */
-const KAYNAK_ATIF = new RegExp(
-  [
-    'metne g[öo]re', 'metinde', 'metnin', 'metni oku',
-    'par[çc]aya g[öo]re', 'par[çc]ada', 'par[çc]an[ıi]n',
-    'yukar[ıi]daki', 'a[şs]a[ğg][ıi]daki metin', 'verilen metin',
-    '[şs]iirde', '[şs]iirin', 'dizelerde', 'okudu[ğg]unuz',
-    'bu metne', 'bu par[çc]a',
-  ].join('|'),
-  'i'
-);
-const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
-  modelKarari || KAYNAK_ATIF.test(String(body || ''));
-const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+const rateLimited = (key: string, limit: number = RATE_LIMIT_PER_MIN) =>
+  rateLimitedRaw(hits, key, limit);
 
 /**
  * agents.md §2: her hata yanıtı { error, message } biçiminde döner.
