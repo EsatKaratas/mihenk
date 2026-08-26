@@ -37,7 +37,8 @@
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
-| Son commit | `3fca71b` · toplam **71 commit** · etiket `v1.0-teslim` · **60 takipli dosya** |
+| Son commit | toplam **73 commit** · etiket `v1.0-teslim` · **60 takipli dosya** |
+| ⚠️ En yeni bölüm | **`PROGRESS.md` §25** — ekip denemesi geri bildirimi (5 madde). Bu dosya §24'e kadarını özetler; §25 yalnızca `PROGRESS.md`'de |
 | Senkron durumu | yerel kod = GitHub `origin/main` = canlı sistem (üçü aynı) |
 
 ---
