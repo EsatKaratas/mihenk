@@ -147,6 +147,10 @@ export const modelQuestionSchema = z.object({
   difficulty: z.enum(DIFFICULTIES).catch('medium'),
   bloom: z.enum(BLOOMS).catch('anlama'),
   aiTime: z.number().int().min(15).max(900).catch(60),
+  /* Soru, kaynak metin öğrencinin önünde OLMADAN yanıtlanabilir mi?
+     false ise sınavda öğrenciye kaynak metin de gösterilir. Model bu alanı
+     unutabilir; sunucu ayrıca soru gövdesinden deterministik kontrol yapar. */
+  needsSource: z.boolean().catch(false).default(false),
   refKeywords: z.array(z.string()).default([]),
 });
 

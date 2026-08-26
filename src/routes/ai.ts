@@ -53,6 +53,26 @@ function rateLimited(key: string): boolean {
 }
 
 const round05 = (n: number) => Math.round(n * 2) / 2;
+
+/**
+ * Soru gövdesi kaynak metne atıf yapıyor mu? Model "needsSource" alanını
+ * unutabilir ya da yanlış işaretleyebilir; bu deterministik kontrol ikinci
+ * güvencedir. YANLIŞ NEGATİF kabul edilemez: metne atıf yapan bir soru
+ * metinsiz sorulursa öğrenci cevaplanamaz bir soruyla karşılaşır. Bu yüzden
+ * kalıp yakalanırsa needsSource ZORLA true yapılır (tersi yapılmaz).
+ */
+const KAYNAK_ATIF = new RegExp(
+  [
+    'metne g[öo]re', 'metinde', 'metnin', 'metni oku',
+    'par[çc]aya g[öo]re', 'par[çc]ada', 'par[çc]an[ıi]n',
+    'yukar[ıi]daki', 'a[şs]a[ğg][ıi]daki metin', 'verilen metin',
+    '[şs]iirde', '[şs]iirin', 'dizelerde', 'okudu[ğg]unuz',
+    'bu metne', 'bu par[çc]a',
+  ].join('|'),
+  'i'
+);
+const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
+  modelKarari || KAYNAK_ATIF.test(String(body || ''));
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
 /**
@@ -163,6 +183,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),
+            needsSource: kaynakGerektirirMi(q.body, q.needsSource),
             refKeywords: q.refKeywords.slice(0, 6),
           };
         }
@@ -172,6 +193,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
           difficulty: q.difficulty,
           bloom: q.bloom,
           aiTime: clamp(q.aiTime, 90, 600),
+          needsSource: kaynakGerektirirMi(q.body, q.needsSource),
           refKeywords: q.refKeywords.slice(0, 6),
         };
       })

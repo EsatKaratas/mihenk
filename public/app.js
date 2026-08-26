@@ -194,6 +194,9 @@ async function aiGenerateQuestions(doc) {
         body: q.body, options: q.options, correctKey: q.correctKey,
         distractorRationale: q.distractorRationale || {}, bloom: q.bloom,
         aiTime: q.aiTime, status: "ai_generated", refKeywords: q.refKeywords || [],
+        // Soru bir kaynak metne dayanıyorsa, o metin sınavda öğrenciye
+        // gösterilmek üzere saklanır ve soruya bağlanır (uyaran metin).
+        needsSource: !!q.needsSource, srcId: doc.srcId != null ? doc.srcId : null,
       };
     });
   } catch (e) {
@@ -357,7 +360,7 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions", "alignment"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources"];
 
 function saveState() {
   if (_resetting) return;
@@ -543,6 +546,7 @@ const state = {
   mcResults: {},
   misconceptions: {},
   alignment: {},
+  sources: [],
   baseline: {
     totalAssigned: 160, totalCompleted: 142, pendingApprovalsOther: 7,
     classes: [
@@ -831,6 +835,125 @@ function pdfPickerHtml() {
 }
 
 /* ============================== İçerik Uzmanı ============================== */
+/* ===========================================================================
+   UYARAN METİN (kaynak metin) — sorunun dayandığı metnin saklanması
+   ===========================================================================
+   BULUNAN HATA (kullanıcı bildirdi): Model "Metne göre yazar ilk kitabını kaç
+   yaşında yazmıştır?" gibi bir soru üretiyordu ama ORTADA METİN YOKTU.
+   Kaynak metin yalnızca üretim isteğinde kullanılıyor, sonra atılıyordu;
+   öğrenci sınavda o metni asla görmüyordu. Yani soru cevaplanamazdı.
+
+   Bu, Türkçe/Sosyal Bilgiler gibi derslerde yapısal bir sorundur: okuma
+   kazanımları METİN OLMADAN ÖLÇÜLEMEZ. Ölçmede soruya eşlik eden bu metne
+   "uyaran metin" (stimulus) denir.
+
+   ÇÖZÜM:
+   1. Soru üretilirken kaynak metin state.sources[] içinde saklanır.
+   2. Üretilen sorulara srcId bağlanır.
+   3. Model her soru için needsSource döndürür (sunucu ayrıca soru gövdesinden
+      deterministik olarak kontrol eder — "metne göre", "parçada", "şiirde"...).
+   4. Sınavda needsSource olan sorularda kaynak metin öğrenciye GÖSTERİLİR.
+
+   DEPOLAMA SINIRI: Kaynaklar localStorage'da tutulur. Sınırsız büyümemesi
+   için en fazla KAYNAK_LIMIT tanesi saklanır; en eskisi atılır. Atılan bir
+   kaynağa bağlı soru kalırsa öğretmene açıkça uyarı gösterilir (sessizce
+   metinsiz soru sunmaktansa uyarmak doğrudur).
+   =========================================================================== */
+
+var KAYNAK_LIMIT = 10;
+var srcIdSeq = 1;
+
+function ensureSources() {
+  state.sources = state.sources || [];
+  state.sources.forEach(function (s) {
+    if (s.id >= srcIdSeq) srcIdSeq = s.id + 1;
+  });
+}
+
+/** Kaynak metni saklar ve id döndürür. Aynı metin tekrar tekrar eklenmez. */
+function kaynakEkle(doc) {
+  ensureSources();
+  const metin = String(doc.text || "").trim();
+  if (!metin) return null;
+  const ayni = state.sources.filter(function (s) {
+    return s.text === metin && s.subject === doc.subject && String(s.grade) === String(doc.grade);
+  })[0];
+  if (ayni) return ayni.id;
+  const kayit = {
+    id: srcIdSeq++,
+    title: doc.title || "Adsız Kaynak",
+    subject: doc.subject || "",
+    grade: doc.grade || "",
+    text: metin,
+    at: Date.now()
+  };
+  state.sources.push(kayit);
+  // Sınırı aşarsa en eskiyi at. Hangi kaynağın atıldığı sessiz kalmaz:
+  // ona bağlı soru varsa arayüzde uyarı çıkar (kaynakMetni() null döner).
+  while (state.sources.length > KAYNAK_LIMIT) state.sources.shift();
+  return kayit.id;
+}
+
+/** id'den kaynak kaydını getirir; silinmişse null. */
+function kaynakBul(srcId) {
+  if (srcId == null) return null;
+  ensureSources();
+  return state.sources.filter(function (s) { return String(s.id) === String(srcId); })[0] || null;
+}
+
+/** Soru kaynak metin gerektiriyor mu? (eski sorularda alan yoktur) */
+function soruKaynakIster(q) {
+  return !!(q && q.needsSource);
+}
+
+/**
+ * Sınavda/incelemede gösterilecek kaynak metin bloğu.
+ * mod: "student" (sınav ekranı) | "review" (öğretmen incelemesi)
+ */
+function kaynakBlokHtml(q, mod) {
+  if (!soruKaynakIster(q)) return "";
+  const k = kaynakBul(q.srcId);
+  if (!k) {
+    // Kaynak bulunamadı: sessizce metinsiz soru göstermek öğrenciyi
+    // cevaplanamaz bir soruyla baş başa bırakır. Açıkça söylenir.
+    return '<div class="src-yok"><b>Bu soru bir kaynak metne dayanıyor ama metin bulunamadı.</b> ' +
+      (mod === "student"
+        ? "Öğretmeninize bildirin; bu soruyu yanıtlamak için metne ihtiyacınız var."
+        : "Kaynak saklama sınırı aşılmış olabilir. Soruyu havuzdan çıkarmayı ya da " +
+          "metni yeniden yükleyip soruyu tekrar üretmeyi düşünün.") + "</div>";
+  }
+  const acik = mod === "student";
+  return '<details class="src-blok"' + (acik ? " open" : "") + ">" +
+    '<summary class="src-bas">Bu soru bir metne dayanıyor — <b>' + escapeHtml(k.title) + "</b>" +
+    '<span class="src-uzunluk">' + k.text.length + " karakter</span></summary>" +
+    '<div class="src-metin">' + escapeHtml(k.text) + "</div></details>";
+}
+
+/** Öğretmen inceleme kartında kısa rozet. */
+function kaynakRozetHtml(q) {
+  if (!soruKaynakIster(q)) return "";
+  const k = kaynakBul(q.srcId);
+  return '<span class="pill ' + (k ? "pill-neutral" : "pill-critical") + '" title="' +
+    (k ? "Bu soru kaynak metne dayanıyor; sınavda metin öğrenciye gösterilir."
+       : "Bu soru kaynak metne dayanıyor ama metin bulunamadı!") + '">' +
+    (k ? "metne dayalı" : "METİN YOK") + "</span>";
+}
+
+/** Sınav kurarken: metne dayalı soruların özeti/uyarısı. */
+function sinavKaynakUyarisiHtml(secili) {
+  const metneDayali = secili.filter(soruKaynakIster);
+  if (!metneDayali.length) return "";
+  const kayip = metneDayali.filter(function (q) { return !kaynakBul(q.srcId); });
+  if (kayip.length) {
+    return '<div class="src-uyari src-uyari-kritik"><b>' + kayip.length +
+      " sorunun kaynak metni bulunamadı.</b> Bu sorular öğrenciye metinsiz gider ve " +
+      "yanıtlanamaz. Sınavdan çıkarın ya da metni yeniden yükleyip soruları tekrar üretin.</div>";
+  }
+  return '<div class="src-uyari"><b>' + metneDayali.length +
+    " soru bir kaynak metne dayanıyor.</b> Bu soruların metni sınavda öğrenciye " +
+    "birlikte gösterilir; öğrenci metni okumadan yanıtlayamaz.</div>";
+}
+
 async function onGenerateQuestions() {
   const text = state.ceForm.text.trim();
   if (text.length < 30) {
@@ -848,6 +971,11 @@ async function onGenerateQuestions() {
     title: state.ceForm.title || "Adsız Kaynak", subject: state.ceForm.subject, grade: state.ceForm.grade,
     outcome: state.ceForm.outcomeCode, outcomeLabel: outcomeLabel(state.ceForm.outcomeCode), text: text,
   };
+  // Kaynak metin ÜRETİMDEN ÖNCE saklanır: model metne atıf yapan bir soru
+  // üretirse (Türkçe okuma kazanımlarında bu gereklidir) o metin sınavda
+  // öğrenciye gösterilebilsin. Eskiden metin atılıyordu ve soru
+  // cevaplanamaz hale geliyordu.
+  doc.srcId = kaynakEkle(doc);
   state.ai.busy = true;
   busySince = Date.now();
   renderAll();
@@ -1027,7 +1155,9 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
     bloomPill(q.bloom) +
     '<span class="pill pill-neutral">' + q.outcome + '</span>' +
+    kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
+    kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
     distractorHtml(q) +
@@ -1840,7 +1970,8 @@ function coverageHtml() {
       : '<div class="cv-ok">Havuzdaki tüm kazanımlar bu sınavda ölçülüyor.</div>') +
     '<div class="cv-diff">Zorluk dağılımı — Kolay <b>' + zor.easy + '</b> · Orta <b>' + zor.medium + '</b> · Zor <b>' + zor.hard + '</b></div>' +
     bloomBalanceHtml(secili) +
-    '</div>';
+    '</div>' +
+    sinavKaynakUyarisiHtml(secili);
 }
 
 function filteredPool() {
@@ -3501,6 +3632,7 @@ function studentTab2Html() {
     '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
     '<div class="qnav">' + items.map(function (it, i) { return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") + '" data-idx="' + i + '">' + (i + 1) + '</div>'; }).join("") + '</div></div>' +
     '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span><span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span></div>' +
+    kaynakBlokHtml(q, "student") +
     '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
     '<div class="exam-footer"><div><button class="btn btn-secondary" id="btnPrevQ" ' + (state.currentQIndex === 0 ? "disabled" : "") + '>← Önceki</button> ' +
     '<button class="btn btn-secondary" id="btnNextQ" ' + (state.currentQIndex === items.length - 1 ? "disabled" : "") + '>Sonraki →</button></div>' +
@@ -4193,6 +4325,8 @@ setInterval(function () {
     "bloomDagilimi", "bloomBalanceHtml",
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
+    "ensureSources", "kaynakEkle", "kaynakBul", "soruKaynakIster", "kaynakBlokHtml",
+    "kaynakRozetHtml", "sinavKaynakUyarisiHtml",
     "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimSecenekleriHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
@@ -4225,6 +4359,7 @@ loadState();
 // localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
 // doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
 ensureOutcomeMeta();
+ensureSources();
 ensureStudents();
 ensureExamList();
 document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
