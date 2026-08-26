@@ -7,8 +7,14 @@ const STOPWORDS = new Set(["ve","veya","ile","bir","bu","şu","o","da","de","ki"
 // Bunlar artık sabit değil, yalnızca BAŞLANGIÇ değerleridir.
 // Kullanıcı kendi dersini, sınıf düzeyini ve kazanımını tanımlayabilir
 // (brief MVP 1: "konu, kazanım, seviye ... sisteme tanımlar").
-const VARSAYILAN_DERSLER = ["Matematik", "Fen Bilimleri", "Türkçe", "Sosyal Bilgiler", "İngilizce"];
-const GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+/* Ortaokulun üç temel dersi. Sosyal Bilgiler ve İngilizce çıkarıldı:
+   kazanım katalogları yok, seçilince öğretmen boş listeyle karşılaşıyordu. */
+const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri"];
+/* KAPSAM KARARI (26 Ağustos, kullanıcı): Ürün ORTAOKUL için tasarlandı.
+   1-4 ve 9-12 kaldırıldı: kazanım katalogları yalnızca 5-8 için var ve
+   olmayan sınıfları listelemek, öğretmene karşılığı olmayan bir seçim
+   sunmak demek. Dar ama gerçek kapsam, geniş ama boş kapsamdan iyidir. */
+const GRADES = [5, 6, 7, 8];
 const VARSAYILAN_KAZANIMLAR = [
   // subject/grade: kazanım artık hangi ders ve sınıfa ait olduğunu taşır.
   // Eskiden bu bilgi yoktu ve "Türkçe dersi + MAT.7.3.4 kazanımı" gibi
@@ -750,11 +756,23 @@ function uygunKazanimlar() {
  * boşaltmak öğretmenin seçimini kaybettirir; bunun yerine ekranda uyarı çıkar.
  */
 function outcomeSeciminiTazele() {
-  const uygun = uygunKazanimlar();
-  if (!uygun.length) return;
   const secili = OUTCOMES_LIST().filter(function (o) { return o.code === state.ceForm.outcomeCode; })[0];
+  // Mevcut seçim zaten uyuyorsa dokunma.
   if (secili && outcomeUyar(secili, state.ceForm.subject, state.ceForm.grade)) return;
-  state.ceForm.outcomeCode = uygun[0].code;
+
+  const uygun = uygunKazanimlar();
+  if (uygun.length) { state.ceForm.outcomeCode = uygun[0].code; return; }
+
+  /* MADDE 2 (kullanıcı bildirdi): Eskiden burada `return` vardı — uymayan
+     kazanım seçili KALIYORDU. Sonuç: 8. sınıf seçince ekranda hâlâ 7. sınıf
+     kazanımı duruyor ve "kazanım ile sınıf birbirini tutmuyor" uyarısı
+     çıkıyordu. Kullanıcının haklı itirazı: seçimi ben değiştirmedim, sınıfı
+     değiştirdim; sistem bana kendi bıraktığı tutarsızlığı hata gibi
+     gösteriyor.
+     Doğru davranış: uyan kazanım yoksa seçimi BOŞALT. Bu sessiz bir kayıp
+     değildir — kazanım notu satırı "bu ders/sınıf için kazanım tanımlı
+     değil, Katalog'dan ekleyin" diyerek ne yapılacağını söyler. */
+  state.ceForm.outcomeCode = "";
 }
 
 /**
@@ -770,7 +788,12 @@ function kazanimSecenekleriHtml() {
         return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) ||
                o.code === state.ceForm.outcomeCode;
       });
-  return gosterilecek.map(function (o) {
+  // Seçim boşsa (bu ders/sınıf için kazanım yok) açık bir yer tutucu göster;
+  // <select> boş görünüp kullanıcıyı "bir şey seçili sandım"a düşürmesin.
+  const yerTutucu = state.ceForm.outcomeCode
+    ? ""
+    : '<option value="" selected>— bu ders/sınıf için kazanım seçilmedi —</option>';
+  return yerTutucu + gosterilecek.map(function (o) {
     const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
     // value özniteliği de kaçırılmalı: kod serbest metindir ve tırnak içeren
     // bir kod özniteliği kapatıp kendi HTML'ini yazabilirdi.
@@ -1891,11 +1914,19 @@ function ceCreateHtml() {
     '<div class="card ce-source"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">sorular buradan üretilir</span></div>' +
     '<div class="ce-meta-grid">' +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
-    '<div class="field"><label>Ders</label>' +
-    '<input id="ceSubject" list="dersListesi" value="' + escapeHtml(state.ceForm.subject) + '" placeholder="Seçin veya yeni ders yazın">' +
-    '<datalist id="dersListesi">' + SUBJECTS_LIST().map(function (s) { return '<option value="' + escapeHtml(s) + '">'; }).join("") + '</datalist></div>' +
-    '<div class="field"><label>Sınıf</label><select id="ceGrade">' +
-    GRADES.map(function (g) { return '<option ' + (String(g) === String(state.ceForm.grade) ? "selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
+    /* MADDE 1 (kullanıcı bildirdi): Burası serbest metin girişi + <datalist>
+       idi. İki sorun vardı: (a) yazdıkça liste filtreleniyor, kullanıcı
+       "sadece Matematik çıkıyor" sanıyordu; (b) datalist açılır listesi
+       tarayıcının kendi çizimi, biçimlendirilemiyor ve formun geri kalanıyla
+       uyumsuz görünüyor. Kapsam üç derse indiği için <select> doğru kontrol:
+       hepsi her zaman görünür ve diğer alanlarla aynı görünümde. */
+    '<div class="field"><label for="ceSubject">Ders</label><select id="ceSubject">' +
+    SUBJECTS_LIST().map(function (d) {
+      return '<option value="' + escapeHtml(d) + '"' +
+        (d === state.ceForm.subject ? " selected" : "") + ">" + escapeHtml(d) + "</option>";
+    }).join("") + '</select></div>' +
+    '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
+    GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
     '</select></div>' +
     '<div class="field field-outcome"><label>Kazanım</label>' +
     '<div class="input-with-actions">' +
@@ -1992,8 +2023,8 @@ function renderContentExpert() {
     outcomeSeciminiTazele();
     renderAll();
   };
+  // Ders artık <select>; serbest metin ve Enter dinleyicisi kaldırıldı.
   subEl.onchange = function (e) { dersDegisti(e.target.value); };
-  subEl.onkeydown = function (e) { if (e.key === "Enter") { dersDegisti(e.target.value); } };
   document.getElementById("ceGrade").onchange = function (e) {
     state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value;
     outcomeSeciminiTazele(); saveSoon(); renderAll();

@@ -372,7 +372,14 @@
   .tray-summary .ts-row.strong { color: var(--text); font-weight: 700; font-size: 14px; }
 
   .ce-source { margin-bottom: 16px; }
-  .ce-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 16px; }
+  .ce-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
+  /* MADDE 4 (kullanıcı bildirdi): Kazanım seçicisi diğer üç alanla eşit
+     genişlikteydi; iki ikon düğmesi ve "Katalog" düğmesi çıkınca metne
+     ~150 px kalıyor ve kazanımın ne olduğu okunamıyordu. Kazanım en uzun
+     metni taşıyan alan olduğu için KENDİ TAM GENİŞLİKTEKİ SATIRINA alındı.
+     Başlık/Ders/Sınıf kısa alanlar, üstte yan yana kalabilir. */
+  .ce-meta-grid > .field-outcome { grid-column: 1 / -1; }
+  .field-outcome select { font-size: 13.5px; }
   .ce-text-field textarea { min-height: 190px; font-size: 14px; line-height: 1.6; }
   .gen-bar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
     margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
@@ -613,6 +620,12 @@
        inline istisnasına girer, ama padding:0 ile 21 px kalıyordu ve
        dokunması zordu. Mobilde dikey boşluk verildi. */
     .dropzone .dz-browse { padding: 5px 4px; min-height: 26px; }
+
+    /* MADDE 4 (mobil): 375 px'de kazanım seçicisine iki ikon düğmesi ve
+       "Katalog" düğmesinden sonra ~149 px kalıyordu — kazanım metni yine
+       okunmuyordu. Mobilde düğmeler ALT SATIRA alınır, seçici tam genişlik. */
+    .field-outcome .input-with-actions { flex-wrap: wrap; }
+    .field-outcome .input-with-actions > select { flex: 1 0 100%; }
 
     /* Aynı gerekçe (bkz. yukarıdaki .dz-browse): `.oc-link` de cümle akışı
        içinde olduğu için WCAG 2.5.8 istisnasına girer, ama 16 px yüksekliği
