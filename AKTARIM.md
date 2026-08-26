@@ -37,8 +37,8 @@
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
-| Son commit | toplam **73 commit** · etiket `v1.0-teslim` · **60 takipli dosya** |
-| ⚠️ En yeni bölüm | **`PROGRESS.md` §25** — ekip denemesi geri bildirimi (5 madde). Bu dosya §24'e kadarını özetler; §25 yalnızca `PROGRESS.md`'de |
+| Son commit | toplam **77 commit** · etiketler `v1.0-teslim`, `v1.1-basvuru` · **60 takipli dosya** |
+| ⚠️ En yeni bölümler | **`PROGRESS.md` §25 ve §26** — ekip denemesi geri bildirimi (5 madde) ve başvuru turu. Bu dosyanın gövdesi §24'e kadarını özetler; §25-§26 yalnızca `PROGRESS.md`'de. **Yeni dersler §6.3-19/20/21 olarak buraya işlendi.** |
 | Senkron durumu | yerel kod = GitHub `origin/main` = canlı sistem (üçü aynı) |
 
 ---
@@ -966,6 +966,32 @@ eşleşme sayısını doğrula; 1 değilse dokunma.
 Tarayıcı aracında ekran görüntüsü 800×758, gerçek görünüm 968×918 idi; sayfanın
 alt kısmında tıklamalar ~113 px kayıyordu. **Küçük hedeflere `ref` ile tıkla**,
 koordinatla değil.
+
+**19. 🆕 `node --check` ÇALIŞMA ZAMANINI DENETLEMEZ.**
+`const MC_VARSAYILAN_PUAN`, onu kullanan `state` nesnesinden SONRA tanımlanmıştı.
+`const` hoist edilmez: sayfa `Cannot access ... before initialization` ile
+**açılışta ölüyordu.** `node --check` temiz, `tsc` temiz, **98/98 test geçiyordu.**
+Aynı turda ikinci örnek: `renderAdmin` içinden `const rows` kaldırılmış ama
+`renderHeatmap("adminHeatmap", rows)` çağrısı kalmıştı.
+**`public/app.js` değişikliği TARAYICIDA AÇILMADAN tamamlanmış sayılmaz.**
+
+**20. 🆕 `wrangler deploy` VARLIĞI SESSİZCE ATLAYABİLİR.**
+`public/app.js` değiştiği hâlde wrangler üç deploy boyunca
+**"No updated asset files to upload"** dedi; canlı eski dosyayı sunmaya devam
+etti (yerel 316.501 / canlı 316.334 bayt). `.wrangler/tmp` silmek ve `touch`
+işe yaramadı; **dosyanın İÇERİĞİNİ değiştiren bir damga** eklenince
+"Found 1 new or modified static asset" çıktı.
+Ayrıca **kenar önbelleği gecikir** — yayılma birkaç dakika sürebilir ve arada
+"inmemiş" gibi görünür.
+> Her deploy'dan sonra ÖLÇ:
+> `curl -s -H 'Cache-Control: no-cache' <taban>/app.js | grep -c <yeni_ad>`
+> Tarayıcıda `location.reload()` yetmez; `fetch(url, {cache:'no-store'})` kullan.
+
+**21. 🆕 KONTRAST ÖLÇERKEN YARI SAYDAM ZEMİNLERİ HARMANLA.**
+Tarama karnede 4 ihlal bildirdi; hepsi `.sc-class` idi ve zemini
+`rgb(127,127,127)` sanılmıştı. Gerçeği `rgba(127,127,127,**.18**)` —
+harmanlanınca **14,2:1** ve **7,4:1** çıkıyor. **Ürün doğruydu, ölçüt hatalıydı.**
+Zemin ararken alfa kanalını yok sayma; katmanları üst üste harmanla.
 
 ## 6.4 ★★ KULLANICININ AÇIKÇA İSTEDİĞİ ÇALIŞMA BİÇİMİ
 

@@ -2963,3 +2963,115 @@ Kullanıcı MEB müfredat PDF'lerini ve Creathon problem kitapçığını sağla
   brief tutarlı biçimde **"eğitmen"** derken ürün **"öğretmen"** diyor;
   brief madde 02'deki **"seviye"** ürün tarafından *sınıf seviyesi* olarak
   okunmuş (alternatif okuma: *zorluk seviyesi*).
+
+---
+
+## 26. BAŞVURU TURU — canlıya alma ve demo sahnesi (26 Ağustos, gece)
+
+Kullanıcı bir saat verdi: "sonunda videoyu çekip başvuruyu yapacağız."
+Öncelik sırası **risk**e göre kuruldu: teslime bir saat kala refactor yapılmaz.
+
+### 26a. Canlıya alma — §25'in tamamı yayında
+
+§25'teki düzeltmeler `fix/ekip-geri-bildirimi` dalındaydı ve **canlıda yoktu**.
+Ölçüm: canlı `app.js`'te `okulGercekDurum` **0 kez** geçiyordu — yani o an video
+çekilse jüri uydurma "%88,8 · 142/160" tablosunu görecekti.
+
+`main`'e merge (`--no-ff`) → `npm run deploy:demo`. Canlı doğrulandı.
+
+### 26b. 🔴 Dürüstlük düzeltmesinin yan etkisi ve doğru çözümü
+
+§25b'de yönetici kutuları gerçek oturumlardan hesaplanır hâle gelince, **demo
+senaryosu yüklendiğinde panel haklı olarak "%0 · 0/4" göstermeye başladı** —
+senaryo sınavı "çözülüyor" durumunda bırakıyor, gerçekten kimse bitirmemiş
+oluyordu. Videoda boş bir yönetici paneli görünecekti.
+
+**Yanlış çözüm:** sayıyı geri uydurmak.
+**Yapılan:** `demoSinifOturumlari()` — sahnede GERÇEKTEN tamamlanmış oturumlar
+oluşturur. Üç öğrenciye üç farklı başarı düzeyinde tamamlanmış + onaylanmış
+oturum yazılır (ürünün kendi `sessionOf` / `auditKaydet` yollarıyla, AI
+beklemesi yok). Aktif öğrenci **dışarıda bırakılır**: sunumu yapan kişi zinciri
+canlı ve gerçek modelle gösterebilsin.
+
+Dürüstlük sınırları (§6.3-5, §21d):
+- Öğrenciler `demo: true` → arayüzde **"simüle"** rozeti
+- Denetim izine model adı **"yerel simülasyon (model çağrılmadı)"** yazılır
+- Değerlendirme özeti simüle olduğunu **açıkça** söyler
+- Hiçbir sayı sabit değildir; hepsi bu oturumlardan **hesaplanır**
+
+**Ölçüldü (CANLI):** `okulGercekDurum()` → `{atanan:4, tamamlanan:3}` = **%75**,
+ısı haritası `7-A (1/2)` + `7-B (2/2)` ile **tutarlı** · kalibrasyon `n=3` ·
+denetim izi **6 kayıt** · "Önce Buraya Bakın" artık **gerçek** bir şubeyi
+işaret ediyor (`7-B · FEN.7.1.2 · %48`).
+
+### 26c. 🔴 YENİ SERT DERS — `wrangler deploy` varlığı SESSİZCE atlayabilir
+
+İkinci deploy'da wrangler **"No updated asset files to upload"** dedi, oysa
+`public/app.js` değişmişti (yerel 316.501 bayt, canlı 316.334). Üç kez
+denendi, `.wrangler/tmp` silindi, `touch` denendi — hepsinde aynı.
+
+**Çözüm:** dosyanın İÇERİĞİNİ değiştiren bir damga eklemek
+(`/* deploy tazeleme — <sha> */`). Bunun üzerine
+**"Found 1 new or modified static asset"** çıktı ve yüklendi.
+
+> **KURAL:** `wrangler deploy` başarı yazması varlığın yayında olduğu anlamına
+> **GELMEZ.** Her deploy'dan sonra canlı dosyayı ölçün:
+> ```bash
+> curl -s -H 'Cache-Control: no-cache' <taban>/app.js | grep -c <yeni_fonksiyon_adı>
+> ```
+> Ayrıca **kenar önbelleği gecikir**: bu turda yayılma birkaç dakika sürdü ve
+> arada "değişiklik inmemiş" gibi göründü. `curl` ile art arda ölçüp bekleyin;
+> gerçek tarayıcıda `location.reload()` yetmez, `fetch(url, {cache:'no-store'})`
+> ile doğrulayın.
+
+### 26d. Dördüncü yanlış alarm — yarı saydam zemin (§6.5)
+
+Canlı kontrast taraması karnede **4 ihlal** (en düşük 4,0) bildirdi. Bulguyu
+raporlamadan önce ölçüt denetlendi: dördü de `.sc-class` (öğrenci seçicideki
+"7-A" rozeti) idi ve zemin `rgb(127,127,127)` okunuyordu.
+
+Gerçek CSS: `background: rgba(127,127,127,**.18**)` — **yarı saydam**. Tarayıcı
+betiğim alfa kanalını yok sayıp opak gri sanmıştı. Doğru harmanlamayla:
+- beyaz kart üzerinde → efektif zemin `rgb(232,232,232)`, kontrast **14,2:1**
+- aktif lacivert düğme üzerinde → efektif zemin `rgb(61,85,136)`, beyaz metinle **7,4:1**
+
+**Ürün doğru, ölçüt hatalıydı.** Bu oturumun dördüncü ölçüm artefaktı
+(§25h'deki üçün ardından). Tarayıcı betiği alfa harmanlaması yapacak şekilde
+düzeltildi.
+
+### 26e. Doğrulama özeti — CANLI sistemde ölçüldü
+
+| Kontrast | Sonuç |
+|---|---|
+| Canlı `app.js` yerelle bayt bayt aynı | **316.536 / 316.536** |
+| `demoSinifOturumlari` · `okulGercekDurum` · `mcPuani` canlıda | üçü de **function** |
+| Gizlilik metnindeki yeni paragraf | canlıda **var** |
+| 4 rol × 10 sekme | render **0** · konsol **0** · yatay taşma **0** |
+| Mobil 375 px × 10 ekran | taşma **0** |
+| **Kontrast** — 5 ekran, **422 öğe** (alfa harmanlamalı) | ihlal **0** · en düşük **4,59:1** |
+| Öz-kontrol listesi | **156 ad**, tanımı bulunamayan **0** |
+| `npm run lint` · `npm test` · `check:config` | temiz · **98/98** · 2/2 |
+| Demo senaryosu (canlı) | %75 · 3/4 · kalibrasyon n=3 · denetim izi 6 kayıt |
+
+### 26f. Video için hazırlanan çekim sırası
+
+Veri `localStorage`'da kalıcı olduğu için **sahne kayıttan önce kurulur**:
+
+1. Canlı adres → **Ctrl+Shift+R** (sert yenileme)
+2. **Demo senaryosu** → yükle (yönetici paneli anında dolar)
+3. İstenirse Öğretmen → **Sınıfı Simüle Et** (5 öğrenci, ~90 sn, **gerçek
+   model**) — sayılar simüle değil gerçek değerlendirmelerden gelir
+4. **Kaydı başlat**, rolleri gez
+
+Sunumda söylenecekler:
+- Isı haritasında **koyu = yüksek** başarı
+- **"(örnek)"** satırları karşılaştırma verisidir, üstteki kutulara dahil değildir
+- Canlı soru üretilirse metin **onaylanmadan önce okunmalı** (§4.8). Bozuk terim
+  çıkarsa düzeltip onaylamak, HITL tezinin **canlı kanıtı** olarak sunulabilir
+
+### 26g. Etiketleme
+
+Başvuru anındaki hâl `v1.1-basvuru` etiketiyle sabitlendi.
+
+> `v-demo` etiketi **atılmadı**: `agents.md` §8 onu *sunumdan 24 saat önce*
+> (≈4 Eylül) şart koşuyor. Şimdi atmak kuralı boşa düşürürdü.
