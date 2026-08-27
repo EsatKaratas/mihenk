@@ -291,7 +291,6 @@ t3-olcme-degerlendirme/
 │   ├── check-jsonc.py       2 KB  JSONC doğrulayıcı (npm run check:config)
 │   ├── anahtar-dogrula.mjs  5 KB  yedek anahtarı sağlayıcıya sorup CF'e yükler
 │   ├── anahtar-ekran.mjs   10 KB  aynısı için yerel tarayıcı ekranı
-│   └── test-gemini.mjs      3 KB  (eski) Gemini anahtarını yerelde sınar
 │
 ├── seed/turkishmmlu/              dataset dönüştürme — DEMODA KULLANILMIYOR
 │   ├── 01_learning_outcomes.sql

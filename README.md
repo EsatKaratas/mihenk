@@ -186,17 +186,29 @@ hızlandırmayı, **ancak nihai kararı ve puan onayını öğretmende bırakmay
 
 ## 2. Dört kullanıcı rolü
 
-| Rol | Panel özeti |
-|---|---|
-| **İçerik Uzmanı** | Ders notu/metin yükler, konu/sınıf/kazanım belirler; AI'nin ürettiği çoktan seçmeli ve açık uçlu soruları düzenleyip onaylayarak ortak soru havuzuna aktarır. |
-| **Öğretmen** | Soru havuzundan kazanım/zorluğa göre sınav oluşturur, AI'nin süre önerisini gerekirse değiştirir; açık uçlu sorular için rubrik tanımlar; AI'nin puan/gerekçe önerilerini tek tek inceleyip onaylar veya revize eder; sınıf analitiklerini ve kazanım ısı haritasını görür. |
-| **Öğrenci** | Aktif/yaklaşan sınavlarını görür; geri sayımlı çözüm ekranında soruları yanıtlar (açık uçlu yanıtlar otomatik kaydedilir); öğretmen onayından sonra gerekçeli karnesini okur. |
-| **Eğitim Yöneticisi** | Okul genelinde sınav tamamlanma oranını, öğretmenlerin bekleyen onaylarını ve kazanım bazlı başarı ısı haritasını tek bir özet panodan takip eder. |
+Brief dört rol tanımlıyor. Dördü de canlı sistemde **gerçekten çalışır** —
+hiçbiri yer tutucu ekran değildir.
 
-Dört rolün birbirini nasıl beslediği canlı sistemde uçtan uca çalışır
-(bkz. §6 Demo Akışı). Arayüz kodu `public/app.js` (mantık) ve
-`public/app.css` (stiller) dosyalarındadır; `public/index.html` yalnızca
-~2 KB'lık iskelettir.
+| Rol | Ne yapar | İnsan onayının durduğu yer |
+|---|---|---|
+| **İçerik Uzmanı**<br><sub>2 sekme</sub> | Kaynak metni yükler (yapıştır · `.txt` · `.md` · **PDF**) veya Müfredat Kitaplığı'ndan sayfa aralığı seçer; ders, sınıf ve **MEB kazanımını** belirler; yapay zekânın ürettiği çoktan seçmeli ve açık uçlu taslakları — her çeldiricinin hangi kavram yanılgısını ölçtüğüyle birlikte — inceler. | Soru `ai_generated` durumunda bekler; **onaylanmadan havuza girmez.** Onay ve red kararlarının ikisi de denetim izine yazılır. |
+| **Öğretmen**<br><sub>4 sekme</sub> | Havuzdan kazanım/zorluk/türe göre sınav kurar, **çoktan seçmeli soru puanını belirler**, süre önerilerini değiştirebilir; açık uçlu sorular için rubrik tanımlar (yapay zekâ taslak önerir); **Bloom düzey dengesi** sınavın ezber mi ölçtüğünü söyler; puan önerilerini *en düşük güvenli en üstte* sırayla inceler; madde analizi ve kavram yanılgısı kümelerini görür. | Puan `aiEvals`'ta durur; öğretmen onaylayana kadar **öğrenciye ulaşmaz.** Geri bildirim taslağı da ayrı bir kutuda bekler, "Nota Aktar" denmeden gitmez. |
+| **Öğrenci**<br><sub>3 sekme</sub> | Geri sayımlı ekranda sınavı çözer; açık uçlu yanıtlar otomatik kaydedilir (sayfa yenilense de kaybolmaz); metne dayalı sorularda kaynak metin soruyla birlikte gösterilir. Karnesinde **nihai puanını**, her soruda **kendi yazdığı yanıtı** ve puanın hangi ölçütten geldiğini görür. | Karne yalnızca öğretmen **yayınladıktan** sonra açılır. Karnede puanı yapay zekânın mı önerdiği, öğretmenin mi değiştirdiği **açıkça yazar.** |
+| **Eğitim Yöneticisi**<br><sub>tek sayfa</sub> | Okul geneli tamamlanma, bekleyen onay sayısı, **kazanım ısı haritası**, öğretmen–yapay zekâ uyum ölçümü ve **Yapay Zekâ Karar Günlüğü** (CSV/JSON indirilebilir denetim izi). Isı haritasında %55 altı hücreler ayrıca uyarı olarak listelenir ve tek tıkla o kazanım için yeni soru üretimine döner. | Panodaki sayılar **yalnızca öğretmen onayından geçmiş** sonuçlardan hesaplanır; onaylanmamış hiçbir puan buraya yansımaz. |
+
+**Brief'in üç akışıyla eşleşme:** Akış 01 (İçerik Uzmanı: kaynak → kazanım →
+üretim → onay), Akış 02 (Öğretmen: sınav → açık uçlu yanıtlar → AI önerisi →
+nihai onay) ve Akış 03 (Öğrenci: çöz → kaydet → onay sonrası sonuç) uçtan uca
+sürülebilir — §6'daki demo akışı tam olarak bu sırayı izler.
+
+**Zincir kapanıyor:** içerik → sınav → çözüm → onay → analiz → **yeni içerik.**
+Analiz ekranındaki "tekrar sorusu üret" düğmesi İçerik Uzmanı paneline döner.
+
+> **Not:** Brief bu rolü *"eğitmen"* diye adlandırıyor; ürün K-12 bağlamında
+> olduğu için arayüzde **"öğretmen"** denmektedir. Aynı roldür.
+
+Arayüz kodu `public/app.js` (mantık) ve `public/app.css` (stiller)
+dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 
 ## 3. Mimari
 
@@ -237,41 +249,67 @@ Dört rolün birbirini nasıl beslediği canlı sistemde uçtan uca çalışır
 > ### ⚠️ Şu an canlıda ne bağlı, ne bağlı değil — dürüstlük notu
 >
 > Yukarıdaki şema **hedef üretim mimarisidir** (`wrangler.jsonc`). Canlı demo
-> `wrangler.demo.jsonc` ile çalışır ve **yalnızca statik varlıklar + Workers
-> AI** bağlar. Sebep teknik: `d1_databases[].database_id` doldurulmadan deploy
-> başarısız olur ve **Queues Cloudflare ücretsiz planında kullanılamaz.**
+> `wrangler.demo.jsonc` ile çalışır ve **statik varlıklar + Workers AI**
+> bağlar. Bu ayrım bilinçli bir **kapsam kararıdır**: yarışma süresi, jüriye
+> yarım bağlanmış çok sayıda servis yerine **uçtan uca gerçekten çalışan bir
+> akış** göstermeye harcandı.
 >
 > | Bileşen | Hedef mimari | Canlı demo |
 > |---|---|---|
 > | Cloudflare Workers + Hono | ✅ | ✅ **çalışıyor** |
 > | Workers AI (soru üretimi, puanlama) | ✅ | ✅ **çalışıyor** |
 > | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** (§3.1) |
-> | D1 (SQLite) — 14 tablo | ✅ | ❌ şema hazır, yazım yok (durum `localStorage`'da) |
-> | R2 nesne depolama | ✅ | ❌ bağlı değil (PDF istemcide işlenir, sunucuya gitmez) |
-> | Queues (asenkron AI) | ✅ | ❌ ücretsiz planda yok (çağrılar senkron, 3-10 sn) |
+> | MEB kazanım katalogları (606 çıktı) | ✅ | ✅ **çalışıyor** |
+> | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ | ✅ **çalışıyor** |
+> | D1 (SQLite) — 14 tablo | ✅ | ❌ şema hazır, yazım yok — durum tarayıcıda (`localStorage` + IndexedDB) |
+> | R2 nesne depolama | ✅ | ❌ bağlı değil — PDF istemcide işlenir, sunucuya hiç gitmez |
+> | Queues (asenkron AI) | ✅ | ❌ bağlı değil — AI çağrıları senkron yapılır |
 > | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir |
 >
-> Bu ayrım bilinçli bir kapsam kararıdır: yarışma süresi, jüriye
-> **çalışan bir uçtan uca akış** göstermeye harcandı.
+> **Neden D1 bağlı değil:** `d1_databases[].database_id` doldurulmadan
+> `wrangler deploy` başarısız olur; demo yapılandırması bu yüzden ayrı bir
+> dosyada tutulur (`wrangler.demo.jsonc`). Şema (`schema.sql`, 14 tablo) ve
+> rota iskeleti (`routes.ts`) depoda hazır bekliyor — üretime geçiş mimariyi
+> yeniden yazmayı değil, bağlantıları açmayı gerektiriyor.
+>
+> **Verinin tarayıcıda durması demo için bir avantaj:** öğrenci yanıtları,
+> yüklenen PDF'ler ve karar günlüğü kullanıcının cihazından hiç çıkmıyor.
+> Gizlilik bölümünde (§10) ayrıntısı var.
 
 ### 3.1 Tek sağlayıcıya bağımlı değil — otomatik yedek
 
-Workers AI ücretsiz kotası günde 10.000 neuron (≈ $0,11) ve ölçülen tam demo
-turu ≈ $0,0116 → **günde yaklaşık 10 tur.** Cloudflare belgeleri net: ücretsiz
-planda kota aşılırsa istekler yavaşlamaz, **hata verir.**
+Yapılandırma tek bir model adına gömülü değildir; sağlayıcı ve model **ortam
+değişkeniyle** belirlenir (§5.2). Canlıdaki kurulum:
 
-Bu yüzden `AI_FALLBACK_*` yapılandırılırsa birincil sağlayıcı başarısız olduğu
-anda (kota, kesinti, modelin kaldırılması) sistem **otomatik olarak yedeğe
-geçer** — ve bunu gizlemez:
+```
+Birincil : workers-ai · @cf/meta/llama-3.3-70b-instruct-fp8-fast
+Yedek    : openai     · gpt-5.6-luna
+```
+
+`AI_FALLBACK_*` tanımlıysa birincil sağlayıcı başarısız olduğu anda (kesinti,
+modelin kaldırılması, kota) sistem **otomatik olarak yedeğe geçer** — ve bunu
+gizlemez:
 
 - Yanıtın `meta.fellBack` alanı ve arayüzdeki rozet hangi modelin yanıtladığını yazar
 - Workers Logs'a `ai_fallback` olayı düşer (nereden nereye, sebebiyle)
-- Yedek yapılandırılmamışsa hata olduğu gibi bildirilir
+- Yedek yapılandırılmamışsa hata olduğu gibi bildirilir — sahte puan üretilmez
 
-Canlıda doğrulandı: yedek `gemini-3.7-flash` (Gemini'nin OpenAI uyumlu ucu)
-uçtan uca puan üretti. **Bilinen sınır:** Gemini ücretsiz katmanının dakikalık
-istek limiti düşük — tek öğrenci için güvenilir, hızlı ardışık sınıf
-değerlendirmesinde limite takılabilir (bkz. §9).
+**Canlıda doğrulandı:** birincil sağlayıcı kasten devre dışı bırakılarak yedeğe
+düşürüldü; `gpt-5.6-luna` uçtan uca puan üretti, rozet ve `meta.fellBack`
+geçişi doğru bildirdi, sonra birincile geri dönüldü.
+
+> **Neden yedek duruyor:** Workers AI'ın günlük ücretsiz kotası **10.000
+> neuron** ile sınırlı ve ölçülen bir tam değerlendirme turu bunun yaklaşık
+> onda birini kullanıyor. Kota bir engel olmaktan çıktıktan sonra bile yedek
+> **kaldırılmadı** — artık kota için değil, **sağlayıcı kesintisi** sigortası.
+> Jüriye anlatımı basit: *"Tek model kullanıyoruz; ama sağlayıcı çökerse
+> sistem durmuyor."*
+>
+> **Ölçme tutarlılığı notu:** İki model aynı yanıta farklı puan verebilir
+> (ölçtük: ortalama ~4 puan fark, ama sıralama ikisinde de doğru). Bu yüzden
+> yedek yalnızca gerçek bir arıza durumunda devreye girer — bir sınıfın iki
+> model arasında bölünmesi ölçme geçerliğini bozar. Nihai puanı her hâlükârda
+> öğretmen onaylar.
 
 Mimari kararların gerekçeli anlatımı için üstteki **Mimari dokümantasyonu**
 bağlantısına bakın.
@@ -293,11 +331,15 @@ bağlantısına bakın.
 │   ├── lib/ai.ts          # sağlayıcı bağımsız model çağrısı + JSON onarımı
 │   ├── lib/prompts.ts     # model istemleri (jüriye gösterilebilir tek dosya)
 │   └── schemas/ai.ts      # Zod şemaları (agents.md §7.2 gereği)
-├── tools/
-│   ├── injection-test.py  # prompt injection savunma testi (5 vektör)
-│   ├── check-jsonc.py     # JSONC doğrulayıcı (npm run check:config)
-│   ├── anahtar-dogrula.mjs# yedek anahtarı Google'a sorup Cloudflare'e yükler
-│   └── test-gemini.mjs    # yedek anahtarını yerelde sınar
+├── tools/                 # hepsi yeniden koşulabilir
+│   ├── mufredat-cikar.py       # MEB PDF'lerinden öğrenme çıktılarını çıkarır
+│   ├── mufredat-katalog-uret.py# katalog dosyalarını üretir ve doğrular
+│   ├── injection-test.py       # prompt injection savunma testi (5 vektör)
+│   ├── check-jsonc.py          # JSONC doğrulayıcı (npm run check:config)
+│   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
+│   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
+│   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
+├── .github/workflows/ci.yml    # lint · 98 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -323,9 +365,8 @@ Cloudflare hesabı. Wrangler `npx` ile çalışır, ayrıca kurmaya gerek yoktur
 ### 5.1 Hızlı yol — demo yapılandırması (önerilen)
 
 Demo akışı D1, R2 ve Queues kullanmaz. Üretim yapılandırması bunları bağladığı
-için iki engel çıkarır: `database_id` doldurulmadan deploy başarısız olur ve
-Queues ücretsiz planda kullanılamaz. `wrangler.demo.jsonc` yalnızca statik
-varlıkları ve Workers AI'ı bağlar:
+için `database_id` doldurulmadan deploy başarısız olur. `wrangler.demo.jsonc`
+yalnızca statik varlıkları ve Workers AI'ı bağlar:
 
 ```bash
 npm install
@@ -493,12 +534,11 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   Isı haritasındaki *karşılaştırma* sınıfları (6-A, 8-B, 8-C) demo verisidir
   ve arayüzde "(örnek)" etiketiyle işaretlidir — canlı şubeler gerçek veriden
   hesaplanır. Mekanizma gerçek, karşılaştırma sınıfları simüle.
-- **Yedek sağlayıcı kredi bazlıdır:** Yedek, ön ödemeli krediyle çalışan
-  OpenAI `gpt-5.6-luna`'dır. Daha önce denenen Gemini ücretsiz katmanı
-  **günde 20 istekle** sınırlıydı ve bir tam değerlendirme turu 11 istek
-  gerektirdiği için günde ~1,8 tura denk geliyordu; bu yüzden vazgeçildi.
-  Otomatik kredi yüklemesi **kapalıdır** — en kötü durumda kredi biter,
-  sürpriz fatura gelmez.
+- **Yedek sağlayıcı OpenAI `gpt-5.6-luna`'dır.** Daha önce denenen Gemini
+  ücretsiz katmanı **günde 20 istekle** sınırlıydı ve bir tam değerlendirme
+  turu 11 istek gerektirdiği için günde ~1,8 tura denk geliyordu; bu yüzden
+  vazgeçildi. Yedeğin kullanım tavanı önceden sabitlenmiştir ve otomatik
+  yükseltme **kapalıdır**; sınır aşılamaz.
 - **Yedeğin puanlama sertliği farklı:** Aynı yanıta birincil model 15-16/20,
   yedek 20/20 verdi. Nihai puanı öğretmen onayladığı için kritik değil, ama
   yedeğe düşüldüğünde tutarlılığın değiştiği bilinmelidir.

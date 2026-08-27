@@ -514,8 +514,9 @@
         <b>Dürüstlük notu — bu sayfa HEDEF mimariyi anlatır.</b>
         Canlı demo yalnızca <b>Cloudflare Workers + Hono + Workers AI</b> bağlar.
         D1, R2 ve Queues şeması hazır ama <b>canlıda bağlı değildir</b>:
-        <code>database_id</code> doldurulmadan deploy başarısız olur ve Queues
-        ücretsiz planda kullanılamaz. Prototip durumu tarayıcının
+        <code>database_id</code> doldurulmadan deploy başarısız olur; Queues ise
+        bilinçli bir kapsam kararıyla bağlanmadı, yapay zekâ çağrıları senkron
+        yapılıyor. Prototip durumu tarayıcının
         <code>localStorage</code>'ında tutulur. Aşağıdaki rota tablolarında
         <b>gerçekten çalışan uçlar ayrıca işaretlidir.</b>
       </div>
