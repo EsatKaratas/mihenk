@@ -15,6 +15,8 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev)
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)
 
+[![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
+[![Testler](https://img.shields.io/badge/test-98%2F98-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)

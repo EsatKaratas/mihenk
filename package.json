@@ -1,10 +1,29 @@
 {
-  "name": "t3-olcme-degerlendirme-sistemi",
-  "version": "0.1.0",
+  "name": "mihenk",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "T3 Vakfı Creathon — Problem 2: Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi (Cloudflare Workers + Hono + D1, Human-in-the-Loop puanlama).",
+  "description": "Mihenk — Yapay zekâ önerir, öğretmen karar verir. MEB öğrenme çıktılarına dayalı soru üretimi, rubrik tabanlı açık uçlu puanlama ve kazanım analizi. T3 Vakfı Creathon — Problem 2.",
   "license": "UNLICENSED",
+  "author": "Takım BIES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik",
+  "homepage": "https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EsatKaratas/mihenk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EsatKaratas/mihenk/issues"
+  },
+  "keywords": [
+    "olcme-degerlendirme",
+    "human-in-the-loop",
+    "cloudflare-workers",
+    "workers-ai",
+    "meb",
+    "egitim",
+    "rubrik",
+    "hono"
+  ],
   "scripts": {
     "dev": "wrangler dev",
     "dev:demo": "wrangler dev -c wrangler.demo.jsonc",

@@ -1,0 +1,73 @@
+# Sürekli entegrasyon.
+#
+# NEDEN VAR: `agents.md` §3 "npm run lint ve npm run test CI'da yeşil olmadan
+# merge edilmez" diyor — yani CI bu deponun kendi bağlayıcı kuralı. Kural
+# yazılıydı ama işletilmiyordu; bu dosya o boşluğu kapatır.
+#
+# Burada KOŞULMAYANLAR ve sebepleri:
+#   · `wrangler deploy`  -> canlıya alma bilinçli olarak insan kararıdır
+#                           (agents.md §6.4-10). CI üretime dokunmaz.
+#   · Gerçek model çağrısı -> ücretli ve değişken; CI'yı sağlayıcı yüküne
+#                           bağlamak testleri güvenilmez yapar.
+#   · `public/app.js` arayüz testleri -> tarayıcı DOM'una bağlı (README §9).
+#                           Yerine dosya sonundaki öz-kontrol denetlenir.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dogrulama:
+    name: Lint · Test · Yapılandırma
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Python kur (JSONC doğrulayıcı için)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Tip denetimi (tsc --noEmit)
+        run: npm run lint
+
+      - name: Birim testleri (vitest)
+        run: npm test
+
+      - name: Yapılandırma doğrulama (JSONC)
+        run: npm run check:config
+
+      # `node --check` yalnızca SÖZDİZİMİ denetler, çalışma zamanını DEĞİL
+      # (AKTARIM §6.3-19'da bunun bir kez hataya yol açtığı kayıtlı).
+      # Yine de bozuk bir dosyanın canlıya gitmesini ucuza engeller.
+      - name: Tarayıcı betikleri sözdizimi
+        run: |
+          for f in public/app.js public/mimari.js public/404.js public/privacy-policy.js; do
+            node --check "$f" && echo "ok  $f"
+          done
+
+      # Öz-kontrol listesindeki her adın gerçekten tanımlı olduğunu doğrular.
+      # app.js 5.600 satırlık tek dosya; bir blok değiştirilirken komşu
+      # fonksiyonların silinmesi bu projede bir kez yaşandı (AKTARIM §6.3-1).
+      - name: Öz-kontrol listesi tutarlı mı
+        run: node tools/ozkontrol-dogrula.mjs
