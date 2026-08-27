@@ -722,3 +722,27 @@ Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)
 
 </div>
+
+---
+
+## Haklar ve kullanım
+
+Bu depoda **lisans dosyası bilinçli olarak yoktur.** Sebebi bir ihmal değil,
+bir doğruluk tercihi:
+
+- Kod, **T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026** kapsamında Takım BİES
+  tarafından üretilmiştir.
+- Bu tür yarışmaların katılım şartnameleri, üretilen kodun **mali haklarının
+  düzenlenmesine** ve vakfın **açık kaynak politikası** çerçevesinde
+  yayımlanmasına dair maddeler içerebilir. Depoya, bu düzenlemeyle
+  çelişebilecek tek taraflı bir lisans metni **koymuyoruz.**
+- Dolayısıyla kullanım koşulları, **yarışmanın katılım şartnamesi ve T3 Vakfı
+  ile yapılan düzenlemeler** çerçevesinde belirlenir.
+
+**Bu depoyu inceleyebilir, klonlayabilir ve yerelde çalıştırabilirsiniz** —
+jürinin ve ilgilenen herkesin kodu okuyup doğrulayabilmesi bu projenin amacına
+uygundur; zaten `README` boyunca "kendiniz koşun" diyoruz. Bunun ötesinde bir
+kullanım (yeniden dağıtım, ticari kullanım, türev ürün) düşünüyorsanız
+**takımla iletişime geçin.**
+
+<sub>Bu bölüm hukuki görüş değildir; yalnızca depodaki durumu açıklar.</sub>
