@@ -36,7 +36,7 @@ nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik do�
 | Ne | Nerede |
 |---|---|
 | Canlı sistem | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
-| GitHub (public) | https://github.com/EsatKaratas/t3-olcme-degerlendirme |
+| GitHub (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | GitHub kullanıcısı | EsatKaratas |

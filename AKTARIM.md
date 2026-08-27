@@ -8,8 +8,8 @@
 >    sığdırılmaya çalışılırsa model kaçınılmaz olarak kısaltır veya
 >    hatırlamadığı yeri uydurur. Bu projede bir kez yaşandı (`PROGRESS.md` §5).
 >    ```bash
->    git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
->    cd t3-olcme-degerlendirme && npm install
+>    git clone https://github.com/EsatKaratas/mihenk
+>    cd mihenk && npm install
 >    ```
 > 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (146 KB, §0-§24). Bu dosya bir
 >    özettir; çelişki görürsen `PROGRESS.md`'ye güven. **§17-§24 en yenidir;
@@ -33,7 +33,7 @@
 | **Canlı sistem** | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
 | Mimari dokümantasyonu | `/mimari` (aynı alan adında) |
 | Gizlilik / KVKK | `/privacy-policy` |
-| Depo (public) | https://github.com/EsatKaratas/t3-olcme-degerlendirme |
+| Depo (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
@@ -709,7 +709,7 @@ düzenlenebilir.
 | 5 | 🔴 Deck ürün adını **"AI-Destekli Eğitim Değerlendirme Platformu"** diyor | ürün adı **Mihenk** | İsim birliği |
 | 6 | 🔴 Deck'te **"hile önleyici kontroller"** ifadesi | yanlış | Doğrusu: **"sınav bütünlüğü kaydı — öğretmene şeffaf sinyal"**. Üründe engelleme yok, kayıt var. Jüride tek soruyla çöker |
 | 7 | Deck'te rakip tablosu ve pazar sayısı yok | Kreaton rehberi §5.1 şart koşuyor | |
-| 8 | **Ekran görüntüleri** | README'de ürün görseli yok | Kullanıcı alıp `docs/` altına koyarsa asistan yerleştirir |
+| 8 | ~~**Ekran görüntüleri**~~ | ✅ **YAPILDI** | `docs/ekran/` altında 4 görsel (2880×1800, canlı sistemden Playwright ile), README'nin başına "Ekranlar" bölümü olarak yerleştirildi. Yeniden üretmek için: `scratchpad/shot.mjs` kalıbı — 4 rol × demo senaryosu |
 | 9 | **`v-demo` tag'i** | atılmadı | `agents.md` §8: sunumdan 24 saat önce (≈4 Eylül) |
 | 10 | **Adres kısaltma** | karar bekliyor | §5.5 |
 | 11 | **Workers Paid iptali** | — | Yarışma sonrası, aylık $5 |

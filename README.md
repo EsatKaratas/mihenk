@@ -35,6 +35,17 @@ model istemleri, geliştirme kuralları, güvenlik testi.</sub>
 Ama yapay zekâ hiçbir şeye karar vermez: soru **önerir**, puan **önerir**,
 rubrik **önerir**. Onaylayan her zaman insandır.
 
+### Ekranlar
+
+Aşağıdaki görüntüler **canlı sistemden**, demo senaryosu yüklü hâlde alınmıştır.
+
+| | |
+|---|---|
+| <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — AI'ın ürettiği soru taslakları, her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
+| **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi kriter bazında gelir, gerekçesiyle birlikte. Öğretmen onaylayana kadar öğrenciye ulaşmaz. |
+| <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım ısı haritası ve gerçek/örnek satır ayrımı" width="100%"> |
+| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve puanın hangi ölçütten geldiği. Puanı yapay zekânın mı önerdiği, öğretmenin mi değiştirdiği açıkça yazar. | **Eğitim Yöneticisi** — kazanım ısı haritası ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
+
 ### İçindekiler
 
 **Hızlı erişim:** [Neden farklı](#neden-bu-proje-farklı) · [Uçtan uca akış](#uçtan-uca-akış) · [Ölçülen değerler](#canlıda-ölçülen-değerler) · [**Hemen deneyin**](#hemen-deneyin) · [Güvenlik](#111-güvenlik--prompt-injectiona-karşı-sertleştirme)
@@ -100,18 +111,29 @@ puan kırılımı + kriter gerekçeleri`"]
 
 ### Canlıda ölçülen değerler
 
-Aşağıdakiler tahmin değil; **canlı sistemde, gerçek modelle, tek denemede**
-ölçülmüş sürelerdir (son ölçüm: 26 Ağustos 2026).
+Aşağıdakiler tahmin değil; **canlı sistemde, gerçek modelle** (Llama 3.3 70B)
+birden fazla turda ölçülmüş sürelerdir (son ölçüm: 26 Ağustos 2026).
+
+**Tek sayı yerine aralık veriyoruz, çünkü değişkenlik gerçekten yüksek:** aynı
+uç farklı koşumlarda **6 sn ile 29 sn** arasında ölçüldü. Model sağlayıcısının
+o anki yükü belirleyici. Tek bir "en iyi" ölçümü tablo hâline getirmek, canlı
+demoda tutulan süreyle çelişirdi.
 
 | İşlem | Süre | Not |
 |---|---|---|
-| Soru üretimi (1 ÇSS + 1 açık uçlu) | ~9,7 sn | çeldirici gerekçeleri ve Bloom etiketi dahil |
-| Açık uçlu değerlendirme | 3,3–5,5 sn | kriter bazında puan + gerekçe + güven skoru |
-| Rubrik taslağı önerisi | ~2,7 sn | ağırlıklar %100'e normalleştirilir |
-| Örnek yanıt üretimi (3 başarı düzeyi) | ~3,7 sn | sınıf simülasyonu için |
-| Önbellekten değerlendirme | **0–6 ms** | aynı yanıt + aynı rubrik + aynı model |
+| Soru üretimi (1 ÇSS + 1 açık uçlu) | 7–13 sn | çeldirici gerekçeleri ve Bloom etiketi dahil |
+| Açık uçlu değerlendirme (tek yanıt) | 6–12 sn | kriter bazında puan + gerekçe + güven skoru |
+| Rubrik taslağı önerisi | ~5–6 sn | ağırlıklar %100'e normalleştirilir |
+| Örnek yanıt üretimi (sınıf simülasyonu) | ~7 sn | başarı düzeyi başına |
+| Kavram yanılgısı kümeleme | ~4–5 sn | sınıfın tamamı üzerinden |
+| Kazanım–soru hizalama denetimi | ~3 sn | bağımsız çağrı |
+| **Önbellekten değerlendirme** | **0–6 ms** | aynı yanıt + aynı rubrik + aynı model |
 | Boş yanıt | anında | model hiç çağrılmadan 0 puan |
-| Prompt injection (5 saldırı vektörü) | 3,3–5,5 sn | **5/5 savunuldu** |
+| Prompt injection (5 saldırı vektörü) | 5–9 sn | **5/5 savunuldu** |
+
+> Bu değişkenlik ürünün bir kusuru değil, dış bir sağlayıcıya bağlı çalışmanın
+> doğal sonucudur. Ürün tarafındaki cevabımız **değerlendirme önbelleği**
+> (aynı yanıt tekrar puanlanmaz — 0-6 ms) ve **hazır demo senaryosudur**.
 
 Ek bağlantılar: **[mimari dokümantasyonu](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)**
 · **[KVKK aydınlatma metni](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/privacy-policy)**
@@ -130,8 +152,8 @@ arasında gezinin. Yüklenen sorular uydurma değil, modelin gerçekten üretti�
 **Yerelde çalıştırmak isterseniz** (Node.js ≥ 18 ve bir Cloudflare hesabı):
 
 ```bash
-git clone https://github.com/EsatKaratas/t3-olcme-degerlendirme
-cd t3-olcme-degerlendirme
+git clone https://github.com/EsatKaratas/mihenk
+cd mihenk
 npm install
 npx wrangler login
 npm run dev:demo      # http://localhost:8787
@@ -469,12 +491,12 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   Isı haritasındaki *karşılaştırma* sınıfları (6-A, 8-B, 8-C) demo verisidir
   ve arayüzde "(örnek)" etiketiyle işaretlidir — canlı şubeler gerçek veriden
   hesaplanır. Mekanizma gerçek, karşılaştırma sınıfları simüle.
-- **Yedek sağlayıcı dakikalık limiti:** Gemini ücretsiz katmanı hızlı ardışık
-  isteklerde `429` (dakikalık limit) ve zaman zaman `503` (Google tarafında
-  yoğunluk) döndürebiliyor. Ölçüldü: 5 hızlı istekte limite takıldı, birkaç
-  dakika sonra normale döndü. Yani yedek tek öğrenci için güvenilir, hızlı
-  sınıf geneli değerlendirmesinde kırılgan. Dayanıklı çözüm zincir yedek
-  (Workers AI → Gemini → OpenAI) ya da kredi bazlı bir sağlayıcıdır.
+- **Yedek sağlayıcı kredi bazlıdır:** Yedek, ön ödemeli krediyle çalışan
+  OpenAI `gpt-5.6-luna`'dır. Daha önce denenen Gemini ücretsiz katmanı
+  **günde 20 istekle** sınırlıydı ve bir tam değerlendirme turu 11 istek
+  gerektirdiği için günde ~1,8 tura denk geliyordu; bu yüzden vazgeçildi.
+  Otomatik kredi yüklemesi **kapalıdır** — en kötü durumda kredi biter,
+  sürpriz fatura gelmez.
 - **Yedeğin puanlama sertliği farklı:** Aynı yanıta birincil model 15-16/20,
   yedek 20/20 verdi. Nihai puanı öğretmen onayladığı için kritik değil, ama
   yedeğe düşüldüğünde tutarlılığın değiştiği bilinmelidir.
@@ -482,9 +504,15 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   sınırı bellek-içi bir `Map` ile tutulur; Cloudflare Workers'da bu her
   isolate için ayrıdır, dağıtık bir garanti değildir (`agents.md` §7.4 buna
   açıkça izin veriyor; üretimde D1/KV'ye taşınır).
-- **Birim testi yok:** `agents.md` §6 `vitest` testlerini zorunlu tutuyor;
-  yarışma süresi nedeniyle yazılmadı. Yerine tekrar koşulabilir bir güvenlik
-  testi eklendi: `tools/injection-test.py` (bkz. §11).
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **98 test**
+  koşar (`test/guards.test.ts` 47 · `test/schemas.test.ts` 27 ·
+  `test/ai-lib.test.ts` 24) — kaynak tespiti, hız sınırı, yabancı alfabe
+  denetimi, Zod şema sınırları, JSON onarımı ve sağlayıcı seçimi kapsanır.
+  Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
+  DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
+  dosya sonunda **156 fonksiyon adını denetleyen bir öz-kontrol** ve elle
+  sürülen uçtan uca senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
+  güvenlik testi var: `tools/injection-test.py` (bkz. §11).
 - Geliştirici kuralları (branch stratejisi, token/kaynak sınırları) için
   `agents.md` dosyasına bakın.
 
@@ -613,7 +641,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/t3-olcme-degerlendirme/releases/tag/v1.0-teslim) · Son ölçüm: 26 Ağustos 2026
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 26 Ağustos 2026
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)
