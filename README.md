@@ -409,6 +409,23 @@ Arayüzün sağ üstündeki rozet hangi modda çalışıldığını gösterir:
 şablon tabanlı yedek devrede). Bu rozet bilinçlidir — sistemin sessizce
 simülasyona düşüp gerçek yapay zekâ gibi görünmesini engeller.
 
+**Gereksinimler:** Node.js ≥ 18 · Python 3 (yalnızca `check:config` ve güvenlik
+testi için) · bir Cloudflare hesabı.
+
+Proje **Windows, macOS ve Linux'ta aynı şekilde** çalışır; derleme adımı yok.
+Tek istisna kök dizindeki iki `.bat` dosyasıdır — yalnızca Windows'ta çalışan
+kısayollardır. Aynı işi her platformda yapan npm karşılıkları vardır:
+
+```bash
+npm run anahtar          # yedek sağlayıcı anahtarını doğrula ve yükle
+npm run anahtar:ekran    # aynısı için yerel tarayıcı ekranı (127.0.0.1:8799)
+```
+
+> **macOS notu:** Modern macOS'ta `python` komutu yoktur, yalnızca `python3`
+> bulunur. `npm run check:config` bu yüzden doğrudan `python` çağırmaz;
+> `tools/check-config.mjs` çalışan yorumlayıcıyı (`python3` → `python` → `py`)
+> kendisi bulur.
+
 ### 5.2 Model sağlayıcısını değiştirme
 
 Workers AI üzerindeki küçük modeller Türkçede yer yer zayıf kalabilir. Kalite

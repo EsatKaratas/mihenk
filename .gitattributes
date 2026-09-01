@@ -1,3 +1,23 @@
+# ============================================================
+# SATIR SONU NORMALLEŞTİRME
+# ============================================================
+# NEDEN: Proje iki farklı işletim sisteminde geliştiriliyor (Windows'ta
+# yazıldı, Creathon'a MacBook götürülecek). Ayar yapılmazsa Windows CRLF,
+# macOS LF yazar ve aynı dosya iki makinede "tamamen değişmiş" görünür:
+# git diff'ler devasa olur, gerçek değişiklik gürültüde kaybolur, iki kişi
+# aynı dosyaya dokunduğunda gereksiz çakışma çıkar.
+#
+# `text=auto eol=lf`: depoda her zaman LF saklanır, çalışma kopyasında da
+# LF kullanılır. Windows'taki editörler ve Node/Python LF'i sorunsuz okur.
+#
+# İSTİSNA: .bat dosyaları CRLF kalmalı — Windows komut yorumlayıcısı LF'li
+# toplu iş dosyalarında beklenmedik davranabilir.
+* text=auto eol=lf
+*.bat text eol=crlf
+# İkili dosyalar dönüştürülmez.
+*.png binary
+*.pdf binary
+
 # Linguist dil istatistiği düzeltmesi.
 #
 # NEDEN: GitHub dil çubuğu HTML'i %20'nin üzerinde gösteriyordu. Sebebi
