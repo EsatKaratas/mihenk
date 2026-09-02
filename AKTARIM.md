@@ -11,21 +11,24 @@
 >    git clone https://github.com/EsatKaratas/mihenk
 >    cd mihenk && npm install
 >    ```
-> 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (146 KB, §0-§24). Bu dosya bir
->    özettir; çelişki görürsen `PROGRESS.md`'ye güven. **§17-§24 en yenidir;
->    §23 ve §24 bu oturumun tamamıdır.**
+> 2. **`PROGRESS.md` tek doğruluk kaynağıdır** (§0-§27). Bu dosya bir özettir;
+>    çelişki görürsen `PROGRESS.md`'ye güven.
 > 3. **`agents.md` oturum boyunca bağlayıcı kısıtlardır.** Özellikle §1
 >    (Human-in-the-Loop) hiçbir gerekçeyle esnetilemez.
-> 4. Aşağıdaki **§5.2 "İlk Görev"** ile başla. Kullanıcı başka bir şey
->    söylemediyse kendi başına yeni bir yön seçme.
+> 4. 🔴 **İLK GÖREV ARTIK `PROGRESS.md` §27'DİR.** Orada 13 maddelik, kök
+>    nedenleri ölçülmüş, dosya:satır işaretçileri verilmiş bir iş listesi var.
+>    Kullanıcı bu maddeleri **sırayla ve tek tek** yapmak istiyor.
+>    Aşağıdaki §5.2 (eski ilk görev) **tamamlanmıştır**, tarihsel kayıttır.
 > 5. Kullanıcıya görünen tüm metinler **Türkçe**, kod içindeki adlar İngilizce.
 > 6. **§6.4'teki çalışma biçimi kurallarını oku.** Kullanıcı bunları açıkça
 >    istedi; uyulmadığında rahatsız oluyor.
-> 7. **§6.5'teki "yanlış alarm" dersini oku.** Bu oturumda beş kez, kendi test
->    aracımın kusurunu ürün hatası sandım. Bir bulguyu bildirmeden önce
->    **ölçütün kendisini doğrula.**
+> 7. **§6.5'teki "yanlış alarm" dersini oku — EN ÖNEMLİ MADDE.** Bu proje
+>    boyunca **on üç kez**, asistanın kendi test aracının kusuru ürün hatası
+>    sanıldı. Bir bulguyu bildirmeden önce **ölçütün kendisini doğrula.**
+> 8. Ölçmediğin hiçbir sayıyı yazma. Fiyat, sürüm, limit, müfredat — hepsi
+>    kaynağa bakılarak verilir (§6.4-3).
 >
-> **Doküman tarihi:** 26 Ağustos 2026, gece · **Teslim:** 27 Ağustos 2026 ·
+> **Doküman tarihi:** 3 Eylül 2026 · **Teslim:** yapıldı (27 Ağustos) ·
 > **Final sunum:** 5-6 Eylül 2026, BAU Beşiktaş
 
 | Ne | Nerede |
@@ -37,8 +40,10 @@
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
-| Son commit | toplam **77 commit** · etiketler `v1.0-teslim`, `v1.1-basvuru` · **60 takipli dosya** |
-| ⚠️ En yeni bölümler | **`PROGRESS.md` §25 ve §26** — ekip denemesi geri bildirimi (5 madde) ve başvuru turu. Bu dosyanın gövdesi §24'e kadarını özetler; §25-§26 yalnızca `PROGRESS.md`'de. **Yeni dersler §6.3-19/20/21 olarak buraya işlendi.** |
+| Son commit | toplam **85 commit** · etiketler `v1.0-teslim`, `v1.1-basvuru` |
+| 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §27** — 13 maddelik iyileştirme planı. Kök nedenler ölçüldü, dosya:satır verildi. **Oturuma buradan başla.** |
+| ⚠️ En yeni bölümler | `PROGRESS.md` **§25** (ekip geri bildirimi) · **§26** (başvuru turu) · **§27** (iyileştirme planı). Bu dosyanın gövdesi §24'e kadarını özetler. Yeni dersler §6.3-19/20/21'de. |
+| CI | GitHub Actions — `.github/workflows/ci.yml` · lint + 98 test + yapılandırma + öz-kontrol |
 | Senkron durumu | yerel kod = GitHub `origin/main` = canlı sistem (üçü aynı) |
 
 ---

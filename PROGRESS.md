@@ -3075,3 +3075,586 @@ Başvuru anındaki hâl `v1.1-basvuru` etiketiyle sabitlendi.
 
 > `v-demo` etiketi **atılmadı**: `agents.md` §8 onu *sunumdan 24 saat önce*
 > (≈4 Eylül) şart koşuyor. Şimdi atmak kuralı boşa düşürürdü.
+
+---
+
+## 27. İYİLEŞTİRME PLANI — 13 madde, kök nedenleriyle (2-3 Eylül 2026)
+
+Kullanıcı uygulamayı elle kullanıp bir sorun listesi verdi ve **uygulama
+yapılmadan önce** kök nedenlerin ölçülmesini, önerilerin artı-eksisiyle
+değerlendirilmesini istedi. Bu bölüm o çalışmanın tam kaydıdır.
+
+**Bu bölüm bir sonraki oturumun İŞ LİSTESİDİR.** Maddeler öncelik sırasındadır;
+her maddede kök neden, kanıt, dosya:satır işaretçisi ve önerilen çözüm vardır.
+
+> ⚠️ Bu turda **hiçbir kod değiştirilmedi.** Aşağıdaki maddelerin hepsi
+> yapılacak iştir. Ölçümler canlı sistemde ve kaynak kod okunarak yapıldı.
+
+---
+
+### 27a. Ölçüm ortamı (tekrar kurulabilir)
+
+Model karşılaştırmaları için canlıya dokunulmadan **yerel bir test Worker'ı**
+kuruldu ve iş bitince silindi. Yeniden kurmak için:
+
+```jsonc
+// wrangler.jsonc  (ayrı bir klasörde)
+{ "name": "model-testi", "main": "index.js",
+  "compatibility_date": "2025-01-01", "ai": { "binding": "AI" } }
+```
+```js
+// index.js — model adı ve istem POST gövdesinden gelir
+export default { async fetch(req, env) {
+  const { model, prompt, maxTokens = 2000, temperature = 0.5 } = await req.json();
+  const t0 = Date.now();
+  const r = await env.AI.run(model, { messages:[{role:'user',content:prompt}],
+    max_tokens: maxTokens, temperature });
+  return Response.json({ ok:true, ms: Date.now()-t0, model, raw: r.response ?? r });
+}};
+```
+```bash
+npx wrangler dev --port 8791 --show-interactive-dev-session=false
+```
+
+> 🔴 **İki tuzak (ikisi de yaşandı):**
+> 1. `env.AI.run()` yanıtı bazen **hazır nesne**, bazen metin döner. Ayrıştırıcı
+>    `if (typeof s === 'object') return s;` ile başlamazsa nesneyi
+>    `"[object Object]"`e çevirip her turu boş sanırsınız (bu oturumda oldu).
+> 2. `wrangler dev` arka planda çalıştırılırsa **kendiliğinden kapanmaz** ve
+>    `workerd` alt süreçleri bırakır. İş bitince süreçleri komut satırında
+>    `model-testi`/port araması yaparak kapatın.
+
+---
+
+### 27b. 🔴 MADDE 1 — Kazanım seçici demo sonrası kilitleniyor
+
+| | |
+|---|---|
+| **Bildiren** | Ekip arkadaşı: *"konu ve kazanım Fen kuvvet ve harekette kalıyor, değiştiremiyorum"* |
+| **Durum** | Canlıda **birebir üretildi** |
+| **Dosya** | `public/app.js` — `loadDemoScenario()` **satır 643** · `katalogHazirla()` **satır 1000** |
+
+**Kök neden:** `loadDemoScenario()` `state.ceForm.subject`'i "Fen Bilimleri"e,
+`grade`'i 7'ye çeviriyor ama **o ders/sınıfın kazanım kataloğunu yüklemiyor.**
+Katalog yüklemesi yalnızca (a) açılışta varsayılan ders için ve (b) kullanıcı
+ders/sınıfı **elle değiştirdiğinde** tetikleniyor.
+
+**Ölçülen kanıt (canlı):**
+```
+loadDemoScenario() sonrası:
+  ders / sınıf        : Fen Bilimleri / 7
+  yüklü katalog       : ["Türkçe|7"]      ← Fen yok
+  seçilebilir kazanım : 1
+katalogHazirla() elle çağrıldıktan sonra:
+  yüklü katalog       : ["Türkçe|7", "Fen Bilimleri|7"]
+  seçilebilir kazanım : 26
+```
+
+**Çözüm:**
+1. **Kısa yol:** `loadDemoScenario()` sonuna `katalogHazirla()` ekle.
+2. **Doğru yol:** ders/sınıf *hangi yoldan değişirse değişsin* katalog
+   yüklemesini garanti et — aynı hata başka bir programatik değişiklikte
+   tekrar eder. `outcomeSeciminiTazele()` ile aynı yerde çağrılabilir.
+
+**Doğrulama:** demo yükle → İçerik Uzmanı → seçicide seçenek sayısı > 1 olmalı.
+
+---
+
+### 27c. 🔴 MADDE 2 — Doğru şık sessizce "A"ya düşüyor
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"Doğru şıkkın hangisi olduğu hakkında hatalar var"* |
+| **Durum** | Kodda bulundu, **7 senaryoda ispatlandı** |
+| **Dosya** | `src/routes/ai.ts` **satır 146** · şema `src/schemas/ai.ts` **satır 141** |
+
+**Kök neden:**
+```ts
+const correctIdx = Math.max(0, oldKeys.indexOf(String(q.correctKey||'').trim().toUpperCase()));
+```
+Model şıklarda **olmayan** bir anahtar döndürürse `indexOf` → `-1`,
+`Math.max(0,-1)` → **0** → A şıkkı sessizce doğru cevap yapılır.
+Ayrıca bir satır yukarıda `opts = (q.options||[]).slice(0, b.optionCount)`
+fazladan şıkları **kırpıyor**; doğru cevap kırpılan şıktaysa yine A'ya düşüyor.
+
+Şema da korumuyor: `correctKey: z.string().min(1).optional()` — şıklardan biri
+olduğu **doğrulanmıyor**.
+
+**Ölçülen kanıt** (normalleştirme mantığı birebir kopyalanıp denendi):
+```
+  OK    anahtar "C" (normal)             → C = doğru
+  OK    anahtar "c" (küçük harf)         → C = doğru
+ HATA   anahtar yerine METİN geldi       → A = YANLIŞ
+ HATA   anahtar sayı geldi ("3")         → A = YANLIŞ
+ HATA   anahtar hiç gelmedi              → A = YANLIŞ
+ HATA   "E" dendi ama 4 şık var          → A = YANLIŞ
+ HATA   5 şık geldi, doğru 5.'de, ayar 4 → A = YANLIŞ
+SESSİZCE YANLIŞ ANAHTAR: 7 senaryonun 5'i
+```
+
+**Çözüm:**
+1. Anahtar eşleşmezse **A'ya düşürme — soruyu ele** (`return null`).
+   §6.3-5 "sessiz geri düşüş yasağı" tam olarak bunu emrediyor.
+2. Şık sayısı istenenden farklıysa kırpma yerine **soruyu reddet**.
+3. Zod şemasında `correctKey`'in `options[].key` içinde olduğunu doğrula
+   (`superRefine`).
+4. Elenen soru sayısı sıfırdan büyükse arayüzde **söyle** ("2 soru geçersiz
+   cevap anahtarı nedeniyle elendi").
+
+---
+
+### 27d. 🔴 MADDE 3 — Doğru şık dağılımı bozuk (ölçme geçerliği)
+
+| | |
+|---|---|
+| **Durum** | Canlıda 24 soruda ölçüldü |
+| **Dosya** | `src/routes/ai.ts` **satır ~147** (şıkların yeniden harflendirildiği yer) |
+
+**Ölçülen kanıt:**
+```
+A: 8  (%33)
+B: 11 (%46)   ← soruyu hiç okumadan "B" diyen öğrenci yarısını doğru yapar
+C: 4  (%17)
+D: 1  (%4)
+dengeli olsaydı her harf ≈ %25
+```
+
+**Çözüm:** Sunucuda şıkları **karıştır**. Kod zaten şıkları A-B-C-D olarak
+yeniden harflendiriyor; oraya bir permütasyon eklemek yeterli. Model ne
+verirse versin doğru şıkkın konumu rastgele olur ve sorun **kökten** biter.
+
+> İstem kuralı ("dengeli dağıt") tek başına **yetmiyor** — denendi, model yine
+> iki harfe yığdı. Karıştırma deterministik ve garantilidir.
+
+**Dikkat:** `distractorRationale` anahtarları da karıştırmaya göre yeniden
+eşlenmeli, yoksa gerekçeler yanlış şıklara bağlanır.
+
+---
+
+### 27e. 🔴 MADDE 4 — Tekrarlayan sorular
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"Aynı sorular sürekli tekrar ediliyor"* |
+| **Dosya** | `src/lib/prompts.ts` `buildQuestionPrompt()` **satır 33** · uç: `src/routes/ai.ts` |
+
+**Kök neden:** İstem, **daha önce üretilmiş soruları hiç bilmiyor.** Aynı metin
++ aynı kazanımla ikinci kez üretildiğinde model **birebir aynı istemi** alır.
+Sıcaklık `0.5` sabittir ve tekrar üretimde değişmez.
+
+**Ölçülen kanıt (canlı, 3 tur, aynı metin, 8+1 soru):**
+```
+üretilen toplam soru     : 27
+benzer çift (Jaccard ≥ 0.60): 15
+  · aynı tur içinde      : 2
+  · turlar arası         : 13   ← yeniden üretince aynısı geliyor
+birebir aynı (%100)      : 5
+```
+
+> 🔴 **KONTROLLÜ DENEY — İLK AKLA GELEN ÇÖZÜM ÇALIŞMADI.**
+> İsteme "şu sorular üretildi, tekrar etme" listesi eklendi + sıcaklık 0,8:
+> ```
+> KONTROL  (bugünkü davranış)      : 9 soru → turlar arası mükerrer 4
+> MÜDAHALE (liste + sıcaklık 0,8)  : 9 soru → turlar arası mükerrer 5
+> ```
+> Modele *"Havada hareket eden cisimlere hangi kuvvet etki eder?"* sorusunu
+> tekrar etmemesi söylendi; model *"...hangi **tür** kuvvet etki eder?"* üretti.
+> **Sebep:** 5 cümlelik metinde ~5 olgu var; modelin başka soracak şeyi yok.
+> **Kısıt istem değil, metnin kendisi** (bkz. MADDE 5).
+
+**Düzeltilmiş çözüm — sıra önemli:**
+1. **Sunucuda mükerrer denetimi (ZORUNLU).** Yeni soru, havuzdaki sorulara
+   kelime kümesi (Jaccard) benzerliği ≥ 0.60 ise elenir ya da "olası tekrar"
+   işaretlenir. **Deterministik, modelden bağımsız.** Kullanılan ölçüm:
+   ```js
+   const norm = s => String(s||'').toLocaleLowerCase('tr')
+     .replace(/[^\p{L}\p{N}\s]/gu,'').replace(/\s+/g,' ').trim();
+   function benzerlik(a,b){
+     const A=new Set(norm(a).split(' ').filter(w=>w.length>2));
+     const B=new Set(norm(b).split(' ').filter(w=>w.length>2));
+     if(!A.size||!B.size) return 0;
+     let k=0; A.forEach(w=>{ if(B.has(w)) k++; });
+     return k/(A.size+B.size-k);
+   }
+   ```
+   Eşik kalibrasyonu: gerçek mükerrerler 0.67-1.00 aralığında ölçüldü; farklı
+   sorular 0.60'ın altında kaldı.
+2. **MADDE 5** (metin uzunluğu sınırı) — asıl kök neden.
+3. İsteme "tekrar etme" listesi **yalnızca yardımcı** olarak eklenebilir;
+   tek başına güvenilmez (ölçüldü).
+
+---
+
+### 27f. 🔴 MADDE 5 — Soru sayısı ↔ metin uzunluğu
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"Model saçma sorular üretiyor"* |
+| **Dosya** | `src/schemas/ai.ts` `generateQuestionsSchema` **satır 10** (`mcCount` max 8) · arayüz: `public/app.js` soru adedi alanları |
+
+**Kök neden:** Kullanıcının ekran görüntüsünde **389 karakterlik** (≈5 cümle)
+bir metinden **8 çoktan seçmeli + 1 açık uçlu** soru istenmiş. Beş cümleden
+dokuz farklı soru çıkmaz; model aynı olguyu farklı kelimelerle tekrar sorar.
+
+**İkinci sorun — çeldirici kalitesi.** Ölçülen bir turda üretilen şıklar:
+`"Cismi yok eder"`, `"Cismi yaratır"`. Hiçbir öğrenci seçmez → soru otomatik
+olarak çok kolay olur ve ayırt etmez. Ürünün kendi madde analizi bunu zaten
+`p=1.00 · d=0.00 · havuzdan çıkarmayı düşünün` diye işaretliyor.
+
+**Üçüncü sorun — bilişsel düzey.** Ölçülen 6 sorunun **6'sı da alt düzeydi**
+(hatırlama/anlama). Kısa ve tanım ağırlıklı metinden üst düzey soru çıkmaz.
+
+**Çözüm:**
+1. **Metin uzunluğuna göre soru sayısı önerisi.** Örn. her ~150 karakter için
+   1 ÇSS. Sınır aşılırsa **engelleme değil uyarı**: *"Bu metin 8 soruyu
+   taşımayabilir; 3 öneriyoruz."* Karar öğretmende (agents.md §1 ruhu).
+2. `buildQuestionPrompt()`'a **çeldirici kuralı**: *"Çeldiriciler öğrencinin
+   gerçekten düşebileceği yanılgıları temsil etmeli; hiçbir öğrencinin
+   seçmeyeceği saçma şık yazma."* (denendi, kısmen işe yarıyor)
+3. `buildQuestionPrompt()`'a **Bloom kotası**: *"en az iki soru uygulama ya da
+   analiz düzeyinde olsun."*
+4. Üretim sonrası **saçma çeldirici taraması** (`yok eder|yaratır|ortadan
+   kaldır…`) → içerik uzmanına işaretle. `dilUyarisi` ile aynı desen.
+
+---
+
+### 27g. MADDE 6 — Rubrik akışı öğretmeni tıkıyor
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"öğretmenin kafası karışıyor, rubrik olmadan soru sınava konulmuyor"* |
+| **Dosya** | `public/app.js` — `canPublishExam()` **satır 2854** · uyarı metni **satır 3229** |
+
+**Mevcut davranış doğru ama anlatımı zayıf.** Tek uyarı, yayın düğmesinin
+altındaki genel cümle: *"Açık uçlu sorular için Rubrik sekmesinden %100
+ağırlıklı puanlama anahtarı tanımlayın."*
+
+Eksikler:
+- **Hangi soru** eksik söylenmiyor (sınavda 3 açık uçlu varsa öğretmen arıyor)
+- Uyarıdan rubrik ekranına **gidecek düğme yok**
+- Soru sınava **eklenirken** hiçbir şey söylenmiyor; sorun yayın anında çıkıyor
+
+**Çözüm:**
+1. Sınav listesinde her açık uçlu sorunun yanına **durum rozeti**:
+   "ölçüt hazır ✓" / "ölçüt gerekli".
+2. Rozet tıklanınca **doğrudan o sorunun rubrik ekranına** gitsin
+   (`state.rubricSelectedQ = qid; state.teacherTab = 2; renderAll();`).
+3. Yayın uyarısı **soru adını yazsın**.
+4. Açık uçlu soru eklenir eklenmez **tek tıkla "Taslak öner"** sunulsun.
+
+---
+
+### 27h. MADDE 7 — Öğrenci sınav ekranı
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"açık uçlu soru kısmı küçük ve çok sıkıcı"* |
+| **Dosya** | `public/app.js` — `studentTab2Html()` **satır 4840** · stiller `public/app.css` |
+
+**Çözüm:**
+1. Yanıt kutusunu **büyüt**, yazdıkça **kendiliğinden uzasın**.
+2. **Kelime/karakter sayacı** ekle.
+3. **Rubrik ölçütlerini öğrenciye de göster** ("neye göre puanlanacaksın") —
+   ölçme literatüründe *şeffaf değerlendirme*, öğrenmeyi artırdığı biliniyor.
+4. "Kaydedildi ✓" göstergesi daha görünür olsun.
+5. Sınav öncesi bilgi ekranı: kaç soru, kaç dakika, kaç puan.
+
+> ⚠️ `renderAll()` metin girdisinde **çağrılmamalı** — odak kaybolur
+> (§6.3-3). `saveSoon()` deseni korunmalı.
+
+---
+
+### 27i. MADDE 8 — Model karşılaştırması ve kararı
+
+| | |
+|---|---|
+| **Soru** | Kullanıcı: *"Model doğru model mi? Müfredat mı yetersiz?"* |
+| **Dosya** | `wrangler.demo.jsonc` **satır 36** (`AI_MODEL`) — değişiklik **tek satır** |
+
+#### 🎯 ÖNCE NET CEVAP: MÜFREDAT SUÇLU DEĞİL
+
+Soru üretim istemine müfredattan giden şey yalnızca **iki metin**:
+`spec.outcomeCode` ve `spec.outcomeLabel`. Sorunun içeriği **tamamen**
+`sourceText`ten üretiliyor (`src/lib/prompts.ts` satır 33-130).
+
+**Yani 606 yerine 6.000 kazanım olsaydı aynı metinden aynı sorular çıkardı.**
+Müfredat **seçenek sayısını** artırır, **kaliteyi** değil. Kapsam genişletmek
+(lise, Sosyal Bilgiler) bir **pazar** kararıdır, kalite kararı değil.
+
+#### Model karşılaştırması (aynı görev, aynı gelişmiş istem, tek tur)
+
+| Model | Durum | Süre | Üst düzey | Farklı doğru şık harfi | Saçma çeldirici |
+|---|---|---:|---:|---:|---:|
+| `llama-3.3-70b-instruct-fp8-fast` **(mevcut)** | OK | 18 sn | 1/4 | 2 | 1 |
+| **`llama-4-scout-17b-16e-instruct`** | OK | 27 sn | **3/4** | **3** | 1 |
+| `mistral-small-3.1-24b-instruct` | OK | 35 sn | 2/4 | 2 | **0** |
+| `openai/gpt-oss-120b` | JSON bozuk | 37 sn | — | — | — |
+| `qwen/qwen3.8-27b` | JSON bozuk | 55 sn | — | — | — |
+| `zai-org/glm-5.3-flash` | JSON bozuk | 46 sn | — | — | — |
+
+`llama-4-scout`un ürettiği örnek soru gerçekten daha iyiydi:
+*"Bir cisim sabit hızla hareket ediyor. Bu cisme etki eden kuvvetler hakkında
+ne söylenebilir?"* — bu bir **uygulama** sorusu, ezber değil.
+
+> **Dürüstlük notu:** Tek turluk ölçüm; kesin sonuç değil, **güçlü işaret**.
+> "JSON bozuk" çıkan üçü muhtemelen düşünme/önsöz metni ürettiği için basit
+> ayrıştırıcıya takıldı; ürünün kendi `extractJson` onarımıyla çalışabilirler.
+> Karar öncesi **her modelle 5'er tur** koşulmalı.
+
+**Çözüm sırası:**
+1. **Önce MADDE 3-4-5'i yap** (istem + karıştırma + dedup). Bunlar ücretsiz ve
+   geri alınabilir.
+2. Sonra **5 turluk resmî karşılaştırma** koş, kazananı seç.
+3. **Yeni API/sağlayıcıya gerek YOK** — bu modellerin hepsi zaten Cloudflare
+   hesabında. `npx wrangler ai models` ile tam liste alınır.
+4. **Sınav içinde model değiştirme.** Bir sınavın tüm soruları/puanları aynı
+   modelden gelmeli (§18-19'daki ölçme tutarlılığı gerekçesi).
+
+**Workers AI'da mevcut metin modelleri (3 Eylül 2026, `wrangler ai models`):**
+```
+@cf/meta/llama-3.3-70b-instruct-fp8-fast   (mevcut)
+@cf/meta/llama-4-scout-17b-16e-instruct    (aday)
+@cf/mistralai/mistral-small-3.1-24b-instruct
+@cf/openai/gpt-oss-120b · gpt-oss-20b
+@cf/qwen/qwen3.8-27b · qwen3-30b-a3b-fp8 · qwq-32b
+@cf/zai-org/glm-5.3 · glm-5.3-flash · glm-5.2 · glm-4.7-flash
+@cf/deepseek-ai/deepseek-v4-pro-0813 · deepseek-v4-flash-0731
+@cf/google/gemma-4-26b-a4b-it
+@cf/nvidia/nemotron-3-120b-a12b
+@cf/moonshotai/kimi-k2.6
+```
+
+---
+
+### 27j. MADDE 9 — Analitiği demodan çıkarma
+
+| | |
+|---|---|
+| **Bildiren** | Kullanıcı: *"gerçek öğrenciler baz alınsın, demodan çıkmış gibi düşünelim"* |
+| **Dosya** | `public/app.js` — `baseline.classes` **satır ~857** · `VARSAYILAN_OGRENCILER` **satır 2653** |
+
+**Mevcut durum:** Isı haritasında gerçek şubeler (● işaretli) ile "(örnek)"
+demo satırları yan yana; varsayılan öğrenciler **takım üyelerinin isimleri**.
+
+**Çözüm — ucuz aşama:**
+1. "(örnek)" satırlarını kaldır ya da tek bir "okul ortalaması" satırına indir.
+2. `VARSAYILAN_OGRENCILER`'i gerçekçi bir sınıf listesine çevir.
+3. Boş durumda düzgün bir "henüz veri yok" ekranı göster.
+
+> **Ara yol önerisi:** Kaldırırsak panel dürüst ama boş görünür; kalırsa dolu
+> ama demo hissi verir. Tek "okul ortalaması" satırı ikisini dengeler.
+
+---
+
+### 27k. MADDE 10 — Yönetici paneli: risk listesi
+
+| | |
+|---|---|
+| **Soru** | Kullanıcı: *"Bir müdür en çok neye dikkat eder? İnternetten araştıralım"* |
+| **Dosya** | `public/app.js` — `renderAdmin()` **satır 5238** |
+
+**Araştırma sonucu:** Eğitimde erken uyarı sistemlerinin uluslararası standardı
+**"ABC" çerçevesi** — Attendance (devam), Behavior (davranış), Course
+performance (ders başarısı). Literatürdeki tavsiye: **üç göstergeyle başla**,
+karmaşıklığı sonra ekle.
+
+Panel şu an *"ne kadar tamamlandı"* ve *"hangi kazanım zayıf"* sorularını
+cevaplıyor. Bir müdürün asıl sorduğu sorular:
+
+| Soru | Şu an var mı |
+|---|---|
+| **"Hangi öğrenciler risk altında?"** (isimli) | ❌ yok — en çok istenen şey |
+| "Hangi sınıf/öğretmen desteğe ihtiyaç duyuyor?" | kısmen (şube var, öğretmen yok) |
+| "Geçen döneme göre iyileşiyor muyuz?" | var ama en üstte değil |
+| "Değerlendirme adil mi?" | ✅ öğretmen-AI uyumu — **en özgün göstergemiz** |
+| "Bugün ne yapmalıyım?" | "Önce Buraya Bakın" — 3 maddeye çıkarılabilir |
+
+**Çözüm — üç ekleme:**
+1. **Risk altındaki öğrenci listesi:** art arda düşük puan + yüksek odak kaybı
+   + eksik sınav. **İsimli**, tıklanınca detay.
+2. **Şube/öğretmen karşılaştırma tablosu:** hangi öğretmen AI önerilerini ne
+   sıklıkla değiştiriyor (değerlendirme tutarlılığı göstergesi).
+3. **Dönemsel özet:** müdürün üst yönetime raporlayacağı tek cümle.
+
+---
+
+### 27l. MADDE 11 — D1 veritabanı (diğer üç maddenin ön şartı)
+
+| | |
+|---|---|
+| **Dosya** | `schema.sql` (**14 tablo hazır**) · `routes.ts` (rota iskeleti) · `wrangler.jsonc` |
+
+**Neden zorunlu:** Veri şu an her tarayıcıda ayrı (`localStorage` +
+IndexedDB). Öğrencinin çözdüğü sınav **öğretmenin paneline düşemez**.
+Kullanıcının *"öğrenciler çözdükçe istatistikler sisteme düşsün"* isteği,
+**veli paneli** ve **bildirim** özellikleri — üçü de buna bağlı.
+
+**Engel:** `d1_databases[].database_id` doldurulmadan `wrangler deploy`
+başarısız olur. Bu yüzden iki yapılandırma dosyası var.
+
+**Sıra:**
+1. `npx wrangler d1 create olcme-db` → dönen `database_id`'yi `wrangler.jsonc`e yaz
+2. `npm run db:migrate:remote` (schema.sql)
+3. `routes.ts` iskeletindeki handler'ları doldur (`agents.md` §2: her `POST`
+   Zod ile doğrulanır, `db.prepare().bind()` kullanılır, `SELECT *` yok)
+4. `localStorage` → D1 geçişi: **arayüz senkron `renderAll()` ile çiziyor**,
+   bu yüzden okuma yolları asenkron hâle gelirken dikkatli olunmalı (§3.1)
+
+**Risk:** Bu maddenin kapsamı büyük; finale 2-3 gün kala başlanırsa risklidir.
+
+---
+
+### 27m. MADDE 12 — Veli paneli
+
+| | |
+|---|---|
+| **Öneri** | Kullanıcı: *"Veli de öğrenci kadar meraklı, analizleri görebilmeli"* |
+| **Ön şart** | MADDE 11 (D1) |
+
+**Artıları:** Brief dört rol istiyor, siz beşincisini gerekçesiyle ekliyorsunuz
+— jüride ayrım yaratır · ürünü okul-içi araçtan okul-aile platformuna taşır ·
+mevcut kazanım analizi altyapısı yeniden kullanılır.
+
+**Eksileri:** **KVKK yükü ciddi** (küçüğün verisine üçüncü kişi erişiyor) ·
+kimlik doğrulama şu an **yok** (roller simüle) · **yanlış veliye yanlış çocuğun
+verisi gitmesi en ağır hata sınıfı**.
+
+**Çözüm — salt-okunur ve sınırlı:**
+1. Veli **yalnızca kendi çocuğunun** onaylanmış sonuçlarını görsün.
+   Sınıf ortalaması, başka öğrenci, sıralama **yok**.
+2. Kazanım bazlı güçlü/zayıf listesi + gelişim çizgisi + öğretmenin
+   **onayladığı** geri bildirim.
+3. `public/privacy-policy.html`'e veli bölümü **zorunlu** (agents.md §7).
+4. Gerçek kimlik doğrulama finalden sonraya; şimdilik rol seçici + "simüle"
+   etiketi.
+
+---
+
+### 27n. MADDE 13 — Dikkat dağınıklığı uyarısı
+
+| | |
+|---|---|
+| **Öneri** | Kullanıcı: *"öğrencinin odağı çok kayıyorsa veliye uyarı gidebilir, rehber hocasıyla görüşme önerilebilir"* |
+| **Dosya** | `public/app.js` — `integrity` alanı **satır ~802** (sekme değişimi, odak kaybı, tam ekrandan çıkış, yapıştırma) |
+
+**Araştırma desteği:** ABC çerçevesinin "Behavior" ayağı. Erken uyarı
+sistemleri bu veriyi kullanıyor.
+
+**Ama riskler yüksek:**
+- **Yanlış pozitif:** internet kesildi, telefon çaldı, sayfa kaydı → "dikkati
+  dağınık" damgası
+- Öğrenciyi **gözetleniyor** hissine sokar
+- Veliye giden uyarı **evde sorun** yaratabilir
+- Ürün *"hile önlemiyoruz, kayıt tutuyoruz"* diyor; otomatik uyarı bunu
+  **yaptırıma** kaydırır ve o duruşu bozar
+
+**Çözüm — sinyal evet, otomatik yaptırım hayır:**
+1. Uyarı **önce öğretmene** gitsin. Öğretmen bağlamı bilir.
+2. Veliye **ancak öğretmen onayladıktan sonra** ulaşsın — HITL deseninin
+   birebir aynısı.
+3. Eşik tek olaya değil **örüntüye** baksın ("son 3 sınavın 3'ünde de").
+4. Dil suçlayıcı olmasın: *"dikkati dağıldı"* değil,
+   *"bu öğrenci sınav sırasında zorlanmış olabilir"*.
+5. Rehberlik önerisi **asla otomatik olmasın**.
+
+---
+
+### 27o. Kullanıcının diğer önerileri
+
+**Öğretmen → öğrenciye bildirim.** Ürünü sürekli kullanılan platforma çevirir
+ama **D1 olmadan çalışmaz** (öğretmenin tarayıcısındaki mesaj öğrenciye
+ulaşamaz). MADDE 11'den sonra; kapsam dar tutulsun (serbest mesajlaşma değil,
+sınav duyurusu). İlk bildirim olarak zaten var olan **"karne yayınlandı"**
+olayı kullanılabilir.
+
+**Değerlendirme panelinde daha iyi analiz.** Eklenebilecekler: sınıf içi konum
+("ortalamanın 3 puan altında") · aynı ölçütte zayıf olanların sayısı ·
+en yüksek/en düşük yanıtı yan yana gösterme · öğrencinin aynı kazanımdaki
+geçmişi · çoklu onay (ama **"tek tıkla hepsini onayla" OLMASIN** — insan onayı
+biçimselleşir).
+
+---
+
+### 27p. Asistanın kendi önerileri (panel panel)
+
+**İçerik Uzmanı:** şık düzenleme ve doğru cevap değiştirme daha görünür olmalı
+(model yanlış anahtar verdiğinde ilk savunma bu) · **soru bazlı yeniden üretim**
+düğmesi yok (şu an ya hepsi ya hiçbiri) · "bu soru metnin hangi cümlesinden
+çıktı" gösterilebilir · havuzda **arama yok**.
+
+**Öğretmen:** **sınav önizleme yok** (öğretmen öğrencinin ne göreceğini
+yayınlamadan göremiyor) · **rubrik şablonları kaydedilemiyor** (her soru için
+baştan) · madde analizi çok aşağıda, görülmüyor.
+
+**Öğrenci:** sınav öncesi bilgi ekranı yok · karnede **"ne çalışmalıyım"** yok
+(kazanım verisi zaten elde) · öğrenci **kendi gelişimini göremiyor**.
+
+**Genel:** yanlışlıkla reddedilen soruyu geri alma akışı zayıf · **sınav
+sonuçları dışa aktarılamıyor** (okullar Excel ister) · boş durum ekranları
+eşit özende değil.
+
+**Ölçme tarafından ek fikirler:**
+- **Soru havuzu kalite skoru:** madde analizi zaten p ve d hesaplıyor; her
+  soruya kalıcı kalite etiketi verilirse öğretmen **kanıtlanmış iyi soruları**
+  seçer ve **havuz kullanıldıkça akıllanır**. Ürünün zamanla değerlenen tek
+  parçası bu olur.
+- Sınavda **zorluk dengesi** uyarısı (Bloom dengesinin zorluk karşılığı).
+- **Öğrenci kendi kendini değerlendirme:** yanıtı göndermeden önce rubriği
+  gösterip "sence kaç alırsın?" sormak. Teknik maliyeti sıfıra yakın.
+- **Sınav kopyalama/şablon** — gerçek kullanımda en çok istenen şey.
+- **Kazanım bazlı sınıf raporu (PDF)** — veli toplantısı için.
+
+---
+
+### 27q. Rakip analizi (3 Eylül, GitHub taraması)
+
+Aynı Creathon'dan **üç takım** deposunu herkese açık paylaşmış:
+
+| Depo | Ürün | Problem |
+|---|---|---|
+| `ihsannkumuma/myelobase` | Myelobase (canlı: myelobase.app) | **7** |
+| `serhataydinxd/T3-Creathon` | İMKÂN (CloudFront demo) | **3** |
+| `RagipUmitAlp2003/AI-Gambit` | Kriter Atölyesi | **4** |
+
+**Problem 2'de kamuya açık başka takım bulunamadı** (gizli depolar olabilir).
+
+**Dikkat çeken iki gözlem:**
+1. **AI-Gambit'te gerçek kimlik doğrulama var** — PBKDF2-SHA256, **D1'e bağlı**
+   hesap doğrulama, rol bazlı otomatik panel. *"Şifresiz rol kısayolları
+   kaldırılmıştır"* diyorlar. Bizde roller simüle ve D1 bağlı değil. Jüri iki
+   projeyi yan yana görürse bu fark göze çarpar → **MADDE 11'in önceliğini
+   yeniden düşünmek gerekebilir.**
+2. **Aynı tez kullanılıyor:** AI-Gambit de *"Sistem puan üretmez… Nihai karar
+   her zaman hakemdedir"* diyor. **Human-in-the-Loop tek başına bizi
+   ayırmıyor;** bizi ayıran onu **ispatlamamız** (Karar Günlüğü, 606
+   doğrulanmış kazanım, madde analizi).
+
+**Rakip ürün özellikleri (2026 değerlendirme platformları):** bizde zaten olan
+— rubrik tabanlı geri bildirim, madde analizi, otomatik ön puanlama, kazanım
+hizalama. **Bizde olmayan üçü:**
+- **Kâğıt sınavı fotoğraflayıp okutma** (el yazısı tanıma + rubrikle
+  puanlama). Türkiye'de yazılılar hâlâ ağırlıklı kâğıt üzerinde —
+  **en yüksek potansiyelli fikir**, ama büyük iş.
+- Ders sırasında **canlı ölçme** (anlık sınıf nabzı).
+- ÇSS'de **anında gerekçe** — insan onayı ilkesini bozmaz (anahtar zaten
+  öğretmen onaylı), yarım günlük iş.
+
+---
+
+### 27r. Bu turda yapılan doğrulamalar
+
+| Kontrol | Sonuç |
+|---|---|
+| Klavye erişilebilirliği (4 rol, 66 odaklanabilir öğe) | odak tuzağı **0** · hatalı tabindex **0** · `:focus-visible` tanımlı |
+| Canlı model durumu | `ready: true` · llama-3.3-70b · `fellBack: false` · 5,4 sn |
+| Depo güvenliği (tüm git geçmişi) | sır sızıntısı **0** |
+| README bağlantıları (GitHub'da) | 27 iç bağlantı, kırık **0** · 15 görsel, kırık **0** |
+
+### 27s. Bu turda YAPILMAYAN (bilinçli)
+
+**Hiçbir kod değiştirilmedi.** Kullanıcı açıkça *"uygulamaya geçme, planlamaya
+geç"* dedi. Yukarıdaki 13 maddenin tamamı **yapılacak iştir.**
+
+Sonuçsuz kalan tek deney: *"uzun metin mükerrerliği azaltır mı"* — token
+kesilmesi nedeniyle turların bir kısmı boş döndü, güvenilir veri alınamadı.
+Uydurulmadı, sonuçsuz olarak kaydedildi.
