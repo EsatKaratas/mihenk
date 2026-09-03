@@ -512,12 +512,16 @@
       <div class="hitl" style="border-color:var(--warning);color:var(--warning);margin-top:10px;">
         <span class="dot" style="background:var(--warning);"></span>
         <b>Dürüstlük notu — bu sayfa HEDEF mimariyi anlatır.</b>
-        Canlı demo yalnızca <b>Cloudflare Workers + Hono + Workers AI</b> bağlar.
-        D1, R2 ve Queues şeması hazır ama <b>canlıda bağlı değildir</b>:
-        <code>database_id</code> doldurulmadan deploy başarısız olur; Queues ise
-        bilinçli bir kapsam kararıyla bağlanmadı, yapay zekâ çağrıları senkron
-        yapılıyor. Prototip durumu tarayıcının
-        <code>localStorage</code>'ında tutulur. Aşağıdaki rota tablolarında
+        Canlı demo <b>Cloudflare Workers + Hono + Workers AI + D1</b> bağlar.
+        <b>D1 3 Eylül'de bağlandı</b> ve canlıda gerçekten yazıp okuyor — ama
+        yalnızca <b>sınıf kodu senkronu</b> (<code>sync_exams</code>,
+        <code>sync_sessions</code>) ve hız sınırı sayacı için. Üretim şemasının
+        kalan tabloları hazır ama yazılmıyor; sebep kimlik doğrulamanın henüz
+        olmaması (uydurma kullanıcı/okul satırı üretmemek için). <b>R2 ve
+        Queues bağlı değildir</b>: Queues bilinçli bir kapsam kararıyla
+        bırakıldı, yapay zekâ çağrıları senkron yapılıyor. Sınıf kodu
+        girilmediği sürece durum yalnızca tarayıcının
+        <code>localStorage</code>'ında kalır. Aşağıdaki rota tablolarında
         <b>gerçekten çalışan uçlar ayrıca işaretlidir.</b>
       </div>
     </div>

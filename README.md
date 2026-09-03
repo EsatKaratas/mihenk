@@ -262,11 +262,13 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 - **Cloudflare Workers + Hono** — tüm API rotaları tek bir Worker üzerinde
   çalışır; rota haritası `routes.ts` dosyasındadır (`/api/documents`,
   `/api/questions`, `/api/exams`, `/api/student/*`, `/api/admin/*`, …).
-- **D1 (SQLite)** — 14 tablo:
+- **D1 (SQLite)** — 17 tablo. Hedef şemanın 14 tablosu:
   `ai_evaluations`, `analytics_snapshots`, `exam_assignments`,
   `exam_questions`, `exams`, `learning_outcomes`, `questions`, `rubrics`,
   `schools`, `source_document_outcomes`, `source_documents`, `submissions`,
   `teacher_reviews`, `users`.
+  **Canlıda gerçekten yazılan 3 tablo:** `sync_exams`, `sync_sessions`
+  (sınıf kodu senkronu) ve `rate_limits` (hız sınırı sayacı).
   Tam tanım: `schema.sql`.
 - **Workers AI** — soru üretimi ve açık uçlu yanıtların ilk (öneri niteliğinde)
   puanlanması için model çağrıları.
@@ -359,7 +361,7 @@ bağlantısına bakın.
 ├── tsconfig.json          # TypeScript strict yapılandırması
 ├── wrangler.jsonc         # ÜRETİM: Workers + D1 + R2 + Queues + AI
 ├── wrangler.demo.jsonc    # DEMO: yalnızca statik varlıklar + AI (bkz. §5)
-├── schema.sql             # D1 şeması — 14 tablo
+├── schema.sql             # D1 şeması — 17 tablo (3ü canlıda aktif)
 ├── routes.ts              # tam rota iskeleti (referans; handler'lar TODO)
 ├── agents.md              # geliştirici/AI asistan kuralları
 ├── README.md              # bu dosya
@@ -597,17 +599,21 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
 - **Yedeğin puanlama sertliği farklı:** Aynı yanıta birincil model 15-16/20,
   yedek 20/20 verdi. Nihai puanı öğretmen onayladığı için kritik değil, ama
   yedeğe düşüldüğünde tutarlılığın değiştiği bilinmelidir.
-- **Rate limit isolate başına:** `src/routes/ai.ts` içindeki dakikada 5 istek
-  sınırı bellek-içi bir `Map` ile tutulur; Cloudflare Workers'da bu her
-  isolate için ayrıdır, dağıtık bir garanti değildir (`agents.md` §7.4 buna
-  açıkça izin veriyor; üretimde D1/KV'ye taşınır).
+- **Rate limit — iki ayrı sayaç var.** `/api/sync/*` uçlarının sayacı
+  **3 Eylül'de D1'e taşındı** (`rate_limits` tablosu, atomik
+  `INSERT … ON CONFLICT … RETURNING`); isolate'ler arasında paylaşılır ve
+  canlıda ölçülerek doğrulandı (80 paralel istek → 60 kabul, 20 reddedildi).
+  `src/routes/ai.ts` içindeki dakikada 5 istek sınırı ise hâlâ bellek-içi bir
+  `Map` ile tutulur; Cloudflare Workers'da bu her isolate için ayrıdır,
+  dağıtık bir garanti değildir (`agents.md` §7.4 buna açıkça izin veriyor).
+  Oradaki pratik koruma ön ödemeli kredi ve otomatik yüklemenin kapalı olmasıdır.
 - **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **133 test**
   koşar (`test/guards.test.ts` 47 · `test/schemas.test.ts` 27 ·
   `test/ai-lib.test.ts` 24 · `test/sync-schemas.test.ts` 35) — kaynak tespiti, hız sınırı, yabancı alfabe
   denetimi, Zod şema sınırları, JSON onarımı ve sağlayıcı seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **156 fonksiyon adını denetleyen bir öz-kontrol** ve elle
+  dosya sonunda **211 fonksiyon adını denetleyen bir öz-kontrol** ve elle
   sürülen uçtan uca senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
   güvenlik testi var: `tools/injection-test.py` (bkz. §11).
 - Geliştirici kuralları (branch stratejisi, token/kaynak sınırları) için

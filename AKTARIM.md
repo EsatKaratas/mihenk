@@ -40,9 +40,9 @@
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
-| Son commit | toplam **85 commit** · etiketler `v1.0-teslim`, `v1.1-basvuru` |
-| 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §28** — Esat'ın 7 maddesi 3 Eylül'de bitti (D1 senkron, veli paneli, risk listesi, saat düzeltmesi…). §27'de kalan maddeler ve Sude/Burak'ın listeleri sıradadır. |
-| ⚠️ En yeni bölümler | `PROGRESS.md` **§25** (ekip geri bildirimi) · **§26** (başvuru turu) · **§27** (iyileştirme planı). Bu dosyanın gövdesi §24'e kadarını özetler. Yeni dersler §6.3-19/20/21'de. |
+| Son commit | `a1eded6` · etiketler `v1.0-teslim`, `v1.1-basvuru` (**`v-demo` HENÜZ ATILMADI** — bkz. §5.6) |
+| 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §28s'ten sonrası.** Esat'ın 7 maddesi + 8 maddelik ikinci liste 3 Eylül'de bitti. Sude ve Burak'ın 7'şer maddesi hâlâ onlardadır ve BİRLEŞTİRİLMEMİŞTİR — bu devrin asıl amacı odur. |
+| ⚠️ En yeni bölümler | `PROGRESS.md` **§27** (iyileştirme planı) · **§28** (Esat'ın 7 maddesi) · **§28g–28s** (D1 senkron, sınıf yönetimi, ders kütüphanesi, 8 maddelik liste, veli hata düzeltmesi). Bu dosyanın gövdesi §24'e kadarını özetler; **§5.6 bu turun tam özetidir.** |
 | CI | GitHub Actions — `.github/workflows/ci.yml` · lint + 133 test + yapılandırma + öz-kontrol |
 | Senkron durumu | yerel kod = GitHub `origin/main` = canlı sistem (üçü aynı) |
 
@@ -167,13 +167,22 @@ sayfasında da yazılıdır.
 | Workers AI (Workers **Paid**) | ✅ | ✅ **çalışıyor, kota duvarı yok** |
 | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** |
 | MEB kazanım katalogları | ✅ | ✅ **606 kazanım, 12 dosya** |
-| D1 (SQLite, 14 tablo) | ✅ | ❌ şema hazır, **yazım yok** |
+| D1 (SQLite, 17 tablo) | ✅ | ✅ **BAĞLI ve YAZIYOR** (3 Eylül) — sınıf koduyla cihazlar arası senkron + hız sınırı sayacı |
 | R2 nesne depolama | ✅ | ❌ bağlı değil (PDF istemcide işlenir) |
 | Queues (asenkron AI) | ✅ | ❌ ücretsiz planda kullanılamaz |
 | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir |
 
 **Sebep teknik:** `d1_databases[].database_id` doldurulmadan `wrangler deploy`
 başarısız olur. Bu yüzden **iki yapılandırma dosyası** var (§6.1).
+
+> 🔴 **3 EYLÜL GÜNCELLEMESİ — D1 ARTIK BAĞLI.** Yukarıdaki tabloda D1 satırı
+> değişti. `wrangler.demo.jsonc` gerçek bir D1 veritabanına (`olcme-db`,
+> id `daeb141d-bc0a-4471-b369-928832fda984`) bağlıdır ve canlıda **yazıp
+> okuyor.** Ne saklandığı sınırlıdır ve bilinçlidir: yalnızca **sınıf kodu
+> senkronu** (`sync_exams`, `sync_sessions`) ve **hız sınırı sayacı**
+> (`rate_limits`). Soru havuzu, kazanımlar, kullanıcılar hâlâ istemcide —
+> yani "D1 kalıcı yazım" maddesi KISMEN kapandı, tamamen değil. Ayrıntı §3.1
+> ve `PROGRESS.md` §28g/§28r.
 
 ## 1.7 ★ Görsel kimlik — LACİVERT ZEMİN + BEYAZ KUTULAR (26 Ağustos, nihai)
 
@@ -240,7 +249,7 @@ t3-olcme-degerlendirme/
 ├── tsconfig.json            0 KB  TypeScript strict
 ├── wrangler.jsonc           4 KB  ÜRETİM yapılandırması (D1+R2+Queues+AI)
 ├── wrangler.demo.jsonc      4 KB  ★ DEMO yapılandırması — KULLANILAN BU
-├── schema.sql               9 KB  D1 şeması, 14 tablo (canlıda bağlı değil)
+├── schema.sql              10 KB  D1 şeması, 17 tablo (3'ü canlıda AKTİF: sync_*, rate_limits)
 ├── routes.ts                9 KB  tam rota iskeleti (referans; handler'lar TODO)
 ├── .gitattributes           1 KB  Linguist: dokümantasyon HTML'i kod sayılmasın
 ├── .gitignore               0 KB  .dev.vars, anahtar.txt, node_modules…
@@ -341,7 +350,10 @@ t3-olcme-degerlendirme/
 
 ## 3.1 Veriler nerede tutuluyor
 
-**Prototipte sunucuda hiçbir veri saklanmaz.** İki katmanlı istemci depolaması:
+**ÜÇ katman vardır.** İlk ikisi istemcide, üçüncüsü (3 Eylül'den beri)
+sunucuda — ama sunucuya YALNIZCA kullanıcı bir **sınıf kodu** girdiğinde
+yazılır. Kod girilmemişse ürün eskisi gibi tamamen istemci taraflıdır ve
+sunucuya hiçbir şey gitmez.
 
 ### Katman 1 — `localStorage` (tek anahtar: `t3-olcme-durum-v1`)
 
@@ -376,17 +388,35 @@ dizesi üretir; liste senkron veriden çizilmelidir.
 > Artık `depoHatasi` doldurulur ve gövdeye sabit konumlu bir uyarı şeridi
 > basılır (`renderDepoUyarisi`). Sessiz düşüş yasağı burada da geçerlidir.
 
-> **Paylaşım notu (ekip denemesi sırasında en çok sorulan şey):** Veri sunucuda
-> olmadığı için **her cihaz/tarayıcı kendi verisini görür.** A kişisinin
-> ürettiği soruyu B kişisi göremez; aynı kişinin telefonu ve bilgisayarı bile
-> ayrıdır. Bu bir hata değil, §6'daki kapsam kararının doğal sonucudur.
+> **Paylaşım notu — 3 EYLÜL'DE DEĞİŞTİ.** Eskiden burada şu yazıyordu:
+> *"her cihaz/tarayıcı kendi verisini görür, A'nın ürettiği soruyu B göremez."*
+> **Bu artık koşullu doğrudur.** Sınıf kodu girilmemişse hâlâ öyledir. Ama bir
+> sınıf kodu paylaşıldığında sınavlar ve öğrenci oturumları cihazlar arasında
+> D1 üzerinden senkronlanır — kullanıcının "farklı PC'lerde farklı şeyler
+> çıkmasın" talebi bununla karşılandı.
 
-### D1 şeması — hazır ama bağlı değil
+### Katman 3 — D1 (`olcme-db`), YALNIZCA sınıf kodu senkronu
 
-`schema.sql`, 14 tablo: `schools · users · learning_outcomes ·
+`schema.sql` artık **17 tablo**. İlk 14'ü hedef mimarinin şeması olarak duruyor
+(canlıda yazılmıyor): `schools · users · learning_outcomes ·
 source_documents · source_document_outcomes · questions · rubrics · exams ·
 exam_questions · exam_assignments · submissions · ai_evaluations ·
 teacher_reviews · analytics_snapshots`
+
+**Canlıda gerçekten kullanılan 3 tablo:**
+
+| Tablo | Ne tutar |
+|---|---|
+| `sync_exams` | oda (sınıf kodu) başına paylaşılan sınav paketi (JSON payload) |
+| `sync_sessions` | oda + sınav + öğrenci başına oturum durumu ve yanıtlar |
+| `rate_limits` | `"<uç>:<ip>"` başına sabit pencereli istek sayacı (§28r Madde 6) |
+
+Uçlar: `POST /api/sync/push` · `POST /api/sync/pull` · `POST /api/sync/reset` ·
+`GET /api/sync/status` (`src/routes/sync.ts`, şemalar `src/schemas/sync.ts`).
+
+> ⚠️ **Sınıf kodu KİMLİK DOĞRULAMA DEĞİLDİR.** Paylaşılan bir sırdır; kodu
+> bilen herkes o odaya yazıp okuyabilir. Bu sınır arayüzde ve gizlilik
+> metninde açıkça yazılıdır ve jüriye de böyle söylenmelidir.
 
 ## 3.2 İki katmanlı oturum modeli (DİKKAT: burada kolay hata yapılır)
 
@@ -769,14 +799,14 @@ Hiçbiri demoyu engellemez. Öncelik sırasıyla:
 
 | # | Eksik | Not |
 |---|---|---|
-| 1 | **Hız sınırı dağıtık değil** | Sayaç bellek içi ve her isolate için ayrı. **Ölçüldü:** canlıda 7 istek de 200 döndü, sınır hiç tetiklenmedi. Birim testler fonksiyonun doğru olduğunu kanıtlıyor. Pratik koruma: ön ödemeli kredi + otomatik yükleme kapalı. Üretimde D1/KV'ye taşınmalı |
+| 1 | ~~Hız sınırı dağıtık değil~~ → **SENKRON UÇLARINDA ÇÖZÜLDÜ (3 Eylül)** | `/api/sync/*` sayacı D1'e taşındı (`rate_limits`, atomik `INSERT…ON CONFLICT…RETURNING`). **Canlıda ölçüldü:** sıralı 65 istek → 60×200 + 5×429; paralel 80 istek → 60×200 + 20×429. **KALAN:** `/api/ai/*` ucundaki sayaç (`src/routes/ai.ts` + `guards.ts`) hâlâ bellek içi/isolate başına — orası bilinçli bırakıldı, oda kodu tarama riski taşımıyor |
 | 2 | **CSP'de `style-src 'unsafe-inline'`** | `app.js` **86 yerde** inline `style="…"` kullanıyor. Stiller sınıflara taşınırsa bu izin kaldırılabilir |
 | 3 | Isı haritasındaki **"(örnek)" satırları** | Karşılaştırma sınıfları (6-A, 8-B, 8-C) demo verisi. Arayüzde "(örnek)" etiketli — yanıltma yok |
 | 4 | **Isı haritası yönü** | Koyu = yüksek başarı. Yani **zayıf hücreler soluk kalıyor**, dikkat çekmesi gereken en az göze çarpıyor. "%55 altı" uyarı listesi bunu telafi ediyor. Ölçek tersine çevrilebilir ama efsane + skala + açıklama birlikte değişmeli |
 | 5 | **Maliyet şeffaflığı paneli** | "Bu sınav kaç kuruşa mal oldu" |
 | 6 | **Soru havuzu benzerlik denetimi** | Mükerrer soru yakalar |
 | 7 | **Öğrenci erişilebilirliği** | Süre uzatma, disleksi dostu font — kapsayıcılık, jüride iyi durur |
-| 8 | D1 kalıcı yazım · R2 · Queues · Better Auth | Bilinçli kapsam kararı (`PROGRESS.md` §6) |
+| 8 | D1 kalıcı yazım (**kısmen kapandı**) · R2 · Queues · Better Auth | D1: senkron + hız sınırı canlıda yazıyor; soru havuzu/kazanım/kullanıcı hâlâ istemcide. R2/Queues/Better Auth: bilinçli kapsam kararı (`PROGRESS.md` §6) |
 
 ## 5.4 Reddedilmiş / kapatılmış işler (tekrar önerilmemeli)
 
@@ -849,6 +879,90 @@ görünmez ve final öncesi kilit dosyasına dokunmak gereksiz risktir.
 
 > ⚠️ **Yarışma sonrası:** tek Worker kaldı. Kullanılmayacaksa Workers Paid
 > aboneliğiyle birlikte kapatılmalı (§5.1-11).
+
+---
+
+## 5.6 ★★ 3 EYLÜL İKİNCİ GÜN — BU TURDA YAPILAN HER ŞEY (devir için özet)
+
+Bu bölüm, `AKTARIM.md`'nin gövdesinden (§24'e kadar) SONRA yapılan tüm işi tek
+yerde toplar. Yeni bir oturum ya da yeni bir ekip arkadaşı devralıyorsa, kod
+tarafında bilmesi gereken güncel durum budur. Her maddenin tam kaydı
+`PROGRESS.md`'dedir.
+
+### (a) D1 SENKRON — ürünün en büyük mimari değişikliği (§28g, §28k)
+
+Kullanıcının şikâyeti: *"artık farklı PC'lerde farklı şeyler çıkmasın."*
+Çözüm **sınıf kodu** kavramıdır: öğretmen bir kod üretir, öğrenci/veli o kodu
+girer, sınavlar ve oturumlar D1 üzerinden paylaşılır.
+
+- Uçlar: `POST /api/sync/push|pull|reset`, `GET /api/sync/status`
+- Kod: `src/routes/sync.ts` · şemalar: `src/schemas/sync.ts` · tablolar:
+  `sync_exams`, `sync_sessions`
+- İstemci: `syncPaket()` / `syncGonder()` / `syncCek()` / `syncBirlestir()`
+  (`public/app.js`)
+- **Kimlik doğrulama DEĞİLDİR** — paylaşılan sır. Bu sınır arayüzde ve
+  gizlilik metninde yazılıdır.
+
+### (b) SINIF YÖNETİMİ + DERS KÜTÜPHANESİ + 5 ROL DÜZENİ (§28q)
+
+Kullanıcının talebi: *"öğretmen kendi sınıfını kendi eliyle oluştursun, kendi
+ders oluşturabilsin, ders notlarını oraya ekler orada kayıtlı durur"* + rol
+sekmelerinin düzeni + *"simülasyon yazısı saçma onu kaldır."*
+
+- Öğretmene **"Sınıfım"** kartı: elle öğrenci ekleme/silme/sınıf atama
+- **Ders Kütüphanesi**: mevcut Kitaplık/IndexedDB altyapısı ders notları için
+  yeniden kullanıldı
+- 5 rol sekmesi tek satırda eşit düzene alındı (veli artık tek başına durmuyor)
+- "simülasyon" dili arayüzden temizlendi
+
+### (c) 8 MADDELİK LİSTE — 6'sı yapıldı, 2'si bilinçli açık (§28r)
+
+| # | Madde | Durum | Commit |
+|---|---|---|---|
+| 1 | Sınava "kime yayınlansın" sınıf filtresi (`state.exam.targetClass`) | ✅ | `b678cc5` |
+| 2 | Öğrenci ad/sınıf değişikliğinin senkronu (son yazan kazanır) | ✅ | `cacd444` |
+| 3 | Sınıf koduna katılınca örnek listenin otomatik temizlenmesi | ✅ | `30baa17` |
+| 4 | Kütüphanedeki notların ad/ders/sınıf etiketinin düzenlenebilmesi | ✅ | `d438834` |
+| 5 | Kütüphanede arama/filtreleme (odak kaybettirmeyen `oninput`) | ✅ | `81d50d2` |
+| 6 | Hız sınırının D1'e taşınması | ✅ | `da29ef9` |
+| 7 | `v-demo` etiketi | ⏸️ **bilinçli ertelendi** — `agents.md` §8 sunumdan 24 saat önce şart koşuyor; 3 Eylül'de atmak kuralı boşa düşürürdü | — |
+| 8 | Sunum (deck) metin düzeltmeleri | ⏳ kod dışı, sunumu hazırlayan kişide | — |
+
+### (d) VELİ "GİR" DÜĞMESİ ÖLÜYDÜ — gerçek hata (§28s)
+
+Boş ekran düzeni birleştirilirken bulundu ve ölçülerek doğrulandı:
+
+**Tüm rol panelleri aynı anda DOM'a basılır** (yalnızca aktif olan CSS ile
+görünür). Katılma kutusu hem öğrenci hem veli panelinde bulunduğu için
+`#btnSyncJoin` id'si sayfada **iki kez** vardı; `wireSyncJoin()` içindeki
+`getElementById` yalnızca **ilkini** (öğrencininkini) buluyordu. Sonuç: **veli
+sınıf kodunu yazıp "Gir"e bastığında hiçbir şey olmuyordu.**
+
+Düzeltme: id yerine sınıf (`.js-sync-gir`, `.js-sync-input`, `.js-sync-yenile`),
+`querySelectorAll` ile hepsini bağla, her kutu kendi girdisini `closest()` ile
+bulsun. Aynı hata daha önce `.wait-pill` sayacında yaşanmıştı (§28a).
+
+> 🔴 **BU BİR DERS: bu projede `getElementById` KULLANMADAN ÖNCE DÜŞÜN.**
+> Aynı bileşen birden fazla rol panelinde render ediliyorsa id tekil değildir.
+> Bu tuzağa iki kez düşüldü.
+
+Aynı turda boş ekran düzeni de birleştirildi: "sonuç/sınav yok" mesajı ile
+sınıf kodu kutusu artık tek kutuda (`bosDurumHtml()`), üstte durum, altında
+o durumu değiştiren eylem.
+
+### (e) BU TURUN DOĞRULAMA ÖZETİ
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **133/133** |
+| CI (GitHub Actions) | yeşil |
+| Canlı `/api/health` | `{"ok":true,...}` 200 |
+| Canlı/yerel `app.js` + `app.css` | **byte byte aynı** |
+| Canlı hız sınırı (sıralı 65 istek) | 60×200 + 5×429 |
+| Canlı hız sınırı (paralel 80 istek) | 60×200 + 20×429 |
+| Mobil 375 px | yatay taşma yok |
+| Yerel kod = `origin/main` = canlı | ✅ üçü aynı |
 
 ---
 
@@ -966,9 +1080,19 @@ olur.** `mimari.html` (mermaid), `404.html` (istenen yol) ve
 **9. Yama dosyaya yazılmadan hata verirse DUR.**
 Sonraki adımlar o değişikliklere bağımlı kod yazmasın.
 
-**10. Hız sınırı isolate başınadır.** Ölçüldü: canlıda hiç tetiklenmiyor.
-Jüri sorarsa dürüst cevap: *"tek isolate içinde çalışır, üretimde D1/KV'ye
-taşınır."*
+**10. Hız sınırı — İKİ AYRI SAYAÇ VAR, KARIŞTIRMA.**
+`/api/sync/*` sayacı **D1 tabanlıdır** (3 Eylül'den beri, `rate_limits`
+tablosu) ve canlıda gerçekten tetiklenir — ölçüldü: 80 paralel istekte
+60×200 + 20×429. `/api/ai/*` sayacı ise hâlâ **bellek içi ve isolate
+başınadır** (`guards.ts` + `src/routes/ai.ts`). Jüri sorarsa dürüst cevap:
+*"Senkron uçları D1 üzerinden dağıtık korunuyor; AI ucundaki sayaç tek
+isolate içinde çalışır, orada pratik koruma ön ödemeli kredi ve otomatik
+yüklemenin kapalı olmasıdır."*
+
+> ⚠️ `test/sync-schemas.test.ts`'teki hız sınırı testleri `guards.ts`'in
+> GENEL algoritmasını ve seçilen sabitleri dondurur; gerçek D1 entegrasyonunu
+> test ETMEZ (D1 mock'u yok, proje `@cloudflare/vitest-pool-workers`'ı §6.1'de
+> kaldırmıştı). Doğrulama canlı ölçümle yapıldı.
 
 **11. KAÇIŞ DİZİSİ TUZAĞI.** `printf` ve Python heredoc içinde `\n`, `\a`, `\t`
 **gerçek karaktere dönüşür**. `ANAHTAR-EKLE.bat`'ta `tools\anahtar` →
