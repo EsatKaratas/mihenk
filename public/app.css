@@ -1205,3 +1205,13 @@
   .sync-bar { font-size: 12px; }
   .sync-bar .sync-input { width: 120px; }
 }
+
+/* Sınav seçicideki eylem düğmeleri (§28c). Bağımsız sınıf (§6.3-2):
+   kendi yerleşimini taşır, kapsayıcıya bağlı değildir. */
+.es-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.es-actions .btn { flex: 1 1 auto; }

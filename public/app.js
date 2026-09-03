@@ -2801,9 +2801,81 @@ function createExam(baslik) {
   renderAll();
 }
 
+/* ==================== SINAV YÖNETİMİ (§28c) ====================
+   Öğretmen, yayınladığı bir sınav üzerinde HİÇBİR ŞEY yapamıyordu: saatini
+   değiştiremiyor, silemiyor, yayından kaldıramıyordu. Tek çıkış yolu "Verileri
+   sıfırla" ile her şeyi silmekti. Ölçülen sebep üçtü: deleteExam() yayındaki
+   sınavda doğrudan `false` dönüyordu, silme düğmesi yayındayken hiç
+   çizilmiyordu ve tüm alanlar `locked` iken `disabled` idi.
+
+   YENİ KURAL — kilit "yayında mı"ya değil "ÖĞRENCİ BAŞLADI MI"ya bakar:
+     · taslak                          → her şey düzenlenebilir
+     · yayında, kimse başlamadı        → her şey düzenlenebilir (asıl boşluk buydu)
+     · yayında, en az bir öğrenci başladı → başlık serbest, SÜRE VE SAAT KİLİTLİ
+   Süreyi sınav sürerken değiştirmek ölçmeyi bozar: aynı sınava giren iki
+   öğrenci farklı süre almış olur. Bu yüzden orası bilinçli olarak kilitli. */
+function sinavKatilim(kayit) {
+  const ss = (kayit && kayit.sessions) || {};
+  let baslayan = 0, gonderen = 0;
+  Object.keys(ss).forEach(function (sid) {
+    const d = (ss[sid] || {}).examStatus || "not_started";
+    if (d === "in_progress") baslayan++;
+    else if (d === "submitted" || d === "graded") { baslayan++; gonderen++; }
+  });
+  // Aktif öğrencinin oturumu kökte "canlı" durur; kayda henüz yazılmamış olabilir.
+  if (kayit && kayit.id === state.activeExamId) {
+    const d = state.examStatus || "not_started";
+    const yazili = ((kayit.sessions || {})[state.activeStudentId] || {}).examStatus;
+    if (!yazili && d !== "not_started") { baslayan++; if (d !== "in_progress") gonderen++; }
+  }
+  return { baslayan: baslayan, gonderen: gonderen };
+}
+
+/** Süre/saat alanları kilitli mi? Yayında olmak TEK BAŞINA yetmez. */
+function sinavZamanKilitli(kayit) {
+  const k = kayit || (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!k) return false;
+  const st = k.id === state.activeExamId ? state.exam.status : k.status;
+  return st === "published" && sinavKatilim(k).baslayan > 0;
+}
+
+/** Yayından kaldır: sınav taslağa döner, öğrenciler artık göremez. */
+function unpublishExam(id) {
+  const kayit = (state.exams || []).find(function (x) { return x.id === id; });
+  if (!kayit) return false;
+  const k = sinavKatilim(kayit);
+  let uyari = "“" + (kayit.title || "Adsız Sınav") + "” yayından kaldırılacak ve öğrenciler artık göremeyecek.";
+  if (k.baslayan) {
+    uyari += "\n\nDİKKAT: " + k.baslayan + " öğrenci bu sınava başlamış" +
+      (k.gonderen ? " (" + k.gonderen + " tanesi yanıtlarını göndermiş)" : "") +
+      ". Yanıtları SİLİNMEZ, sınav yeniden yayınlandığında yerinde durur.";
+  }
+  if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  if (id === state.activeExamId) state.exam.status = "draft"; else kayit.status = "draft";
+  kayit.status = "draft";
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
 function deleteExam(id) {
   const kayit = state.exams.find(function (x) { return x.id === id; });
-  if (!kayit || kayit.status === "published") return false; // yayındaki sınav silinmez
+  if (!kayit) return false;
+
+  /* Yayındaki sınav ARTIK SİLİNEBİLİR ama sessizce değil: kaç öğrencinin
+     verisinin gideceği sayılıp söylenir. Eskiden buradan `false` dönülüyor,
+     öğretmene hiçbir açıklama yapılmıyordu. */
+  const yayinda = (id === state.activeExamId ? state.exam.status : kayit.status) === "published";
+  const k = sinavKatilim(kayit);
+  if (yayinda || k.baslayan) {
+    let uyari = "“" + (kayit.title || "Adsız Sınav") + "” KALICI OLARAK silinecek.";
+    if (k.baslayan) {
+      uyari += "\n\n" + k.baslayan + " öğrencinin bu sınavdaki yanıtları" +
+        (k.gonderen ? ", " + k.gonderen + " tanesinin gönderdiği kağıt dahil," : "") +
+        " birlikte silinecek. Bu işlem geri alınamaz.";
+    }
+    if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  }
   state.exams = state.exams.filter(function (x) { return x.id !== id; });
   if (state.activeExamId === id) {
     if (state.exams.length) { state.activeExamId = null; activateExam(state.exams[0].id); }
@@ -2851,9 +2923,17 @@ function examSwitcherHtml() {
         '<span class="es-meta">' + adet + ' soru ' + examStatusPill(st, sess) + '</span></button>';
     }).join("") +
     '<button class="es-item es-new" id="btnNewExam">+ Yeni Sınav</button></div>' +
-    (state.exam.status !== "published"
-      ? '<button class="btn btn-secondary btn-sm" id="btnDelExam" style="margin-top:8px;">Bu taslağı sil</button>'
-      : "") + '</div>';
+    /* Silme düğmesi ESKİDEN YALNIZCA TASLAKTA çiziliyordu; yayınlanan bir sınav
+       için öğretmenin hiçbir çıkışı yoktu (§28c). Artık her durumda var ve
+       yayındaki sınavda deleteExam() kaç öğrencinin verisinin gideceğini sayıp
+       soruyor. Yayından kaldırma ise veri silmeyen, geri alınabilir yoldur. */
+    '<div class="es-actions">' +
+    (state.exam.status === "published"
+      ? '<button class="btn btn-secondary btn-sm" id="btnUnpublishExam">Yayından kaldır</button>'
+      : "") +
+    '<button class="btn btn-secondary btn-sm" id="btnDelExam">' +
+    (state.exam.status === "published" ? "Bu sınavı sil" : "Bu taslağı sil") + '</button>' +
+    '</div></div>';
 }
 
 function wireExamSwitcher() {
@@ -2864,6 +2944,8 @@ function wireExamSwitcher() {
   if (nb) nb.onclick = function () { createExam(); };
   const db = document.getElementById("btnDelExam");
   if (db) db.onclick = function () { deleteExam(state.activeExamId); };
+  const ub = document.getElementById("btnUnpublishExam");
+  if (ub) ub.onclick = function () { unpublishExam(state.activeExamId); };
 }
 
 /* ============================== Öğretmen ============================== */
@@ -3192,14 +3274,20 @@ function teacherTab1Html() {
   const approved = filteredPool();
   const tumOnayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
   const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
-  const locked = state.exam.status === "published";
+  /* §28c: kilit artık "yayında mı"ya değil "öğrenci başladı mı"ya bakar.
+     Yayınlanmış ama kimsenin başlamadığı sınav hâlâ düzenlenebilir — asıl
+     boşluk buydu. Soru listesi yayında değişmez (ölçme bütünlüğü). */
+  const katilim = sinavKatilim((state.exams || []).find(function (x) { return x.id === state.activeExamId; }));
+  const yayinda = state.exam.status === "published";
+  const locked = yayinda && katilim.baslayan > 0;
+  const soruKilidi = yayinda;
   return examSwitcherHtml() + '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
     (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
     poolFilterHtml() +
     (approved.length ? approved.map(function (q) {
       const duzenleniyor = state.editingQid === q.id;
-      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
+      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
         '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
@@ -3220,7 +3308,7 @@ function teacherTab1Html() {
             '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
         '</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
-    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
+    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı"></div>' +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
     '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Öğrenciye verilecek toplam süre (dk)</label>' +
     '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
@@ -3239,11 +3327,16 @@ function teacherTab1Html() {
         '<input id="examStartAt" type="datetime-local" min="' + yerelDamga(new Date()) + '" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
         '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
       : "") +
-    (locked && state.exam.startsAt
+    (yayinda && state.exam.startsAt
       ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
         new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
       : "") +
-    (locked ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' :
+    (yayinda ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' +
+      (locked
+        ? '<div class="pill pill-warning" style="margin-top:8px;">' + katilim.baslayan +
+          ' öğrenci sınava başladı — süre ve açılış saati artık değiştirilemez. ' +
+          'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
+        : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
       (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
     ) + "</div></div>" + rejectedPoolHtml("teacher");
@@ -6226,7 +6319,7 @@ function wireSync() {
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
-    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
+    "activateExam", "createExam", "deleteExam", "unpublishExam", "sinavKatilim", "sinavZamanKilitli", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
