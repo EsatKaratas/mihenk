@@ -19,7 +19,6 @@
 
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { rateLimited as rateLimitedRaw } from '../lib/guards';
 import { syncPushSchema, syncPullSchema, syncResetSchema } from '../schemas/sync';
 
 type Bindings = { DB?: D1Database };
@@ -32,29 +31,29 @@ type Bindings = { DB?: D1Database };
    Alfabe 32 karakter (karışanlar çıkarılmış), üretilen kod 6 karakter:
    32^6 = 1.073.741.824 olasılık.
 
-   🔴 ÜRETİMDE ÖLÇÜLDÜ — BU SINIR CANLIDA TETİKLENMİYOR.
-   Sayaç bellek içi bir Map ve HER İSOLATE İÇİN AYRIDIR. Canlıda ölçüm:
+   🔴 3 EYLÜL, İLK SÜRÜM — CANLIDA ÖLÇÜLDÜ, TETİKLENMİYORDU.
+   Sayaç bellek içi bir Map'ti ve HER İSOLATE İÇİN AYRIYDI. Canlıda ölçüm:
    2 saniyede 80 istek gönderildi, 80'i de 200 döndü, 429 çıkmadı; çünkü
-   Cloudflare istekleri birden çok isolate'a dağıttı. Bu, AI uçlarındaki
-   sınırın da bilinen durumudur (AKTARIM §6.3-10).
+   Cloudflare istekleri birden çok isolate'a dağıttı (AI uçlarındaki sınırın
+   da bilinen durumu, AKTARIM §6.3-10).
 
-   Dolayısıyla gerçek koruma şudur: sınır TUTSAYDI belirli bir odayı %50
-   olasılıkla bulmak ~17 yıl sürerdi; sınırsız ~50 istek/sn ile bu süre
-   ~124 güne iner. Yine de düşük bir risk (oda kodları demo süresince
-   yaşıyor) ama BELGEDE 17 YIL DİYE İDDİA EDİLEMEZ.
+   🔴 3 EYLÜL, İKİNCİ TUR — SAYAÇ D1'E TAŞINDI (Madde 6).
+   Artık D1'deki `rate_limits` tablosunda tutuluyor; bu tablo tüm isolate'ler
+   arasında PAYLAŞILIR (D1 tek bir mantıksal veritabanıdır, isolate'e özel
+   değildir). Sabit pencereli sayaç (`window_start` + `count`), her istekte
+   tek bir UPSERT ile güncellenir; SQLite'ın RETURNING'i ile güncel sayı aynı
+   sorguda okunur (D1, SQLite 3.35+ tabanlıdır, RETURNING desteklenir).
 
-   ÜRETİM İÇİN ŞART: sayaç D1 ya da KV'ye taşınmalı. Buradaki kod tek
-   isolate içinde DOĞRU çalışıyor (birim testleri + yerel dev'de 60x200 +
-   5x429 ölçüldü); eksik olan dağıtık sayaçtır.
+   Neden AI uçlarındaki bellek-içi sınıra DOKUNULMADI: o sınır farklı bir
+   risk sınıfını (kaynak/maliyet tüketimini yavaşlatmak) hedefliyor ve
+   AI çağrıları zaten pahalı/yavaş olduğu için isolate başına sınır bile
+   pratikte fren görevi görüyor. Buradaki risk (oda kodu taraması) ise
+   ucuz ve hızlı istekler üzerinden çalışıyor — dağıtık sayaç olmadan sınır
+   anlamsızlaşıyordu, bu yüzden yalnızca /api/sync/* güncellendi.
 
    Sınır İSTEMCİ BAŞINA değil, IP başınadır: amaç meşru kullanıcıyı değil
    tarayıcıyı yavaşlatmaktır. Bir sınıfta 30 öğrenci aynı ağdan girebileceği
-   için okuma sınırı yazma sınırından yüksek tutuldu.
-
-   ⚠️ SINIR İZOLATE BAŞINADIR (§6.3-10, AI uçlarındaki sınırla aynı durum).
-   Cloudflare birden çok isolate çalıştırırsa etkin sınır katlanır. Üretimde
-   D1/KV'ye taşınmalıdır; bu, jüriye de böyle söylenir. */
-const syncHits = new Map<string, number[]>();
+   için okuma sınırı yazma sınırından yüksek tutuldu. */
 export const SYNC_PULL_PER_MIN = 60;
 export const SYNC_WRITE_PER_MIN = 30;
 
@@ -67,8 +66,31 @@ function istemciAnahtari(c: any, ek: string): string {
   return `${ek}:${ip}`;
 }
 
-function hizSinirli(c: any, ek: string, limit: number): boolean {
-  return rateLimitedRaw(syncHits, istemciAnahtari(c, ek), limit);
+/**
+ * D1'deki paylaşılan sayacı bir UPSERT ile artırır ve güncel sayıyı okur.
+ * Sayaç sorgusu BAŞARISIZ OLURSA isteği ENGELLEMEZ, geçirir — hız sınırı bir
+ * güvenlik katmanıdır, ana işlevi (senkron) kırmamalıdır; hata loglanır.
+ */
+async function hizSinirli(db: D1Database, c: any, ek: string, limit: number): Promise<boolean> {
+  const anahtar = istemciAnahtari(c, ek);
+  const simdi = Date.now();
+  try {
+    const sonuc = await db
+      .prepare(
+        `INSERT INTO rate_limits (bucket_key, window_start, count)
+         VALUES (?1, ?2, 1)
+         ON CONFLICT(bucket_key) DO UPDATE SET
+           count = CASE WHEN ?2 - window_start >= 60000 THEN 1 ELSE count + 1 END,
+           window_start = CASE WHEN ?2 - window_start >= 60000 THEN ?2 ELSE window_start END
+         RETURNING count`
+      )
+      .bind(anahtar, simdi)
+      .first<{ count: number }>();
+    return (sonuc?.count ?? 0) > limit;
+  } catch (e: any) {
+    console.error(JSON.stringify({ ev: 'rate_limit_check_failed', message: e?.message }));
+    return false;
+  }
 }
 
 function cokFazla(c: any) {
@@ -117,7 +139,7 @@ sync.get('/status', (c) => c.json({ ready: !!c.env.DB }));
 // ---------------------------------------------------------------------------
 sync.post('/push', zValidator('json', syncPushSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
-  if (hizSinirli(c, 'push', SYNC_WRITE_PER_MIN)) return cokFazla(c);
+  if (await hizSinirli(c.env.DB, c, 'push', SYNC_WRITE_PER_MIN)) return cokFazla(c);
   const b = c.req.valid('json');
   const db = c.env.DB;
 
@@ -183,7 +205,7 @@ sync.post('/push', zValidator('json', syncPushSchema, onInvalid), async (c) => {
 sync.post('/pull', zValidator('json', syncPullSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
   // Tarama saldırısının hedefi tam olarak burasıdır: kod doğruysa veri döner.
-  if (hizSinirli(c, 'pull', SYNC_PULL_PER_MIN)) return cokFazla(c);
+  if (await hizSinirli(c.env.DB, c, 'pull', SYNC_PULL_PER_MIN)) return cokFazla(c);
   const { room } = c.req.valid('json');
   const db = c.env.DB;
 
@@ -223,7 +245,7 @@ sync.post('/pull', zValidator('json', syncPullSchema, onInvalid), async (c) => {
 // ---------------------------------------------------------------------------
 sync.post('/reset', zValidator('json', syncResetSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
-  if (hizSinirli(c, 'reset', SYNC_WRITE_PER_MIN)) return cokFazla(c);
+  if (await hizSinirli(c.env.DB, c, 'reset', SYNC_WRITE_PER_MIN)) return cokFazla(c);
   const { room } = c.req.valid('json');
   const db = c.env.DB;
 

@@ -4230,11 +4230,125 @@ sınav öğrencinin ekranından sessizce kaybolurdu.
    olmadı, `state.examStatus` eski değerde kaldı. Önce başka bir öğrenciye
    geçip sonra hedefe dönerek düzeltildi.
 
+
+### 28r. MADDE 2 — öğrenci sınıf değişikliğinin senkronu
+
+`syncBirlestir()`'in öğrenci birleştirme döngüsü daha önce yalnızca "yoksa
+ekle" yapıyordu; var olan bir öğrencinin `name`/`sinif`/`demo` alanları
+başka bir cihazda değiştirilse bile senkronda güncellenmiyordu. Artık var
+olan kayıtlarda da bu alanlar **son yazan kazanır** mantığıyla güncelleniyor.
+
+**Ölçüldü:** iki farklı "cihaz" (iki sekme, aynı oda kodu) — birinde
+öğrencinin sınıfı `7-A`'dan `7-B`'ye değiştirilip push edildi, diğer
+sekmede pull sonrası öğrenci `7-B` olarak göründü. `npm test` **133/133**.
+
+### 28r. MADDE 3 — varsayılan liste sirayet sorunu
+
+Bir öğretmen boş/varsayılan öğrenci listesiyle bir odaya **katıldığında**
+(join), önceki demo/placeholder öğrenciler odadaki gerçek listeyle
+birleşiyordu — bu yüzden "hayalet" demo öğrenciler gerçek sınıfa karışıyordu.
+`wireSyncJoin()`'in katılma yolunda artık `varsayılanListeMi()` doğruysa
+katılmadan önce `state.students`/`state.activeStudentId` sıfırlanıyor.
+Bu davranış yalnızca **katılma** akışında; "kodu paylaş" (`btnSyncPaylasKod`,
+oda kuran taraf) yolunda dokunulmadı — kuran tarafın kendi listesi korunmalı.
+
+**Ölçüldü:** varsayılan 3 demo öğrenciyle bir oturum açıp gerçek 5 öğrencili
+bir odaya katılınca liste **5** oldu (8 değil). Kendi odasını kuran öğretmende
+demo öğrenciler **korundu**. `npm test` **133/133**.
+
+### 28r. MADDE 4 — ders kütüphanesinde ders/sınıf etiketi düzenleme
+
+Kitaplığa (IndexedDB tabanlı, önceden var olan altyapı) kaydedilmiş bir not
+artık kaydedildikten **sonra** da düzenlenebiliyor: `ad`/`subject`/`grade`
+alanları için satır-içi düzenleme modu (`state.kitEdit`) eklendi. Sayfa
+içeriğinin kendisine (IndexedDB'deki büyük metin) dokunulmuyor, yalnızca
+metadata güncelleniyor.
+
+**Ölçüldü:** bir not kaydedilip ad/ders/sınıf değiştirildi, sayfa
+yenilendi (IndexedDB kalıcılığı doğrulandı), değişiklik korundu. Konsol
+hatası **0**. `npm test` **133/133**.
+
+### 28r. MADDE 5 — kitaplıkta arama/filtreleme
+
+`kitaplikHtml()` ikiye bölündü: kabuk (`kitaplikHtml`) + satır render'ı
+(yeni `kitaplikSatirlarHtml(sirali)`) + arama filtresi (yeni
+`kitapAramaFiltrele(liste, arama)`). `state.library.length >= 4` olunca
+görünen bir arama kutusu (`#kitArama`) eklendi; `oninput` **yalnızca**
+`#kitListesi.innerHTML`'i güncelliyor ve `wireKitaplik()`'i yeniden
+bağlıyor — bilinçli olarak `renderAll()` çağırmıyor, çünkü bu bir metin
+girdisinin `oninput`'undan tam sayfa render tetiklemek odak kaybına yol
+açar (§6.3-3, bu projede tekrar eden bir hata sınıfı).
+
+selfCheck dizisine `kitapAramaFiltrele`, `kitaplikSatirlarHtml` eklendi
+(→ 210 toplam fonksiyon).
+
+**Kendi hatam, düzeltildi (§6.3-19):** find-replace ile yeni fonksiyonu
+`kitapAc`'tan önce eklerken yalnızca `function kitapAc(id) {` eşleşti
+(başındaki `async` hedefte yoktu), geride tek başına duran bir `async`
+token'ı kaldı — `async /** yorum */ async function ...` sözdizimsel olarak
+geçerli (bare `async` kendi ASI ile biten ifade sayılıyor) ama çalışma
+zamanında patlıyor. `node --check` bunu **yakalamadı**; yalnızca gerçek
+tarayıcı konsolunda görüldü. Fazladan `async` silinerek düzeltildi.
+
+**Ölçüldü:** 5 not kaydedilip aranan kelimeyle 2'ye filtrelendi, arama
+kutusundan **odak kaybı olmadı** (art arda karakter yazılarak doğrulandı).
+Konsol hatası **0** (düzeltmeden sonra). `npm test` **133/133**.
+
+### 28r. MADDE 6 — hız sınırının D1'e taşınması
+
+§28j'de "finale iki gün kala kapsam dışı" denilen bu madde, kullanıcının
+"veri tabanı düzgün çalışıyor değil mi, farklı PC'lerde farklı şeyler
+çıkmasın" talimatıyla yeniden kapsam içine alındı ve tamamlandı.
+
+**Kök neden:** `src/routes/sync.ts`'teki eski `hizSinirli()` bellek-içi bir
+`Map`'e yazıyordu. Cloudflare Workers'ta her istek farklı bir izole
+(isolate) örneğinde çalışabilir; bu Map isolate'ler arasında **paylaşılmıyor**.
+Canlıda ölçüldü (bir önceki günkü oturumda): 2 saniyede 80 paralel istek
+gönderildi, **hepsi 200** döndü — sınır fiilen hiç çalışmıyordu.
+
+**Çözüm:** sayaç D1'e taşındı. `rate_limits` tablosu eklendi
+(`bucket_key TEXT PRIMARY KEY, window_start INTEGER, count INTEGER`) ve
+yeni `hizSinirli(db, c, ek, limit)` SQLite'ın atomik
+`INSERT ... ON CONFLICT DO UPDATE ... RETURNING count` deyimini kullanıyor
+(D1, SQLite 3.35+ `RETURNING`'i destekliyor) — pencere sıfırlama ve sayaç
+artırma **tek bir atomik sorguda** oluyor, yarış durumu (race condition)
+yok. `/push`, `/pull`, `/reset` üçü de güncellendi. `guards.ts`'teki genel
+`rateLimited()` fonksiyonu ve AI ucundaki (`src/routes/ai.ts`) ayrı
+bellek-içi sınırlayıcı **bilinçli olarak dokunulmadı** — o uç zaten
+isolate-local kalması kabul edilebilir bir uçtur, senkron ucu gibi
+oda-kodu-tarama riski taşımıyor.
+
+**Ölçüldü (canlı, `mihenk.bies.workers.dev`, oda `ZZZZ`, sayaç sıfırlandıktan sonra):**
+
+| Test | Sonuç |
+|---|---|
+| Sıralı 65 istek (`/api/sync/pull`) | ilk **60 → 200**, sonraki **5 → 429**, geçiş tam 60/61 arasında |
+| Paralel 80 istek (`xargs -P 20`, ~2 sn içinde) | **60 → 200**, **20 → 429** — sınır artık paralel yükte de tutuyor |
+| `npm run lint` · `npm test` | temiz · **133/133** |
+| Canlı/yerel `app.js` byte eşleşmesi | **401775 = 401775** |
+| `/api/health` sonrası | `{"ok":true,...}` |
+
+**Ölçüm aracı hatası (proje bugu değil, §6.5):** ilk paralel deneme
+`xargs -P 20`'nin tek bir dosyaya `>>` ile eklemesine dayanıyordu; Windows/
+Git-Bash'te eşzamanlı append'ler yarışıp çoğu yazma kayboluyor (80 istekten
+yalnızca 5 satır kaydedildi). İkinci denemede **istek başına ayrı dosya**
+yazıp sonradan sayma yöntemine geçilince 80/80 doğru kaydedildi.
+
+`test/sync-schemas.test.ts`'teki `rateLimited`/sabit testleri **değişmedi**
+(hâlâ 35/35 geçiyor) ama üstlerindeki yorum güncellendi: bu testler artık
+yalnızca `guards.ts`'teki genel algoritmayı ve seçilen sabitleri (`SYNC_PULL_PER_MIN`,
+`SYNC_WRITE_PER_MIN`) dondurduğunu, gerçek D1 entegrasyonunu **test etmediğini**
+açıkça belirtiyor (proje `@cloudflare/vitest-pool-workers`'ı Wrangler 4
+çakışması yüzünden kaldırmıştı — AKTARIM §6.1 — bu yüzden D1'e bağımlı
+`hizSinirli()` unit test edilemiyor, doğrulama yalnızca canlı ölçümle yapıldı).
+
+Test sonrası `rate_limits`, `sync_exams`/`sync_sessions` (oda `ZZZZ`)
+hem local hem remote D1'de temizlendi.
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).
    Kullanıcı onay verdi; canlı ölçümler §28k'dedir.
 2. **Gerçek kimlik doğrulama (Better Auth).** Oda kodu onun yerine geçmiyor,
    yerini tutuyor; bu sınır hem arayüzde hem gizlilik metninde yazılı.
-3. **Hız sınırının D1/KV'ye taşınması.** Finale iki gün kala kapsam dışı.
+3. ~~Hız sınırının D1/KV'ye taşınması.~~ → **YAPILDI** (§28r Madde 6) — kullanıcı talebiyle kapsama geri alındı.
 4. Sude'nin ve Burak'ın 7'şer maddesi — iş bölümü gereği onlarda.

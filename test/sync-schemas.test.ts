@@ -151,12 +151,22 @@ describe('reset gövdesi', () => {
 });
 
 // ============================================================================
-// Hız sınırı — oda kodu taramasına karşı (§28g)
+// Hız sınırı — oda kodu taramasına karşı (§28g, §28r Madde 6)
 //
 // Oda kodu kimlik doğrulama YERİNE geçtiği için, /pull ucunun taranabilir
-// olmaması ürünün tek erişim korumasıdır. Sınırın kendisi guards.ts'te ve
-// zaten test ediliyor; buradaki testler SYNC UÇLARININ SEÇTİĞİ DEĞERLERİ ve
-// anahtar ayrımını dondurur.
+// olmaması ürünün tek erişim korumasıdır.
+//
+// 🔴 3 EYLÜL, İKİNCİ TUR: gerçek /api/sync/* uçları artık BURADAKİ
+// `rateLimited` (bellek içi Map) fonksiyonunu KULLANMIYOR — D1 tabanlı,
+// isolate'ler arası paylaşılan bir sayaca taşındı (bkz. src/routes/sync.ts,
+// `hizSinirli`). O fonksiyon D1'e bağımlı olduğu için bu vitest ortamında
+// unit test edilemiyor (proje @cloudflare/vitest-pool-workers'ı Wrangler 4
+// çakışması yüzünden kaldırmıştı — bkz. AKTARIM §6.1). Gerçek doğrulama
+// canlı ortamda paralel istek göndererek yapıldı (PROGRESS §28r Madde 6).
+//
+// Buradaki testler artık yalnızca guards.ts'teki GENEL AMAÇLI sınır
+// mantığının kendisini ve sync uçlarının SEÇTİĞİ DEĞERLERİ (SYNC_PULL_PER_MIN
+// / SYNC_WRITE_PER_MIN) dondurur — gerçek D1 entegrasyonunu değil.
 // ============================================================================
 import { rateLimited } from '../src/lib/guards';
 import { SYNC_PULL_PER_MIN, SYNC_WRITE_PER_MIN } from '../src/routes/sync';

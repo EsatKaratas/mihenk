@@ -239,3 +239,23 @@ CREATE TABLE sync_sessions (
 );
 
 CREATE INDEX idx_sync_sessions_room ON sync_sessions(room, exam_id);
+
+-- ============================================================================
+-- 11. HIZ SINIRI — dağıtık sayaç (§28r Madde 6)
+--
+-- NEDEN AYRI TABLO, KV DEĞİL: Bu Worker zaten D1'e bağlı (senkron katmanı
+-- için); yeni bir Cloudflare kaynağı (KV namespace) açmak yerine var olan
+-- bağlantıyı kullanmak hem daha az risk hem daha az kurulum adımıdır.
+--
+-- SABİT PENCERE (fixed window), KAYAN PENCERE DEĞİL: her istek için ayrı
+-- satır tutup temizlemek D1'de gereksiz karmaşıklık olurdu. Bunun yerine
+-- her (uç+IP) çifti için TEK satır tutulur; pencere 60 saniyeden eskiyse
+-- sayaç sıfırlanır. Bu yüzden tablo aktif IP sayısı kadar satır tutar,
+-- sınırsız büyümez.
+-- ============================================================================
+
+CREATE TABLE rate_limits (
+  bucket_key    TEXT PRIMARY KEY,     -- "<uc>:<ip>", örn. "pull:203.0.113.7"
+  window_start  INTEGER NOT NULL,     -- pencerenin başladığı Date.now() (ms)
+  count         INTEGER NOT NULL
+);
