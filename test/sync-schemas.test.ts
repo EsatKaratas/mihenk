@@ -166,12 +166,17 @@ describe('senkron hız sınırı', () => {
     expect(SYNC_PULL_PER_MIN).toBeGreaterThan(SYNC_WRITE_PER_MIN);
   });
 
-  it('sınır değerleri tarama için anlamlı bir tavan verir', () => {
+  /* Bu test SEÇİLEN SABİTLERİN makul olduğunu dondurur — üretimdeki gerçek
+     korumayı DEĞİL. Canlıda ölçüldü: sayaç isolate başına olduğu için 2
+     saniyede 80 istek gönderildiğinde 429 hiç çıkmadı (PROGRESS §28g).
+     Yani aşağıdaki "yıl" hesabı TEORİK tavandır; üretimde geçerli olması
+     için sayacın D1/KV'ye taşınması gerekir. */
+  it('seçilen sınır değeri teorik olarak anlamlı bir tavan verir', () => {
     // 32 karakterlik alfabe, 6 karakterlik kod.
     const olasilik = Math.pow(32, 6);
     const gunlukDeneme = SYNC_PULL_PER_MIN * 60 * 24;
     const yil = olasilik / 2 / gunlukDeneme / 365;
-    expect(yil).toBeGreaterThan(10);   // belirli bir odayı bulmak on yıllar sürmeli
+    expect(yil).toBeGreaterThan(10);   // sınır TUTSAYDI on yıllar sürerdi
   });
 
   it('sınıra ulaşınca engeller, altında geçirir', () => {
