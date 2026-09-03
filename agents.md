@@ -137,4 +137,7 @@ schema.sql                # Referans şema — migrations/ ile senkron tutulur
 3. Jüri için en az bir İçerik Uzmanı, bir Öğretmen ve bir Öğrenci test hesabı
    hazır mı (bkz. README → Demo Akışı)?
 4. Workers Logs açık mı (canlı sorgu/hata göstermek için)?
-5. `/gizlilik-politikasi` ve `/robots.txt` prod alan adında erişilebiliyor mu?
+5. `/privacy-policy` ve `/robots.txt` prod alan adında erişilebiliyor mu?
+   (⚠️ Bu madde eskiden `/gizlilik-politikasi` diyordu; **öyle bir yol hiç
+   olmadı**, 404 döndürüyordu. Gerçek yol `/privacy-policy` — canlıda 200
+   doğrulandı, `public/robots.txt` de bu yolu izin veriyor.)
