@@ -16,7 +16,9 @@
   //   npm run dev:demo        -> yerelde çalıştır
   // ===========================================================================
 
-  "name": "t3-olcme-degerlendirme",
+  // Worker adı = adresin ilk parçası. 3 Eylül: hesap alt alan adı "bies"
+  // yapıldı ve Worker "mihenk" olarak sabitlendi -> mihenk.bies.workers.dev
+  "name": "mihenk",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-10",
   "compatibility_flags": ["nodejs_compat"],

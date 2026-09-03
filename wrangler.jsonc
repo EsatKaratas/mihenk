@@ -2,7 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
 
   // Worker adı — Cloudflare panelinde ve *.workers.dev alt alan adında görünür.
-  "name": "t3-olcme-degerlendirme",
+  // Worker adı = adresin ilk parçası. 3 Eylül: hesap alt alan adı "bies"
+  // yapıldı ve Worker "mihenk" olarak sabitlendi -> mihenk.bies.workers.dev
+  "name": "mihenk",
 
   // Hono uygulamasının giriş noktası (routes.ts içeriğini buradan import edin).
   "main": "src/index.ts",

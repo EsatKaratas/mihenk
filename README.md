@@ -12,11 +12,11 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 
 <br/>
 
-[![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev)
-[![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)
+[![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://mihenk.bies.workers.dev)
+[![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-98%2F98-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-133%2F133-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -55,7 +55,7 @@ Aşağıdaki görüntüler **canlı sistemden**, demo senaryosu yüklü hâlde a
 | | |
 |---|---|
 | [1. Problem ve çözüm](#1-problem-ve-çözüm) | [7. Ortam değişkenleri ve sırlar](#7-ortam-değişkenleri-ve-sırlar) |
-| [2. Dört kullanıcı rolü](#2-dört-kullanıcı-rolü) | [8. Deploy](#8-deploy-üretim) |
+| [2. Beş kullanıcı rolü](#2-beş-kullanıcı-rolü) | [8. Deploy](#8-deploy-üretim) |
 | [3. Mimari](#3-mimari) | [9. Bilinen sınırlamalar](#9-bilinen-sınırlamalar-ve-yol-haritası) |
 | [4. Proje yapısı](#4-proje-yapısı) | [10. Gizlilik ve veri koruma](#10-gizlilik-ve-veri-koruma) |
 | [5. Yerelde çalıştırma](#5-yerelde-çalıştırma) | [**11. Brief'in istediğinin ötesi**](#11-briefin-istediğinin-ötesi) |
@@ -83,7 +83,7 @@ Bunların üstüne:
 
 ### Uçtan uca akış
 
-Dört rol tek bir zincirde birleşir. Renk kodu üç şeyi ayırır:
+Beş rol tek bir zincirde birleşir. Renk kodu üç şeyi ayırır:
 **kesikli yeşil** = yapay zekânın *önerdiği* yer · **kalın mor** = insan onayının
 **zorunlu** olduğu yer · **turuncu** = her iki tarafın kararının kaydedildiği
 denetim izi. Kesikli geri dönüş oku döngünün nasıl kapandığını gösterir.
@@ -166,8 +166,8 @@ demoda tutulan süreyle çelişirdi.
 > doğal sonucudur. Ürün tarafındaki cevabımız **değerlendirme önbelleği**
 > (aynı yanıt tekrar puanlanmaz — 0-6 ms) ve **hazır demo senaryosudur**.
 
-Ek bağlantılar: **[mimari dokümantasyonu](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)**
-· **[KVKK aydınlatma metni](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/privacy-policy)**
+Ek bağlantılar: **[mimari dokümantasyonu](https://mihenk.bies.workers.dev/mimari)**
+· **[KVKK aydınlatma metni](https://mihenk.bies.workers.dev/privacy-policy)**
 
 Arayüzün üst kısmındaki rozet, o an **hangi modelin** yanıtladığını gösterir:
 birincil model, yedek sağlayıcı ya da yerel simülasyon. Bu bilinçlidir —
@@ -175,8 +175,8 @@ sistemin sessizce simülasyona düşüp gerçek yapay zekâ gibi görünmesini e
 
 ### Hemen deneyin
 
-**Kurulum gerekmez:** [canlı sistemi açın](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev),
-üst çubuktaki **"Demo senaryosu"** düğmesine basın ve rol seçiciden dört rol
+**Kurulum gerekmez:** [canlı sistemi açın](https://mihenk.bies.workers.dev),
+üst çubuktaki **"Demo senaryosu"** düğmesine basın ve rol seçiciden beş rol
 arasında gezinin. Yüklenen sorular uydurma değil, modelin gerçekten ürettiği
 çıktılar; değerlendirme canlı çalışır.
 
@@ -193,7 +193,7 @@ npm run dev:demo      # http://localhost:8787
 Güvenlik testini kendiniz koşmak için:
 
 ```bash
-python tools/injection-test.py https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev
+python tools/injection-test.py https://mihenk.bies.workers.dev
 ```
 
 ---
@@ -213,17 +213,20 @@ hızlandırmayı, **ancak nihai kararı ve puan onayını öğretmende bırakmay
   `ai_evaluations` → `teacher_reviews` tabloları arasındaki geçişler, atlanamayan
   bir durum makinesi (state machine) olarak modellenmiştir (bkz. `schema.sql`).
 
-## 2. Dört kullanıcı rolü
+## 2. Beş kullanıcı rolü
 
-Brief dört rol tanımlıyor. Dördü de canlı sistemde **gerçekten çalışır** —
-hiçbiri yer tutucu ekran değildir.
+Brief **dört** rol tanımlıyor; dördü de canlı sistemde **gerçekten çalışır**,
+hiçbiri yer tutucu ekran değildir. **Beşincisi — Veli — gerekçesiyle eklendi:**
+çocuğunun öğrenme durumunu en çok merak eden, bugün ise en az bilgilendirilen
+taraf odur.
 
 | Rol | Ne yapar | İnsan onayının durduğu yer |
 |---|---|---|
 | **İçerik Uzmanı**<br><sub>2 sekme</sub> | Kaynak metni yükler (yapıştır · `.txt` · `.md` · **PDF**) veya Müfredat Kitaplığı'ndan sayfa aralığı seçer; ders, sınıf ve **MEB kazanımını** belirler; yapay zekânın ürettiği çoktan seçmeli ve açık uçlu taslakları — her çeldiricinin hangi kavram yanılgısını ölçtüğüyle birlikte — inceler. | Soru `ai_generated` durumunda bekler; **onaylanmadan havuza girmez.** Onay ve red kararlarının ikisi de denetim izine yazılır. |
 | **Öğretmen**<br><sub>4 sekme</sub> | Havuzdan kazanım/zorluk/türe göre sınav kurar, **çoktan seçmeli soru puanını belirler**, süre önerilerini değiştirebilir; açık uçlu sorular için rubrik tanımlar (yapay zekâ taslak önerir); **Bloom düzey dengesi** sınavın ezber mi ölçtüğünü söyler; puan önerilerini *en düşük güvenli en üstte* sırayla inceler; madde analizi ve kavram yanılgısı kümelerini görür. | Puan `aiEvals`'ta durur; öğretmen onaylayana kadar **öğrenciye ulaşmaz.** Geri bildirim taslağı da ayrı bir kutuda bekler, "Nota Aktar" denmeden gitmez. |
 | **Öğrenci**<br><sub>3 sekme</sub> | Geri sayımlı ekranda sınavı çözer; açık uçlu yanıtlar otomatik kaydedilir (sayfa yenilense de kaybolmaz); metne dayalı sorularda kaynak metin soruyla birlikte gösterilir. Karnesinde **nihai puanını**, her soruda **kendi yazdığı yanıtı** ve puanın hangi ölçütten geldiğini görür. | Karne yalnızca öğretmen **yayınladıktan** sonra açılır. Karnede puanı yapay zekânın mı önerdiği, öğretmenin mi değiştirdiği **açıkça yazar.** |
-| **Eğitim Yöneticisi**<br><sub>tek sayfa</sub> | Okul geneli tamamlanma, bekleyen onay sayısı, **kazanım ısı haritası**, öğretmen–yapay zekâ uyum ölçümü ve **Yapay Zekâ Karar Günlüğü** (CSV/JSON indirilebilir denetim izi). Isı haritasında %55 altı hücreler ayrıca uyarı olarak listelenir ve tek tıkla o kazanım için yeni soru üretimine döner. | Panodaki sayılar **yalnızca öğretmen onayından geçmiş** sonuçlardan hesaplanır; onaylanmamış hiçbir puan buraya yansımaz. |
+| **Eğitim Yöneticisi**<br><sub>tek sayfa</sub> | Okul geneli tamamlanma, bekleyen onay sayısı, **kazanım ısı haritası**, öğretmen–yapay zekâ uyum ölçümü, **risk altındaki öğrenci listesi** (ABC çerçevesi: devam · davranış · başarı), **Excel/CSV dışa aktarma** ve **Yapay Zekâ Karar Günlüğü** (CSV/JSON indirilebilir denetim izi). Isı haritasında %55 altı hücreler ayrıca uyarı olarak listelenir ve tek tıkla o kazanım için yeni soru üretimine döner. | Panodaki sayılar **yalnızca öğretmen onayından geçmiş** sonuçlardan hesaplanır; onaylanmamış hiçbir puan buraya yansımaz. Risk listesi bir **tahmin değil, bir özettir**; müdahale kararı insanındır. |
+| **Veli**<br><sub>salt okunur</sub> | Yalnızca **kendi çocuğunun** öğretmen onayından geçmiş sonuçlarını, kazanım bazlı güçlü/gelişime açık alanlarını ve öğretmenin onayladığı geri bildirimini görür. | Yapay zekânın ham puan önerisi veliye **asla ulaşmaz**; öğretmen yayınlamadıysa veli hiçbir şey görmez. **Sınıf ortalaması, sıralama ve başka öğrenci bilgisi bu ekranda yer almaz.** Sınav bütünlüğü sinyali veliye **ancak öğretmen onaylarsa** ve suçlayıcı olmayan dille iletilir. |
 
 **Brief'in üç akışıyla eşleşme:** Akış 01 (İçerik Uzmanı: kaynak → kazanım →
 üretim → onay), Akış 02 (Öğretmen: sınav → açık uçlu yanıtlar → AI önerisi →
@@ -290,20 +293,26 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** (§3.1) |
 > | MEB kazanım katalogları (606 çıktı) | ✅ | ✅ **çalışıyor** |
 > | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ | ✅ **çalışıyor** |
-> | D1 (SQLite) — 14 tablo | ✅ | ❌ şema hazır, yazım yok — durum tarayıcıda (`localStorage` + IndexedDB) |
+> | D1 (SQLite) | ✅ | ✅ **bağlı ve çalışıyor** — sınıf koduyla cihazlar arası senkron (3 Eylül) |
 > | R2 nesne depolama | ✅ | ❌ bağlı değil — PDF istemcide işlenir, sunucuya hiç gitmez |
 > | Queues (asenkron AI) | ✅ | ❌ bağlı değil — AI çağrıları senkron yapılır |
-> | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir |
+> | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir; erişim **sınıf koduyla** belirlenir (kimlik doğrulama değildir, arayüzde de öyle yazar) |
 >
-> **Neden D1 bağlı değil:** `d1_databases[].database_id` doldurulmadan
-> `wrangler deploy` başarısız olur; demo yapılandırması bu yüzden ayrı bir
-> dosyada tutulur (`wrangler.demo.jsonc`). Şema (`schema.sql`, 14 tablo) ve
-> rota iskeleti (`routes.ts`) depoda hazır bekliyor — üretime geçiş mimariyi
-> yeniden yazmayı değil, bağlantıları açmayı gerektiriyor.
+> **D1 3 Eylül'de bağlandı.** Öncesinde tüm veri `localStorage` + IndexedDB'deydi,
+> yani **öğrencinin çözdüğü sınav öğretmenin paneline düşemiyordu.** Artık
+> öğretmen bir **sınıf kodu** üretip öğrencilere veriyor; aynı kodu girenler
+> arasında sınav, yanıtlar ve onaylar sunucudaki veritabanı üzerinden paylaşılıyor.
 >
-> **Verinin tarayıcıda durması demo için bir avantaj:** öğrenci yanıtları,
-> yüklenen PDF'ler ve karar günlüğü kullanıcının cihazından hiç çıkmıyor.
-> Gizlilik bölümünde (§10) ayrıntısı var.
+> Üretim şemasındaki **14 tabloya dokunulmadı.** Sebep: yabancı anahtar zinciri
+> altı tablo derin (`teacher_reviews -> ... -> users -> schools`) ve prototipte
+> kimlik doğrulama yok; tek bir yanıtı o zincire yazmak **uydurma kullanıcı ve
+> okul satırları** üretmeyi gerektirirdi. Bu proje veri uydurmaz. Köprü bu yüzden
+> ayrı ve açıkça adlandırılmış iki tabloda (`sync_exams`, `sync_sessions`);
+> kimlik doğrulama geldiğinde bu ikisi düşer, asıl şema devralır.
+>
+> **Sınıf kodu girilmediği sürece hiçbir veri cihazdan çıkmaz** — ürün tamamen
+> yerel çalışmaya devam eder. Yüklenen PDF'ler ve Karar Günlüğü **hiçbir koşulda**
+> paylaşılmaz, yalnızca tarayıcıda kalır. Ayrıntısı gizlilik bölümünde (§10).
 
 ### 3.1 Tek sağlayıcıya bağımlı değil — otomatik yedek
 
@@ -368,11 +377,11 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 98 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 133 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
-    ├── app.js             # 4 rol arayüzünün tüm mantığı (vanilla JS, build yok)
+    ├── app.js             # 5 rol arayüzünün tüm mantığı (vanilla JS, build yok)
     ├── app.css            # tüm stiller
     ├── mimari.html        # mimari dokümantasyon sayfası
     ├── 404.html           # bilinmeyen rotalar için hata sayfası
@@ -592,9 +601,9 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   sınırı bellek-içi bir `Map` ile tutulur; Cloudflare Workers'da bu her
   isolate için ayrıdır, dağıtık bir garanti değildir (`agents.md` §7.4 buna
   açıkça izin veriyor; üretimde D1/KV'ye taşınır).
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **98 test**
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **133 test**
   koşar (`test/guards.test.ts` 47 · `test/schemas.test.ts` 27 ·
-  `test/ai-lib.test.ts` 24) — kaynak tespiti, hız sınırı, yabancı alfabe
+  `test/ai-lib.test.ts` 24 · `test/sync-schemas.test.ts` 35) — kaynak tespiti, hız sınırı, yabancı alfabe
   denetimi, Zod şema sınırları, JSON onarımı ve sağlayıcı seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
@@ -648,7 +657,7 @@ yazan bir yanıta **20/20** veriyordu.
 Doğrulama tekrar koşulabilir:
 
 ```bash
-python tools/injection-test.py https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev
+python tools/injection-test.py https://mihenk.bies.workers.dev
 ```
 
 | Saldırı vektörü | Sonuç |

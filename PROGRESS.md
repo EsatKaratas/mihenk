@@ -35,7 +35,7 @@ nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik do�
 
 | Ne | Nerede |
 |---|---|
-| Canlı sistem | https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev ← birincil · eski adres https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev de çalışıyor (başvuru linki, silinmedi) |
+| Canlı sistem | https://mihenk.bies.workers.dev ← birincil · eski adres https://mihenk.bies.workers.dev de çalışıyor (başvuru linki, silinmedi) |
 | GitHub (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
@@ -3906,8 +3906,8 @@ Kullanıcı adresin **mihenk** olmasını istedi. Wrangler'da "yeniden adlandır
 yoktur: yeni ad = **yeni Worker**. Bu bizim lehimize kullanıldı.
 
 ```
-https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev   ← YENİ, birincil
-https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev
+https://mihenk.bies.workers.dev   ← YENİ, birincil
+https://mihenk.bies.workers.dev
                                                             ← ESKİ, SİLİNMEDİ
 ```
 

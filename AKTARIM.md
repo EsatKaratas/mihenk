@@ -33,7 +33,7 @@
 
 | Ne | Nerede |
 |---|---|
-| **Canlı sistem** | https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev  ← **birincil**<br>eski adres de çalışıyor: https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev (başvuru bu adresle yapıldı, **silinmedi**) |
+| **Canlı sistem** | https://mihenk.bies.workers.dev  ← **birincil**<br>eski adres de çalışıyor: https://mihenk.bies.workers.dev (başvuru bu adresle yapıldı, **silinmedi**) |
 | Mimari dokümantasyonu | `/mimari` (aynı alan adında) |
 | Gizlilik / KVKK | `/privacy-policy` |
 | Depo (public) | https://github.com/EsatKaratas/mihenk |
@@ -794,25 +794,61 @@ Hiçbiri demoyu engellemez. Öncelik sırasıyla:
 | **🆕 Kırık beyaz / açık zemin teması** | Bir tur denendi, kullanıcı **laciverte karar verdi** (§1.7). Yeni tema önerme |
 | **🆕 Doküman sayfalarını laciverte taşıma** | Uzun hukuki/teknik metnin okunabilirliğini düşürür. Kullanıcı isterse yapılır |
 
-## 5.5 ⏸️ Karar bekleyen: adres kısaltma
+## 5.5 ✅ KARAR VERİLDİ: adres kısaltıldı (3 Eylül 2026)
 
-Adres iki parçadan oluşuyor:
+**Nihai adres — jüriye ve ekibe verilecek tek link:**
 
 ```
-t3-olcme-degerlendirme  .  t3-olcme-degerlendirme-sistemi  .  workers.dev
-└─ Worker adı ────────┘     └─ Cloudflare hesabı ───────┘
-   wrangler*.jsonc "name"      (panelden değişir, hesap geneli)
+https://mihenk.bies.workers.dev
 ```
 
-- **A.** Yalnızca Worker adı → `mihenk.t3-olcme-degerlendirme-sistemi.workers.dev`
-- **B.** A + hesap alt alan adı → `mihenk.bies.workers.dev` (çok daha temiz)
+Adres iki parçadan oluşur ve 3 Eylül'de **ikisi de** değiştirildi:
 
-**Zinciri:** Yeni ad = **yeni Worker**; eskisi silinene kadar eski adreste
-çalışmaya devam eder, sonra silinmeli. Eski adres 404 olur. Depoda **9 yerde**
-geçiyor (`README.md` 7, `AKTARIM.md` 1, `PROGRESS.md` 1).
+```
+mihenk  .  bies  .  workers.dev
+└ Worker  └ Cloudflare hesap alt alan adı
+  adı       (panelden değişir, HESAP GENELİ)
+  wrangler*.jsonc "name"
+```
 
-🔴 **Kararı veren soru:** *Video / deck / KIS teslimi mevcut adresle yapıldı mı?*
-Yapıldıysa **dokunma** — jürinin tıklayacağı link kırılır.
+**Yapılanlar (sırasıyla):**
+
+1. Worker adı `t3-olcme-degerlendirme` → **`mihenk`**. Wrangler'da yeniden
+   adlandırma yoktur; yeni ad = yeni Worker. Bu yüzden önce ikinci bir Worker
+   açıldı ve eskisi geçici olarak canlı bırakıldı.
+2. Hesap alt alan adı `t3-olcme-degerlendirme-sistemi` → **`bies`**
+   (Cloudflare paneli → Workers & Pages → Account details → Subdomain).
+   Kullanıcı bastı; wrangler'da bu ayarın komutu yok.
+3. Gereksiz kalan `t3-olcme-degerlendirme` Worker'ı **silindi**
+   (`npx wrangler delete --name t3-olcme-degerlendirme`).
+4. `wrangler.jsonc` ve `wrangler.demo.jsonc` içindeki `"name"` alanı
+   **`mihenk`** yapıldı — aksi hâlde `npm run deploy:demo` silinen Worker'ı
+   YENİDEN YARATIRDI.
+
+> 🔴 **ÖLEN ADRESLER — bilinçli, geri dönüşü yok:**
+> ```
+> t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev   ← başvuru linki
+> mihenk.t3-olcme-degerlendirme-sistemi.workers.dev
+> t3-olcme-degerlendirme.bies.workers.dev
+> ```
+> Hesap alt alan adı değiştiği anda ilk ikisi öldü; üçüncüsü Worker silinince.
+> **Kararı veren soru** eskiden *"teslim mevcut adresle yapıldı mı?"* idi ve
+> cevabı evetti — ama **ön eleme tamamlandığı** (takım finale kaldı) için o
+> linkin kritik işi bitmişti. Kullanıcı bunu bilerek onayladı.
+
+**Ölçüldü (canlı):** alt alan adı değişiminden sonra yayılma **~90 saniye**
+sürdü (iki deneme 000, üçüncüsü 200). Worker silindikten sonra
+`mihenk.bies.workers.dev` 200 ve `app.js` yerelle birebir; D1 (`olcme-db`)
+Worker'dan bağımsız bir kaynak olduğu için silinmeden kaldı ve bağlı olduğu
+`{"ready":true}` ile doğrulandı.
+
+**Depoda güncellenen adres sayısı:** README 7 · package.json 1 ·
+AKTARIM 3 · PROGRESS 4. `package-lock.json`'daki eski paket adı bilinçli
+olarak **değiştirilmedi**: adres değil npm paket adıdır, kullanıcıya
+görünmez ve final öncesi kilit dosyasına dokunmak gereksiz risktir.
+
+> ⚠️ **Yarışma sonrası:** tek Worker kaldı. Kullanılmayacaksa Workers Paid
+> aboneliğiyle birlikte kapatılmalı (§5.1-11).
 
 ---
 
