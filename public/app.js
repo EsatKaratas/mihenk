@@ -492,9 +492,20 @@ function renderAiBadge() {
   }
   const col = document.getElementById("colophon");
   if (col) {
-    col.textContent = state.ai.mode === "live"
-      ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder; veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur."
-      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür. Bu prototip dört rolü aynı tarayıcı oturumunda simüle eder; veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur.";
+    /* 🔴 BU METİN EKRANI YALANLAMAMALI (§17a-3, §25b).
+       Eskiden sabit olarak "dört rolü" ve "veriler sunucuya gönderilmez"
+       diyordu. Rol sayısı beşe çıktı ve sınıf kodu kullanıldığında veri
+       GERÇEKTEN sunucuya gidiyor (§28b). İkisi de artık duruma göre yazılıyor;
+       rol sayısı ROLES dizisinden SAYILIYOR ki bir daha ayrışmasın. */
+    const rolAdedi = ["", "tek", "iki", "üç", "dört", "beş", "altı"][ROLES.length] || String(ROLES.length);
+    const depoNotu = state.syncRoom
+      ? "sınıf kodu (" + state.syncRoom + ") kullanıldığı için sınav ve yanıt verileri, cihazlar arasında " +
+        "paylaşılmak üzere sunucudaki veritabanında da saklanır; şeritteki “Sunucudaki veriyi sil” ile kaldırılabilir."
+      : "sınıf kodu girilmediği için veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur.";
+    const model = state.ai.mode === "live"
+      ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir."
+      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür.";
+    col.textContent = model + " Bu prototip " + rolAdedi + " rolü aynı tarayıcı oturumunda simüle eder; " + depoNotu;
   }
 }
 
