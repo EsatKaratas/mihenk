@@ -149,3 +149,61 @@ describe('reset gövdesi', () => {
     expect(syncResetSchema.safeParse({ room: '*' }).success).toBe(false);
   });
 });
+
+// ============================================================================
+// Hız sınırı — oda kodu taramasına karşı (§28g)
+//
+// Oda kodu kimlik doğrulama YERİNE geçtiği için, /pull ucunun taranabilir
+// olmaması ürünün tek erişim korumasıdır. Sınırın kendisi guards.ts'te ve
+// zaten test ediliyor; buradaki testler SYNC UÇLARININ SEÇTİĞİ DEĞERLERİ ve
+// anahtar ayrımını dondurur.
+// ============================================================================
+import { rateLimited } from '../src/lib/guards';
+import { SYNC_PULL_PER_MIN, SYNC_WRITE_PER_MIN } from '../src/routes/sync';
+
+describe('senkron hız sınırı', () => {
+  it('okuma sınırı yazma sınırından yüksektir (bir sınıf aynı ağdan girebilir)', () => {
+    expect(SYNC_PULL_PER_MIN).toBeGreaterThan(SYNC_WRITE_PER_MIN);
+  });
+
+  it('sınır değerleri tarama için anlamlı bir tavan verir', () => {
+    // 32 karakterlik alfabe, 6 karakterlik kod.
+    const olasilik = Math.pow(32, 6);
+    const gunlukDeneme = SYNC_PULL_PER_MIN * 60 * 24;
+    const yil = olasilik / 2 / gunlukDeneme / 365;
+    expect(yil).toBeGreaterThan(10);   // belirli bir odayı bulmak on yıllar sürmeli
+  });
+
+  it('sınıra ulaşınca engeller, altında geçirir', () => {
+    const hits = new Map<string, number[]>();
+    const now = Date.now();
+    for (let i = 0; i < SYNC_PULL_PER_MIN; i++) {
+      expect(rateLimited(hits, 'pull:1.2.3.4', SYNC_PULL_PER_MIN, now)).toBe(false);
+    }
+    expect(rateLimited(hits, 'pull:1.2.3.4', SYNC_PULL_PER_MIN, now)).toBe(true);
+  });
+
+  it('farklı IP\'ler birbirini engellemez', () => {
+    const hits = new Map<string, number[]>();
+    const now = Date.now();
+    for (let i = 0; i < SYNC_PULL_PER_MIN; i++) rateLimited(hits, 'pull:1.1.1.1', SYNC_PULL_PER_MIN, now);
+    expect(rateLimited(hits, 'pull:1.1.1.1', SYNC_PULL_PER_MIN, now)).toBe(true);
+    expect(rateLimited(hits, 'pull:2.2.2.2', SYNC_PULL_PER_MIN, now)).toBe(false);
+  });
+
+  it('okuma ve yazma sayaçları AYRIDIR — okuma dolunca yazma kilitlenmez', () => {
+    const hits = new Map<string, number[]>();
+    const now = Date.now();
+    for (let i = 0; i < SYNC_PULL_PER_MIN; i++) rateLimited(hits, 'pull:9.9.9.9', SYNC_PULL_PER_MIN, now);
+    expect(rateLimited(hits, 'pull:9.9.9.9', SYNC_PULL_PER_MIN, now)).toBe(true);
+    expect(rateLimited(hits, 'push:9.9.9.9', SYNC_WRITE_PER_MIN, now)).toBe(false);
+  });
+
+  it('bir dakika sonra pencere açılır', () => {
+    const hits = new Map<string, number[]>();
+    const t0 = Date.now();
+    for (let i = 0; i < SYNC_WRITE_PER_MIN; i++) rateLimited(hits, 'push:5.5.5.5', SYNC_WRITE_PER_MIN, t0);
+    expect(rateLimited(hits, 'push:5.5.5.5', SYNC_WRITE_PER_MIN, t0)).toBe(true);
+    expect(rateLimited(hits, 'push:5.5.5.5', SYNC_WRITE_PER_MIN, t0 + 61_000)).toBe(false);
+  });
+});

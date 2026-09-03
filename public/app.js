@@ -5474,6 +5474,10 @@ function renderAdmin() {
   // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
   root.insertAdjacentHTML("beforeend", auditGunluguHtml());
   wireAudit();
+  /* Risk listesi (§28g). Denetim izinin ÜSTÜNE değil altına konuldu ama dışa
+     aktarmanın üstünde: müdürün "bugün ne yapmalıyım" sorusu, indirme
+     düğmelerinden önce gelir. */
+  root.insertAdjacentHTML("beforeend", riskListesiHtml());
   // Dışa aktarma (§28d) — okullar sonuçları Excel'de ister.
   root.insertAdjacentHTML("beforeend", disaAktarHtml());
   wireDisaAktar();
@@ -5997,6 +6001,113 @@ setInterval(function () {
     if (!yaziliyor) renderAll();
   }
 }, 1000);
+
+/* ==================== RİSK LİSTESİ (§28g) ====================
+   Yönetici paneli "ne kadar tamamlandı" ve "hangi kazanım zayıf" sorularını
+   cevaplıyordu. Bir müdürün ilk sorduğu soru ise bu değil:
+   "HANGİ ÖĞRENCİLER RİSK ALTINDA?"
+
+   ÖLÇÜT — ABC çerçevesi (eğitimde erken uyarı sistemlerinin uluslararası
+   standardı): Attendance (devam), Behavior (davranış), Course performance
+   (ders başarısı). Literatürdeki tavsiye ÜÇ GÖSTERGEYLE BAŞLA, karmaşıklığı
+   sonra ekle. Üçünün buradaki karşılıkları:
+     · Devam   -> atanan sınavın kaçına hiç girmemiş
+     · Davranış-> sınav bütünlüğü sinyali (§28e ile aynı veri)
+     · Başarı  -> onaylanmış sınavlardaki ortalama yüzde
+
+   🔴 DÜRÜSTLÜK SINIRI: Bu bir TAHMİN DEĞİL, bir ÖZETTİR. Sistem "bu öğrenci
+   başarısız olacak" demez; yalnızca elindeki üç ölçütü tek yerde toplar.
+   Karar ve müdahale insanındır — ürünün her yerindeki kural burada da geçerli. */
+const RISK_ESIK_BASARI = 50;     // onaylı sınav ortalaması bu yüzdenin altındaysa
+const RISK_ESIK_GIRMEME = 1;     // en az bu kadar sınava hiç girmemişse
+
+function riskOgrencileri() {
+  const yayindaki = (state.exams || []).filter(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    return ex.status === "published";
+  });
+  if (!yayindaki.length) return [];
+
+  return (state.students || []).map(function (ogr) {
+    let toplamPuan = 0, toplamTam = 0, girmedi = 0, onayli = 0;
+    yayindaki.forEach(function (kayit) {
+      const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+      const o = kayit.id === state.activeExamId && String(ogr.id) === String(state.activeStudentId)
+        ? (function () { const t = {}; OTURUM_ALANLARI.forEach(function (k) { t[k] = state[k]; }); return t; })()
+        : ((kayit.sessions || {})[ogr.id] || null);
+      const durum = (o && o.examStatus) || "not_started";
+      if (durum === "not_started") { girmedi++; return; }
+      if (durum !== "graded") return;
+      onayli++;
+      const sorular = (ex.questionIds || [])
+        .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+        .filter(Boolean);
+      const mcP = mcPuani(kayit);
+      sorular.forEach(function (q) {
+        if (q.type === "mc") {
+          const r = (o.mcResults || {})[q.id];
+          if (!r) return;
+          toplamTam += mcP; toplamPuan += r.correct ? mcP : 0;
+        } else {
+          const rv = (o.reviews || {})[q.id];
+          if (!rv) return;
+          toplamTam += (state.rubrics[q.id] || {}).maxScore || 0;
+          toplamPuan += Number(rv.finalScore) || 0;
+        }
+      });
+    });
+
+    const yuzde = toplamTam ? Math.round((toplamPuan / toplamTam) * 100) : null;
+    const dikkat = dikkatOgrenciSinyali(ogr.id);
+    const sebepler = [];
+    if (yuzde != null && yuzde < RISK_ESIK_BASARI) sebepler.push({ tur: "basari", metin: "onaylı sınav ortalaması %" + yuzde });
+    if (girmedi >= RISK_ESIK_GIRMEME) sebepler.push({ tur: "devam", metin: girmedi + " sınava hiç girmemiş" });
+    if (dikkat) sebepler.push({ tur: "davranis", metin: dikkat.isaretli.length + " sınavda dikkat sinyali" + (dikkat.oruntu ? " (örüntü)" : "") });
+
+    return {
+      id: ogr.id, ad: ogr.name || ("#" + ogr.id), sinif: ogr.sinif || "",
+      yuzde: yuzde, girmedi: girmedi, onayli: onayli,
+      sebepler: sebepler, sayi: sebepler.length
+    };
+  }).filter(function (r) { return r.sayi > 0; })
+    .sort(function (a, b) {
+      if (b.sayi !== a.sayi) return b.sayi - a.sayi;                     // çok göstergeli önce
+      return (a.yuzde == null ? 101 : a.yuzde) - (b.yuzde == null ? 101 : b.yuzde);
+    });
+}
+
+function riskListesiHtml() {
+  const liste = riskOgrencileri();
+  const toplam = (state.students || []).length;
+  if (!liste.length) {
+    return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
+      '<span class="pill pill-success">işaret yok</span></div>' +
+      '<div class="empty-state">Üç göstergenin (devam · davranış · başarı) hiçbirinde işaret oluşmadı. ' +
+      'Sınavlar onaylandıkça bu liste dolar.</div></div>';
+  }
+  const etiket = { basari: "pill-critical", devam: "pill-warning", davranis: "pill-accent2" };
+  return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
+    '<span class="pill pill-warning">' + liste.length + ' / ' + toplam + ' öğrenci</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Uluslararası erken uyarı standardı olan <b>ABC</b> ' +
+    'çerçevesine göre üç gösterge birlikte değerlendirilir: <b>devam</b> (girilmeyen sınav), ' +
+    '<b>davranış</b> (sınav bütünlüğü sinyali) ve <b>başarı</b> (onaylı sınav ortalaması). ' +
+    'Bu liste bir <b>tahmin değil, bir özettir</b>: sistem kimsenin başarısız olacağını söylemez, ' +
+    'yalnızca elindeki üç ölçütü tek yerde toplar. <b>Karar ve müdahale sizindir.</b></p>' +
+    liste.map(function (r) {
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(r.ad) + '</b>' +
+        (r.sinif ? ' <span class="pill pill-neutral">' + escapeHtml(r.sinif) + '</span>' : "") +
+        '<div class="p-tags">' + r.sebepler.map(function (s) {
+          return '<span class="pill ' + etiket[s.tur] + '">' + escapeHtml(s.metin) + '</span>';
+        }).join("") + '</div>' +
+        '<div class="lbl-hint">' + (r.onayli ? r.onayli + " onaylı sınav" : "henüz onaylı sınavı yok") +
+        (r.yuzde != null ? " · ortalama %" + r.yuzde : "") + '</div></div>' +
+        '<span class="pill ' + (r.sayi >= 2 ? "pill-critical" : "pill-warning") + '">' +
+        r.sayi + ' gösterge</span></div>';
+    }).join("") +
+    '<div class="lbl-hint" style="margin-top:10px;">İki ve üzeri göstergesi olan öğrenciler listenin ' +
+    'başındadır; literatürdeki tavsiye, tek göstergeye değil <b>göstergelerin birikmesine</b> ' +
+    'bakmaktır.</div></div>';
+}
 
 /* ==================== VELİ PANELİ (§28f) ====================
    Brief dört rol istiyor; beşincisi gerekçesiyle ekleniyor: veli, çocuğunun
@@ -6822,7 +6933,7 @@ function wireSync() {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
-    "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
+    "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
     "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",

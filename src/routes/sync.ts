@@ -19,9 +19,54 @@
 
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
+import { rateLimited as rateLimitedRaw } from '../lib/guards';
 import { syncPushSchema, syncPullSchema, syncResetSchema } from '../schemas/sync';
 
 type Bindings = { DB?: D1Database };
+
+/* ============ HIZ SINIRI — ODA KODU TARAMASINA KARŞI (§28g) ============
+   Oda kodu, o odadaki öğrenci verisine erişim anahtarıdır ve kimlik doğrulama
+   YOKTUR. Hız sınırı olmadan /pull ucu deneme yanılmayla taranabilirdi:
+   saniyede yüzlerce istekle kısa kodlar makul sürede bulunabilir.
+
+   Alfabe 32 karakter (karışanlar çıkarılmış), üretilen kod 6 karakter:
+   32^6 = 1.073.741.824 olasılık. Aşağıdaki 60/dk okuma sınırıyla günde en
+   fazla 86.400 deneme yapılabilir; belirli bir odayı %50 olasılıkla bulmak
+   ~17 yıl sürer. Sınır olmadan aynı iş saatler mertebesindeydi.
+
+   Sınır İSTEMCİ BAŞINA değil, IP başınadır: amaç meşru kullanıcıyı değil
+   tarayıcıyı yavaşlatmaktır. Bir sınıfta 30 öğrenci aynı ağdan girebileceği
+   için okuma sınırı yazma sınırından yüksek tutuldu.
+
+   ⚠️ SINIR İZOLATE BAŞINADIR (§6.3-10, AI uçlarındaki sınırla aynı durum).
+   Cloudflare birden çok isolate çalıştırırsa etkin sınır katlanır. Üretimde
+   D1/KV'ye taşınmalıdır; bu, jüriye de böyle söylenir. */
+const syncHits = new Map<string, number[]>();
+export const SYNC_PULL_PER_MIN = 60;
+export const SYNC_WRITE_PER_MIN = 30;
+
+/** İstemci kimliği: Cloudflare'in eklediği gerçek IP başlığı. */
+function istemciAnahtari(c: any, ek: string): string {
+  const ip =
+    c.req.header('cf-connecting-ip') ||
+    c.req.header('x-forwarded-for') ||
+    'bilinmeyen';
+  return `${ek}:${ip}`;
+}
+
+function hizSinirli(c: any, ek: string, limit: number): boolean {
+  return rateLimitedRaw(syncHits, istemciAnahtari(c, ek), limit);
+}
+
+function cokFazla(c: any) {
+  return c.json(
+    {
+      error: 'rate_limited',
+      message: 'Çok fazla istek gönderildi. Bir dakika sonra tekrar deneyin.',
+    },
+    429
+  );
+}
 
 /** agents.md §2: her hata yanıtı { error, message } biçiminde döner. */
 const onInvalid = (
@@ -59,6 +104,7 @@ sync.get('/status', (c) => c.json({ ready: !!c.env.DB }));
 // ---------------------------------------------------------------------------
 sync.post('/push', zValidator('json', syncPushSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
+  if (hizSinirli(c, 'push', SYNC_WRITE_PER_MIN)) return cokFazla(c);
   const b = c.req.valid('json');
   const db = c.env.DB;
 
@@ -123,6 +169,8 @@ sync.post('/push', zValidator('json', syncPushSchema, onInvalid), async (c) => {
 // ---------------------------------------------------------------------------
 sync.post('/pull', zValidator('json', syncPullSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
+  // Tarama saldırısının hedefi tam olarak burasıdır: kod doğruysa veri döner.
+  if (hizSinirli(c, 'pull', SYNC_PULL_PER_MIN)) return cokFazla(c);
   const { room } = c.req.valid('json');
   const db = c.env.DB;
 
@@ -162,6 +210,7 @@ sync.post('/pull', zValidator('json', syncPullSchema, onInvalid), async (c) => {
 // ---------------------------------------------------------------------------
 sync.post('/reset', zValidator('json', syncResetSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
+  if (hizSinirli(c, 'reset', SYNC_WRITE_PER_MIN)) return cokFazla(c);
   const { room } = c.req.valid('json');
   const db = c.env.DB;
 
