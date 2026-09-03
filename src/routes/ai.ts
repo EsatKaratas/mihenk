@@ -112,6 +112,10 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       mcCount: b.mcCount,
       openCount: b.openCount,
       optionCount: b.optionCount,
+      // Madde 2: ikisi de opsiyonel ek bağlam/yönlendirmedir; JSON çıktı
+      // şemasını değiştirmez (bkz. src/lib/prompts.ts QuestionSpec notu).
+      topicArea: b.topicArea,
+      bloomFocus: b.bloomFocus,
     },
     b.sourceText
   );

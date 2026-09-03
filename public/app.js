@@ -224,6 +224,10 @@ async function aiGenerateQuestions(doc) {
       openCount: state.ceForm.openCount,
       optionCount: 4,
       docKey: doc.title || "adsiz",
+      // Madde 2: ikisi de opsiyonel — sunucu tarafında yalnızca istemi
+      // zenginleştirir, çıktı şemasını değiştirmez (bkz. src/lib/prompts.ts).
+      topicArea: outcomeAlan(doc.outcome) || undefined,
+      bloomFocus: state.ceForm.bloomFocus || "dengeli",
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
@@ -844,7 +848,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "" },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -895,6 +899,10 @@ const state = {
 
 function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
 function outcomeLabel(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return o ? o.label : code; }
+/* Madde 2: kazanımın müfredat kataloğundaki konu alanı ("alan") — yalnızca
+   katalogdan seçilmiş kazanımlarda dolu (bkz. kazanimSecildi). Model
+   istemine ek BAĞLAM olarak gider, kazanım filtrelemesini etkilemez. */
+function outcomeAlan(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return (o && o.alan) || ""; }
 
 /* ===========================================================================
    KAZANIM META BİLGİSİ — ders ve sınıf bağlaması
@@ -2582,6 +2590,15 @@ function ceCreateHtml() {
     '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
     '<div class="field"><label>Açık uçlu</label>' +
     '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div>' +
+    /* MADDE 2: bilişsel düzey ağırlığı — tamamen opsiyonel bir YÖNLENDİRME.
+       "Dengeli" seçiliyken istem hiç değişmez (mevcut davranış). Zorunlu bir
+       oran dayatmaz; öğretmen/içerik uzmanı isterse kullanır. */
+    '<div class="field"><label for="ceBloomFocus">Bilişsel düzey <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<select id="ceBloomFocus">' +
+    '<option value="dengeli"' + (state.ceForm.bloomFocus === "dengeli" ? " selected" : "") + '>Dengeli (varsayılan)</option>' +
+    '<option value="temel"' + (state.ceForm.bloomFocus === "temel" ? " selected" : "") + '>Temel düzeyi vurgula (hatırlama/anlama)</option>' +
+    '<option value="ust"' + (state.ceForm.bloomFocus === "ust" ? " selected" : "") + '>Üst düzeyi vurgula (analiz/değerlendirme)</option>' +
+    '</select></div>' +
     '<div class="gen-action">' +
     '<button class="btn btn-primary btn-lg" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
@@ -2812,6 +2829,7 @@ function renderContentExpert() {
   };
   document.getElementById("ceMcCount").onchange = function (e) { state.ceForm.mcCount = Math.max(0, Math.min(8, parseInt(e.target.value, 10) || 0)); renderAll(); };
   document.getElementById("ceOpenCount").onchange = function (e) { state.ceForm.openCount = Math.max(0, Math.min(4, parseInt(e.target.value, 10) || 0)); renderAll(); };
+  document.getElementById("ceBloomFocus").onchange = function (e) { state.ceForm.bloomFocus = e.target.value; saveSoon(); };
   wirePendingCards();
 }
 
@@ -7202,7 +7220,7 @@ function wireSync() {
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync",
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
-    "subeRozetiHtml"
+    "subeRozetiHtml", "outcomeAlan"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

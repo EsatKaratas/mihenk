@@ -65,6 +65,28 @@ describe('generateQuestionsSchema', () => {
     expect(generateQuestionsSchema.safeParse({ ...gecerli, optionCount: 2 }).success).toBe(false);
     expect(generateQuestionsSchema.safeParse({ ...gecerli, optionCount: 6 }).success).toBe(false);
   });
+
+  // Madde 2: topicArea ve bloomFocus tamamen opsiyonel ek bağlam/yönlendirme.
+  it('topicArea opsiyoneldir; verilmezse geçerlidir ve alanda yer almaz', () => {
+    const r = generateQuestionsSchema.parse(gecerli);
+    expect(r.topicArea).toBeUndefined();
+  });
+
+  it('bloomFocus verilmezse "dengeli" varsayılanına düşer', () => {
+    const r = generateQuestionsSchema.parse(gecerli);
+    expect(r.bloomFocus).toBe('dengeli');
+  });
+
+  it('bloomFocus yalnızca tanımlı üç değeri kabul eder', () => {
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, bloomFocus: 'temel' }).success).toBe(true);
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, bloomFocus: 'ust' }).success).toBe(true);
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, bloomFocus: 'yuksek' }).success).toBe(false);
+  });
+
+  it('topicArea 120 karakterle sınırlıdır', () => {
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, topicArea: 'a'.repeat(121) }).success).toBe(false);
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, topicArea: 'Okuma' }).success).toBe(true);
+  });
 });
 
 describe('evaluateSchema', () => {

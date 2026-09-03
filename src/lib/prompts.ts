@@ -16,6 +16,20 @@ export type QuestionSpec = {
   mcCount: number;
   openCount: number;
   optionCount: number;
+  /**
+   * Madde 2: kazanımın müfredat kataloğundaki konu alanı (ör. "Okuma",
+   * "Sayılar"). Yalnızca katalogdan seçilmiş kazanımlarda dolu gelir (bkz.
+   * public/app.js `outcomeAlan`); elle tanımlanmış kazanımlarda boştur.
+   * MODEL ÇIKTI ŞEMASINI DEĞİŞTİRMEZ — yalnızca bağlamı netleştiren ek bir
+   * girdi satırıdır.
+   */
+  topicArea?: string;
+  /**
+   * Madde 2: öğretmenin/içerik uzmanının istediği bilişsel düzey ağırlığı.
+   * "dengeli" (varsayılan) hiçbir yönlendirme eklemez — mevcut davranış
+   * korunur. Bu alan da ÇIKTI ŞEMASINA dokunmaz; yalnızca istemi zenginleştirir.
+   */
+  bloomFocus?: 'dengeli' | 'temel' | 'ust';
 };
 
 /**
@@ -29,6 +43,9 @@ export type QuestionSpec = {
  * - Her çeldirici için gerekçe istenir: öğretmen, yanlış şıkkın hangi kavram
  *   yanılgısını ölçtüğünü görür. Bu, taslağı "onaylanabilir" kılan şeydir.
  * - refKeywords, arayüzün yerel yedek (simülasyon) moduyla uyum için tutulur.
+ * - (Madde 2) topicArea ve bloomFocus tamamen OPSİYONELDİR ve yalnızca ek
+ *   bağlam/yönlendirme satırı eklerler; JSON çıktı şemasına dokunmazlar, bu
+ *   yüzden mevcut arayüz/testler bunlarsız da değişmeden çalışmaya devam eder.
  */
 export function buildQuestionPrompt(spec: QuestionSpec, sourceText: string): string {
   // GÜVENLİK: Kaynak metin de kullanıcı girdisidir. Eskiden sabit \"\"\" ile
@@ -55,11 +72,19 @@ Aşağıdaki KAYNAK METİN'den sınav sorusu taslakları üreteceksin.
 Bağlam:
 - Ders: ${spec.subject}
 - Sınıf düzeyi: ${spec.grade}
-- Kazanım: ${spec.outcomeCode} — ${spec.outcomeLabel}
+- Kazanım: ${spec.outcomeCode} — ${spec.outcomeLabel}${spec.topicArea ? `
+- Konu alanı: ${spec.topicArea} (kazanımın müfredattaki üst başlığı — soruyu bu alana özgü tut, komşu bir alana kayma)` : ''}
 
 Üretilecek:
 - ${spec.mcCount} adet çoktan seçmeli soru (her biri ${spec.optionCount} şıklı)
 - ${spec.openCount} adet açık uçlu soru
+${spec.bloomFocus === 'temel' ? `
+Bilişsel düzey yönlendirmesi: Sorularının ÇOĞUNLUĞU "hatirlama" ve "anlama" düzeyinde olsun
+(temel bilgi ve kavrama ölçülsün). Yine de tamamı aynı düzeyde olmasın; en az bir soru daha
+üst bir düzeyde kalabilir. Bu bir zorunluluk değil, öğretmenin talep ettiği bir ağırlıktır.` : ''}${spec.bloomFocus === 'ust' ? `
+Bilişsel düzey yönlendirmesi: Sorularının ÇOĞUNLUĞU "analiz", "degerlendirme" ya da "yaratma"
+düzeyinde olsun (ezber değil, ilişkilendirme/uygulama ölçülsün). Yine de tamamı aynı düzeyde
+olmasın. Bu bir zorunluluk değil, öğretmenin talep ettiği bir ağırlıktır.` : ''}
 
 Kurallar:
 1. Soruların tamamı SADECE kaynak metindeki bilgilere dayanmalıdır. Metinde

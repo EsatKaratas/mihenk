@@ -17,6 +17,18 @@ export const generateQuestionsSchema = z.object({
   openCount: z.number().int().min(0).max(4).default(1),
   optionCount: z.number().int().min(3).max(5).default(4),
   docKey: z.string().min(1).max(120).default('default'),
+  /**
+   * Madde 2: kazanımın müfredat kataloğundaki konu alanı — yalnızca ek bağlam.
+   * Zorunlu değil; boş/eksikse istem eskisi gibi davranır.
+   */
+  topicArea: z.string().max(120).optional(),
+  /**
+   * Madde 2: istenen bilişsel düzey ağırlığı. "dengeli" mevcut davranıştır
+   * (istemde hiçbir yönlendirme eklenmez); diğer ikisi yalnızca bir EĞİLİM
+   * ister, zorunlu bir oran dayatmaz (agents.md §1 ile tutarlı: karar hâlâ
+   * öğretmenin, üretilen sorular yine onay bekler).
+   */
+  bloomFocus: z.enum(['dengeli', 'temel', 'ust']).default('dengeli'),
 });
 
 export const rubricDraftSchema = z.object({
