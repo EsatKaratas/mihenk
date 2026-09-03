@@ -1261,3 +1261,7 @@
   font-size: 12.5px; line-height: 1.6;
 }
 .sy-ornek-uyari .btn { margin-top: 6px; }
+.kit-satir-duzenle { flex-direction: column; align-items: stretch; }
+.kit-duzen-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.kit-duzen-form .sy-input { flex: 1 1 160px; }
+.kit-duzen-form .sy-input-sm { flex: 0 1 110px; }

@@ -1589,9 +1589,31 @@ function kitaplikHtml() {
   var sirali = state.library.slice().sort(function (a, b) { return b.at - a.at; });
   var toplam = state.library.reduce(function (t, k) { return t + k.karakter; }, 0);
 
+  /* §28r Madde 4: kayıt anında sabitlenen ad/ders/sınıf artık düzenlenebilir.
+     Yalnızca state.library'deki METADATA değişir; IndexedDB'deki sayfa
+     metnine dokunulmaz (o zaten hiç sabit değildi). Bir seferde en fazla bir
+     satır düzenleme modundadır (state.kitEdit). */
   var satirlar = sirali.map(function (k) {
     var acik = !!(state.pdf && state.pdf.kitapId === k.id);
     var etiket = [k.subject, k.grade ? k.grade + ". sınıf" : ""].filter(Boolean).join(" · ");
+
+    if (state.kitEdit === k.id) {
+      return '<div class="kit-satir kit-satir-duzenle">' +
+        '<div class="kit-duzen-form">' +
+        '<input id="kitDuzenAd" class="sy-input" value="' + escapeHtml(k.ad) + '" maxlength="120" placeholder="Kitap/ders adı">' +
+        '<select id="kitDuzenDers" class="sy-input sy-input-sm">' +
+        '<option value="">Ders yok</option>' +
+        SUBJECTS_LIST().map(function (d) { return '<option value="' + escapeHtml(d) + '"' + (d === k.subject ? " selected" : "") + '>' + escapeHtml(d) + '</option>'; }).join("") +
+        '</select>' +
+        '<select id="kitDuzenSinif" class="sy-input sy-input-sm">' +
+        '<option value="">Sınıf yok</option>' +
+        GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(k.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
+        '</select>' +
+        '<button class="btn btn-primary btn-sm" data-kitap-kaydet="' + k.id + '">Kaydet</button>' +
+        '<button class="btn btn-secondary btn-sm" id="btnKitDuzenVazgec">Vazgeç</button>' +
+        '</div></div>';
+    }
+
     return '<div class="kit-satir' + (acik ? " acik" : "") + '">' +
       '<div class="kit-bilgi">' +
       '<div class="kit-ad">📕 ' + escapeHtml(k.ad) + (acik ? ' <span class="kit-rozet">açık</span>' : "") + '</div>' +
@@ -1600,6 +1622,8 @@ function kitaplikHtml() {
       '<div class="kit-islem">' +
       '<button class="btn btn-secondary btn-sm" data-kitap="' + k.id + '"' + (acik ? " disabled" : "") + '>' +
       (acik ? "Açık" : "Aç") + '</button>' +
+      '<button class="icon-btn" data-kitap-duzenle="' + k.id + '" title="Adı/ders/sınıfı düzenle" aria-label="' +
+      escapeHtml(k.ad) + ' kaydını düzenle">✎</button>' +
       '<button class="icon-btn kit-sil" data-kitap-sil="' + k.id + '" title="Kitaplıktan sil" aria-label="' +
       escapeHtml(k.ad) + ' kitabını kitaplıktan sil">×</button>' +
       '</div></div>';
@@ -1624,6 +1648,29 @@ function wireKitaplik() {
       if (confirm("“" + k.ad + "” kitaplıktan silinsin mi? Bu kitaptan üretilmiş sorular silinmez.")) {
         kitapKaldir(k.id);
       }
+    };
+  });
+  document.querySelectorAll("[data-kitap-duzenle]").forEach(function (b) {
+    b.onclick = function () {
+      state.kitEdit = Number(b.getAttribute("data-kitap-duzenle"));
+      renderAll();
+    };
+  });
+  var vazgec = document.getElementById("btnKitDuzenVazgec");
+  if (vazgec) vazgec.onclick = function () { state.kitEdit = null; renderAll(); };
+  document.querySelectorAll("[data-kitap-kaydet]").forEach(function (b) {
+    b.onclick = function () {
+      var k = kitapBul(b.getAttribute("data-kitap-kaydet"));
+      if (!k) return;
+      var ad = String((document.getElementById("kitDuzenAd") || {}).value || "").trim();
+      if (!ad) { kitaplikHata = "Kitap adı boş olamaz."; renderAll(); return; }
+      kitaplikHata = "";
+      k.ad = ad;
+      k.subject = (document.getElementById("kitDuzenDers") || {}).value || "";
+      var sinifDeger = (document.getElementById("kitDuzenSinif") || {}).value || "";
+      k.grade = sinifDeger ? parseInt(sinifDeger, 10) : "";
+      state.kitEdit = null;
+      saveState(); renderAll();
     };
   });
 }
