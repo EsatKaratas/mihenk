@@ -2764,6 +2764,12 @@ function activateExam(id) {
                  status: kayit.status, durationMin: kayit.durationMin,
                  startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
                  startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt,
+                 /* `endsAt` BU LİSTEDE YOKTU ve sınav değiştirilip geri dönülünce
+                    undefined oluyordu (ölçüldü). Sonucu: süre sayacı mutlak bitiş
+                    anından hesaplanmayı bırakıp yumuşak "-1" sayımına geriliyordu;
+                    yani "sayfa kapansa bile süre gerçekte olduğu gibi işler"
+                    garantisi SESSİZCE düşüyordu (§6.3-5). */
+                 endsAt: kayit.endsAt != null ? kayit.endsAt : null,
                  mcPoint: mcPuani(kayit) };
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
@@ -2775,11 +2781,16 @@ function createExam(baslik) {
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
-                 startDelaySec: 0, startsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
+                 startDelaySec: 0, startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
+  /* Bu literal, KAYDIN alanlarıyla birebir aynı olmalıdır. `mcPoint` ve `endsAt`
+     burada eksikti: kayıtta 5 duruyordu ama `state.exam.mcPoint` undefined'dı ve
+     yalnızca `mcPuani()`'nin varsayılana düşmesi sayesinde görünür bir kırılma
+     olmuyordu — yani hata örtülüydü, yok değildi. */
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
-                 durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null };
+                 durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0,
+                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN };
   OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
   state.teacherTab = 1;
   renderAll();
@@ -3217,7 +3228,10 @@ function teacherTab1Html() {
     '</select></div></div>' +
     (state.exam.startMode === "scheduled"
       ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
-        '<input id="examStartAt" type="datetime-local" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
+        /* `min` OLMADAN geçmiş bir tarih seçilebiliyordu (ölçüldü: 2020-01-01
+           kabul ediliyor, checkValidity() true dönüyordu). Yayınlandığında sınav
+           anında açılıyor ama kartta "Açılış: 1 Oca 2020" yazıyordu. */
+        '<input id="examStartAt" type="datetime-local" min="' + yerelDamga(new Date()) + '" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
         '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
       : "") +
     (locked && state.exam.startsAt
@@ -3319,9 +3333,7 @@ function wireTeacherTab1() {
       // Varsayılan: 1 saat sonrası, dakikaya yuvarlanmış.
       const d = new Date(Date.now() + 3600000);
       d.setSeconds(0, 0);
-      const pad = function (n) { return String(n).padStart(2, "0"); };
-      state.exam.startAtLocal = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-        "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+      state.exam.startAtLocal = yerelDamga(d);
     }
     renderAll();
   };
@@ -3349,9 +3361,17 @@ function wireTeacherTab1() {
   };
   const pubBtn = document.getElementById("btnPublishExam");
   if (pubBtn) pubBtn.onclick = function () {
-    if (state.exam.startMode === "scheduled" && state.exam.startAtLocal) {
-      const ts = new Date(state.exam.startAtLocal).getTime();
+    if (state.exam.startMode === "scheduled") {
+      /* SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5). Eskiden bu dal yalnızca
+         `startAtLocal` DOLUYSA çalışıyordu; öğretmen "Belirli bir tarih ve
+         saatte" seçip alanı boş bırakırsa `else` dalına düşülüyor ve sınav
+         sessizce ANINDA yayınlanıyordu — seçim yok sayılmış oluyordu. */
+      const ts = state.exam.startAtLocal ? new Date(state.exam.startAtLocal).getTime() : NaN;
       if (isNaN(ts)) { state.poolError = "Geçerli bir açılış tarihi ve saati seçin."; renderAll(); return; }
+      if (ts <= Date.now()) {
+        state.poolError = "Açılış saati geçmişte kalamaz. İleri bir tarih ve saat seçin ya da “Yayınlar yayınlamaz” seçeneğine dönün.";
+        renderAll(); return;
+      }
       state.exam.startsAt = ts;
     } else {
       state.exam.startsAt = Date.now();
@@ -4737,6 +4757,17 @@ async function finishExam() {
 }
 
 // "3 gün 4 saat" gibi okunur kalan süre — saniye saymak anlamsız.
+/* `datetime-local` alanının beklediği "YYYY-MM-DDTHH:MM" biçimi (YEREL saat).
+   Hem alanın `min` özniteliği hem de varsayılan açılış değeri bunu kullanır;
+   ikisi ayrı ayrı yazılırsa biri diğerini yalanlayabilir. ISO/UTC KULLANILAMAZ:
+   `toISOString()` saat dilimini kaydırır ve öğretmenin seçtiği saat 3 saat
+   önce/sonra görünür. */
+function yerelDamga(d) {
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+    "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
 function kalanMetni(ts) {
   const sn = Math.max(0, Math.round((ts - Date.now()) / 1000));
   if (sn < 60) return sn + " saniye içinde açılacak";
@@ -4803,7 +4834,11 @@ function studentTab1Html() {
       (c.bekliyor
         ? '<div class="wait-box"><b>Açılış: ' +
           new Date(c.ex.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</b>' +
-          '<div id="waitPill" class="lbl-hint" style="margin-left:0;">' + kalanMetni(c.ex.startsAt) + '</div></div>'
+          /* SAYAÇ KARTIN KENDİSİNE BAĞLI (§28a). Eskiden burada `id="waitPill"`
+             vardı; birden fazla sınav beklerken AYNI id birden çok kez basılıyor,
+             `getElementById` yalnızca ilkini bulabiliyordu. Artık her kart kendi
+             açılış damgasını taşır ve sayacı kendi damgasından hesaplanır. */
+          '<div class="lbl-hint wait-pill" data-basla="' + c.ex.startsAt + '" style="margin-left:0;">' + kalanMetni(c.ex.startsAt) + '</div></div>'
         : "") +
       '<div style="margin-top:14px;">' + examActionBtn(x) + '</div></div>';
   }).join("");
@@ -5795,7 +5830,6 @@ function initPanels() {
   document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
 }
 
-let waitingFlag = false;
 setInterval(function () {
   if (state.examStatus === "in_progress") {
     // Kalan süre mutlak bitiş anından hesaplanır: sayfa kapansa, tarayıcı
@@ -5807,13 +5841,41 @@ setInterval(function () {
     if (tv) { tv.textContent = formatTime(state.remainingSec); tv.classList.toggle("low", state.remainingSec < 60); }
     if (state.remainingSec === 0) finishExam();
   }
-  if (state.exam.status === "published" && state.examStatus === "not_started") {
-    const stillWaiting = Date.now() < state.exam.startsAt;
-    if (stillWaiting) {
-      waitingFlag = true;
-      const wp = document.getElementById("waitPill");
-      if (wp) wp.textContent = kalanMetni(state.exam.startsAt);
-    } else if (waitingFlag) { waitingFlag = false; renderAll(); }
+  /* ============ BEKLEYEN SINAV SAYAÇLARI (§28a — ölçülmüş 4 kusur) ============
+     Eski kod şunu yapıyordu:
+       if (state.exam.status === "published" && state.examStatus === "not_started") {
+         ... document.getElementById("waitPill") ... state.exam.startsAt ...
+       }
+     Dört ayrı kusuru vardı ve üçü birden canlıda ölçüldü:
+       1) `state.examStatus === "not_started"` şartı — öğrenci BAŞKA bir sınavı
+          bitirdiyse durum "graded"/"submitted" olur ve blok HİÇ çalışmazdı.
+       2) Yinelenen `id="waitPill"` — birden çok sınav beklerken getElementById
+          yalnızca ilk kartı buluyordu.
+       3) Ticker yalnızca AKTİF sınava bakıyordu; listedeki diğer sınavların
+          sayacı hiç güncellenmiyor, üstelik ilk karta aktif sınavın süresi
+          yazılabiliyordu.
+       4) `waitingFlag` tek bir globaldi; iki sınav beklerken biri açılınca
+          bayrak düşüyor, ikincisinin açılışı hiç tetiklenmiyordu.
+     Sonucu ölçüldü: açılış saati geçtiği hâlde sayaç donuyor ve öğrenci
+     SAYFAYI ELLE YENİLEMEDEN sınava giremiyordu.
+
+     Artık her bekleyen kart kendi `data-basla` damgasından hesaplanır; hangi
+     sınavın aktif olduğu ya da aktif oturumun durumu hiç önemli değildir. */
+  const acilanlar = [];
+  document.querySelectorAll(".wait-pill").forEach(function (el) {
+    const ts = Number(el.dataset.basla);
+    if (!Number.isFinite(ts) || ts <= 0) return;
+    if (Date.now() < ts) el.textContent = kalanMetni(ts);
+    else acilanlar.push(el);
+  });
+  if (acilanlar.length) {
+    /* renderAll() TÜM panelleri yeniden çizer — öğretmen paneli dahil. Bu yüzden
+       biri bir alana yazarken çağrılamaz, odak kaybolur (§6.3-3). Yazma bitene
+       kadar erteliyoruz: ticker saniyede bir döndüğü için sınav en fazla birkaç
+       saniye gecikmeyle açılır; odak kaybı bundan ağır bir hatadır. */
+    const odak = document.activeElement;
+    const yaziliyor = !!odak && (odak.tagName === "INPUT" || odak.tagName === "TEXTAREA" || odak.isContentEditable);
+    if (!yaziliyor) renderAll();
   }
 }, 1000);
 
@@ -5856,7 +5918,7 @@ setInterval(function () {
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
-    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
+    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
