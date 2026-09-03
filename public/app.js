@@ -5463,6 +5463,9 @@ function renderAdmin() {
   // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
   root.insertAdjacentHTML("beforeend", auditGunluguHtml());
   wireAudit();
+  // Dışa aktarma (§28d) — okullar sonuçları Excel'de ister.
+  root.insertAdjacentHTML("beforeend", disaAktarHtml());
+  wireDisaAktar();
   /* Isı haritası GERÇEK + "(örnek)" satırların ikisini birden gösterir
      (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
      ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
@@ -5983,6 +5986,150 @@ setInterval(function () {
   }
 }, 1000);
 
+/* ==================== EXCEL / CSV DIŞA AKTARMA (§28d) ====================
+   Okullar sonuçları Excel'de ister. Ürün bugüne kadar yalnızca Karar
+   Günlüğü'nü dışa aktarabiliyordu; öğrenci ve sınıf değerlendirmeleri
+   ekranda kalıyordu.
+
+   NEDEN .xlsx DEĞİL DE CSV:
+   Gerçek bir .xlsx üretmek ZIP + XML yazmayı gerektirir; bu ürün BUILD
+   ADIMI OLMAYAN tek dosyalık vanilla JS'tir (§1.2) ve dışarıdan kütüphane
+   yüklemek CSP'ye (`script-src 'self'`) takılır. CSV, Excel'in çift tıkla
+   açtığı bir biçimdir. İki ayrıntı Türkçe Excel için ZORUNLUDUR ve karar
+   günlüğü dışa aktarımında da aynen uygulanmıştı:
+     · ayraç NOKTALI VİRGÜL — Türkçe Excel virgülü ondalık ayracı sayar
+     · başta UTF-8 BOM — yoksa "ğ ş ı" bozuk görünür
+   Ondalık sayılar da virgülle yazılır (12,5), Excel bunu sayı olarak okur. */
+
+/** CSV hücresi kaçışı — auditCsv() ile aynı kural. */
+function csvHucre(h) {
+  h = String(h == null ? "" : h);
+  return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
+}
+
+/** Sayıyı Türkçe Excel'in SAYI olarak okuyacağı biçime çevir. */
+function csvSayi(n) {
+  if (n == null || n === "" || !Number.isFinite(Number(n))) return "";
+  return String(Math.round(Number(n) * 100) / 100).replace(".", ",");
+}
+
+function csvSatirlar(basliklar, satirlar) {
+  return "﻿" + basliklar.map(csvHucre).join(";") + "\n" +
+    satirlar.map(function (r) { return r.map(csvHucre).join(";"); }).join("\n");
+}
+
+/** Dosya adında tarih: aynı sınıfın iki farklı günkü raporu karışmasın. */
+function disaAktarimAdi(on) {
+  const d = new Date();
+  return on + "-" + yerelDamga(d).replace("T", "-").replace(":", "") + ".csv";
+}
+
+/**
+ * ÖĞRENCİ BAZLI: her öğrencinin her sorudaki durumu, tek satır tek yanıt.
+ * Sınav puanı, yapay zekâ önerisi ve öğretmenin nihai kararı yan yana durur —
+ * bu, ürünün HITL tezinin tablo hâlidir.
+ */
+function ogrenciCsv() {
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return null;
+  const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+  const sorular = (ex.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const mcP = mcPuani(kayit);
+
+  const basliklar = ["sinav", "ogrenci", "sinif", "soru_no", "soru_turu", "kazanim",
+    "soru", "ogrenci_yaniti", "dogru_sik", "isaretlenen_sik",
+    "ai_onerisi", "ogretmen_puani", "tam_puan", "ogretmen_degistirdi_mi", "ogretmen_yorumu", "durum"];
+
+  const satirlar = [];
+  (state.students || []).forEach(function (ogr) {
+    const ss = readSession(ogr.id);
+    if (!ss || ss.examStatus === "not_started") return;   // çözmeyen öğrenci satır açmaz
+    sorular.forEach(function (q, i) {
+      const yanit = (ss.answers || {})[q.id] || {};
+      const mc = (ss.mcResults || {})[q.id];
+      const ai = (ss.aiEvals || {})[q.id];
+      const rv = (ss.reviews || {})[q.id];
+      const tam = q.type === "mc" ? mcP : ((state.rubrics[q.id] || {}).maxScore || 0);
+      /* ÇSS puanı ancak finishExam() çalışınca hesaplanır (mcResults). Sınav
+         hâlâ çözülüyorsa puan HENÜZ YOKTUR; buraya 0 yazmak, doğru işaretlemiş
+         bir öğrenciyi sıfır almış gibi gösterirdi — yanlış beyan (§17a-3).
+         Puanlanmamış yanıt boş bırakılır. */
+      const nihai = q.type === "mc" ? (mc ? (mc.correct ? mcP : 0) : null) : (rv ? rv.finalScore : null);
+      const sik = q.type === "mc" && yanit.selectedKey ? yanit.selectedKey : "";
+      satirlar.push([
+        ex.title || "Adsız Sınav", ogr.name || ("#" + ogr.id), ogr.sinif || "",
+        i + 1, q.type === "mc" ? "çoktan seçmeli" : "açık uçlu", q.outcome || "",
+        q.body || "",
+        q.type === "mc" ? "" : (yanit.text || ""),
+        q.type === "mc" ? (q.correctKey || "") : "",
+        sik,
+        q.type === "mc" ? "" : csvSayi(ai ? ai.aiScore : null),
+        csvSayi(nihai), csvSayi(tam),
+        q.type === "mc" || !rv || !ai ? "" :
+          (Math.abs(Number(rv.finalScore) - Number(ai.aiScore)) > 0.001 ? "evet" : "hayır"),
+        rv ? (rv.comment || "") : "",
+        ss.examStatus || ""
+      ]);
+    });
+  });
+  return { csv: csvSatirlar(basliklar, satirlar), satir: satirlar.length };
+}
+
+/**
+ * SINIF/KAZANIM BAZLI: ısı haritasının tablo hâli. Zümre toplantısında ve
+ * veli bilgilendirmesinde istenen şey budur.
+ * "(örnek)" satırları DIŞARIDA BIRAKILIR: demo verisi bir okul raporuna
+ * karışmamalıdır (§6.3-5 — simüle veri kendini belli eder, rapora girmez).
+ */
+function sinifCsv() {
+  const satirlarKaynak = realClassRows();
+  const kazanimlar = OUTCOMES_LIST();
+  const basliklar = ["sinif", "kazanim_kodu", "kazanim", "basari_yuzdesi"];
+  const satirlar = [];
+  satirlarKaynak.forEach(function (sf) {
+    kazanimlar.forEach(function (o) {
+      const v = (sf.scores || {})[o.code];
+      if (v == null) return;
+      satirlar.push([sf.name, o.code, o.label || "", csvSayi(v)]);
+    });
+  });
+  return { csv: csvSatirlar(basliklar, satirlar), satir: satirlar.length };
+}
+
+function disaAktarHtml() {
+  return '<div class="card"><div class="card-head"><h3>Dışa Aktarma</h3>' +
+    '<span class="hint">Excel ile açılır</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Değerlendirmeleri okul kayıtlarına ya da zümre toplantısına ' +
+    'taşımak için indirin. Dosyalar <b>noktalı virgül ayraçlı CSV</b>\'dir ve Excel\'de çift tıkla açılır; ' +
+    'Türkçe karakterler için UTF-8 damgası eklenir.</p>' +
+    '<button class="btn btn-secondary btn-sm" id="btnCsvOgrenci">Öğrenci bazlı sonuçlar</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnCsvSinif">Sınıf · kazanım başarısı</button>' +
+    '<div class="lbl-hint" style="margin-top:8px;">Öğrenci dosyası <b>ad-soyad içerir</b> ve doğrudan bu ' +
+    'cihaza iner; sunucuya gönderilmez. Sınıf dosyasına <b>"(örnek)" demo satırları dahil edilmez</b>.</div>' +
+    '<div id="csvNot" class="lbl-hint" style="margin-top:6px;"></div></div>';
+}
+
+function wireDisaAktar() {
+  const not = function (m) { const e = document.getElementById("csvNot"); if (e) e.textContent = m; };
+  const o = document.getElementById("btnCsvOgrenci");
+  if (o) o.onclick = function () {
+    const r = ogrenciCsv();
+    if (!r) { not("Aktif sınav bulunamadı."); return; }
+    if (!r.satir) { not("Henüz sınavı çözen öğrenci yok — dosya boş olurdu, indirilmedi."); return; }
+    auditIndir(r.csv, disaAktarimAdi("ogrenci-sonuclari"), "text/csv;charset=utf-8");
+    not(r.satir + " satır indirildi.");
+  };
+  const s = document.getElementById("btnCsvSinif");
+  if (s) s.onclick = function () {
+    const r = sinifCsv();
+    if (!r.satir) { not("Gerçek sınıf verisi yok — dosya boş olurdu, indirilmedi."); return; }
+    auditIndir(r.csv, disaAktarimAdi("sinif-kazanim"), "text/csv;charset=utf-8");
+    not(r.satir + " satır indirildi.");
+  };
+}
+
 /* ==================== CİHAZLAR ARASI SENKRON (§28b) ====================
    3 Eylül'e kadar tüm veri `localStorage` + IndexedDB'deydi; her tarayıcı kendi
    verisini görüyordu ve ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞMÜYORDU.
@@ -6324,6 +6471,7 @@ function wireSync() {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
+    "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync"
