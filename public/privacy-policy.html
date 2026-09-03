@@ -214,19 +214,38 @@
           erişilebilir değildir. Eğitmen her kitabı arayüzdeki kitaplık listesinden tek tek silebilir;
           "Verileri sıfırla" işlemi kitaplığın tamamını siler. Saklanan kitap sayısı sınırlıdır
           (en fazla 20); sınır aşıldığında en eski kitap silinir.</li>
+          <li><b>Sınıf kodu ile senkron (cihazlar arası paylaşım):</b> Öğrencinin çözdüğü sınavın
+          eğitmenin cihazındaki panele düşebilmesi için, eğitmen bir <b>sınıf kodu</b> oluşturur ve
+          öğrencilere verir. Aynı kodu giren cihazlar arasında şu veriler <b>sunucudaki veritabanında
+          (Cloudflare D1)</b> saklanır: sınav tanımı ve soruları, öğrencinin <b>adı</b>, sınav durumu,
+          <b>yanıt metinleri</b>, yapay zekâ puan önerileri ve eğitmenin nihai puan kararı.
+          <b>Bu özellik yalnızca sınıf kodu oluşturulduğunda veya girildiğinde çalışır</b>; kod
+          girilmezse hiçbir veri cihazdan çıkmaz ve ürün tamamen yerel olarak çalışmaya devam eder.
+          <b>Sınıf kodu bir kimlik doğrulama değildir:</b> kodu bilen herkes o sınıfın verisini
+          görebilir. Bu sınır arayüzde de açıkça yazılıdır. Kod, karıştırılması kolay karakterler
+          (I, O, 0, 1) dışlanarak üretilir ve tahmin edilmesi zor olacak uzunluktadır, ancak
+          <b>gerçek kimlik doğrulama üretim sürümüne aittir</b>. Eğitmen, arayüzdeki
+          <b>“Sunucudaki veriyi sil”</b> düğmesiyle o sınıf koduna ait tüm sunucu verisini
+          <b>kalıcı olarak</b> silebilir (bkz. §9 Veri Sahibinin Hakları).</li>
         </ul>
 
         <div class="hitl-box">
           <span class="tag">Prototip sürümü</span>
-          <b>Bu prototipte veriler sunucuda saklanmaz.</b> Sınav yanıtları, öğrenci adları, ders notları,
-          kaynak metinler ve değerlendirme sonuçları yalnızca <b>kullanılan tarayıcının yerel deposunda</b>
-          (<code>localStorage</code>) tutulur; sayfa yenilendiğinde korunur, tarayıcı verisi temizlendiğinde
-          silinir. Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
-          iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b>. Yüklenen PDF dosyaları
-          tarayıcıda çözümlenir, dosyanın kendisi sunucuya gönderilmez; bu dosyalardan çıkarılan metin
-          Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında (<code>IndexedDB</code>)
-          tutulur. Üretim sürümünde bu veriler kurumsal veritabanında saklanacak ve bu metin buna göre
-          güncellenecektir.
+          <b>Bu prototipte veriler varsayılan olarak sunucuda saklanmaz.</b> Sınav yanıtları, öğrenci
+          adları, ders notları, kaynak metinler ve değerlendirme sonuçları yalnızca <b>kullanılan
+          tarayıcının yerel deposunda</b> (<code>localStorage</code>) tutulur; sayfa yenilendiğinde
+          korunur, tarayıcı verisi temizlendiğinde silinir.
+          <b>Tek istisna, yukarıda açıklanan sınıf kodu ile senkron özelliğidir:</b> bir sınıf kodu
+          oluşturulduğunda ya da girildiğinde, sınav ve öğrenci oturum verileri o koda bağlı olarak
+          sunucudaki veritabanında saklanır. Kod kullanılmadığı sürece bu aktarım <b>hiç gerçekleşmez</b>.
+          Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
+          iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b> — bu kural senkron
+          özelliğinden etkilenmemiştir. Yüklenen PDF dosyaları tarayıcıda çözümlenir, dosyanın kendisi
+          sunucuya gönderilmez; bu dosyalardan çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı
+          tarayıcının</b> yerel veritabanında (<code>IndexedDB</code>) tutulur ve <b>senkronla
+          paylaşılmaz</b>. Yapay Zekâ Karar Günlüğü de <b>yalnızca yerelde</b> kalır.
+          Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim sınıf koduyla
+          değil kullanıcı hesabıyla belirlenecektir.
         </div>
       </section>
 
@@ -316,6 +335,15 @@
           <div class="right-card"><b>Silme</b>Sebebin ortadan kalkması hâlinde silinmesini isteme</div>
           <div class="right-card"><b>İtiraz</b>Analiz sonucuna itiraz etme</div>
           <div class="right-card"><b>Zarar talebi</b>Kanuna aykırı işleme sebebiyle zararın giderilmesini isteme</div>
+        </div>
+        <div class="hitl-box">
+          <span class="tag">Bu prototipte silme hakkı</span>
+          Silme hakkı bu prototipte <b>başvuru beklemeden, doğrudan arayüzden</b> kullanılabilir:
+          <b>“Verileri sıfırla”</b> düğmesi cihazdaki tüm yerel veriyi (yanıtlar, karar günlüğü,
+          Müfredat Kitaplığı) siler; sınıf kodu ile senkron kullanılıyorsa
+          <b>“Sunucudaki veriyi sil”</b> düğmesi o sınıf koduna ait sınav ve öğrenci oturum
+          kayıtlarının <b>tamamını sunucudan kalıcı olarak</b> kaldırır. İkinci işlem geri alınamaz
+          ve onay sorularak yapılır.
         </div>
       </section>
 

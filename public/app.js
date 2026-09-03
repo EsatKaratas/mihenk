@@ -504,7 +504,11 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
+  /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
+     girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
+     bilinçli olarak kalıcı DEĞİLDİR. */
+  "syncRoom"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -829,6 +833,7 @@ const state = {
           startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null,
           // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
           mcPoint: MC_VARSAYILAN_PUAN },
+  syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -4006,6 +4011,8 @@ function wireTeacherTab3() {
     };
   });
 }
+/* Öğretmenin nihai puan kararı. Sonuç yayınlandığında (publishResults)
+   sunucuya gönderilir; öğrenci onaylanmış puanı kendi cihazından görür. */
 function finalizeReview(qid, score, comment, decision, sid) {
   const ogrId = sid != null ? sid : state.activeStudentId;
   const rub = state.rubrics[qid];
@@ -4753,6 +4760,9 @@ async function finishExam() {
   } finally {
     state.ai.busy = false;
     renderAll();
+    /* ÜRÜNÜN ANA BOŞLUĞU BURADA KAPANIYOR: öğrencinin bitirdiği kağıt,
+       öğretmenin cihazındaki panele ancak buradan gönderilirse düşer (§28b). */
+    syncOtomatik();
   }
 }
 
@@ -5822,6 +5832,7 @@ function renderAll() {
   renderTeacher();
   renderStudent();
   renderAdmin();
+  renderSyncBar();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   bindFieldLabels();
@@ -5879,6 +5890,303 @@ setInterval(function () {
   }
 }, 1000);
 
+/* ==================== CİHAZLAR ARASI SENKRON (§28b) ====================
+   3 Eylül'e kadar tüm veri `localStorage` + IndexedDB'deydi; her tarayıcı kendi
+   verisini görüyordu ve ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞMÜYORDU.
+   Bu modül o köprüyü kurar.
+
+   TASARIM KARARI — `renderAll()` SENKRON KALIR.
+   Uygulamanın tamamı senkron HTML dizesi üretir (§3.1). Okuma yollarını
+   asenkrona çevirmek `app.js`'in tamamına dokunurdu. Bunun yerine D1 bir
+   ÖNBELLEK DEĞİL, BİR KÖPRÜDÜR: veri çekilir, `state`e yazılır, sonra bir kez
+   `renderAll()` çağrılır. Çizim kaynağı hâlâ `state`tir.
+
+   BU BİR KİMLİK DOĞRULAMA DEĞİLDİR ve arayüzde de öyle yazar. */
+
+/* Karışan karakterler (0/O, 1/I) bilinçli olarak dışarıda: kod sesli okunup
+   elle yazılacak. Sunucudaki ROOM_RE ile aynı kümedir. */
+const ODA_ALFABE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function syncOdaUret() {
+  let k = "";
+  const rnd = new Uint32Array(6);
+  crypto.getRandomValues(rnd);
+  for (let i = 0; i < 6; i++) k += ODA_ALFABE[rnd[i] % ODA_ALFABE.length];
+  return k;
+}
+
+/** Çalışma zamanı senkron durumu. KALICI DEĞİLDİR — yalnızca `syncRoom` kalıcıdır. */
+function syncDurum() {
+  if (!state.sync) state.sync = { ready: null, busy: false, mesaj: "", sonGonderim: null, sonCekim: null, hata: "" };
+  return state.sync;
+}
+
+/** Sunucuda D1 bağlı mı? Bağlı değilse arayüz "kapalı" yazar (§6.3-5). */
+async function syncProbe() {
+  const s = syncDurum();
+  try {
+    const r = await fetch("/api/sync/status", { cache: "no-store" });
+    const j = await r.json();
+    s.ready = !!j.ready;
+  } catch (e) {
+    s.ready = false;
+  }
+  renderSyncBar();
+  return s.ready;
+}
+
+/** Bu cihazın gönderebileceği her şeyi tek bir gövdede topla. */
+function syncPaket() {
+  syncActiveExam();
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return null;
+
+  /* Sınav gövdesi SORULARI DA TAŞIR. Başka bir cihazdaki öğrencinin sınavı
+     çözebilmesi için soru metinleri, şıkları ve uyaran metinleri gerekir;
+     yalnızca sınav kaydını göndermek öğrenciye BOŞ bir sınav gösterirdi. */
+  const sorular = (kayit.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const rubrikler = {};
+  sorular.forEach(function (q) { if (state.rubrics[q.id]) rubrikler[q.id] = state.rubrics[q.id]; });
+  const kaynaklar = (state.sources || []).filter(function (k) {
+    return sorular.some(function (q) { return q.srcId === k.id; });
+  });
+
+  const sinav = {
+    examId: kayit.id,
+    title: String(kayit.title || "Adsız Sınav").slice(0, 200),
+    payload: JSON.stringify({
+      exam: {
+        title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
+        status: kayit.status, durationMin: kayit.durationMin, startMode: kayit.startMode,
+        startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit)
+      },
+      questions: sorular, rubrics: rubrikler, sources: kaynaklar,
+      students: (state.students || []).map(function (o) { return { id: o.id, name: o.name, demo: !!o.demo }; })
+    })
+  };
+
+  const ss = examSessions(kayit);
+  const oturumlar = Object.keys(ss).map(function (sid) {
+    const o = ss[sid] || {};
+    const ogr = (state.students || []).find(function (x) { return String(x.id) === String(sid); });
+    return {
+      examId: kayit.id,
+      studentId: Number(sid),
+      studentName: String((ogr && ogr.name) || "").slice(0, 120),
+      status: o.examStatus || "not_started",
+      payload: JSON.stringify(o)
+    };
+  }).slice(0, 60);
+
+  return { room: state.syncRoom, exam: sinav, sessions: oturumlar };
+}
+
+async function syncGonder() {
+  const s = syncDurum();
+  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
+  const paket = syncPaket();
+  if (!paket) { s.hata = "Gönderilecek sınav yok."; renderSyncBar(); return false; }
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/push", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(paket)
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Gönderilemedi");
+    s.sonGonderim = Date.now();
+    s.mesaj = j.sessions + " oturum gönderildi";
+  } catch (e) {
+    // SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5): başarısızlık ekranda yazar.
+    s.hata = (e && e.message) || "Sunucuya yazılamadı";
+  }
+  s.busy = false; renderSyncBar();
+  return !s.hata;
+}
+
+async function syncCek() {
+  const s = syncDurum();
+  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/pull", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ room: state.syncRoom })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Okunamadı");
+    const say = syncBirlestir(j);
+    s.sonCekim = Date.now();
+    s.mesaj = say.sinav + " sınav · " + say.oturum + " oturum alındı";
+  } catch (e) {
+    s.hata = (e && e.message) || "Sunucudan okunamadı";
+  }
+  s.busy = false;
+  renderAll();
+  return !s.hata;
+}
+
+/**
+ * Sunucudan geleni yerel duruma karıştır.
+ *
+ * 🔴 EN KRİTİK KURAL: ŞU AN ÇÖZÜLMEKTE OLAN OTURUM EZİLMEZ.
+ * Öğrenci sınavı yazarken bir çekme işlemi yapılırsa, sunucudaki eski kopya
+ * öğrencinin yazdıklarının üstüne binerdi — veri kaybı, üstelik sessiz.
+ * Aktif öğrencinin `in_progress` oturumu bu yüzden korunur.
+ */
+function syncBirlestir(veri) {
+  let sinavSay = 0, oturumSay = 0;
+
+  (veri.exams || []).forEach(function (satir) {
+    let govde;
+    try { govde = JSON.parse(satir.payload); } catch (e) { return; }
+    if (!govde || !govde.exam) return;
+
+    // Sorular, rubrikler ve kaynaklar yerelde yoksa eklenir (kimlikler korunur).
+    (govde.questions || []).forEach(function (q) {
+      if (!state.questions.some(function (x) { return x.id === q.id; })) {
+        state.questions.push(q);
+        if (q.id >= qIdSeq) qIdSeq = q.id + 1;
+      }
+    });
+    Object.keys(govde.rubrics || {}).forEach(function (qid) {
+      if (!state.rubrics[qid]) state.rubrics[qid] = govde.rubrics[qid];
+    });
+    (govde.sources || []).forEach(function (k) {
+      if (!(state.sources || []).some(function (x) { return x.id === k.id; })) state.sources.push(k);
+    });
+    (govde.students || []).forEach(function (o) {
+      if (!(state.students || []).some(function (x) { return x.id === o.id; })) state.students.push(o);
+    });
+
+    let kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
+    if (!kayit) {
+      kayit = { id: satir.exam_id, sessions: {} };
+      state.exams.push(kayit);
+      if (satir.exam_id >= examIdSeq) examIdSeq = satir.exam_id + 1;
+    }
+    Object.keys(govde.exam).forEach(function (k) { kayit[k] = govde.exam[k]; });
+    if (kayit.id === state.activeExamId) {
+      Object.keys(govde.exam).forEach(function (k) { state.exam[k] = govde.exam[k]; });
+    }
+    sinavSay++;
+  });
+
+  (veri.sessions || []).forEach(function (satir) {
+    let o;
+    try { o = JSON.parse(satir.payload); } catch (e) { return; }
+    const kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
+    if (!kayit) return;
+
+    const aktifOturum = kayit.id === state.activeExamId && String(satir.student_id) === String(state.activeStudentId);
+    if (aktifOturum && state.examStatus === "in_progress") return;   // çözülmekte — DOKUNMA
+
+    const ss = examSessions(kayit);
+    ss[satir.student_id] = o;
+    if (aktifOturum) {
+      OTURUM_ALANLARI.forEach(function (k) { state[k] = o[k] !== undefined ? o[k] : bosOturum()[k]; });
+    }
+    oturumSay++;
+  });
+
+  saveState();
+  return { sinav: sinavSay, oturum: oturumSay };
+}
+
+async function syncSil() {
+  const s = syncDurum();
+  if (!state.syncRoom) return false;
+  if (!confirm("“" + state.syncRoom + "” odasındaki TÜM veriler sunucudan kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?")) return false;
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/reset", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ room: state.syncRoom })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Silinemedi");
+    s.mesaj = j.deleted + " kayıt sunucudan silindi";
+  } catch (e) {
+    s.hata = (e && e.message) || "Silinemedi";
+  }
+  s.busy = false; renderSyncBar();
+  return !s.hata;
+}
+
+/** Önemli bir olaydan sonra sessizce gönder — başarısızlık şeritte görünür. */
+function syncOtomatik() {
+  if (!state.syncRoom || syncDurum().ready !== true) return;
+  syncGonder();
+}
+
+function syncZaman(ts) {
+  if (!ts) return "—";
+  return new Date(ts).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function syncBarHtml() {
+  const s = syncDurum();
+  if (s.ready === false) {
+    return '<div class="sync-bar sync-off"><b>Senkron kapalı</b>' +
+      '<span>Sunucuda veritabanı bağlı değil; veriler yalnızca bu cihazda saklanıyor.</span></div>';
+  }
+  if (s.ready === null) return '<div class="sync-bar"><span>Senkron durumu kontrol ediliyor…</span></div>';
+
+  if (!state.syncRoom) {
+    return '<div class="sync-bar"><b>Sınıf kodu yok</b>' +
+      '<span>Öğrencilerin çözdüğü sınavın panelinize düşmesi için bir sınıf kodu oluşturun ve öğrencilere verin.</span>' +
+      '<button class="btn btn-primary btn-sm" id="btnOdaUret">Sınıf kodu oluştur</button>' +
+      '<input id="odaGir" class="sync-input" maxlength="12" placeholder="ya da kodu girin">' +
+      '<button class="btn btn-secondary btn-sm" id="btnOdaGir">Katıl</button></div>';
+  }
+
+  return '<div class="sync-bar"><b>Sınıf kodu: <span class="sync-code">' + escapeHtml(state.syncRoom) + '</span></b>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPush" ' + (s.busy ? "disabled" : "") + '>Gönder</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPull" ' + (s.busy ? "disabled" : "") + '>Yenile</button>' +
+    '<span class="sync-meta">gönderim ' + syncZaman(s.sonGonderim) + ' · çekme ' + syncZaman(s.sonCekim) + '</span>' +
+    (s.hata ? '<span class="sync-err">' + escapeHtml(s.hata) + '</span>'
+            : (s.mesaj ? '<span class="sync-ok">' + escapeHtml(s.mesaj) + '</span>' : "")) +
+    '<button class="btn btn-secondary btn-sm" id="btnOdaCik">Kodu değiştir</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncSil">Sunucudaki veriyi sil</button>' +
+    '<span class="sync-note">Bu bir kimlik doğrulama değildir: kodu bilen herkes bu sınıfın verisini görebilir.</span></div>';
+}
+
+function renderSyncBar() {
+  const el = document.getElementById("syncBar");
+  if (!el) return;
+  el.innerHTML = syncBarHtml();
+  wireSync();
+}
+
+function wireSync() {
+  const uret = document.getElementById("btnOdaUret");
+  if (uret) uret.onclick = function () {
+    state.syncRoom = syncOdaUret();
+    syncDurum().mesaj = "Kod oluşturuldu — öğrencilere verin.";
+    saveState(); renderSyncBar(); syncGonder();
+  };
+  const gir = document.getElementById("btnOdaGir");
+  if (gir) gir.onclick = function () {
+    const v = String((document.getElementById("odaGir") || {}).value || "").trim().toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]{4,12}$/.test(v)) {
+      syncDurum().hata = "Kod 4-12 karakter olmalı; I ve O harfleri ile 0/1 rakamları kullanılmaz.";
+      renderSyncBar(); return;
+    }
+    state.syncRoom = v; syncDurum().hata = ""; saveState(); renderSyncBar(); syncCek();
+  };
+  const push = document.getElementById("btnSyncPush");
+  if (push) push.onclick = function () { syncGonder(); };
+  const pull = document.getElementById("btnSyncPull");
+  if (pull) pull.onclick = function () { syncCek(); };
+  const cik = document.getElementById("btnOdaCik");
+  if (cik) cik.onclick = function () {
+    state.syncRoom = ""; syncDurum().mesaj = ""; syncDurum().hata = ""; saveState(); renderSyncBar();
+  };
+  const sil = document.getElementById("btnSyncSil");
+  if (sil) sil.onclick = function () { syncSil(); };
+}
+
 /* ==================== Öz-kontrol ====================
    Geliştirme sırasında bir yeniden yazım, çağrılan bir fonksiyonu sessizce
    silebiliyor; hata ancak o ekrana girildiğinde ortaya çıkıyor. Bu liste,
@@ -5923,7 +6231,9 @@ setInterval(function () {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
-    "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear"
+    "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
+    "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
+    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -5957,6 +6267,8 @@ document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 probeAiMode();
+// Sunucuda D1 bağlı mı? Bağlı değilse şerit "senkron kapalı" yazar (§6.3-5).
+syncProbe();
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.
 katalogHazirla();

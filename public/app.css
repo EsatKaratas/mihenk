@@ -1143,3 +1143,65 @@
   .empty-rich .es-alt { font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
     max-width: 40ch; }
   .empty-rich button { margin-top: 4px; }
+
+/* ==========================================================================
+   CİHAZLAR ARASI SENKRON ŞERİDİ (§28b)
+
+   §6.3-2 DERSİ: Bu sınıf BAĞIMSIZDIR — kendi zeminini, kendi metin rengini ve
+   kendi kenarlığını taşır. Kapsayıcıya bağlı tanımlanan sınıflar bu projede üç
+   kez kırıldı (.opt-row, .cv-warn, .empty-state).
+
+   §1.7 DERSİ — İKİ AYRI METİN RENGİ: Bu şerit üst çubukta, DOĞRUDAN LACİVERT
+   ZEMİN üzerinde durur; kart içinde değildir. Bu yüzden `--text` değil
+   `--on-bg` ailesi kullanılır. Kendi yarı saydam zemini vardır ve kontrast
+   HARMANLANMIŞ değerle hesaplanmıştır (§6.3-21).
+   ========================================================================== */
+.sync-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--on-bg-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--on-bg);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sync-bar b { color: var(--on-bg); font-weight: 600; }
+.sync-bar > span { color: var(--on-bg-muted); }
+.sync-bar .sync-code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--on-bg);
+}
+.sync-bar .sync-input {
+  width: 150px;
+  padding: 5px 8px;
+  border: 1px solid var(--on-bg-line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);          /* kutunun İÇİ beyaz — burada --text geçerli */
+  font: 500 13px/1.4 "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.sync-bar .sync-meta { color: var(--on-bg-muted); font-size: 12px; }
+.sync-bar .sync-ok { color: var(--on-bg); font-weight: 600; }
+/* Hata rengi zemin üstünde okunmalı: --critical lacivertte AA'yı geçmiyor,
+   bu yüzden açık bir uyarı tonu kullanılır (ölçüldü, aşağıda). */
+.sync-bar .sync-err { color: #ffc9c0; font-weight: 600; }
+.sync-bar .sync-note {
+  flex-basis: 100%;
+  color: var(--on-bg-muted);
+  font-size: 12px;
+}
+.sync-bar.sync-off { border-style: dashed; }
+
+@media (max-width: 720px) {
+  .sync-bar { font-size: 12px; }
+  .sync-bar .sync-input { width: 120px; }
+}

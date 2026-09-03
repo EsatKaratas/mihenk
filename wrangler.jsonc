@@ -36,7 +36,7 @@
     {
       "binding": "DB",
       "database_name": "olcme-db",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "database_id": "daeb141d-bc0a-4471-b369-928832fda984",
       "migrations_dir": "migrations"
     }
   ],

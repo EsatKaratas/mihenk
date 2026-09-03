@@ -10,6 +10,7 @@
 
 import { Hono } from 'hono';
 import aiRoutes from './routes/ai';
+import syncRoutes from './routes/sync';
 import type { AiEnv } from './lib/ai';
 
 type Bindings = AiEnv & {
@@ -26,6 +27,11 @@ app.get('/api/health', (c) =>
 );
 
 app.route('/api/ai', aiRoutes);
+
+// Cihazlar arası senkron (§28b). agents.md §2: her panel kendi alt-router'ında
+// yaşar; senkron da öyle. D1 bağlı değilse uçlar 503 + { error, message } döner
+// ve istemci "senkron kapalı" yazar — sessiz geri düşüş yok (§6.3-5).
+app.route('/api/sync', syncRoutes);
 
 // agents.md §2: her hata yanıtı tutarlı JSON gövdesi döner.
 app.notFound((c) => c.json({ error: 'not_found', message: 'Böyle bir API ucu yok.' }, 404));
