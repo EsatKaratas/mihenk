@@ -7182,6 +7182,13 @@ function wireSyncJoin() {
       syncDurum().hata = "Kod 4-12 karakter olmalı; I, O harfleri ile 0, 1 rakamları kullanılmaz.";
       renderAll(); return;
     }
+    /* §28r Madde 3 — bir kod GİRİLEREK gerçek bir sınıfa katılınıyorsa ve bu
+       cihazda hâlâ dokunulmamış ÖRNEK liste duruyorsa, katılmadan önce onu
+       temizle. Aksi hâlde 4 sahte isim gerçek öğrencilerle karışıyordu ve
+       "örnek listeyi temizle" ipucu da bir daha görünmüyordu (liste artık
+       tamamen varsayılan olmadığı için). Öğretmenin KENDİ cihazında kod
+       OLUŞTURMASına dokunulmadı — yalnızca KATILMA anı. */
+    if (varsayilanListeMi()) { state.students = []; state.activeStudentId = null; }
     state.syncRoom = v; syncDurum().hata = ""; saveState();
     syncCek();
   };
