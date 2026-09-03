@@ -30,9 +30,22 @@ type Bindings = { DB?: D1Database };
    saniyede yüzlerce istekle kısa kodlar makul sürede bulunabilir.
 
    Alfabe 32 karakter (karışanlar çıkarılmış), üretilen kod 6 karakter:
-   32^6 = 1.073.741.824 olasılık. Aşağıdaki 60/dk okuma sınırıyla günde en
-   fazla 86.400 deneme yapılabilir; belirli bir odayı %50 olasılıkla bulmak
-   ~17 yıl sürer. Sınır olmadan aynı iş saatler mertebesindeydi.
+   32^6 = 1.073.741.824 olasılık.
+
+   🔴 ÜRETİMDE ÖLÇÜLDÜ — BU SINIR CANLIDA TETİKLENMİYOR.
+   Sayaç bellek içi bir Map ve HER İSOLATE İÇİN AYRIDIR. Canlıda ölçüm:
+   2 saniyede 80 istek gönderildi, 80'i de 200 döndü, 429 çıkmadı; çünkü
+   Cloudflare istekleri birden çok isolate'a dağıttı. Bu, AI uçlarındaki
+   sınırın da bilinen durumudur (AKTARIM §6.3-10).
+
+   Dolayısıyla gerçek koruma şudur: sınır TUTSAYDI belirli bir odayı %50
+   olasılıkla bulmak ~17 yıl sürerdi; sınırsız ~50 istek/sn ile bu süre
+   ~124 güne iner. Yine de düşük bir risk (oda kodları demo süresince
+   yaşıyor) ama BELGEDE 17 YIL DİYE İDDİA EDİLEMEZ.
+
+   ÜRETİM İÇİN ŞART: sayaç D1 ya da KV'ye taşınmalı. Buradaki kod tek
+   isolate içinde DOĞRU çalışıyor (birim testleri + yerel dev'de 60x200 +
+   5x429 ölçüldü); eksik olan dağıtık sayaçtır.
 
    Sınır İSTEMCİ BAŞINA değil, IP başınadır: amaç meşru kullanıcıyı değil
    tarayıcıyı yavaşlatmaktır. Bir sınıfta 30 öğrenci aynı ağdan girebileceği

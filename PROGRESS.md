@@ -3838,13 +3838,25 @@ sınırı yoktu; oda kodu erişim anahtarı olduğu için `/pull` taranabilirdi.
 IP başına **okuma 60/dk, yazma 30/dk** kondu (okuma yüksek çünkü bir sınıftaki
 30 öğrenci aynı ağdan girebilir).
 
-Hesap: 32 karakter alfabe, 6 karakter kod = **1.073.741.824** olasılık;
-60/dk ile günde 86.400 deneme → belirli bir odayı %50 olasılıkla bulmak
-**~17 yıl**. Ölçüldü: 65 ardışık `/pull` → **60 istek 200, sonraki 5 istek 429**;
-farklı IP engellenmedi; okuma sayacı dolu iken yazma 200 döndü.
+Yerel dev'de ölçüldü: 65 ardışık `/pull` → **60 istek 200, sonraki 5 istek
+429**; farklı IP engellenmedi; okuma sayacı dolu iken yazma 200 döndü.
+Birim testi de eklendi (6 test).
 
-> ⚠️ Sınır **isolate başınadır** (§6.3-10, AI uçlarındakiyle aynı durum).
-> Üretimde D1/KV'ye taşınmalı; jüri sorarsa dürüst cevap budur.
+> 🔴 **DÜZELTME (3 Eylül, canlı doğrulama turunda ölçüldü):** Bu bölüm önce
+> *"belirli bir odayı bulmak ~17 yıl sürer"* diyordu. **O sayı yanlıştı**,
+> çünkü sınırın canlıda tuttuğunu varsayıyordu. Ölçüm: canlıya **2 saniyede
+> 80 istek** gönderildi, **80'i de 200 döndü, 429 çıkmadı.** Sebep, sayacın
+> bellek içi olması ve **her isolate için ayrı tutulması** — AI uçlarındaki
+> sınırın da bilinen durumu (§6.3-10).
+>
+> Gerçek tablo: sınır tutsaydı ~17 yıl; sınırsız ~50 istek/sn ile **~124 gün**.
+> Risk demo ölçeğinde hâlâ düşük (oda kodları kısa ömürlü) ama **belgede 17
+> yıl diye iddia edilemez.** Kod tek isolate içinde doğru çalışıyor; eksik
+> olan **dağıtık sayaç**. Üretim için D1/KV'ye taşınmalı.
+>
+> **Ders:** bir güvenlik kontrolünü yerelde doğrulamak yetmez; üretimdeki
+> çalışma modeli (isolate dağıtımı) sonucu değiştirebilir. Ölçüm canlıda
+> tekrarlanmalıydı — bu turda tekrarlandı ve iddia düzeltildi.
 
 ### 28h. Gizlilik (agents.md §7 — bağlayıcı)
 
