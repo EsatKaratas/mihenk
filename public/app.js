@@ -838,7 +838,7 @@ const state = {
   ceTab: 1,
   pdf: null, // { ad, sayfaSayisi, from, to } — sayfa metinleri bellekte (pdfPages)
 
-  poolFilter: { outcome: "", difficulty: "", type: "" },
+  poolFilter: { outcome: "", difficulty: "", type: "", sube: "" },
   editingQid: null, // öğretmenin havuzda düzenlediği soru
   rubricError: "",
   poolError: "",
@@ -3245,6 +3245,40 @@ function canPublishExam() {
   return opens.every(function (q) { return state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100; });
 }
 function totalWeight(rub) { return rub.criteria.reduce(function (s, c) { return s + (Number(c.weight) || 0); }, 0); }
+
+/* ===========================================================================
+   MADDE 3 — öğretmen paneli sekme rozetleri (yalnızca ORGANİZASYON amaçlı)
+   ===========================================================================
+   NEDEN: İçerik Uzmanı sekmelerinde zaten "kaç soru bekliyor" rozeti var
+   (bkz. ceTabsHtml). Öğretmen tarafında eşdeğeri yoktu; 4 sekme arasında
+   "hangisine bakmam lazım" sorusunun cevabı yalnızca sekmeye tıklayıp
+   görmekti. Bu iki sayaç salt OKUNUR bir gezinme yardımıdır — hiçbir
+   onay/karar vermez, hiçbir soruyu/yanıtı otomatik işlemez (agents.md §1). */
+
+/** Aktif sınavda rubriği eksik/%100 olmayan açık uçlu soru sayısı. */
+function pendingRubricCount() {
+  const opens = state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+  return opens.filter(function (q) {
+    return !(state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100);
+  }).length;
+}
+
+/** Aktif sınavda, gönderilmiş açık uçlu yanıtlardan öğretmen onayı bekleyen sayısı. */
+function pendingReviewCount() {
+  if (state.exam.status !== "published") return 0;
+  const opens = state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+  if (!opens.length) return 0;
+  let sayac = 0;
+  submittedStudents().forEach(function (s) {
+    const ss = readSession(s.id);
+    opens.forEach(function (q) { if (!((ss.reviews || {})[q.id])) sayac++; });
+  });
+  return sayac;
+}
 // Model bir rubrik TASLAĞI önerir; öğretmen üzerinde serbestçe değişiklik
 // yapar. Taslak geldiğinde mevcut kriterler değiştirilir, ağırlıklar %100'e
 // normalleştirilmiş olarak gelir.
@@ -3489,6 +3523,9 @@ function filteredPool() {
     if (f.outcome && q.outcome !== f.outcome) return false;
     if (f.difficulty && q.difficulty !== f.difficulty) return false;
     if (f.type && q.type !== f.type) return false;
+    // Madde 3: Madde 1'de eklenen şube etiketiyle filtreleme — yalnızca
+    // organizasyon amaçlı, hangi sorunun onaylanacağına karışmaz.
+    if (f.sube && (q.sube || "") !== f.sube) return false;
     return true;
   });
 }
@@ -3542,14 +3579,16 @@ function poolFilterHtml() {
   if (onayliSayisi < 2) return "";
   const f = state.poolFilter;
   const kazanimlar = {};
+  const subeler = {};
   state.questions.filter(function (q) { return q.status === "approved"; })
-    .forEach(function (q) { kazanimlar[q.outcome] = true; });
+    .forEach(function (q) { kazanimlar[q.outcome] = true; if (q.sube) subeler[q.sube] = true; });
   const sec = function (id, deger, secenekler) {
     return '<select id="' + id + '"><option value="">Tümü</option>' +
       secenekler.map(function (o) {
         return '<option value="' + escapeHtml(o.v) + '"' + (deger === o.v ? " selected" : "") + '>' + escapeHtml(o.t) + '</option>';
       }).join("") + '</select>';
   };
+  const subeAlanlari = Object.keys(subeler).sort();
   return '<div class="pool-filter">' +
     '<div class="field"><label>Kazanım</label>' + sec("fltOutcome", f.outcome,
       Object.keys(kazanimlar).map(function (k) { return { v: k, t: k }; })) + '</div>' +
@@ -3557,6 +3596,12 @@ function poolFilterHtml() {
       [{ v: "easy", t: "Kolay" }, { v: "medium", t: "Orta" }, { v: "hard", t: "Zor" }]) + '</div>' +
     '<div class="field"><label>Soru türü</label>' + sec("fltType", f.type,
       [{ v: "mc", t: "Çoktan Seçmeli" }, { v: "open", t: "Açık Uçlu" }]) + '</div>' +
+    // Madde 3: yalnızca en az bir onaylı soruda şube etiketi VARSA görünür —
+    // aksi hâlde hep boş bir "Tümü" filtresi ekranı doldururdu.
+    (subeAlanlari.length
+      ? '<div class="field"><label>Şube</label>' + sec("fltSube", f.sube,
+          subeAlanlari.map(function (s) { return { v: s, t: s }; })) + '</div>'
+      : "") +
     '</div>';
 }
 
@@ -3580,7 +3625,7 @@ function teacherTab1Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + '</div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -3640,7 +3685,7 @@ function wireTeacherTab1() {
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
   const flt = document.getElementById("btnFiltreTemizle");
   if (flt) flt.onclick = function () {
-    state.poolFilter = { outcome: "", difficulty: "", type: "" };
+    state.poolFilter = { outcome: "", difficulty: "", type: "", sube: "" };
     saveSoon(); renderAll();
   };
   const fo = document.getElementById("fltOutcome");
@@ -3649,6 +3694,8 @@ function wireTeacherTab1() {
   if (fd) fd.onchange = function (e) { state.poolFilter.difficulty = e.target.value; renderAll(); };
   const ft = document.getElementById("fltType");
   if (ft) ft.onchange = function (e) { state.poolFilter.type = e.target.value; renderAll(); };
+  const fs = document.getElementById("fltSube");
+  if (fs) fs.onchange = function (e) { state.poolFilter.sube = e.target.value; renderAll(); };
 
   // --- havuzda soru düzenleme ---
   document.querySelectorAll(".pool-edit-btn").forEach(function (b) {
@@ -5082,9 +5129,19 @@ function teacherTab4Html() {
 
 function renderTeacher() {
   const root = document.getElementById("panel-teacher");
-  const tabs = [{ id: 1, label: "1 · Sınav Oluştur" }, { id: 2, label: "2 · Rubrik" }, { id: 3, label: "3 · Değerlendirme Onayı" }, { id: 4, label: "4 · Analitik" }];
+  // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
+  // birebir aynı — salt okunur sayaç, hiçbir onay/karar vermez.
+  const tabs = [
+    { id: 1, label: "1 · Sınav Oluştur" },
+    { id: 2, label: "2 · Rubrik", rozet: pendingRubricCount() },
+    { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
+    { id: 4, label: "4 · Analitik" }
+  ];
   root.innerHTML = '<div class="tabs" id="teacherTabs">' +
-    tabs.map(function (t) { return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.label + '</button>'; }).join("") +
+    tabs.map(function (t) {
+      return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
+        t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
+    }).join("") +
     '</div><div id="teacherTabContent"></div>';
   document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("teacherTabContent");
@@ -7220,7 +7277,7 @@ function wireSync() {
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync",
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
-    "subeRozetiHtml", "outcomeAlan"
+    "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
