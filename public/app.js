@@ -839,7 +839,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -1315,6 +1315,168 @@ async function extractPdf(file) {
   return sayfalar;
 }
 
+/* ==================== DOCX Okuma (Madde 4) ====================
+   Word belgesi (.docx) desteği. PDF'te olduğu gibi İSTEMCİ TARAFINDA okunur;
+   dosya sunucuya hiç gönderilmez — mevcut gizlilik ilkesiyle birebir aynı
+   (bkz. privacy-policy.html, PDF bölümü). mammoth.js'in resmî bir ESM/.mjs
+   dağıtımı olmadığı için pdf.js'teki gibi dinamik `import()` kullanılamıyor;
+   bunun yerine klasik <script> etiketi enjekte edilip `window.mammoth`
+   üzerinden okunuyor. CSP zaten cdn.jsdelivr.net'e izin veriyor
+   (public/_headers), yeni bir izin gerekmiyor. */
+let mammothLibPromise = null;
+
+function loadMammothLib() {
+  if (window.mammoth) return Promise.resolve(window.mammoth);
+  if (!mammothLibPromise) {
+    mammothLibPromise = new Promise(function (resolve, reject) {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js";
+      s.onload = function () { resolve(window.mammoth); };
+      s.onerror = function () { reject(new Error("Word okuma kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
+      document.head.appendChild(s);
+    });
+  }
+  return mammothLibPromise;
+}
+
+async function extractDocx(file) {
+  const mammoth = await loadMammothLib();
+  const buf = await file.arrayBuffer();
+  const sonuc = await mammoth.extractRawText({ arrayBuffer: buf });
+  return String((sonuc && sonuc.value) || "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/* ==================== Taranmış PDF için OCR (Madde 4) ====================
+   NEDEN: `extractPdf()` yalnızca PDF'in METİN KATMANINI okur. Taranmış
+   (görüntü tabanlı) bir PDF'te metin katmanı yoktur ve eskiden kullanıcıya
+   doğrudan hata gösterilip metni elle yapıştırması isteniyordu. Bu, sistemin
+   kendi "sessiz düşüş yok" ilkesiyle tutarlı ama kullanışsızdı.
+
+   ÇÖZÜM: pdf.js ile sayfa görüntüsü <canvas>'a çizilir, Tesseract.js (istemci
+   tarafı, WebAssembly) ile o görüntü OCR'lanır. Süreç TAMAMEN TARAYICIDA
+   çalışır; ne dosyanın kendisi ne de sayfa görüntüleri sunucuya gönderilir —
+   PDF için geçerli gizlilik taahhüdü burada da aynen geçerlidir.
+
+   SINIR: Bir OCR turu en fazla OCR_MAX_SAYFA sayfa işler (istemci CPU'sunda
+   sayfa başına birkaç saniye sürebilir; sınırsız bir kitabı OCR'lamaya
+   çalışmak sekmeyi uzun süre kilitler). Kırpma yapıldıysa kullanıcıya
+   açıkça söylenir — sessiz kırpma yok.
+
+   DÜRÜSTLÜK: OCR çıktısı asla PDF metin katmanı kadar güvenilir değildir.
+   Üretilen sayfalar `ocr: true` ile işaretlenir ve arayüzde bir uyarı
+   rozetiyle gösterilir (bkz. pdfPickerHtml). */
+let tesseractLibPromise = null;
+const OCR_MAX_SAYFA = 15;
+
+function loadTesseractLib() {
+  if (window.Tesseract) return Promise.resolve(window.Tesseract);
+  if (!tesseractLibPromise) {
+    tesseractLibPromise = new Promise(function (resolve, reject) {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.onload = function () { resolve(window.Tesseract); };
+      s.onerror = function () { reject(new Error("OCR kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
+      document.head.appendChild(s);
+    });
+  }
+  return tesseractLibPromise;
+}
+
+/** Taranmış bir PDF'in ilk OCR_MAX_SAYFA sayfasını OCR'lar (Türkçe). */
+async function ocrPdfSayfalari(file, ilerlemeCb) {
+  const [pdfLib, Tesseract] = await Promise.all([loadPdfLib(), loadTesseractLib()]);
+  const buf = await file.arrayBuffer();
+  const doc = await pdfLib.getDocument({ data: buf }).promise;
+  const toplamSayfa = doc.numPages;
+  const islenecek = Math.min(toplamSayfa, OCR_MAX_SAYFA);
+  // CSP yalnızca cdn.jsdelivr.net'e izin veriyor (public/_headers); Tesseract.js
+  // varsayılan olarak worker/core/dil dosyalarını başka barındırıcılardan
+  // çekebiliyor. Sessizce engellenmesin diye üçü de burada açıkça jsdelivr'e
+  // sabitleniyor.
+  const worker = await Tesseract.createWorker("tur", 1, {
+    workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+    corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js",
+    langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/tur/4.0.0_best"
+  });
+  const sayfalar = [];
+  try {
+    for (let i = 1; i <= islenecek; i++) {
+      if (ilerlemeCb) ilerlemeCb(i, islenecek);
+      const sayfa = await doc.getPage(i);
+      const viewport = sayfa.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      await sayfa.render({ canvasContext: ctx, viewport: viewport }).promise;
+      const { data } = await worker.recognize(canvas);
+      sayfalar.push({ n: i, text: String((data && data.text) || "").replace(/\s+/g, " ").trim(), ocr: true });
+    }
+  } finally {
+    await worker.terminate();
+  }
+  return { sayfalar: sayfalar, kirpildi: toplamSayfa > OCR_MAX_SAYFA, toplamSayfa: toplamSayfa };
+}
+
+/** Kullanıcının OCR teklifini görebilmesi için taranmış dosya bilgisini tutar. */
+let taranmisPdfDosya = null; // { file, sayfaSayisi } | null
+
+function ocrOneriHtml() {
+  if (!taranmisPdfDosya || state.pdf) return "";
+  if (state.ceForm.ocrLoading) {
+    return '<div class="ocr-offer"><div class="dz-spin"></div><div class="dz-sub">' +
+      escapeHtml(state.ceForm.ocrProgress || "OCR başlatılıyor…") + '</div></div>';
+  }
+  const fazlaSayfa = taranmisPdfDosya.sayfaSayisi > OCR_MAX_SAYFA;
+  return '<div class="ocr-offer">' +
+    '<button class="btn btn-secondary btn-sm" id="btnRunOcr">🔎 OCR ile Dene (' +
+    (fazlaSayfa ? "ilk " + OCR_MAX_SAYFA + " / " + taranmisPdfDosya.sayfaSayisi : taranmisPdfDosya.sayfaSayisi) +
+    ' sayfa)</button>' +
+    '<div class="dz-sub">Görüntü tabanlı sayfalar tarayıcıda otomatik okunur; sonuç kesin değildir, gözden geçirin.</div></div>';
+}
+
+async function runOcrOnScannedPdf() {
+  if (!taranmisPdfDosya) return;
+  const dosya = taranmisPdfDosya.file;
+  state.ceForm.ocrLoading = true;
+  state.ceForm.error = "";
+  state.ceForm.ocrProgress = "OCR başlatılıyor…";
+  renderAll();
+  try {
+    const sonuc = await ocrPdfSayfalari(dosya, function (i, toplam) {
+      state.ceForm.ocrProgress = "OCR çalışıyor: " + i + "/" + toplam + " sayfa";
+      renderAll();
+    });
+    const doluSayfa = sonuc.sayfalar.filter(function (s) { return s.text.length > 20; }).length;
+    if (!doluSayfa) {
+      state.ceForm.error = "OCR bu sayfalarda okunabilir metin bulamadı. Görüntü kalitesi düşük olabilir; " +
+        "metni elle kopyalayıp yapıştırmayı deneyin.";
+    } else {
+      pdfPages = sonuc.sayfalar;
+      const kayit = await kitapligaEkle(dosya.name, pdfPages);
+      state.pdf = {
+        ad: dosya.name,
+        sayfaSayisi: pdfPages.length,
+        from: 1,
+        to: Math.min(3, pdfPages.length),
+        kitapId: kayit ? kayit.id : null,
+        ocr: true
+      };
+      if (!state.ceForm.title) state.ceForm.title = dosya.name.replace(/\.pdf$/i, "");
+      state.ceForm.fileName = dosya.name + " — OCR ile okundu" +
+        (sonuc.kirpildi ? " (ilk " + OCR_MAX_SAYFA + " sayfa)" : "") +
+        (kayit ? ", kitaplığa eklendi" : "") + " — sayfa aralığı seçin";
+      taranmisPdfDosya = null;
+    }
+  } catch (err) {
+    state.ceForm.error = "OCR başarısız: " + String((err && err.message) || err);
+  } finally {
+    state.ceForm.ocrLoading = false;
+    state.ceForm.ocrProgress = "";
+    renderAll();
+  }
+}
+
 function pdfRangeText() {
   if (!pdfPages || !state.pdf) return "";
   const a = Math.max(1, Math.min(state.pdf.from, state.pdf.to));
@@ -1342,6 +1504,10 @@ function pdfPickerHtml() {
   const uzunluk = pdfRangeText().length;
   return '<div class="pdf-picker">' +
     '<div class="pp-head">📕 ' + escapeHtml(state.pdf.ad) + ' — <b>' + state.pdf.sayfaSayisi + ' sayfa</b></div>' +
+    (state.pdf.ocr
+      ? '<div class="pill pill-warning" style="margin-bottom:8px;">⚠️ Bu metin OCR (otomatik görüntü okuma) ile ' +
+        'çıkarıldı; yazım hataları olabilir, soru üretmeden önce gözden geçirin.</div>'
+      : "") +
     '<div class="pp-desc">Sorular hangi sayfalardan üretilsin? Tüm kitaptan değil, ' +
     'işlediğiniz bölümden soru üretmek daha isabetli sonuç verir.</div>' +
     '<div class="pp-row">' +
@@ -2366,18 +2532,19 @@ function ceCreateHtml() {
       : "") + '</div>' +
     '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
     '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
-    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
+    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">' +
     '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
     (state.ceForm.pdfLoading
-      ? '<div class="dz-spin"></div><div class="dz-title">PDF okunuyor…</div>' +
-        '<div class="dz-sub">Sayfalar çıkarılıyor, bu birkaç saniye sürebilir.</div>'
+      ? '<div class="dz-spin"></div><div class="dz-title">Dosya okunuyor…</div>' +
+        '<div class="dz-sub">İçerik çıkarılıyor, bu birkaç saniye sürebilir.</div>'
       : '<div class="dz-icon">📄</div>' +
         '<div class="dz-title">Dosyayı buraya sürükleyin<span class="dz-or"> veya </span>' +
         '<button class="dz-browse" id="btnUpload" type="button">bilgisayarınızdan seçin</button></div>' +
-        '<div class="dz-sub">PDF · TXT · MD — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
+        '<div class="dz-sub">PDF · TXT · MD · DOCX — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
         'PDF\'ler kitaplığa kaydedilir; aynı dosyayı tekrar yüklemeniz gerekmez.</div>' +
         (state.ceForm.fileName ? '<div class="dz-file">✓ ' + escapeHtml(state.ceForm.fileName) + '</div>' : "")) +
     '</div>' +
+    ocrOneriHtml() +
     pdfPickerHtml() +
     kitaplikHtml() +
     '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
@@ -2520,6 +2687,8 @@ function renderContentExpert() {
   if (pt) pt.onchange = function (e) { state.pdf.to = Math.max(1, Math.min(state.pdf.sayfaSayisi, Number(e.target.value) || 1)); renderAll(); };
   const pa = document.getElementById("btnApplyPdf");
   if (pa) pa.onclick = applyPdfRange;
+  const runOcr = document.getElementById("btnRunOcr");
+  if (runOcr) runOcr.onclick = runOcrOnScannedPdf;
   const pc = document.getElementById("btnClearPdf");
   // "PDF'i kaldır" yalnızca AÇIK olan kitabı kapatır; kitaplıktan SİLMEZ.
   // Silme işlemi kitaplık listesindeki × düğmesindedir ve onay ister.
@@ -2529,7 +2698,33 @@ function renderContentExpert() {
   fileEl.onchange = async function () {
     const f = fileEl.files && fileEl.files[0];
     if (!f) return;
+    // Yeni bir dosya seçimi eski "taranmış PDF" OCR teklifini geçersiz kılar.
+    taranmisPdfDosya = null;
     if (f.size > 25 * 1024 * 1024) { state.ceForm.error = "Dosya çok büyük (en fazla 25 MB)."; renderAll(); return; }
+
+    // --- DOCX yolu ---
+    if (/\.docx$/i.test(f.name) || f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      state.ceForm.pdfLoading = true; state.ceForm.error = ""; renderAll();
+      try {
+        const metin = await extractDocx(f);
+        if (!metin) {
+          state.ceForm.error = "Bu Word belgesinde metin bulunamadı. Belge boş olabilir ya da yalnızca " +
+            "görsel/tablo içeriyor olabilir.";
+        } else {
+          state.ceForm.text = metin.slice(0, 6000);
+          state.ceForm.fileName = f.name + (metin.length > 6000 ? " — ilk 6000 karakter alındı" : " yüklendi");
+          if (!state.ceForm.title) state.ceForm.title = f.name.replace(/\.docx$/i, "");
+        }
+      } catch (err) {
+        state.ceForm.error = "Word belgesi okunamadı: " + String((err && err.message) || err) +
+          ". Metni kopyalayıp doğrudan yapıştırabilirsiniz.";
+      } finally {
+        state.ceForm.pdfLoading = false;
+        fileEl.value = "";
+        renderAll();
+      }
+      return;
+    }
 
     // --- PDF yolu ---
     if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") {
@@ -2538,9 +2733,11 @@ function renderContentExpert() {
         pdfPages = await extractPdf(f);
         const doluSayfa = pdfPages.filter(function (s) { return s.text.length > 20; }).length;
         if (!doluSayfa) {
+          const sayfaSayisi = pdfPages.length;
           state.pdf = null; pdfPages = null;
+          taranmisPdfDosya = { file: f, sayfaSayisi: sayfaSayisi };
           state.ceForm.error = "Bu PDF'te metin katmanı bulunamadı — taranmış görüntü olabilir. " +
-            "Böyle dosyalar için metni kopyalayıp aşağıya yapıştırın.";
+            "Aşağıdaki “OCR ile Dene” düğmesiyle sayfaları otomatik okutabilir ya da metni kopyalayıp yapıştırabilirsiniz.";
         } else {
           // Kitaplığa yaz: öğretmen aynı PDF'i her oturumda yeniden
           // yüklemek zorunda kalmasın. Başarısız olursa kitapligaEkle null
@@ -6973,7 +7170,8 @@ function wireSync() {
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
-    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync"
+    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync",
+    "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
