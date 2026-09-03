@@ -147,7 +147,12 @@
   .pipeline .seg { display: flex; align-items: center; gap: 6px; }
   .pipeline .bar { width: 20px; height: 1px; background: var(--on-bg-line); }
 
-  .role-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  /* 5 rol oldu (Veli eklendi, §28f) — 4 sabit sütun bırakıldığında beşinci
+     kart tek başına, sola yaslı bir sonraki satırda "unutulmuş" gibi
+     duruyordu (kullanıcı: "veli neden tek başına orda öylece duruyor").
+     Masaüstünde 5 eşit sütun satırı tam doldurur; dar ekranlarda son kart
+     tam genişliğe alınıp ORTALANMIŞ görünür (aşağıdaki breakpoint'ler). */
+  .role-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .role-btn {
     position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
     padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
@@ -701,6 +706,7 @@
   @media (max-width: 760px) {
     .grid-2 { grid-template-columns: 1fr; }
     .role-nav { grid-template-columns: repeat(2, 1fr); }
+    .role-nav .role-btn:last-child { grid-column: 1 / -1; }
     .eval-grid { grid-template-columns: 1fr; }
 
     /* --- Mobil uyum turu (26 Ağustos) — 375 px'de ölçülerek düzeltildi --- */
@@ -770,6 +776,7 @@
   /* Çok dar ekranlar (küçük telefonlar): rol seçici tek kolona iner. */
   @media (max-width: 430px) {
     .role-nav { grid-template-columns: 1fr; }
+    .role-nav .role-btn:last-child { grid-column: auto; }
   }
 
   .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--on-bg-muted); }
@@ -1227,20 +1234,30 @@
 }
 .es-actions .btn { flex: 1 1 auto; }
 
-/* Veli panelindeki simülasyon seçici (§28f). Kimlik doğrulama olmadığı için
-   var olan bir araçtır; velinin gerçek görünümünden ayrılsın diye katlanır
-   ve soluk gösterilir. Bağımsız sınıf (§6.3-2): kendi zeminini taşır. */
-.sim-secici {
-  margin-top: 10px;
-  padding: 8px 10px;
-  border: 1px dashed var(--border-strong);
-  border-radius: 8px;
+
+/* ==========================================================================
+   SINIF YÖNETİMİ (§28q) — öğretmen kendi sınıfını elle kurar.
+   Beyaz kart içinde (--text ailesi). Bağımsız sınıf (§6.3-2).
+   ========================================================================== */
+.sy-liste { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.sy-satir {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px;
   background: var(--surface-2);
-  color: var(--text);
 }
-.sim-secici > summary {
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-muted);
+.sy-satir .sy-ad { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sy-satir .icon-btn { flex: none; }
+.sy-ekle { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sy-input {
+  padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px;
+  background: var(--surface); color: var(--text); font-size: 13px; flex: 1 1 180px; min-width: 120px;
 }
+.sy-input-sm { flex: 0 1 110px; min-width: 90px; }
+.sy-hata { margin-top: 8px; color: var(--critical); font-size: 12.5px; font-weight: 600; }
+.sy-ornek-uyari {
+  margin-bottom: 10px; padding: 8px 10px; border: 1px dashed var(--border-strong);
+  border-radius: 8px; background: var(--surface-2); color: var(--text-muted);
+  font-size: 12.5px; line-height: 1.6;
+}
+.sy-ornek-uyari .btn { margin-top: 6px; }

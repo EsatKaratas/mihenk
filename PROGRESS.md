@@ -4082,6 +4082,114 @@ bağlı olduğu için bu dal pratikte hiç tetiklenmiyor.
 `colophon` metni ve `privacy-policy.html`'deki "şeritteki" ifadeleri yeni
 yerleşimi yansıtacak şekilde güncellendi (artık "sınıf kodu çipi").
 
+### 28q. SINIF YÖNETİMİ + DERS KÜTÜPHANESİ + DÜZEN + DİL TEMİZLİĞİ (3 Eylül, dördüncü tur)
+
+Kullanıcı önceki turun (§28p) tasarımını **beğenmedi** ve dört ayrı sorun
+bildirdi:
+1. "Öğretmen kendi sınıfını kendi eliyle oluştursun."
+2. "Kendi ders oluşturabilsin. Ders notlarını oraya ekler, orada kayıtlı durur."
+3. "5 panelin duruşlarını sevmedim, Veli neden tek başına duruyor."
+4. "'Simülasyon' yazısı saçma, 'başka bir cihazdaysanız' kısmı da saçma —
+   sen amaçtan sapmışsın."
+
+Dördü de ele alındı.
+
+**1. Sınıf Yönetimi — yeni bölüm, Öğretmen sekmesinin en üstünde.**
+`sinifYonetimHtml()` / `wireSinifYonetim()`: öğrenci ekle (ad + serbest sınıf
+adı), öğrenci çıkar (× düğmesi). Silme, o öğrencinin gönderilmiş/onaylanmış
+bir yanıtı varsa **uyarır** (`ogrenciSilGuard`) ama silmez, yalnızca
+bilgilendirir. Sınıf kodu artık ayrı bir "senkron" kavramı değil, bu kartın
+doğal bir parçası (§28p'deki `examSwitcherHtml`'den buraya taşındı).
+
+**2. Ders Kütüphanesi — mevcut Kitaplık altyapısı genişletildi.**
+Yeni özellik icat edilmedi: proje zaten "PDF yükle → kalıcı kitaplığa
+kaydet → tekrar aç" akışına sahipti (IndexedDB, test edilmiş,
+`kitapligaEkle`/`kitapAc`/`kitapKaldir`). Eksik olan, **yapıştırılan/yazılan
+metnin** bu akışa hiç girmemesiydi. `kaynakKitapligaKaydet()` eklendi:
+yapıştırılan metni "1 sayfalık kitap" olarak, Başlık alanındaki adla
+kaydeder. Aynı `kitapAc`/`kitapKaldir` ile yeniden açılabilir, silinebilir.
+
+> 🔴 **KENDİ HATAMI YAZARKEN BULDUM VE DÜZELTTİM.** İlk yazımda fonksiyonu
+> `function kitapAc(id) {` metninin YERİNE eklerken, gerçekte dosyada
+> `async function kitapAc(id) {` vardı — değiştirme yalnızca `function
+> kitapAc(id) {` alt dizesini hedef aldığı için baştaki `async ` kelimesi
+> YERİNDE KALDI ve sonuç `async /** yorum */ async function
+> kaynakKitapligaKaydet() {...}` oldu. Bu JavaScript'te SÖZDİZİMİ olarak
+> geçerlidir (ASI tek başına duran `async`'i bağımsız bir ifade sayar) ama
+> **çalışma zamanında `ReferenceError: async is not defined` fırlatır** —
+> `node --check` bunu YAKALAMAZ, yalnızca tarayıcıda açılınca ortaya çıkar
+> (§6.3-19'un tam bir örneği daha). Tarayıcıda ilk açılışta konsol
+> incelenirken fark edildi, düzeltildi. **Ders: bir fonksiyon imzasının
+> hemen ÖNCESİNE ekleme yaparken `eski` dizgede `async` varsa onu da dahil
+> et — alt dize eşleşmesi öneki sessizce arkada bırakabilir.**
+
+**3. 5 rol düzeni — CSS grid.**
+`repeat(4,1fr)` → `repeat(5,1fr)`: masaüstünde 5 kart tek satırda, eşit
+genişlikte (ölçüldü: 226px × 5, aynı `top`). 431-760px aralığında (2 sütun)
+son kart `grid-column:1/-1` ile tam genişlik alır — "yalnız kalma" hissi
+gitti, kapanış satırı gibi görünür. 430px altında zaten tek sütun (mevcut
+davranış), sorun hiç oluşmuyor.
+
+**4. "Simülasyon" dili kaldırıldı.**
+Veli panelindeki `<details>Simülasyon aracı — hangi veli olarak
+bakılıyor?</details>` kaldırıldı; yerine öğrenci tarafındaki
+`.student-picker` ile AYNI görünen sade bir seçici geldi ("Görüntülenen
+veli" + isim düğmeleri). Kimlik doğrulama sınırı **tamamen gizlenmedi**
+(dürüstlük ilkesi) ama özür diler `<details>` yerine tek satırlık, sade bir
+not oldu: *"Gerçek sürümde veli yalnızca kendi hesabıyla giriş yapar."*
+
+Ayrıca öğretmen/öğrenci tarafındaki kod paylaşım metinleri sadeleştirildi:
+- Öğretmen: *"Öğrenciler başka bir cihazdan mı girecek?"* → *"Sınıfınız şu
+  anda yalnızca bu cihazda. Öğrenciler kendi telefonlarından girecekse bir
+  kod oluşturun."*
+- Öğrenci/veli: *"Başka bir cihazdaysanız: öğretmeninizin verdiği kodu
+  girin…"* → *"Sınıf kodunuz varsa girin:"*
+
+**Ek olarak bulunan gerçek hata — kendi kodumda, dün eklediğim senkron
+paketinde.** `syncPaket()`'in öğrenci listesi yalnızca `{id, name, demo}`
+taşıyordu, **`sinif` alanı eksikti.** Cihazlar arası testte ölçüldü: A
+cihazında "Ali Veli (8-A)" olan öğrenci, B cihazına "Ali Veli (undefined)"
+olarak geliyordu. `sinif` alanı pakete eklendi ve düzeltme doğrulandı.
+
+**Varsayılan liste sorunu — küçük bir kullanılabilirlik notu eklendi.**
+`ensureStudents()` boş bir `state.students`'ta VARSAYILAN_OGRENCILER'i
+(BIES takımı, 4 kişi) otomatik ekliyor — bu davranış korunuyor (kaldırmak
+onlarca "en az 1 öğrenci var" varsayımını riske atardı, regresyon riski
+yüksek). Bunun yerine `varsayilanListeMi()` eklendi: liste HÂLÂ tamamen
+varsayılansa "Bu örnek bir liste — tek tıkla temizleyebilirsiniz" ipucu ve
+`btnOrnekTemizle` düğmesi görünür.
+
+**Ölçüldü (yerel dev, tarayıcı):**
+
+| Test | Sonuç |
+|---|---|
+| Sıfırdan sınıf kurma | 0 öğrenciden başlanıp iki öğrenci eklendi, ekranda göründü |
+| Sınıf önerisi | ikinci ekleme, son girilen sınıf adını hatırlıyor |
+| Boş ad reddi | "Öğrenci adı boş olamaz.", eklenmedi |
+| **Silme guard — aktif öğrenci** | `state.examStatus='graded'` iken silme onayına uyarı eklendi |
+| **Silme guard — pasif öğrenci** | kayıttaki `sessions[id].examStatus` okunarak uyarı eklendi |
+| Örnek liste temizleme | 4→0, düğme kayboldu |
+| Kitaplığa kaydet — kısa metin | düğme hiç görünmüyor (<30 karakter) |
+| Kitaplığa kaydet — uzun metin + başlık | kaydedildi, kitaplıkta 1 kayıt |
+| **Kalıcılık** | sayfa yenilendi (localStorage silinmeden), kayıt kitaplıkta duruyordu |
+| Kitabı yeniden aç | `kitapAc` çalıştı, "Bu sayfaları kullan" ile forma geri geldi |
+| **Cihazlar arası — sınıf etiketi** | A'da "8-A" → düzeltmeden önce B'de "undefined" → düzeltmeden sonra B'de doğru "8-A" |
+| 5 rol masaüstü 1280px | tek satır, 5×226px |
+| 2 sütun (600px) | son kart tam genişlik, ortalanmış |
+| Mobil 375px | tek sütun (zaten öyleydi), taşma 0 |
+| 5 rol + 4 öğretmen sekmesi × masaüstü/mobil | taşma **0** (ilk ölçüm panel gizliyken yapılmıştı, hatalıydı — öne alıp tekrar ölçüldü) |
+| Kontrast (öğretmen paneli + rol navigasyonu, 101 öğe) | ihlal **0**, en düşük 4,59:1 |
+| Konsol hatası | **0** (async düzeltmesinden sonra) |
+| Öz-kontrol | 203 → **208 ad**, eksik **0** |
+| `npm run lint` · `npm test` | temiz · **133/133** |
+
+**Bir ölçüm kusurum daha oldu, düzeltip devam edildi (§6.5):** öğrenci
+silme guard testinde ilk kurulumda "kayit.sessions[id].examStatus" doğrudan
+değiştirdim ama AKTİF öğrencinin durumu `state.examStatus`'tan okunuyor
+(mimari gereği, §3.2) — testim yanlış alanı değiştirmişti, guard "çalışmadı"
+gibi göründü. Doğru alanı değiştirince guard'ın hem aktif hem pasif
+öğrenci için doğru çalıştığı doğrulandı.
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).

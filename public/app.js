@@ -1498,6 +1498,23 @@ async function kitapligaEkle(dosyaAdi, sayfalar) {
   return kayit;
 }
 
+/** Yapıştırılan/yazılan metni Başlık alanındaki adla kitaplığa kaydeder. */
+async function kaynakKitapligaKaydet() {
+  var metin = String(state.ceForm.text || "").trim();
+  if (metin.length < 30) {
+    state.ceForm.error = "Kitaplığa kaydetmek için en az 30 karakterlik bir metin girin.";
+    renderAll(); return;
+  }
+  var ad = String(state.ceForm.title || "").trim();
+  if (!ad) {
+    state.ceForm.error = "Kitaplığa kaydetmeden önce yukarıya bir başlık yazın (kitabın adı olacak).";
+    renderAll(); return;
+  }
+  state.ceForm.error = "";
+  await kitapligaEkle(ad, [{ text: metin }]);
+  renderAll();
+}
+
 /** Kitaplıktaki bir kitabı açar: sayfa metinlerini belleğe alır, seçiciyi gösterir. */
 async function kitapAc(id) {
   var kayit = kitapBul(id);
@@ -2365,6 +2382,15 @@ function ceCreateHtml() {
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
       : "") + '</div>' +
     '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
+    /* §28q: "öğretmen kendi ders oluşturabilsin, notlar kayıtlı dursun." Bu
+       düğüm mevcut Kitaplık altyapısını (IndexedDB, kalıcı, ad+tarih+boyutla
+       listelenen) YAPIŞTIRILAN METNE de açar — eskiden yalnızca YÜKLENEN
+       PDF'ler kaydediliyordu. Metni "1 sayfalık kitap" olarak kaydeder;
+       kitapAc()/kitapKaldir() birebir aynı akışla çalışır. */
+    (state.ceForm.text.trim().length >= 30
+      ? '<button class="btn btn-secondary btn-sm" id="btnKaynakKaydet" type="button" ' +
+        'title="Bu metni adlandırıp kitaplığa kaydet — bir daha yazmadan tekrar açabilirsiniz">📚 Kitaplığa kaydet</button>'
+      : "") +
     '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
     '<input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
     '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
@@ -2441,6 +2467,8 @@ function renderContentExpert() {
   const rd = document.getElementById("btnRemedialDismiss");
   if (rd) rd.onclick = function () { state.remedial = null; renderAll(); };
   document.getElementById("btnGenerate").onclick = onGenerateQuestions;
+  var kks = document.getElementById("btnKaynakKaydet");
+  if (kks) kks.onclick = kaynakKitapligaKaydet;
   wireAlignment();
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
   const subEl = document.getElementById("ceSubject");
@@ -2954,6 +2982,107 @@ function examStatusPill(st, sessionStatus) {
   return '<span class="pill pill-accent">Yayında</span>';
 }
 
+/* ==================== SINIF YÖNETİMİ (§28q) ====================
+   Kullanıcı: "öğretmen kendi sınıfını kendi eliyle oluştursun." Eskiden
+   öğrenci listesi yalnızca VARSAYILAN_OGRENCILER (BIES takımı, demo amaçlı)
+   ile geliyordu; öğretmenin kendi gerçek listesini girecek hiçbir yer yoktu.
+   Bu bölüm onu ekler: serbest sınıf adıyla öğrenci ekleme/çıkarma.
+
+   SINIF KODU DA BURAYA TAŞINDI — ayrı bir "senkron" kavramı olarak değil,
+   sınıfın doğal bir parçası olarak (kullanıcı: "başka bi cihazdaysınız
+   kısmı saçma, amaçtan sapmışsın"). Kart tek bir soru cevaplıyor:
+   "sınıfım kim, kodu ne." */
+
+/** O öğrencinin herhangi bir sınavda gönderilmiş/onaylanmış yanıtı var mı?
+ *  Silme onayında uyarı için — veriyi SİLMEZ, yalnızca bilgilendirir. */
+function ogrenciSilGuard(id) {
+  return (state.exams || []).some(function (kayit) {
+    var canli = kayit.id === state.activeExamId;
+    var durum = (canli && String(id) === String(state.activeStudentId))
+      ? state.examStatus
+      : (((kayit.sessions || {})[id] || {}).examStatus || "not_started");
+    return durum === "submitted" || durum === "graded";
+  });
+}
+
+/** Öğretmen hiç dokunmadıysa liste hâlâ VARSAYILAN_OGRENCILER'in (takım
+ *  isimleri) aynısı mı? Öyleyse "bu örnektir" ipucu + tek tık temizleme
+ *  gösterilir — §28q: kullanıcı kendi sınıfını kurarken 4 sahte isimle
+ *  uğraşmak zorunda kalmasın. */
+function varsayilanListeMi() {
+  var ogr = state.students || [];
+  if (!ogr.length) return false;
+  var adlar = VARSAYILAN_OGRENCILER.map(function (o) { return o.name; });
+  return ogr.every(function (o) { return adlar.indexOf(o.name) !== -1; });
+}
+
+function sinifYonetimHtml() {
+  var ogrenciler = (state.students || []).slice().sort(function (a, b) {
+    return (a.sinif || "").localeCompare(b.sinif || "") || a.name.localeCompare(b.name, "tr");
+  });
+  return '<div class="card sinif-yonetim"><div class="card-head"><h3>Sınıfım</h3>' +
+    '<span class="hint">' + ogrenciler.length + ' öğrenci</span></div>' +
+    (varsayilanListeMi()
+      ? '<div class="sy-ornek-uyari">Bu örnek bir liste (takım üyelerinin adları). Kendi ' +
+        'sınıfınızı eklerken tek tıkla temizleyebilirsiniz. ' +
+        '<button class="btn btn-secondary btn-sm" id="btnOrnekTemizle">Örnek listeyi temizle</button></div>'
+      : "") +
+    (ogrenciler.length
+      ? '<div class="sy-liste">' + ogrenciler.map(function (o) {
+          return '<div class="sy-satir"><span class="sy-ad">' + escapeHtml(o.name) + '</span>' +
+            (o.sinif ? '<span class="pill pill-neutral">' + escapeHtml(o.sinif) + '</span>' : "") +
+            (o.demo ? '<span class="pill pill-warning">örnek</span>' : "") +
+            '<button class="icon-btn" data-ogrenci-sil="' + o.id + '" title="Öğrenciyi çıkar" aria-label="' +
+            escapeHtml(o.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
+        }).join("") + '</div>'
+      : '<div class="empty-state">Henüz öğrenci eklenmedi.</div>') +
+    '<div class="sy-ekle">' +
+    '<input id="syAd" class="sy-input" placeholder="Öğrenci adı" maxlength="60">' +
+    '<input id="sySinif" class="sy-input sy-input-sm" placeholder="Sınıf, ör. 7-A" maxlength="20" value="' +
+    escapeHtml((ogrenciler[ogrenciler.length - 1] || {}).sinif || "") + '">' +
+    '<button class="btn btn-secondary btn-sm" id="btnOgrenciEkle">+ Öğrenci ekle</button></div>' +
+    (state.sy && state.sy.hata ? '<div class="sy-hata">' + escapeHtml(state.sy.hata) + '</div>' : "") +
+    syncShareLineHtml() +
+    '</div>';
+}
+
+function wireSinifYonetim() {
+  var temizle = document.getElementById("btnOrnekTemizle");
+  if (temizle) temizle.onclick = function () {
+    if (!confirm("Örnek öğrenci listesi (" + state.students.length + " kişi) çıkarılacak. Devam edilsin mi?")) return;
+    state.students = [];
+    state.activeStudentId = null;
+    saveState(); renderAll(); syncOtomatik();
+  };
+  document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
+    b.onclick = function () {
+      var id = Number(b.dataset.ogrenciSil);
+      var o = (state.students || []).find(function (x) { return x.id === id; });
+      if (!o) return;
+      var uyari = "“" + o.name + "” sınıftan çıkarılacak.";
+      if (ogrenciSilGuard(id)) uyari += " Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; " +
+        "çıkarırsanız kayıtlar isimsiz kalır (silinmez).";
+      if (!confirm(uyari + " Devam edilsin mi?")) return;
+      state.students = state.students.filter(function (x) { return x.id !== id; });
+      state.activeStudentId = state.students.length ? state.students[0].id : null;
+      saveState(); renderAll(); syncOtomatik();
+    };
+  });
+  var ekle = document.getElementById("btnOgrenciEkle");
+  if (ekle) ekle.onclick = function () {
+    var ad = String((document.getElementById("syAd") || {}).value || "").trim();
+    var sinif = String((document.getElementById("sySinif") || {}).value || "").trim();
+    state.sy = state.sy || {};
+    if (!ad) { state.sy.hata = "Öğrenci adı boş olamaz."; renderAll(); return; }
+    state.sy.hata = "";
+    state.students = state.students || [];
+    state.students.push({ id: studentIdSeq++, name: ad, sinif: sinif || "7-A", demo: false });
+    if (state.activeStudentId == null) state.activeStudentId = state.students[state.students.length - 1].id;
+    saveState(); renderAll(); syncOtomatik();
+  };
+  wireSyncShareLine();
+}
+
 function examSwitcherHtml() {
   return '<div class="exam-switcher"><div class="es-head">Sınavlarım <span class="lbl-hint">' +
     state.exams.length + ' sınav</span></div><div class="es-list">' +
@@ -2978,9 +3107,7 @@ function examSwitcherHtml() {
       : "") +
     '<button class="btn btn-secondary btn-sm" id="btnDelExam">' +
     (state.exam.status === "published" ? "Bu sınavı sil" : "Bu taslağı sil") + '</button>' +
-    '</div>' +
-    syncShareLineHtml() +
-    '</div>';
+    '</div></div>';
 }
 
 function wireExamSwitcher() {
@@ -2993,7 +3120,6 @@ function wireExamSwitcher() {
   if (db) db.onclick = function () { deleteExam(state.activeExamId); };
   const ub = document.getElementById("btnUnpublishExam");
   if (ub) ub.onclick = function () { unpublishExam(state.activeExamId); };
-  wireSyncShareLine();
 }
 
 /* ============================== Öğretmen ============================== */
@@ -3329,7 +3455,7 @@ function teacherTab1Html() {
   const yayinda = state.exam.status === "published";
   const locked = yayinda && katilim.baslayan > 0;
   const soruKilidi = yayinda;
-  return examSwitcherHtml() + '<div class="grid-2">' +
+  return sinifYonetimHtml() + examSwitcherHtml() + '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
     (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
     poolFilterHtml() +
@@ -3391,6 +3517,7 @@ function teacherTab1Html() {
 }
 
 function wireTeacherTab1() {
+  wireSinifYonetim();
   wireExamSwitcher();
   wireRejectedPool();
   // Boş durumdaki yönlendirme düğmeleri.
@@ -6242,29 +6369,24 @@ function renderParent() {
     return;
   }
 
-  /* 🔴 ÇOCUK SEÇİCİ KATLANMIŞTIR — sebebi ölçüldü.
-     Seçici açıkta olduğunda panelde SINIFIN TÜM ADLARI görünüyordu; bu,
-     "veli başka öğrencinin bilgisini görmesin" kuralının ruhuna aykırıdır.
-     Seçici bir VELİ ARACI DEĞİL, kimlik doğrulama olmadığı için var olan bir
-     SİMÜLASYON ARACIDIR; bu yüzden <details> içine alındı ve öyle etiketlendi.
-     Velinin gerçekte gördüğü ekranda yalnızca kendi çocuğunun adı geçer.
-     (Aynı katlama idiyomu §25e'de uyum panelinde de kullanıldı.) */
-  const secici = '<div class="card"><div class="card-head"><h3>Veli Görünümü</h3>' +
-    '<span class="pill pill-success">' + escapeHtml(cocuk.name || "Öğrenci") + '</span></div>' +
+  /* 🔴 "SİMÜLASYON" DİLİ KALDIRILDI (3 Eylül, üçüncü tur — kullanıcı: "simülasyon
+     yazısı saçma onu kaldır"). Katlama korunuyor ama artık özür diler bir
+     <details> değil; öğrenci tarafındaki `.student-picker` ile AYNI görünen
+     sade bir seçicidir (§6.3-2 tutarlılığı). Diğer öğrencilerin adı yine de
+     yalnızca bu seçicide görünür — sonuç kartlarında hiç geçmez. */
+  const secici = '<div class="card"><div class="card-head"><h3>Veli Görünümü</h3></div>' +
     '<p class="lbl-hint" style="margin-top:0;">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar ' +
     'görünür. Yapay zekânın ham puan önerileri veliye gösterilmez. ' +
     '<b>Diğer öğrencilerin bilgileri, sınıf ortalaması ve sıralama bu ekranda yer almaz.</b></p>' +
-    '<details class="sim-secici"><summary>Simülasyon aracı — hangi veli olarak bakılıyor?</summary>' +
-    '<div class="field" style="margin-top:8px;"><label>Çocuk seçimi (yalnızca prototip)</label>' +
-    '<select id="veliCocuk">' +
-    (state.students || []).map(function (o) {
-      return '<option value="' + o.id + '"' + (o.id === cocuk.id ? " selected" : "") + '>' +
-        escapeHtml(o.name || ("#" + o.id)) + '</option>';
-    }).join("") + '</select>' +
-    '<span class="field-note">Bu prototipte kimlik doğrulama yoktur, bu yüzden çocuk elle seçilir. ' +
-    'Gerçek sürümde veli hesabıyla doğrulanır ve <b>yalnızca kendi çocuğunu</b> görebilir; ' +
-    'bu liste orada hiç bulunmaz.</span></div></details></div>' +
-    '';
+    ((state.students || []).length > 1
+      ? '<div class="student-picker"><span class="sp-label">Görüntülenen veli</span>' +
+        state.students.map(function (o) {
+          return '<button class="sp-btn ' + (o.id === cocuk.id ? "active" : "") + '" data-vid="' + o.id + '">' +
+            escapeHtml(o.name || ("#" + o.id)) + '</button>';
+        }).join("") + '</div>' +
+        '<div class="lbl-hint" style="margin-top:6px;">Gerçek sürümde veli yalnızca kendi hesabıyla ' +
+        'giriş yapar ve bu seçici hiç görünmez.</div>'
+      : "") + '</div>';
 
   const sonuclar = veliSonuclari(cocuk.id);
   if (!sonuclar.length) {
@@ -6335,8 +6457,9 @@ function renderParent() {
 }
 
 function wireParent() {
-  const s = document.getElementById("veliCocuk");
-  if (s) s.onchange = function () { state.parentStudentId = Number(s.value); saveState(); renderAll(); };
+  document.querySelectorAll('[data-vid]').forEach(function (b) {
+    b.onclick = function () { state.parentStudentId = Number(b.dataset.vid); saveState(); renderAll(); };
+  });
   wireSyncJoin();
 }
 
@@ -6721,7 +6844,11 @@ function syncPaket() {
         startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit)
       },
       questions: sorular, rubrics: rubrikler, sources: kaynaklar,
-      students: (state.students || []).map(function (o) { return { id: o.id, name: o.name, demo: !!o.demo }; })
+      /* 🔴 `sinif` BURADA EKSİKTİ (§28q'da bulundu). Sonucu ölçüldü: başka
+         cihazdan katılınca öğrenci sınıf etiketi kayboluyordu ("Ali Veli
+         (undefined)"). Öğretmenin §28q'da eklediği "kendi eliyle sınıf kur"
+         özelliği bu alan olmadan cihazlar arasında anlamsızlaşırdı. */
+      students: (state.students || []).map(function (o) { return { id: o.id, name: o.name, sinif: o.sinif || "", demo: !!o.demo }; })
     })
   };
 
@@ -6953,12 +7080,14 @@ function syncShareLineHtml() {
   if (syncDurum().ready === false) return "";   // sunucu bağlı değilse hiç gösterme
   if (state.syncRoom) {
     return '<div class="sync-share sync-share-active">' +
-      "<span>Öğrencilere verilecek kod: <b class=\"sync-code\">" + escapeHtml(state.syncRoom) + "</b></span>" +
+      "<span>Sınıf kodu: <b class=\"sync-code\">" + escapeHtml(state.syncRoom) + "</b> — " +
+      "öğrencilere verin, sınavları ve sonuçları bu cihazla paylaşsın.</span>" +
       '<button class="btn btn-secondary btn-sm" id="btnSyncKopyala">Kopyala</button></div>';
   }
   return '<div class="sync-share">' +
-    "<span>Öğrenciler başka bir cihazdan mı girecek?</span>" +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncPaylasKod">Paylaşılacak kod oluştur</button></div>';
+    "<span>Sınıfınız şu anda yalnızca bu cihazda. Öğrenciler kendi telefonlarından " +
+    "girecekse bir kod oluşturun.</span>" +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPaylasKod">Sınıf kodu oluştur</button></div>';
 }
 
 function wireSyncShareLine() {
@@ -6990,12 +7119,12 @@ function syncJoinHtml() {
   if (syncDurum().ready === false) return "";
   if (state.syncRoom) {
     return '<div class="sync-join sync-join-active">' +
-      "<span>“<b>" + escapeHtml(state.syncRoom) + "</b>” sınıfına bağlısınız. Öğretmen sınav ya da " +
+      "<span>Sınıf kodu: <b>" + escapeHtml(state.syncRoom) + "</b>. Öğretmen sınav ya da " +
       "sonuç yayınladığında burada görünecek.</span> " +
       '<button class="btn btn-secondary btn-sm" id="btnSyncJoinYenile">Şimdi kontrol et</button></div>';
   }
   return '<div class="sync-join">' +
-    "<b>Başka bir cihazdaysanız:</b> <span>öğretmeninizin verdiği kodu girin, sınavlarınız burada görünsün.</span>" +
+    "<b>Sınıf kodunuz varsa girin:</b>" +
     '<div class="sync-join-row">' +
     '<input id="syncJoinInput" class="sync-join-input" maxlength="12" placeholder="ör. 2D9543">' +
     '<button class="btn btn-primary btn-sm" id="btnSyncJoin">Gir</button></div>' +
@@ -7086,6 +7215,7 @@ setInterval(function () {
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
+    "ogrenciSilGuard", "varsayilanListeMi", "sinifYonetimHtml", "wireSinifYonetim", "kaynakKitapligaKaydet",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman",
     "syncChipHtml", "syncDetayHtml", "renderSyncChip", "syncAyrintiToggle", "wireSyncChip",
