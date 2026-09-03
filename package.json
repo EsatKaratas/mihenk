@@ -6,7 +6,7 @@
   "description": "Mihenk — Yapay zekâ önerir, öğretmen karar verir. MEB öğrenme çıktılarına dayalı soru üretimi, rubrik tabanlı açık uçlu puanlama ve kazanım analizi. T3 Vakfı Creathon — Problem 2.",
   "license": "UNLICENSED",
   "author": "Takım BIES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik",
-  "homepage": "https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev",
+  "homepage": "https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EsatKaratas/mihenk.git"

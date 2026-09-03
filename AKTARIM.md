@@ -33,7 +33,7 @@
 
 | Ne | Nerede |
 |---|---|
-| **Canlı sistem** | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
+| **Canlı sistem** | https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev  ← **birincil**<br>eski adres de çalışıyor: https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev (başvuru bu adresle yapıldı, **silinmedi**) |
 | Mimari dokümantasyonu | `/mimari` (aynı alan adında) |
 | Gizlilik / KVKK | `/privacy-policy` |
 | Depo (public) | https://github.com/EsatKaratas/mihenk |

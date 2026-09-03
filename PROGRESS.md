@@ -35,7 +35,7 @@ nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik do�
 
 | Ne | Nerede |
 |---|---|
-| Canlı sistem | https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev |
+| Canlı sistem | https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev ← birincil · eski adres https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev de çalışıyor (başvuru linki, silinmedi) |
 | GitHub (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
@@ -3872,11 +3872,82 @@ Eklenen bölümler: sınıf kodu ile senkron (kimlik doğrulama olmadığı uyar
 | Hız sınırı (gerçek uç) | 60×200 + 5×429 · ayrı IP serbest · ayrı sayaç |
 | Commit | 7 (her madde ayrı) |
 
+### 28k. CANLIYA ALMA ve ADRES (3 Eylül, 12:13-12:20)
+
+Kullanıcı onayıyla `npm run deploy:demo` çalıştırıldı. **D1 ilk kez canlıda
+bağlı** — deploy çıktısında `env.DB (olcme-db)` göründü.
+
+**§26c dersi uygulandı** ("deploy başarılı demesi yayında olduğu anlamına
+gelmez"): canlı `app.js` ölçüldü, yerelle **birebir 371.093 bayt**. Yeni
+fonksiyonlar canlıda tek tek arandı (`syncGonder`, `renderParent`,
+`riskOgrencileri`, `dikkatVeliyeOnayla`, `ogrenciCsv`, `unpublishExam`,
+`yerelDamga`, `wait-pill`) — **hepsi var**.
+
+**Canlıda ölçülen uçtan uca senkron:**
+- `/api/sync/status` → `ready: true` (D1 canlıda bağlı)
+- oda kodu üretildi → 4 oturum gönderildi → cihaz tamamen silindi → odaya
+  katılınca **3 soru + 1 sınav + 4 öğrenci geri geldi**
+- silme hakkı: `/reset` → 2 kayıt silindi, sonrasında oda boş, D1 tertemiz
+- geçersiz oda 400 · bozuk JSON 400 · bilinmeyen yol 404
+
+| Canlı kontrol | Sonuç |
+|---|---|
+| Öz-kontrol (tarayıcıda) | **197 ad**, eksik **0** |
+| 5 rol × masaüstü 1280 px | render 0 hata · yatay taşma **0** |
+| 5 rol + 7 sekme × mobil 375 px | yatay taşma **0** |
+| **Kontrast** (337 öğe, alfa harmanlamalı) | ihlal **0** · en düşük **4,59:1** |
+| Konsol hatası | **0** |
+| Statik yollar (5) | tümü 200 · bilinmeyen 404 |
+| `/api/ai/status` | `ready: true` · llama-3.3-70b · yedek tanımlı |
+
+### 28l. İKİNCİ ADRES — mihenk (§5.5'teki bekleyen karar)
+
+Kullanıcı adresin **mihenk** olmasını istedi. Wrangler'da "yeniden adlandırma"
+yoktur: yeni ad = **yeni Worker**. Bu bizim lehimize kullanıldı.
+
+```
+https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev   ← YENİ, birincil
+https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev
+                                                            ← ESKİ, SİLİNMEDİ
+```
+
+> 🔴 **ESKİ ADRES BİLİNÇLİ OLARAK CANLI BIRAKILDI.** §5.5'teki kararı veren
+> soru şuydu: *"Video / deck / KIS teslimi mevcut adresle yapıldı mı?"*
+> Yapıldı (`v1.1-basvuru`, 26 Ağustos). Eski Worker silinseydi jürinin
+> elindeki link **404** olurdu. İki Worker aynı kodu ve **aynı D1'i** sunuyor.
+
+**Ölçüldü — iki adres birebir aynı:** ikisinde de `app.js` 371.093 bayt,
+`/api/health` · `/api/sync/status` · `/api/ai/status` aynı yanıt, 5 statik
+yol 200, bilinmeyen yol 404.
+
+**Ölçüldü — aynı veritabanını paylaşıyorlar:** ESKİ adresten yazılan oda
+kaydı YENİ adresten okundu (`KPRU77` → 1 sınav + 1 oturum). Yani öğretmen
+bir linkten, öğrenci diğerinden girse bile **aynı sınıfta buluşuyorlar**.
+
+Depodaki 10 adres güncellendi: `README.md` (7), `package.json` (1) birincil
+adrese çevrildi; `AKTARIM.md` ve `PROGRESS.md` tablolarında **iki adres
+birden** ve eskisinin neden durduğu yazılı.
+
+> ⚠️ **İki Worker artık aylık faturaya birlikte giriyor.** Workers Paid taban
+> ücreti ($5/ay) değişmez, istekler ölçeklenir; demo hacminde ihmal edilebilir.
+> Yarışma sonrası ikisi de kapatılmalı.
+
+### 28m. Üç ölçüm kusuru (§6.5 — hepsi ölçüt hatası, ürün doğru)
+
+1. **Oda kodunda `I` / `O` kullandım** — üç kez. Sunucu üçünde de doğru
+   reddetti. Alfabeden çıkarılmış karakterler; ürün doğru çalışıyordu.
+2. **`app.js` 378.075 bayt** diye yazmıştım (§28i) — o ölçüm Windows satır
+   sonlarıyla (CRLF) alınmıştı. Depo LF kullanıyor; **gerçek boyut 371.093**,
+   fark tam olarak satır sayısı kadar (6.982). Satır sayısı doğruydu.
+3. **"Yatay taşma var"** — tarayıcı paneli gizliyken `innerWidth: 0` dönüyor
+   ve yerleşim ölçümleri anlamsızlaşıyor. Panel öne alınıp gerçek boyut
+   verilince taşma **0** çıktı. §6.3-18'in yakın akrabası; ölçmeden önce
+   `visibilityState` kontrol edilmeli.
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
-1. **`npm run deploy:demo` ÇALIŞTIRILMADI.** Kullanıcı push izni verdi, canlıya
-   alma izni ayrıca sorulacak. D1 bağlaması demo yapılandırmasına eklendiği için
-   ilk deploy'da `check:config` ve canlı ölçüm (§26c) şart.
+1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).
+   Kullanıcı onay verdi; canlı ölçümler §28k'dedir.
 2. **Gerçek kimlik doğrulama (Better Auth).** Oda kodu onun yerine geçmiyor,
    yerini tutuyor; bu sınır hem arayüzde hem gizlilik metninde yazılı.
 3. **Hız sınırının D1/KV'ye taşınması.** Finale iki gün kala kapsam dışı.

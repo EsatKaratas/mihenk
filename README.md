@@ -12,8 +12,8 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 
 <br/>
 
-[![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev)
-[![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)
+[![Canlı sistem](https://img.shields.io/badge/canl%C4%B1%20sistem-%C3%A7evrimi%C3%A7i-2ea44f?style=for-the-badge)](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev)
+[![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
 [![Testler](https://img.shields.io/badge/test-98%2F98-2ea44f?style=flat-square)](./test)
@@ -166,8 +166,8 @@ demoda tutulan süreyle çelişirdi.
 > doğal sonucudur. Ürün tarafındaki cevabımız **değerlendirme önbelleği**
 > (aynı yanıt tekrar puanlanmaz — 0-6 ms) ve **hazır demo senaryosudur**.
 
-Ek bağlantılar: **[mimari dokümantasyonu](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)**
-· **[KVKK aydınlatma metni](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev/privacy-policy)**
+Ek bağlantılar: **[mimari dokümantasyonu](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/mimari)**
+· **[KVKK aydınlatma metni](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev/privacy-policy)**
 
 Arayüzün üst kısmındaki rozet, o an **hangi modelin** yanıtladığını gösterir:
 birincil model, yedek sağlayıcı ya da yerel simülasyon. Bu bilinçlidir —
@@ -175,7 +175,7 @@ sistemin sessizce simülasyona düşüp gerçek yapay zekâ gibi görünmesini e
 
 ### Hemen deneyin
 
-**Kurulum gerekmez:** [canlı sistemi açın](https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev),
+**Kurulum gerekmez:** [canlı sistemi açın](https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev),
 üst çubuktaki **"Demo senaryosu"** düğmesine basın ve rol seçiciden dört rol
 arasında gezinin. Yüklenen sorular uydurma değil, modelin gerçekten ürettiği
 çıktılar; değerlendirme canlı çalışır.
@@ -193,7 +193,7 @@ npm run dev:demo      # http://localhost:8787
 Güvenlik testini kendiniz koşmak için:
 
 ```bash
-python tools/injection-test.py https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev
+python tools/injection-test.py https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev
 ```
 
 ---
@@ -648,7 +648,7 @@ yazan bir yanıta **20/20** veriyordu.
 Doğrulama tekrar koşulabilir:
 
 ```bash
-python tools/injection-test.py https://t3-olcme-degerlendirme.t3-olcme-degerlendirme-sistemi.workers.dev
+python tools/injection-test.py https://mihenk.t3-olcme-degerlendirme-sistemi.workers.dev
 ```
 
 | Saldırı vektörü | Sonuç |
