@@ -1581,19 +1581,30 @@ function kitapTarihEtiketi(ts) {
 }
 
 /** Kitaplık listesi. Tamamen senkron — yalnızca state.library'den çizilir. */
-function kitaplikHtml() {
-  ensureLibrary();
-  var uyari = kitaplikHata ? '<div class="kit-uyari">' + escapeHtml(kitaplikHata) + '</div>' : "";
-  if (!state.library.length) return uyari ? '<div class="kit-wrap">' + uyari + '</div>' : "";
+/** §28r Madde 5: ad/ders/sınıf metnine göre büyük/küçük harf duyarsız arama. */
+function kitapAramaFiltrele(liste, arama) {
+  var a = String(arama || "").trim().toLocaleLowerCase("tr");
+  if (!a) return liste;
+  return liste.filter(function (k) {
+    var metin = (k.ad + " " + (k.subject || "") + " " + (k.grade ? k.grade + ". sınıf" : ""))
+      .toLocaleLowerCase("tr");
+    return metin.indexOf(a) !== -1;
+  });
+}
 
-  var sirali = state.library.slice().sort(function (a, b) { return b.at - a.at; });
-  var toplam = state.library.reduce(function (t, k) { return t + k.karakter; }, 0);
-
-  /* §28r Madde 4: kayıt anında sabitlenen ad/ders/sınıf artık düzenlenebilir.
-     Yalnızca state.library'deki METADATA değişir; IndexedDB'deki sayfa
-     metnine dokunulmaz (o zaten hiç sabit değildi). Bir seferde en fazla bir
-     satır düzenleme modundadır (state.kitEdit). */
-  var satirlar = sirali.map(function (k) {
+/* §28r Madde 4: kayıt anında sabitlenen ad/ders/sınıf artık düzenlenebilir.
+   Yalnızca state.library'deki METADATA değişir; IndexedDB'deki sayfa metnine
+   dokunulmaz (o zaten hiç sabit değildi). Bir seferde en fazla bir satır
+   düzenleme modundadır (state.kitEdit). AYRI FONKSİYON OLMASININ SEBEBİ
+   (§28r Madde 5): arama kutusuna yazarken yalnızca bu alt-liste yeniden
+   çizilir, `renderAll()` ÇAĞRILMAZ — aksi hâlde her tuş vuruşunda tüm sayfa
+   yeniden basılır ve arama kutusundaki ODAK KAYBOLURDU (§6.3-3). */
+function kitaplikSatirlarHtml(sirali) {
+  var filtreli = kitapAramaFiltrele(sirali, state.kitArama);
+  if (!filtreli.length) {
+    return '<div class="empty-state">“' + escapeHtml(state.kitArama || "") + '” ile eşleşen kayıt yok.</div>';
+  }
+  return filtreli.map(function (k) {
     var acik = !!(state.pdf && state.pdf.kitapId === k.id);
     var etiket = [k.subject, k.grade ? k.grade + ". sınıf" : ""].filter(Boolean).join(" · ");
 
@@ -1628,16 +1639,42 @@ function kitaplikHtml() {
       escapeHtml(k.ad) + ' kitabını kitaplıktan sil">×</button>' +
       '</div></div>';
   }).join("");
+}
+
+function kitaplikHtml() {
+  ensureLibrary();
+  var uyari = kitaplikHata ? '<div class="kit-uyari">' + escapeHtml(kitaplikHata) + '</div>' : "";
+  if (!state.library.length) return uyari ? '<div class="kit-wrap">' + uyari + '</div>' : "";
+
+  var sirali = state.library.slice().sort(function (a, b) { return b.at - a.at; });
+  var toplam = state.library.reduce(function (t, k) { return t + k.karakter; }, 0);
+  // Az kayıtta arama kutusu gürültüdür; birkaç kayıttan sonra anlamlı olur.
+  var aramaKutusu = state.library.length >= 4
+    ? '<input id="kitArama" class="kit-arama" placeholder="Kitaplıkta ara (ad, ders, sınıf)…" value="' +
+      escapeHtml(state.kitArama || "") + '">'
+    : "";
 
   return '<div class="kit-wrap">' + uyari +
     '<div class="kit-bas">📚 Müfredat Kitaplığı' +
     '<span class="kit-ozet">' + state.library.length + ' kitap · ' + kitapBoyutEtiketi(toplam) + '</span></div>' +
     '<div class="kit-desc">Yüklediğiniz PDF\'ler bu tarayıcıda saklanır; her seferinde yeniden ' +
     'yüklemeniz gerekmez. Bir kitabı açıp farklı sayfa aralıklarından soru üretebilirsiniz.</div>' +
-    '<div class="kit-liste">' + satirlar + '</div></div>';
+    aramaKutusu +
+    '<div class="kit-liste" id="kitListesi">' + kitaplikSatirlarHtml(sirali) + '</div></div>';
 }
 
 function wireKitaplik() {
+  /* Arama kutusuna yazarken renderAll() ÇAĞRILMAZ — yalnızca #kitListesi
+     alt-ağacı yeniden çizilir ve içindeki düğmeler yeniden bağlanır. Kutunun
+     kendisi DOM'da aynı kalır, odak korunur (§6.3-3). */
+  var arama = document.getElementById("kitArama");
+  if (arama) arama.oninput = function () {
+    state.kitArama = arama.value;
+    var sirali = state.library.slice().sort(function (a, b) { return b.at - a.at; });
+    var liste = document.getElementById("kitListesi");
+    if (liste) liste.innerHTML = kitaplikSatirlarHtml(sirali);
+    wireKitaplik();
+  };
   document.querySelectorAll("[data-kitap]").forEach(function (b) {
     b.onclick = function () { kitapAc(b.getAttribute("data-kitap")); };
   });
@@ -7288,7 +7325,7 @@ setInterval(function () {
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
     "ensureSources", "kaynakEkle", "kaynakBul", "soruKaynakIster", "kaynakBlokHtml",
     "dbAc", "dbIslem", "kitapKaydet", "kitapYukle", "kitapSil", "ensureLibrary", "kitapBul",
-    "kitapligaEkle", "kitapAc", "kitapKaldir", "kitaplikHtml", "wireKitaplik",
+    "kitapligaEkle", "kitapAc", "kitapKaldir", "kitapAramaFiltrele", "kitaplikSatirlarHtml", "kitaplikHtml", "wireKitaplik",
     "kitapBoyutEtiketi", "kitapTarihEtiketi", "kitapligiSil", "renderDepoUyarisi",
     "feedbackDraftHtml",
     "bindFieldLabels",

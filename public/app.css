@@ -1265,3 +1265,8 @@
 .kit-duzen-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .kit-duzen-form .sy-input { flex: 1 1 160px; }
 .kit-duzen-form .sy-input-sm { flex: 0 1 110px; }
+.kit-arama {
+  display: block; width: 100%; margin: 8px 0;
+  padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px;
+  background: var(--surface); color: var(--text); font-size: 13px;
+}
