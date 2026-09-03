@@ -1021,10 +1021,20 @@ function katalogKazanimlari() {
  * Ders/sınıf değiştiğinde kataloğu arka planda yükler ve ekranı tazeler.
  * Sessiz başarısızlık YOK: yüklenemezse kazanım notu satırında yazar.
  */
-async function katalogHazirla() {
+/* Hangi katalog anahtarı için yükleme DENENDİ (başarılı ya da başarısız).
+   §28n: `katalogHazirla()` artık `renderContentExpert()` içinden de çağrılıyor,
+   yani her çizimde tetikleniyor. Hata yolunda `renderAll()` var; bu bayrak
+   olmasaydı kalıcı bir ağ hatasında "yükle → hata → renderAll → yükle"
+   sonsuz döngüsü oluşurdu. Kullanıcı ders/sınıfı ELLE değiştirdiğinde
+   `katalogHazirla(true)` ile bayrak aşılır, yani yeniden deneme mümkündür. */
+const katalogDenendi = {};
+
+async function katalogHazirla(yenidenDene) {
   const anahtar = katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
   if (!MUFREDAT_KATALOGLARI[anahtar]) { state.katalogHata = ""; return; }
   if ((state.katalog || {})[anahtar]) return;
+  if (katalogDenendi[anahtar] && !yenidenDene) return;
+  katalogDenendi[anahtar] = true;
   try {
     state.katalogHata = "";
     await katalogYukle(state.ceForm.subject, state.ceForm.grade);
@@ -2407,6 +2417,19 @@ function cePoolHtml() {
 }
 
 function renderContentExpert() {
+  /* 🔴 KATALOG GARANTİSİ (§28n — PROGRESS §27b'nin "doğru yol"u).
+     `katalogHazirla()` eskiden YALNIZCA üç yerden çağrılıyordu: ders değişimi,
+     sınıf değişimi ve açılış. `loadDemoScenario()` ders/sınıfı PROGRAMATİK
+     değiştirdiği için hiçbirine uğramıyordu; sonuç: demo senaryosu yüklenince
+     ders "Fen Bilimleri 7" oluyor ama Fen kataloğu yüklenmiyor ve seçicide
+     TEK kazanım kalıyordu (ölçüldü: 26 yerine 1).
+     Kısa yol `loadDemoScenario()` sonuna bir çağrı eklemek olurdu; ama aynı
+     hata BAŞKA bir programatik değişiklikte tekrar ederdi. Bu yüzden garanti
+     çizim noktasına konuldu: ders/sınıf hangi yoldan değişirse değişsin,
+     panel bir sonraki çizimde doğru kataloğu yükler. Yükleme başarılıysa
+     `katalogHazirla()` kendi `renderAll()`'ını çağırır; katalog artık
+     bellekte olduğu için ikinci çağrı anında geri döner — döngü yoktur. */
+  katalogHazirla();
   const root = document.getElementById("panel-content_expert");
   root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
     (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
@@ -2426,14 +2449,14 @@ function renderContentExpert() {
     // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
     outcomeSeciminiTazele();
     renderAll();
-    katalogHazirla();   // seçili ders/sınıfın MEB kazanımlarını getir
+    katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
   };
   // Ders artık <select>; serbest metin ve Enter dinleyicisi kaldırıldı.
   subEl.onchange = function (e) { dersDegisti(e.target.value); };
   document.getElementById("ceGrade").onchange = function (e) {
     state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value;
     outcomeSeciminiTazele(); saveSoon(); renderAll();
-    katalogHazirla();
+    katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
   };
   const tumKaz = document.getElementById("ceShowAllOutcomes");
   if (tumKaz) tumKaz.onclick = function () {

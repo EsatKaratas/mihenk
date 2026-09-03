@@ -3956,6 +3956,56 @@ birden** ve eskisinin neden durduğu yazılı.
    verilince taşma **0** çıktı. §6.3-18'in yakın akrabası; ölçmeden önce
    `visibilityState` kontrol edilmeli.
 
+### 28n. KAZANIM SEÇİCİ KİLİDİ — §27 MADDE 1 çözüldü (3 Eylül, 16:0x)
+
+> **İş bölümü notu:** Bu madde ekip dağılımında **Sude'ye** aitti (§27b).
+> Finale iki gün kala hâlâ duruyordu ve **demo yolunun ilk adımındaydı**:
+> mentor ya da jüri "Demo senaryosu"na bastığı anda görülecek tek görünür
+> hata buydu. Kullanıcının açık yetkisiyle ("hata görürsen sormadan düzelt")
+> yapıldı. **Sude'nin bu maddeyi tekrar yapmasına gerek yok.**
+
+**Ölçülen hata (canlı, düzeltmeden önce):**
+```
+açılışta            : Türkçe 7  → 40 kazanım   ✅
+demo senaryosu sonra: Fen 7     →  1 kazanım   ❌
+yüklü kataloglar    : ["Türkçe|7"]   ← Fen hiç yüklenmemiş
+```
+
+**Kök neden:** `katalogHazirla()` yalnızca **üç yerden** çağrılıyordu — ders
+değişimi, sınıf değişimi ve açılış. `loadDemoScenario()` `ceForm.subject` ve
+`grade`'i **programatik** değiştirdiği için hiçbirine uğramıyordu.
+
+**Seçilen çözüm — §27b'nin "doğru yol"u.** Kısa yol `loadDemoScenario()`
+sonuna bir çağrı eklemekti; ama §27b'nin kendi uyarısı şuydu: *"aynı hata
+başka bir programatik değişiklikte tekrar eder."* Bu yüzden garanti
+**çizim noktasına** kondu: `renderContentExpert()` her çizimde
+`katalogHazirla()` çağırıyor. Ders/sınıf hangi yoldan değişirse değişsin,
+panel bir sonraki çizimde doğru kataloğu yüklüyor.
+
+> 🔴 **BU DEĞİŞİKLİK BİR SONSUZ DÖNGÜ RİSKİ YARATIYORDU** ve fark edilip
+> kapatıldı. `katalogHazirla()` hata yolunda `renderAll()` çağırıyor; render
+> de `katalogHazirla()`'yı tetikleyince kalıcı bir ağ hatasında
+> **"yükle → hata → renderAll → yükle"** döngüsü oluşurdu.
+> Çözüm: `katalogDenendi` bayrağı — bir anahtar için yükleme bir kez denenir.
+> Kullanıcı ders/sınıfı **elle** değiştirdiğinde `katalogHazirla(true)`
+> çağrılır ve bayrak aşılır; yani başarısız bir yükleme kullanıcı hareketiyle
+> yeniden denenebilir, kendiliğinden değil.
+
+**Ölçüldü (yerel dev + canlı):**
+
+| Senaryo | Sonuç |
+|---|---|
+| Demo senaryosu → kazanım seçici | **1 → 26 seçenek**, `Fen Bilimleri\|7` yüklendi |
+| Boşta 3 sn bekleme | `renderAll` **+0**, `katalogHazirla` **+0** → döngü yok |
+| **Ağ hatası simülasyonu** | fetch **tam 1 kez** denendi; 4 sn boşta **0 tekrar** |
+| Ağ hatasında kullanıcıya bildirim | *"Kazanım kataloğu yüklenemedi: …"* ekranda (§6.3-5) |
+| Elle yeniden deneme (`katalogHazirla(true)`) | katalog yüklendi, hata temizlendi, 26 seçenek |
+| 5 rol regresyonu | hepsi doluyor, konsol hatası **0** |
+| Öz-kontrol | **197 ad**, eksik **0** |
+| **Canlı** (`mihenk.bies.workers.dev`) | demo sonrası **26 Fen kazanımı** seçilebilir |
+
+`npm run lint` temiz · `npm test` **133/133** · canlı `app.js` yerelle birebir.
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).
