@@ -526,7 +526,7 @@ function renderAiBadge() {
    (Kalıcı veritabanı değildir; yalnızca bu tarayıcıya özeldir.)              */
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
-  "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
+  "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
   "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
@@ -863,6 +863,10 @@ const state = {
   syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
+  // Madde 5: öğrencinin "gözden geçir" için işaretlediği sorular (qid -> true).
+  // Yanıtlanmış/yanıtlanmamış durumundan BAĞIMSIZ bir etikettir; puanlamayı
+  // hiçbir şekilde etkilemez, yalnızca öğrencinin kendi gezinmesine yardımcı olur.
+  flagged: {},
   examStatus: "not_started",
   currentQIndex: 0,
   remainingSec: 0,
@@ -2923,12 +2927,12 @@ function wireRejectedPool() {
    Bu ayrıca "önceki sınava göre gelişim" analizini mümkün kılar:
    tek sınavla kazanım trendi hesaplanamaz.                                 */
 let examIdSeq = 1;
-const OTURUM_ALANLARI = ["answers", "examStatus", "currentQIndex", "remainingSec",
+const OTURUM_ALANLARI = ["answers", "flagged", "examStatus", "currentQIndex", "remainingSec",
   "aiEvals", "reviews", "mcResults", "integrity"];
 
 function bosOturum() {
   return {
-    answers: {}, examStatus: "not_started", currentQIndex: 0, remainingSec: 0,
+    answers: {}, flagged: {}, examStatus: "not_started", currentQIndex: 0, remainingSec: 0,
     aiEvals: {}, reviews: {}, mcResults: {},
     integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                  pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] }
@@ -5358,10 +5362,27 @@ function studentTab2Html() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const q = items[state.currentQIndex];
   const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
+  const isFlagged = function (id) { return !!(state.flagged || {})[id]; };
+  // Madde 5: kalan süre görünürlüğü iki eşikli — 60 sn altı (mevcut "low",
+  // kırmızı) ve 5 dk altı (yeni "warn", uyarı rengi). Zaman hesaplama
+  // (endsAt/remainingSec) mantığına HİÇ dokunulmadı; yalnızca stil sınıfı.
+  const sureSinifi = state.remainingSec < 60 ? "low" : (state.remainingSec <= 300 ? "warn" : "");
   return integrityNoticeHtml() +
-    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
-    '<div class="qnav">' + items.map(function (it, i) { return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") + '" data-idx="' + i + '">' + (i + 1) + '</div>'; }).join("") + '</div></div>' +
-    '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span><span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span></div>' +
+    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + sureSinifi + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
+    '<div class="qnav">' + items.map(function (it, i) {
+      return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") +
+        (isFlagged(it.id) ? " flagged" : "") + '" data-idx="' + i + '" title="' +
+        (isFlagged(it.id) ? "İşaretli — gözden geçirilecek" : "") + '">' + (i + 1) +
+        (isFlagged(it.id) ? ' <span class="qnav-flag">🚩</span>' : "") + '</div>';
+    }).join("") + '</div></div>' +
+    '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
+    '<span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span>' +
+    /* Madde 5: "gözden geçir" işareti — yanıtlanma durumundan bağımsız,
+       yalnızca öğrencinin kendi gezinmesine yardımcı olur, hiçbir puanı
+       etkilemez (aynı sınav bütünlüğü kaydı gibi: bilgi amaçlı, karar
+       öğrencinin/öğretmenin). */
+    '<button class="btn btn-secondary btn-sm' + (isFlagged(q.id) ? " flag-on" : "") + '" id="btnFlagQ" type="button" title="Bu soruyu daha sonra gözden geçirmek için işaretle">' +
+    (isFlagged(q.id) ? "🚩 İşaretli" : "🏳️ İşaretle") + '</button></div>' +
     kaynakBlokHtml(q, "student") +
     '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
     '<div class="exam-footer"><div><button class="btn btn-secondary" id="btnPrevQ" ' + (state.currentQIndex === 0 ? "disabled" : "") + '>← Önceki</button> ' +
@@ -5371,6 +5392,17 @@ function studentTab2Html() {
 function wireStudentTab2() {
   // Aktif sınav yokken bu sekme sınav başlatma kartlarını gösterir.
   if (state.examStatus !== "in_progress") { wireStudentTab1(); return; }
+  // Madde 5: gözden geçirme işareti — yanıtı değiştirmez, yalnızca toggle'lar.
+  const flagBtn = document.getElementById("btnFlagQ");
+  if (flagBtn) flagBtn.onclick = function () {
+    const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+    const q = items[state.currentQIndex];
+    if (!q) return;
+    state.flagged = state.flagged || {};
+    if (state.flagged[q.id]) delete state.flagged[q.id]; else state.flagged[q.id] = true;
+    saveSoon();
+    renderAll();
+  };
   // Yapıştırma tespiti: yalnızca KAÇ KARAKTER yapıştırıldığı tutulur,
   // metnin kendisi kaydedilmez (bkz. privacy-policy.html §2).
   const oa = document.getElementById("openAnswerInput");
@@ -5956,9 +5988,21 @@ function integritySummaryHtml() {
 /* ============================== Modal ============================== */
 function finishExamModalHtml() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-  const answeredCount = items.filter(function (it) { const a = state.answers[it.id]; return a && (a.selectedKey || (a.text && a.text.trim())); }).length;
+  const answered = function (it) { const a = state.answers[it.id]; return !!a && (a.selectedKey || (a.text && a.text.trim())); };
+  const answeredCount = items.filter(answered).length;
+  // Madde 5: hangi sorular yanıtsız olduğunu NUMARAYLA göster — eskiden
+  // yalnızca "6/8" gibi bir sayı vardı, öğrenci hangi 2 soruyu atladığını
+  // bulmak için sekmeler arasında gezinmek zorundaydı. Sınav akışına
+  // (süre, kayıt, bitirme) hiç dokunulmadı; bu yalnızca bu modalın içeriği.
+  const yanitsizNo = items.map(function (it, i) { return { it: it, no: i + 1 }; })
+    .filter(function (x) { return !answered(x.it); })
+    .map(function (x) { return x.no; });
   return '<h3>Sınavı bitirmek istediğinize emin misiniz?</h3>' +
     "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladınız. Bitirdikten sonra yanıtlarınızı değiştiremezsiniz; açık uçlu yanıtlarınız AI ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
+    (yanitsizNo.length
+      ? '<p class="pill pill-warning" style="display:block;">Yanıtsız sorular: ' +
+        yanitsizNo.map(function (n) { return "#" + n; }).join(", ") + '</p>'
+      : "") +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical" id="modalConfirmFinish">Evet, Bitir</button></div>';
 }
 /* ===========================================================================

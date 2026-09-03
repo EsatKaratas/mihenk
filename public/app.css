@@ -633,13 +633,20 @@
   .timer-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
   .timer-bar .t-value { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 600; color: var(--accent-strong); }
   .timer-bar .t-value.low { color: var(--critical); }
-  .qnav { display: flex; gap: 4px; }
-  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); }
+  /* Madde 5: 5 dakika altına inince (ama henüz "low" — 60 sn — olmadan) ara bir uyarı rengi. */
+  .timer-bar .t-value.warn { color: var(--warning); }
+  .qnav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); position: relative; }
   .qnav-dot.current { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
   .qnav-dot.answered { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+  /* Madde 5: "gözden geçir" işareti — answered/current durumundan bağımsız katman. */
+  .qnav-dot.flagged { border-color: var(--warning); }
+  .qnav-dot .qnav-flag { position: absolute; top: -7px; right: -6px; font-size: 9px; line-height: 1; }
 
   .exam-viewport { padding: 20px; }
-  .exam-viewport .qv-meta { display: flex; gap: 8px; margin-bottom: 10px; }
+  .exam-viewport .qv-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .exam-viewport .qv-meta #btnFlagQ { margin-left: auto; }
+  .exam-viewport .qv-meta #btnFlagQ.flag-on { border-color: var(--warning); color: var(--warning); }
   .exam-viewport .qv-body { font-size: 16px; font-weight: 600; margin-bottom: 16px; text-wrap: balance; }
   .autosave-status { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
   .autosave-status .dot-save { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
