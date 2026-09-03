@@ -4344,6 +4344,74 @@ açıkça belirtiyor (proje `@cloudflare/vitest-pool-workers`'ı Wrangler 4
 
 Test sonrası `rate_limits`, `sync_exams`/`sync_sessions` (oda `ZZZZ`)
 hem local hem remote D1'de temizlendi.
+### 28s. BOŞ EKRAN BİRLEŞTİRİLDİ + VELİ "GİR" DÜĞMESİ ÖLÜYDÜ (3 Eylül, beşinci tur)
+
+Kullanıcı veli ekranının ekran görüntüsünü gönderip "veli kısmındaki sınıf
+kodu nedir" diye sordu; ardından "birkaç değişiklik yapılabilir, en öncelikli
+hangisiyse onu" dedi. En öncelikli olan seçildi: **boş ekranda durum ile
+çözümün birbirinden kopuk durması.**
+
+**Sorun (kozmetik değil, anlama sorunu):** Veli ekranında "sonuç henüz yok"
+mesajı BİR kartta, sınıf kodu kutusu APAYRI bir kartta duruyordu. Aralarında
+hiçbir görsel bağ yoktu — veli "yok" yazısını okuyup ne yapması gerektiğini
+anlamıyordu, çünkü çözüm ekranın başka bir yerindeydi. Bu, kullanıcının daha
+önce sınıf kodu için söylediği "ne işe yaradığını bile bilmiyorum" (§28p)
+sorununun veli tarafındaki kalıntısıydı.
+
+**Çözüm:** Yeni `bosDurumHtml(mesaj)` — boş durum artık **tek görsel birim**:
+üstte durum mesajı, ince kesik ayırıcı, altında o durumu değiştirecek tek
+eylem (kod girişi). Öğrenci ve velideki **dört** boş durumun tamamı buradan
+geçiyor, böylece ikisi bir daha ayrı düşemez. `.sync-join` kendi kart
+zeminini/çerçevesini bıraktı, `.empty-state`in devamı gibi çiziliyor (§6.3-2
+korundu: zeminini yine kendi tanımlar, kontrastı kapsayıcıya bağlı değil).
+Bağlıyken tekrar eden "…yayınladığında burada görünecek" cümlesi de kaldırıldı
+(üstteki mesaj zaten söylüyordu).
+
+**🔴 BU İŞ SIRASINDA GERÇEK BİR BUG YAKALANDI — veli "Gir" düğmesi ölüydü.**
+
+Boş durumları tararken veli panelindeki düğmenin `onclick` değerinin `null`
+olduğunu gördüm. Ölçüp doğruladım:
+
+| Ölçüm | Sonuç |
+|---|---|
+| Sayfada kaç `#btnSyncJoin` var | **2** (`panel-student` + `panel-parent`) |
+| `getElementById` hangisini buluyor | yalnızca **ilkini** (öğrencininki) |
+| Veli panelindeki düğme bağlı mı | **HAYIR** (`onclick: null`) |
+
+Kök neden: **tüm rol panelleri aynı anda DOM'a basılır**, yalnızca aktif olan
+CSS ile görünür. Katılma kutusu iki ayrı panelde birden bulunduğu için `id`
+tekilliği bozuluyordu ve `getElementById` yalnızca ilkini buluyordu. Yani
+**veli sınıf kodunu yazıp "Gir"e bastığında hiçbir şey olmuyordu** — tam da
+kullanıcının o an sorduğu ekranda. Bu, §28a'daki `.wait-pill` sayacı hatasının
+birebir aynısı (aynı id birden çok kez basılıyor).
+
+Düzeltme oradaki çözümün aynısı: `id` yerine sınıf (`.js-sync-gir`,
+`.js-sync-input`, `.js-sync-yenile`), `querySelectorAll` ile **hepsini** bağla,
+her kutu kendi girdisini `closest(".sync-join")` ile bulsun. Girdiye ayrıca
+`aria-label="Sınıf kodu"` eklendi (etiketi görsel olarak üstte duruyordu).
+
+**Ölçüldü (yerel dev, gerçek tarayıcı):**
+
+| Test | Önce | Sonra |
+|---|---|---|
+| Boş ekrandaki ayrı duran kutu sayısı | 2 kutu | **1 kutu** (tümü `.empty-state` içinde) |
+| `.js-sync-gir` düğmelerinin kaçı bağlı | 1/2 | **2/2** |
+| Aynı id'nin kaç kopyası | 2 | **0** (id kaldırıldı) |
+| Veli panelinden kod girip "Gir" | *hiçbir şey olmuyordu* | **`syncRoom` atandı, kutu "bağlı" durumuna geçti** |
+| Geçersiz kod hatası kutu içinde mi | — | ✅ evet |
+| Öğrenci sekme 1 / sekme 2 / veli(çocuk yok) / veli(sonuç yok) | — | **4/4 birleşik kutu** |
+| Mobil 375 px | — | yatay taşma **yok** (scrollW 375 = innerW 375) |
+| Sayfa yüklemesi ağ istekleri | — | **tümü 200** (app.js, app.css, müfredat, ai/status, sync/status) |
+| `npm run lint` · `npm test` | — | temiz · **133/133** |
+
+**Ölçüm kusurum (§6.5):** testin ortasında `state.exams = []` atayıp doğrulama
+yaparken `saveState()` araya girdi ve yerel demo verisi (yalnızca benim dev
+tarayıcımdaki `localStorage`) boşaldı. Canlıya ya da D1'e dokunmadı;
+`localStorage` temizlenip sayfa yenilenerek uygulamanın kendi ilk-açılış
+durumuna dönüldü ve testler oradan tamamlandı.
+
+selfCheck listesine `bosDurumHtml` eklendi.
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).

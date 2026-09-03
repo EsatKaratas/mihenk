@@ -5195,8 +5195,7 @@ function studentTab1Html() {
     return durum !== "not_started";
   });
   if (!yayindakiler.length) {
-    return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>' +
-      syncJoinHtml();
+    return bosDurumHtml("Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.");
   }
   return yayindakiler.map(function (x) {
     const c = examCardState(x);
@@ -5279,11 +5278,11 @@ function studentTab2Html() {
       return ex.status === "published" && (durum === "not_started" || durum === "in_progress") && !bekliyor && sinifUygun;
     });
     if (!hazir.length) {
-      return '<div class="card"><div class="empty-state">' +
-        (state.examStatus === "submitted" ? "Yanıtlarınız gönderildi, öğretmen onayı bekleniyor."
+      return bosDurumHtml(
+        state.examStatus === "submitted" ? "Yanıtlarınız gönderildi, öğretmen onayı bekleniyor."
           : state.examStatus === "graded" ? "Bu sınav sonuçlandı. Karnenizi 3. sekmeden görebilirsiniz."
-          : "Şu anda çözebileceğiniz bir sınav yok.") + '</div></div>' +
-        syncJoinHtml();
+          : "Şu anda çözebileceğiniz bir sınav yok."
+      );
     }
     return '<div class="card"><div class="card-head"><h3>Çözülmeyi bekleyen sınav</h3>' +
       '<span class="pill pill-success">' + hazir.length + ' sınav</span></div>' +
@@ -6479,7 +6478,7 @@ function renderParent() {
   const cocuk = veliCocugu();
 
   if (!cocuk) {
-    root.innerHTML = '<div class="card"><div class="empty-state">Henüz tanımlı bir öğrenci yok.</div></div>' + syncJoinHtml();
+    root.innerHTML = bosDurumHtml("Henüz tanımlı bir öğrenci yok.");
     wireSyncJoin();
     return;
   }
@@ -6505,9 +6504,10 @@ function renderParent() {
 
   const sonuclar = veliSonuclari(cocuk.id);
   if (!sonuclar.length) {
-    root.innerHTML = secici + '<div class="card"><div class="empty-state">' +
-      escapeHtml(cocuk.name || "Öğrenci") + ' için öğretmen onayından geçmiş bir sonuç henüz yok. ' +
-      'Öğretmen sonuçları yayınladığında burada görünecek.</div></div>' + syncJoinHtml();
+    root.innerHTML = secici + bosDurumHtml(
+      escapeHtml(cocuk.name || "Öğrenci") + " için öğretmen onayından geçmiş bir sonuç henüz yok. " +
+      "Öğretmen sonuçları yayınladığında burada görünecek."
+    );
     wireParent();
     return;
   }
@@ -6894,7 +6894,8 @@ function wireDisaAktar() {
    dışında her yerde gürültüdür. Çözüm dört parçaya bölündü:
      · syncChipHtml()      — topbar, YALNIZCA bir koda bağlıyken görünür
      · syncShareLineHtml() — öğretmenin sınav listesi kartında, bağlamsal
-     · syncJoinHtml()      — öğrenci/veli boş ekranında, bağlamsal
+     · syncJoinHtml()      — öğrenci/veli boş ekranında, bağlamsal; §28s'den
+       beri bosDurumHtml() içinde, boş durum mesajıyla TEK kutuda
      · otomatik eşitleme   — Gönder/Yenile düğmelerini gündelik kullanımdan
        kaldırır; kalan tek elle kontrol topbar çipinin altındadır. */
 
@@ -7240,47 +7241,79 @@ function wireSyncShareLine() {
 /* -------------------- 3) ÖĞRENCİ / VELİ — boş ekrandaki katılma kutusu ----
    Kavram burada ikinci ve son kez karşısına çıkar: "öğretmenimin verdiği
    kodu nereye yazacağım" sorusunun yanıtı. Yalnızca çözülecek/görülecek
-   sınav yokken (boş durumlarda) görünür — dolu ekranlarda gürültü olurdu. */
+   sınav yokken (boş durumlarda) görünür — dolu ekranlarda gürültü olurdu.
+
+   🔴 §28s (3 Eylül, beşinci tur): bu kutu ARTIK TEK BAŞINA DURMUYOR. Eskiden
+   "sonuç yok" mesajı bir kartta, sınıf kodu kutusu apayrı bir kartta duruyordu
+   ve aralarında hiçbir görsel bağ yoktu — veli "sonuç yok" yazısını okuyup ne
+   yapması gerektiğini anlamıyordu, çünkü çözüm ekranın başka bir yerindeydi.
+   Artık her zaman `bosDurumHtml()` içinden çağrılır ve `.empty-state`in
+   DEVAMI olarak çizilir: üstte durum, ince ayırıcı, altında o durumu
+   değiştirecek tek eylem. */
 function syncJoinHtml() {
   if (syncDurum().ready === false) return "";
   if (state.syncRoom) {
+    /* Bağlıyken "…yayınladığında burada görünecek" DENMEZ: hemen üstteki boş
+       durum mesajı zaten bunu söylüyor, iki kez yazmak kutuyu şişiriyordu. */
     return '<div class="sync-join sync-join-active">' +
-      "<span>Sınıf kodu: <b>" + escapeHtml(state.syncRoom) + "</b>. Öğretmen sınav ya da " +
-      "sonuç yayınladığında burada görünecek.</span> " +
-      '<button class="btn btn-secondary btn-sm" id="btnSyncJoinYenile">Şimdi kontrol et</button></div>';
+      "<span>Bu cihaz <b>" + escapeHtml(state.syncRoom) + "</b> sınıf koduna bağlı.</span> " +
+      '<button class="btn btn-secondary btn-sm js-sync-yenile">Şimdi kontrol et</button></div>';
   }
   return '<div class="sync-join">' +
-    "<b>Sınıf kodunuz varsa girin:</b>" +
+    "<b>Öğretmeninizden sınıf kodu aldıysanız buraya girin:</b>" +
     '<div class="sync-join-row">' +
-    '<input id="syncJoinInput" class="sync-join-input" maxlength="12" placeholder="ör. 2D9543">' +
-    '<button class="btn btn-primary btn-sm" id="btnSyncJoin">Gir</button></div>' +
+    '<input class="sync-join-input js-sync-input" maxlength="12" placeholder="ör. 2D9543" aria-label="Sınıf kodu">' +
+    '<button class="btn btn-primary btn-sm js-sync-gir">Gir</button></div>' +
     (syncDurum().hata ? '<span class="sync-join-err">' + escapeHtml(syncDurum().hata) + "</span>" : "") +
     "</div>";
 }
 
+/* Boş ekran = DURUM + onu değiştirecek EYLEM, tek görsel birimde (§28s).
+   Öğrenci ve veli ekranlarındaki dört boş durumun tamamı buradan geçer;
+   böylece "yok" mesajı ile sınıf kodu girişi bir daha ayrı düşemez. */
+function bosDurumHtml(mesaj) {
+  return '<div class="card"><div class="empty-state">' + mesaj + syncJoinHtml() + "</div></div>";
+}
+
+/* 🔴 §28s — BURADA ID KULLANILMAZ, ÖLÇÜLMÜŞ BİR HATADIR.
+   Tüm rol panelleri AYNI ANDA DOM'a basılır (yalnızca aktif olan CSS ile
+   görünür). Bu yüzden katılma kutusu bir sayfada BİRDEN ÇOK kez bulunur:
+   öğrencinin boş ekranında bir, velinin boş ekranında bir. Eskiden düğme ve
+   giriş kutusu `id` taşıyordu ve buradaki `getElementById` yalnızca İLKİNİ
+   (öğrencininkini) buluyordu.
+
+   Ölçüldü (yerel dev, tarayıcı): veli panelindeki "Gir" düğmesinin `onclick`
+   değeri `null`'dı — yani veli sınıf kodunu yazıp "Gir"e bastığında HİÇBİR
+   ŞEY OLMUYORDU. Aynı hata `.wait-pill` sayacında da yaşanmıştı (§28a).
+   Çözüm orada olduğu gibi burada da: id yerine sınıf, `querySelectorAll` ile
+   HEPSİNİ bağla, her kutu kendi girdisini `closest()` ile bulsun. */
 function wireSyncJoin() {
-  const gir = document.getElementById("btnSyncJoin");
-  const girTikla = function () {
-    const v = String((document.getElementById("syncJoinInput") || {}).value || "").trim().toUpperCase();
-    if (!ODA_KOD_DESENI.test(v)) {
-      syncDurum().hata = "Kod 4-12 karakter olmalı; I, O harfleri ile 0, 1 rakamları kullanılmaz.";
-      renderAll(); return;
-    }
-    /* §28r Madde 3 — bir kod GİRİLEREK gerçek bir sınıfa katılınıyorsa ve bu
-       cihazda hâlâ dokunulmamış ÖRNEK liste duruyorsa, katılmadan önce onu
-       temizle. Aksi hâlde 4 sahte isim gerçek öğrencilerle karışıyordu ve
-       "örnek listeyi temizle" ipucu da bir daha görünmüyordu (liste artık
-       tamamen varsayılan olmadığı için). Öğretmenin KENDİ cihazında kod
-       OLUŞTURMASına dokunulmadı — yalnızca KATILMA anı. */
-    if (varsayilanListeMi()) { state.students = []; state.activeStudentId = null; }
-    state.syncRoom = v; syncDurum().hata = ""; saveState();
-    syncCek();
-  };
-  if (gir) gir.onclick = girTikla;
-  const inp = document.getElementById("syncJoinInput");
-  if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") girTikla(); };
-  const yenile = document.getElementById("btnSyncJoinYenile");
-  if (yenile) yenile.onclick = function () { syncCek(); };
+  document.querySelectorAll(".js-sync-gir").forEach(function (btn) {
+    const kutu = btn.closest(".sync-join");
+    const girTikla = function () {
+      const inp = kutu ? kutu.querySelector(".js-sync-input") : null;
+      const v = String((inp || {}).value || "").trim().toUpperCase();
+      if (!ODA_KOD_DESENI.test(v)) {
+        syncDurum().hata = "Kod 4-12 karakter olmalı; I, O harfleri ile 0, 1 rakamları kullanılmaz.";
+        renderAll(); return;
+      }
+      /* §28r Madde 3 — bir kod GİRİLEREK gerçek bir sınıfa katılınıyorsa ve bu
+         cihazda hâlâ dokunulmamış ÖRNEK liste duruyorsa, katılmadan önce onu
+         temizle. Aksi hâlde 4 sahte isim gerçek öğrencilerle karışıyordu ve
+         "örnek listeyi temizle" ipucu da bir daha görünmüyordu (liste artık
+         tamamen varsayılan olmadığı için). Öğretmenin KENDİ cihazında kod
+         OLUŞTURMASına dokunulmadı — yalnızca KATILMA anı. */
+      if (varsayilanListeMi()) { state.students = []; state.activeStudentId = null; }
+      state.syncRoom = v; syncDurum().hata = ""; saveState();
+      syncCek();
+    };
+    btn.onclick = girTikla;
+    const inp = kutu ? kutu.querySelector(".js-sync-input") : null;
+    if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") girTikla(); };
+  });
+  document.querySelectorAll(".js-sync-yenile").forEach(function (b) {
+    b.onclick = function () { syncCek(); };
+  });
 }
 
 /* -------------------- 4) OTOMATİK EŞİTLEME (öğretmen/yönetici kalp atışı) --
@@ -7352,7 +7385,7 @@ setInterval(function () {
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman",
     "syncChipHtml", "syncDetayHtml", "renderSyncChip", "syncAyrintiToggle", "wireSyncChip",
-    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "wireSyncJoin"
+    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "bosDurumHtml", "wireSyncJoin"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

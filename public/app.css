@@ -1198,13 +1198,22 @@
   letter-spacing: .12em; color: var(--text);
 }
 
-/* --- 3) Öğrenci/veli boş ekranındaki katılma kutusu. Kapsayıcı bir `.card`
-   İÇİNDE DEĞİL — sayfada tek başına durur, bu yüzden KENDİ kart zeminini
-   taşır (§6.3-2: bağımsız sınıf, kapsayıcıya güvenmez). */
+/* --- 3) Öğrenci/veli boş ekranındaki katılma kutusu.
+
+   §28s (3 Eylül): ARTIK TEK BAŞINA DEĞİL — her zaman bir `.empty-state`in
+   son çocuğu olarak, onun DEVAMI gibi çizilir. Eskiden ayrı bir kart
+   zemini + tam çerçevesi vardı; "sonuç yok" mesajıyla arasında görsel bağ
+   kurulmadığı için veli ikisini ilişkilendiremiyordu. Şimdi yalnızca ince
+   kesik bir ayırıcı çizgi: üstte durum, altında o durumu değiştiren eylem.
+
+   §6.3-2 KORUNDU: zemini yine de kendisi tanımlar (`--surface-2`), yani
+   metin rengi kapsayıcının ne olduğuna bağlı değil — `.empty-state` ile
+   aynı zemin olduğu için görsel olarak birleşir ama başka bir yere
+   konursa da kontrastı güvenlidir (--text-muted / --surface-2 = 6,15:1). */
 .sync-join {
-  margin-top: 14px; padding: 14px 16px; text-align: center;
-  background: var(--surface); border: 1px dashed var(--border-strong);
-  border-radius: 12px; font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
+  margin-top: 18px; padding-top: 14px; text-align: center;
+  background: var(--surface-2); border-top: 1px dashed var(--border-strong);
+  font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
 }
 .sync-join b { color: var(--text); }
 .sync-join-row { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
