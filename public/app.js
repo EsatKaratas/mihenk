@@ -121,7 +121,8 @@ function simulateQuestions(doc) {
       correctKey: "A", aiTime: 45 + i * 10, status: "ai_generated",
       refKeywords: [k(t), k(t + 1)],
       // Simülasyon soruları da metne atıf yapıyor: metin sınavda gösterilmeli.
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      sube: doc.sube || ""
     });
   }
 
@@ -134,7 +135,8 @@ function simulateQuestions(doc) {
         'yararlanarak açıklayınız; en az bir örnek veriniz.',
       aiTime: 240, status: "ai_generated",
       refKeywords: [k(t), k(t + 1), k(t + 2)],
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      sube: doc.sube || ""
     });
   }
 
@@ -241,6 +243,9 @@ async function aiGenerateQuestions(doc) {
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
+        // Madde 1: yalnızca etiket — modele hiç gönderilmedi (yukarıdaki
+        // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
+        sube: doc.sube || "",
       };
     });
   } catch (e) {
@@ -839,7 +844,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "" },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -2172,6 +2177,9 @@ async function onGenerateQuestions() {
   state.ceForm.error = "";
   const doc = {
     title: state.ceForm.title || "Adsız Kaynak", subject: state.ceForm.subject, grade: state.ceForm.grade,
+    // Madde 1: şube yalnızca etiket olarak taşınır; AI çağrısına (aiGenerateQuestions)
+    // hiç gönderilmez, yalnızca üretilen soru nesnesine damgalanır.
+    sube: (state.ceForm.sube || "").trim(),
     outcome: state.ceForm.outcomeCode, outcomeLabel: outcomeLabel(state.ceForm.outcomeCode), text: text,
   };
   // Kaynak metin ÜRETİMDEN ÖNCE saklanır: model metne atıf yapan bir soru
@@ -2379,6 +2387,17 @@ function dilUyarisiHtml(q) {
     'Onaylamadan önce soruyu ve şıkları okuyup düzeltin.</div>';
 }
 
+/* Madde 1: şube (bölüm) etiketi yalnızca ORGANİZASYON/RAPORLAMA amaçlıdır.
+   MEB kazanımları şubeye göre değişmediği için bu bilgi hiçbir AI istemine
+   girmez (bkz. buildQuestionPrompt) ve kazanım filtrelemesini etkilemez
+   (outcomeUyar/uygunKazanimlar). Yalnızca "bu soru hangi şube için
+   üretildi" bilgisini soru kartlarında ve (Madde 3'te) öğretmenin havuz
+   filtresinde görünür kılar. */
+function subeRozetiHtml(q) {
+  if (!q || !q.sube) return "";
+  return '<span class="pill pill-neutral" title="Bu kaynak için belirtilen şube">👥 ' + escapeHtml(q.sube) + '</span>';
+}
+
 function renderPendingQuestionCard(q) {
   const optsHtml = q.type === "mc" ? q.options.map(function (o) {
     return '<div class="opt-row">' +
@@ -2393,6 +2412,7 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
     bloomPill(q.bloom) +
     '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
+    subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     dilUyarisiHtml(q) +
@@ -2508,6 +2528,13 @@ function ceCreateHtml() {
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
     GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
     '</select></div>' +
+    /* MADDE 1: Şube (bölüm) — yalnızca ORGANİZASYON/RAPORLAMA etiketidir,
+       kazanım filtrelemesini ETKİLEMEZ (MEB müfredatı şubeye göre değişmez)
+       ve AI istemine hiç girmez. Serbest metin: okulların şube adlandırması
+       (7-A, 7/A, 7-B1 ...) tek bir listeye sığmaz; <select> bunu kısıtlardı. */
+    '<div class="field"><label for="ceSube">Şube <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<input id="ceSube" type="text" maxlength="20" value="' + escapeHtml(state.ceForm.sube || "") + '" ' +
+    'placeholder="örn. ' + escapeHtml(siniflar()[0] || "7-A") + ' — boş bırakılabilir" title="Bu içerik hangi şube için üretiliyor? Yalnızca etiket amaçlıdır, kazanım listesini değiştirmez."></div>' +
     '<div class="field field-outcome"><label for="ceOutcome">Konu ve Kazanım</label>' +
     '<div class="input-with-actions">' +
     '<select id="ceOutcome">' +
@@ -2576,6 +2603,7 @@ function cePoolHtml() {
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
         '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
+        subeRozetiHtml(q) +
         '<span class="pill pill-success">Onaylı</span></div></div>' +
         '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
@@ -2631,6 +2659,8 @@ function renderContentExpert() {
   };
   document.getElementById("ceOutcome").onchange = function (e) { kazanimSecildi(e.target.value); renderAll(); };
   document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
+  // Madde 1: şube yalnızca etiket — değişimi kazanım listesini tetiklemez.
+  document.getElementById("ceSube").oninput = function (e) { state.ceForm.sube = e.target.value.slice(0, 20); };
 
   // Kazanım tanımlama
   const bKat = document.getElementById("btnKatalog");
@@ -7171,7 +7201,8 @@ function wireSync() {
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync",
-    "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf"
+    "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
+    "subeRozetiHtml"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
