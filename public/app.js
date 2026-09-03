@@ -6973,8 +6973,18 @@ function syncBirlestir(veri) {
     (govde.sources || []).forEach(function (k) {
       if (!(state.sources || []).some(function (x) { return x.id === k.id; })) state.sources.push(k);
     });
+    /* §28r Madde 2 — ESKİDEN yalnızca YOKSA ekleniyordu; öğrencinin adı ya da
+       sınıfı SONRADAN değiştirilirse bu değişiklik diğer cihazlara hiç
+       yayılmıyordu. Artık var olan kayıt da güncellenir ("son gönderen
+       kazanır" — sınav/oturum verilerinin tamamı zaten aynı kuralla
+       çalışıyor, agents.md kimlik doğrulama olmadığı için çakışma çözümü
+       burada da basit tutuldu). */
     (govde.students || []).forEach(function (o) {
-      if (!(state.students || []).some(function (x) { return x.id === o.id; })) state.students.push(o);
+      var mevcut = (state.students || []).find(function (x) { return x.id === o.id; });
+      if (!mevcut) { state.students.push(o); return; }
+      mevcut.name = o.name;
+      mevcut.sinif = o.sinif;
+      mevcut.demo = !!o.demo;
     });
 
     let kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
