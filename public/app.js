@@ -850,7 +850,9 @@ const state = {
   exam: { title: "", questionIds: [], timeOverrides: {}, status: "draft", durationMin: 10,
           startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null,
           // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
-          mcPoint: MC_VARSAYILAN_PUAN },
+          mcPoint: MC_VARSAYILAN_PUAN,
+          // §28r: boşsa TÜM sınıflara yayınlanır; doluysa yalnızca o sınıf görür.
+          targetClass: "" },
   syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
@@ -2842,6 +2844,8 @@ function activateExam(id) {
                  status: kayit.status, durationMin: kayit.durationMin,
                  startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
                  startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt,
+                 // §28r: DİKKAT — burada eksik kalırsa sınav değiştirilince hedef sınıf kaybolur.
+                 targetClass: kayit.targetClass || "",
                  /* `endsAt` BU LİSTEDE YOKTU ve sınav değiştirilip geri dönülünce
                     undefined oluyordu (ölçüldü). Sonucu: süre sayacı mutlak bitiş
                     anından hesaplanmayı bırakıp yumuşak "-1" sayımına geriliyordu;
@@ -2859,7 +2863,8 @@ function createExam(baslik) {
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
-                 startDelaySec: 0, startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
+                 startDelaySec: 0, startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN,
+                 targetClass: "", sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
   /* Bu literal, KAYDIN alanlarıyla birebir aynı olmalıdır. `mcPoint` ve `endsAt`
@@ -2868,7 +2873,7 @@ function createExam(baslik) {
      olmuyordu — yani hata örtülüydü, yok değildi. */
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
                  durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0,
-                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN };
+                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, targetClass: "" };
   OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
   state.teacherTab = 1;
   renderAll();
@@ -3493,6 +3498,18 @@ function teacherTab1Html() {
     '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
     '<option value="scheduled"' + (state.exam.startMode === "scheduled" ? " selected" : "") + '>Belirli bir tarih ve saatte</option>' +
     '</select></div></div>' +
+    /* §28r: "sınav kurarken hangi sınıfa yayınla" seçimi. Boş = tüm sınıflar
+       (eski davranış korunur, geriye dönük uyum). Doluysa yalnızca o sınıftaki
+       öğrenciler sınavı görür — studentTab1Html/studentTab2Html'deki
+       "yayindakiler" filtresinde kontrol edilir. */
+    '<div class="field"><label>Kime yayınlansın?</label>' +
+    '<select id="examTargetClass" ' + (locked ? "disabled" : "") + '>' +
+    '<option value="">Tüm sınıflar</option>' +
+    siniflar().map(function (sf) {
+      return '<option value="' + escapeHtml(sf) + '"' + (state.exam.targetClass === sf ? " selected" : "") + '>' +
+        escapeHtml(sf) + '</option>';
+    }).join("") + '</select>' +
+    '<span class="field-note">Boş bırakırsanız tüm öğrenciler görür.</span></div>' +
     (state.exam.startMode === "scheduled"
       ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
         /* `min` OLMADAN geçmiş bir tarih seçilebiliyordu (ölçüldü: 2020-01-01
@@ -3612,6 +3629,8 @@ function wireTeacherTab1() {
   };
   const startEl = document.getElementById("examStartAt");
   if (startEl) startEl.onchange = function (e) { state.exam.startAtLocal = e.target.value; saveSoon(); };
+  const targetEl = document.getElementById("examTargetClass");
+  if (targetEl) targetEl.onchange = function (e) { state.exam.targetClass = e.target.value; saveSoon(); };
   document.querySelectorAll(".pool-check").forEach(function (el) {
     el.onchange = function () {
       const qid = Number(el.dataset.qid);
@@ -5078,8 +5097,18 @@ function examActionBtn(x) {
 }
 
 function studentTab1Html() {
+  /* §28r: "Kime yayınlansın?" hedef sınıf filtresi. Öğrenci sınava DAHA ÖNCE
+     dokunduysa (not_started değilse) hedef sınıf sonradan değişse/kaldırılsa
+     bile görünmeye devam eder — aksi hâlde yarım kalmış bir sınav öğrencinin
+     ekranından sessizce kaybolurdu. */
+  const kendiSinifi = (activeStudent().sinif || "");
   const yayindakiler = state.exams.filter(function (x) {
-    return (x.id === state.activeExamId ? state.exam.status : x.status) === "published";
+    const aktif = x.id === state.activeExamId;
+    const ex = aktif ? state.exam : x;
+    if (ex.status !== "published") return false;
+    if (!ex.targetClass || ex.targetClass === kendiSinifi) return true;
+    const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
+    return durum !== "not_started";
   });
   if (!yayindakiler.length) {
     return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>' +
@@ -5156,12 +5185,14 @@ function studentTab2Html() {
   // Aktif sınav yoksa bu sekme boş bırakılmaz: çözülebilecek sınav varsa
   // doğrudan buradan başlatılır.
   if (state.examStatus === "not_started" || state.examStatus === "submitted" || state.examStatus === "graded") {
+    const kendiSinifi = (activeStudent().sinif || "");
     const hazir = (state.exams || []).filter(function (x) {
       const aktif = x.id === state.activeExamId;
       const ex = aktif ? state.exam : x;
       const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
       const bekliyor = ex.startsAt ? Date.now() < ex.startsAt : false;
-      return ex.status === "published" && (durum === "not_started" || durum === "in_progress") && !bekliyor;
+      const sinifUygun = !ex.targetClass || ex.targetClass === kendiSinifi || durum !== "not_started";
+      return ex.status === "published" && (durum === "not_started" || durum === "in_progress") && !bekliyor && sinifUygun;
     });
     if (!hazir.length) {
       return '<div class="card"><div class="empty-state">' +
@@ -6841,7 +6872,8 @@ function syncPaket() {
       exam: {
         title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
         status: kayit.status, durationMin: kayit.durationMin, startMode: kayit.startMode,
-        startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit)
+        startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit),
+        targetClass: kayit.targetClass || ""
       },
       questions: sorular, rubrics: rubrikler, sources: kaynaklar,
       /* 🔴 `sinif` BURADA EKSİKTİ (§28q'da bulundu). Sonucu ölçüldü: başka

@@ -4190,6 +4190,46 @@ değiştirdim ama AKTİF öğrencinin durumu `state.examStatus`'tan okunuyor
 gibi göründü. Doğru alanı değiştirince guard'ın hem aktif hem pasif
 öğrenci için doğru çalıştığı doğrulandı.
 
+### 28r. MADDE 1 — sınıfa göre yayın filtresi ("Kime yayınlansın?")
+
+Öğretmen artık bir sınavı **belirli bir sınıfa** hedefleyebiliyor. Sınav
+kurma ekranına "Sınav ne zaman açılsın?" alanının altına yeni bir seçici
+eklendi: **"Kime yayınlansın?"** — boşsa (varsayılan) tüm sınıflar görür,
+doluysa yalnızca o sınıftaki öğrenciler.
+
+`state.exam.targetClass` yeni alan; `activateExam()`/`createExam()` alan
+listelerine tek tek eklendi (bu projenin en sık tekrarlayan hata sınıfı —
+§6.3-1). `syncPaket()`'in sınav payload'ına da eklendi ki cihazlar arası
+paylaşılan sınavda hedef sınıf kaybolmasın.
+
+**Kritik tasarım kararı — geriye dönük veri kaybı korumaz:** öğrenci sınava
+**daha önce dokunduysa** (durumu `not_started` değilse), hedef sınıf
+sonradan değişse/kaldırılsa bile o öğrenci sınavı görmeye devam eder.
+Aksi hâlde bir öğretmen hedef sınıfı değiştirdiğinde, yarım kalmış bir
+sınav öğrencinin ekranından sessizce kaybolurdu.
+
+**Ölçüldü (yerel dev, tarayıcı):**
+
+| Test | Sonuç |
+|---|---|
+| Sınav değiştirilip geri dönüldü | hedef sınıf (`7-A`) korundu |
+| 7-A öğrencisi, gerçekten `not_started` | sınavı **görüyor** |
+| 7-B öğrencisi, gerçekten `not_started` | sınavı **görmüyor**, "Şu anda çözebileceğiniz bir sınav yok" |
+| 5 rol + 4 öğretmen sekmesi, masaüstü 1280px | taşma **0** |
+| Konsol hatası | **0** |
+| `npm run lint` · `npm test` | temiz · **133/133** |
+
+**İki ölçüm kusurum oldu, düzeltip devam edildi (§6.5):**
+1. `document.querySelectorAll('.exam-card')` gibi sorguları **tüm sayfada**
+   çalıştırmışım (tüm roller DOM'da render edilir, yalnızca aktif olan
+   görünür — §28p'de de yaşanmıştı). `#panel-student` içine sınırlayınca
+   doğru sonuç çıktı.
+2. `activateStudent(sid)` zaten aktif öğrenciyse **erken `return` ediyor**
+   ve session'ı yeniden yüklemiyor. Bir öğrencinin oturum verisini dışarıdan
+   değiştirip AYNI id ile `activateStudent`'i tekrar çağırdığımda hiçbir şey
+   olmadı, `state.examStatus` eski değerde kaldı. Önce başka bir öğrenciye
+   geçip sonra hedefe dönerek düzeltildi.
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).
