@@ -508,7 +508,10 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
      girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
      bilinçli olarak kalıcı DEĞİLDİR. */
-  "syncRoom"];
+  "syncRoom",
+  /* Öğretmenin "veliye bildirilsin" onayı (§28e). Bu bir İNSAN KARARIDIR ve
+     kaybolmamalıdır; sinyalin kendisi her seferinde yeniden hesaplanır. */
+  "dikkatOnay"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -1645,6 +1648,9 @@ var AUDIT_ETIKET = {
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
   geri_bildirim_aktarildi:{ad:"Geri bildirim aktarıldı",  sinif: "pill-neutral", aktor: "öğretmen" },
+  /* Dikkat sinyalinin veliye iletilmesi bir İNSAN KARARIDIR ve denetim izine
+     öyle yazılır: aktör öğretmendir, sistem değil (§28e). */
+  dikkat_veliye_bildirildi:{ad:"Dikkat sinyali veliye bildirildi", sinif: "pill-warning", aktor: "öğretmen" },
 };
 
 /**
@@ -4801,7 +4807,7 @@ function renderTeacher() {
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
   if (state.teacherTab === 3) { content.innerHTML = teacherTab3Html(); wireTeacherTab3(); }
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html(); wireMisconceptions(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -5986,6 +5992,156 @@ setInterval(function () {
   }
 }, 1000);
 
+/* ==================== DİKKAT SİNYALİ (§28e) ====================
+   Sınav bütünlüğü verisi (sekme değişimi, odak kaybı, tam ekrandan çıkış,
+   yapıştırma, sınav dışında geçen süre) bugüne kadar yalnızca TEK SINAVIN
+   ekranında duruyordu. İstenen: bunu bir uyarıya çevirmek.
+
+   🔴 BU ÖZELLİK ÜRÜNÜN DURUŞUNU BOZABİLİRDİ — dört koruma konuldu:
+
+   1. ÖNCE ÖĞRETMENE. Uyarı doğrudan veliye gitmez. Öğretmen bağlamı bilir:
+      internet kesilmiş olabilir, telefon çalmış olabilir.
+   2. VELİYE ANCAK ÖĞRETMEN ONAYLARSA. Bu, ürünün HITL deseninin birebir
+      aynısıdır: sistem ÖNERİR, insan KARAR VERİR (agents.md §1).
+   3. EŞİK TEK OLAYA DEĞİL ÖRÜNTÜYE BAKAR. Tek sınavdaki tek bir odak kaybı
+      hiçbir şey ifade etmez. En az İKİ sınavda tekrarlamadıkça bu bir örüntü
+      değildir ve ekranda da böyle yazar.
+   4. DİL SUÇLAYICI DEĞİLDİR. "Dikkati dağınık" demez; "zorlanmış olabilir"
+      der. Rehberlik önerisi ASLA otomatik yapılmaz.
+
+   Ürün "hile önlemiyoruz, kayıt tutuyoruz" diyor. Otomatik bir uyarı bunu
+   yaptırıma kaydırırdı; onay zinciri tam olarak bunu engelliyor. */
+
+/** Tek bir sınav oturumunun bütünlük verisinden sinyal çıkar. */
+function dikkatSinavSinyali(oturum, ex) {
+  const g = (oturum && oturum.integrity) || null;
+  if (!g) return null;
+  const kesinti = (g.tabSwitch || 0) + (g.blur || 0) + (g.fsExit || 0);
+  const sure = Math.max(1, (ex && ex.durationMin ? ex.durationMin : 10) * 60);
+  const disariOran = Math.round(((g.awaySec || 0) / sure) * 100);
+  // Eşikler: 5 kesinti ya da sürenin dörtte biri kadar dışarıda kalmak.
+  const isaret = kesinti >= 5 || disariOran >= 25 || (g.pasteCount || 0) >= 1;
+  return isaret ? { kesinti: kesinti, disariOran: disariOran, yapistirma: g.pasteCount || 0 } : null;
+}
+
+/** Bir öğrencinin TÜM sınavlarına bakıp örüntü var mı diye sorar. */
+function dikkatOgrenciSinyali(sid) {
+  const isaretli = [];
+  let incelenen = 0;
+  (state.exams || []).forEach(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    if (ex.status !== "published") return;
+    const o = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)
+      ? { integrity: state.integrity, examStatus: state.examStatus }
+      : ((kayit.sessions || {})[sid] || null);
+    if (!o || !o.examStatus || o.examStatus === "not_started") return;
+    incelenen++;
+    const s = dikkatSinavSinyali(o, ex);
+    if (s) isaretli.push({ sinav: ex.title || "Adsız Sınav", detay: s });
+  });
+  if (!isaretli.length) return null;
+  return {
+    sid: sid,
+    incelenen: incelenen,
+    isaretli: isaretli,
+    // ÖRÜNTÜ: en az iki sınavda tekrarlamalı. Tek sınav örüntü sayılmaz.
+    oruntu: isaretli.length >= 2
+  };
+}
+
+function dikkatSinyalleri() {
+  return (state.students || [])
+    .map(function (o) {
+      const s = dikkatOgrenciSinyali(o.id);
+      return s ? Object.assign(s, { ad: o.name || ("#" + o.id), sinif: o.sinif || "" }) : null;
+    })
+    .filter(Boolean);
+}
+
+function ensureDikkatOnay() {
+  if (!state.dikkatOnay) state.dikkatOnay = {};
+  return state.dikkatOnay;
+}
+
+/** Öğretmen "veliye bildirilsin" dedi — HITL onayı burada gerçekleşir. */
+function dikkatVeliyeOnayla(sid) {
+  const s = dikkatOgrenciSinyali(sid);
+  if (!s) return false;
+  if (!s.oruntu) {
+    alert("Bu öğrenci için henüz bir örüntü oluşmadı (yalnızca 1 sınavda işaret var). " +
+      "Tek sınavdaki bir kayıt, veliye bildirim için yeterli bir gerekçe değildir.");
+    return false;
+  }
+  const onay = ensureDikkatOnay();
+  onay[sid] = { at: Date.now(), sinavSayisi: s.isaretli.length, aktor: "Öğretmen" };
+  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sinavda isaret" });
+  saveState();
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
+function dikkatOnayGeriAl(sid) {
+  const onay = ensureDikkatOnay();
+  delete onay[sid];
+  saveState();
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
+function dikkatPanelHtml() {
+  const liste = dikkatSinyalleri();
+  const onay = ensureDikkatOnay();
+  if (!liste.length) {
+    return '<div class="card"><div class="card-head"><h3>Dikkat Sinyali</h3>' +
+      '<span class="pill pill-success">işaret yok</span></div>' +
+      '<div class="empty-state">Sınavlarda dikkat çeken bir bütünlük kaydı oluşmadı.</div></div>';
+  }
+  return '<div class="card"><div class="card-head"><h3>Dikkat Sinyali</h3>' +
+    '<span class="pill pill-warning">' + liste.length + ' öğrenci</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Bu bir <b>kopya iddiası değildir</b>. Sınav sırasında ' +
+    'sekme değişimi, odak kaybı ya da yapıştırma kaydedilen öğrenciler listelenir; bunlar internet ' +
+    'kesintisi ya da gelen bir bildirim gibi masum nedenlerle de oluşabilir. ' +
+    '<b>Karar sizindir</b> — sistem kimseye kendiliğinden haber vermez.</p>' +
+    liste.map(function (s) {
+      const o = onay[s.sid];
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(s.ad) + '</b>' +
+        (s.sinif ? ' <span class="pill pill-neutral">' + escapeHtml(s.sinif) + '</span>' : "") +
+        '<div class="p-tags">' +
+        '<span class="pill ' + (s.oruntu ? "pill-warning" : "pill-neutral") + '">' +
+        s.isaretli.length + ' / ' + s.incelenen + ' sınavda işaret</span>' +
+        (s.oruntu ? '<span class="pill pill-accent2">örüntü</span>'
+                  : '<span class="pill pill-neutral">tek sınav — örüntü sayılmaz</span>') +
+        '</div>' +
+        '<div class="lbl-hint">' + s.isaretli.map(function (i) {
+          const d = i.detay;
+          return escapeHtml(i.sinav) + ": " + d.kesinti + " kesinti" +
+            (d.disariOran ? " · sürenin %" + d.disariOran + "’ı dışarıda" : "") +
+            (d.yapistirma ? " · " + d.yapistirma + " yapıştırma" : "");
+        }).join(" — ") + '</div>' +
+        '<div class="lbl-hint" style="margin-top:4px;">Önerilen okuma: <i>bu öğrenci sınav sırasında ' +
+        'zorlanmış olabilir.</i> Rehberlik görüşmesi <b>otomatik önerilmez</b>; gerekip gerekmediğine siz karar verirsiniz.</div>' +
+        '</div>' +
+        (o
+          ? '<div><span class="pill pill-success">veliye bildirildi</span> ' +
+            '<button class="btn btn-secondary btn-sm dikkat-geri" data-sid="' + s.sid + '">Geri al</button></div>'
+          : '<button class="btn btn-secondary btn-sm dikkat-onay" data-sid="' + s.sid + '" ' +
+            (s.oruntu ? "" : "disabled title=\"Örüntü oluşmadan veliye bildirim önerilmez\"") +
+            '>Veliye bildirilsin</button>') +
+        '</div>';
+    }).join("") + '</div>';
+}
+
+function wireDikkat() {
+  document.querySelectorAll(".dikkat-onay").forEach(function (b) {
+    b.onclick = function () { dikkatVeliyeOnayla(Number(b.dataset.sid)); };
+  });
+  document.querySelectorAll(".dikkat-geri").forEach(function (b) {
+    b.onclick = function () { dikkatOnayGeriAl(Number(b.dataset.sid)); };
+  });
+}
+
 /* ==================== EXCEL / CSV DIŞA AKTARMA (§28d) ====================
    Okullar sonuçları Excel'de ister. Ürün bugüne kadar yalnızca Karar
    Günlüğü'nü dışa aktarabiliyordu; öğrenci ve sınıf değerlendirmeleri
@@ -6471,6 +6627,8 @@ function wireSync() {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
+    "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
+    "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
