@@ -4,7 +4,7 @@
 > **Bu dokümanı okuyan yapay zekâ asistanına:**
 >
 > 1. **Kodun tamamı GitHub'dadır**, bu dokümana gömülmemiştir. Bilinçli bir
->    karardır: `public/app.js` tek başına **290 KB / 5.577 satır**; sohbete
+>    karardır: `public/app.js` tek başına **378 KB / 6.982 satır**; sohbete
 >    sığdırılmaya çalışılırsa model kaçınılmaz olarak kısaltır veya
 >    hatırlamadığı yeri uydurur. Bu projede bir kez yaşandı (`PROGRESS.md` §5).
 >    ```bash
@@ -41,9 +41,9 @@
 | Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
 | Son commit | toplam **85 commit** · etiketler `v1.0-teslim`, `v1.1-basvuru` |
-| 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §27** — 13 maddelik iyileştirme planı. Kök nedenler ölçüldü, dosya:satır verildi. **Oturuma buradan başla.** |
+| 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §28** — Esat'ın 7 maddesi 3 Eylül'de bitti (D1 senkron, veli paneli, risk listesi, saat düzeltmesi…). §27'de kalan maddeler ve Sude/Burak'ın listeleri sıradadır. |
 | ⚠️ En yeni bölümler | `PROGRESS.md` **§25** (ekip geri bildirimi) · **§26** (başvuru turu) · **§27** (iyileştirme planı). Bu dosyanın gövdesi §24'e kadarını özetler. Yeni dersler §6.3-19/20/21'de. |
-| CI | GitHub Actions — `.github/workflows/ci.yml` · lint + 98 test + yapılandırma + öz-kontrol |
+| CI | GitHub Actions — `.github/workflows/ci.yml` · lint + 133 test + yapılandırma + öz-kontrol |
 | Senkron durumu | yerel kod = GitHub `origin/main` = canlı sistem (üçü aynı) |
 
 ---
@@ -81,7 +81,7 @@ Bu tez ürünün her katmanında görünür:
 ```
 Tarayıcı (vanilla JS, BUILD ADIMI YOK)
   public/index.html    2 KB  iskelet
-  public/app.js      290 KB  4 rolün TÜM mantığı, tek dosya, 5.577 satır
+  public/app.js      378 KB  5 rolün TÜM mantığı, tek dosya, 6.982 satır
   public/app.css      69 KB  tüm stiller
   public/mufredat/*   12 dosya · 606 MEB kazanımı
         │
@@ -887,7 +887,7 @@ Bunların her biri **gerçekten yaşanmış bir hatanın** sonucudur.
 **1. `public/app.js` 290 KB — blok değiştirirken SINIRLARI DOĞRULA.**
 Bir yeniden yazımda iki fonksiyon arasındaki aralık fazladan 4 fonksiyon
 kapsadı ve onlar silindi; öğretmen sekmesi canlıda kırıldı. Bu yüzden dosya
-sonunda **öz-kontrol** var: **154 adın** varlığını denetler, eksikse ekranda
+sonunda **öz-kontrol** var: **197 adın** varlığını denetler, eksikse ekranda
 kırmızı uyarı basar. **Yeni fonksiyon eklediysen `selfCheck` listesine ekle.**
 
 **2. CSS sınıflarını kapsayıcıya bağlı tanımlama.**

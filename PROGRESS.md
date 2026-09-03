@@ -3658,3 +3658,226 @@ geç"* dedi. Yukarıdaki 13 maddenin tamamı **yapılacak iştir.**
 Sonuçsuz kalan tek deney: *"uzun metin mükerrerliği azaltır mı"* — token
 kesilmesi nedeniyle turların bir kısmı boş döndü, güvenilir veri alınamadı.
 Uydurulmadı, sonuçsuz olarak kaydedildi.
+
+---
+
+## 28. ESAT'IN 7 MADDESİ — hepsi yapıldı (3 Eylül 2026, 11:00-11:46)
+
+Takım iş bölümü yaptı: Sude'nin ve Burak'ın listeleri ayrı. Bu bölüm
+**Esat'ın 7 maddesinin** kaydıdır. Her madde bitince ayrı commit atıldı ve
+`fix/esat-7-madde` dalına pushlandı; 7 madde bitince `main`'e alındı.
+
+> **Sıra kararı:** Esat "D1 uzun, başta olsun" dedi; itiraz edilip Madde 3 öne
+> alındı (45 dk) çünkü üründe **öğrenci planlı sınava hiç giremiyordu** ve
+> teşhis zaten elde hazırdı. Kabul edildi. Kalan sıra: 1 → 4 → 7 → 6 → 5 → 2.
+
+| # | Madde | Bitiş | Commit |
+|---|---|---|---|
+| 3 | Saat modülü açılma problemi | 11:18 | `f547a59` |
+| 1 | D1 veritabanı | 11:27 | `b3f0ed8` |
+| 4 | Öğretmen sınav yönetimi | 11:31 | `7a5ae24` |
+| 7 | Excel dışa aktarma | 11:34 | `2a36cb1` |
+| 6 | Dikkat uyarısı | 11:37 | `71719bb` |
+| 5 | Veli paneli | 11:42 | `d9e0a2a` |
+| 2 | Yönetici paneli: risk + güvenlik | 11:46 | `d855faa` |
+
+### 28a. MADDE 3 — planlı sınav açılmıyordu (4 kusur)
+
+Esat ekran görüntüsü gönderdi: iki sınav "44 saniye içinde açılacak" ve
+"12 saniye içinde açılacak" diye **donmuş**, üstelik açılış saatleri geçmişte.
+
+**Canlıda birebir üretildi.** En ağır sonuç ölçüldü: açılış saati 8 saniye
+geçtiği hâlde düğme "Henüz açılmadı" (pasif) kaldı — **öğrenci sayfayı elle
+yenilemeden sınava giremiyordu.**
+
+Kök neden `public/app.js` saniyelik ticker'da, dört ayrı kusur:
+
+1. `state.examStatus === "not_started"` şartı — öğrenci başka bir sınavı
+   bitirdiyse durum `graded` olur ve blok **hiç çalışmazdı**.
+2. Yinelenen `id="waitPill"` — her kart aynı id'yi basıyordu; ölçüldü:
+   2 bekleyen kart → `#waitPill` seçicisi **2 eleman** döndürdü.
+3. Ticker yalnızca **aktif** sınava bakıyordu; diğer kartların sayacı hiç
+   güncellenmiyor, ilk karta aktif sınavın süresi yazılabiliyordu.
+4. Tek global `waitingFlag` — iki sınav beklerken ikincisinin açılışı hiç
+   tetiklenmiyordu.
+
+**Render mantığı sağlamdı:** elle `renderAll()` çağrılınca düğme anında
+"Sınava Başla" oldu. Hata tek başına ticker'daydı.
+
+Aynı modülde iki ek kusur bulundu ve düzeltildi:
+- `min` yokluğu → geçmiş tarih seçilebiliyordu (2020-01-01 kabul edildi).
+- "Planlı" seçilip alan boş bırakılırsa sınav **sessizce anında yayınlanıyordu**
+  (§6.3-5 ihlali).
+- `endsAt`, `activateExam()` alan listesinde yoktu; sınav değiştirilip
+  dönülünce `undefined` oluyor, "sayfa kapansa bile süre gerçekte işler"
+  garantisi sessizce düşüyordu.
+
+> 🔴 **YENİ DERS — `renderAll()` TÜM PANELLERİ ÇİZER.** Ticker'ı körlemesine
+> `renderAll()` çağıracak şekilde yazmak, öğretmen bir alana yazarken odağı
+> koparırdı (§6.3-3). Çözüm: bir girdi odaktayken `renderAll()` ertelenir.
+
+### 28b. MADDE 1 — D1 senkron katmanı
+
+Ürünün en büyük boşluğu kapandı: **öğrencinin çözdüğü sınav artık öğretmenin
+paneline düşüyor.**
+
+- `npx wrangler d1 create olcme-db` → `daeb141d-bc0a-4471-b369-928832fda984`
+  (EEUR). Kimlik iki wrangler dosyasına da yazıldı; `database_id` boşluğundan
+  kaynaklanan deploy engeli kalktı.
+- `npm run db:migrate:remote` → **16 tablo** (14 üretim + 2 senkron).
+
+> 🔴 **ÜRETİM ŞEMASINA DOKUNULMADI.** FK zinciri 6 tablo derin
+> (`teacher_reviews → ai_evaluations → submissions → exam_assignments →
+> exams → users → schools`) ve prototipte kimlik doğrulama yok. Tek bir
+> öğrenci yanıtını o zincire yazmak **uydurma `users`/`schools` satırları**
+> gerektirirdi. Bu proje veri uydurmaz (§25b). Bu yüzden köprü ayrı ve açıkça
+> adlandırılmış iki tabloda: `sync_exams`, `sync_sessions`.
+
+**Mimari karar — `renderAll()` SENKRON KALDI.** Okuma yollarını asenkrona
+çevirmek `app.js`'in tamamına dokunurdu (§3.1). D1 bir önbellek değil
+**köprüdür**: veri çekilir, `state`e yazılır, bir kez `renderAll()` çağrılır.
+
+**Oda (sınıf) kodu:** kimlik doğrulama olmadığı için erişim bir kodla
+belirlenir. Karışan karakterler (I, O, 0, 1) alfabeden çıkarıldı.
+**Bu bir kimlik doğrulama değildir ve arayüzde de öyle yazar.**
+
+Uçlar: `/api/sync/status` `/push` `/pull` `/reset` — hepsi Zod doğrulamalı,
+`db.prepare().bind()`, `SELECT *` yok, `LIMIT` var. `/pull` bilinçli olarak
+**POST**'tur: oda kodu sorgu dizesine düşmemelidir.
+
+Ölçülen uçtan uca zincir:
+- **SIFIR veriye sahip cihaz** odaya katıldı → 1 sınav + 3 soru + 1 rubrik +
+  4 oturum aldı; soru gövdeleri geldi.
+- Öğrenci çözerken çekme yapıldı → **yazdığı cevap ve soru indeksi korundu**
+  (birleştirmenin en kritik kuralı: çözülmekte olan oturum ezilmez).
+- Öğrenci bitirdi → otomatik gönderim → **BOŞ öğretmen cihazı** öğrencinin
+  yazdığı cevabı ve AI değerlendirmesini gördü.
+
+### 28c. MADDE 4 — öğretmen sınav yönetimi
+
+Öğretmen yayınladığı sınavda hiçbir şey yapamıyordu; tek çıkış "Verileri
+sıfırla" ile her şeyi silmekti. Üç sebep ölçüldü: `deleteExam()` yayında
+`false` dönüyordu, silme düğmesi yayındayken **hiç çizilmiyordu**, tüm alanlar
+`locked = status === "published"` ile pasifti.
+
+**Yeni kural — kilit "yayında mı"ya değil "öğrenci başladı mı"ya bakar:**
+
+| Durum | Başlık | Süre / saat | Soru listesi |
+|---|---|---|---|
+| taslak | serbest | serbest | serbest |
+| yayında, kimse başlamadı | serbest | serbest | kilitli |
+| yayında, öğrenci başladı | serbest | **kilitli** | kilitli |
+
+Süreyi sınav sürerken değiştirmek ölçmeyi bozar (iki öğrenci farklı süre alır);
+kilit gerekçesi **ekranda yazıyor**. `unpublishExam()` eklendi: yanıtları
+silmez, kaç öğrencinin başladığını sayarak söyler.
+
+### 28d. MADDE 7 — Excel (CSV) dışa aktarma
+
+İki indirme: **öğrenci bazlı sonuçlar** (yanıt, AI önerisi, öğretmenin nihai
+puanı, değiştirip değiştirmediği) ve **sınıf · kazanım başarısı**.
+
+`.xlsx` üretmek ZIP+XML gerektirir; ürün build adımı olmayan vanilla JS'tir ve
+kütüphane yüklemek CSP'ye takılır. Türkçe Excel için iki ayrıntı zorunlu:
+**ayraç noktalı virgül** ve **UTF-8 BOM** (ikisi de karar günlüğünde de vardı).
+
+> 🔴 **ÖLÇERKEN KENDİ KODUMDA HATA BULUNDU.** ÇSS puanı ancak `finishExam()`
+> ile hesaplanıyor; sınav çözülüyorken CSV'ye **"0"** yazılıyor ve doğru
+> işaretlemiş öğrenci sıfır almış gibi görünüyordu (§17a-3 sınıfı yanlış
+> beyan). Puanlanmamış yanıt artık **boş** bırakılıyor.
+> **Ders: "dosya indi" demek yetmez — dosyanın İÇİNE bakılmalıdır.**
+
+"(örnek)" demo satırları sınıf dosyasına **dahil edilmez**.
+
+### 28e. MADDE 6 — dikkat sinyali
+
+Bu özellik ürünün *"hile önlemiyoruz, kayıt tutuyoruz"* duruşunu bozabilirdi.
+Dört koruma konuldu ve dördü de ölçüldü:
+
+1. **Önce öğretmene.** Sistem kimseye kendiliğinden haber vermez.
+2. **Veliye ancak öğretmen onaylarsa** — HITL deseninin birebir aynısı.
+   Onay denetim izine `aktör: öğretmen` olarak düşer.
+3. **Eşik tek olaya değil örüntüye bakar.** Tek sınavdaki ağır işaret
+   (4 sekme + 3 odak + 2 yapıştırma) veliye bildirim için **reddedildi**;
+   ikinci sınavda da işaret çıkınca örüntü oluştu ve onay kabul edildi.
+4. **Dil suçlayıcı değil:** "dikkati dağınık" değil, *"zorlanmış olabilir"*.
+   Rehberlik görüşmesi **asla otomatik önerilmez**.
+
+### 28f. MADDE 5 — veli paneli (beşinci rol)
+
+Salt okunur. **Yalnızca öğretmen onayından geçmiş** sonuçlar görünür; AI'ın ham
+puan önerisi veliye **asla** ulaşmaz. Sınıf ortalaması yok, sıralama yok,
+başka öğrenci yok.
+
+Ölçüldü: `submitted` (onaylanmamış) öğrenci için veli **0 sonuç** görüyor ve
+boş durum ekranda; `graded` öğrenci için 26/30 (%87) ve kazanım kırılımı geldi.
+
+> 🔴 **ÖLÇERKEN BULUNAN GERÇEK SORUN:** çocuk seçici açıkta durduğunda panelde
+> **sınıfın tüm adları** görünüyordu. Seçici bir veli aracı değil, kimlik
+> doğrulama olmadığı için var olan bir **simülasyon aracıdır**; `<details>`
+> içine katlandı ve öyle etiketlendi (§25e'deki katlama idiyomu).
+
+**İki yanlış alarm çıktı (§6.5), ikisi de ölçüm kusuruydu:**
+- *"onaylanmamış sonuç veliye sızıyor"* → testte "onaylı" ve "bekleyen"
+  **aynı öğrenciydi** ve ikinci bir sınav sonucu kirletiyordu.
+- *"sınıf ortalaması geçiyor"* → regex **kendi yazdığım** *"sınıf ortalaması …
+  yer almaz"* uyarı cümlesine takılmıştı.
+
+### 28g. MADDE 2 — yönetici paneli: risk listesi + hız sınırı
+
+**(a) Risk listesi.** Ölçüt, erken uyarı sistemlerinin uluslararası standardı
+olan **ABC** çerçevesi: devam (girilmeyen sınav) · davranış (bütünlük sinyali)
+· başarı (onaylı ortalama). İki ve üzeri göstergesi olan başa alınır.
+Ekranda yazıyor: **bu bir tahmin değil, bir özettir.**
+
+**Pozitif kontrol yapıldı:** tüm soruları doğru yapan temiz öğrenci listeden
+**elendi** — ölçüt ayırt ediyor, herkesi işaretlemiyor.
+
+**(b) Hız sınırı — bulunan gerçek açık.** `/api/sync/*` uçlarında hiç hız
+sınırı yoktu; oda kodu erişim anahtarı olduğu için `/pull` taranabilirdi.
+IP başına **okuma 60/dk, yazma 30/dk** kondu (okuma yüksek çünkü bir sınıftaki
+30 öğrenci aynı ağdan girebilir).
+
+Hesap: 32 karakter alfabe, 6 karakter kod = **1.073.741.824** olasılık;
+60/dk ile günde 86.400 deneme → belirli bir odayı %50 olasılıkla bulmak
+**~17 yıl**. Ölçüldü: 65 ardışık `/pull` → **60 istek 200, sonraki 5 istek 429**;
+farklı IP engellenmedi; okuma sayacı dolu iken yazma 200 döndü.
+
+> ⚠️ Sınır **isolate başınadır** (§6.3-10, AI uçlarındakiyle aynı durum).
+> Üretimde D1/KV'ye taşınmalı; jüri sorarsa dürüst cevap budur.
+
+### 28h. Gizlilik (agents.md §7 — bağlayıcı)
+
+Öğrenci verisi artık cihazdan çıkabildiği için `privacy-policy.html` üç yerde
+güncellendi. En kritiği: *"Bu prototipte veriler sunucuda saklanmaz"* cümlesi
+artık **yanlış beyan** olacaktı (§17a-3 sınıfı) — düzeltildi.
+
+Eklenen bölümler: sınıf kodu ile senkron (kimlik doğrulama olmadığı uyarısıyla)
+· veli görünümü · CSV dışa aktarma · sunucudan silme hakkı (§9).
+
+### 28i. Doğrulama özeti (ölçülen sayılar)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` (tsc --noEmit) | **temiz** |
+| `npm test` | **133/133** (98 → 133, +35 senkron/hız sınırı testi) |
+| `npm run check:config` | 2/2 geçerli |
+| `node --check` (4 js dosyası) | hepsi geçerli |
+| Öz-kontrol listesi | 156 → **197 ad**, tanımı bulunamayan **0** |
+| `public/app.js` | 5.902 → **6.982 satır** (378.075 bayt) |
+| Konsol hatası (tüm turlarda) | **0** |
+| Yatay taşma (5 rol × 1280 px ve 375 px) | **0** |
+| Senkron şeridi kontrastı (harmanlanmış zemin) | **9,84:1** (eşik 4,5) |
+| D1 uç testleri | 6/6 (push, pull, reset, geçersiz oda, bozuk JSON, boş oda) |
+| Hız sınırı (gerçek uç) | 60×200 + 5×429 · ayrı IP serbest · ayrı sayaç |
+| Commit | 7 (her madde ayrı) |
+
+### 28j. Bu turda YAPILMAYAN (bilinçli)
+
+1. **`npm run deploy:demo` ÇALIŞTIRILMADI.** Kullanıcı push izni verdi, canlıya
+   alma izni ayrıca sorulacak. D1 bağlaması demo yapılandırmasına eklendiği için
+   ilk deploy'da `check:config` ve canlı ölçüm (§26c) şart.
+2. **Gerçek kimlik doğrulama (Better Auth).** Oda kodu onun yerine geçmiyor,
+   yerini tutuyor; bu sınır hem arayüzde hem gizlilik metninde yazılı.
+3. **Hız sınırının D1/KV'ye taşınması.** Finale iki gün kala kapsam dışı.
+4. Sude'nin ve Burak'ın 7'şer maddesi — iş bölümü gereği onlarda.
