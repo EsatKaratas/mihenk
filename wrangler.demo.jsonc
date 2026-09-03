@@ -83,6 +83,29 @@
     "binding": "AI"
   },
 
+  // ===========================================================================
+  // D1 — CİHAZLAR ARASI SENKRON (§28b)
+  //
+  // Bu dosyanın başındaki not "D1 demo akışı için gerekli değildir" diyordu ve
+  // o not 3 Eylül'e kadar doğruydu: veri yalnızca localStorage'daydı, dolayısıyla
+  // ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞEMİYORDU. Artık düşüyor.
+  //
+  // Engel neydi: `database_id` boş bırakılırsa `wrangler deploy` başarısız olur.
+  // Veritabanı 3 Eylül'de oluşturuldu ve kimlik buraya yazıldı, engel kalktı:
+  //   npx wrangler d1 create olcme-db
+  //   npm run db:migrate:remote      (schema.sql — 14 üretim tablosu + 2 senkron)
+  //
+  // R2 ve Queues hâlâ BAĞLI DEĞİL (Queues ücretsiz planda kullanılamaz);
+  // üretim mimarisi wrangler.jsonc'ta olduğu gibi duruyor.
+  // ===========================================================================
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "olcme-db",
+      "database_id": "daeb141d-bc0a-4471-b369-928832fda984"
+    }
+  ],
+
   // Statik varlıklar: public/index.html (prototip), mimari.html,
   // privacy-policy.html, 404.html, robots.txt
   "assets": {

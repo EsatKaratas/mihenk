@@ -32,6 +32,10 @@ const ROLES = [
   { id: "teacher", label: "Öğretmen", hint: "sınav ve değerlendirme" },
   { id: "student", label: "Öğrenci", hint: "sınav çözümü" },
   { id: "admin", label: "Eğitim Yöneticisi", hint: "okul genel bakış" },
+  /* Beşinci rol (§28f). Brief dördünü şart koşuyor; veli gerekçesiyle eklendi:
+     salt okunur, yalnızca kendi çocuğunun ONAYLANMIŞ sonuçları, sınıf
+     ortalaması ve sıralama yok. */
+  { id: "parent", label: "Veli", hint: "çocuğunun sonuçları" },
 ];
 
 /* ============================== Yardımcılar ============================== */
@@ -504,7 +508,14 @@ const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
-  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen"];
+  "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
+  /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
+     girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
+     bilinçli olarak kalıcı DEĞİLDİR. */
+  "syncRoom", "parentStudentId",
+  /* Öğretmenin "veliye bildirilsin" onayı (§28e). Bu bir İNSAN KARARIDIR ve
+     kaybolmamalıdır; sinyalin kendisi her seferinde yeniden hesaplanır. */
+  "dikkatOnay"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -829,6 +840,8 @@ const state = {
           startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null, endsAt: null,
           // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
           mcPoint: MC_VARSAYILAN_PUAN },
+  syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
+  parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -1640,6 +1653,9 @@ var AUDIT_ETIKET = {
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
   geri_bildirim_aktarildi:{ad:"Geri bildirim aktarıldı",  sinif: "pill-neutral", aktor: "öğretmen" },
+  /* Dikkat sinyalinin veliye iletilmesi bir İNSAN KARARIDIR ve denetim izine
+     öyle yazılır: aktör öğretmendir, sistem değil (§28e). */
+  dikkat_veliye_bildirildi:{ad:"Dikkat sinyali veliye bildirildi", sinif: "pill-warning", aktor: "öğretmen" },
 };
 
 /**
@@ -2764,6 +2780,12 @@ function activateExam(id) {
                  status: kayit.status, durationMin: kayit.durationMin,
                  startMode: kayit.startMode || "now", startAtLocal: kayit.startAtLocal || "",
                  startDelaySec: kayit.startDelaySec, startsAt: kayit.startsAt,
+                 /* `endsAt` BU LİSTEDE YOKTU ve sınav değiştirilip geri dönülünce
+                    undefined oluyordu (ölçüldü). Sonucu: süre sayacı mutlak bitiş
+                    anından hesaplanmayı bırakıp yumuşak "-1" sayımına geriliyordu;
+                    yani "sayfa kapansa bile süre gerçekte olduğu gibi işler"
+                    garantisi SESSİZCE düşüyordu (§6.3-5). */
+                 endsAt: kayit.endsAt != null ? kayit.endsAt : null,
                  mcPoint: mcPuani(kayit) };
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
@@ -2775,19 +2797,96 @@ function createExam(baslik) {
   const id = examIdSeq++;
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
-                 startDelaySec: 0, startsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
+                 startDelaySec: 0, startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
+  /* Bu literal, KAYDIN alanlarıyla birebir aynı olmalıdır. `mcPoint` ve `endsAt`
+     burada eksikti: kayıtta 5 duruyordu ama `state.exam.mcPoint` undefined'dı ve
+     yalnızca `mcPuani()`'nin varsayılana düşmesi sayesinde görünür bir kırılma
+     olmuyordu — yani hata örtülüydü, yok değildi. */
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
-                 durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0, startsAt: null };
+                 durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0,
+                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN };
   OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
   state.teacherTab = 1;
   renderAll();
 }
 
+/* ==================== SINAV YÖNETİMİ (§28c) ====================
+   Öğretmen, yayınladığı bir sınav üzerinde HİÇBİR ŞEY yapamıyordu: saatini
+   değiştiremiyor, silemiyor, yayından kaldıramıyordu. Tek çıkış yolu "Verileri
+   sıfırla" ile her şeyi silmekti. Ölçülen sebep üçtü: deleteExam() yayındaki
+   sınavda doğrudan `false` dönüyordu, silme düğmesi yayındayken hiç
+   çizilmiyordu ve tüm alanlar `locked` iken `disabled` idi.
+
+   YENİ KURAL — kilit "yayında mı"ya değil "ÖĞRENCİ BAŞLADI MI"ya bakar:
+     · taslak                          → her şey düzenlenebilir
+     · yayında, kimse başlamadı        → her şey düzenlenebilir (asıl boşluk buydu)
+     · yayında, en az bir öğrenci başladı → başlık serbest, SÜRE VE SAAT KİLİTLİ
+   Süreyi sınav sürerken değiştirmek ölçmeyi bozar: aynı sınava giren iki
+   öğrenci farklı süre almış olur. Bu yüzden orası bilinçli olarak kilitli. */
+function sinavKatilim(kayit) {
+  const ss = (kayit && kayit.sessions) || {};
+  let baslayan = 0, gonderen = 0;
+  Object.keys(ss).forEach(function (sid) {
+    const d = (ss[sid] || {}).examStatus || "not_started";
+    if (d === "in_progress") baslayan++;
+    else if (d === "submitted" || d === "graded") { baslayan++; gonderen++; }
+  });
+  // Aktif öğrencinin oturumu kökte "canlı" durur; kayda henüz yazılmamış olabilir.
+  if (kayit && kayit.id === state.activeExamId) {
+    const d = state.examStatus || "not_started";
+    const yazili = ((kayit.sessions || {})[state.activeStudentId] || {}).examStatus;
+    if (!yazili && d !== "not_started") { baslayan++; if (d !== "in_progress") gonderen++; }
+  }
+  return { baslayan: baslayan, gonderen: gonderen };
+}
+
+/** Süre/saat alanları kilitli mi? Yayında olmak TEK BAŞINA yetmez. */
+function sinavZamanKilitli(kayit) {
+  const k = kayit || (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!k) return false;
+  const st = k.id === state.activeExamId ? state.exam.status : k.status;
+  return st === "published" && sinavKatilim(k).baslayan > 0;
+}
+
+/** Yayından kaldır: sınav taslağa döner, öğrenciler artık göremez. */
+function unpublishExam(id) {
+  const kayit = (state.exams || []).find(function (x) { return x.id === id; });
+  if (!kayit) return false;
+  const k = sinavKatilim(kayit);
+  let uyari = "“" + (kayit.title || "Adsız Sınav") + "” yayından kaldırılacak ve öğrenciler artık göremeyecek.";
+  if (k.baslayan) {
+    uyari += "\n\nDİKKAT: " + k.baslayan + " öğrenci bu sınava başlamış" +
+      (k.gonderen ? " (" + k.gonderen + " tanesi yanıtlarını göndermiş)" : "") +
+      ". Yanıtları SİLİNMEZ, sınav yeniden yayınlandığında yerinde durur.";
+  }
+  if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  if (id === state.activeExamId) state.exam.status = "draft"; else kayit.status = "draft";
+  kayit.status = "draft";
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
 function deleteExam(id) {
   const kayit = state.exams.find(function (x) { return x.id === id; });
-  if (!kayit || kayit.status === "published") return false; // yayındaki sınav silinmez
+  if (!kayit) return false;
+
+  /* Yayındaki sınav ARTIK SİLİNEBİLİR ama sessizce değil: kaç öğrencinin
+     verisinin gideceği sayılıp söylenir. Eskiden buradan `false` dönülüyor,
+     öğretmene hiçbir açıklama yapılmıyordu. */
+  const yayinda = (id === state.activeExamId ? state.exam.status : kayit.status) === "published";
+  const k = sinavKatilim(kayit);
+  if (yayinda || k.baslayan) {
+    let uyari = "“" + (kayit.title || "Adsız Sınav") + "” KALICI OLARAK silinecek.";
+    if (k.baslayan) {
+      uyari += "\n\n" + k.baslayan + " öğrencinin bu sınavdaki yanıtları" +
+        (k.gonderen ? ", " + k.gonderen + " tanesinin gönderdiği kağıt dahil," : "") +
+        " birlikte silinecek. Bu işlem geri alınamaz.";
+    }
+    if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  }
   state.exams = state.exams.filter(function (x) { return x.id !== id; });
   if (state.activeExamId === id) {
     if (state.exams.length) { state.activeExamId = null; activateExam(state.exams[0].id); }
@@ -2835,9 +2934,17 @@ function examSwitcherHtml() {
         '<span class="es-meta">' + adet + ' soru ' + examStatusPill(st, sess) + '</span></button>';
     }).join("") +
     '<button class="es-item es-new" id="btnNewExam">+ Yeni Sınav</button></div>' +
-    (state.exam.status !== "published"
-      ? '<button class="btn btn-secondary btn-sm" id="btnDelExam" style="margin-top:8px;">Bu taslağı sil</button>'
-      : "") + '</div>';
+    /* Silme düğmesi ESKİDEN YALNIZCA TASLAKTA çiziliyordu; yayınlanan bir sınav
+       için öğretmenin hiçbir çıkışı yoktu (§28c). Artık her durumda var ve
+       yayındaki sınavda deleteExam() kaç öğrencinin verisinin gideceğini sayıp
+       soruyor. Yayından kaldırma ise veri silmeyen, geri alınabilir yoldur. */
+    '<div class="es-actions">' +
+    (state.exam.status === "published"
+      ? '<button class="btn btn-secondary btn-sm" id="btnUnpublishExam">Yayından kaldır</button>'
+      : "") +
+    '<button class="btn btn-secondary btn-sm" id="btnDelExam">' +
+    (state.exam.status === "published" ? "Bu sınavı sil" : "Bu taslağı sil") + '</button>' +
+    '</div></div>';
 }
 
 function wireExamSwitcher() {
@@ -2848,6 +2955,8 @@ function wireExamSwitcher() {
   if (nb) nb.onclick = function () { createExam(); };
   const db = document.getElementById("btnDelExam");
   if (db) db.onclick = function () { deleteExam(state.activeExamId); };
+  const ub = document.getElementById("btnUnpublishExam");
+  if (ub) ub.onclick = function () { unpublishExam(state.activeExamId); };
 }
 
 /* ============================== Öğretmen ============================== */
@@ -3176,14 +3285,20 @@ function teacherTab1Html() {
   const approved = filteredPool();
   const tumOnayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
   const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
-  const locked = state.exam.status === "published";
+  /* §28c: kilit artık "yayında mı"ya değil "öğrenci başladı mı"ya bakar.
+     Yayınlanmış ama kimsenin başlamadığı sınav hâlâ düzenlenebilir — asıl
+     boşluk buydu. Soru listesi yayında değişmez (ölçme bütünlüğü). */
+  const katilim = sinavKatilim((state.exams || []).find(function (x) { return x.id === state.activeExamId; }));
+  const yayinda = state.exam.status === "published";
+  const locked = yayinda && katilim.baslayan > 0;
+  const soruKilidi = yayinda;
   return examSwitcherHtml() + '<div class="grid-2">' +
     '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
     (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
     poolFilterHtml() +
     (approved.length ? approved.map(function (q) {
       const duzenleniyor = state.editingQid === q.id;
-      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (locked ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
+      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
         '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
@@ -3204,7 +3319,7 @@ function teacherTab1Html() {
             '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
         '</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
-    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı" ' + (locked ? "disabled" : "") + '></div>' +
+    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı"></div>' +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
     '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Öğrenciye verilecek toplam süre (dk)</label>' +
     '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
@@ -3217,14 +3332,22 @@ function teacherTab1Html() {
     '</select></div></div>' +
     (state.exam.startMode === "scheduled"
       ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
-        '<input id="examStartAt" type="datetime-local" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
+        /* `min` OLMADAN geçmiş bir tarih seçilebiliyordu (ölçüldü: 2020-01-01
+           kabul ediliyor, checkValidity() true dönüyordu). Yayınlandığında sınav
+           anında açılıyor ama kartta "Açılış: 1 Oca 2020" yazıyordu. */
+        '<input id="examStartAt" type="datetime-local" min="' + yerelDamga(new Date()) + '" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
         '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
       : "") +
-    (locked && state.exam.startsAt
+    (yayinda && state.exam.startsAt
       ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
         new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
       : "") +
-    (locked ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' :
+    (yayinda ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' +
+      (locked
+        ? '<div class="pill pill-warning" style="margin-top:8px;">' + katilim.baslayan +
+          ' öğrenci sınava başladı — süre ve açılış saati artık değiştirilemez. ' +
+          'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
+        : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
       (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
     ) + "</div></div>" + rejectedPoolHtml("teacher");
@@ -3319,9 +3442,7 @@ function wireTeacherTab1() {
       // Varsayılan: 1 saat sonrası, dakikaya yuvarlanmış.
       const d = new Date(Date.now() + 3600000);
       d.setSeconds(0, 0);
-      const pad = function (n) { return String(n).padStart(2, "0"); };
-      state.exam.startAtLocal = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-        "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+      state.exam.startAtLocal = yerelDamga(d);
     }
     renderAll();
   };
@@ -3349,9 +3470,17 @@ function wireTeacherTab1() {
   };
   const pubBtn = document.getElementById("btnPublishExam");
   if (pubBtn) pubBtn.onclick = function () {
-    if (state.exam.startMode === "scheduled" && state.exam.startAtLocal) {
-      const ts = new Date(state.exam.startAtLocal).getTime();
+    if (state.exam.startMode === "scheduled") {
+      /* SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5). Eskiden bu dal yalnızca
+         `startAtLocal` DOLUYSA çalışıyordu; öğretmen "Belirli bir tarih ve
+         saatte" seçip alanı boş bırakırsa `else` dalına düşülüyor ve sınav
+         sessizce ANINDA yayınlanıyordu — seçim yok sayılmış oluyordu. */
+      const ts = state.exam.startAtLocal ? new Date(state.exam.startAtLocal).getTime() : NaN;
       if (isNaN(ts)) { state.poolError = "Geçerli bir açılış tarihi ve saati seçin."; renderAll(); return; }
+      if (ts <= Date.now()) {
+        state.poolError = "Açılış saati geçmişte kalamaz. İleri bir tarih ve saat seçin ya da “Yayınlar yayınlamaz” seçeneğine dönün.";
+        renderAll(); return;
+      }
       state.exam.startsAt = ts;
     } else {
       state.exam.startsAt = Date.now();
@@ -3986,6 +4115,8 @@ function wireTeacherTab3() {
     };
   });
 }
+/* Öğretmenin nihai puan kararı. Sonuç yayınlandığında (publishResults)
+   sunucuya gönderilir; öğrenci onaylanmış puanı kendi cihazından görür. */
 function finalizeReview(qid, score, comment, decision, sid) {
   const ogrId = sid != null ? sid : state.activeStudentId;
   const rub = state.rubrics[qid];
@@ -4681,7 +4812,7 @@ function renderTeacher() {
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
   if (state.teacherTab === 3) { content.innerHTML = teacherTab3Html(); wireTeacherTab3(); }
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html(); wireMisconceptions(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -4733,10 +4864,24 @@ async function finishExam() {
   } finally {
     state.ai.busy = false;
     renderAll();
+    /* ÜRÜNÜN ANA BOŞLUĞU BURADA KAPANIYOR: öğrencinin bitirdiği kağıt,
+       öğretmenin cihazındaki panele ancak buradan gönderilirse düşer (§28b). */
+    syncOtomatik();
   }
 }
 
 // "3 gün 4 saat" gibi okunur kalan süre — saniye saymak anlamsız.
+/* `datetime-local` alanının beklediği "YYYY-MM-DDTHH:MM" biçimi (YEREL saat).
+   Hem alanın `min` özniteliği hem de varsayılan açılış değeri bunu kullanır;
+   ikisi ayrı ayrı yazılırsa biri diğerini yalanlayabilir. ISO/UTC KULLANILAMAZ:
+   `toISOString()` saat dilimini kaydırır ve öğretmenin seçtiği saat 3 saat
+   önce/sonra görünür. */
+function yerelDamga(d) {
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+    "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
 function kalanMetni(ts) {
   const sn = Math.max(0, Math.round((ts - Date.now()) / 1000));
   if (sn < 60) return sn + " saniye içinde açılacak";
@@ -4803,7 +4948,11 @@ function studentTab1Html() {
       (c.bekliyor
         ? '<div class="wait-box"><b>Açılış: ' +
           new Date(c.ex.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</b>' +
-          '<div id="waitPill" class="lbl-hint" style="margin-left:0;">' + kalanMetni(c.ex.startsAt) + '</div></div>'
+          /* SAYAÇ KARTIN KENDİSİNE BAĞLI (§28a). Eskiden burada `id="waitPill"`
+             vardı; birden fazla sınav beklerken AYNI id birden çok kez basılıyor,
+             `getElementById` yalnızca ilkini bulabiliyordu. Artık her kart kendi
+             açılış damgasını taşır ve sayacı kendi damgasından hesaplanır. */
+          '<div class="lbl-hint wait-pill" data-basla="' + c.ex.startsAt + '" style="margin-left:0;">' + kalanMetni(c.ex.startsAt) + '</div></div>'
         : "") +
       '<div style="margin-top:14px;">' + examActionBtn(x) + '</div></div>';
   }).join("");
@@ -5325,6 +5474,13 @@ function renderAdmin() {
   // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
   root.insertAdjacentHTML("beforeend", auditGunluguHtml());
   wireAudit();
+  /* Risk listesi (§28g). Denetim izinin ÜSTÜNE değil altına konuldu ama dışa
+     aktarmanın üstünde: müdürün "bugün ne yapmalıyım" sorusu, indirme
+     düğmelerinden önce gelir. */
+  root.insertAdjacentHTML("beforeend", riskListesiHtml());
+  // Dışa aktarma (§28d) — okullar sonuçları Excel'de ister.
+  root.insertAdjacentHTML("beforeend", disaAktarHtml());
+  wireDisaAktar();
   /* Isı haritası GERÇEK + "(örnek)" satırların ikisini birden gösterir
      (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
      ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
@@ -5787,6 +5943,8 @@ function renderAll() {
   renderTeacher();
   renderStudent();
   renderAdmin();
+  renderParent();
+  renderSyncBar();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   bindFieldLabels();
@@ -5795,7 +5953,6 @@ function initPanels() {
   document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
 }
 
-let waitingFlag = false;
 setInterval(function () {
   if (state.examStatus === "in_progress") {
     // Kalan süre mutlak bitiş anından hesaplanır: sayfa kapansa, tarayıcı
@@ -5807,15 +5964,930 @@ setInterval(function () {
     if (tv) { tv.textContent = formatTime(state.remainingSec); tv.classList.toggle("low", state.remainingSec < 60); }
     if (state.remainingSec === 0) finishExam();
   }
-  if (state.exam.status === "published" && state.examStatus === "not_started") {
-    const stillWaiting = Date.now() < state.exam.startsAt;
-    if (stillWaiting) {
-      waitingFlag = true;
-      const wp = document.getElementById("waitPill");
-      if (wp) wp.textContent = kalanMetni(state.exam.startsAt);
-    } else if (waitingFlag) { waitingFlag = false; renderAll(); }
+  /* ============ BEKLEYEN SINAV SAYAÇLARI (§28a — ölçülmüş 4 kusur) ============
+     Eski kod şunu yapıyordu:
+       if (state.exam.status === "published" && state.examStatus === "not_started") {
+         ... document.getElementById("waitPill") ... state.exam.startsAt ...
+       }
+     Dört ayrı kusuru vardı ve üçü birden canlıda ölçüldü:
+       1) `state.examStatus === "not_started"` şartı — öğrenci BAŞKA bir sınavı
+          bitirdiyse durum "graded"/"submitted" olur ve blok HİÇ çalışmazdı.
+       2) Yinelenen `id="waitPill"` — birden çok sınav beklerken getElementById
+          yalnızca ilk kartı buluyordu.
+       3) Ticker yalnızca AKTİF sınava bakıyordu; listedeki diğer sınavların
+          sayacı hiç güncellenmiyor, üstelik ilk karta aktif sınavın süresi
+          yazılabiliyordu.
+       4) `waitingFlag` tek bir globaldi; iki sınav beklerken biri açılınca
+          bayrak düşüyor, ikincisinin açılışı hiç tetiklenmiyordu.
+     Sonucu ölçüldü: açılış saati geçtiği hâlde sayaç donuyor ve öğrenci
+     SAYFAYI ELLE YENİLEMEDEN sınava giremiyordu.
+
+     Artık her bekleyen kart kendi `data-basla` damgasından hesaplanır; hangi
+     sınavın aktif olduğu ya da aktif oturumun durumu hiç önemli değildir. */
+  const acilanlar = [];
+  document.querySelectorAll(".wait-pill").forEach(function (el) {
+    const ts = Number(el.dataset.basla);
+    if (!Number.isFinite(ts) || ts <= 0) return;
+    if (Date.now() < ts) el.textContent = kalanMetni(ts);
+    else acilanlar.push(el);
+  });
+  if (acilanlar.length) {
+    /* renderAll() TÜM panelleri yeniden çizer — öğretmen paneli dahil. Bu yüzden
+       biri bir alana yazarken çağrılamaz, odak kaybolur (§6.3-3). Yazma bitene
+       kadar erteliyoruz: ticker saniyede bir döndüğü için sınav en fazla birkaç
+       saniye gecikmeyle açılır; odak kaybı bundan ağır bir hatadır. */
+    const odak = document.activeElement;
+    const yaziliyor = !!odak && (odak.tagName === "INPUT" || odak.tagName === "TEXTAREA" || odak.isContentEditable);
+    if (!yaziliyor) renderAll();
   }
 }, 1000);
+
+/* ==================== RİSK LİSTESİ (§28g) ====================
+   Yönetici paneli "ne kadar tamamlandı" ve "hangi kazanım zayıf" sorularını
+   cevaplıyordu. Bir müdürün ilk sorduğu soru ise bu değil:
+   "HANGİ ÖĞRENCİLER RİSK ALTINDA?"
+
+   ÖLÇÜT — ABC çerçevesi (eğitimde erken uyarı sistemlerinin uluslararası
+   standardı): Attendance (devam), Behavior (davranış), Course performance
+   (ders başarısı). Literatürdeki tavsiye ÜÇ GÖSTERGEYLE BAŞLA, karmaşıklığı
+   sonra ekle. Üçünün buradaki karşılıkları:
+     · Devam   -> atanan sınavın kaçına hiç girmemiş
+     · Davranış-> sınav bütünlüğü sinyali (§28e ile aynı veri)
+     · Başarı  -> onaylanmış sınavlardaki ortalama yüzde
+
+   🔴 DÜRÜSTLÜK SINIRI: Bu bir TAHMİN DEĞİL, bir ÖZETTİR. Sistem "bu öğrenci
+   başarısız olacak" demez; yalnızca elindeki üç ölçütü tek yerde toplar.
+   Karar ve müdahale insanındır — ürünün her yerindeki kural burada da geçerli. */
+const RISK_ESIK_BASARI = 50;     // onaylı sınav ortalaması bu yüzdenin altındaysa
+const RISK_ESIK_GIRMEME = 1;     // en az bu kadar sınava hiç girmemişse
+
+function riskOgrencileri() {
+  const yayindaki = (state.exams || []).filter(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    return ex.status === "published";
+  });
+  if (!yayindaki.length) return [];
+
+  return (state.students || []).map(function (ogr) {
+    let toplamPuan = 0, toplamTam = 0, girmedi = 0, onayli = 0;
+    yayindaki.forEach(function (kayit) {
+      const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+      const o = kayit.id === state.activeExamId && String(ogr.id) === String(state.activeStudentId)
+        ? (function () { const t = {}; OTURUM_ALANLARI.forEach(function (k) { t[k] = state[k]; }); return t; })()
+        : ((kayit.sessions || {})[ogr.id] || null);
+      const durum = (o && o.examStatus) || "not_started";
+      if (durum === "not_started") { girmedi++; return; }
+      if (durum !== "graded") return;
+      onayli++;
+      const sorular = (ex.questionIds || [])
+        .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+        .filter(Boolean);
+      const mcP = mcPuani(kayit);
+      sorular.forEach(function (q) {
+        if (q.type === "mc") {
+          const r = (o.mcResults || {})[q.id];
+          if (!r) return;
+          toplamTam += mcP; toplamPuan += r.correct ? mcP : 0;
+        } else {
+          const rv = (o.reviews || {})[q.id];
+          if (!rv) return;
+          toplamTam += (state.rubrics[q.id] || {}).maxScore || 0;
+          toplamPuan += Number(rv.finalScore) || 0;
+        }
+      });
+    });
+
+    const yuzde = toplamTam ? Math.round((toplamPuan / toplamTam) * 100) : null;
+    const dikkat = dikkatOgrenciSinyali(ogr.id);
+    const sebepler = [];
+    if (yuzde != null && yuzde < RISK_ESIK_BASARI) sebepler.push({ tur: "basari", metin: "onaylı sınav ortalaması %" + yuzde });
+    if (girmedi >= RISK_ESIK_GIRMEME) sebepler.push({ tur: "devam", metin: girmedi + " sınava hiç girmemiş" });
+    if (dikkat) sebepler.push({ tur: "davranis", metin: dikkat.isaretli.length + " sınavda dikkat sinyali" + (dikkat.oruntu ? " (örüntü)" : "") });
+
+    return {
+      id: ogr.id, ad: ogr.name || ("#" + ogr.id), sinif: ogr.sinif || "",
+      yuzde: yuzde, girmedi: girmedi, onayli: onayli,
+      sebepler: sebepler, sayi: sebepler.length
+    };
+  }).filter(function (r) { return r.sayi > 0; })
+    .sort(function (a, b) {
+      if (b.sayi !== a.sayi) return b.sayi - a.sayi;                     // çok göstergeli önce
+      return (a.yuzde == null ? 101 : a.yuzde) - (b.yuzde == null ? 101 : b.yuzde);
+    });
+}
+
+function riskListesiHtml() {
+  const liste = riskOgrencileri();
+  const toplam = (state.students || []).length;
+  if (!liste.length) {
+    return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
+      '<span class="pill pill-success">işaret yok</span></div>' +
+      '<div class="empty-state">Üç göstergenin (devam · davranış · başarı) hiçbirinde işaret oluşmadı. ' +
+      'Sınavlar onaylandıkça bu liste dolar.</div></div>';
+  }
+  const etiket = { basari: "pill-critical", devam: "pill-warning", davranis: "pill-accent2" };
+  return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
+    '<span class="pill pill-warning">' + liste.length + ' / ' + toplam + ' öğrenci</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Uluslararası erken uyarı standardı olan <b>ABC</b> ' +
+    'çerçevesine göre üç gösterge birlikte değerlendirilir: <b>devam</b> (girilmeyen sınav), ' +
+    '<b>davranış</b> (sınav bütünlüğü sinyali) ve <b>başarı</b> (onaylı sınav ortalaması). ' +
+    'Bu liste bir <b>tahmin değil, bir özettir</b>: sistem kimsenin başarısız olacağını söylemez, ' +
+    'yalnızca elindeki üç ölçütü tek yerde toplar. <b>Karar ve müdahale sizindir.</b></p>' +
+    liste.map(function (r) {
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(r.ad) + '</b>' +
+        (r.sinif ? ' <span class="pill pill-neutral">' + escapeHtml(r.sinif) + '</span>' : "") +
+        '<div class="p-tags">' + r.sebepler.map(function (s) {
+          return '<span class="pill ' + etiket[s.tur] + '">' + escapeHtml(s.metin) + '</span>';
+        }).join("") + '</div>' +
+        '<div class="lbl-hint">' + (r.onayli ? r.onayli + " onaylı sınav" : "henüz onaylı sınavı yok") +
+        (r.yuzde != null ? " · ortalama %" + r.yuzde : "") + '</div></div>' +
+        '<span class="pill ' + (r.sayi >= 2 ? "pill-critical" : "pill-warning") + '">' +
+        r.sayi + ' gösterge</span></div>';
+    }).join("") +
+    '<div class="lbl-hint" style="margin-top:10px;">İki ve üzeri göstergesi olan öğrenciler listenin ' +
+    'başındadır; literatürdeki tavsiye, tek göstergeye değil <b>göstergelerin birikmesine</b> ' +
+    'bakmaktır.</div></div>';
+}
+
+/* ==================== VELİ PANELİ (§28f) ====================
+   Brief dört rol istiyor; beşincisi gerekçesiyle ekleniyor: veli, çocuğunun
+   öğrenme durumunu en çok merak eden ve bugün en az bilgilendirilen taraftır.
+
+   🔴 EN AĞIR HATA SINIFI: YANLIŞ VELİYE YANLIŞ ÇOCUĞUN VERİSİ.
+   Bu yüzden panel bilinçli olarak DAR tutuldu:
+
+   · YALNIZCA ONAYLANMIŞ sonuç görünür. Öğretmen "yayınla" demediyse veli
+     hiçbir şey görmez — AI'ın ham puan önerisi veliye ASLA ulaşmaz.
+     Bu, HITL zincirinin veliye kadar uzatılmış hâlidir (agents.md §1).
+   · SINIF ORTALAMASI YOK, SIRALAMA YOK, BAŞKA ÖĞRENCİ YOK. Kullanıcının
+     açık isteği; ayrıca bir çocuğun sınıftaki yerini veliye söylemek
+     ölçme-değerlendirmenin amacı değildir.
+   · Sınav bütünlüğü kaydı yalnızca ÖĞRETMEN ONAYLADIYSA görünür (§28e) ve
+     suçlayıcı olmayan dille yazılır.
+   · Kimlik doğrulama YOKTUR; çocuk seçimi simülasyondur ve ekranda öyle
+     yazar. Gerçek eşleştirme Better Auth ile üretimde yapılacaktır. */
+
+function veliCocugu() {
+  const liste = state.students || [];
+  if (!liste.length) return null;
+  const bulunan = liste.find(function (o) { return String(o.id) === String(state.parentStudentId); });
+  return bulunan || liste[0];
+}
+
+/** Velinin görebileceği sınavlar: YALNIZCA öğretmen onayından geçmiş olanlar. */
+function veliSonuclari(sid) {
+  const cikti = [];
+  (state.exams || []).forEach(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    if (ex.status !== "published") return;
+    const o = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)
+      ? (function () { const t = {}; OTURUM_ALANLARI.forEach(function (k) { t[k] = state[k]; }); return t; })()
+      : ((kayit.sessions || {})[sid] || null);
+    // ONAY KAPISI: "graded" değilse veli göremez.
+    if (!o || o.examStatus !== "graded") return;
+
+    const sorular = (ex.questionIds || [])
+      .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+      .filter(Boolean);
+    const mcP = mcPuani(kayit);
+    let puan = 0, tam = 0;
+    const kazanimlar = {};
+    sorular.forEach(function (q) {
+      let alinan = null, azami = 0;
+      if (q.type === "mc") {
+        const r = (o.mcResults || {})[q.id];
+        if (!r) return;                       // puanlanmamış soru toplama girmez
+        azami = mcP; alinan = r.correct ? mcP : 0;
+      } else {
+        const rv = (o.reviews || {})[q.id];
+        if (!rv) return;
+        azami = (state.rubrics[q.id] || {}).maxScore || 0;
+        alinan = Number(rv.finalScore) || 0;
+      }
+      puan += alinan; tam += azami;
+      const kod = q.outcome || "—";
+      if (!kazanimlar[kod]) kazanimlar[kod] = { alinan: 0, tam: 0 };
+      kazanimlar[kod].alinan += alinan; kazanimlar[kod].tam += azami;
+    });
+
+    // Öğretmenin ONAYLADIĞI geri bildirimler (AI taslağı değil, nihai metin).
+    const yorumlar = sorular.map(function (q) {
+      const rv = (o.reviews || {})[q.id];
+      return rv && rv.comment ? { soru: q.body, yorum: rv.comment } : null;
+    }).filter(Boolean);
+
+    cikti.push({
+      examId: kayit.id, baslik: ex.title || "Adsız Sınav",
+      puan: puan, tam: tam,
+      yuzde: tam ? Math.round((puan / tam) * 100) : null,
+      kazanimlar: kazanimlar, yorumlar: yorumlar
+    });
+  });
+  return cikti;
+}
+
+function veliKazanimEtiketi(kod) {
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === kod; });
+  return o && o.label ? o.label : kod;
+}
+
+function renderParent() {
+  const root = document.getElementById("panel-parent");
+  if (!root) return;
+  const cocuk = veliCocugu();
+
+  if (!cocuk) {
+    root.innerHTML = '<div class="card"><div class="empty-state">Henüz tanımlı bir öğrenci yok.</div></div>';
+    return;
+  }
+
+  /* 🔴 ÇOCUK SEÇİCİ KATLANMIŞTIR — sebebi ölçüldü.
+     Seçici açıkta olduğunda panelde SINIFIN TÜM ADLARI görünüyordu; bu,
+     "veli başka öğrencinin bilgisini görmesin" kuralının ruhuna aykırıdır.
+     Seçici bir VELİ ARACI DEĞİL, kimlik doğrulama olmadığı için var olan bir
+     SİMÜLASYON ARACIDIR; bu yüzden <details> içine alındı ve öyle etiketlendi.
+     Velinin gerçekte gördüğü ekranda yalnızca kendi çocuğunun adı geçer.
+     (Aynı katlama idiyomu §25e'de uyum panelinde de kullanıldı.) */
+  const secici = '<div class="card"><div class="card-head"><h3>Veli Görünümü</h3>' +
+    '<span class="pill pill-success">' + escapeHtml(cocuk.name || "Öğrenci") + '</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar ' +
+    'görünür. Yapay zekânın ham puan önerileri veliye gösterilmez. ' +
+    '<b>Diğer öğrencilerin bilgileri, sınıf ortalaması ve sıralama bu ekranda yer almaz.</b></p>' +
+    '<details class="sim-secici"><summary>Simülasyon aracı — hangi veli olarak bakılıyor?</summary>' +
+    '<div class="field" style="margin-top:8px;"><label>Çocuk seçimi (yalnızca prototip)</label>' +
+    '<select id="veliCocuk">' +
+    (state.students || []).map(function (o) {
+      return '<option value="' + o.id + '"' + (o.id === cocuk.id ? " selected" : "") + '>' +
+        escapeHtml(o.name || ("#" + o.id)) + '</option>';
+    }).join("") + '</select>' +
+    '<span class="field-note">Bu prototipte kimlik doğrulama yoktur, bu yüzden çocuk elle seçilir. ' +
+    'Gerçek sürümde veli hesabıyla doğrulanır ve <b>yalnızca kendi çocuğunu</b> görebilir; ' +
+    'bu liste orada hiç bulunmaz.</span></div></details></div>' +
+    '';
+
+  const sonuclar = veliSonuclari(cocuk.id);
+  if (!sonuclar.length) {
+    root.innerHTML = secici + '<div class="card"><div class="empty-state">' +
+      escapeHtml(cocuk.name || "Öğrenci") + ' için öğretmen onayından geçmiş bir sonuç henüz yok. ' +
+      'Öğretmen sonuçları yayınladığında burada görünecek.</div></div>';
+    wireParent();
+    return;
+  }
+
+  // Kazanım bazlı güçlü/zayıf — TÜM onaylı sınavlar birleştirilir.
+  const birlesik = {};
+  sonuclar.forEach(function (s) {
+    Object.keys(s.kazanimlar).forEach(function (k) {
+      if (!birlesik[k]) birlesik[k] = { alinan: 0, tam: 0 };
+      birlesik[k].alinan += s.kazanimlar[k].alinan;
+      birlesik[k].tam += s.kazanimlar[k].tam;
+    });
+  });
+  const kazanimSatirlari = Object.keys(birlesik).map(function (k) {
+    const v = birlesik[k];
+    return { kod: k, yuzde: v.tam ? Math.round((v.alinan / v.tam) * 100) : null };
+  }).filter(function (x) { return x.yuzde != null; }).sort(function (a, b) { return b.yuzde - a.yuzde; });
+
+  const onay = ensureDikkatOnay()[cocuk.id];
+
+  root.innerHTML = secici +
+    '<div class="card"><div class="card-head"><h3>' + escapeHtml(cocuk.name) + ' — Sonuçlar</h3>' +
+    '<span class="pill pill-success">' + sonuclar.length + ' onaylı sınav</span></div>' +
+    sonuclar.map(function (s) {
+      return '<div class="report-row"><div class="rr-head"><span><b>' + escapeHtml(s.baslik) + '</b></span>' +
+        '<span class="rr-score tabular">' + s.puan + ' / ' + s.tam +
+        (s.yuzde != null ? ' &nbsp;(%' + s.yuzde + ')' : "") + '</span></div>' +
+        (s.yorumlar.length
+          ? '<div class="rr-answer"><div class="rr-answer-lbl">Öğretmenin notu</div>' +
+            s.yorumlar.map(function (y) {
+              return '<div class="rr-answer-txt">' + escapeHtml(y.yorum) + '</div>';
+            }).join("") + '</div>'
+          : "") +
+        '</div>';
+    }).join("") + '</div>' +
+
+    '<div class="card"><div class="card-head"><h3>Kazanım Bazlı Durum</h3>' +
+    '<span class="hint">güçlü ve gelişime açık alanlar</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Yüzdeler <b>yalnızca çocuğunuzun kendi yanıtlarından</b> ' +
+    'hesaplanır; sınıfla karşılaştırma içermez.</p>' +
+    kazanimSatirlari.map(function (k) {
+      const renk = k.yuzde >= 70 ? "pill-success" : (k.yuzde >= 50 ? "pill-warning" : "pill-critical");
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(veliKazanimEtiketi(k.kod)) + '</b>' +
+        '<div class="lbl-hint">' + escapeHtml(k.kod) + '</div></div>' +
+        '<span class="pill ' + renk + '">%' + k.yuzde + '</span></div>';
+    }).join("") +
+    '<div class="lbl-hint" style="margin-top:10px;">%70 üzeri güçlü, %50 altı üzerinde çalışılması ' +
+    'önerilen alanlardır. Bu bir not değil, <b>yol göstericidir</b>.</div></div>' +
+
+    (onay
+      ? '<div class="card"><div class="card-head"><h3>Öğretmeninizden Bilgi</h3>' +
+        '<span class="pill pill-warning">öğretmen onaylı</span></div>' +
+        '<p>Çocuğunuz sınav sırasında <b>zorlanmış olabilir</b>. Öğretmeni, sizinle paylaşılmasında ' +
+        'yarar gördüğü için bu bilgiyi iletti. Bu bir <b>disiplin bildirimi ya da kopya iddiası ' +
+        'değildir</b>; sınav ortamında dikkatin dağıldığına dair bir kayıttır ve internet kesintisi ' +
+        'gibi masum nedenlerle de oluşabilir. Ayrıntı için öğretmeniyle görüşebilirsiniz.</p>' +
+        '<div class="lbl-hint">Bu bilgi otomatik gönderilmedi; ' + escapeHtml(auditZaman(onay.at)) +
+        ' tarihinde <b>öğretmen kararıyla</b> paylaşıldı.</div></div>'
+      : "");
+
+  wireParent();
+}
+
+function wireParent() {
+  const s = document.getElementById("veliCocuk");
+  if (s) s.onchange = function () { state.parentStudentId = Number(s.value); saveState(); renderAll(); };
+}
+
+/* ==================== DİKKAT SİNYALİ (§28e) ====================
+   Sınav bütünlüğü verisi (sekme değişimi, odak kaybı, tam ekrandan çıkış,
+   yapıştırma, sınav dışında geçen süre) bugüne kadar yalnızca TEK SINAVIN
+   ekranında duruyordu. İstenen: bunu bir uyarıya çevirmek.
+
+   🔴 BU ÖZELLİK ÜRÜNÜN DURUŞUNU BOZABİLİRDİ — dört koruma konuldu:
+
+   1. ÖNCE ÖĞRETMENE. Uyarı doğrudan veliye gitmez. Öğretmen bağlamı bilir:
+      internet kesilmiş olabilir, telefon çalmış olabilir.
+   2. VELİYE ANCAK ÖĞRETMEN ONAYLARSA. Bu, ürünün HITL deseninin birebir
+      aynısıdır: sistem ÖNERİR, insan KARAR VERİR (agents.md §1).
+   3. EŞİK TEK OLAYA DEĞİL ÖRÜNTÜYE BAKAR. Tek sınavdaki tek bir odak kaybı
+      hiçbir şey ifade etmez. En az İKİ sınavda tekrarlamadıkça bu bir örüntü
+      değildir ve ekranda da böyle yazar.
+   4. DİL SUÇLAYICI DEĞİLDİR. "Dikkati dağınık" demez; "zorlanmış olabilir"
+      der. Rehberlik önerisi ASLA otomatik yapılmaz.
+
+   Ürün "hile önlemiyoruz, kayıt tutuyoruz" diyor. Otomatik bir uyarı bunu
+   yaptırıma kaydırırdı; onay zinciri tam olarak bunu engelliyor. */
+
+/** Tek bir sınav oturumunun bütünlük verisinden sinyal çıkar. */
+function dikkatSinavSinyali(oturum, ex) {
+  const g = (oturum && oturum.integrity) || null;
+  if (!g) return null;
+  const kesinti = (g.tabSwitch || 0) + (g.blur || 0) + (g.fsExit || 0);
+  const sure = Math.max(1, (ex && ex.durationMin ? ex.durationMin : 10) * 60);
+  const disariOran = Math.round(((g.awaySec || 0) / sure) * 100);
+  // Eşikler: 5 kesinti ya da sürenin dörtte biri kadar dışarıda kalmak.
+  const isaret = kesinti >= 5 || disariOran >= 25 || (g.pasteCount || 0) >= 1;
+  return isaret ? { kesinti: kesinti, disariOran: disariOran, yapistirma: g.pasteCount || 0 } : null;
+}
+
+/** Bir öğrencinin TÜM sınavlarına bakıp örüntü var mı diye sorar. */
+function dikkatOgrenciSinyali(sid) {
+  const isaretli = [];
+  let incelenen = 0;
+  (state.exams || []).forEach(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    if (ex.status !== "published") return;
+    const o = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)
+      ? { integrity: state.integrity, examStatus: state.examStatus }
+      : ((kayit.sessions || {})[sid] || null);
+    if (!o || !o.examStatus || o.examStatus === "not_started") return;
+    incelenen++;
+    const s = dikkatSinavSinyali(o, ex);
+    if (s) isaretli.push({ sinav: ex.title || "Adsız Sınav", detay: s });
+  });
+  if (!isaretli.length) return null;
+  return {
+    sid: sid,
+    incelenen: incelenen,
+    isaretli: isaretli,
+    // ÖRÜNTÜ: en az iki sınavda tekrarlamalı. Tek sınav örüntü sayılmaz.
+    oruntu: isaretli.length >= 2
+  };
+}
+
+function dikkatSinyalleri() {
+  return (state.students || [])
+    .map(function (o) {
+      const s = dikkatOgrenciSinyali(o.id);
+      return s ? Object.assign(s, { ad: o.name || ("#" + o.id), sinif: o.sinif || "" }) : null;
+    })
+    .filter(Boolean);
+}
+
+function ensureDikkatOnay() {
+  if (!state.dikkatOnay) state.dikkatOnay = {};
+  return state.dikkatOnay;
+}
+
+/** Öğretmen "veliye bildirilsin" dedi — HITL onayı burada gerçekleşir. */
+function dikkatVeliyeOnayla(sid) {
+  const s = dikkatOgrenciSinyali(sid);
+  if (!s) return false;
+  if (!s.oruntu) {
+    alert("Bu öğrenci için henüz bir örüntü oluşmadı (yalnızca 1 sınavda işaret var). " +
+      "Tek sınavdaki bir kayıt, veliye bildirim için yeterli bir gerekçe değildir.");
+    return false;
+  }
+  const onay = ensureDikkatOnay();
+  onay[sid] = { at: Date.now(), sinavSayisi: s.isaretli.length, aktor: "Öğretmen" };
+  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sinavda isaret" });
+  saveState();
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
+function dikkatOnayGeriAl(sid) {
+  const onay = ensureDikkatOnay();
+  delete onay[sid];
+  saveState();
+  renderAll();
+  syncOtomatik();
+  return true;
+}
+
+function dikkatPanelHtml() {
+  const liste = dikkatSinyalleri();
+  const onay = ensureDikkatOnay();
+  if (!liste.length) {
+    return '<div class="card"><div class="card-head"><h3>Dikkat Sinyali</h3>' +
+      '<span class="pill pill-success">işaret yok</span></div>' +
+      '<div class="empty-state">Sınavlarda dikkat çeken bir bütünlük kaydı oluşmadı.</div></div>';
+  }
+  return '<div class="card"><div class="card-head"><h3>Dikkat Sinyali</h3>' +
+    '<span class="pill pill-warning">' + liste.length + ' öğrenci</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Bu bir <b>kopya iddiası değildir</b>. Sınav sırasında ' +
+    'sekme değişimi, odak kaybı ya da yapıştırma kaydedilen öğrenciler listelenir; bunlar internet ' +
+    'kesintisi ya da gelen bir bildirim gibi masum nedenlerle de oluşabilir. ' +
+    '<b>Karar sizindir</b> — sistem kimseye kendiliğinden haber vermez.</p>' +
+    liste.map(function (s) {
+      const o = onay[s.sid];
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(s.ad) + '</b>' +
+        (s.sinif ? ' <span class="pill pill-neutral">' + escapeHtml(s.sinif) + '</span>' : "") +
+        '<div class="p-tags">' +
+        '<span class="pill ' + (s.oruntu ? "pill-warning" : "pill-neutral") + '">' +
+        s.isaretli.length + ' / ' + s.incelenen + ' sınavda işaret</span>' +
+        (s.oruntu ? '<span class="pill pill-accent2">örüntü</span>'
+                  : '<span class="pill pill-neutral">tek sınav — örüntü sayılmaz</span>') +
+        '</div>' +
+        '<div class="lbl-hint">' + s.isaretli.map(function (i) {
+          const d = i.detay;
+          return escapeHtml(i.sinav) + ": " + d.kesinti + " kesinti" +
+            (d.disariOran ? " · sürenin %" + d.disariOran + "’ı dışarıda" : "") +
+            (d.yapistirma ? " · " + d.yapistirma + " yapıştırma" : "");
+        }).join(" — ") + '</div>' +
+        '<div class="lbl-hint" style="margin-top:4px;">Önerilen okuma: <i>bu öğrenci sınav sırasında ' +
+        'zorlanmış olabilir.</i> Rehberlik görüşmesi <b>otomatik önerilmez</b>; gerekip gerekmediğine siz karar verirsiniz.</div>' +
+        '</div>' +
+        (o
+          ? '<div><span class="pill pill-success">veliye bildirildi</span> ' +
+            '<button class="btn btn-secondary btn-sm dikkat-geri" data-sid="' + s.sid + '">Geri al</button></div>'
+          : '<button class="btn btn-secondary btn-sm dikkat-onay" data-sid="' + s.sid + '" ' +
+            (s.oruntu ? "" : "disabled title=\"Örüntü oluşmadan veliye bildirim önerilmez\"") +
+            '>Veliye bildirilsin</button>') +
+        '</div>';
+    }).join("") + '</div>';
+}
+
+function wireDikkat() {
+  document.querySelectorAll(".dikkat-onay").forEach(function (b) {
+    b.onclick = function () { dikkatVeliyeOnayla(Number(b.dataset.sid)); };
+  });
+  document.querySelectorAll(".dikkat-geri").forEach(function (b) {
+    b.onclick = function () { dikkatOnayGeriAl(Number(b.dataset.sid)); };
+  });
+}
+
+/* ==================== EXCEL / CSV DIŞA AKTARMA (§28d) ====================
+   Okullar sonuçları Excel'de ister. Ürün bugüne kadar yalnızca Karar
+   Günlüğü'nü dışa aktarabiliyordu; öğrenci ve sınıf değerlendirmeleri
+   ekranda kalıyordu.
+
+   NEDEN .xlsx DEĞİL DE CSV:
+   Gerçek bir .xlsx üretmek ZIP + XML yazmayı gerektirir; bu ürün BUILD
+   ADIMI OLMAYAN tek dosyalık vanilla JS'tir (§1.2) ve dışarıdan kütüphane
+   yüklemek CSP'ye (`script-src 'self'`) takılır. CSV, Excel'in çift tıkla
+   açtığı bir biçimdir. İki ayrıntı Türkçe Excel için ZORUNLUDUR ve karar
+   günlüğü dışa aktarımında da aynen uygulanmıştı:
+     · ayraç NOKTALI VİRGÜL — Türkçe Excel virgülü ondalık ayracı sayar
+     · başta UTF-8 BOM — yoksa "ğ ş ı" bozuk görünür
+   Ondalık sayılar da virgülle yazılır (12,5), Excel bunu sayı olarak okur. */
+
+/** CSV hücresi kaçışı — auditCsv() ile aynı kural. */
+function csvHucre(h) {
+  h = String(h == null ? "" : h);
+  return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
+}
+
+/** Sayıyı Türkçe Excel'in SAYI olarak okuyacağı biçime çevir. */
+function csvSayi(n) {
+  if (n == null || n === "" || !Number.isFinite(Number(n))) return "";
+  return String(Math.round(Number(n) * 100) / 100).replace(".", ",");
+}
+
+function csvSatirlar(basliklar, satirlar) {
+  return "﻿" + basliklar.map(csvHucre).join(";") + "\n" +
+    satirlar.map(function (r) { return r.map(csvHucre).join(";"); }).join("\n");
+}
+
+/** Dosya adında tarih: aynı sınıfın iki farklı günkü raporu karışmasın. */
+function disaAktarimAdi(on) {
+  const d = new Date();
+  return on + "-" + yerelDamga(d).replace("T", "-").replace(":", "") + ".csv";
+}
+
+/**
+ * ÖĞRENCİ BAZLI: her öğrencinin her sorudaki durumu, tek satır tek yanıt.
+ * Sınav puanı, yapay zekâ önerisi ve öğretmenin nihai kararı yan yana durur —
+ * bu, ürünün HITL tezinin tablo hâlidir.
+ */
+function ogrenciCsv() {
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return null;
+  const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+  const sorular = (ex.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const mcP = mcPuani(kayit);
+
+  const basliklar = ["sinav", "ogrenci", "sinif", "soru_no", "soru_turu", "kazanim",
+    "soru", "ogrenci_yaniti", "dogru_sik", "isaretlenen_sik",
+    "ai_onerisi", "ogretmen_puani", "tam_puan", "ogretmen_degistirdi_mi", "ogretmen_yorumu", "durum"];
+
+  const satirlar = [];
+  (state.students || []).forEach(function (ogr) {
+    const ss = readSession(ogr.id);
+    if (!ss || ss.examStatus === "not_started") return;   // çözmeyen öğrenci satır açmaz
+    sorular.forEach(function (q, i) {
+      const yanit = (ss.answers || {})[q.id] || {};
+      const mc = (ss.mcResults || {})[q.id];
+      const ai = (ss.aiEvals || {})[q.id];
+      const rv = (ss.reviews || {})[q.id];
+      const tam = q.type === "mc" ? mcP : ((state.rubrics[q.id] || {}).maxScore || 0);
+      /* ÇSS puanı ancak finishExam() çalışınca hesaplanır (mcResults). Sınav
+         hâlâ çözülüyorsa puan HENÜZ YOKTUR; buraya 0 yazmak, doğru işaretlemiş
+         bir öğrenciyi sıfır almış gibi gösterirdi — yanlış beyan (§17a-3).
+         Puanlanmamış yanıt boş bırakılır. */
+      const nihai = q.type === "mc" ? (mc ? (mc.correct ? mcP : 0) : null) : (rv ? rv.finalScore : null);
+      const sik = q.type === "mc" && yanit.selectedKey ? yanit.selectedKey : "";
+      satirlar.push([
+        ex.title || "Adsız Sınav", ogr.name || ("#" + ogr.id), ogr.sinif || "",
+        i + 1, q.type === "mc" ? "çoktan seçmeli" : "açık uçlu", q.outcome || "",
+        q.body || "",
+        q.type === "mc" ? "" : (yanit.text || ""),
+        q.type === "mc" ? (q.correctKey || "") : "",
+        sik,
+        q.type === "mc" ? "" : csvSayi(ai ? ai.aiScore : null),
+        csvSayi(nihai), csvSayi(tam),
+        q.type === "mc" || !rv || !ai ? "" :
+          (Math.abs(Number(rv.finalScore) - Number(ai.aiScore)) > 0.001 ? "evet" : "hayır"),
+        rv ? (rv.comment || "") : "",
+        ss.examStatus || ""
+      ]);
+    });
+  });
+  return { csv: csvSatirlar(basliklar, satirlar), satir: satirlar.length };
+}
+
+/**
+ * SINIF/KAZANIM BAZLI: ısı haritasının tablo hâli. Zümre toplantısında ve
+ * veli bilgilendirmesinde istenen şey budur.
+ * "(örnek)" satırları DIŞARIDA BIRAKILIR: demo verisi bir okul raporuna
+ * karışmamalıdır (§6.3-5 — simüle veri kendini belli eder, rapora girmez).
+ */
+function sinifCsv() {
+  const satirlarKaynak = realClassRows();
+  const kazanimlar = OUTCOMES_LIST();
+  const basliklar = ["sinif", "kazanim_kodu", "kazanim", "basari_yuzdesi"];
+  const satirlar = [];
+  satirlarKaynak.forEach(function (sf) {
+    kazanimlar.forEach(function (o) {
+      const v = (sf.scores || {})[o.code];
+      if (v == null) return;
+      satirlar.push([sf.name, o.code, o.label || "", csvSayi(v)]);
+    });
+  });
+  return { csv: csvSatirlar(basliklar, satirlar), satir: satirlar.length };
+}
+
+function disaAktarHtml() {
+  return '<div class="card"><div class="card-head"><h3>Dışa Aktarma</h3>' +
+    '<span class="hint">Excel ile açılır</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Değerlendirmeleri okul kayıtlarına ya da zümre toplantısına ' +
+    'taşımak için indirin. Dosyalar <b>noktalı virgül ayraçlı CSV</b>\'dir ve Excel\'de çift tıkla açılır; ' +
+    'Türkçe karakterler için UTF-8 damgası eklenir.</p>' +
+    '<button class="btn btn-secondary btn-sm" id="btnCsvOgrenci">Öğrenci bazlı sonuçlar</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnCsvSinif">Sınıf · kazanım başarısı</button>' +
+    '<div class="lbl-hint" style="margin-top:8px;">Öğrenci dosyası <b>ad-soyad içerir</b> ve doğrudan bu ' +
+    'cihaza iner; sunucuya gönderilmez. Sınıf dosyasına <b>"(örnek)" demo satırları dahil edilmez</b>.</div>' +
+    '<div id="csvNot" class="lbl-hint" style="margin-top:6px;"></div></div>';
+}
+
+function wireDisaAktar() {
+  const not = function (m) { const e = document.getElementById("csvNot"); if (e) e.textContent = m; };
+  const o = document.getElementById("btnCsvOgrenci");
+  if (o) o.onclick = function () {
+    const r = ogrenciCsv();
+    if (!r) { not("Aktif sınav bulunamadı."); return; }
+    if (!r.satir) { not("Henüz sınavı çözen öğrenci yok — dosya boş olurdu, indirilmedi."); return; }
+    auditIndir(r.csv, disaAktarimAdi("ogrenci-sonuclari"), "text/csv;charset=utf-8");
+    not(r.satir + " satır indirildi.");
+  };
+  const s = document.getElementById("btnCsvSinif");
+  if (s) s.onclick = function () {
+    const r = sinifCsv();
+    if (!r.satir) { not("Gerçek sınıf verisi yok — dosya boş olurdu, indirilmedi."); return; }
+    auditIndir(r.csv, disaAktarimAdi("sinif-kazanim"), "text/csv;charset=utf-8");
+    not(r.satir + " satır indirildi.");
+  };
+}
+
+/* ==================== CİHAZLAR ARASI SENKRON (§28b) ====================
+   3 Eylül'e kadar tüm veri `localStorage` + IndexedDB'deydi; her tarayıcı kendi
+   verisini görüyordu ve ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞMÜYORDU.
+   Bu modül o köprüyü kurar.
+
+   TASARIM KARARI — `renderAll()` SENKRON KALIR.
+   Uygulamanın tamamı senkron HTML dizesi üretir (§3.1). Okuma yollarını
+   asenkrona çevirmek `app.js`'in tamamına dokunurdu. Bunun yerine D1 bir
+   ÖNBELLEK DEĞİL, BİR KÖPRÜDÜR: veri çekilir, `state`e yazılır, sonra bir kez
+   `renderAll()` çağrılır. Çizim kaynağı hâlâ `state`tir.
+
+   BU BİR KİMLİK DOĞRULAMA DEĞİLDİR ve arayüzde de öyle yazar. */
+
+/* Karışan karakterler (0/O, 1/I) bilinçli olarak dışarıda: kod sesli okunup
+   elle yazılacak. Sunucudaki ROOM_RE ile aynı kümedir. */
+const ODA_ALFABE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function syncOdaUret() {
+  let k = "";
+  const rnd = new Uint32Array(6);
+  crypto.getRandomValues(rnd);
+  for (let i = 0; i < 6; i++) k += ODA_ALFABE[rnd[i] % ODA_ALFABE.length];
+  return k;
+}
+
+/** Çalışma zamanı senkron durumu. KALICI DEĞİLDİR — yalnızca `syncRoom` kalıcıdır. */
+function syncDurum() {
+  if (!state.sync) state.sync = { ready: null, busy: false, mesaj: "", sonGonderim: null, sonCekim: null, hata: "" };
+  return state.sync;
+}
+
+/** Sunucuda D1 bağlı mı? Bağlı değilse arayüz "kapalı" yazar (§6.3-5). */
+async function syncProbe() {
+  const s = syncDurum();
+  try {
+    const r = await fetch("/api/sync/status", { cache: "no-store" });
+    const j = await r.json();
+    s.ready = !!j.ready;
+  } catch (e) {
+    s.ready = false;
+  }
+  renderSyncBar();
+  return s.ready;
+}
+
+/** Bu cihazın gönderebileceği her şeyi tek bir gövdede topla. */
+function syncPaket() {
+  syncActiveExam();
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return null;
+
+  /* Sınav gövdesi SORULARI DA TAŞIR. Başka bir cihazdaki öğrencinin sınavı
+     çözebilmesi için soru metinleri, şıkları ve uyaran metinleri gerekir;
+     yalnızca sınav kaydını göndermek öğrenciye BOŞ bir sınav gösterirdi. */
+  const sorular = (kayit.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const rubrikler = {};
+  sorular.forEach(function (q) { if (state.rubrics[q.id]) rubrikler[q.id] = state.rubrics[q.id]; });
+  const kaynaklar = (state.sources || []).filter(function (k) {
+    return sorular.some(function (q) { return q.srcId === k.id; });
+  });
+
+  const sinav = {
+    examId: kayit.id,
+    title: String(kayit.title || "Adsız Sınav").slice(0, 200),
+    payload: JSON.stringify({
+      exam: {
+        title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
+        status: kayit.status, durationMin: kayit.durationMin, startMode: kayit.startMode,
+        startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit)
+      },
+      questions: sorular, rubrics: rubrikler, sources: kaynaklar,
+      students: (state.students || []).map(function (o) { return { id: o.id, name: o.name, demo: !!o.demo }; })
+    })
+  };
+
+  const ss = examSessions(kayit);
+  const oturumlar = Object.keys(ss).map(function (sid) {
+    const o = ss[sid] || {};
+    const ogr = (state.students || []).find(function (x) { return String(x.id) === String(sid); });
+    return {
+      examId: kayit.id,
+      studentId: Number(sid),
+      studentName: String((ogr && ogr.name) || "").slice(0, 120),
+      status: o.examStatus || "not_started",
+      payload: JSON.stringify(o)
+    };
+  }).slice(0, 60);
+
+  return { room: state.syncRoom, exam: sinav, sessions: oturumlar };
+}
+
+async function syncGonder() {
+  const s = syncDurum();
+  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
+  const paket = syncPaket();
+  if (!paket) { s.hata = "Gönderilecek sınav yok."; renderSyncBar(); return false; }
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/push", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(paket)
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Gönderilemedi");
+    s.sonGonderim = Date.now();
+    s.mesaj = j.sessions + " oturum gönderildi";
+  } catch (e) {
+    // SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5): başarısızlık ekranda yazar.
+    s.hata = (e && e.message) || "Sunucuya yazılamadı";
+  }
+  s.busy = false; renderSyncBar();
+  return !s.hata;
+}
+
+async function syncCek() {
+  const s = syncDurum();
+  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/pull", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ room: state.syncRoom })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Okunamadı");
+    const say = syncBirlestir(j);
+    s.sonCekim = Date.now();
+    s.mesaj = say.sinav + " sınav · " + say.oturum + " oturum alındı";
+  } catch (e) {
+    s.hata = (e && e.message) || "Sunucudan okunamadı";
+  }
+  s.busy = false;
+  renderAll();
+  return !s.hata;
+}
+
+/**
+ * Sunucudan geleni yerel duruma karıştır.
+ *
+ * 🔴 EN KRİTİK KURAL: ŞU AN ÇÖZÜLMEKTE OLAN OTURUM EZİLMEZ.
+ * Öğrenci sınavı yazarken bir çekme işlemi yapılırsa, sunucudaki eski kopya
+ * öğrencinin yazdıklarının üstüne binerdi — veri kaybı, üstelik sessiz.
+ * Aktif öğrencinin `in_progress` oturumu bu yüzden korunur.
+ */
+function syncBirlestir(veri) {
+  let sinavSay = 0, oturumSay = 0;
+
+  (veri.exams || []).forEach(function (satir) {
+    let govde;
+    try { govde = JSON.parse(satir.payload); } catch (e) { return; }
+    if (!govde || !govde.exam) return;
+
+    // Sorular, rubrikler ve kaynaklar yerelde yoksa eklenir (kimlikler korunur).
+    (govde.questions || []).forEach(function (q) {
+      if (!state.questions.some(function (x) { return x.id === q.id; })) {
+        state.questions.push(q);
+        if (q.id >= qIdSeq) qIdSeq = q.id + 1;
+      }
+    });
+    Object.keys(govde.rubrics || {}).forEach(function (qid) {
+      if (!state.rubrics[qid]) state.rubrics[qid] = govde.rubrics[qid];
+    });
+    (govde.sources || []).forEach(function (k) {
+      if (!(state.sources || []).some(function (x) { return x.id === k.id; })) state.sources.push(k);
+    });
+    (govde.students || []).forEach(function (o) {
+      if (!(state.students || []).some(function (x) { return x.id === o.id; })) state.students.push(o);
+    });
+
+    let kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
+    if (!kayit) {
+      kayit = { id: satir.exam_id, sessions: {} };
+      state.exams.push(kayit);
+      if (satir.exam_id >= examIdSeq) examIdSeq = satir.exam_id + 1;
+    }
+    Object.keys(govde.exam).forEach(function (k) { kayit[k] = govde.exam[k]; });
+    if (kayit.id === state.activeExamId) {
+      Object.keys(govde.exam).forEach(function (k) { state.exam[k] = govde.exam[k]; });
+    }
+    sinavSay++;
+  });
+
+  (veri.sessions || []).forEach(function (satir) {
+    let o;
+    try { o = JSON.parse(satir.payload); } catch (e) { return; }
+    const kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
+    if (!kayit) return;
+
+    const aktifOturum = kayit.id === state.activeExamId && String(satir.student_id) === String(state.activeStudentId);
+    if (aktifOturum && state.examStatus === "in_progress") return;   // çözülmekte — DOKUNMA
+
+    const ss = examSessions(kayit);
+    ss[satir.student_id] = o;
+    if (aktifOturum) {
+      OTURUM_ALANLARI.forEach(function (k) { state[k] = o[k] !== undefined ? o[k] : bosOturum()[k]; });
+    }
+    oturumSay++;
+  });
+
+  saveState();
+  return { sinav: sinavSay, oturum: oturumSay };
+}
+
+async function syncSil() {
+  const s = syncDurum();
+  if (!state.syncRoom) return false;
+  if (!confirm("“" + state.syncRoom + "” odasındaki TÜM veriler sunucudan kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?")) return false;
+  s.busy = true; s.hata = ""; renderSyncBar();
+  try {
+    const r = await fetch("/api/sync/reset", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ room: state.syncRoom })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || "Silinemedi");
+    s.mesaj = j.deleted + " kayıt sunucudan silindi";
+  } catch (e) {
+    s.hata = (e && e.message) || "Silinemedi";
+  }
+  s.busy = false; renderSyncBar();
+  return !s.hata;
+}
+
+/** Önemli bir olaydan sonra sessizce gönder — başarısızlık şeritte görünür. */
+function syncOtomatik() {
+  if (!state.syncRoom || syncDurum().ready !== true) return;
+  syncGonder();
+}
+
+function syncZaman(ts) {
+  if (!ts) return "—";
+  return new Date(ts).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function syncBarHtml() {
+  const s = syncDurum();
+  if (s.ready === false) {
+    return '<div class="sync-bar sync-off"><b>Senkron kapalı</b>' +
+      '<span>Sunucuda veritabanı bağlı değil; veriler yalnızca bu cihazda saklanıyor.</span></div>';
+  }
+  if (s.ready === null) return '<div class="sync-bar"><span>Senkron durumu kontrol ediliyor…</span></div>';
+
+  if (!state.syncRoom) {
+    return '<div class="sync-bar"><b>Sınıf kodu yok</b>' +
+      '<span>Öğrencilerin çözdüğü sınavın panelinize düşmesi için bir sınıf kodu oluşturun ve öğrencilere verin.</span>' +
+      '<button class="btn btn-primary btn-sm" id="btnOdaUret">Sınıf kodu oluştur</button>' +
+      '<input id="odaGir" class="sync-input" maxlength="12" placeholder="ya da kodu girin">' +
+      '<button class="btn btn-secondary btn-sm" id="btnOdaGir">Katıl</button></div>';
+  }
+
+  return '<div class="sync-bar"><b>Sınıf kodu: <span class="sync-code">' + escapeHtml(state.syncRoom) + '</span></b>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPush" ' + (s.busy ? "disabled" : "") + '>Gönder</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPull" ' + (s.busy ? "disabled" : "") + '>Yenile</button>' +
+    '<span class="sync-meta">gönderim ' + syncZaman(s.sonGonderim) + ' · çekme ' + syncZaman(s.sonCekim) + '</span>' +
+    (s.hata ? '<span class="sync-err">' + escapeHtml(s.hata) + '</span>'
+            : (s.mesaj ? '<span class="sync-ok">' + escapeHtml(s.mesaj) + '</span>' : "")) +
+    '<button class="btn btn-secondary btn-sm" id="btnOdaCik">Kodu değiştir</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncSil">Sunucudaki veriyi sil</button>' +
+    '<span class="sync-note">Bu bir kimlik doğrulama değildir: kodu bilen herkes bu sınıfın verisini görebilir.</span></div>';
+}
+
+function renderSyncBar() {
+  const el = document.getElementById("syncBar");
+  if (!el) return;
+  el.innerHTML = syncBarHtml();
+  wireSync();
+}
+
+function wireSync() {
+  const uret = document.getElementById("btnOdaUret");
+  if (uret) uret.onclick = function () {
+    state.syncRoom = syncOdaUret();
+    syncDurum().mesaj = "Kod oluşturuldu — öğrencilere verin.";
+    saveState(); renderSyncBar(); syncGonder();
+  };
+  const gir = document.getElementById("btnOdaGir");
+  if (gir) gir.onclick = function () {
+    const v = String((document.getElementById("odaGir") || {}).value || "").trim().toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]{4,12}$/.test(v)) {
+      syncDurum().hata = "Kod 4-12 karakter olmalı; I ve O harfleri ile 0/1 rakamları kullanılmaz.";
+      renderSyncBar(); return;
+    }
+    state.syncRoom = v; syncDurum().hata = ""; saveState(); renderSyncBar(); syncCek();
+  };
+  const push = document.getElementById("btnSyncPush");
+  if (push) push.onclick = function () { syncGonder(); };
+  const pull = document.getElementById("btnSyncPull");
+  if (pull) pull.onclick = function () { syncCek(); };
+  const cik = document.getElementById("btnOdaCik");
+  if (cik) cik.onclick = function () {
+    state.syncRoom = ""; syncDurum().mesaj = ""; syncDurum().hata = ""; saveState(); renderSyncBar();
+  };
+  const sil = document.getElementById("btnSyncSil");
+  if (sil) sil.onclick = function () { syncSil(); };
+}
 
 /* ==================== Öz-kontrol ====================
    Geliştirme sırasında bir yeniden yazım, çağrılan bir fonksiyonu sessizce
@@ -5856,12 +6928,18 @@ setInterval(function () {
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
-    "activateExam", "createExam", "saveState", "loadState", "saveSoon", "kalanMetni",
+    "activateExam", "createExam", "deleteExam", "unpublishExam", "sinavKatilim", "sinavZamanKilitli", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
-    "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear"
+    "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
+    "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
+    "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
+    "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
+    "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
+    "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
+    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -5895,6 +6973,8 @@ document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 probeAiMode();
+// Sunucuda D1 bağlı mı? Bağlı değilse şerit "senkron kapalı" yazar (§6.3-5).
+syncProbe();
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.
 katalogHazirla();
