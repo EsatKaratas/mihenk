@@ -1145,65 +1145,76 @@
   .empty-rich button { margin-top: 4px; }
 
 /* ==========================================================================
-   CİHAZLAR ARASI SENKRON ŞERİDİ (§28b)
+   SINIF KODU — dağınık arayüz (§28p, 3 Eylül, ikinci tur)
 
-   §6.3-2 DERSİ: Bu sınıf BAĞIMSIZDIR — kendi zeminini, kendi metin rengini ve
-   kendi kenarlığını taşır. Kapsayıcıya bağlı tanımlanan sınıflar bu projede üç
-   kez kırıldı (.opt-row, .cv-warn, .empty-state).
+   Kullanıcının kendi ifadesiyle: "ne işe yaradığını bile bilmiyorum." Kök
+   sebep arayüz değil YERLEŞİMDİ: eskiden tek bir geniş şerit HER ROLDE üst
+   çubukta duruyordu, kavramın anlamlı olduğu iki an dışında da. Şimdi üç ayrı
+   parça var, üçü de BAĞIMSIZ sınıf (§6.3-2): .sync-chip / .sync-share /
+   .sync-join — hiçbiri kapsayıcısına güvenmez, kendi zeminini taşır.
 
-   §1.7 DERSİ — İKİ AYRI METİN RENGİ: Bu şerit üst çubukta, DOĞRUDAN LACİVERT
-   ZEMİN üzerinde durur; kart içinde değildir. Bu yüzden `--text` değil
-   `--on-bg` ailesi kullanılır. Kendi yarı saydam zemini vardır ve kontrast
-   HARMANLANMIŞ değerle hesaplanmıştır (§6.3-21).
+   §1.7 DERSİ — İKİ AYRI METİN RENGİ:
+     .sync-chip ve .sync-detay: `.ai-chip` / `.ai-mode-detay` kalıbını miras
+       alır. Çip DOĞRUDAN LACİVERT ZEMİN üzerinde durur (pill-success/-warning/
+       -accent2 sınıflarıyla birleşir); açılan panel BEYAZ karttır (--text).
+     .sync-share ve .sync-join: ikisi de BEYAZ zemin üzerinde durur
+       (sırasıyla `.exam-switcher` içinde ve tek başına), bu yüzden ikisi de
+       `--text` ailesini kullanır — `--on-bg` burada YANLIŞ olurdu.
    ========================================================================== */
-.sync-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 10px;
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--on-bg-line);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--on-bg);
-  font-size: 13px;
-  line-height: 1.5;
+
+/* --- 1) Topbar çipi: yalnızca bir sınıf koduna bağlıyken görünür. ai-chip
+   ile aynı boyut/şekil kalıbı; renk pill-success/-warning/-accent2'den gelir. */
+.sync-chip { display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 10px; border-radius: 999px; border: 1px solid transparent;
+  font: 600 11.5px/1.4 inherit; cursor: pointer; max-width: 100%; }
+.sync-chip .sync-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; }
+.sync-chip .sync-nokta { flex: none; font-size: 9px; line-height: 1; }
+.sync-chip .sync-ok { flex: none; font-size: 9px; opacity: .75; }
+.sync-chip:hover { filter: brightness(1.08); }
+.sync-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Açılan panel `.ai-mode-detay` temel stilini miras alır (position/shadow/
+   border); burada yalnızca kendine özgü iç düzen tanımlanır. */
+.sync-detay-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sync-detay-err { color: var(--critical); font-weight: 600; }
+
+/* --- 2) Öğretmenin sınav listesi kartındaki paylaşım satırı. Beyaz zemin
+   (`.exam-switcher` → --surface-2) üzerinde durur, --text ailesi geçerlidir. */
+.sync-share {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+  font-size: 12.5px; color: var(--text-muted);
 }
-.sync-bar b { color: var(--on-bg); font-weight: 600; }
-.sync-bar > span { color: var(--on-bg-muted); }
-.sync-bar .sync-code {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-weight: 600;
-  letter-spacing: .12em;
-  color: var(--on-bg);
+.sync-share .sync-code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700;
+  letter-spacing: .12em; color: var(--text);
 }
-.sync-bar .sync-input {
-  width: 150px;
-  padding: 5px 8px;
-  border: 1px solid var(--on-bg-line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--text);          /* kutunun İÇİ beyaz — burada --text geçerli */
-  font: 500 13px/1.4 "IBM Plex Mono", ui-monospace, monospace;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+
+/* --- 3) Öğrenci/veli boş ekranındaki katılma kutusu. Kapsayıcı bir `.card`
+   İÇİNDE DEĞİL — sayfada tek başına durur, bu yüzden KENDİ kart zeminini
+   taşır (§6.3-2: bağımsız sınıf, kapsayıcıya güvenmez). */
+.sync-join {
+  margin-top: 14px; padding: 14px 16px; text-align: center;
+  background: var(--surface); border: 1px dashed var(--border-strong);
+  border-radius: 12px; font-size: 12.5px; line-height: 1.6; color: var(--text-muted);
 }
-.sync-bar .sync-meta { color: var(--on-bg-muted); font-size: 12px; }
-.sync-bar .sync-ok { color: var(--on-bg); font-weight: 600; }
-/* Hata rengi zemin üstünde okunmalı: --critical lacivertte AA'yı geçmiyor,
-   bu yüzden açık bir uyarı tonu kullanılır (ölçüldü, aşağıda). */
-.sync-bar .sync-err { color: #ffc9c0; font-weight: 600; }
-.sync-bar .sync-note {
-  flex-basis: 100%;
-  color: var(--on-bg-muted);
-  font-size: 12px;
+.sync-join b { color: var(--text); }
+.sync-join-row { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+.sync-join-input {
+  width: 150px; padding: 7px 10px; border: 1px solid var(--border-strong);
+  border-radius: 8px; background: var(--surface-2); color: var(--text);
+  font: 600 13px/1.4 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em;
+  text-transform: uppercase; text-align: center;
 }
-.sync-bar.sync-off { border-style: dashed; }
+.sync-join-err { display: block; margin-top: 8px; color: var(--critical); font-size: 12px; }
+.sync-join-active { border-style: solid; }
+.sync-join-active b {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .1em;
+}
 
 @media (max-width: 720px) {
-  .sync-bar { font-size: 12px; }
-  .sync-bar .sync-input { width: 120px; }
+  .sync-join-input { width: 120px; }
 }
 
 /* Sınav seçicideki eylem düğmeleri (§28c). Bağımsız sınıf (§6.3-2):

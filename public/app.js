@@ -500,7 +500,7 @@ function renderAiBadge() {
     const rolAdedi = ["", "tek", "iki", "üç", "dört", "beş", "altı"][ROLES.length] || String(ROLES.length);
     const depoNotu = state.syncRoom
       ? "sınıf kodu (" + state.syncRoom + ") kullanıldığı için sınav ve yanıt verileri, cihazlar arasında " +
-        "paylaşılmak üzere sunucudaki veritabanında da saklanır; şeritteki “Sunucudaki veriyi sil” ile kaldırılabilir."
+        "paylaşılmak üzere sunucudaki veritabanında da saklanır; üst çubuktaki sınıf kodu çipinin altındaki “Sunucudaki veriyi sil” ile kaldırılabilir."
       : "sınıf kodu girilmediği için veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur.";
     const model = state.ai.mode === "live"
       ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir."
@@ -2978,7 +2978,9 @@ function examSwitcherHtml() {
       : "") +
     '<button class="btn btn-secondary btn-sm" id="btnDelExam">' +
     (state.exam.status === "published" ? "Bu sınavı sil" : "Bu taslağı sil") + '</button>' +
-    '</div></div>';
+    '</div>' +
+    syncShareLineHtml() +
+    '</div>';
 }
 
 function wireExamSwitcher() {
@@ -2991,6 +2993,7 @@ function wireExamSwitcher() {
   if (db) db.onclick = function () { deleteExam(state.activeExamId); };
   const ub = document.getElementById("btnUnpublishExam");
   if (ub) ub.onclick = function () { unpublishExam(state.activeExamId); };
+  wireSyncShareLine();
 }
 
 /* ============================== Öğretmen ============================== */
@@ -4952,7 +4955,8 @@ function studentTab1Html() {
     return (x.id === state.activeExamId ? state.exam.status : x.status) === "published";
   });
   if (!yayindakiler.length) {
-    return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>';
+    return '<div class="card"><div class="empty-state">Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.</div></div>' +
+      syncJoinHtml();
   }
   return yayindakiler.map(function (x) {
     const c = examCardState(x);
@@ -4993,6 +4997,7 @@ function studentTab1Html() {
 }
 
 function wireStudentTab1() {
+  wireSyncJoin();
   document.querySelectorAll(".exam-act").forEach(function (b) {
     b.onclick = function () {
       const id = Number(b.dataset.exam);
@@ -5035,7 +5040,8 @@ function studentTab2Html() {
       return '<div class="card"><div class="empty-state">' +
         (state.examStatus === "submitted" ? "Yanıtlarınız gönderildi, öğretmen onayı bekleniyor."
           : state.examStatus === "graded" ? "Bu sınav sonuçlandı. Karnenizi 3. sekmeden görebilirsiniz."
-          : "Şu anda çözebileceğiniz bir sınav yok.") + '</div></div>';
+          : "Şu anda çözebileceğiniz bir sınav yok.") + '</div></div>' +
+        syncJoinHtml();
     }
     return '<div class="card"><div class="card-head"><h3>Çözülmeyi bekleyen sınav</h3>' +
       '<span class="pill pill-success">' + hazir.length + ' sınav</span></div>' +
@@ -5978,7 +5984,7 @@ function renderAll() {
   renderStudent();
   renderAdmin();
   renderParent();
-  renderSyncBar();
+  renderSyncChip();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   bindFieldLabels();
@@ -6231,7 +6237,8 @@ function renderParent() {
   const cocuk = veliCocugu();
 
   if (!cocuk) {
-    root.innerHTML = '<div class="card"><div class="empty-state">Henüz tanımlı bir öğrenci yok.</div></div>';
+    root.innerHTML = '<div class="card"><div class="empty-state">Henüz tanımlı bir öğrenci yok.</div></div>' + syncJoinHtml();
+    wireSyncJoin();
     return;
   }
 
@@ -6263,7 +6270,7 @@ function renderParent() {
   if (!sonuclar.length) {
     root.innerHTML = secici + '<div class="card"><div class="empty-state">' +
       escapeHtml(cocuk.name || "Öğrenci") + ' için öğretmen onayından geçmiş bir sonuç henüz yok. ' +
-      'Öğretmen sonuçları yayınladığında burada görünecek.</div></div>';
+      'Öğretmen sonuçları yayınladığında burada görünecek.</div></div>' + syncJoinHtml();
     wireParent();
     return;
   }
@@ -6330,6 +6337,7 @@ function renderParent() {
 function wireParent() {
   const s = document.getElementById("veliCocuk");
   if (s) s.onchange = function () { state.parentStudentId = Number(s.value); saveState(); renderAll(); };
+  wireSyncJoin();
 }
 
 /* ==================== DİKKAT SİNYALİ (§28e) ====================
@@ -6626,7 +6634,7 @@ function wireDisaAktar() {
   };
 }
 
-/* ==================== CİHAZLAR ARASI SENKRON (§28b) ====================
+/* ==================== CİHAZLAR ARASI SENKRON (§28b, §28p) ====================
    3 Eylül'e kadar tüm veri `localStorage` + IndexedDB'deydi; her tarayıcı kendi
    verisini görüyordu ve ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞMÜYORDU.
    Bu modül o köprüyü kurar.
@@ -6637,11 +6645,25 @@ function wireDisaAktar() {
    ÖNBELLEK DEĞİL, BİR KÖPRÜDÜR: veri çekilir, `state`e yazılır, sonra bir kez
    `renderAll()` çağrılır. Çizim kaynağı hâlâ `state`tir.
 
-   BU BİR KİMLİK DOĞRULAMA DEĞİLDİR ve arayüzde de öyle yazar. */
+   BU BİR KİMLİK DOĞRULAMA DEĞİLDİR ve arayüzde de öyle yazar.
+
+   🔴 §28p — ARAYÜZ YENİDEN TASARLANDI (3 Eylül, ikinci tur).
+   İlk sürüm tek bir geniş şerit olarak üst çubukta duruyordu ve HER ROLDE
+   görünüyordu — İçerik Uzmanı hiç kullanmadığı bir kavramla karşılaşıyordu.
+   Kullanıcının kendi ifadesiyle: "ne işe yaradığını bile bilmiyorum." Kök
+   sebep arayüz değil YERLEŞİMDİ: kavram yalnızca İKİ anda anlamlıdır —
+   öğretmen bir sınavı paylaşırken, öğrenci/veli bir koda girerken. Onun
+   dışında her yerde gürültüdür. Çözüm dört parçaya bölündü:
+     · syncChipHtml()      — topbar, YALNIZCA bir koda bağlıyken görünür
+     · syncShareLineHtml() — öğretmenin sınav listesi kartında, bağlamsal
+     · syncJoinHtml()      — öğrenci/veli boş ekranında, bağlamsal
+     · otomatik eşitleme   — Gönder/Yenile düğmelerini gündelik kullanımdan
+       kaldırır; kalan tek elle kontrol topbar çipinin altındadır. */
 
 /* Karışan karakterler (0/O, 1/I) bilinçli olarak dışarıda: kod sesli okunup
    elle yazılacak. Sunucudaki ROOM_RE ile aynı kümedir. */
 const ODA_ALFABE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const ODA_KOD_DESENI = /^[A-HJ-NP-Z2-9]{4,12}$/;
 
 function syncOdaUret() {
   let k = "";
@@ -6667,7 +6689,7 @@ async function syncProbe() {
   } catch (e) {
     s.ready = false;
   }
-  renderSyncBar();
+  renderAll();
   return s.ready;
 }
 
@@ -6721,10 +6743,10 @@ function syncPaket() {
 
 async function syncGonder() {
   const s = syncDurum();
-  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
+  if (!state.syncRoom) { s.hata = "Önce bir sınıf kodu oluşturun ya da girin."; renderAll(); return false; }
   const paket = syncPaket();
-  if (!paket) { s.hata = "Gönderilecek sınav yok."; renderSyncBar(); return false; }
-  s.busy = true; s.hata = ""; renderSyncBar();
+  if (!paket) { s.hata = "Gönderilecek sınav yok."; renderAll(); return false; }
+  s.busy = true; s.hata = ""; renderAll();
   try {
     const r = await fetch("/api/sync/push", {
       method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(paket)
@@ -6737,14 +6759,14 @@ async function syncGonder() {
     // SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5): başarısızlık ekranda yazar.
     s.hata = (e && e.message) || "Sunucuya yazılamadı";
   }
-  s.busy = false; renderSyncBar();
+  s.busy = false; renderAll();
   return !s.hata;
 }
 
 async function syncCek() {
   const s = syncDurum();
-  if (!state.syncRoom) { s.hata = "Önce bir oda kodu oluşturun ya da girin."; renderSyncBar(); return false; }
-  s.busy = true; s.hata = ""; renderSyncBar();
+  if (!state.syncRoom) { s.hata = "Önce bir sınıf kodu oluşturun ya da girin."; renderAll(); return false; }
+  s.busy = true; s.hata = ""; renderAll();
   try {
     const r = await fetch("/api/sync/pull", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -6833,8 +6855,8 @@ function syncBirlestir(veri) {
 async function syncSil() {
   const s = syncDurum();
   if (!state.syncRoom) return false;
-  if (!confirm("“" + state.syncRoom + "” odasındaki TÜM veriler sunucudan kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?")) return false;
-  s.busy = true; s.hata = ""; renderSyncBar();
+  if (!confirm("“" + state.syncRoom + "” sınıfındaki TÜM veriler sunucudan kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?")) return false;
+  s.busy = true; s.hata = ""; renderAll();
   try {
     const r = await fetch("/api/sync/reset", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -6846,11 +6868,11 @@ async function syncSil() {
   } catch (e) {
     s.hata = (e && e.message) || "Silinemedi";
   }
-  s.busy = false; renderSyncBar();
+  s.busy = false; renderAll();
   return !s.hata;
 }
 
-/** Önemli bir olaydan sonra sessizce gönder — başarısızlık şeritte görünür. */
+/** Önemli bir olaydan sonra sessizce gönder — başarısızlık çipte görünür. */
 function syncOtomatik() {
   if (!state.syncRoom || syncDurum().ready !== true) return;
   syncGonder();
@@ -6861,67 +6883,159 @@ function syncZaman(ts) {
   return new Date(ts).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
-function syncBarHtml() {
+/* -------------------- 1) TOPBAR ÇİPİ — her rolde, yalnızca bağlıyken -------
+   `.ai-chip` / `.ai-mode-detay` ile AYNI kalıp (renderAiBadge): küçük bir
+   durum çipi + tıklayınca açılan ayrıntı paneli. Bağımsız sınıf (§6.3-2). */
+function syncChipHtml() {
+  if (!state.syncRoom) return "";   // koda bağlı değilken topbar tamamen sadedir
   const s = syncDurum();
-  if (s.ready === false) {
-    return '<div class="sync-bar sync-off"><b>Senkron kapalı</b>' +
-      '<span>Sunucuda veritabanı bağlı değil; veriler yalnızca bu cihazda saklanıyor.</span></div>';
-  }
-  if (s.ready === null) return '<div class="sync-bar"><span>Senkron durumu kontrol ediliyor…</span></div>';
-
-  if (!state.syncRoom) {
-    return '<div class="sync-bar"><b>Sınıf kodu yok</b>' +
-      '<span>Öğrencilerin çözdüğü sınavın panelinize düşmesi için bir sınıf kodu oluşturun ve öğrencilere verin.</span>' +
-      '<button class="btn btn-primary btn-sm" id="btnOdaUret">Sınıf kodu oluştur</button>' +
-      '<input id="odaGir" class="sync-input" maxlength="12" placeholder="ya da kodu girin">' +
-      '<button class="btn btn-secondary btn-sm" id="btnOdaGir">Katıl</button></div>';
-  }
-
-  return '<div class="sync-bar"><b>Sınıf kodu: <span class="sync-code">' + escapeHtml(state.syncRoom) + '</span></b>' +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncPush" ' + (s.busy ? "disabled" : "") + '>Gönder</button>' +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncPull" ' + (s.busy ? "disabled" : "") + '>Yenile</button>' +
-    '<span class="sync-meta">gönderim ' + syncZaman(s.sonGonderim) + ' · çekme ' + syncZaman(s.sonCekim) + '</span>' +
-    (s.hata ? '<span class="sync-err">' + escapeHtml(s.hata) + '</span>'
-            : (s.mesaj ? '<span class="sync-ok">' + escapeHtml(s.mesaj) + '</span>' : "")) +
-    '<button class="btn btn-secondary btn-sm" id="btnOdaCik">Kodu değiştir</button>' +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncSil">Sunucudaki veriyi sil</button>' +
-    '<span class="sync-note">Bu bir kimlik doğrulama değildir: kodu bilen herkes bu sınıfın verisini görebilir.</span></div>';
+  const cls = s.hata ? "pill-warning" : (s.busy ? "pill-accent2" : "pill-success");
+  const metin = s.busy ? "eşitleniyor…" : (s.hata ? "eşitlenemedi" : state.syncRoom);
+  return '<button class="sync-chip ' + cls + '" id="btnSyncDetay" aria-expanded="' +
+    (state.syncAyrintiAcik ? "true" : "false") + '" title="Sınıf kodu ayrıntıları">' +
+    '<span class="sync-nokta">' + (s.hata ? "!" : "●") + "</span>" +
+    '<span class="sync-metin">' + escapeHtml(metin) + "</span>" +
+    '<span class="sync-ok">' + (state.syncAyrintiAcik ? "▴" : "▾") + "</span></button>" +
+    syncDetayHtml();
 }
 
-function renderSyncBar() {
-  const el = document.getElementById("syncBar");
+function syncDetayHtml() {
+  if (!state.syncAyrintiAcik) return "";
+  const s = syncDurum();
+  const satir = function (etiket, deger) {
+    return '<div class="aim-satir"><span class="aim-etiket">' + escapeHtml(etiket) + "</span>" +
+      '<span class="aim-deger">' + escapeHtml(deger) + "</span></div>";
+  };
+  return '<div class="ai-mode-detay sync-detay" id="syncDetay">' +
+    satir("Sınıf kodu", state.syncRoom) +
+    satir("Son gönderilen", syncZaman(s.sonGonderim)) +
+    satir("Son alınan", syncZaman(s.sonCekim)) +
+    (s.hata ? '<div class="aim-not sync-detay-err">' + escapeHtml(s.hata) + "</div>" : "") +
+    '<div class="aim-not">Bu bir kimlik doğrulama değildir: kodu bilen herkes bu sınıfın ' +
+    "verisini görebilir. Sınav bittikten ve karneler yayınlandıktan sonra silmeniz önerilir.</div>" +
+    '<div class="sync-detay-actions">' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncDetayYenile" ' + (s.busy ? "disabled" : "") + ">Şimdi eşitle</button>" +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncDetayCik">Kodu değiştir</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncDetaySil">Sunucudaki veriyi sil</button>' +
+    "</div></div>";
+}
+
+function renderSyncChip() {
+  const el = document.getElementById("syncChip");
   if (!el) return;
-  el.innerHTML = syncBarHtml();
-  wireSync();
+  el.innerHTML = syncChipHtml();
+  wireSyncChip();
 }
 
-function wireSync() {
-  const uret = document.getElementById("btnOdaUret");
-  if (uret) uret.onclick = function () {
-    state.syncRoom = syncOdaUret();
-    syncDurum().mesaj = "Kod oluşturuldu — öğrencilere verin.";
-    saveState(); renderSyncBar(); syncGonder();
-  };
-  const gir = document.getElementById("btnOdaGir");
-  if (gir) gir.onclick = function () {
-    const v = String((document.getElementById("odaGir") || {}).value || "").trim().toUpperCase();
-    if (!/^[A-HJ-NP-Z2-9]{4,12}$/.test(v)) {
-      syncDurum().hata = "Kod 4-12 karakter olmalı; I ve O harfleri ile 0/1 rakamları kullanılmaz.";
-      renderSyncBar(); return;
-    }
-    state.syncRoom = v; syncDurum().hata = ""; saveState(); renderSyncBar(); syncCek();
-  };
-  const push = document.getElementById("btnSyncPush");
-  if (push) push.onclick = function () { syncGonder(); };
-  const pull = document.getElementById("btnSyncPull");
-  if (pull) pull.onclick = function () { syncCek(); };
-  const cik = document.getElementById("btnOdaCik");
+function syncAyrintiToggle() {
+  state.syncAyrintiAcik = !state.syncAyrintiAcik;
+  renderSyncChip();
+}
+
+function wireSyncChip() {
+  const btn = document.getElementById("btnSyncDetay");
+  if (btn) btn.onclick = syncAyrintiToggle;
+  const yenile = document.getElementById("btnSyncDetayYenile");
+  if (yenile) yenile.onclick = function () { syncCek(); syncGonder(); };
+  const cik = document.getElementById("btnSyncDetayCik");
   if (cik) cik.onclick = function () {
-    state.syncRoom = ""; syncDurum().mesaj = ""; syncDurum().hata = ""; saveState(); renderSyncBar();
+    state.syncRoom = ""; syncDurum().mesaj = ""; syncDurum().hata = ""; state.syncAyrintiAcik = false;
+    saveState(); renderAll();
   };
-  const sil = document.getElementById("btnSyncSil");
+  const sil = document.getElementById("btnSyncDetaySil");
   if (sil) sil.onclick = function () { syncSil(); };
 }
+
+/* -------------------- 2) ÖĞRETMEN — sınav listesi kartındaki paylaşım satırı
+   Kavram burada ilk kez karşısına çıkar: "sınavımı öğrencilerime nasıl
+   ulaştırırım" sorusunun yanıtı. examSwitcherHtml() içinde kullanılır. */
+function syncShareLineHtml() {
+  if (syncDurum().ready === false) return "";   // sunucu bağlı değilse hiç gösterme
+  if (state.syncRoom) {
+    return '<div class="sync-share sync-share-active">' +
+      "<span>Öğrencilere verilecek kod: <b class=\"sync-code\">" + escapeHtml(state.syncRoom) + "</b></span>" +
+      '<button class="btn btn-secondary btn-sm" id="btnSyncKopyala">Kopyala</button></div>';
+  }
+  return '<div class="sync-share">' +
+    "<span>Öğrenciler başka bir cihazdan mı girecek?</span>" +
+    '<button class="btn btn-secondary btn-sm" id="btnSyncPaylasKod">Paylaşılacak kod oluştur</button></div>';
+}
+
+function wireSyncShareLine() {
+  const olustur = document.getElementById("btnSyncPaylasKod");
+  if (olustur) olustur.onclick = function () {
+    state.syncRoom = syncOdaUret(); saveState();
+    syncGonder();   // ilk gönderim; kendi içinde renderAll çağırır
+  };
+  const kopyala = document.getElementById("btnSyncKopyala");
+  if (kopyala) kopyala.onclick = function () {
+    const eskiMetin = kopyala.textContent;
+    const bitir = function (metin) {
+      kopyala.textContent = metin;
+      setTimeout(function () { kopyala.textContent = eskiMetin; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(state.syncRoom).then(function () { bitir("Kopyalandı ✓"); }, function () { bitir("Kopyalanamadı"); });
+    } else {
+      bitir("Kopyalanamadı");
+    }
+  };
+}
+
+/* -------------------- 3) ÖĞRENCİ / VELİ — boş ekrandaki katılma kutusu ----
+   Kavram burada ikinci ve son kez karşısına çıkar: "öğretmenimin verdiği
+   kodu nereye yazacağım" sorusunun yanıtı. Yalnızca çözülecek/görülecek
+   sınav yokken (boş durumlarda) görünür — dolu ekranlarda gürültü olurdu. */
+function syncJoinHtml() {
+  if (syncDurum().ready === false) return "";
+  if (state.syncRoom) {
+    return '<div class="sync-join sync-join-active">' +
+      "<span>“<b>" + escapeHtml(state.syncRoom) + "</b>” sınıfına bağlısınız. Öğretmen sınav ya da " +
+      "sonuç yayınladığında burada görünecek.</span> " +
+      '<button class="btn btn-secondary btn-sm" id="btnSyncJoinYenile">Şimdi kontrol et</button></div>';
+  }
+  return '<div class="sync-join">' +
+    "<b>Başka bir cihazdaysanız:</b> <span>öğretmeninizin verdiği kodu girin, sınavlarınız burada görünsün.</span>" +
+    '<div class="sync-join-row">' +
+    '<input id="syncJoinInput" class="sync-join-input" maxlength="12" placeholder="ör. 2D9543">' +
+    '<button class="btn btn-primary btn-sm" id="btnSyncJoin">Gir</button></div>' +
+    (syncDurum().hata ? '<span class="sync-join-err">' + escapeHtml(syncDurum().hata) + "</span>" : "") +
+    "</div>";
+}
+
+function wireSyncJoin() {
+  const gir = document.getElementById("btnSyncJoin");
+  const girTikla = function () {
+    const v = String((document.getElementById("syncJoinInput") || {}).value || "").trim().toUpperCase();
+    if (!ODA_KOD_DESENI.test(v)) {
+      syncDurum().hata = "Kod 4-12 karakter olmalı; I, O harfleri ile 0, 1 rakamları kullanılmaz.";
+      renderAll(); return;
+    }
+    state.syncRoom = v; syncDurum().hata = ""; saveState();
+    syncCek();
+  };
+  if (gir) gir.onclick = girTikla;
+  const inp = document.getElementById("syncJoinInput");
+  if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") girTikla(); };
+  const yenile = document.getElementById("btnSyncJoinYenile");
+  if (yenile) yenile.onclick = function () { syncCek(); };
+}
+
+/* -------------------- 4) OTOMATİK EŞİTLEME (öğretmen/yönetici kalp atışı) --
+   Öğrencinin gönderdiği kağıt önemli olaylarda zaten otomatik gönderiliyor
+   (finishExam, publishResults, finalizeReview → syncOtomatik). Eksik olan
+   ÇEKME tarafıydı: öğretmen elle "Yenile"ye basmak zorundaydı. Bu kalp atışı
+   onu kapatır — yalnızca öğretmen/yönetici ekranındayken ve bir alana
+   YAZMIYORKEN çeker (§6.3-3: renderAll() odak kaybettirmemeli, aynı koruma
+   §28a'daki bekleme sayacı ticker'ında da kullanıldı). */
+setInterval(function () {
+  if (!state.syncRoom || syncDurum().ready !== true || syncDurum().busy) return;
+  if (state.role !== "teacher" && state.role !== "admin") return;
+  const odak = document.activeElement;
+  const yaziliyor = !!odak && (odak.tagName === "INPUT" || odak.tagName === "TEXTAREA" || odak.isContentEditable);
+  if (yaziliyor) return;
+  syncCek();
+}, 20000);
 
 /* ==================== Öz-kontrol ====================
    Geliştirme sırasında bir yeniden yazım, çağrılan bir fonksiyonu sessizce
@@ -6973,7 +7087,9 @@ function wireSync() {
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
-    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync"
+    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman",
+    "syncChipHtml", "syncDetayHtml", "renderSyncChip", "syncAyrintiToggle", "wireSyncChip",
+    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "wireSyncJoin"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -7007,7 +7123,8 @@ document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 probeAiMode();
-// Sunucuda D1 bağlı mı? Bağlı değilse şerit "senkron kapalı" yazar (§6.3-5).
+// Sunucuda D1 bağlı mı? Bağlı değilse sınıf kodu özellikleri sessizce görünmez
+// (§28p): hiçbir düğme yanlış bir başarı iddia etmez, yalnızca teklif edilmez.
 syncProbe();
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.

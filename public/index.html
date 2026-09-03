@@ -24,14 +24,16 @@
       <div class="pipeline" id="pipelineStrip"></div>
       <div class="ai-mode" id="aiModeBadge">
         <span id="aiModeSlot"></span>
+        <!-- Sınıf kodu çipi (§28p): yalnızca bir sınıf koduna bağlıyken görünür.
+             Bağlı değilken topbar tamamen sadedir; kavram yalnızca öğretmenin
+             paylaşım anında ve öğrencinin katılma anında bağlamsal olarak
+             gösterilir (bkz. syncShareLineHtml / syncJoinHtml). -->
+        <span id="syncChip"></span>
         <button class="btn btn-secondary btn-sm" id="btnDemoSeed" title="Gerçek model çıktısından hazırlanmış örnek senaryoyu yükler">Demo senaryosu</button>
         <button class="btn btn-secondary btn-sm" id="btnReset" title="Tüm durumu sıfırlar">Sıfırla</button>
       </div>
     </div>
     <nav class="role-nav" id="roleNav"></nav>
-    <!-- Cihazlar arası senkron şeridi (§28b). Roller arası ortak olduğu için
-         panellerin içinde değil, üst çubukta durur. -->
-    <div id="syncBar"></div>
   </div>
 
   <main id="panels"></main>

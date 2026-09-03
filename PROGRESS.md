@@ -4006,6 +4006,82 @@ panel bir sonraki çizimde doğru kataloğu yüklüyor.
 
 `npm run lint` temiz · `npm test` **133/133** · canlı `app.js` yerelle birebir.
 
+### 28p. SINIF KODU ARAYÜZÜ YENİDEN TASARLANDI — kavram anlaşılmıyordu (3 Eylül, ikinci tur)
+
+Kullanıcı ekran görüntüsü gönderdi: İçerik Uzmanı ekranında geniş bir "Sınıf
+kodu" şeridi duruyordu ve kullanıcının kendi ifadesiyle *"ne işe yaradığını
+bile bilmiyorum."*
+
+**Kök sebep arayüz değil YERLEŞİMDİ.** §28b'de eklenen tek geniş şerit
+**her rolde** üst çubukta duruyordu — İçerik Uzmanı bu kavramı hiç
+kullanmıyor, dolayısıyla oradaki her görünüşte anlamsız gürültüydü. Kavram
+yalnızca İKİ anda gerçekten anlamlıdır: öğretmen bir sınavı paylaşırken,
+öğrenci/veli bir koda girerken. Onun dışında her yerde saçma görünüyordu —
+kullanıcı haklıydı.
+
+**Çözüm — dört parçaya bölündü, tek geniş şerit tamamen kaldırıldı:**
+
+1. **`syncChipHtml()`** — topbar, YALNIZCA bir sınıf koduna bağlıyken görünür.
+   Kod yoksa (yaygın durum — demo kullanımının çoğu) topbar **tamamen
+   sadedir**. `.ai-chip` / `.ai-mode-detay` kalıbının birebir aynısı: küçük
+   bir durum çipi (`● 2D9543`), tıklayınca açılan panelde son gönderim/alım
+   zamanları, hata varsa görünür, ve gelişmiş kontroller (Şimdi eşitle ·
+   Kodu değiştir · Sunucudaki veriyi sil).
+2. **`syncShareLineHtml()`** — öğretmenin sınav listesi kartının altında,
+   tek satır. Kod yoksa: *"Öğrenciler başka bir cihazdan mı girecek? [Kod
+   oluştur]"*. Kavram burada İLK kez, tam gerektiği anda ortaya çıkıyor.
+3. **`syncJoinHtml()`** — öğrenci/veli boş ekranında (çözülecek sınav yokken).
+   Kod yoksa: *"Öğretmeninizin verdiği kodu girin: [___] [Gir]"*. Kod varsa:
+   *"'2D9543' sınıfına bağlısınız"* + elle kontrol düğmesi.
+4. **Otomatik eşitleme (kalp atışı)** — öğretmen/yönetici ekranındayken
+   20 saniyede bir arka planda çeker; "Yenile"ye basmak artık gerekmiyor.
+   `§6.3-3` KORUMASI: bir alana yazılıyorsa (`INPUT`/`TEXTAREA`/
+   `contentEditable`) çekim o turda atlanır — aynı koruma §28a'daki bekleme
+   sayacı ticker'ında da kullanılmıştı.
+
+**Rol ayrımı artık gerçek:** öğrenci/veli ekranında öğretmene ait hiçbir
+düğme (kod oluştur, sunucudaki veriyi sil) **görünmüyor** — bunlar yalnızca
+öğretmen panelinin HTML'inde var, `.panel.active` CSS kuralıyla gizli.
+
+**Ölçüldü (yerel dev, tarayıcı):**
+
+| Test | Sonuç |
+|---|---|
+| Koda bağlı değilken topbar | tamamen boş (`#syncChip` içeriği `""`) |
+| Öğretmen "Kod oluştur" → yayın | 6 haneli kod üretildi, 4 oturum gönderildi |
+| Topbar çipi | kod belirir belirmez göründü, tıklayınca ayrıntı açıldı |
+| Kopyala düğmesi | panoya doğru kod yazıldı (`navigator.clipboard.writeText`) |
+| **Odak koruması — YAZARKEN** | bir input'a odaklanıp 22 sn beklendi: **odak ve değer korundu**, çekim tetiklenmedi |
+| **Odak koruması — YAZMAZKEN** | odaktan çıkılıp 22 sn beklendi: otomatik çekim **çalıştı**, `sonCekim` ilerledi |
+| Öğrenci boş ekranda kod girme | küçük harfle girilen kod büyütüldü, kabul edildi, 3 soru + 1 sınav + 4 öğrenci geldi |
+| **Kritik regresyon — çözülmekte olan oturum** | öğrenci yazarken senkron çekildi: **yazdığı cevap korundu**, durum `in_progress` kaldı |
+| **Rol ayrımı (doğru ölçümle)** | öğrenci rolündeyken öğretmen düğmeleri `offsetParent === null` — gerçekten görünmüyor |
+| Kodu değiştir | oda sıfırlandı, çip kayboldu, öğretmen ekranında "kod oluştur" geri geldi |
+| Sunucudaki veriyi sil | `/api/sync/pull` ile doğrulandı: **0 sınav, 0 oturum** kaldı |
+| 5 rol × masaüstü 1280 px, mobil 375 px (dropdown açıkken dahil) | taşma **0** |
+| Kontrast (çip + detay + paylaşım satırı, alfa harmanlamalı) | ihlal **0**, en düşük 5,38:1 |
+| Öz-kontrol | **203 ad** (156 → 203, bu turda 197 → 203), eksik **0** |
+| Konsol hatası | **0** |
+| `npm run lint` · `npm test` | temiz · **133/133** |
+
+**Bir ölçüm kusurum oldu, düzeltip devam ettim (§6.5):** ilk turda "öğretmen
+düğmeleri öğrenci rolünde DOM'da var mı" diye baktım ve "var" bulup hata
+sandım. Ama uygulamanın mimarisi zaten HER ZAMAN tüm rollerin HTML'ini render
+eder, yalnızca aktif olan `.panel.active` ile görünür kılınır (bu §28'den
+önce de böyleydi, benim değişikliğimle ilgisi yok). Doğru ölçüt `offsetParent`
+(gerçek görünürlük) idi; onunla ölçünce **gerçekten görünmüyordu** —
+ürün doğruydu, ilk ölçütüm yanlıştı.
+
+**Bilinçli tasarım kararı:** `syncDurum().ready === false` durumunda (D1
+bağlı değilse) üç bileşen de (`syncChipHtml`, `syncShareLineHtml`,
+`syncJoinHtml`) boş dize döner — özellik sessizce GİZLENİR, "senkron kapalı"
+diye her yerde uyarı basmaz. Bu §6.3-5'i ihlal etmez: hiçbir düğme yanlış bir
+başarı iddia etmiyor, özellik yalnızca teklif edilmiyor. Üretimde D1 zaten
+bağlı olduğu için bu dal pratikte hiç tetiklenmiyor.
+
+`colophon` metni ve `privacy-policy.html`'deki "şeritteki" ifadeleri yeni
+yerleşimi yansıtacak şekilde güncellendi (artık "sınıf kodu çipi").
+
 ### 28j. Bu turda YAPILMAYAN (bilinçli)
 
 1. ~~`npm run deploy:demo` çalıştırılmadı~~ → **YAPILDI** (§28k, 12:13).
