@@ -32,6 +32,10 @@ const ROLES = [
   { id: "teacher", label: "Öğretmen", hint: "sınav ve değerlendirme" },
   { id: "student", label: "Öğrenci", hint: "sınav çözümü" },
   { id: "admin", label: "Eğitim Yöneticisi", hint: "okul genel bakış" },
+  /* Beşinci rol (§28f). Brief dördünü şart koşuyor; veli gerekçesiyle eklendi:
+     salt okunur, yalnızca kendi çocuğunun ONAYLANMIŞ sonuçları, sınıf
+     ortalaması ve sıralama yok. */
+  { id: "parent", label: "Veli", hint: "çocuğunun sonuçları" },
 ];
 
 /* ============================== Yardımcılar ============================== */
@@ -508,7 +512,7 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
      girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
      bilinçli olarak kalıcı DEĞİLDİR. */
-  "syncRoom",
+  "syncRoom", "parentStudentId",
   /* Öğretmenin "veliye bildirilsin" onayı (§28e). Bu bir İNSAN KARARIDIR ve
      kaybolmamalıdır; sinyalin kendisi her seferinde yeniden hesaplanır. */
   "dikkatOnay"];
@@ -837,6 +841,7 @@ const state = {
           // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
           mcPoint: MC_VARSAYILAN_PUAN },
   syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
+  parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
   examStatus: "not_started",
   currentQIndex: 0,
@@ -5934,6 +5939,7 @@ function renderAll() {
   renderTeacher();
   renderStudent();
   renderAdmin();
+  renderParent();
   renderSyncBar();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
@@ -5991,6 +5997,195 @@ setInterval(function () {
     if (!yaziliyor) renderAll();
   }
 }, 1000);
+
+/* ==================== VELİ PANELİ (§28f) ====================
+   Brief dört rol istiyor; beşincisi gerekçesiyle ekleniyor: veli, çocuğunun
+   öğrenme durumunu en çok merak eden ve bugün en az bilgilendirilen taraftır.
+
+   🔴 EN AĞIR HATA SINIFI: YANLIŞ VELİYE YANLIŞ ÇOCUĞUN VERİSİ.
+   Bu yüzden panel bilinçli olarak DAR tutuldu:
+
+   · YALNIZCA ONAYLANMIŞ sonuç görünür. Öğretmen "yayınla" demediyse veli
+     hiçbir şey görmez — AI'ın ham puan önerisi veliye ASLA ulaşmaz.
+     Bu, HITL zincirinin veliye kadar uzatılmış hâlidir (agents.md §1).
+   · SINIF ORTALAMASI YOK, SIRALAMA YOK, BAŞKA ÖĞRENCİ YOK. Kullanıcının
+     açık isteği; ayrıca bir çocuğun sınıftaki yerini veliye söylemek
+     ölçme-değerlendirmenin amacı değildir.
+   · Sınav bütünlüğü kaydı yalnızca ÖĞRETMEN ONAYLADIYSA görünür (§28e) ve
+     suçlayıcı olmayan dille yazılır.
+   · Kimlik doğrulama YOKTUR; çocuk seçimi simülasyondur ve ekranda öyle
+     yazar. Gerçek eşleştirme Better Auth ile üretimde yapılacaktır. */
+
+function veliCocugu() {
+  const liste = state.students || [];
+  if (!liste.length) return null;
+  const bulunan = liste.find(function (o) { return String(o.id) === String(state.parentStudentId); });
+  return bulunan || liste[0];
+}
+
+/** Velinin görebileceği sınavlar: YALNIZCA öğretmen onayından geçmiş olanlar. */
+function veliSonuclari(sid) {
+  const cikti = [];
+  (state.exams || []).forEach(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    if (ex.status !== "published") return;
+    const o = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)
+      ? (function () { const t = {}; OTURUM_ALANLARI.forEach(function (k) { t[k] = state[k]; }); return t; })()
+      : ((kayit.sessions || {})[sid] || null);
+    // ONAY KAPISI: "graded" değilse veli göremez.
+    if (!o || o.examStatus !== "graded") return;
+
+    const sorular = (ex.questionIds || [])
+      .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+      .filter(Boolean);
+    const mcP = mcPuani(kayit);
+    let puan = 0, tam = 0;
+    const kazanimlar = {};
+    sorular.forEach(function (q) {
+      let alinan = null, azami = 0;
+      if (q.type === "mc") {
+        const r = (o.mcResults || {})[q.id];
+        if (!r) return;                       // puanlanmamış soru toplama girmez
+        azami = mcP; alinan = r.correct ? mcP : 0;
+      } else {
+        const rv = (o.reviews || {})[q.id];
+        if (!rv) return;
+        azami = (state.rubrics[q.id] || {}).maxScore || 0;
+        alinan = Number(rv.finalScore) || 0;
+      }
+      puan += alinan; tam += azami;
+      const kod = q.outcome || "—";
+      if (!kazanimlar[kod]) kazanimlar[kod] = { alinan: 0, tam: 0 };
+      kazanimlar[kod].alinan += alinan; kazanimlar[kod].tam += azami;
+    });
+
+    // Öğretmenin ONAYLADIĞI geri bildirimler (AI taslağı değil, nihai metin).
+    const yorumlar = sorular.map(function (q) {
+      const rv = (o.reviews || {})[q.id];
+      return rv && rv.comment ? { soru: q.body, yorum: rv.comment } : null;
+    }).filter(Boolean);
+
+    cikti.push({
+      examId: kayit.id, baslik: ex.title || "Adsız Sınav",
+      puan: puan, tam: tam,
+      yuzde: tam ? Math.round((puan / tam) * 100) : null,
+      kazanimlar: kazanimlar, yorumlar: yorumlar
+    });
+  });
+  return cikti;
+}
+
+function veliKazanimEtiketi(kod) {
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === kod; });
+  return o && o.label ? o.label : kod;
+}
+
+function renderParent() {
+  const root = document.getElementById("panel-parent");
+  if (!root) return;
+  const cocuk = veliCocugu();
+
+  if (!cocuk) {
+    root.innerHTML = '<div class="card"><div class="empty-state">Henüz tanımlı bir öğrenci yok.</div></div>';
+    return;
+  }
+
+  /* 🔴 ÇOCUK SEÇİCİ KATLANMIŞTIR — sebebi ölçüldü.
+     Seçici açıkta olduğunda panelde SINIFIN TÜM ADLARI görünüyordu; bu,
+     "veli başka öğrencinin bilgisini görmesin" kuralının ruhuna aykırıdır.
+     Seçici bir VELİ ARACI DEĞİL, kimlik doğrulama olmadığı için var olan bir
+     SİMÜLASYON ARACIDIR; bu yüzden <details> içine alındı ve öyle etiketlendi.
+     Velinin gerçekte gördüğü ekranda yalnızca kendi çocuğunun adı geçer.
+     (Aynı katlama idiyomu §25e'de uyum panelinde de kullanıldı.) */
+  const secici = '<div class="card"><div class="card-head"><h3>Veli Görünümü</h3>' +
+    '<span class="pill pill-success">' + escapeHtml(cocuk.name || "Öğrenci") + '</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar ' +
+    'görünür. Yapay zekânın ham puan önerileri veliye gösterilmez. ' +
+    '<b>Diğer öğrencilerin bilgileri, sınıf ortalaması ve sıralama bu ekranda yer almaz.</b></p>' +
+    '<details class="sim-secici"><summary>Simülasyon aracı — hangi veli olarak bakılıyor?</summary>' +
+    '<div class="field" style="margin-top:8px;"><label>Çocuk seçimi (yalnızca prototip)</label>' +
+    '<select id="veliCocuk">' +
+    (state.students || []).map(function (o) {
+      return '<option value="' + o.id + '"' + (o.id === cocuk.id ? " selected" : "") + '>' +
+        escapeHtml(o.name || ("#" + o.id)) + '</option>';
+    }).join("") + '</select>' +
+    '<span class="field-note">Bu prototipte kimlik doğrulama yoktur, bu yüzden çocuk elle seçilir. ' +
+    'Gerçek sürümde veli hesabıyla doğrulanır ve <b>yalnızca kendi çocuğunu</b> görebilir; ' +
+    'bu liste orada hiç bulunmaz.</span></div></details></div>' +
+    '';
+
+  const sonuclar = veliSonuclari(cocuk.id);
+  if (!sonuclar.length) {
+    root.innerHTML = secici + '<div class="card"><div class="empty-state">' +
+      escapeHtml(cocuk.name || "Öğrenci") + ' için öğretmen onayından geçmiş bir sonuç henüz yok. ' +
+      'Öğretmen sonuçları yayınladığında burada görünecek.</div></div>';
+    wireParent();
+    return;
+  }
+
+  // Kazanım bazlı güçlü/zayıf — TÜM onaylı sınavlar birleştirilir.
+  const birlesik = {};
+  sonuclar.forEach(function (s) {
+    Object.keys(s.kazanimlar).forEach(function (k) {
+      if (!birlesik[k]) birlesik[k] = { alinan: 0, tam: 0 };
+      birlesik[k].alinan += s.kazanimlar[k].alinan;
+      birlesik[k].tam += s.kazanimlar[k].tam;
+    });
+  });
+  const kazanimSatirlari = Object.keys(birlesik).map(function (k) {
+    const v = birlesik[k];
+    return { kod: k, yuzde: v.tam ? Math.round((v.alinan / v.tam) * 100) : null };
+  }).filter(function (x) { return x.yuzde != null; }).sort(function (a, b) { return b.yuzde - a.yuzde; });
+
+  const onay = ensureDikkatOnay()[cocuk.id];
+
+  root.innerHTML = secici +
+    '<div class="card"><div class="card-head"><h3>' + escapeHtml(cocuk.name) + ' — Sonuçlar</h3>' +
+    '<span class="pill pill-success">' + sonuclar.length + ' onaylı sınav</span></div>' +
+    sonuclar.map(function (s) {
+      return '<div class="report-row"><div class="rr-head"><span><b>' + escapeHtml(s.baslik) + '</b></span>' +
+        '<span class="rr-score tabular">' + s.puan + ' / ' + s.tam +
+        (s.yuzde != null ? ' &nbsp;(%' + s.yuzde + ')' : "") + '</span></div>' +
+        (s.yorumlar.length
+          ? '<div class="rr-answer"><div class="rr-answer-lbl">Öğretmenin notu</div>' +
+            s.yorumlar.map(function (y) {
+              return '<div class="rr-answer-txt">' + escapeHtml(y.yorum) + '</div>';
+            }).join("") + '</div>'
+          : "") +
+        '</div>';
+    }).join("") + '</div>' +
+
+    '<div class="card"><div class="card-head"><h3>Kazanım Bazlı Durum</h3>' +
+    '<span class="hint">güçlü ve gelişime açık alanlar</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">Yüzdeler <b>yalnızca çocuğunuzun kendi yanıtlarından</b> ' +
+    'hesaplanır; sınıfla karşılaştırma içermez.</p>' +
+    kazanimSatirlari.map(function (k) {
+      const renk = k.yuzde >= 70 ? "pill-success" : (k.yuzde >= 50 ? "pill-warning" : "pill-critical");
+      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(veliKazanimEtiketi(k.kod)) + '</b>' +
+        '<div class="lbl-hint">' + escapeHtml(k.kod) + '</div></div>' +
+        '<span class="pill ' + renk + '">%' + k.yuzde + '</span></div>';
+    }).join("") +
+    '<div class="lbl-hint" style="margin-top:10px;">%70 üzeri güçlü, %50 altı üzerinde çalışılması ' +
+    'önerilen alanlardır. Bu bir not değil, <b>yol göstericidir</b>.</div></div>' +
+
+    (onay
+      ? '<div class="card"><div class="card-head"><h3>Öğretmeninizden Bilgi</h3>' +
+        '<span class="pill pill-warning">öğretmen onaylı</span></div>' +
+        '<p>Çocuğunuz sınav sırasında <b>zorlanmış olabilir</b>. Öğretmeni, sizinle paylaşılmasında ' +
+        'yarar gördüğü için bu bilgiyi iletti. Bu bir <b>disiplin bildirimi ya da kopya iddiası ' +
+        'değildir</b>; sınav ortamında dikkatin dağıldığına dair bir kayıttır ve internet kesintisi ' +
+        'gibi masum nedenlerle de oluşabilir. Ayrıntı için öğretmeniyle görüşebilirsiniz.</p>' +
+        '<div class="lbl-hint">Bu bilgi otomatik gönderilmedi; ' + escapeHtml(auditZaman(onay.at)) +
+        ' tarihinde <b>öğretmen kararıyla</b> paylaşıldı.</div></div>'
+      : "");
+
+  wireParent();
+}
+
+function wireParent() {
+  const s = document.getElementById("veliCocuk");
+  if (s) s.onchange = function () { state.parentStudentId = Number(s.value); saveState(); renderAll(); };
+}
 
 /* ==================== DİKKAT SİNYALİ (§28e) ====================
    Sınav bütünlüğü verisi (sekme değişimi, odak kaybı, tam ekrandan çıkış,
@@ -6627,6 +6822,7 @@ function wireSync() {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
+    "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
     "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
