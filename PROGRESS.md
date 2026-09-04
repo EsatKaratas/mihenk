@@ -4632,3 +4632,105 @@ bırakıldı.
 | Tarayıcı — çalışma zamanı hatası | **0** (`error`, `unhandledrejection`, `console.error`) |
 | Tarayıcı — öz-kontrol uyarı şeridi | çıkmadı |
 | Ağ istekleri | logo dâhil hepsi 200; yalnız `/api/ai/status` ve `/api/sync/status` 404 — önizlemede Worker yok, uygulama "Yerel simülasyon"a düşüyor (beklenen) |
+
+---
+
+## 30. FİNAL BİRLEŞTİRME DENETİMİ — Esat + İrem + Sude + Burak (4 Eylül 2026)
+
+`final-birlestirme` dalı (`3ab3df6`, 120 commit) dört kişinin işini taşıyor.
+Bu bölüm, birleştirmede **sessizce kaybolan bir şey var mı** sorusunu
+ölçerek yanıtlar. Hiçbir iddia ezberden yazılmadı.
+
+### 30.0 Başlangıç noktası
+
+```
+81c7a03  origin/main (Esat)
+b5f7ae8  İrem
+3a85e0e  merge: Esat + İrem
+b5fb017  merge: Sude
+3ab3df6  merge: Burak   <- denetlenen HEAD
+```
+
+`final-birlestirme` bu denetim anında GitHub'da **yoktu**; bundle'dan
+klonlanan bayat bir uzak referans vardı (`git ls-remote` ile doğrulandı).
+
+### 30.1 Kayıp parça denetimi — sonuç: KAYIP YOK
+
+| Kaynak | Denetlenen | Sonuç |
+|---|---|---|
+| Burak M2 | `btnToggleRejected-ce` / `-teacher`, `rejectedOpenByRole`, `rejectedAcikMi`, `wireRejectedPool` | tamamı duruyor |
+| Burak M3/M4 | `remapOptionsByOrder`, `shuffleOptions` (Fisher-Yates) — `src/lib/guards.ts` | duruyor, `routes/ai.ts:165`'te bağlı |
+| Burak M5 | tekrar önleme — istem güvenlik sınırı + kaçırma | duruyor |
+| İrem | giriş kapısı, palet, logo, OCR/DOCX 6 fonksiyon, şube, `topicArea`/`bloomFocus`, rozetler | tamamı duruyor |
+| Sude | `.opt-draggable` sürükle-bırak, `rubricTemplateOverwriteGuard`, öğretmen analitiği | tamamı duruyor |
+| Esat | 10 `sync-chip` fonksiyonu | tamamı duruyor |
+| Eski `.sync-bar` | `app.css` / `app.js` / `index.html` | **0 kez** — geri gelmemiş |
+| `syncBarHtml`/`renderSyncBar`/`wireSync` | selfCheck listesi | listede **yok** — doğru |
+
+**İSİM DEĞİŞİKLİĞİ — kayıp DEĞİL, bilinçli tekilleştirme.** İki nokta
+karışıklık yaratabilir, ölçülerek netleştirildi:
+
+1. **İstemci tarafı şık yeniden sıralama.** Burak'ın `public/app.js` için
+   önerdiği `remapOptionsByOrder` / `shuffleOptions` / `SIK_HARFLERI`
+   birleşmiş kodda **yok**. Yerlerine Sude'nin refactor'ü var:
+   `relabelOptionsAndGetKeyMap` + `remapCorrectKeyAndRationale` +
+   `fisherYatesShuffle` + `shuffleQuestionOptions`. Mantık aynı, tek bir
+   ortak yardımcı seti hem sürükle-bırak (4a) hem karıştırma (4b)
+   tarafından kullanılıyor. **Sunucu tarafındaki** Burak adları
+   (`guards.ts`) olduğu gibi duruyor — asıl garanti orada.
+2. **Tekrar önleme alan adı.** Burak `existingQuestions` (24 soru / 300
+   karakter), Sude `excludeQuestions` (50 / 2000) önermişti. Birleşmiş
+   kodda **`excludeQuestions`** var — yani daha geniş sınır kazandı.
+   İstemci tarafı `previouslyGeneratedQuestionBodies` ile besliyor.
+
+### 30.2 Bu turda DÜZELTİLEN iki şey
+
+**1) Öz-kontrol listesi altı fonksiyonu kapsamıyordu.** `wireCeTabs`,
+`wirePendingCards`, `wireRejectedPool`, `wireExamSwitcher`, `renderAiBadge`,
+`renderPipeline` üst düzeyde tanımlıydı ama `selfCheck()` listesinde yoktu.
+Dördü `wire*` — yani bir merge onları düşürseydi ekran sorunsuz çizilir,
+sadece **düğmeler sessizce ölürdü**. Projede tam bu sınıftan iki hata
+yaşandı (§28s: veli panelindeki Gir düğmesi; Burak M2: reddedilenler havuzu
+toggle'ı). Öz-kontrolün var oluş sebebi bu. Liste 240 → **246**.
+
+**2) `tools/ozkontrol-dogrula.mjs` yorum metnini fonksiyon adı sanıyordu.**
+Araç, liste bloğunda `/"([A-Za-z0-9_]+)"/g` regex'ini **ham metin** üzerinde
+çalıştırıyordu; blokta zaten açıklama yorumları var (§29). Yorumda tırnak
+içinde geçen sıradan bir kelime ada dönüşüyor ve araç **olmayan bir hatayı**
+bildiriyordu. Yukarıdaki §30.2-1 yorumu yazılırken bu gerçekten tetiklendi
+(`SahteAdDeneme` ile yeniden üretildi: eski araç exit 1, yeni araç exit 0).
+Ölçüm aracı yanılıyordu, kod değil — projenin tekrar eden dersi. Yorumlar
+artık ayıklanıyor.
+
+Ayrıca `package-lock.json` bayattı (`t3-olcme-degerlendirme` 0.1.0 yazıyordu,
+`package.json` ise `mihenk` 1.1.0). Bağımlılık değişmeden senkronlandı.
+
+### 30.3 Doğrulama (4 Eylül 2026, `final-birlestirme`)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` (`tsc --noEmit`) | **temiz** (exit 0) |
+| `npm test` | **165/165**, 5 test dosyası |
+| `node tools/ozkontrol-dogrula.mjs` | **246 ad, 246 tekil, eksik 0** |
+| `npm run check:config` | **GEÇTİ** (exit 0) — §29.5-4'teki "çalıştırılamadı" notu kapandı; araç saf Node, Python gerektirmiyor |
+| `node --check` (4 tarayıcı dosyası) | **4/4** |
+| Çakışma kalıntısı / `git diff --check` | **temiz** |
+| Giriş kapısı | 1. → 2. aşama, logo sol üste geçti, 5 kart çıktı |
+| 5 rol × tüm sekmeler | CE 2, Öğretmen 4, Öğrenci 3, Yönetici/Veli sekmesiz — hepsi doldu |
+| Kart ↔ üst çubuk eşdeğerliği | 5/5 — tıklanan rol = görünür panel = aktif düğme |
+| Konsol `error` / `unhandledrejection` / `console.error` | **0** (yakalayıcı kurularak ölçüldü) |
+| Öz-kontrol uyarı şeridi | **çıkmadı** (eklenen 6 ad çalışma zamanında da tanımlı) |
+| Mobil 375×812, 5 rol | yatay taşma **yok** (scrollWidth = clientWidth = 375) |
+| Gerçek AI üretimi (Llama 3.3 70B) | 13 sn'de 3 kart; 8 sürüklenebilir şık, 16 taşıma düğmesi |
+| **Şık taşıma değişmezi** | harfler A,B,C,D **sabit**; doğru cevabın metni değişmedi, harfi **A→C** taşındı; şık metin kümesi aynı |
+| `sync-chip` | 10 fonksiyonun 10'u `window`'da tanımlı; `/api/sync/status` → `ready:true` |
+
+`onizleme-sunucu.mjs` yerine `npm run dev:demo` (wrangler, gerçek D1 + Workers
+AI bağlantısıyla) kullanıldı — CSP `public/_headers`'tan gerçek olarak uygulandı.
+
+### 30.4 Hâlâ DOĞRULANMAMIŞ
+
+* OCR'ın `sayfa.render(...)` adımı (pdf.js → canvas) bu turda da gerçek
+  taranmış bir PDF ile denenmedi. §29.5 ve devir belgesi §15'teki uyarı
+  **geçerliliğini koruyor** — çalışıyor kabul etmeyin.
+* OCR'ın Türkçe isabet oranı ölçülmedi.
