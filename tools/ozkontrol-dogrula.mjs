@@ -39,7 +39,13 @@ if (bitis < 0) {
   console.error('HATA: selfCheck bloğunun sonu (const eksik) bulunamadı.');
   process.exit(1);
 }
-const blok = kaynak.slice(basla, bitis);
+const blokHam = kaynak.slice(basla, bitis);
+// Liste bloğunda AÇIKLAMA YORUMLARI var (§29, §30 gibi). Yorum metninde
+// tırnak içinde geçen sıradan bir kelime (ör. veli panelindeki "Gir"
+// düğmesi) buradaki regex tarafından FONKSİYON ADI sanılıyor ve araç
+// olmayan bir hatayı bildiriyordu. Ölçüm aracının kendisi yanılıyordu,
+// kod değil — bu proje bu tuzağa daha önce de düştü. Yorumlar önce ayıklanır.
+const blok = blokHam.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^[ \t]*\/\/.*$/gm, ' ');
 const adlar = [...blok.matchAll(/"([A-Za-z0-9_]+)"/g)].map((m) => m[1]);
 
 if (!adlar.length) {
