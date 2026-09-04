@@ -116,6 +116,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       // şemasını değiştirmez (bkz. src/lib/prompts.ts QuestionSpec notu).
       topicArea: b.topicArea,
       bloomFocus: b.bloomFocus,
+      excludeQuestions: b.excludeQuestions,
     },
     b.sourceText
   );

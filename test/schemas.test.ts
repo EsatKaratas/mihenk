@@ -87,6 +87,28 @@ describe('generateQuestionsSchema', () => {
     expect(generateQuestionsSchema.safeParse({ ...gecerli, topicArea: 'a'.repeat(121) }).success).toBe(false);
     expect(generateQuestionsSchema.safeParse({ ...gecerli, topicArea: 'Okuma' }).success).toBe(true);
   });
+
+  // Paket 4c — Tekrar Önleme (dedup): excludeQuestions opsiyoneldir ve
+  // geriye dönük uyumluluk için varsayılanı boş dizidir.
+  it('excludeQuestions opsiyoneldir ve varsayılanı boş dizidir', () => {
+    const r = generateQuestionsSchema.parse(gecerli);
+    expect(r.excludeQuestions).toEqual([]);
+  });
+
+  it('excludeQuestions verilirse istem oluşturma için korunur', () => {
+    const r = generateQuestionsSchema.parse({ ...gecerli, excludeQuestions: ['Önceki soru 1', 'Önceki soru 2'] });
+    expect(r.excludeQuestions).toEqual(['Önceki soru 1', 'Önceki soru 2']);
+  });
+
+  it('excludeQuestions 50 öğeyle sınırlıdır', () => {
+    const cok = Array.from({ length: 51 }, (_, i) => `soru ${i}`);
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, excludeQuestions: cok }).success).toBe(false);
+  });
+
+  it('excludeQuestions içindeki bir öğe 2000 karakteri aşarsa reddeder', () => {
+    const uzunSoru = 'a'.repeat(2001);
+    expect(generateQuestionsSchema.safeParse({ ...gecerli, excludeQuestions: [uzunSoru] }).success).toBe(false);
+  });
 });
 
 describe('evaluateSchema', () => {

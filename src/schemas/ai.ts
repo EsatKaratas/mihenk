@@ -29,6 +29,14 @@ export const generateQuestionsSchema = z.object({
    * öğretmenin, üretilen sorular yine onay bekler).
    */
   bloomFocus: z.enum(['dengeli', 'temel', 'ust']).default('dengeli'),
+  /**
+   * Paket 4c — Tekrar Önleme (dedup). İstemci aynı oturumda bu kaynak için
+   * daha önce üretilmiş soru gövdelerini gönderebilir; bunlar istem
+   * içine NEGATİF ÖRNEK olarak eklenir (bkz. buildQuestionPrompt). Geriye
+   * dönük uyumluluk için opsiyoneldir ve varsayılanı boş dizidir — eski
+   * istemci sürümleri bu alanı hiç göndermez.
+   */
+  excludeQuestions: z.array(z.string().max(2000)).max(50).default([]),
 });
 
 export const rubricDraftSchema = z.object({

@@ -124,6 +124,17 @@ function simulateQuestions(doc) {
       needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
       sube: doc.sube || ""
     });
+    // Paket 4b — tasarım kararı: simulateQuestions() GERÇEK bir AI çağrısı
+    // değil, sabit şablonlu yerel bir yedektir; "hep B doğru" sapması burada
+    // GERÇEKTEN yaşanan bir önyargı değil (kod zaten her seferinde "A"yı
+    // doğru üretiyor — bu satırın birkaç üstünde açıkça görülüyor). Yine de
+    // bu şablonun kendisi "doğru şık hep A" deseniyle aynı sorunu üretiyor;
+    // İçerik Uzmanı/öğrenci arayüzde gördüğü ÇSS'lerin doğru şıkkının hep A
+    // olması öğrenmeyi/güveni bozabilir. shuffleQuestionOptions() maliyeti
+    // sıfıra yakın (küçük dizi, saf fonksiyon) ve gerçek AI yoluyla birebir
+    // aynı davranışı sağladığı için savunma amaçlı (defense-in-depth) ve
+    // tutarlılık için burada da uygulanıyor — zararı yok, kazancı var.
+    shuffleQuestionOptions(qs[qs.length - 1]);
   }
 
   for (let i = 0; i < istenenOpen; i++) {
@@ -206,6 +217,26 @@ async function apiPost(url, body) {
   return j;
 }
 
+/* Paket 4c — Tekrar Önleme (dedup) girdisi.
+   Aynı kaynak/kazanım için bu OTURUMDA (state.questions içinde, henüz
+   sayfa yenilenmemiş/localStorage'dan geleni de dahil) daha önce üretilmiş
+   soru gövdelerini toplar. Yeni bir state alanı EKLENMEDİ — bilgi zaten
+   state.questions'ta var; burada yalnızca türetiliyor. srcId varsa ONA göre
+   (aynı kaynak metin), yoksa kazanım koduna göre eşleştirilir; en yakın
+   (en çok tekrar riski taşıyan) 30 soruyla sınırlanır ki istek boyutu
+   büyümesin (sunucu şeması da 50 ile sınırlar). */
+function previouslyGeneratedQuestionBodies(doc) {
+  const ayniKaynak = function (q) {
+    if (doc.srcId != null && q.srcId != null) return q.srcId === doc.srcId;
+    return q.outcome === doc.outcome;
+  };
+  return (state.questions || [])
+    .filter(ayniKaynak)
+    .map(function (q) { return String(q.body || "").trim(); })
+    .filter(Boolean)
+    .slice(-30);
+}
+
 async function aiGenerateQuestions(doc) {
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır
   // ve arayüzdeki rozet zaten "Yerel simülasyon" yazar.
@@ -228,11 +259,17 @@ async function aiGenerateQuestions(doc) {
       // zenginleştirir, çıktı şemasını değiştirmez (bkz. src/lib/prompts.ts).
       topicArea: outcomeAlan(doc.outcome) || undefined,
       bloomFocus: state.ceForm.bloomFocus || "dengeli",
+      // Paket 4c — Tekrar Önleme: bu oturumda AYNI kazanım için daha önce
+      // üretilmiş soru gövdeleri sunucuya negatif örnek olarak gönderilir.
+      // Ayrı bir state alanı TUTULMUYOR — zaten var olan state.questions
+      // üzerinden türetiliyor (bkz. previouslyGeneratedQuestionBodies), ki
+      // "hiç ek soru üretilmedi" durumunda boş dizi gider (geri uyumlu).
+      excludeQuestions: previouslyGeneratedQuestionBodies(doc),
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
     return (j.questions || []).map(function (q) {
-      return {
+      const soru = {
         id: qIdSeq++, type: q.type, difficulty: q.difficulty, outcome: doc.outcome,
         body: q.body, options: q.options, correctKey: q.correctKey,
         distractorRationale: q.distractorRationale || {}, bloom: q.bloom,
@@ -251,6 +288,16 @@ async function aiGenerateQuestions(doc) {
         // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
         sube: doc.sube || "",
       };
+      // Paket 4b: %25 şık dağılımı — AI ardışık üretimlerde doğru şıkkı hep
+      // aynı harfe (gözlemlenen: B) yerleştirme eğiliminde olabiliyor.
+      // Sunucu zaten harfleri A,B,C,... olarak konuma göre normalleştiriyor
+      // (src/routes/ai.ts) ama modelin kendi seçtiği KONUM hâlâ sapmalı
+      // olabilir; bu yüzden istemci tarafında üretim SONRASI, onaya
+      // gitmeden ÖNCE, Fisher-Yates ile şıklar yeniden karıştırılır. Doğru
+      // metin/gerekçeler shuffleQuestionOptions içindeki ortak
+      // relabelOptionsAndGetKeyMap/remapCorrectKeyAndRationale ile korunur.
+      shuffleQuestionOptions(soru);
+      return soru;
     });
   } catch (e) {
     state.ai.error = String((e && e.message) || e);
@@ -529,6 +576,8 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
   "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
+  // §29: "kim olarak değerlendiriyorum" — sayfa yenilenince kaybolmamalı.
+  "activeTeacherName",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
      girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
      bilinçli olarak kalıcı DEĞİLDİR. */
@@ -828,6 +877,16 @@ const state = {
   teacherTab: 1,
   studentTab: 1,
   genCount: 0,
+  /* Öğretmen kimliği — SEÇENEK A: PROTOTİP DİSİPLİNİ (§29 — Eğitim Yöneticisi
+     karnesi). Bu projede kimlik doğrulama yoktur (bkz. schema.sql §10 notu);
+     tam bir auth sistemi kurmak yerine öğretmen kendi adını burada YAZAR/SEÇER.
+     Bu ada sahip sınav kayıtları (`exam.teacherName`) Eğitim Yöneticisi
+     panelindeki "hangi öğretmenin hangi onayları" sorusunun cevabıdır.
+     Boşsa `VARSAYILAN_OGRETMEN_ADI`'na düşer (bkz. teacherRoster). */
+  activeTeacherName: "",
+  // Eğitim Yöneticisi panelinde seçili öğretmen karnesi (yalnızca UI durumu,
+  // kalıcı DEĞİL — sayfa yenilenince listeye geri döner).
+  adminSelectedTeacher: null,
   ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
@@ -861,7 +920,9 @@ const state = {
           // Çoktan seçmeli soru başına puan (öğretmen belirler) — bkz. mcPuani()
           mcPoint: MC_VARSAYILAN_PUAN,
           // §28r: boşsa TÜM sınıflara yayınlanır; doluysa yalnızca o sınıf görür.
-          targetClass: "" },
+          targetClass: "",
+          // §29: bu sınavı hangi öğretmen değerlendiriyor (bkz. state.activeTeacherName).
+          teacherName: "" },
   syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
@@ -900,8 +961,53 @@ const state = {
       { name: "8-B", scores: { "MAT.7.2.1": 65, "MAT.7.3.4": 70, "FEN.7.1.2": 60 } },
       { name: "8-C", scores: { "MAT.7.2.1": 84, "MAT.7.3.4": 77, "FEN.7.1.2": 69 } },
     ],
+    /* ===========================================================================
+       ÖĞRETMEN KALİBRASYON KARŞILAŞTIRMASI (§29 — Eğitim Yöneticisi karnesi)
+       ===========================================================================
+       NEDEN: Brief demo/jüri anında kurumda birden fazla öğretmen listelenmesini
+       istiyor ama bu prototipte kimlik doğrulama yok (bkz. §10 notu, schema.sql).
+       Gerçek çoklu-kullanıcı üretmek yerine — `classes` ile AYNI disiplinle —
+       üç öğretmen için HAM (ai, nihai) puan çiftleri tanımlanır; yüzde/uyum gibi
+       HİÇBİR türetilmiş sayı burada sabitlenmez, hepsi `calibrationFromRecords()`
+       ile aynı formülden HESAPLANIR (§6.3-5: uydurma yasak, ETİKETLİ örnek olur).
+
+       Bu satırlar yalnızca aynı isimde GERÇEK bir sınav kaydı (kayit.teacherName)
+       yokken gösterilir (bkz. teacherRoster) ve arayüzde her zaman "örnek veri"
+       rozetiyle çıkar — ısı haritasındaki "(örnek)" satırlarıyla aynı sözleşme. */
+    teachers: [
+      { name: "Ahmet Yılmaz", subject: "Matematik", records: [
+        { ogrenci: "Öğrenci A", soru: "Bir doğrusal denklemi gerçek hayat problemine uygulayarak çözünüz.", maxScore: 20, ai: 15, nihai: 13, confidence: 0.86 },
+        { ogrenci: "Öğrenci B", soru: "Cebirsel ifadeyi sadeleştirip sonucu yorumlayınız.",                 maxScore: 20, ai: 12, nihai: 10, confidence: 0.58 },
+        { ogrenci: "Öğrenci C", soru: "Verilen tabloyu kullanarak orantı kurunuz ve açıklayınız.",           maxScore: 20, ai: 18, nihai: 17, confidence: 0.91 },
+        { ogrenci: "Öğrenci D", soru: "Bir doğrusal denklemi gerçek hayat problemine uygulayarak çözünüz.", maxScore: 20, ai: 10, nihai: 8,  confidence: 0.49 },
+        { ogrenci: "Öğrenci E", soru: "Cebirsel ifadeyi sadeleştirip sonucu yorumlayınız.",                 maxScore: 20, ai: 14, nihai: 13, confidence: 0.73 },
+        { ogrenci: "Öğrenci F", soru: "Verilen tabloyu kullanarak orantı kurunuz ve açıklayınız.",           maxScore: 20, ai: 16, nihai: 15, confidence: 0.82 },
+      ] },
+      { name: "Ayşe Kaya", subject: "Fen Bilgisi", records: [
+        { ogrenci: "Öğrenci A", soru: "Dengelenmemiş kuvvetlerin cisme etkisini örnekle açıklayınız.", maxScore: 20, ai: 12, nihai: 13, confidence: 0.77 },
+        { ogrenci: "Öğrenci B", soru: "Fotosentez ve solunum arasındaki ilişkiyi karşılaştırınız.",     maxScore: 20, ai: 14, nihai: 15, confidence: 0.68 },
+        { ogrenci: "Öğrenci C", soru: "Bir maddenin hâl değişimini enerji alışverişiyle açıklayınız.",  maxScore: 20, ai: 9,  nihai: 10, confidence: 0.52 },
+        { ogrenci: "Öğrenci D", soru: "Dengelenmemiş kuvvetlerin cisme etkisini örnekle açıklayınız.", maxScore: 20, ai: 17, nihai: 18, confidence: 0.89 },
+        { ogrenci: "Öğrenci E", soru: "Fotosentez ve solunum arasındaki ilişkiyi karşılaştırınız.",     maxScore: 20, ai: 11, nihai: 12, confidence: 0.61 },
+        { ogrenci: "Öğrenci F", soru: "Bir maddenin hâl değişimini enerji alışverişiyle açıklayınız.",  maxScore: 20, ai: 15, nihai: 15, confidence: 0.84 },
+      ] },
+      { name: "Mehmet Demir", subject: "Türkçe", records: [
+        { ogrenci: "Öğrenci A", soru: "Okuduğunuz metnin ana fikrini gerekçeleriyle yazınız.",       maxScore: 20, ai: 16, nihai: 16,   confidence: 0.9  },
+        { ogrenci: "Öğrenci B", soru: "Metindeki söz sanatlarından birini örnekle açıklayınız.",       maxScore: 20, ai: 14, nihai: 14,   confidence: 0.71 },
+        { ogrenci: "Öğrenci C", soru: "Verilen paragrafı kendi cümlelerinizle özetleyiniz.",           maxScore: 20, ai: 18, nihai: 18,   confidence: 0.93 },
+        { ogrenci: "Öğrenci D", soru: "Okuduğunuz metnin ana fikrini gerekçeleriyle yazınız.",       maxScore: 20, ai: 12, nihai: 12,   confidence: 0.55 },
+        { ogrenci: "Öğrenci E", soru: "Metindeki söz sanatlarından birini örnekle açıklayınız.",       maxScore: 20, ai: 10, nihai: 10.5, confidence: 0.64 },
+        { ogrenci: "Öğrenci F", soru: "Verilen paragrafı kendi cümlelerinizle özetleyiniz.",           maxScore: 20, ai: 17, nihai: 17,   confidence: 0.88 },
+        { ogrenci: "Öğrenci G", soru: "Okuduğunuz metnin ana fikrini gerekçeleriyle yazınız.",       maxScore: 20, ai: 9,  nihai: 9,     confidence: 0.6  },
+      ] },
+    ],
   },
 };
+
+// §29: kayıt bir öğretmen adı taşımıyorsa (eski sınav / hiç girilmemiş) burada
+// biriktirilir. Gerçek bir kullanıcı adı DEĞİLDİR, yalnızca listede boş
+// bırakılmasın diye konmuş bir etiket olduğu ismiyle bellidir.
+const VARSAYILAN_OGRETMEN_ADI = "İsimsiz Öğretmen";
 
 function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
 function outcomeLabel(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return o ? o.label : code; }
@@ -2528,13 +2634,117 @@ function subeRozetiHtml(q) {
   return '<span class="pill pill-neutral" title="Bu kaynak için belirtilen şube">👥 ' + escapeHtml(q.sube) + '</span>';
 }
 
+/* ===========================================================================
+   PAKET 4a/4b ORTAK YARDIMCILAR — şık yeniden sıralama
+   ===========================================================================
+   Şık `key` değerleri ("A","B","C",...) HER ZAMAN dizideki konuma göre
+   atanır (bkz. sunucu tarafı src/routes/ai.ts aynı kural). Şıklar herhangi
+   bir sebeple (İçerik Uzmanı sürükleyip taşıdı — 4a, ya da AI çıktısı
+   karıştırıldı — 4b) yeniden sıralandığında:
+     1) harfler yeni konuma göre A,B,C,... olarak YENİDEN atanır (etiketler
+        sabit kalır, metinler yer değiştirir),
+     2) doğru şıkkın harfi (correctKey) metniyle birlikte yeni harfe TAŞINIR,
+     3) her çeldiricinin gerekçesi (distractorRationale) de aynı eşlemeyle
+        yeni harfe taşınır — yoksa "B şıkkını seçen..." gerekçesi artık B'de
+        olmayan bir metne bağlanmış olurdu.
+   Bu iki fonksiyon saf yardımcılardır (yan etkisiz girdi işleme + kontrollü
+   mutasyon) ve hem 4a (sürükle-bırak) hem 4b (Fisher-Yates) tarafından
+   ORTAK kullanılır — mantık iki yerde ayrı ayrı yazılıp birbirinden
+   sapmasın diye. */
+const OPT_LETTERS = "ABCDEFGH".split("");
+
+/**
+ * orderedOptions: şıklar YENİ sırada, her biri hâlâ ESKİ `.key` değerini
+ * taşıyor halde verilir (örn. sürüklemeyle yeniden dizilmiş dizi, ya da
+ * Fisher-Yates sonrası karışık dizi).
+ * Döner: { newOptions, eskiHarfToYeniHarf }
+ *   - newOptions: aynı nesneler, `.key` alanı konuma göre A,B,C,... olacak
+ *     şekilde YENİDEN yazılmış (kopya nesneler; orijinaller mutasyona
+ *     uğramaz — çağıran q.options'a kendisi atar).
+ *   - eskiHarfToYeniHarf: { "C": "A", "A": "B", ... } gibi eski→yeni harf
+ *     eşlemesi; correctKey ve distractorRationale bunu kullanarak taşınır.
+ */
+function relabelOptionsAndGetKeyMap(orderedOptions) {
+  const eskiHarfToYeniHarf = {};
+  const newOptions = (orderedOptions || []).map(function (o, i) {
+    const eskiHarf = o.key;
+    const yeniHarf = OPT_LETTERS[i] || String(i + 1);
+    if (eskiHarf != null) eskiHarfToYeniHarf[eskiHarf] = yeniHarf;
+    const kopya = Object.assign({}, o);
+    kopya.key = yeniHarf;
+    return kopya;
+  });
+  return { newOptions: newOptions, eskiHarfToYeniHarf: eskiHarfToYeniHarf };
+}
+
+/**
+ * q.correctKey ve q.distractorRationale'ı eskiHarfToYeniHarf eşlemesine göre
+ * yerinde (in-place) günceller ve q'yu döner. q.options'ın KENDİSİ bu
+ * fonksiyonun sorumluluğunda değildir — çağıran, relabelOptionsAndGetKeyMap
+ * ile ürettiği newOptions'ı ayrıca q.options'a atamalıdır.
+ */
+function remapCorrectKeyAndRationale(q, eskiHarfToYeniHarf) {
+  if (!q || !eskiHarfToYeniHarf) return q;
+  if (q.correctKey != null && eskiHarfToYeniHarf[q.correctKey] != null) {
+    q.correctKey = eskiHarfToYeniHarf[q.correctKey];
+  }
+  if (q.distractorRationale) {
+    const yeni = {};
+    Object.keys(q.distractorRationale).forEach(function (eskiHarf) {
+      const yeniHarf = eskiHarfToYeniHarf[eskiHarf] != null ? eskiHarfToYeniHarf[eskiHarf] : eskiHarf;
+      yeni[yeniHarf] = q.distractorRationale[eskiHarf];
+    });
+    q.distractorRationale = yeni;
+  }
+  return q;
+}
+
+/**
+ * Standart Fisher-Yates (Knuth) karıştırma — yeni bir dizi döner, girdiyi
+ * mutasyona uğratmaz. Paket 4b: AI üretimi ardışık "hep B doğru" sapmasını
+ * önlemek için üretimden hemen sonra her ÇSS sorunun şıkları bu fonksiyonla
+ * karıştırılır, ardından relabelOptionsAndGetKeyMap + remapCorrectKeyAndRationale
+ * ile harfler/doğru şık/gerekçeler yeniden hizalanır.
+ */
+function fisherYatesShuffle(arr) {
+  const a = (arr || []).slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+/**
+ * Bir ÇSS sorunun şıklarını Fisher-Yates ile karıştırır ve harf/doğru
+ * şık/gerekçeleri senkronize eder. q yerinde (in-place) güncellenir.
+ * Tek şıklı ya da şıksız sorularda (karıştıracak bir şey yoksa) dokunmaz.
+ */
+function shuffleQuestionOptions(q) {
+  if (!q || q.type !== "mc" || !Array.isArray(q.options) || q.options.length < 2) return q;
+  const karisik = fisherYatesShuffle(q.options);
+  const { newOptions, eskiHarfToYeniHarf } = relabelOptionsAndGetKeyMap(karisik);
+  q.options = newOptions;
+  remapCorrectKeyAndRationale(q, eskiHarfToYeniHarf);
+  return q;
+}
+
 function renderPendingQuestionCard(q) {
-  const optsHtml = q.type === "mc" ? q.options.map(function (o) {
-    return '<div class="opt-row">' +
+  const optsHtml = q.type === "mc" ? q.options.map(function (o, i) {
+    // Paket 4a: satır sürüklenebilir (draggable) + erişilebilir yukarı/aşağı
+    // düğmeleri. data-index HER RENDER'DA güncel diziye göre yazılır; harf
+    // (o.key) taşınan metinle birlikte gider ama moveOption() sonrasında
+    // relabelOptionsAndGetKeyMap ile konuma göre yeniden atanır.
+    return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
+      '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
       '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" value="' + escapeHtml(o.text) + '">' +
       '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
-      '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label></div>';
+      '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label>' +
+      '<span class="opt-reorder-btns">' +
+      '<button type="button" class="opt-move-btn" data-qid="' + q.id + '" data-index="' + i + '" data-dir="-1" aria-label="Şıkkı yukarı taşı"' + (i === 0 ? " disabled" : "") + '>▲</button>' +
+      '<button type="button" class="opt-move-btn" data-qid="' + q.id + '" data-index="' + i + '" data-dir="1" aria-label="Şıkkı aşağı taşı"' + (i === q.options.length - 1 ? " disabled" : "") + '>▼</button>' +
+      '</span></div>';
   }).join("") : "";
   return '<div class="q-card" data-card-id="' + q.id + '">' +
     '<div class="q-meta">' +
@@ -2569,6 +2779,28 @@ function distractorHtml(q) {
     }).join("") + '</div>';
 }
 
+/* Paket 4a: bir ÇSS sorunun i. şıkkını j. konuma taşır. Harfler konuma göre
+   yeniden atanır, correctKey ve distractorRationale ortak yardımcılarla
+   (relabelOptionsAndGetKeyMap/remapCorrectKeyAndRationale — Paket 4b'nin
+   Fisher-Yates karıştırmasıyla AYNI fonksiyonlar) yeni harfe taşınır.
+   renderAll() hem kartı yeniden çizer hem de saveState() üzerinden kaydeder
+   (bkz. renderAll tanımı) — onay/red düğmelerinde kullanılan mevcut
+   kalıpla birebir aynı: pending kart düzenlemeleri anlık saveSoon()
+   ÇAĞIRMAZ, bir sonraki renderAll() (ör. bu taşıma) ile kalıcı hale gelir. */
+function moveOption(q, eskiIndex, yeniIndex) {
+  if (!q || !Array.isArray(q.options)) return;
+  const n = q.options.length;
+  if (eskiIndex < 0 || eskiIndex >= n || yeniIndex < 0 || yeniIndex >= n || eskiIndex === yeniIndex) return;
+  const arr = q.options.slice();
+  const tasinan = arr.splice(eskiIndex, 1)[0];
+  arr.splice(yeniIndex, 0, tasinan);
+  const { newOptions, eskiHarfToYeniHarf } = relabelOptionsAndGetKeyMap(arr);
+  q.options = newOptions;
+  remapCorrectKeyAndRationale(q, eskiHarfToYeniHarf);
+  q.duzenlendi = true;
+  renderAll();
+}
+
 function wirePendingCards() {
   document.querySelectorAll(".q-body-input").forEach(function (el) {
     el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) q.body = el.value; };
@@ -2578,6 +2810,45 @@ function wirePendingCards() {
   });
   document.querySelectorAll(".correct-radio").forEach(function (el) {
     el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) q.correctKey = el.dataset.okey; };
+  });
+  // Paket 4a — erişilebilir yukarı/aşağı düğmeleri (sürükle-bırak yapılamayan
+  // ortamlar: klavye, dokunmatik, test otomasyonu için).
+  document.querySelectorAll(".opt-move-btn").forEach(function (el) {
+    el.onclick = function () {
+      const q = findQuestion(el.dataset.qid);
+      const i = Number(el.dataset.index);
+      const yon = Number(el.dataset.dir);
+      if (q) moveOption(q, i, i + yon);
+    };
+  });
+  // Paket 4a — HTML5 sürükle-bırak (drag & drop) ile şık taşıma.
+  let dragFromIndex = null;
+  document.querySelectorAll(".opt-row.opt-draggable").forEach(function (el) {
+    el.ondragstart = function (e) {
+      dragFromIndex = Number(el.dataset.index);
+      el.classList.add("opt-dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        try { e.dataTransfer.setData("text/plain", String(dragFromIndex)); } catch (err) { /* bazı tarayıcılarda gerekmez */ }
+      }
+    };
+    el.ondragend = function () { el.classList.remove("opt-dragging"); dragFromIndex = null; };
+    el.ondragover = function (e) {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      el.classList.add("opt-drop-target");
+    };
+    el.ondragleave = function () { el.classList.remove("opt-drop-target"); };
+    el.ondrop = function (e) {
+      e.preventDefault();
+      el.classList.remove("opt-drop-target");
+      const q = findQuestion(el.dataset.qid);
+      const hedefIndex = Number(el.dataset.index);
+      const kaynakIndex = dragFromIndex != null ? dragFromIndex :
+        Number((e.dataTransfer && e.dataTransfer.getData("text/plain")) || NaN);
+      if (q && Number.isFinite(kaynakIndex)) moveOption(q, kaynakIndex, hedefIndex);
+      dragFromIndex = null;
+    };
   });
   document.querySelectorAll(".approve-btn").forEach(function (el) {
     el.onclick = function () {
@@ -3200,7 +3471,13 @@ function activateExam(id) {
                     yani "sayfa kapansa bile süre gerçekte olduğu gibi işler"
                     garantisi SESSİZCE düşüyordu (§6.3-5). */
                  endsAt: kayit.endsAt != null ? kayit.endsAt : null,
-                 mcPoint: mcPuani(kayit) };
+                 mcPoint: mcPuani(kayit),
+                 // §29: sınav DEĞİŞTİRİLDİĞİNDE o sınavın kayıtlı sahibi yüklenir —
+                 // "kim olarak değerlendiriyorum" alanı da buna göre güncellenir
+                 // (aşağıdaki satır), aksi hâlde bir öğretmenin sınavına geçince
+                 // ekranda hâlâ önceki öğretmenin adı görünürdü.
+                 teacherName: kayit.teacherName || "" };
+  state.activeTeacherName = state.exam.teacherName;
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
   renderAll();
@@ -3209,10 +3486,12 @@ function activateExam(id) {
 function createExam(baslik) {
   syncActiveExam();
   const id = examIdSeq++;
+  // §29: yeni sınav, o an "ben buyum" dediğimiz öğretmene atanır.
+  const ogretmen = state.activeTeacherName || "";
   const yeni = { id: id, title: baslik || ("Yeni Sınav " + id), questionIds: [], timeOverrides: {},
                  status: "draft", durationMin: 10, startMode: "now", startAtLocal: "",
                  startDelaySec: 0, startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN,
-                 targetClass: "", sessions: {} };
+                 targetClass: "", teacherName: ogretmen, sessions: {} };
   state.exams.push(yeni);
   state.activeExamId = id;
   /* Bu literal, KAYDIN alanlarıyla birebir aynı olmalıdır. `mcPoint` ve `endsAt`
@@ -3221,7 +3500,8 @@ function createExam(baslik) {
      olmuyordu — yani hata örtülüydü, yok değildi. */
   state.exam = { title: yeni.title, questionIds: [], timeOverrides: {}, status: "draft",
                  durationMin: 10, startMode: "now", startAtLocal: "", startDelaySec: 0,
-                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, targetClass: "" };
+                 startsAt: null, endsAt: null, mcPoint: MC_VARSAYILAN_PUAN, targetClass: "",
+                 teacherName: ogretmen };
   OTURUM_ALANLARI.forEach(function (k) { state[k] = bosOturum()[k]; });
   state.teacherTab = 1;
   renderAll();
@@ -3523,6 +3803,9 @@ async function aiSuggestRubric(qid) {
   const q = findQuestion(qid);
   if (!q) return;
   ensureRubric(qid);
+  // §30 — ÜZERİNE YAZMA KORUMASI: öğretmen bu rubriği elle düzenlediyse
+  // önce onay ister; onaylanmazsa AI çağrısı bile yapılmaz (kota israfı yok).
+  if (!rubricTemplateOverwriteGuard(state.rubrics[qid])) return;
   if (state.ai.mode !== "live") {
     state.rubricError = "Rubrik önerisi için gerçek model bağlantısı gerekiyor.";
     renderAll();
@@ -3541,6 +3824,7 @@ async function aiSuggestRubric(qid) {
       return { label: c.label, weight: c.weight, description: c.description || "" };
     });
     state.rubrics[qid].aiDraft = true;
+    state.rubrics[qid].userEdited = false; // taze öneri — henüz elle dokunulmadı
   } catch (e) {
     state.rubricError = "Rubrik önerisi alınamadı: " + String((e && e.message) || e);
   } finally {
@@ -3551,10 +3835,41 @@ async function aiSuggestRubric(qid) {
 
 function ensureRubric(qid) {
   if (!state.rubrics[qid]) {
-    state.rubrics[qid] = { maxScore: 20, criteria: [
+    // §30 — `userEdited`: öğretmen bu rubriği elle değiştirdi mi? Şablon/AI
+    // önerisi butonları bu bayrak true iken ÜZERİNE YAZMADAN ÖNCE onay ister
+    // (bkz. rubricTemplateOverwriteGuard) — Human-in-the-Loop önceliği
+    // öğretmenin emeğini sessizce silmemeyi de kapsar.
+    state.rubrics[qid] = { maxScore: 20, userEdited: false, criteria: [
       { label: "Kavram doğruluğu", weight: 40 }, { label: "Örnek / uygulama", weight: 30 }, { label: "Anlatım açıklığı", weight: 30 },
     ] };
   }
+}
+
+/* §30 — MODÜL 2/3: RUBRİK DURUM KORUMASI VE ÜZERİNE YAZMA KORUMASI
+   ===========================================================================
+   ÖLÇÜLDÜ, ÖLÇÜLMEDİ: "Bir boyuttan diğerine geçince kriterlerin silinmesi"
+   iddiası bu kod tabanında Playwright ile tekrar tekrar denendi (iki açık
+   uçlu soru arasında geçiş, ölçüt ekleme, geri dönme) ve KRİTER KAYBI
+   ÜRETİLEMEDİ — `state.rubrics[qid]` soru id'sine göre kalıcı bir nesnedir,
+   `.rub-select` yalnızca HANGİSİNİN gösterileceğini değiştirir, veriye
+   dokunmaz. Bu yüzden burada "tekrar yazma" değil, GERÇEKTEN ÖLÇÜLEN bir
+   veri kaybı riski kapatıldı: hem "Bu soruya özel taslak öner" (AI) hem de
+   hazır şablon düğmeleri `rub.criteria`'yı SORGUSUZ SUALSİZ değiştiriyordu
+   — öğretmen ağırlıkları elle düzenledikten SONRA bu düğmelerden birine
+   basarsa emeği sessizce siliniyordu. Bu, Modül 3'ün "sistem hiçbir koşulda
+   öğretmenin revize ettiği puanlamayı ezmemeli" kuralının BİREBİR ihlaliydi.
+
+   `rub.userEdited` her elle değişiklikte (etiket/ağırlık/açıklama/ekleme/
+   silme/tavan puanı) true'ya çekilir (bkz. wireTeacherTab2). Şablon/AI
+   düğmesi bu bayrak true iken tıklanırsa native `confirm()` ile onay ister
+   — bu projede zaten yerleşik bir kalıptır (bkz. kitaplık silme, karar
+   günlüğü temizleme). Onaylanmazsa HİÇBİR ŞEY değişmez. */
+function rubricTemplateOverwriteGuard(rub) {
+  if (!rub.userEdited) return true; // henüz elle dokunulmamış — sormaya gerek yok
+  return confirm(
+    "Bu sorunun ölçütlerini elle düzenlediniz. Yeni bir taslak uygularsanız " +
+    "mevcut ölçütleriniz ve ağırlıklarınız SİLİNİR. Devam edilsin mi?"
+  );
 }
 
 // Sınavın toplam puanı: her çoktan seçmeli `mcPuani()` kadar (öğretmen
@@ -3614,18 +3929,36 @@ function examTrayHtml() {
   return items.map(function (q, i) {
     const sure = state.exam.timeOverrides[q.id] != null ? state.exam.timeOverrides[q.id] : q.aiTime;
     const qPuan = q.type === "mc" ? mcPuani() : ((state.rubrics[q.id] || {}).maxScore || 0);
-    return '<div class="tray-item">' +
+    // §31 — MODÜL 4: rubrik eksik uyarısı. `canPublishExam()` bugüne kadar
+    // sadece TEK bir genel uyarı basıyordu ("Rubrik sekmesinden %100
+    // ağırlıklı puanlama anahtarı tanımlayın") — HANGİ sorunun eksik olduğu
+    // yazmıyordu (ölçüldü: >1 açık uçlu sorulu sınavda öğretmen hangisi
+    // olduğunu bulmak için Rubrik sekmesine geçip her soruyu tek tek
+    // kontrol etmek zorundaydı). Aynı koşul burada, SORU KARTININ ÜZERİNDE
+    // tekrarlanır.
+    const rubrikEksik = q.type === "open" && (!state.rubrics[q.id] || totalWeight(state.rubrics[q.id]) !== 100);
+    return '<div class="tray-item-wrap">' +
+      '<div class="tray-item' + (rubrikEksik ? " tray-item-warn" : "") + '">' +
       '<span class="t-no">' + (i + 1) + '</span>' +
       '<span class="t-text">' + escapeHtml(truncate(q.body, 62)) +
       '<span class="t-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
-      '<span class="pill pill-accent">' + qPuan + ' puan</span></span></span>' +
+      '<span class="pill pill-accent">' + qPuan + ' puan</span>' +
+      (rubrikEksik ? '<span class="pill pill-critical">⚠️ Rubrik Tanımı Eksik</span>' : "") +
+      '</span></span>' +
       '<span class="t-controls">' +
       '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" max="900" value="' + sure + '" ' + (locked ? "disabled" : "") + ' title="Bu soru için önerilen süre (saniye)"><span class="t-unit">sn</span>' +
       (locked ? "" :
         '<button class="icon-btn tray-up" data-idx="' + i + '" title="Yukarı taşı" ' + (i === 0 ? "disabled" : "") + '>↑</button>' +
         '<button class="icon-btn tray-down" data-idx="' + i + '" title="Aşağı taşı" ' + (i === items.length - 1 ? "disabled" : "") + '>↓</button>' +
         '<button class="icon-btn tray-remove" data-qid="' + q.id + '" title="Sınavdan çıkar">✕</button>') +
-      '</span></div>';
+      '</span></div>' +
+      // §31: uyarı rozeti KART İÇİNDE ama satır dışında — flex satırın
+      // (tray-item) genişliğini bozmadan, tam genişlikte bir aksiyon çubuğu.
+      (rubrikEksik
+        ? '<div class="tray-rubric-warn">⚠️ Bu açık uçlu sorunun puanlama anahtarı eksik/%100 dağıtılmamış. ' +
+          '<button class="btn btn-secondary btn-sm tray-goto-rubric" data-qid="' + q.id + '">Rubrik Sayfasına Git →</button></div>'
+        : "") +
+      '</div>';
   }).join("") +
   '<div class="tray-summary">' +
   '<div class="ts-row"><span>' + items.length + ' soru</span><span>' + mc + ' çoktan seçmeli · ' + acik + ' açık uçlu</span></div>' +
@@ -4011,6 +4344,27 @@ function wireTeacherTab1() {
       renderAll();
     };
   });
+
+  /* §31 — MODÜL 4: "Rubrik Sayfasına Git" derin bağlantısı. Öğretmenin
+     sayfalarca soru arasında hangi sorunun rubriğinin eksik olduğunu ARAMASI
+     gerekmesin diye: 2. Sekmeye geçilir, o soru `rubricSelectedQ` ile
+     doğrudan seçilir, sonra editör alanına KAYDIRILIP ODAKLANIR. */
+  document.querySelectorAll(".tray-goto-rubric").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid);
+      state.teacherTab = 2;
+      state.rubricSelectedQ = qid;
+      state.critDescOpen = null;
+      renderAll();
+      // renderAll() eşzamanlı olarak innerHTML'i yazdığı için editör DOM'u
+      // burada zaten hazırdır — ekstra bir setTimeout/RAF gerekmez.
+      const maxEl = document.getElementById("rubMax");
+      if (maxEl) {
+        maxEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        maxEl.focus({ preventScroll: true });
+      }
+    };
+  });
   const modeEl = document.getElementById("examStartMode");
   if (modeEl) modeEl.onchange = function (e) {
     state.exam.startMode = e.target.value;
@@ -4319,10 +4673,13 @@ function wireTeacherTab2() {
 
   document.querySelectorAll(".rub-tpl").forEach(function (b) {
     b.onclick = function () {
-      const s = RUBRIK_SABLONLARI[Number(b.dataset.tpl)];
       const rub = state.rubrics[state.rubricSelectedQ];
+      // §30 — ÜZERİNE YAZMA KORUMASI: bkz. rubricTemplateOverwriteGuard notu.
+      if (!rubricTemplateOverwriteGuard(rub)) return;
+      const s = RUBRIK_SABLONLARI[Number(b.dataset.tpl)];
       rub.criteria = JSON.parse(JSON.stringify(s.criteria));
       rub.aiDraft = false;
+      rub.userEdited = false; // taze şablon — henüz elle dokunulmadı
       state.rubricError = "";
       renderAll();
     };
@@ -4338,18 +4695,25 @@ function wireTeacherTab2() {
   document.querySelectorAll(".crit-desc").forEach(function (el) {
     el.oninput = function () {
       const rub = state.rubrics[state.rubricSelectedQ];
-      if (rub && rub.criteria[el.dataset.idx]) { rub.criteria[el.dataset.idx].description = el.value; saveSoon(); }
+      if (rub && rub.criteria[el.dataset.idx]) { rub.criteria[el.dataset.idx].description = el.value; rub.userEdited = true; saveSoon(); }
     };
   });
 
   const maxEl = document.getElementById("rubMax");
   if (maxEl) maxEl.onchange = function () {
-    state.rubrics[state.rubricSelectedQ].maxScore = Math.max(1, Math.min(100, Number(maxEl.value) || 1));
+    const rub = state.rubrics[state.rubricSelectedQ];
+    rub.maxScore = Math.max(1, Math.min(100, Number(maxEl.value) || 1));
+    rub.userEdited = true;
     renderAll();
   };
 
   document.querySelectorAll(".crit-label").forEach(function (el) {
-    el.oninput = function () { state.rubrics[state.rubricSelectedQ].criteria[Number(el.dataset.idx)].label = el.value; saveSoon(); };
+    el.oninput = function () {
+      const rub = state.rubrics[state.rubricSelectedQ];
+      rub.criteria[Number(el.dataset.idx)].label = el.value;
+      rub.userEdited = true;
+      saveSoon();
+    };
   });
 
   // Ağırlık değişince renderAll ÇAĞIRMAYIZ (odak kaybolmasın); puan
@@ -4359,6 +4723,7 @@ function wireTeacherTab2() {
       const rub = state.rubrics[state.rubricSelectedQ];
       const i = Number(el.dataset.idx);
       rub.criteria[i].weight = Math.max(0, Math.min(100, Number(el.value) || 0));
+      rub.userEdited = true;
       const pEl = document.querySelector('.crit-points[data-idx="' + i + '"]');
       if (pEl) pEl.textContent = "= " + kriterPuani(rub, rub.criteria[i]) + " puan";
       rubRefreshBar(rub);
@@ -4371,12 +4736,15 @@ function wireTeacherTab2() {
     const rub = state.rubrics[state.rubricSelectedQ];
     const kalan = Math.max(0, 100 - totalWeight(rub));
     rub.criteria.push({ label: "", weight: kalan, description: "" });
+    rub.userEdited = true;
     state.critDescOpen = null;
     renderAll();
   };
   document.querySelectorAll(".crit-remove").forEach(function (el) {
     el.onclick = function () {
-      state.rubrics[state.rubricSelectedQ].criteria.splice(Number(el.dataset.idx), 1);
+      const rub = state.rubrics[state.rubricSelectedQ];
+      rub.criteria.splice(Number(el.dataset.idx), 1);
+      rub.userEdited = true;
       state.critDescOpen = null;
       renderAll();
     };
@@ -5059,29 +5427,21 @@ function itemAnalysisHtml() {
    Hiçbir AI çağrısı yapılmaz; saf hesaptır.
    =========================================================================== */
 
-function calibration() {
-  const gonderenler = submittedStudents();
-  const kayitlar = [];
+/* §29 — GENELLEŞTİRME: Bu hesap eskiden yalnızca `calibration()` içindeydi ve
+   TEK sınavın TEK odasına bakıyordu. Eğitim Yöneticisi karnesi aynı matematiği
+   öğretmen bazında, BİRDEN FAZLA sınav/oda üzerinden istiyor. Formülü ikinci
+   kez YAZMAK yerine (iki kopya = iki yerde ayrı ayrı bozulabilecek işaret
+   kuralı riski) tek bir saf fonksiyona taşındı: girdi HAM (ai, nihai, maxScore,
+   confidence) çiftleri, çıktı hem `calibration()` (öğretmenin kendi ekranı)
+   hem `teacherCalibration()` (Eğitim Yöneticisi karnesi) için birebir aynı.
 
-  gonderenler.forEach(function (st) {
-    const ss = readSession(st.id);
-    const rv = ss.reviews || {}, ev = ss.aiEvals || {};
-    Object.keys(rv).forEach(function (qid) {
-      const r = rv[qid];
-      if (!r || r.finalScore == null || r.aiScore == null) return;
-      const q = state.questions.find(function (x) { return String(x.id) === String(qid); });
-      const rub = state.rubrics[qid];
-      const evq = ev[qid];
-      kayitlar.push({
-        sid: st.id, ogrenci: st.name, qid: qid,
-        soru: q ? q.body : "(soru bulunamadı)",
-        maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
-        ai: Number(r.aiScore), nihai: Number(r.finalScore),
-        fark: Number(r.finalScore) - Number(r.aiScore),
-        confidence: evq && evq.confidence != null ? Number(evq.confidence) : null,
-        degistirildi: Math.abs(Number(r.finalScore) - Number(r.aiScore)) > 0.001
-      });
-    });
+   PAYDA SIFIR KORUMASI: `maxScore <= 0` ya da tanımsız olan kayıtlar `uyum`/
+   `ortTavan` hesabına GİRMEZ (aşağıdaki `tavanlar` filtresi) — ama `yon`/`sapma`
+   hesabına girer, çünkü ai/nihai farkı rubrik tavanından bağımsız anlamlıdır. */
+function calibrationFromRecords(hamKayitlar) {
+  const kayitlar = (hamKayitlar || []).map(function (k) {
+    const fark = Number(k.nihai) - Number(k.ai);
+    return Object.assign({}, k, { fark: fark, degistirildi: Math.abs(fark) > 0.001 });
   });
 
   if (!kayitlar.length) return { n: 0 };
@@ -5092,7 +5452,9 @@ function calibration() {
   const sapma = ort(kayitlar.map(function (k) { return Math.abs(k.fark); }));
   const aynenOnay = kayitlar.filter(function (k) { return !k.degistirildi; }).length;
 
-  const tavanlar = kayitlar.map(function (k) { return k.maxScore; }).filter(function (v) { return v; });
+  // Payda sıfır koruması: 0, null, undefined veya negatif tavan istatistikten çıkarılır.
+  const tavanlar = kayitlar.map(function (k) { return k.maxScore; })
+    .filter(function (v) { return v != null && Number(v) > 0; });
   const ortTavan = tavanlar.length ? ort(tavanlar) : null;
   const uyum = ortTavan ? Math.max(0, Math.round((1 - sapma / ortTavan) * 100)) : null;
 
@@ -5125,6 +5487,98 @@ function calibration() {
     enFarkli: enFarkli && Math.abs(enFarkli.fark) > 0.001 ? enFarkli : null,
     guvenilir: n >= 5
   };
+}
+
+// Öğretmenin KENDİ ekranı (Analitik sekmesi): yalnızca aktif sınavın gönderen
+// öğrencileri. Davranış §17'den bu yana DEĞİŞMEDİ — yalnızca hesap motoru
+// artık `calibrationFromRecords()` ile paylaşılıyor.
+function calibration() {
+  const gonderenler = submittedStudents();
+  const kayitlar = [];
+
+  gonderenler.forEach(function (st) {
+    const ss = readSession(st.id);
+    const rv = ss.reviews || {}, ev = ss.aiEvals || {};
+    Object.keys(rv).forEach(function (qid) {
+      const r = rv[qid];
+      if (!r || r.finalScore == null || r.aiScore == null) return;
+      const q = state.questions.find(function (x) { return String(x.id) === String(qid); });
+      const rub = state.rubrics[qid];
+      const evq = ev[qid];
+      kayitlar.push({
+        sid: st.id, ogrenci: st.name, qid: qid,
+        soru: q ? q.body : "(soru bulunamadı)",
+        maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
+        ai: Number(r.aiScore), nihai: Number(r.finalScore),
+        confidence: evq && evq.confidence != null ? Number(evq.confidence) : null
+      });
+    });
+  });
+
+  return calibrationFromRecords(kayitlar);
+}
+
+/* ===========================================================================
+   EĞİTİM YÖNETİCİSİ — ÖĞRETMEN BAZLI KAYIT TOPLAMA (§29)
+   ===========================================================================
+   Bu prototipte kimlik doğrulama yoktur; "öğretmen" bir `role` seçimidir,
+   ayrı bir kullanıcı kaydı DEĞİLDİR (bkz. schema.sql §10 notu). O yüzden
+   öğretmen bazlı toplama, sınav kayıtlarındaki `teacherName` etiketine göre
+   yapılır: `state.exams` içindeki HER sınav (yalnızca aktif olan değil) o
+   sınavın sahibi öğretmene ait sayılır. Sunucu tarafında ayrıca bir agregasyon
+   ROTASI eklenmedi — `src/routes/sync.ts`'in "sunucu gövdeyi yorumlamaz"
+   ilkesi bilinçli olarak korundu; hesap tamamen istemcide (`app.js`) kalır. */
+function teacherExamRecords(teacherName) {
+  syncActiveExam(); // aktif sınav/öğrencinin en güncel hâli kayit.sessions'a yazılsın
+  const kayitlar = [];
+  (state.exams || []).forEach(function (kayit) {
+    const ad = (kayit.teacherName || "").trim() || VARSAYILAN_OGRETMEN_ADI;
+    if (ad !== teacherName) return;
+    const sessions = kayit.sessions || {};
+    Object.keys(sessions).forEach(function (sid) {
+      const ss = sessions[sid] || {};
+      const rv = ss.reviews || {}, ev = ss.aiEvals || {};
+      const ogr = (state.students || []).find(function (s) { return String(s.id) === String(sid); });
+      Object.keys(rv).forEach(function (qid) {
+        const r = rv[qid];
+        if (!r || r.finalScore == null || r.aiScore == null) return;
+        const q = state.questions.find(function (x) { return String(x.id) === String(qid); });
+        const rub = state.rubrics[qid];
+        const evq = ev[qid];
+        kayitlar.push({
+          ogrenci: (ogr && ogr.name) || "öğrenci",
+          soru: q ? q.body : "(soru bulunamadı)",
+          maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
+          ai: Number(r.aiScore), nihai: Number(r.finalScore),
+          confidence: evq && evq.confidence != null ? Number(evq.confidence) : null
+        });
+      });
+    });
+  });
+  return kayitlar;
+}
+
+/* Kurumdaki öğretmen listesi: önce GERÇEK sınav kayıtlarındaki isimler
+   (bu sistemde gerçekten yürütülmüş sınavlar), sonra — yalnızca gerçek verisi
+   OLMAYAN isimler için — `state.baseline.teachers` örnek karşılaştırma verisi.
+   Isı haritasındaki gerçek+"(örnek)" satır birlikteliğiyle AYNI sözleşme:
+   örnek satırlar her zaman `demo:true` ile etiketlenir, gerçek veriyle
+   karıştırılmaz. */
+function teacherRoster() {
+  syncActiveExam();
+  const gercekAdlar = {};
+  (state.exams || []).forEach(function (k) {
+    const ad = (k.teacherName || "").trim() || VARSAYILAN_OGRETMEN_ADI;
+    gercekAdlar[ad] = true;
+  });
+  const liste = Object.keys(gercekAdlar).sort().map(function (ad) {
+    return { name: ad, subject: null, records: teacherExamRecords(ad), demo: false };
+  });
+  (state.baseline.teachers || []).forEach(function (t) {
+    if (gercekAdlar[t.name]) return; // gerçek veri varsa örnek satır tekrar gösterilmez
+    liste.push({ name: t.name, subject: t.subject, records: t.records, demo: true });
+  });
+  return liste;
 }
 
 function calibrationHtml() {
@@ -5379,6 +5833,23 @@ function teacherTab4Html() {
     trendHtml();
 }
 
+/* §29 — ÖĞRETMEN ETİKETİ/SEÇİCİSİ (SEÇENEK A: prototip disiplini).
+   Kimlik doğrulama YOK; "şu an ben buyum" diyen bu alan yalnızca bir isim
+   etiketidir. Yeni oluşturulan sınav bu isme atanır (bkz. createExam) ve
+   Eğitim Yöneticisi karnesindeki "kim" sorusunun cevabı budur. Değer boşsa
+   sınav `VARSAYILAN_OGRETMEN_ADI` altında toplanır (teacherRoster). */
+function teacherWhoamiHtml() {
+  const ad = state.activeTeacherName || "";
+  const oneriler = (state.baseline.teachers || []).map(function (t) {
+    return '<option value="' + escapeHtml(t.name) + '">';
+  }).join("");
+  return '<div class="field" style="max-width:340px;margin-bottom:14px;">' +
+    '<label for="taWhoami">Öğretmen adınız <span class="hint">— bu sınavı kim değerlendiriyor</span></label>' +
+    '<input type="text" id="taWhoami" list="taWhoamiList" placeholder="örn. Ahmet Yılmaz" value="' + escapeHtml(ad) + '">' +
+    '<datalist id="taWhoamiList">' + oneriler + '</datalist>' +
+    '</div>';
+}
+
 function renderTeacher() {
   const root = document.getElementById("panel-teacher");
   // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
@@ -5389,12 +5860,23 @@ function renderTeacher() {
     { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
     { id: 4, label: "4 · Analitik" }
   ];
-  root.innerHTML = '<div class="tabs" id="teacherTabs">' +
+  // §29: öğretmen adı alanı (teacherWhoamiHtml) sekme şeridinin ÜSTÜNDE durur;
+  // sekme rozetleri (Madde 3) aşağıdaki map içinde aynen korunur.
+  root.innerHTML = teacherWhoamiHtml() +
+    '<div class="tabs" id="teacherTabs">' +
     tabs.map(function (t) {
       return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
         t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
     }).join("") +
     '</div><div id="teacherTabContent"></div>';
+  const whoami = document.getElementById("taWhoami");
+  if (whoami) {
+    whoami.oninput = function (e) {
+      state.activeTeacherName = e.target.value;
+      state.exam.teacherName = e.target.value; // aktif sınav bu öğretmene atanır
+      saveSoon();
+    };
+  }
   document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("teacherTabContent");
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
@@ -6099,6 +6581,11 @@ function renderAdmin() {
     '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
     '<div id="adminHeatmap"></div></div>' + trendHtml();
 
+  // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — ısı haritasından
+  // SONRA (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası),
+  // denetim izinden ÖNCE (karne, "bugün ne yapmalıyım" sorusuna en yakın kart).
+  root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml());
+  wireTeacherAnalytics();
   // Yapay zeka karar gunlugu (denetim izi) — Egitim Yoneticisi gozetim rolu
   // oldugu icin buraya konuldu. Isi haritasindan SONRA eklenir cunku
   // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
@@ -6115,6 +6602,153 @@ function renderAdmin() {
      (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
      ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
   renderHeatmap("adminHeatmap", buildAdminHeatmapRows());
+}
+
+/* ===========================================================================
+   ÖĞRETMEN DEĞERLENDİRME ANALİTİĞİ & KALİBRASYON (§29 — Eğitim Yöneticisi)
+   ===========================================================================
+   NEDEN: Brief'in problem tanımı — "değerlendiriciler arasında tutarsızlık
+   oluşabiliyor, yönetici bunu göremiyor." `calibration()` (Öğretmen ekranı)
+   bu ölçümü zaten TEK öğretmen/TEK sınav kapsamında yapıyordu; burada AYNI
+   motor (`calibrationFromRecords`) öğretmen bazında, kurum genelinde çalışır.
+
+   İŞARET KURALI (§29 uygulama talimatı madde 3): `yon = ort(nihai - ai)`.
+   Pozitif -> öğretmen AI'dan DAHA YÜKSEK puan veriyor (cömert).
+   Negatif -> öğretmen AI'dan DAHA DÜŞÜK puan veriyor (katı).
+   Bu, öğretmenin kendi "Öğretmen – Yapay Zekâ Uyumu" kartındaki (`calibrationHtml`)
+   yön cümlesiyle BİREBİR AYNI kuraldır çünkü ikisi de `calibrationFromRecords`'u
+   çağırır — iki ayrı formül olmadığı için iki ekran asla ters yön göstermez. */
+
+// Ortalama sapmayı ortalama rubrik tavanına oranlayıp yüzdeye çevirir.
+// Tavan bilinmiyorsa (payda sıfır/])) null döner — çağıran puan cinsinden yazar.
+function teacherDeltaYuzde(c) {
+  if (!c.ortTavan || c.ortTavan <= 0) return null;
+  return Math.round(Math.abs(c.yon) / c.ortTavan * 100);
+}
+
+function teacherOzetCumlesi(t) {
+  const c = calibrationFromRecords(t.records);
+  if (!c.n) return "henüz değerlendirme onayı yok";
+  if (!c.guvenilir) return c.n + " onay — istatistiksel sapma için en az 5 onay gerekir";
+  if (Math.abs(c.yon) < 0.05) return "AI analizine kıyasla sistematik bir sapma yok";
+  const pct = teacherDeltaYuzde(c);
+  /* 🔴 KENAR DURUMU (ölçüldü — Mehmet Demir örneği): yon ham puanda 0,05'i
+     geçebilir ama yüzdeye çevrilip yuvarlanınca "%0" çıkabilir (ör. 0,07/20 ≈
+     %0,35 -> yuvarlanır 0). "%0 daha yüksek puan veriyor" bir çelişkidir —
+     bu durumda puan cinsinden ifadeye düşülür, sıfır yüzde YAZILMAZ. */
+  const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
+  return pct != null && pct > 0
+    ? "AI analizine kıyasla ortalama %" + pct + " " + yonKelime + " puan veriyor"
+    : "AI analizine kıyasla ortalama " + Math.abs(c.yon).toFixed(1) + " puan " + yonKelime + " veriyor";
+}
+
+function teacherAnalyticsHtml() {
+  const roster = teacherRoster();
+  const secili = state.adminSelectedTeacher;
+
+  const satirlar = !roster.length
+    ? '<div class="empty-state">Henüz sınav kaydı yok; öğretmen listesi ilk sınav oluşturulunca dolar.</div>'
+    : roster.map(function (t) {
+        const c = calibrationFromRecords(t.records);
+        const aktif = t.name === secili;
+        const rozet = t.demo
+          ? '<span class="pill pill-neutral">örnek</span>'
+          : (c.n ? '<span class="pill pill-accent2">canlı</span>' : '<span class="pill pill-neutral">veri yok</span>');
+        return '<div class="ta-row' + (aktif ? " ta-row-aktif" : "") + '" data-teacher="' + escapeHtml(t.name) + '">' +
+          '<div class="ta-row-ust"><span class="ta-row-ad">' + escapeHtml(t.name) +
+          (t.subject ? ' <span class="ta-row-ders">· ' + escapeHtml(t.subject) + '</span>' : "") + '</span>' + rozet + '</div>' +
+          '<div class="ta-row-ozet">' + teacherOzetCumlesi(t) + '</div>' +
+          '</div>';
+      }).join("");
+
+  const seciliKayit = secili ? roster.find(function (t) { return t.name === secili; }) : null;
+  const detay = seciliKayit
+    ? teacherReportCardHtml(seciliKayit)
+    : '<div class="empty-state">Karneyi görmek için yukarıdaki listeden bir öğretmen seçin.</div>';
+
+  return '<div class="card" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>Öğretmen Değerlendirme Analitiği &amp; Kalibrasyon</h3>' +
+    '<span class="hint">yapay zekâ önerisi ile öğretmen kararı arasındaki uyum, öğretmen bazında</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
+    'Bu liste yalnızca öğretmenin <b>onayladığı</b> açık uçlu değerlendirmelerden hesaplanır; hiçbir sayı sabit değildir. ' +
+    '<b>"canlı"</b> etiketi bu sistemde gerçekten yürütülmüş onayları, <b>"örnek"</b> etiketi henüz gerçek onayı ' +
+    'olmayan öğretmenler için gösterilen karşılaştırma verisini gösterir.</div>' +
+    '<div class="ta-list">' + satirlar + '</div>' +
+    '<div id="taDetay">' + detay + '</div>' +
+    '</div>';
+}
+
+function teacherReportCardHtml(t) {
+  const c = calibrationFromRecords(t.records);
+  const kaynakRozet = t.demo
+    ? '<span class="pill pill-neutral">örnek veri</span>'
+    : '<span class="pill pill-accent2">canlı veri</span>';
+
+  // ZERO-DATA: kesinlikle "%0" ya da "%100" gibi yanıltıcı bir sayı YAZILMAZ.
+  if (!c.n) {
+    return '<div class="card" style="margin-top:12px;"><div class="card-head">' +
+      '<h3>' + escapeHtml(t.name) + '</h3>' + kaynakRozet + '</div>' +
+      '<div class="empty-state">Henüz değerlendirme onayı bulunmuyor.</div></div>';
+  }
+
+  const azVeriModu = !c.guvenilir;
+  const pct = teacherDeltaYuzde(c);
+  const yonEtiket = Math.abs(c.yon) < 0.05 ? "dengeli değerlendirici"
+    : (c.yon > 0 ? "cömert değerlendirici" : "katı değerlendirici");
+  // §29: aynı "%0 çelişkisi" koruması — bkz. teacherOzetCumlesi yorumu.
+  // §29: "%0 daha yüksek puan verdi" çelişkisine düşmemek için — yüzde 0'a
+  // yuvarlanıyorsa puan cinsine düşülür ve "puan" kelimesi TEKRARLANMAZ.
+  const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
+  const yonCumle = Math.abs(c.yon) < 0.05
+    ? escapeHtml(t.name) + ", AI analizine kıyasla sistematik bir sapma göstermiyor."
+    : (pct != null && pct > 0
+        ? escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>%" + pct + "</b> " + yonKelime + " puan verdi"
+        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan</b> " + yonKelime + " verdi")
+      + " / <b>" + yonEtiket + "</b>.";
+  const tamMutabakat = Math.round(c.aynenOnay / c.n * 100);
+  const enFarkli = c.enFarkli;
+
+  return '<div class="card" style="margin-top:12px;"><div class="card-head">' +
+    '<h3>' + escapeHtml(t.name) + (t.subject ? ' <span class="hint">' + escapeHtml(t.subject) + '</span>' : "") + '</h3>' +
+    kaynakRozet + '</div>' +
+
+    // AZ VERİ MODU (n<5): yüzde YAZILMAZ, ham sayım + uyarı gösterilir — aynı
+    // disiplin `calibrationHtml()`'deki `azVeriModu` ile birebir aynıdır.
+    (azVeriModu
+      ? '<div class="pill pill-warning" style="margin-bottom:12px;">İstatistiksel sapma analizi için en az 5 onay gereklidir — şu an <b>' +
+        c.n + '</b> onay var.</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Bu ' + c.n + ' onayın ' +
+        c.degistirilen + ' tanesinde AI önerisi değiştirildi, ' + c.aynenOnay + ' tanesi aynen onaylandı.</div>'
+      : '<div style="font-size:13.5px;line-height:1.65;margin-bottom:14px;">' + yonCumle + '</div>') +
+
+    '<div class="grid-3col">' +
+    '<div class="stat-tile"><div class="s-label">Toplam Onay</div><div class="s-value tabular">' + c.n + '</div>' +
+    '<div class="s-sub">açık uçlu değerlendirme</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Tam Mutabakat</div><div class="s-value tabular">%' + tamMutabakat + '</div>' +
+    '<div class="s-sub tabular">' + c.aynenOnay + '/' + c.n + ' onayda AI puanı aynen kabul edildi</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + c.sapma.toFixed(1) + '</div>' +
+    '<div class="s-sub">puan (mutlak değer' + (c.ortTavan ? ", ortalama tam puan " + c.ortTavan.toFixed(0) : "") + ')</div></div>' +
+    '</div>' +
+
+    (enFarkli
+      ? '<div class="cal-worst" style="margin-top:14px;"><span class="cal-worst-baslik">En çok ayrıştığı rubrik/soru</span>' +
+        escapeHtml(enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(enFarkli.soru).slice(0, 90)) +
+        '<div class="cal-worst-sayi">AI önerisi <b>' + enFarkli.ai + "</b> &rarr; öğretmenin puanı <b>" +
+        enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + enFarkli.fark.toFixed(1) + ")</div></div>"
+      : "") +
+    '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır; öğretmen puanı kriter bazında değil toplam ' +
+    'olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
+    '</div>';
+}
+
+function wireTeacherAnalytics() {
+  document.querySelectorAll(".ta-row").forEach(function (el) {
+    el.onclick = function () {
+      const ad = el.dataset.teacher;
+      state.adminSelectedTeacher = ad === state.adminSelectedTeacher ? null : ad;
+      renderAll();
+    };
+  });
 }
 
 
@@ -7816,6 +8450,7 @@ setInterval(function () {
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
+    "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "activateExam", "createExam", "deleteExam", "unpublishExam", "sinavKatilim", "sinavZamanKilitli", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
@@ -7834,7 +8469,14 @@ setInterval(function () {
     "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "bosDurumHtml", "wireSyncJoin",
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
     "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
-    "girisKapisiKartlariHtml", "girisKapisiKur"
+    "girisKapisiKartlariHtml", "girisKapisiKur",
+    /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
+       değerlendirme analitiği. (calibration zaten yukarıda listede;
+       şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */
+    "rubricTemplateOverwriteGuard", "calibrationFromRecords",
+    "teacherExamRecords", "teacherRoster", "teacherWhoamiHtml",
+    "teacherDeltaYuzde", "teacherOzetCumlesi", "teacherAnalyticsHtml",
+    "teacherReportCardHtml", "wireTeacherAnalytics"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

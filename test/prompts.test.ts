@@ -66,3 +66,52 @@ describe('buildQuestionPrompt — Madde 2 eklemeleri', () => {
     });
   });
 });
+
+const spec: QuestionSpec = {
+  subject: 'Fen Bilimleri',
+  grade: 7,
+  outcomeCode: 'FEN.7.1.2',
+  outcomeLabel: 'Sürtünme kuvvetinin etkilerini açıklar',
+  mcCount: 2,
+  openCount: 1,
+  optionCount: 4,
+};
+
+describe('buildQuestionPrompt — excludeQuestions (Paket 4c)', () => {
+  it('excludeQuestions verilmezse istemde "TEKRARLAMA" bloğu bulunmaz', () => {
+    const prompt = buildQuestionPrompt(spec, 'Sürtünme kuvveti hareketi engelleyen bir kuvvettir.');
+    expect(prompt).not.toContain('TEKRARLAMA');
+  });
+
+  it('boş excludeQuestions dizisiyle de istem değişmez', () => {
+    const prompt = buildQuestionPrompt({ ...spec, excludeQuestions: [] }, 'Sürtünme kuvveti hareketi engelleyen bir kuvvettir.');
+    expect(prompt).not.toContain('TEKRARLAMA');
+  });
+
+  it('excludeQuestions verilince önceki soru gövdeleri negatif örnek olarak istem metnine eklenir', () => {
+    const onceki = ['Sürtünme kuvveti hangi yüzeyde daha büyüktür?', 'Sürtünme kuvvetinin birimi nedir?'];
+    const prompt = buildQuestionPrompt({ ...spec, excludeQuestions: onceki }, 'Sürtünme kuvveti hareketi engelleyen bir kuvvettir.');
+    expect(prompt).toContain('TEKRARLAMA');
+    expect(prompt).toContain(onceki[0]);
+    expect(prompt).toContain(onceki[1]);
+  });
+
+  it('boş string girdileri filtreler', () => {
+    const prompt = buildQuestionPrompt({ ...spec, excludeQuestions: ['', '   ', 'Gerçek önceki soru'] }, 'Sürtünme kuvveti hareketi engelleyen bir kuvvettir.');
+    expect(prompt).toContain('Gerçek önceki soru');
+    // Sayaçlı liste yalnızca 1 gerçek öğe içermeli (boşlar atıldı) —
+    // "2. <boş>" biçiminde ikinci bir liste satırı OLMAMALI. (Not: istemin
+    // "Kurallar" bölümünde zaten "2. Dil Türkçe..." gibi kendi numaralı
+    // maddeleri var, bu yüzden ham "2. " değil, dedup listesinin biçimine
+    // özgü satır başı deseni aranır.)
+    expect(prompt).toContain('1. Gerçek önceki soru');
+    expect(prompt).not.toMatch(/\n2\.\s*\n/);
+  });
+
+  it('çok uzun bir önceki soru gövdesi 400 karakterde kırpılır (istem şişmesin)', () => {
+    const uzun = 'a'.repeat(1000);
+    const prompt = buildQuestionPrompt({ ...spec, excludeQuestions: [uzun] }, 'Sürtünme kuvveti hareketi engelleyen bir kuvvettir.');
+    expect(prompt).toContain('a'.repeat(400));
+    expect(prompt).not.toContain('a'.repeat(401));
+  });
+});
