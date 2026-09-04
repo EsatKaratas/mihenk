@@ -4734,3 +4734,58 @@ AI bağlantısıyla) kullanıldı — CSP `public/_headers`'tan gerçek olarak u
   taranmış bir PDF ile denenmedi. §29.5 ve devir belgesi §15'teki uyarı
   **geçerliliğini koruyor** — çalışıyor kabul etmeyin.
 * OCR'ın Türkçe isabet oranı ölçülmedi.
+
+### 30.5 Düğme denetimi — 90 düğme tek tek tıklandı (4 Eylül 2026)
+
+Sorulan soru: "uygulamadaki her düğme işe yarıyor mu?". Ölçüm yöntemi: beş
+rolün tüm sekmeleri gezilip her `<button>` envanterlendi (olay dinleyicisi
+bağlı mı, `id` tekil mi), sonra hepsi gerçekten tıklandı ve tıklama başına
+`error` / `unhandledrejection` / `console.error` farkı ölçüldü.
+
+| Ölçüm | Sonuç |
+|---|---|
+| Tekil düğme (5 rol × tüm sekmeler) | **88** (+2 modal düğmesi = 90) |
+| Olay dinleyicisi bağlı olmayan | **0** |
+| Çift `id` (TUZAK 1 / §6.3-2 hata sınıfı) | **0** |
+| Tıklamalar sırasında konsol hatası | **0** |
+| Veli panelindeki Gir düğmesi (§28s'de ölüydü) | handler bağlı, tıklama hatasız — **regresyon geri gelmemiş** |
+| CSV / JSON dışa aktarım (4 düğme) | dördü de gerçek içerikli blob üretti (4012 / 154 / 1873 / 3592 bayt) |
+| HITL zinciri uçtan uca | sınav çöz → bitir → AI ön değerlendirme → öğretmen onayı → karne: **çalışıyor** (`pendingReviewCount` 0 → 1) |
+
+**Üç kez yanlış alarm verildi, üçü de ölçüm hatasıydı — kod doğruydu:**
+
+1. `#btnAiRubric` "ölü" göründü. Sebep: Sude'nin `rubricTemplateOverwriteGuard`
+   fonksiyonu `confirm()` kullanıyor; otomasyon ortamı diyaloğu otomatik
+   reddedince fonksiyon erken dönüyordu. `confirm` "Evet" olarak sabitlenince
+   istek `/api/ai/rubric`'e gitti ve taslak üretildi.
+2. `#btnFinishExam` "hiçbir şey yapmıyor" göründü. Sebep: düğme
+   `openModal(finishExamModalHtml())` çağırıyor; modal `#panel-student`
+   DIŞINDA, `body` altında duruyor ve tarama yalnızca panel içine bakıyordu.
+3. "3 modal birikmiş" göründü. Sebep: `[class*="modal"]` seçicisi iç içe
+   `.modal-overlay` / `.modal` / `.modal-actions` kapsayıcılarını ayrı ayrı
+   saymıştı. Tek bir `#modalOverlay` var, `openModal` onu yeniden kullanıyor.
+
+### 30.6 DÜZELTİLEN GERÇEK HATA — seçili şık vurgusu taşınmıyordu
+
+**Belirti:** Öğrenci sınavda başka bir şıkka tıkladığında radyo düğmesi yeni
+şıkka geçiyor, ama kutu vurgusu (`.answer-opt.selected` — kenarlık + zemin)
+ESKİ şıkta kalıyordu. Ekranda iki çelişkili işaret oluyordu; öğrenci
+yanıtının kaydedilmediğini sanabilirdi.
+
+**Ölçüm:** tıklamadan hemen sonra ve 1,5 sn sonra ölçüldü —
+`0: class=SECILI radio=false` / `1: class=- radio=true`. Vurgu ancak
+başka bir soruya gidip geri dönünce (yeniden çizimle) düzeliyordu.
+
+**Kök neden:** `.mc-answer` `onchange` dinleyicisi `state.answers`'ı
+güncelliyor, `saveSoon()` / `flashAutosave()` çağırıyor ve gezinme noktasına
+`answered` sınıfı ekliyor — ama `.selected` sınıfını taşımıyordu. `renderAll()`
+bilerek çağrılmıyor (sınav ekranını komple yeniden çizmek gereksiz).
+
+**Çözüm:** vurgu, tıklanan şıkkın **kardeşleri** arasında taşınıyor. Belge
+çapında seçici KULLANILMADI — beş panel aynı anda DOM'da (§6.3-2 dersi).
+
+**Doğrulama:** düzeltme sonrası vurgu ve radyo hem anında hem 1 sn sonra hem
+yeniden çizimden sonra aynı şıkta; yanıt `localStorage`'a doğru yazılıyor
+(`selectedKey: "B"`); konsol hatası 0.
+
+**Puanlamaya etkisi yok** — kayıt zaten doğruydu, sorun yalnızca görseldi.

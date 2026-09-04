@@ -6187,6 +6187,21 @@ function wireStudentTab2() {
       flashAutosave();
       const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
       if (dot) dot.classList.add("answered");
+      /* §30 — SEÇİLİ ŞIK VURGUSU: burada bilerek renderAll() ÇAĞRILMAZ
+         (sınav ekranını komple yeniden çizmek gereksiz ve risklidir), ama
+         .selected sınıfı da taşınmıyordu: radyo düğmesi yeni şıkka geçiyor,
+         kutu vurgusu ESKİ şıkta kalıyordu. Öğrenci iki çelişkili işaret
+         görüyor ve yanıtının kaydedilmediğini sanabiliyordu. Vurgu yalnızca
+         tıklanan şıkkın KARDEŞLERİ arasında taşınır — beş panel aynı anda
+         DOM'da olduğu için belge çapında seçici kullanılmaz (§6.3 dersi). */
+      const kutu = el.closest(".answer-opt");
+      const kapsayici = kutu && kutu.parentElement;
+      if (kapsayici) {
+        kapsayici.querySelectorAll(".answer-opt").forEach(function (x) {
+          const r = x.querySelector('input[type="radio"]');
+          x.classList.toggle("selected", !!(r && r.checked));
+        });
+      }
     };
   });
   const openEl = document.getElementById("openAnswerInput");
