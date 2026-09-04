@@ -5124,3 +5124,77 @@ sorun kontrast değildi.
 | Senkron push/pull | **200 / 200** |
 | lint · test · öz-kontrol · config | temiz · **185/185** · 254 eksik 0 · geçti |
 | Konsol hatası | **0** |
+
+## 35. VELİ PANELİNDEN SINIF KODU GİRİŞ FORMU KALDIRILDI (5 Eylül 2026)
+
+**İstek:** "Veli panelindeki *Öğretmeninizden sınıf kodu aldıysanız buraya
+girin* bölümünü kaldır — açıklama, kutu ve Gir düğmesi."
+
+Gerekçe ürün tarafında: sınıf kodunu öğretmen **oluşturur**, öğrenci
+**girer**. Velinin girecek bir kodu yok; kutu orada yalnızca kafa
+karıştırıyordu.
+
+### 35.1 Neden `syncJoinHtml()` doğrudan silinmedi
+
+Form `syncJoinHtml()` içinde üretiliyor ve o fonksiyon `bosDurumHtml()`
+üzerinden **hem öğrenci hem veli** boş ekranlarında çağrılıyor (öğrenci
+sekme 1 ve 2, veli iki boş durum). Fonksiyonu ya da içindeki bloğu silmek
+öğrencinin sınıfa katılma yolunu da kapatırdı — istenen bu değildi.
+
+Bunun yerine opsiyonel bir bayrak eklendi:
+
+* `syncJoinHtml(girisGizle)` — bayrak verilirse **yalnızca giriş formunu**
+  (açıklama + kutu + "Gir") döndürmez.
+* `bosDurumHtml(mesaj, girisGizle)` — bayrağı geçirir.
+* `renderParent()` içindeki **iki** çağrı `true` veriyor.
+
+Öğrenci ve öğretmen çağrıları bayrağı **hiç vermiyor**, davranışları birebir
+eskisi gibi. Yeni üst düzey fonksiyon yok → `selfCheck()` listesi değişmedi.
+
+**Bilinçli olarak KALDIRILMADI:** veli cihazı bir sınıf koduna bağlıysa
+görünen `"Bu cihaz … sınıf koduna bağlı" + "Şimdi kontrol et"` satırı duruyor.
+O bir giriş formu değil; velinin sonuçları tazeleyebildiği tek yer.
+
+### 35.2 ÖLÇÜM ÖNCE GEÇERSİZDİ (TUZAK 10 tekrarladı)
+
+İlk tarayıcı ölçümü "veli panelinde kutu yok" dedi ama **hiçbir şey
+kanıtlamıyordu**: yerel önizlemede Worker çalışmadığı için
+`syncDurum().ready === false` ve kutu zaten hiç çizilmiyor. Değişiklik
+yapılmasa da aynı sonuç çıkardı.
+
+`ready` elle `true` yapılıp yeniden ölçüldü. Kontrol testi:
+
+| Çağrı | Uzunluk | "Öğretmeninizden…" içeriyor mu |
+|---|---|---|
+| `syncJoinHtml()` | 292 | **evet** |
+| `syncJoinHtml(true)` | **0** | hayır |
+
+### 35.3 Doğrulama
+
+Öğrenci ve veli **aynı render turunda, aynı koşullarda** karşılaştırıldı —
+kapsamın doğruluğunun kanıtı budur:
+
+| Kontrol | Sonuç |
+|---|---|
+| Veli: açıklama / kutu / "Gir" / `.sync-join` | **yok · 0 · 0 · 0** |
+| Veli: öğrenci seçici | 4 çip, `parentStudentId` değişiyor |
+| Veli: onaylı sonuç mantığı | değişmedi |
+| Öğrenci sekme 1 · 2 (boş durum) | kutu **1**, düğme **1**, açıklama **var** |
+| Öğrenci: kod girişi | `AB2C9` → `state.syncRoom` yazıldı |
+| Öğrenci: geçersiz kod (`IO01`) | doğru hata, `syncRoom` boş kaldı |
+| Öğretmen: paylaşım satırı · çip | 1 · çalışıyor |
+| 10 senkron fonksiyonu · eski `.sync-bar` | hepsi tanımlı · yok |
+| 5 rol, masaüstü + 375×812 yatay taşma | **0** |
+| Çift id · konsol hatası | **0 · 0** |
+| lint · test · öz-kontrol | temiz · **185/185** · 254 eksik 0 |
+
+Not: öğrenci sekme 3 (Karne) zaten `bosDurumHtml()` kullanmıyor; orada kutu
+hiç yoktu — mevcut davranış, bu değişikliğin sonucu değil.
+
+### 35.4 Ortam notu — `npm run dev:demo` bu makinede çalışmıyor
+
+`wrangler.demo.jsonc`'taki `ai` bağlaması yerelde emüle edilmiyor; wrangler
+uzak oturum açmaya çalışıp `CLOUDFLARE_API_TOKEN` istiyor
+(`wrangler whoami` → not authenticated). Yapılandırmaya **dokunulmadı**;
+yerel test `onizleme-sunucu.mjs` ile yapıldı (gerçek CSP uygulanıyor,
+Worker çalışmadığı için uygulama "Yerel simülasyon" moduna düşüyor).

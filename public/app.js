@@ -7935,7 +7935,8 @@ function renderParent() {
   const cocuk = veliCocugu();
 
   if (!cocuk) {
-    root.innerHTML = bosDurumHtml("Henüz tanımlı bir öğrenci yok.");
+    // §35: veli panelinde sınıf kodu GİRİŞ formu gösterilmez (bkz. syncJoinHtml).
+    root.innerHTML = bosDurumHtml("Henüz tanımlı bir öğrenci yok.", true);
     wireSyncJoin();
     return;
   }
@@ -7961,9 +7962,11 @@ function renderParent() {
 
   const sonuclar = veliSonuclari(cocuk.id);
   if (!sonuclar.length) {
+    // §35: veli panelinde sınıf kodu GİRİŞ formu gösterilmez (bkz. syncJoinHtml).
     root.innerHTML = secici + bosDurumHtml(
       escapeHtml(cocuk.name || "Öğrenci") + " için öğretmen onayından geçmiş bir sonuç henüz yok. " +
-      "Öğretmen sonuçları yayınladığında burada görünecek."
+      "Öğretmen sonuçları yayınladığında burada görünecek.",
+      true
     );
     wireParent();
     return;
@@ -8723,7 +8726,15 @@ function wireSyncShareLine() {
    Artık her zaman `bosDurumHtml()` içinden çağrılır ve `.empty-state`in
    DEVAMI olarak çizilir: üstte durum, ince ayırıcı, altında o durumu
    değiştirecek tek eylem. */
-function syncJoinHtml() {
+/* `girisGizle` (§35): yalnızca KOD GİRİŞ FORMUNU (açıklama + kutu + "Gir")
+   bastırır. Veli paneli bunu kullanır — sınıf kodunu öğretmen oluşturur,
+   öğrenci girer; velinin girecek bir kodu yoktur, kutu orada yalnızca
+   kafa karıştırıyordu. Bağlıyken gösterilen durum satırı ("Bu cihaz …
+   koduna bağlı" + "Şimdi kontrol et") KALDIRILMADI: o bir giriş formu
+   değil, velinin sonuçları tazeleyebildiği tek yer.
+   Öğrenci ve öğretmen tarafı bu parametreyi HİÇ vermez, davranışları
+   birebir eskisi gibi kalır. */
+function syncJoinHtml(girisGizle) {
   if (syncDurum().ready === false) return "";
   if (state.syncRoom) {
     /* Bağlıyken "…yayınladığında burada görünecek" DENMEZ: hemen üstteki boş
@@ -8732,6 +8743,7 @@ function syncJoinHtml() {
       "<span>Bu cihaz <b>" + escapeHtml(state.syncRoom) + "</b> sınıf koduna bağlı.</span> " +
       '<button class="btn btn-secondary btn-sm js-sync-yenile">Şimdi kontrol et</button></div>';
   }
+  if (girisGizle) return "";
   return '<div class="sync-join">' +
     "<b>Öğretmeninizden sınıf kodu aldıysanız buraya girin:</b>" +
     '<div class="sync-join-row">' +
@@ -8744,8 +8756,8 @@ function syncJoinHtml() {
 /* Boş ekran = DURUM + onu değiştirecek EYLEM, tek görsel birimde (§28s).
    Öğrenci ve veli ekranlarındaki dört boş durumun tamamı buradan geçer;
    böylece "yok" mesajı ile sınıf kodu girişi bir daha ayrı düşemez. */
-function bosDurumHtml(mesaj) {
-  return '<div class="card"><div class="empty-state">' + mesaj + syncJoinHtml() + "</div></div>";
+function bosDurumHtml(mesaj, girisGizle) {
+  return '<div class="card"><div class="empty-state">' + mesaj + syncJoinHtml(girisGizle) + "</div></div>";
 }
 
 /* 🔴 §28s — BURADA ID KULLANILMAZ, ÖLÇÜLMÜŞ BİR HATADIR.
