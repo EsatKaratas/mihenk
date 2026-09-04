@@ -1410,10 +1410,25 @@ async function ocrPdfSayfalari(file, ilerlemeCb) {
   // varsayılan olarak worker/core/dil dosyalarını başka barındırıcılardan
   // çekebiliyor. Sessizce engellenmesin diye üçü de burada açıkça jsdelivr'e
   // sabitleniyor.
+  /* 🔴 DÜZELTME — langPath 404 veriyordu (ölçüldü).
+     Eski değer ".../@tesseract.js-data/tur/4.0.0_best" idi. Tesseract.js v5
+     bu yola "/<dil>.traineddata.gz" ekliyor (kütüphane kaynağından
+     doğrulandı) ve @tesseract.js-data/tur paketinde "4.0.0_best" diye bir
+     dizin YOK — pakette yalnızca "4.0.0" ve "4.0.0_best_int" var. Sonuç:
+     OCR, tek bir sayfa işlemeden önce
+     "Network error while fetching ... Response code: 404" ile düşüyordu.
+
+     Yeni değer olarak "_best_int" seçildi, "4.0.0" değil. Gerekçe: yukarıdaki
+     ikinci argüman 1, yani oem = LSTM_ONLY. "4.0.0" paketi hem eski (legacy)
+     hem LSTM modelini taşır ve oem=1 ile legacy kısım hiç kullanılmaz;
+     "_best_int" tam olarak LSTM'dir — kütüphanenin langPath verilmediğinde
+     oem=1 için kendi seçtiği paket. Üstelik 2.141.291 bayt, 8.063.205 yerine
+     (ölçüldü): paylaşılan bir sunum ağında 4 kat daha az indirme.
+     Hız öncelikliyse tek yapılacak "_best_int" yerine "4.0.0" yazmaktır. */
   const worker = await Tesseract.createWorker("tur", 1, {
     workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
     corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js",
-    langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/tur/4.0.0_best"
+    langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/tur@1.0.0/4.0.0_best_int"
   });
   const sayfalar = [];
   try {
@@ -6237,6 +6252,91 @@ function renderRoleNav() {
   }).join("");
   document.querySelectorAll(".role-btn").forEach(function (b) { b.onclick = function () { state.role = b.dataset.role; renderAll(); }; });
 }
+/* ===========================================================================
+   GİRİŞ KAPISI (public/index.html #girisKapisi) — YALNIZCA GÖRSEL KATMAN
+   ===========================================================================
+   İki aşamalı karşılama: (1) logo + slogan + giriş düğmesi, (2) kırmızı şerit
+   altında 3+2 düzeninde panel seçim kartları.
+
+   YÖNLENDİRME MANTIĞI DEĞİŞMEDİ: kartlar ROLES dizisinden üretilir ve tıklama,
+   üst çubuktaki mevcut rol düğmesiyle BİREBİR aynı iki satırı çalıştırır
+   (bkz. renderRoleNav):
+       state.role = <id>;  renderAll();
+   Yeni bir kimlik doğrulama, yetki kontrolü ya da yönlendirme kuralı YOKTUR;
+   bu katman kapandıktan sonra uygulama eskisi gibi davranır ve üst çubuktaki
+   rol düğmeleri çalışmaya devam eder.
+
+   KALICI DEĞİLDİR: kapının açık/kapalı durumu localStorage'a yazılmaz, yani
+   kayıtlı durum şeması (KALICI_ALANLAR) hiç değişmedi. Sayfa her açıldığında
+   karşılama ekranı görünür. */
+
+/** Panel seçim kartlarının HTML'i — kaynak ROLES, sıra da oradan gelir
+ *  (üst sıra: İçerik Uzmanı, Öğretmen, Öğrenci · alt sıra: Eğitim Yöneticisi,
+ *  Veli). Böylece rol eklenir/çıkarılırsa kartlar kendiliğinden uyar. */
+function girisKapisiKartlariHtml() {
+  /* Altın sarısı ÇİZGİ ikonlar. Dolgu yok; renk ve kalınlık CSS'ten gelir
+     (.gk-ikon svg *), bu yüzden burada yalnızca geometri var. */
+  const ikonlar = {
+    content_expert: '<path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 15.5h4"/>',
+    teacher:        '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8.5 20h7"/><path d="M8 10.5l2.5 2.5L16 8"/>',
+    student:        '<path d="M12 4l9 4.5-9 4.5-9-4.5z"/><path d="M6.5 10.5V15c0 1.7 2.5 3 5.5 3s5.5-1.3 5.5-3v-4.5"/><path d="M21 8.5V14"/>',
+    admin:          '<path d="M4 20h16"/><rect x="5.5" y="12" width="3.5" height="6"/><rect x="10.5" y="8" width="3.5" height="10"/><rect x="15.5" y="4.5" width="3.5" height="13.5"/>',
+    parent:         '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16.5" cy="9" r="2.2"/><path d="M3 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M15 19c0-2.2 1.3-3.7 3-3.7s3 1.5 3 3.7"/>'
+  };
+  return ROLES.map(function (r) {
+    return '<button class="gk-kart" type="button" data-role="' + r.id + '">' +
+      '<span class="gk-ikon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      (ikonlar[r.id] || "") + '</svg></span>' +
+      '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span>' +
+      '<span class="gk-kart-not">' + escapeHtml(r.hint) + '</span>' +
+      '<span class="gk-kart-alt" aria-hidden="true">→</span>' +
+      '</button>';
+  }).join("");
+}
+
+/** Giriş kapısını kurar: kartları basar, iki aşama geçişini ve kart
+ *  tıklamalarını bağlar. Açılışta bir kez çağrılır. */
+function girisKapisiKur() {
+  const kapi = document.getElementById("girisKapisi");
+  if (!kapi) return;   // kapı HTML'den kaldırılırsa uygulama eskisi gibi açılır
+
+  const kartlar = document.getElementById("gkKartlar");
+  if (kartlar) kartlar.innerHTML = girisKapisiKartlariHtml();
+
+  /* Kapı açıkken ARKADAKİ uygulama kaydırılmasın. Kapı position:fixed
+     olduğu için kaydırma onu oynatmıyordu ama sağda işlevsiz bir kaydırma
+     çubuğu duruyordu (ölçüldü: 860 px pencerede sayfa 1472 px). Kapının
+     kendi içeriği uzarsa o kendi içinde kayar (overflow-y: auto). */
+  document.body.style.overflow = "hidden";
+
+  const asama2 = document.getElementById("gkAsama2");
+  const girisBtn = document.getElementById("gkGirisBtn");
+  if (girisBtn) girisBtn.onclick = function () {
+    if (asama2) {
+      asama2.hidden = false;
+      /* Yeniden akış (reflow) ZORUNLU: hidden kalkar kalkmaz data-asama
+         değişirse tarayıcı iki durumu tek karede hesaplar ve geçiş hiç
+         oynamaz. Bu satır başlangıç durumunun hesaplanmasını garantiler. */
+      void kapi.offsetWidth;
+    }
+    kapi.dataset.asama = "2";
+    /* Odağı ilk karta taşı: klavye kullanıcısı geçişten sonra doğrudan
+       seçim yapabilsin. Geçiş süresi kadar beklenir. */
+    const ilkKart = kapi.querySelector(".gk-kart");
+    if (ilkKart) setTimeout(function () { ilkKart.focus(); }, 700);
+  };
+
+  kapi.querySelectorAll(".gk-kart").forEach(function (k) {
+    k.onclick = function () {
+      /* Üst çubuktaki rol düğmesiyle BİREBİR aynı iki satır. */
+      state.role = k.dataset.role;
+      renderAll();
+      kapi.hidden = true;
+      document.body.style.overflow = "";   // uygulamanın kaydırması geri gelsin
+    };
+  });
+}
+
 function renderPipeline() {
   const steps = [
     { label: "Havuz", done: state.questions.some(function (q) { return q.status === "approved"; }) },
@@ -7321,7 +7421,8 @@ function wireSync() {
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman", "syncBarHtml", "renderSyncBar", "wireSync",
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
-    "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount"
+    "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
+    "girisKapisiKartlariHtml", "girisKapisiKur"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -7338,6 +7439,21 @@ function wireSync() {
 
 initPanels();
 loadState();
+/* 🔴 OCR "çalışıyor" bayrağı SAYFA YENİLENİNCE ASILI KALIYORDU (ölçüldü).
+   `ceForm` KALICI_ALANLAR içinde, yani tüm alanlarıyla localStorage'a yazılıyor
+   — `ocrLoading` ve `ocrProgress` dahil. OCR sürerken sekme kapatılır ya da
+   yenilenirse uygulama açılışta bu bayrakları geri yüklüyor ve ekranda hiç
+   bitmeyecek bir OCR spinner'ı ("OCR çalışıyor: 1/2 sayfa") gösteriyordu;
+   arkada çalışan bir OCR yok, "OCR ile Dene" düğmesi de bu yüzden hiç
+   görünmüyor — kullanıcının tek çıkışı "Verileri sıfırla" oluyordu.
+   Bunlar oturumluk (geçici) bayraklardır; açılışta sıfırlanmaları gerekir.
+   `pdfLoading` de AYNI kusuru taşıyor: yarım kalmış bir PDF/DOCX okuma
+   işleminden sonra uygulama açılışta "Dosya okunuyor…" ekranında kilitli
+   kalıyordu. Üçü de burada sıfırlanır — durum verisine (kitaplık, sorular,
+   oturumlar) dokunulmaz, yalnızca bu geçici bayraklar temizlenir. */
+state.ceForm.ocrLoading = false;
+state.ceForm.ocrProgress = "";
+state.ceForm.pdfLoading = false;
 // localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
 // doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
 ensureOutcomeMeta();
@@ -7354,6 +7470,7 @@ document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
 document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
+girisKapisiKur();
 probeAiMode();
 // Sunucuda D1 bağlı mı? Bağlı değilse şerit "senkron kapalı" yazar (§6.3-5).
 syncProbe();
