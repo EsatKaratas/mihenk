@@ -789,6 +789,25 @@ const DEMO_METIN = "Bir cisme etki eden kuvvet, cismin hareket durumunu değişt
 const DEMO_YANIT = "Dengelenmemiş kuvvetler cismin hızını değiştirir. Örneğin duran bir topa " +
   "vurulduğunda top hareket eder. Sürtünme kuvveti ise harekete zıt yönde etki ederek topu yavaşlatır.";
 
+/* §38 — DEMO AKIŞI: sahne artık "her şey bitmiş" değil, ADIM ADIM İLERLETİLİR.
+
+   Eskiden tohum her şeyi hazır bırakıp kullanıcıyı Öğrenci paneline atıyordu.
+   §32'de üst çubuktaki beş rol düğmesi kaldırıldığı için bu davranış bozuldu:
+   İçerik Uzmanı olarak girip düğmeye basan kişi SESSİZCE Öğrenci paneline
+   düşüyor ve geri dönüşü yalnızca Çıkış → giriş → kart (3 tık) oluyordu.
+
+   Yeni tohum, jürinin GERÇEK AKSİYONLARI görmesi için iki şeyi bilerek
+   YARIM bırakır:
+     • bir çoktan seçmeli soru `ai_generated` (onay bekliyor) kalır ve
+       sınava dahil edilmez → İçerik Uzmanı onu KENDİSİ onaylar,
+     • sınav `draft` kalır → Öğretmen sınavı KENDİSİ yayınlar.
+   Öğrencinin yanıtları yine hazırdır (sunumda 3 soru yazmakla vakit
+   kaybedilmesin) ama sınavı BİTİRME işini de sunumcu kendisi yapar.
+
+   Demo verisi ile gerçek veri karışmaz: sorular `demo: true`, simüle
+   öğrenciler `demo: true` + "simüle" rozeti, denetim izinde model adı
+   "yerel simülasyon (model çağrılmadı)". Isı haritasındaki "(örnek)"
+   satırları ayrı bir sistemdir (§37) ve buradan etkilenmez. */
 function loadDemoScenario() {
   state.questions = DEMO_SORULAR.map(function (q) {
     const kopya = JSON.parse(JSON.stringify(q));
@@ -798,6 +817,12 @@ function loadDemoScenario() {
     kopya.demo = true;
     return kopya;
   });
+  /* Adım 1'in gerçek aksiyonu: bu soru ONAY BEKLER. Açık uçlu DEĞİL bilerek —
+     açık uçlu sınavdan çıkarsa rubrik ve AI değerlendirmesi de çıkar, adım 4
+     gösterilecek bir şey bulamazdı. */
+  const onayBekleyen = state.questions.filter(function (q) { return q.type === "mc"; })[1];
+  if (onayBekleyen) onayBekleyen.status = "ai_generated";
+
   state.ceForm.title = "Kuvvet ve Hareket — 3. Ünite Özeti";
   state.ceForm.subject = "Fen Bilimleri";
   state.ceForm.grade = 7;
@@ -805,23 +830,123 @@ function loadDemoScenario() {
   state.ceForm.text = DEMO_METIN;
   if (state.activeExamId == null) ensureExamList();
   state.exam.title = "Kuvvet ve Hareket — Kısa Sınav";
-  state.exam.questionIds = state.questions.map(function (q) { return q.id; });
+  // Onay bekleyen soru sınava GİRMEZ: onaylanmamış soru sınava konamaz.
+  state.exam.questionIds = state.questions
+    .filter(function (q) { return q.status === "approved"; })
+    .map(function (q) { return q.id; });
   state.exam.durationMin = 10;
   state.exam.startDelaySec = 0;
-  state.exam.status = "published";
-  state.exam.startsAt = Date.now();
+  // Adım 2'nin gerçek aksiyonu: sınavı ÖĞRETMEN yayınlar.
+  state.exam.status = "draft";
+  state.exam.startsAt = null;
+  state.exam.startMode = "now";
   state.questions.filter(function (q) { return q.type === "open"; }).forEach(function (q) { ensureRubric(q.id); });
-  // Öğrenci yanıtları hazır ama sınav BİTİRİLMEMİŞ: değerlendirme canlı çalışsın.
-  state.questions.forEach(function (q) {
-    state.answers[q.id] = q.type === "mc" ? { selectedKey: q.correctKey } : { text: DEMO_YANIT };
+  // Yanıtlar hazır ama sınav BAŞLAMADI: adım 3'te sunumcu başlatıp bitirir.
+  state.answers = {};
+  state.exam.questionIds.forEach(function (qid) {
+    const q = state.questions.find(function (x) { return x.id === qid; });
+    if (q) state.answers[q.id] = q.type === "mc" ? { selectedKey: q.correctKey } : { text: DEMO_YANIT };
   });
-  state.answers[state.questions[1].id] = { selectedKey: "C" }; // biri kasten yanlış
-  state.examStatus = "in_progress";
+  state.examStatus = "not_started";
   state.remainingSec = state.exam.durationMin * 60;
   state.aiEvals = {}; state.reviews = {}; state.mcResults = {};
   demoSinifOturumlari();
-  state.role = "student"; state.studentTab = 2; state.currentQIndex = 0;
+  /* Ölçüldü (§38.2): simüle sınıf oturumları sınav TASLAKKEN yazılsa da
+     analitiğe düşmez (okulGercekDurum ve classOutcomeScores yayınlanmış
+     sınav şartı arar); öğretmen adım 2'de yayınlayınca eksiksiz görünür. */
+  state.demoAdim = 1;
+  demoAdimaGit(1);
+  return;
+}
+
+/* Demo Akışı'nın beş adımı. Her adım YALNIZCA rol + sekme söyler; hiçbir
+   ürün aksiyonunu (onaylama, yayınlama, bitirme) kendisi YAPMAZ.
+   `hazir` = bir sonraki adıma geçmenin KOŞULU; koşul insan tarafından
+   yerine getirilir. HITL burada gizlenmez, tam tersine görünür kılınır. */
+const DEMO_ADIMLARI = [
+  { no: 1, rol: "content_expert", sekme: 1, roleAd: "İçerik Uzmanı",
+    aciklama: "Onay bekleyen soruyu inceleyip onaylayın; soru havuzuna geçsin.",
+    sonraki: "Sonraki Adım → Öğretmen",
+    hazir: function () { return !state.questions.some(function (q) { return q.status === "ai_generated"; }); },
+    kilit: "Önce bekleyen soruyu onaylayın" },
+  { no: 2, rol: "teacher", sekme: 1, roleAd: "Öğretmen",
+    aciklama: "Havuzdaki soruları sınava dönüştürüp sınavı yayınlayın.",
+    sonraki: "Sonraki Adım → Öğrenci",
+    hazir: function () { return state.exam.status === "published"; },
+    kilit: "Önce sınavı yayınlayın" },
+  { no: 3, rol: "student", sekme: 1, roleAd: "Öğrenci",
+    aciklama: "Yayınlanan sınavı çözün ve “Sınavı Bitir” ile gönderin.",
+    sonraki: "Sonraki Adım → Öğretmen Onayı",
+    hazir: function () { return state.examStatus === "submitted" || state.examStatus === "graded"; },
+    kilit: "Önce sınavı bitirin" },
+  { no: 4, rol: "teacher", sekme: 3, roleAd: "Öğretmen Onayı",
+    aciklama: "Yapay zekânın puan önerisini inceleyin, nihai kararı verin ve sonuçları yayınlayın.",
+    sonraki: "Sonraki Adım → Analiz",
+    hazir: function () { return state.examStatus === "graded"; },
+    kilit: "Önce değerlendirmeleri onaylayıp sonuçları yayınlayın" },
+  { no: 5, rol: "admin", sekme: null, roleAd: "Eğitim Yöneticisi",
+    aciklama: "Öğretmenin yayınladığı sonuçlar analiz ekranına ve kazanım ısı haritasına düştü.",
+    sonraki: "Demoyu Bitir",
+    hazir: function () { return true; },
+    kilit: "" },
+];
+
+/** Demo Akışı'nda bir adıma geçer: SADECE rol ve sekme ayarlar. */
+function demoAdimaGit(no) {
+  const a = DEMO_ADIMLARI.find(function (x) { return x.no === no; });
+  if (!a) return;
+  state.demoAdim = no;
+  state.role = a.rol;
+  if (a.rol === "content_expert" && a.sekme) state.ceTab = a.sekme;
+  if (a.rol === "teacher" && a.sekme) state.teacherTab = a.sekme;
+  if (a.rol === "student" && a.sekme) state.studentTab = a.sekme;
+  /* Demo, giriş kapısını kapatır — rehber zaten nereye gidileceğini söylüyor. */
+  const kapi = document.getElementById("girisKapisi");
+  if (kapi && !kapi.hidden) { kapi.hidden = true; document.body.style.overflow = ""; }
   renderAll();
+}
+
+/** Rehberli demoyu kapatır. Üretilen veriye DOKUNMAZ; yalnızca yönlendirmeyi
+    sonlandırır. Veriyi temizlemek isteyen mevcut "Sıfırla" düğmesini kullanır. */
+function demoBitir() {
+  state.demoAdim = null;
+  renderAll();
+}
+
+/** Üst çubuktaki demo şeridi. Demo kapalıysa boş dizedir. */
+function demoSeridiHtml() {
+  const a = DEMO_ADIMLARI.find(function (x) { return x.no === state.demoAdim; });
+  if (!a) return "";
+  const son = a.no === DEMO_ADIMLARI.length;
+  const acik = a.hazir();
+  return '<div class="demo-serit">' +
+    '<span class="demo-rozet">Demo Akışı</span>' +
+    '<span class="demo-adim tabular">Adım ' + a.no + "/" + DEMO_ADIMLARI.length + "</span>" +
+    '<span class="demo-metin"><b>' + escapeHtml(a.roleAd) + ":</b> " + escapeHtml(a.aciklama) + "</span>" +
+    (!acik && a.kilit ? '<span class="demo-kilit">' + escapeHtml(a.kilit) + "</span>" : "") +
+    '<span class="demo-dugmeler">' +
+    '<button type="button" class="btn btn-primary btn-sm js-demo-ileri"' + (acik ? "" : " disabled") +
+      (acik ? "" : ' title="' + escapeHtml(a.kilit) + '"') + ">" + escapeHtml(a.sonraki) + "</button>" +
+    (son ? "" : '<button type="button" class="btn btn-secondary btn-sm js-demo-bitir">Demoyu Bitir</button>') +
+    "</span></div>";
+}
+
+/* TUZAK 1/1B: şerit tek örnek olsa da düğmeler id ile DEĞİL, kendine özgü
+   sınıflarla (.js-demo-ileri / .js-demo-bitir) ve querySelectorAll ile
+   bağlanır; mevcut hiçbir paylaşılan sınıf yeniden kullanılmadı. */
+function renderDemoSerit() {
+  const yuva = document.getElementById("demoSeritYuva");
+  if (!yuva) return;
+  yuva.innerHTML = demoSeridiHtml();
+  document.querySelectorAll(".js-demo-ileri").forEach(function (b) {
+    b.onclick = function () {
+      const a = DEMO_ADIMLARI.find(function (x) { return x.no === state.demoAdim; });
+      if (!a || !a.hazir()) return;                 // kilit: insan aksiyonu şart
+      if (a.no === DEMO_ADIMLARI.length) { demoBitir(); return; }
+      demoAdimaGit(a.no + 1);
+    };
+  });
+  document.querySelectorAll(".js-demo-bitir").forEach(function (b) { b.onclick = demoBitir; });
 }
 
 /* DEMO SAHNESİ — sınıfın geri kalanı için TAMAMLANMIŞ oturumlar.
@@ -976,6 +1101,11 @@ const state = {
      DOM'u aynı anda render edildiği için İçerik Uzmanı ve Öğretmen aynı
      düğmeyi paylaşıyor, birinde yapılan aç/kapa diğerini de etkiliyordu. */
   rejectedOpenByRole: { ce: false, teacher: false },
+  /* §38 — Demo Akışı'nın bulunduğu adım (null = demo kapalı, 1..5).
+     KALICI_ALANLAR'a BİLEREK eklenmedi: sayfa yenilenince demo kapanır ve
+     normal kullanım hiç etkilenmez. Bu alan yalnızca YÖNLENDİRME durumudur;
+     hiçbir ürün verisi taşımaz. */
+  demoAdim: null,
   evalCache: {},
   simRunning: false,
   simStatus: null,
@@ -7727,6 +7857,7 @@ function renderAll() {
   renderDepoUyarisi();
   renderRoleNav();
   renderPipeline();
+  renderDemoSerit();   // §38 — demo kapalıyken boş dize yazar
   renderContentExpert();
   renderTeacher();
   renderStudent();
@@ -8912,6 +9043,9 @@ setInterval(function () {
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
     "siniflar", "classOutcomeScores", "realClassRows", "ornekSinifSatirlari", "okulGercekDurum", "demoSinifOturumlari",
+    /* §38 — Demo Akışı. renderDemoSerit her renderAll'da çağrılır; düşerse
+       şerit sessizce kaybolur ve sunum ortasında rehber ölür. */
+    "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
     "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",

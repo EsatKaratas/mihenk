@@ -85,10 +85,14 @@
              paylaşım anında ve öğrencinin katılma anında bağlamsal olarak
              gösterilir (bkz. syncShareLineHtml / syncJoinHtml). -->
         <span id="syncChip"></span>
-        <button class="btn btn-secondary btn-sm" id="btnDemoSeed" title="Gerçek model çıktısından hazırlanmış örnek senaryoyu yükler">Demo senaryosu</button>
+        <button class="btn btn-secondary btn-sm" id="btnDemoSeed" title="Mihenk'in uçtan uca sürecini adım adım gezdiren rehberli demoyu başlatır">Demo Akışı</button>
         <button class="btn btn-secondary btn-sm" id="btnReset" title="Tüm durumu sıfırlar">Sıfırla</button>
       </div>
     </div>
+    <!-- §38: Demo Akışı şeridi. Panellerin İÇİNDE değil, paylaşılan üst
+         çubukta TEK örnek olarak durur; roller birleşmez, her an yalnızca
+         bir panel etkindir. Demo kapalıyken bu yuva boştur. -->
+    <div id="demoSeritYuva"></div>
     <nav class="role-nav" id="roleNav"></nav>
   </div>
 

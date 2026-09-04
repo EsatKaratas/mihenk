@@ -5292,3 +5292,115 @@ mobil 375×812 taşma 0.
 Değişiklik `git stash` ile kenara alınıp **değişikliksiz `bb16e53`'te
 ölçüldü — orada da var**. Yani regresyon değil, mevcut bir durum.
 1280 px ve 375 px'te çıkmıyor. Ayrı bir iş olarak ele alınacak.
+
+## 38. DEMO SENARYOSU → REHBERLİ 5 ADIMLI DEMO AKIŞI (5 Eylül 2026)
+
+**İstek:** Düğme adı "Demo Akışı" olsun; demo rolleri tek ekranda birleştirmesin,
+Mihenk'in uçtan uca sürecini adım adım gezdirsin ve mümkün olduğunca GERÇEK
+kullanıcı aksiyonlarını jüriye göstersin.
+
+### 38.1 Eski demo neden bozulmuştu
+
+`loadDemoScenario()` sahneyi tamamen hazır bırakıp son satırında
+`state.role = "student"` yapıyordu. §32'de üst çubuktaki beş rol düğmesi
+kaldırılınca bu davranış kırıldı. Ölçüldü:
+
+| Senaryo | Sonuç |
+|---|---|
+| İçerik Uzmanı olarak girip düğmeye basmak | **sessizce Öğrenci paneline düşüyor**, üst çubuk "Öğrenci" oluyor |
+| Giriş kapısı açıkken basmak | rol arkada `student` yapılıyor, kapıdan seçilen kart eziyor |
+
+Eski sistemde sorun değildi: sunumcu üst çubuktan tek tıkla rol gezebiliyordu.
+Artık tek yol Çıkış → giriş → kart (3 tık). Yani demo rolü ÇALIYOR ve geri
+dönüş yolu vermiyordu.
+
+### 38.2 ÖNCE RİSK ÖLÇÜLDÜ — demoSinifOturumlari() çelişiyor mu?
+
+Sınav artık `draft` başlayacağı için, simüle sınıf oturumlarının sonradan
+yayınlanınca analitiğe düşüp düşmediği KOD YAZILMADAN ÖNCE ölçüldü:
+
+| Aşama | `okulGercekDurum()` | Isı haritası (gerçek satırlar) |
+|---|---|---|
+| Sınav taslakken | `atanan 0 · tamamlanan 0` | `7-A {}` · `7-B {}` |
+| Öğretmen yayınlayınca | `atanan 4 · tamamlanan 3` | `7-A %90` · `7-B %48` |
+
+Yayınlama oturumları silmiyor (`btnPublishExam` yalnızca `startsAt` + `status`
+yazıyor). **Çelişki yok; `demoSinifOturumlari()` değiştirilmedi.**
+
+### 38.3 Yeni tohum — iki şey bilerek YARIM bırakılıyor
+
+* 2. çoktan seçmeli soru `ai_generated` kalır ve sınava dahil edilmez →
+  İçerik Uzmanı onu KENDİSİ onaylar.
+* Sınav `draft` kalır → Öğretmen sınavı KENDİSİ yayınlar.
+
+Açık uçlu soru bilerek onay bekleyen seçilmedi: sınavdan çıksaydı rubrik ve
+AI değerlendirmesi de çıkardı, adım 4 gösterilecek bir şey bulamazdı.
+Öğrencinin yanıtları hazır kalır (sunumda 3 soru yazmakla vakit
+kaybedilmesin) ama sınavı BAŞLATMA ve BİTİRME işini sunumcu yapar.
+
+### 38.4 Yönlendirme katmanı
+
+Tek yeni durum alanı: `state.demoAdim` (null = kapalı, 1..5).
+**`KALICI_ALANLAR`'a eklenmedi** → sayfa yenilenince demo kapanır, normal
+kullanım hiç etkilenmez. Yalnızca yönlendirme durumudur, ürün verisi taşımaz.
+
+Şerit paylaşılan üst çubukta TEK örnek olarak durur (`#demoSeritYuva`),
+panellerin İÇİNE girmez → roller birleşmez. Düğmeler id ile değil kendine
+özgü sınıflarla (`.js-demo-ileri` / `.js-demo-bitir`) ve `querySelectorAll`
+ile bağlanır (TUZAK 1/1B). Yeni renk yok: mevcut `--accent2*` ailesi ve
+`.btn` sınıfları.
+
+`demoAdimaGit()` YALNIZCA `state.role` + sekme ayarlar ve `renderAll()`
+çağırır. Başka hiçbir şey yapmaz.
+
+### 38.5 Adımlar ve kilitler — HITL gizlenmiyor, GÖSTERİLİYOR
+
+| Adım | Rol · sekme | Kilit açılma koşulu | Pasif mesajı |
+|---|---|---|---|
+| 1 | İçerik Uzmanı · Soru Üret | `ai_generated` soru kalmaması | "Önce bekleyen soruyu onaylayın" |
+| 2 | Öğretmen · Sınav Oluştur | `exam.status === "published"` | "Önce sınavı yayınlayın" |
+| 3 | Öğrenci · Sınavı Çöz | `examStatus` submitted/graded | "Önce sınavı bitirin" |
+| 4 | Öğretmen · Değerlendirme Onayı | `examStatus === "graded"` | "Önce değerlendirmeleri onaylayıp sonuçları yayınlayın" |
+| 5 | Eğitim Yöneticisi | — (son adım) | — |
+
+`finalizeReview()` ve `publishResults()` demo kodunda **hiç geçmez**.
+
+**Kilit testi (ölçüldü):** adım 4'te pasif "Sonraki Adım"a basıldı →
+`demoAdim` 4'te kaldı, `reviews: 0`, `examStatus: "submitted"`. Geçemedi.
+Daha güçlüsü: öğretmen AI önerisini onayladıktan sonra
+(`reviews: 1`, `allOpensReviewed: true`) düğme HÂLÂ pasifti; ancak
+"✓ Sonuçları Öğrenciye Yayınla"ya basınca açıldı.
+
+### 38.6 Uçtan uca tarayıcı testi (gerçek düğmelerle)
+
+Demo Akışı → içerik uzmanı kendi onayladı → öğretmen kendi yayınladı →
+öğrenci kendi başlatıp "Sınavı Bitir" + modal onayı ile bitirdi
+(AI değerlendirmesi üretildi, `aiScore 16.5`) → öğretmen kendi onayladı ve
+kendi yayınladı → yönetici analizi doldu. **5/5 adım geçti.**
+
+Son durum: `atanan 4 · tamamlanan 4`, ısı haritası **7-A %91 ●**,
+**7-B %48 ●**, örnek satırlar ayrı ve işaretsiz, uyarı yalnızca gerçek
+satırdan (`7-B · FEN.7.1.2`).
+
+### 38.7 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `node --check` ×4 | OK |
+| öz-kontrol | **260 ad, 260 tekil, eksik 0** (255 → 260, 5 yeni ad) |
+| lint · `npm test` | temiz · **185/185** |
+| Rol izolasyonu (5 adım) | her adımda tek aktif panel, rol değiştirici **0**, Çıkış **1**, şerit **1** |
+| Gerçek/demo ayrımı | sorular 3/3 `demo`, öğrenciler 3/4 `demo` (aktif öğrenci gerçek), denetim izinde 7 "yerel simülasyon" kaydı |
+| duplicate id · konsol | **0** · error/rejection/console.error **0** |
+| Normal kullanım (demo başlatmadan) | şerit çıkmıyor, Çıkış çalışıyor |
+| Refresh | `demoAdim` null'a düşer, şerit kaybolur, ürün verisi durur |
+| Masaüstü 1100×850 · mobil 375×812 | taşma **0** (şerit mobilde 150 px'e sarıyor) |
+
+`resetState` ("Sıfırla") değiştirilmedi.
+
+### 38.8 Bu değişiklikle İLGİSİZ, açık kalan
+
+* Refresh sonrası demo VERİSİNİN kalması: ekip kararı, "Sıfırla" ile
+  temizlenecek. Dokunulmadı.
+* 1100 px'te öğretmen sekme 1 yatay taşması (§37.6): regresyon değil,
+  ayrı iş. Dokunulmadı.
