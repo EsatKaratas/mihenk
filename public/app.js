@@ -8496,7 +8496,15 @@ setInterval(function () {
     "rubricTemplateOverwriteGuard", "calibrationFromRecords",
     "teacherExamRecords", "teacherRoster", "teacherWhoamiHtml",
     "teacherDeltaYuzde", "teacherOzetCumlesi", "teacherAnalyticsHtml",
-    "teacherReportCardHtml", "wireTeacherAnalytics"
+    "teacherReportCardHtml", "wireTeacherAnalytics",
+    /* §30 — final birleştirme denetimi: aşağıdaki altı ad üst düzeyde
+       tanımlıydı ama bu listede yoktu. Dördü wire* — yani bir merge onları
+       düşürürse ekran sorunsuz çizilir, sadece DÜĞMELER SESSİZCE ÖLÜR.
+       Projede tam bu sınıftan iki hata yaşandı (veli panelindeki Gir
+       düğmesi ve reddedilenler havuzu gizle/göster). Öz-kontrolün var oluş
+       sebebi bu; kapsam dışı kalmamaları gerekiyordu. */
+    "wireCeTabs", "wirePendingCards", "wireRejectedPool", "wireExamSwitcher",
+    "renderAiBadge", "renderPipeline"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
