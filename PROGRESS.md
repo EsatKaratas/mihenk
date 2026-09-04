@@ -4420,3 +4420,215 @@ selfCheck listesine `bosDurumHtml` eklendi.
    yerini tutuyor; bu sınır hem arayüzde hem gizlilik metninde yazılı.
 3. ~~Hız sınırının D1/KV'ye taşınması.~~ → **YAPILDI** (§28r Madde 6) — kullanıcı talebiyle kapsama geri alındı.
 4. Sude'nin ve Burak'ın 7'şer maddesi — iş bölümü gereği onlarda.
+
+---
+
+## 29. İREM'İN DALI — OCR düzeltmeleri, giriş ekranı, gerçek logo ve Mihenk paleti (3-4 Eylül 2026)
+
+> **Dal:** `feature/irem-gelistirmeleri` (yerelde `irem`) · **taban:** `eddf452`
+> **Durum:** ekip birleştirmesine hazırlanıyor; **henüz commit/push/merge yok.**
+> Bu bölüm, daldaki 5 maddenin (§29.0) ÜZERİNE yapılan işleri kaydeder.
+
+### 29.0 Başlangıç noktası
+
+Dal, `eddf452` üzerine 5 commit taşıyordu: DOCX + taranmış PDF için OCR
+(`0d2afc6`), şube etiketi (`621147e`), isteme konu alanı + bilişsel düzey
+(`8a5abaf`), öğretmen paneli şube filtresi + sekme rozetleri (`f21b4b0`),
+sınav ekranında işaretleme + yanıtsız soru listesi (`5ee6a1a`).
+
+Bu beş commit **entegre edilmeden önce** bağımsız bir denetimden geçirildi.
+Denetimde 7 hata bulundu. Kullanıcı kararıyla bu dalda **yalnızca OCR'ı
+çalışmaz kılan olanlar** düzeltildi; kalan düzeltmeler ayrı bir yerel dalda
+bekletiliyor (bkz. §29.5).
+
+### 29.1 OCR üç ayrı sebeple çalışmıyordu (hepsi ölçüldü)
+
+Devir dokümanı OCR'ı *"gerçek tarayıcıda doğrulanmadı, öncelikli takip işi"*
+diye işaretlemişti. O test yapıldı ve **düştü** — üç bağımsız engel çıktı.
+
+| # | Engel | Nasıl ölçüldü | Çözüm |
+|---|---|---|---|
+| 1 | CSP, WebAssembly'yi reddediyor | Canlı sitede (`mihenk.bies.workers.dev`) `new WebAssembly.Module(...)` → *"Compiling or instantiating WebAssembly module violates the following Content Security policy directive"* | `script-src`'e `'wasm-unsafe-eval'` |
+| 2 | CSP, çekirdeğin `data:` URI'sini engelliyor | Gerçek CSP altında yerel çalıştırmada konsol: *"Fetch API cannot load data:application/octet-stream;base64,AGFzbQ… Refused to connect"* | `connect-src`'e `data:` |
+| 3 | Türkçe dil paketi yolu 404 | `curl` + canlı sayfadan `fetch` + jsdelivr dosya listesi: `@tesseract.js-data/tur/4.0.0_best` diye bir dizin **yok** | `…/tur@1.0.0/4.0.0_best_int` |
+
+**1 numaralı engel devir dokümanında gözden kaçmıştı:** doküman *host*
+sorununu (jsdelivr'e sabitleme) doğru çözmüş ama CSP'nin **WebAssembly
+direktifini** hiç anmamıştı; `public/_headers` bu yüzden değişmemişti.
+
+**2 numaralı engel yalnızca gerçek CSP altında görülebilirdi.** Basit bir
+statik sunucu `_headers` dosyasını okumaz; o yüzden `_headers`'taki başlıkları
+birebir uygulayan bir önizleme sunucusu yazıldı (§29.6).
+
+**3 numaralı engelde `_best_int` seçildi, `4.0.0` değil.** Gerekçe:
+`createWorker`'a `oem=1` (LSTM_ONLY) veriliyor; `4.0.0` paketi hem legacy hem
+LSTM modelini taşır ve legacy kısmı bu ayarla hiç kullanılmaz. `_best_int`
+tam olarak LSTM'dir — kütüphanenin `langPath` verilmediğinde `oem=1` için
+kendi seçtiği paket. Ayrıca **2.141.291 bayt yerine 8.063.205 bayt** (4 kat
+az indirme, ölçüldü). Hız öncelikliyse tek yapılacak `_best_int` yerine
+`4.0.0` yazmaktır (kod yorumunda belirtildi).
+
+**Düzeltme sonrası ölçüm (gerçek CSP altında, yerel):**
+
+| Kontrol | Sonuç |
+|---|---|
+| WASM derleme — eski CSP | **BLOKLANDI** |
+| WASM derleme — yeni CSP | **ÇALIŞTI** |
+| `eval` / `new Function` — yeni CSP (blob worker, sayfa bağlamı) | **hâlâ BLOKLU** → token dar kapsamlı |
+| `data:` fetch — sayfada ve blob worker içinde | **İZİNLİ** |
+| Dil paketi isteği | **200 · 2.141.291 bayt · geçerli gzip · 540 ms** |
+| Eski (bozuk) adres | hâlâ **404** |
+| Tesseract uçtan uca (izole) | çekirdek → başlatma → **Türkçe traineddata** → tanıma, **1 sn**, çıktı `"Kuvvet ve hareket"` |
+| Taranmış PDF tespiti | metin katmanı olmayan 2 sayfalık PDF üretildi; uygulama **taranmış** olarak işaretledi |
+| "🔎 OCR ile Dene" düğmesi | ekranda, `onclick === runOcrOnScannedPdf` |
+| İlerleme göstergesi | `"OCR çalışıyor: 1/2 sayfa"` — X/Y biçimi doğru |
+
+### 29.2 OCR spinner'ı sayfa yenilenince asılı kalıyordu
+
+`ceForm` `KALICI_ALANLAR` içinde, yani **tüm alanlarıyla** localStorage'a
+yazılıyor — `ocrLoading` ve `ocrProgress` dâhil. OCR sürerken sekme kapatılır
+ya da yenilenirse uygulama açılışta bu bayrakları geri yüklüyor ve hiç
+bitmeyecek bir OCR spinner'ı gösteriyordu; arkada çalışan bir OCR yok,
+"OCR ile Dene" düğmesi de bu yüzden görünmüyor — tek çıkış "Verileri sıfırla".
+
+Aynı kusur `ceForm.pdfLoading` alanında da vardı ve **İrem'in eklemesinden
+önceye** aitti (yarım kalmış bir PDF/DOCX okumasından sonra "Dosya okunuyor…"
+ekranında kilitlenme). Üçü de açılışta sıfırlanıyor; durum verisine
+(kitaplık, sorular, oturumlar) dokunulmadı.
+
+Ölçüldü: üç bayrak `true` yazılıp sayfa yenilendi → açılışta üçü de `false`,
+dropzone `busy` değil, dosya seçme düğmesi çalışıyor.
+
+### 29.3 Giriş ekranı — iki aşamalı karşılama + panel seçimi
+
+Ürünün girişi yoktu; roller doğrudan üst çubuktaki düğmelerden seçiliyordu.
+Yeni katman `public/index.html` içinde **ayrı bir blok** (`#girisKapisi`);
+`.app` içindeki hiçbir yapıya dokunmadı.
+
+- **1. aşama:** krem zeminde ortada logo, altında giriş düğmesi, altta
+  kırmızı/altın/füme üç katmanlı dalga.
+- **Geçiş:** logo **tek bir DOM düğümü** — yeniden oluşturulmuyor, 0,7 s'de
+  küçülüp sol üste kayıyor; kırmızı şerit yukarıdan iniyor.
+- **2. aşama:** kırmızı şerit (profil fotoğrafı ve bildirim zili **bilerek
+  yok**), *"Lütfen giriş yapmak istediğiniz paneli seçiniz"*, 3+2 düzeninde
+  beş rol kartı.
+
+> 🔴 **YÖNLENDİRME MANTIĞI DEĞİŞMEDİ.** Kartlar `ROLES` dizisinden üretiliyor
+> ve tıklama, üst çubuktaki mevcut rol düğmesiyle **birebir aynı iki satırı**
+> çalıştırıyor: `state.role = <id>; renderAll();`. Yeni kimlik doğrulama ya da
+> yetki kuralı **yoktur**. Kapının durumu localStorage'a yazılmaz, yani
+> `KALICI_ALANLAR` şeması değişmedi.
+
+Beş rol tek tek ölçüldü: `state.role`, açılan panel ve üst çubuktaki aktif
+düğme hepsinde eşleşti. Duyarlılık: 1280 px → 3+2 (alt sıra ortalı, üst sıra
+hizalı), 768 px → 2 sütun, 375 px → tek sütun; hiçbirinde yatay taşma yok.
+
+### 29.4 Gerçek logo ve Mihenk paleti
+
+**Logo** (`public/mihenk-logo.png`). Kaynak dosya web'e hazır değildi:
+saydam değildi (arka planına açık gri damalı desen **piksel olarak** gömülü;
+ölçüldü: kenar şeridindeki tüm pikseller nötr ve ≥238), içeriğin çevresinde
+~200 px boş kenar vardı ve 1402×1122 / 960 KB idi. Saydamlaştırıldı, **yalnızca
+boş kenar** kırpıldı, 2 kat tam sayı küçültme yapıldı → **505×448 / 111 KB**.
+Logonun kendisi kırpılmadı; oran korundu (tarayıcıda ölçüldü: doğal oran
+1.1272, her iki aşamada da 1.1272).
+
+Logo bir **kilit** — marka simgesi, "MİHENK" yazısı ve "Yapay Zeka Destekli
+Eğitim Sistemi" ibaresi görselin içinde. Bu yüzden ayrı duran `.gk-kelime` ve
+`.gk-slogan` **kaldırıldı**; kalsalardı ikisi de ekranda iki kez görünürdü.
+2. aşamada logo **beyaz bir plakaya** oturtuldu: yazısı lacivert (#2B3440) ve
+doğrudan koyu kırmızı şerit üzerinde kontrast ~1,7:1 ile okunmazdı; logoyu
+yeniden renklendirmek marka bütünlüğünü bozardı.
+
+**Palet.** Panelin lacivert/mavi ağırlığı kaldırıldı ve giriş ekranıyla aynı
+beş renge bağlandı. Değişiklik **token düzeyinde** yapıldı; CSS zaten
+değişkenlerle yazılmış olduğu için tek tek kural boyanmadı.
+
+| Token | Eski | Yeni |
+|---|---|---|
+| `--bg` | `#173058` lacivert | `#FFF6E6` krem |
+| `--text` | `#131a26` | `#2B3440` antrasit (logonun tonu) |
+| `--text-muted` | `#505a6b` | `#61666C` füme |
+| `--accent` | `#2e4c8a` | `#B0000D` **bordo** |
+| `--accent-strong` / `-soft` | `#1f3766` / `#dee7f7` | `#8B000A` / `#FAE3DF` |
+| `--accent2` | `#9e5514` | `#92600C` koyu altın |
+| `--accent2-line` (yeni) | — | `#E2B01E` marka altını, yalnız ince çizgi |
+| `--border` / `-strong` | `#dde3ed` / `#b9c2d4` | `#E8DCC6` / `#CBB998` |
+| `--surface-2` / `-3` | `#eef1f7` / `#e2e8f2` | `#F7EEDD` / `#EFE3CB` |
+| `--on-bg*` | açık (koyu zemin için) | **koyu** (zemin açıldı) |
+| `--seq-1…5` | mavi rampa | krem → altın → bordo |
+
+**`--success` / `--warning` / `--critical` DEĞİŞMEDİ** — semantik anlamları
+paletle oynanarak bozulmamalı. Bordo ile `--critical` yakın tonlar ama
+karışmıyorlar: birincil düğme **dolgulu bordo + altın alt çizgi**, tehlike
+düğmesi **çerçeveli kırmızı** — biçimleri farklı.
+
+Nokta atışı dört kural: aktif sekme nötr griden **bordoya**; `.btn-primary`'ye
+altın `inset` gölge (kenarlık eklemek yüksekliği değiştirirdi); `.sync-bar`
+zemini (koyu zemin için yapılmış yarı saydam beyaz yıkama açık zeminde
+görünmezdi) → kart yüzeyi; `.sync-bar .sync-err` `#ffc9c0` → `var(--critical)`.
+
+> **Kontrast göz kararıyla değil ÖLÇÜLEREK doğrulandı.** Her rolde tüm görünür
+> metinler taranıp gerçek zeminine karşı oran hesaplandı.
+> İlk turda **57 uyarı** çıktı; hepsinin kök nedeni tek bir token'dı
+> (`--text-muted` sıcak yüzeylerde 4,02–4,29). Füme gri referanstan bir tık
+> koyultuldu (`#6B7177` → `#61666C`). Kalan 3 uyarı `pill-bloom`'daydı;
+> ikincil altın `#9a6410` → `#92600C` yapıldı.
+> **Sonuç: masaüstü 485 öğe → 0; mobil (375×812) 564 öğe → 0.**
+> Isı haritası ayrıca kontrol edildi (yazı rengini `app.js` ölçülen parlaklığa
+> göre seçiyor): 5 rampa adımının hepsi geçti, gerçek hücrelerde en düşük
+> kontrast **5,08**.
+
+### 29.5 Bu turda YAPILMAYAN (bilinçli)
+
+1. **Merge/rebase/push/deploy/etiket yok.** `origin/main` bu dalın tabanından
+   **11 commit ileride** (`eddf452` → `81c7a03`). Birleştirme, Sude ve
+   Burak'ın kodları da elde olduğunda tek seferde yapılacak.
+2. **Denetimde bulunan diğer 7 düzeltme bu dalda DEĞİL.** Yerel
+   `hazir-duzeltmeler` dalında duruyorlar: son dakika sayacının kırmızı yerine
+   turuncu kalması, `outcomeAlan`'ın Fen/Matematik'te ders adını tekrar
+   etmesi, öğretmen rozetinin boş sekmeye yönlendirmesi, DOCX yüklenince açık
+   PDF seçicisinin kalması, `corePath`'in SIMD'e sabitlenmesi, kütüphane
+   yükleyicilerinde zaman aşımı olmaması, WASM ön kontrolü.
+   **Bu dal yalnız bırakılırsa o düzeltmeler kaybolur.**
+3. **`sayfa.render(...)` adımı gerçek tarayıcıda doğrulanamadı.** Test ortamının
+   tarayıcı paneli gizli çalışıyor; gizli sekmede `requestAnimationFrame` hiç
+   tetiklenmiyor (ölçüldü: 5 sn'de tetiklenmedi) ve pdf.js'in canvas'a çizimi
+   buna bağlı. Tesseract Worker'da olduğu için etkilenmedi. **Görünür bir
+   pencerede taranmış bir PDF ile elle denenmesi gerekiyor.** Bu satır İrem'in
+   eklediği yeni koddur; mevcut PDF yolu `getTextContent` kullanıyor, render'dan
+   geçmiyor — yani bugüne kadar hiç çalıştırılmadı.
+4. **`npm run check:config` bu makinede çalıştırılamadı.** PATH'teki
+   `python`/`python3` Microsoft Store kısayolu, gerçek Python kurulu değil.
+   `wrangler.jsonc` ve `wrangler.demo.jsonc` **bu turda hiç değişmedi**; yine de
+   eşdeğer bir JSONC ayrıştırmasıyla ikisi de doğrulandı (geçerli).
+5. **Diğer sayfalar eski paleti taşıyor:** `privacy-policy.html`, `404.html`,
+   `mimari.html` kendi gömülü renklerini kullanıyor, hâlâ lacivert.
+6. **Üst çubuk dolu bordo şerit yapılmadı** — yapısal bir değişiklik olurdu.
+
+### 29.6 `onizleme-sunucu.mjs` (ürün kodu değil)
+
+`public/_headers` dosyasındaki **gerçek başlıkları** (CSP dâhil) uygulayan
+yerel önizleme sunucusu. Basit statik sunucular `_headers`'ı okumaz; CSP
+olmadan açıldığında OCR'ın WebAssembly ve `data:` kısıtları **hiç sınanmaz** —
+§29.1'deki 2 numaralı engel ancak bu sayede görüldü. `?eski=1` ile CSP'nin
+düzeltme öncesi hâli test edilebiliyor.
+
+Bu dosya **ürünün çalışma zamanı kodunun parçası değildir**; yalnızca
+geliştirme aracıdır. Commit'e dâhil edilip edilmeyeceği ekip kararına
+bırakıldı.
+
+### 29.7 Doğrulama (4 Eylül 2026)
+
+| Kontrol | Sonuç |
+|---|---|
+| `node --check` (4 tarayıcı dosyası) | **4/4 geçti** |
+| `node tools/ozkontrol-dogrula.mjs` | **209 ad, eksik 0** |
+| `npm run lint` (`tsc --noEmit`) | **temiz** |
+| `npm test` | **144/144** |
+| `npm run check:config` | **çalıştırılamadı** (Python yok) — bkz. §29.5-4 |
+| selfCheck listesi ↔ kod | listede-ama-tanımsız **0**; bu turda eklenen 2 fonksiyonun ikisi de listede; silinen fonksiyon yok; liste dışı yardımcı sayısı tabanla **aynı** (75) |
+| Tarayıcı — 5 rol, tüm sekmeler | hepsi doluyor, paneller doğru açılıyor |
+| Tarayıcı — çalışma zamanı hatası | **0** (`error`, `unhandledrejection`, `console.error`) |
+| Tarayıcı — öz-kontrol uyarı şeridi | çıkmadı |
+| Ağ istekleri | logo dâhil hepsi 200; yalnız `/api/ai/status` ve `/api/sync/status` 404 — önizlemede Worker yok, uygulama "Yerel simülasyon"a düşüyor (beklenen) |

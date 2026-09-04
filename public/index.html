@@ -11,6 +11,62 @@
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
+
+<!-- ===========================================================================
+     GİRİŞ KAPISI — iki aşamalı karşılama + panel seçimi
+     ===========================================================================
+     Bu blok mevcut uygulamanın ÜSTÜNDE duran ayrı bir katmandır; .app içindeki
+     hiçbir yapıya dokunmaz. Rol kartları `ROLES` dizisinden üretilir ve tıklama
+     davranışı üst çubuktaki mevcut rol düğmeleriyle BİREBİR aynıdır
+     (state.role = <id>; renderAll()) — yönlendirme mantığı değişmedi.
+
+     LOGO: public/mihenk-logo.png — kurumun kendi logosu. Kaynak dosya saydam
+     DEĞİLDİ (arka planına açık gri "damalı" desen gömülüydü, ölçüldü: kenar
+     pikselleri 238-255 arası nötr) ve 1402×1122 / 960 KB idi. Web için
+     saydamlaştırıldı, içerik dışındaki BOŞ kenar kırpıldı ve 2 kat
+     küçültüldü → 505×448 / 111 KB. Logonun kendisi kırpılmadı, en-boy oranı
+     korundu (sapma %0,1 — tam sayı küçültmeden).
+
+     🔴 DİKKAT: Bu logo bir KİLİTTİR — marka simgesi, "MİHENK" yazısı ve
+     "Yapay Zeka Destekli Eğitim Sistemi" ibaresi görselin İÇİNDE. Bu yüzden
+     daha önce ayrı duran <span class="gk-kelime"> ve <p class="gk-slogan">
+     KALDIRILDI; aksi hâlde hem marka adı hem slogan ekranda İKİ KEZ
+     görünürdü. Yalnızca simgeden oluşan bir logoya geçilirse bu iki satırın
+     geri eklenmesi gerekir.                                                 -->
+<div class="giris-kapisi" id="girisKapisi" data-asama="1" role="dialog" aria-modal="true" aria-label="Mihenk giriş ekranı">
+
+  <!-- Üst şerit — yalnızca 2. aşamada görünür. Profil fotoğrafı ve bildirim
+       zili BİLEREK yok (istenmedi). -->
+  <div class="gk-serit" aria-hidden="true"></div>
+
+  <!-- Logo kilidi: iki aşamada da AYNI düğümdür; 2. aşamada küçülüp sol üste
+       kayar (bkz. .giris-kapisi[data-asama="2"] .gk-logo). -->
+  <div class="gk-logo" id="gkLogo">
+    <img class="gk-gorsel" src="mihenk-logo.png" width="505" height="448"
+         alt="Mihenk — Yapay Zeka Destekli Eğitim Sistemi">
+  </div>
+
+  <!-- ---------------- 1. AŞAMA: karşılama ---------------- -->
+  <div class="gk-asama1" id="gkAsama1">
+    <button class="gk-giris-btn" id="gkGirisBtn" type="button">
+      Sisteme giriş yapmak için tıklayınız
+      <span class="gk-ok" aria-hidden="true">→</span>
+    </button>
+    <svg class="gk-dalga" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path fill="#6B7177" fill-opacity=".16" d="M0,224 C240,288 480,160 720,192 C960,224 1200,288 1440,240 L1440,320 L0,320 Z"/>
+      <path fill="#E2B01E" fill-opacity=".34" d="M0,256 C260,304 520,208 780,240 C1040,272 1240,304 1440,272 L1440,320 L0,320 Z"/>
+      <path fill="#B0000D" d="M0,288 C280,320 560,256 840,280 C1100,302 1280,318 1440,300 L1440,320 L0,320 Z"/>
+    </svg>
+  </div>
+
+  <!-- ---------------- 2. AŞAMA: panel seçimi ---------------- -->
+  <div class="gk-asama2" id="gkAsama2" hidden>
+    <h1 class="gk-baslik">Lütfen giriş yapmak istediğiniz paneli seçiniz</h1>
+    <!-- Kartlar ROLES dizisinden JS ile üretilir (girisKapisiKartlariHtml). -->
+    <div class="gk-kartlar" id="gkKartlar"></div>
+  </div>
+</div>
+
 <div class="app">
   <div class="topbar">
     <div class="brand-row">

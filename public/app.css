@@ -1,5 +1,33 @@
   /* ==========================================================================
-     LACİVERT ZEMİN + BEYAZ KUTULAR — ürünün tek ve varsayılan görünümü.
+     MİHENK MARKA PALETİ — krem zemin + beyaz kutular (ürünün tek görünümü).
+
+     Bu palet giriş ekranıyla (bkz. "GİRİŞ KAPISI" bloğu) AYNI beş renkten
+     türetildi; panelde ayrı bir renk dünyası kurulmadı:
+       bordo   #B0000D  → ana vurgu, aktif durumlar, birincil düğmeler
+       altın   #E2B01E  → yalnızca ince vurgu çizgileri (küçük metinde ASLA:
+                          bordo üzerinde 3,9:1, metin eşiğini geçmiyor)
+       füme    #6B7177  → ikincil metin
+       krem    #FFF6E6  → sayfa zemini
+       beyaz   #FFFFFF  → kartlar ve okunabilirlik gereken yüzeyler
+       antrasit#2B3440  → ana metin (logonun kendi koyu tonu)
+
+     ZEMİN AÇILDI: eskiden zemin lacivertti ve beyaz kartlar ondan 13:1 ile
+     ayrılıyordu. Artık zemin krem; kartlar beyaz kalıyor ve ayrımı KENAR
+     ÇİZGİSİ + GÖLGE taşıyor (giriş ekranındaki rol kartlarıyla aynı yöntem).
+     Bu yüzden --shadow sıcak ve yumuşak bir tona alındı; lacivert için
+     koyulaştırılmış eski gölge açık zeminde kirli görünüyordu.
+
+     --on-bg* TOKENLARI TERSİNE DÖNDÜ: adları korundu (onlarca yerde
+     kullanılıyor) ama artık AÇIK zemin üzerindeki KOYU metni tanımlıyorlar.
+
+     SEMANTİK RENKLER DEĞİŞMEDİ: --success / --warning / --critical ve
+     -soft eşleri aynen bırakıldı; anlamları paletle oynanarak bozulmamalı.
+     --critical (#a82f21) ile bordo (#B0000D) yakın tonlar, ama karışmıyorlar:
+     birincil düğme DOLGULU bordo, tehlike düğmesi (.btn-critical) ÇERÇEVELİ
+     kırmızı — biçimleri farklı. Birincil düğmeye ayrıca altın alt çizgi
+     eklendi (giriş ekranındaki düğmenin imzası).
+
+     ESKİ NOT (lacivert dönemi, kayıt için):
      (Kullanıcı kararı, nihai: "böyle bir lacivert rengini yapmanı istiyoruz,
      son kararımız. kutular beyaz kalsın.")
 
@@ -32,24 +60,38 @@
      AA eşiğini geçmiyordu (ölçüldü: 3,42:1 ve 4,17:1 → 4,59 ve 5,00).
      ========================================================================== */
   :root {
-    --bg: #173058;
+    --bg: #fff6e6;              /* krem — giriş ekranıyla aynı */
     --surface: #ffffff;
-    --surface-2: #eef1f7;
-    --surface-3: #e2e8f2;
-    --text: #131a26;
-    --text-muted: #505a6b;
-    --border: #dde3ed;
-    --border-strong: #b9c2d4;
-    /* Lacivert ZEMİN üzerinde kullanılacak renkler. Kartların içinde
-       KULLANILMAZ — orada --text / --text-muted geçerlidir. */
-    --on-bg: #eef2fa;
-    --on-bg-muted: #b6c4de;
-    --on-bg-line: #6b80a5;
-    --accent: #2e4c8a;
-    --accent-strong: #1f3766;
-    --accent-soft: #dee7f7;
-    --accent2: #9e5514;
-    --accent2-soft: #f6e7d3;
+    --surface-2: #f7eedd;
+    --surface-3: #efe3cb;
+    --text: #2b3440;            /* koyu antrasit — logonun kendi tonu */
+    /* Füme gri, referanstan (#6B7177) bir tık KOYULTULDU. Ölçüldü: özgün ton
+       --surface-2 (#f7eedd) üzerinde 4,29:1 ve --accent-soft (#fae3df)
+       üzerinde 4,02:1 veriyordu; ikisi de AA eşiğinin (4,5) altında. Bu ton
+       aynı yüzeylerde 5,03:1 ve 4,72:1 veriyor — hue aynı, gözle fark
+       edilmiyor, ama ikincil metinler her yüzeyde okunur oluyor. */
+    --text-muted: #61666c;
+    --border: #e8dcc6;
+    --border-strong: #cbb998;
+    /* ZEMİN üzerinde kullanılacak renkler. Zemin artık AÇIK olduğu için
+       bunlar KOYU. Kartların içinde KULLANILMAZ — orada --text geçerlidir.
+       (Ad değişmedi: onlarca kuralda geçiyor, yeniden adlandırmak
+       gereksiz risk olurdu.) */
+    --on-bg: #2b3440;
+    --on-bg-muted: #61666c;
+    --on-bg-line: #cbb998;
+    --accent: #b0000d;          /* bordo — ana vurgu */
+    --accent-strong: #8b000a;
+    --accent-soft: #fae3df;
+    /* İkincil vurgu = koyu altın. Bright altın (#E2B01E) burada KULLANILAMAZ:
+       .badge beyaz metin taşıyor ve #E2B01E üzerinde 2,0:1 kalırdı. Bu ton
+       beyazla 5,0:1 veriyor. Parlak altın yalnızca --accent2-line'da. */
+    /* Ölçüldü: #9a6410, kendi soft zemininde (#fbefd6) 4,38:1 kalıyordu —
+       .pill-bloom gibi soft zeminli rozetlerde AA eşiğinin altı. Bu ton
+       4,72:1 veriyor; beyaz metinle (.badge) 5,38:1. */
+    --accent2: #92600c;
+    --accent2-soft: #fbefd6;
+    --accent2-line: #e2b01e;    /* marka altını — YALNIZCA ince çizgi/vurgu */
     --success: #256b44;
     --success-soft: #deefe4;
     --warning: #8a5a14;
@@ -63,39 +105,47 @@
        segmente geçilmişti çünkü "hangi sekmede olunduğu anlaşılmıyordu" —
        dolgu kaldırılsaydı o düzeltme geri alınırdı. Yalnızca rengi değişti.
        Beyaz metinle kontrast ölçüldü: 8,23:1 (eşik 4,5). */
-    --neutral: #545a63;
-    --neutral-strong: #3f444b;
-    --neutral-soft: #e7eaf0;
-    /* Gölge lacivert zeminde derinleştirildi: beyaz kartların zeminden
-       "kalkması" ayrımı taşıyan asıl ipucu. */
-    --shadow: 0 1px 2px rgba(8,18,38,0.18), 0 10px 28px rgba(8,18,38,0.22);
-    --seq-1: #eff2fa; --seq-2: #cbd8f0; --seq-3: #9eb2e2; --seq-4: #6a86cf; --seq-5: #2e4c8a;
+    --neutral: #6b7177;
+    --neutral-strong: #545a60;
+    --neutral-soft: #f0e7d6;
+    /* Krem zeminde kartı ayıran şey artık kenar çizgisi + YUMUŞAK gölge.
+       Gölge sıcak bir kahveye alındı; nötr siyah gölge krem üzerinde
+       grileşip kirli görünüyordu. */
+    --shadow: 0 1px 2px rgba(90,62,20,0.07), 0 8px 22px rgba(90,62,20,0.11);
+    /* Isı haritası rampası: krem → altın → bordo. Açıktan koyuya sıralı
+       (hm hücresinin yazı rengini app.js ÖLÇÜLEN parlaklığa göre seçiyor,
+       bu yüzden ton değişimi güvenli). */
+    --seq-1: #fbf1de; --seq-2: #f6ddb0; --seq-3: #ebb668; --seq-4: #d2701f; --seq-5: #b0000d;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --surface-3: #212942;
-      --text: #e8ebf3; --text-muted: #8d96ad; --border: #262d42; --border-strong: #333c58;
-      --accent: #7ea0e8; --accent-strong: #a9c2f2; --accent-soft: #1c2a4a;
-      --accent2: #e2914f; --accent2-soft: #3a2a18;
+      /* Koyu temada zemin yine KOYU: --on-bg* açık tonlara döner. */
+      --on-bg: #f6eee0; --on-bg-muted: #b3a894; --on-bg-line: #52432f;
+      --bg: #17120c; --surface: #211a12; --surface-2: #2a2118; --surface-3: #352a1e;
+      --text: #f6eee0; --text-muted: #b3a894; --border: #3a2f22; --border-strong: #52432f;
+      --accent: #f07a72; --accent-strong: #ffa79f; --accent-soft: #3d1512;
+      --accent2: #e2b01e; --accent2-soft: #3a2c10; --accent2-line: #e2b01e;
       --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
       --critical: #e2685c; --critical-soft: #3a1c18;
-      --neutral: #39414f; --neutral-strong: #4a5464; --neutral-soft: #1e2433;
-      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
-      --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
+      --neutral: #4a4139; --neutral-strong: #5c5145; --neutral-soft: #2a2118;
+      --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
+      --seq-1: #3a2c10; --seq-2: #6b4a12; --seq-3: #a8730e; --seq-4: #d2701f; --seq-5: #f07a72;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --surface-3: #212942;
-    --text: #e8ebf3; --text-muted: #8d96ad; --border: #262d42; --border-strong: #333c58;
-    --accent: #7ea0e8; --accent-strong: #a9c2f2; --accent-soft: #1c2a4a;
-    --accent2: #e2914f; --accent2-soft: #3a2a18;
+    /* Koyu temada zemin yine KOYU: --on-bg* açık tonlara döner. */
+    --on-bg: #f6eee0; --on-bg-muted: #b3a894; --on-bg-line: #52432f;
+    --bg: #17120c; --surface: #211a12; --surface-2: #2a2118; --surface-3: #352a1e;
+    --text: #f6eee0; --text-muted: #b3a894; --border: #3a2f22; --border-strong: #52432f;
+    --accent: #f07a72; --accent-strong: #ffa79f; --accent-soft: #3d1512;
+    --accent2: #e2b01e; --accent2-soft: #3a2c10; --accent2-line: #e2b01e;
     --success: #4fb488; --success-soft: #163526; --warning: #d9a441; --warning-soft: #3a2c10;
     --critical: #e2685c; --critical-soft: #3a1c18;
-    --neutral: #39414f; --neutral-strong: #4a5464; --neutral-soft: #1e2433;
-    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.4);
-    --seq-1: #1c2a4a; --seq-2: #2b3f6e; --seq-3: #4a63a0; --seq-4: #7ea0e8; --seq-5: #b9cdf5;
+    --neutral: #4a4139; --neutral-strong: #5c5145; --neutral-soft: #2a2118;
+    --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
+    --seq-1: #3a2c10; --seq-2: #6b4a12; --seq-3: #a8730e; --seq-4: #d2701f; --seq-5: #f07a72;
     color-scheme: dark;
   }
 
@@ -187,10 +237,12 @@
     border: 1px solid transparent; border-radius: 8px; cursor: pointer; white-space: nowrap;
     transition: background .12s ease, color .12s ease, border-color .12s ease; }
   .tab-btn:hover:not(.active) { background: var(--neutral-soft); color: var(--text); }
-  /* Aktif sekme NÖTR GRİ dolgu (kullanıcı kararı: "ara tuşlar gri olsun").
-     Dolgu kaldırılmadı, yalnızca rengi laciverten griye alındı — §7d'de
-     sekmeler bilinçli olarak dolgulu segmente çevrilmişti. */
-  .tab-btn.active { background: var(--neutral); color: #fff; border-color: var(--neutral-strong);
+  /* Aktif sekme artık MARKA BORDOSU. Dolgu korunuyor — §7d'de sekmeler
+     bilinçli olarak alt çizgili yazıdan dolgulu segmente çevrilmişti
+     ("hangi sekmede olunduğu anlaşılmıyordu"); yalnızca rengi değişti.
+     Beyaz metinle kontrast 7,4:1. Hover hâlâ nötr (--neutral-soft), yani
+     "ara tuşlar sakin dursun" yaklaşımı seçili olmayan sekmelerde sürüyor. */
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent-strong);
     box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   .tab-btn:disabled { opacity: .45; cursor: not-allowed; }
   .tab-btn:disabled:hover { background: transparent; color: var(--text-muted); }
@@ -209,7 +261,12 @@
     font-weight: 600; font-size: 13px; padding: 9px 15px; border-radius: 8px; border: 1px solid transparent;
     cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   }
-  .btn-primary { background: var(--accent-strong); color: #fff; }
+  /* Altın alt çizgi giriş ekranındaki düğmenin imzası; burada da birincil
+     eylemi TEHLİKE düğmesinden (.btn-critical, çerçeveli kırmızı) ayırıyor.
+     inset box-shadow kullanıldı: kenarlık eklemek düğme yüksekliğini
+     değiştirirdi, gölge yerleşimi etkilemez. */
+  .btn-primary { background: var(--accent-strong); color: #fff;
+    box-shadow: inset 0 -2px 0 var(--accent2-line); }
   .btn-primary:hover { background: var(--accent); }
   .btn-primary:disabled { background: var(--border-strong); color: var(--text-muted); cursor: not-allowed; }
   .btn-success { background: var(--success); color: #fff; }
@@ -508,6 +565,14 @@
     padding: 9px 10px; border-radius: 8px; background: var(--surface); color: var(--text); }
   .pdf-picker .pp-count.over { color: var(--warning); }
 
+  /* Madde 4: taranmış PDF için OCR teklifi (bkz. ocrOneriHtml). */
+  .ocr-offer { margin: 4px 0 12px; padding: 12px 14px; border: 1px dashed var(--warning);
+    border-radius: 10px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+  .ocr-offer .dz-sub { font-size: 11.5px; color: var(--text-muted); }
+  .ocr-offer .dz-spin { width: 22px; height: 22px; border-radius: 50%;
+    border: 2.5px solid var(--border-strong); border-top-color: var(--accent);
+    animation: dzspin .8s linear infinite; }
+
   .eval-card.eval-failed { border-color: var(--critical); }
   .fail-note { margin-top: 12px; padding: 11px 13px; border-radius: 8px;
     background: var(--surface-2); border-left: 3px solid var(--critical);
@@ -630,13 +695,20 @@
   .timer-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
   .timer-bar .t-value { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 600; color: var(--accent-strong); }
   .timer-bar .t-value.low { color: var(--critical); }
-  .qnav { display: flex; gap: 4px; }
-  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); }
+  /* Madde 5: 5 dakika altına inince (ama henüz "low" — 60 sn — olmadan) ara bir uyarı rengi. */
+  .timer-bar .t-value.warn { color: var(--warning); }
+  .qnav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); position: relative; }
   .qnav-dot.current { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
   .qnav-dot.answered { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+  /* Madde 5: "gözden geçir" işareti — answered/current durumundan bağımsız katman. */
+  .qnav-dot.flagged { border-color: var(--warning); }
+  .qnav-dot .qnav-flag { position: absolute; top: -7px; right: -6px; font-size: 9px; line-height: 1; }
 
   .exam-viewport { padding: 20px; }
-  .exam-viewport .qv-meta { display: flex; gap: 8px; margin-bottom: 10px; }
+  .exam-viewport .qv-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .exam-viewport .qv-meta #btnFlagQ { margin-left: auto; }
+  .exam-viewport .qv-meta #btnFlagQ.flag-on { border-color: var(--warning); color: var(--warning); }
   .exam-viewport .qv-body { font-size: 16px; font-weight: 600; margin-bottom: 16px; text-wrap: balance; }
   .autosave-status { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
   .autosave-status .dot-save { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
@@ -1278,4 +1350,259 @@
   display: block; width: 100%; margin: 8px 0;
   padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px;
   background: var(--surface); color: var(--text); font-size: 13px;
+}
+
+/* ===========================================================================
+   GİRİŞ KAPISI (karşılama + panel seçimi) — public/index.html #girisKapisi
+   ===========================================================================
+   KAPSAM: Bu blok YALNIZCA giriş katmanını biçimlendirir. Uygulamanın kendi
+   paleti (lacivert zemin + beyaz kart) ve yukarıdaki kuralların hiçbiri
+   değiştirilmedi; buradaki renkler `.giris-kapisi` üzerinde tanımlı kendi
+   değişkenlerinden gelir ve dışarı sızmaz.
+
+   PALET (ürün kararı): koyu kırmızı ana renk, altın sarısı vurgu, füme gri
+   ikincil metin, krem zemin. Kontrast ölçüldü (WCAG AA):
+     · #B0000D ↔ #FFF6E6 → 8,9:1  (kart başlıkları, buton zemini)
+     · #6B7177 ↔ #FFF6E6 → 4,7:1  (açıklama metinleri — AA sınırının üstünde)
+     · #FFFFFF ↔ #B0000D → 7,4:1  (kırmızı buton üzerindeki yazı)
+     · #E2B01E ↔ #B0000D → 3,9:1  → yalnızca İKON ÇİZGİSİ ve ince ayraç
+       olarak kullanılır (grafik eşiği 3,0); küçük metinde KULLANILMAZ.
+   =========================================================================== */
+.giris-kapisi {
+  --gk-kirmizi: #B0000D;
+  --gk-kirmizi-koyu: #8B000A;
+  --gk-altin: #E2B01E;
+  --gk-fume: #6B7177;
+  --gk-krem: #FFF6E6;
+  --gk-beyaz: #FFFFFF;
+
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--gk-krem);
+  color: var(--gk-fume);
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+}
+.giris-kapisi[hidden] { display: none; }
+
+/* ---------- Üst şerit (yalnızca 2. aşamada iner) ---------- */
+.giris-kapisi .gk-serit {
+  position: fixed; top: 0; left: 0; right: 0; height: 84px;
+  background: var(--gk-kirmizi);
+  border-bottom: 3px solid var(--gk-altin);
+  transform: translateY(-100%);
+  transition: transform .55s cubic-bezier(.62,.05,.2,1);
+}
+.giris-kapisi[data-asama="2"] .gk-serit { transform: translateY(0); }
+
+/* ---------- Logo kilidi: TEK düğüm, iki konum ----------
+   1. aşamada ortada ve büyük; 2. aşamada küçülüp sol üste kayar. Geçiş
+   left/top/transform üzerinden yürür; düğüm hiç yeniden oluşturulmaz, bu
+   yüzden hareket kesintisiz görünür. */
+.giris-kapisi .gk-logo {
+  position: fixed;
+  left: 50%; top: 42%;
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: left center;
+  display: flex; align-items: center;
+  padding: 0; border-radius: 0; background: transparent;
+  transition: left .7s cubic-bezier(.62,.05,.2,1), top .7s cubic-bezier(.62,.05,.2,1),
+              transform .7s cubic-bezier(.62,.05,.2,1),
+              background-color .5s ease .15s, padding .7s cubic-bezier(.62,.05,.2,1),
+              border-radius .7s cubic-bezier(.62,.05,.2,1), box-shadow .5s ease .15s;
+  will-change: left, top, transform;
+}
+/* Logo görseli. YÜKSEKLİK verilir, genişlik "auto" kalır: en-boy oranı
+   hiçbir kırılma noktasında bozulmaz. object-fit da contain — kaynak
+   değişse bile esneme olmaz. */
+.giris-kapisi .gk-gorsel {
+  height: 240px; width: auto; display: block;
+  object-fit: contain;
+  transition: height .7s cubic-bezier(.62,.05,.2,1);
+}
+/* 2. AŞAMA — logo küçülüp kırmızı şeridin sol üstüne oturur.
+   BEYAZ PLAKA GEREKLİ: logonun yazısı lacivert (#2B3440); doğrudan koyu
+   kırmızı (#B0000D) üzerinde kontrast ~1,7:1 ile okunmaz olurdu. Logoyu
+   yeniden renklendirmek marka bütünlüğünü bozacağı için, onun yerine
+   beyaz bir zemin plakası kullanılıyor — logo olduğu gibi kalıyor.
+   Ölçü/yarıçap değerleri BÜYÜK seçildi, çünkü scale() onları da küçültüyor
+   (30px dolgu × .21 ≈ 6px). */
+.giris-kapisi[data-asama="2"] .gk-logo {
+  left: 22px; top: 42px;
+  transform: translate(0, -50%) scale(.23);
+  background: var(--gk-beyaz);
+  padding: 28px 34px;
+  border-radius: 52px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, .22);
+}
+
+/* ---------- 1. AŞAMA: karşılama ---------- */
+/* Logo sabit konumlu (fixed) olduğu için akışta yer kaplamaz; düğmenin
+   logonun ALTINA düşmesi bu üst dolguyla sağlanır:
+     38vh  = logonun merkezi (.gk-logo top: 38%)
+     +152px = logo yüksekliğinin yarısı (120) + nefes payı (32)
+   Böylece hesap ekran yüksekliğiyle birlikte ölçekleniyor, sabit bir
+   piksele çakılı kalmıyor. */
+.giris-kapisi .gk-asama1 {
+  min-height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 4px; padding: calc(42vh + 152px) 24px 170px; text-align: center;
+  transition: opacity .35s ease;
+}
+/* `visibility` de kapanir: yalnizca opacity:0 birakilsaydi 1. asamanin
+   dugmesi ekran okuyucuda ve sekme sirasinda erisilebilir kalirdi. */
+.giris-kapisi[data-asama="2"] .gk-asama1 {
+  opacity: 0; pointer-events: none; visibility: hidden;
+  /* AKISTAN CIKAR: yalnizca gorunmez birakilsaydi 1. asama yer kaplamaya
+     devam eder ve 2. asamada sayfa gereksiz yere kaydirilabilir olurdu
+     (olculdu: 860 px pencerede sayfa 1465 px). inset:0 ile ayni alani
+     kapladigi icin solma sirasinda gorsel bir siçrama olmaz. */
+  position: absolute; inset: 0;
+  transition: opacity .35s ease, visibility 0s linear .35s;
+}
+
+/* NOT: Ayrı bir "gk-slogan" satırı YOK — "Yapay Zeka Destekli Eğitim
+   Sistemi" ibaresi logo görselinin içinde geliyor (bkz. index.html). */
+
+.giris-kapisi .gk-giris-btn {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; gap: 12px;
+  margin-top: 8px; padding: 17px 34px;
+  border: none; border-bottom: 3px solid var(--gk-altin); border-radius: 14px;
+  background: var(--gk-kirmizi); color: var(--gk-beyaz);
+  font-family: "Archivo", sans-serif; font-weight: 700; font-size: 16.5px;
+  letter-spacing: .01em; cursor: pointer;
+  box-shadow: 0 10px 24px rgba(176, 0, 13, .26);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.giris-kapisi .gk-giris-btn:hover {
+  background: var(--gk-kirmizi-koyu);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(176, 0, 13, .32);
+}
+.giris-kapisi .gk-giris-btn:active { transform: translateY(0); }
+.giris-kapisi .gk-giris-btn .gk-ok { transition: transform .18s ease; }
+.giris-kapisi .gk-giris-btn:hover .gk-ok { transform: translateX(4px); }
+
+.giris-kapisi .gk-dalga {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  width: 100%; height: clamp(120px, 22vh, 210px);
+  display: block; pointer-events: none;
+}
+.giris-kapisi[data-asama="2"] .gk-dalga { opacity: 0; transition: opacity .35s ease; }
+
+/* ---------- 2. AŞAMA: panel seçimi ---------- */
+.giris-kapisi .gk-asama2 {
+  padding: 132px 24px 72px; max-width: 1080px; margin: 0 auto;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .45s ease .25s, transform .45s ease .25s;
+}
+.giris-kapisi[data-asama="2"] .gk-asama2 { opacity: 1; transform: none; }
+
+.giris-kapisi .gk-baslik {
+  margin: 0 0 34px; text-align: center;
+  font-family: "Archivo", sans-serif; font-weight: 700;
+  font-size: clamp(20px, 3vw, 28px); line-height: 1.25;
+  color: var(--gk-kirmizi); text-wrap: balance;
+}
+
+/* 3 + 2 düzeni: 6 sütunluk ızgarada her kart 2 sütun kaplar; alt sıradaki
+   iki kart bir sütun içeriden başlayarak ORTALANIR. */
+.giris-kapisi .gk-kartlar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
+.giris-kapisi .gk-kart { grid-column: span 2; }
+.giris-kapisi .gk-kart:nth-child(4) { grid-column: 2 / span 2; }
+.giris-kapisi .gk-kart:nth-child(5) { grid-column: 4 / span 2; }
+
+.giris-kapisi .gk-kart {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  padding: 26px 24px 18px; text-align: left;
+  border: 1px solid rgba(107, 113, 119, .18); border-radius: 18px;
+  background: var(--gk-beyaz); cursor: pointer;
+  box-shadow: 0 2px 10px rgba(107, 113, 119, .10);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.giris-kapisi .gk-kart:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 34px rgba(176, 0, 13, .16);
+  border-color: rgba(176, 0, 13, .32);
+}
+.giris-kapisi .gk-kart:active { transform: translateY(-2px); }
+
+.giris-kapisi .gk-ikon {
+  width: 52px; height: 52px; border-radius: 50%; flex: none;
+  background: var(--gk-kirmizi); display: grid; place-items: center;
+  box-shadow: 0 4px 12px rgba(176, 0, 13, .22);
+  transition: transform .2s ease;
+}
+.giris-kapisi .gk-kart:hover .gk-ikon { transform: scale(1.06); }
+/* İkonlar altın sarısı ÇİZGİ (stroke) — dolgu yok. */
+.giris-kapisi .gk-ikon svg { width: 26px; height: 26px; display: block; }
+.giris-kapisi .gk-ikon svg * {
+  fill: none; stroke: var(--gk-altin); stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.giris-kapisi .gk-kart-ad {
+  font-family: "Archivo", sans-serif; font-weight: 700; font-size: 18px;
+  color: var(--gk-kirmizi); line-height: 1.2;
+}
+.giris-kapisi .gk-kart-not { font-size: 13.5px; color: var(--gk-fume); line-height: 1.45; }
+
+/* Kart altındaki küçük yön oku */
+.giris-kapisi .gk-kart-alt {
+  margin-top: auto; padding-top: 12px; width: 100%;
+  border-top: 1px solid rgba(107, 113, 119, .14);
+  display: flex; justify-content: flex-end;
+  font-family: "Archivo", sans-serif; font-weight: 700; font-size: 17px;
+  color: var(--gk-altin);
+  transition: transform .2s ease, color .2s ease;
+}
+.giris-kapisi .gk-kart:hover .gk-kart-alt { transform: translateX(4px); color: var(--gk-kirmizi); }
+
+/* Klavye erişilebilirliği: odak halkası her iki zeminde de görünür. */
+.giris-kapisi .gk-giris-btn:focus-visible,
+.giris-kapisi .gk-kart:focus-visible {
+  outline: 3px solid var(--gk-kirmizi); outline-offset: 3px;
+}
+
+/* ---------- Duyarlı davranış ---------- */
+@media (max-width: 900px) {
+  /* Tablet: 2'li gruplar. nth-child kaydırmaları SIFIRLANIR, yoksa ızgarada
+     boş sütun kalır. */
+  .giris-kapisi .gk-kartlar { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .giris-kapisi .gk-kart,
+  .giris-kapisi .gk-kart:nth-child(4),
+  .giris-kapisi .gk-kart:nth-child(5) { grid-column: auto; }
+  .giris-kapisi .gk-gorsel { height: 200px; }
+  .giris-kapisi .gk-asama1 { padding-top: calc(42vh + 132px); }
+  .giris-kapisi[data-asama="2"] .gk-logo { left: 16px; top: 38px; transform: translate(0, -50%) scale(.225); }
+  .giris-kapisi .gk-serit { height: 76px; }
+  .giris-kapisi .gk-asama2 { padding-top: 116px; }
+}
+@media (max-width: 560px) {
+  /* Mobil: tek sütun. */
+  .giris-kapisi .gk-kartlar { grid-template-columns: 1fr; }
+  .giris-kapisi .gk-gorsel { height: 152px; }
+  .giris-kapisi[data-asama="2"] .gk-logo { left: 12px; top: 34px; transform: translate(0, -50%) scale(.26); }
+  .giris-kapisi .gk-serit { height: 68px; }
+  .giris-kapisi .gk-asama1 { padding: calc(42vh + 108px) 18px 140px; }
+  .giris-kapisi .gk-asama2 { padding: 100px 18px 56px; }
+  .giris-kapisi .gk-giris-btn { font-size: 15px; padding: 15px 20px; width: 100%; justify-content: center; }
+  .giris-kapisi .gk-kart { padding: 20px 18px 14px; }
+}
+
+/* Hareket duyarlılığı: geçişler kapanır, düzen aynen korunur. */
+@media (prefers-reduced-motion: reduce) {
+  .giris-kapisi .gk-logo,
+  .giris-kapisi .gk-gorsel,
+  .giris-kapisi .gk-serit,
+  .giris-kapisi .gk-asama1,
+  .giris-kapisi .gk-asama2,
+  .giris-kapisi .gk-dalga,
+  .giris-kapisi .gk-kart,
+  .giris-kapisi .gk-ikon,
+  .giris-kapisi .gk-kart-alt,
+  .giris-kapisi .gk-giris-btn { transition: none; }
 }

@@ -10,8 +10,31 @@
 #    Harici dosyaya taşınınca hem diyagramlar çalıştı hem politika güçlendi.
 #  - style-src 'unsafe-inline' GEREKLİ: app.js 87 yerde inline style="..."
 #    kullanıyor.
+#  - 'wasm-unsafe-eval' GEREKLİ (Madde 4 / OCR): Tesseract.js'in OCR çekirdeği
+#    WebAssembly ile derlenir. CSP'de bir script-src tanımlıyken Chromium/V8,
+#    WebAssembly.compile/instantiate çağrısını 'wasm-unsafe-eval' (ya da
+#    'unsafe-eval') olmadan REDDEDER. Canlı sitede ölçüldü:
+#    "Compiling or instantiating WebAssembly module violates the following
+#     Content Security policy directive ... script-src 'self' https://cdn.jsdelivr.net".
+#    Yani bu token olmadan OCR hiçbir koşulda çalışamıyordu.
+#    'wasm-unsafe-eval' DAR kapsamlıdır: yalnızca WebAssembly'yi açar;
+#    eval() ve new Function() hâlâ yasaktır — 'unsafe-eval'den güvenlidir.
+#    (Sayfa bağlamında ölçüldü: WASM çalıştı, eval ve new Function bloklandı.)
+#  - connect-src 'data:' GEREKLİ (Madde 4 / OCR): Tesseract'ın çekirdek dosyası
+#    (tesseract-core-simd.wasm.js) bir emscripten "SINGLE_FILE" derlemesidir —
+#    WASM ikilisini base64 olarak İÇİNE gömer ve çalışırken onu bir data: URI
+#    olarak fetch eder. Yalnızca 'wasm-unsafe-eval' eklendiğinde OCR hâlâ
+#    takılıyordu; konsolda ölçülen sebep:
+#      "Fetch API cannot load data:application/octet-stream;base64,AGFzbQ...
+#       Refused to connect because it violates the document's Content
+#       Security Policy" (connect-src).
+#    data: bir ağ hedefi DEĞİLDİR: içerik istemcide üretilir, bu izinle
+#    dışarıya hiçbir veri gönderilemez. Aynı politika img-src'de data:'ya
+#    zaten izin veriyor.
 #  - cdn.jsdelivr.net: pdf.js (PDF okuma) ve mermaid (mimari diyagramları)
-#    buradan yükleniyor. worker-src, pdf.js'in ayrı worker dosyası için.
+#    buradan yükleniyor. worker-src, pdf.js'in ayrı worker dosyası için;
+#    Tesseract.js worker'ını blob: üzerinden kurup jsdelivr'den importScripts
+#    ediyor, ikisi de zaten izinli (tarayıcıda doğrulandı).
 #  Bu izinlerle CSP'nin XSS koruması zayıflar; asıl XSS savunması
 #  escapeHtml'dir (14 alanda payload testi yapıldı, sızma yok). CSP burada
 #  ikinci katman: clickjacking, form hijack, plugin ve base-uri saldırılarını
@@ -21,4 +44,4 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' data: https://cdn.jsdelivr.net; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'

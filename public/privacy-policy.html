@@ -207,13 +207,17 @@
           gönderilmez. Eğitmen günlüğü CSV/JSON olarak indirebilir ve tek tuşla tamamen
           silebilir. En fazla 500 kayıt tutulur; sınır aşıldığında en eski kayıtlar düşer ve
           bu durum ekranda açıkça bildirilir.</li>
-          <li><b>Müfredat Kitaplığı (yüklenen PDF'ler):</b> Eğitmenin yüklediği müfredat, ders kitabı ya da
-          ders notu PDF'lerinden <b>çıkarılan metin</b>, aynı dosyanın her oturumda yeniden yüklenmesini
-          önlemek için <b>kullanılan tarayıcının yerel veritabanında</b> (<code>IndexedDB</code>) saklanır.
-          <b>Dosyanın kendisi hiçbir zaman sunucuya gönderilmez</b> ve bu metin başka bir cihazdan
-          erişilebilir değildir. Eğitmen her kitabı arayüzdeki kitaplık listesinden tek tek silebilir;
-          "Verileri sıfırla" işlemi kitaplığın tamamını siler. Saklanan kitap sayısı sınırlıdır
-          (en fazla 20); sınır aşıldığında en eski kitap silinir.</li>
+          <li><b>Müfredat Kitaplığı (yüklenen PDF ve Word belgeleri):</b> Eğitmenin yüklediği müfredat, ders
+          kitabı ya da ders notu PDF/DOCX dosyalarından <b>çıkarılan metin</b>, aynı dosyanın her oturumda
+          yeniden yüklenmesini önlemek için <b>kullanılan tarayıcının yerel veritabanında</b>
+          (<code>IndexedDB</code>) saklanır. <b>Dosyanın kendisi hiçbir zaman sunucuya gönderilmez</b> ve bu
+          metin başka bir cihazdan erişilebilir değildir. Eğitmen her kitabı arayüzdeki kitaplık listesinden
+          tek tek silebilir; "Verileri sıfırla" işlemi kitaplığın tamamını siler. Saklanan kitap sayısı
+          sınırlıdır (en fazla 20); sınır aşıldığında en eski kitap silinir.
+          <b>Taranmış (görüntü tabanlı) bir PDF için</b>, eğitmen isterse sayfaları <b>OCR ile otomatik
+          okutabilir</b>: bu işlem de tamamen tarayıcıda, WebAssembly ile çalışır; sayfa görüntüleri
+          hiçbir zaman sunucuya gönderilmez. OCR çıktısı arayüzde açıkça işaretlenir çünkü PDF'in kendi
+          metin katmanı kadar güvenilir değildir.</li>
           <li><b>Veli görünümü:</b> Veli paneli <b>salt okunurdur</b> ve yalnızca
           <b>kendi çocuğunun, öğretmen onayından geçmiş</b> sonuçlarını gösterir: sınav puanı,
           kazanım bazlı güçlü/gelişime açık alanlar ve öğretmenin <b>onayladığı</b> geri bildirim.
@@ -257,10 +261,11 @@
           sunucudaki veritabanında saklanır. Kod kullanılmadığı sürece bu aktarım <b>hiç gerçekleşmez</b>.
           Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
           iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b> — bu kural senkron
-          özelliğinden etkilenmemiştir. Yüklenen PDF dosyaları tarayıcıda çözümlenir, dosyanın kendisi
-          sunucuya gönderilmez; bu dosyalardan çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı
-          tarayıcının</b> yerel veritabanında (<code>IndexedDB</code>) tutulur ve <b>senkronla
-          paylaşılmaz</b>. Yapay Zekâ Karar Günlüğü de <b>yalnızca yerelde</b> kalır.
+          özelliğinden etkilenmemiştir. Yüklenen PDF ve Word (.docx) dosyaları tarayıcıda çözümlenir
+          (taranmış PDF'ler için OCR de dahil), dosyanın kendisi sunucuya gönderilmez; bu dosyalardan
+          çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında
+          (<code>IndexedDB</code>) tutulur ve <b>senkronla paylaşılmaz</b>. Yapay Zekâ Karar Günlüğü de
+          <b>yalnızca yerelde</b> kalır.
           Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim sınıf koduyla
           değil kullanıcı hesabıyla belirlenecektir.
         </div>

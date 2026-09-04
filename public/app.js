@@ -121,7 +121,8 @@ function simulateQuestions(doc) {
       correctKey: "A", aiTime: 45 + i * 10, status: "ai_generated",
       refKeywords: [k(t), k(t + 1)],
       // Simülasyon soruları da metne atıf yapıyor: metin sınavda gösterilmeli.
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      sube: doc.sube || ""
     });
   }
 
@@ -134,7 +135,8 @@ function simulateQuestions(doc) {
         'yararlanarak açıklayınız; en az bir örnek veriniz.',
       aiTime: 240, status: "ai_generated",
       refKeywords: [k(t), k(t + 1), k(t + 2)],
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null
+      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      sube: doc.sube || ""
     });
   }
 
@@ -222,6 +224,10 @@ async function aiGenerateQuestions(doc) {
       openCount: state.ceForm.openCount,
       optionCount: 4,
       docKey: doc.title || "adsiz",
+      // Madde 2: ikisi de opsiyonel — sunucu tarafında yalnızca istemi
+      // zenginleştirir, çıktı şemasını değiştirmez (bkz. src/lib/prompts.ts).
+      topicArea: outcomeAlan(doc.outcome) || undefined,
+      bloomFocus: state.ceForm.bloomFocus || "dengeli",
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
@@ -241,6 +247,9 @@ async function aiGenerateQuestions(doc) {
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
+        // Madde 1: yalnızca etiket — modele hiç gönderilmedi (yukarıdaki
+        // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
+        sube: doc.sube || "",
       };
     });
   } catch (e) {
@@ -517,7 +526,7 @@ function renderAiBadge() {
    (Kalıcı veritabanı değildir; yalnızca bu tarayıcıya özeldir.)              */
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
-  "rubrics", "rubricSelectedQ", "exam", "answers", "examStatus", "currentQIndex",
+  "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
   "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
@@ -829,7 +838,7 @@ const state = {
   ceTab: 1,
   pdf: null, // { ad, sayfaSayisi, from, to } — sayfa metinleri bellekte (pdfPages)
 
-  poolFilter: { outcome: "", difficulty: "", type: "" },
+  poolFilter: { outcome: "", difficulty: "", type: "", sube: "" },
   editingQid: null, // öğretmenin havuzda düzenlediği soru
   rubricError: "",
   poolError: "",
@@ -839,7 +848,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -856,6 +865,10 @@ const state = {
   syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
+  // Madde 5: öğrencinin "gözden geçir" için işaretlediği sorular (qid -> true).
+  // Yanıtlanmış/yanıtlanmamış durumundan BAĞIMSIZ bir etikettir; puanlamayı
+  // hiçbir şekilde etkilemez, yalnızca öğrencinin kendi gezinmesine yardımcı olur.
+  flagged: {},
   examStatus: "not_started",
   currentQIndex: 0,
   remainingSec: 0,
@@ -892,6 +905,10 @@ const state = {
 
 function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
 function outcomeLabel(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return o ? o.label : code; }
+/* Madde 2: kazanımın müfredat kataloğundaki konu alanı ("alan") — yalnızca
+   katalogdan seçilmiş kazanımlarda dolu (bkz. kazanimSecildi). Model
+   istemine ek BAĞLAM olarak gider, kazanım filtrelemesini etkilemez. */
+function outcomeAlan(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return (o && o.alan) || ""; }
 
 /* ===========================================================================
    KAZANIM META BİLGİSİ — ders ve sınıf bağlaması
@@ -1317,6 +1334,183 @@ async function extractPdf(file) {
   return sayfalar;
 }
 
+/* ==================== DOCX Okuma (Madde 4) ====================
+   Word belgesi (.docx) desteği. PDF'te olduğu gibi İSTEMCİ TARAFINDA okunur;
+   dosya sunucuya hiç gönderilmez — mevcut gizlilik ilkesiyle birebir aynı
+   (bkz. privacy-policy.html, PDF bölümü). mammoth.js'in resmî bir ESM/.mjs
+   dağıtımı olmadığı için pdf.js'teki gibi dinamik `import()` kullanılamıyor;
+   bunun yerine klasik <script> etiketi enjekte edilip `window.mammoth`
+   üzerinden okunuyor. CSP zaten cdn.jsdelivr.net'e izin veriyor
+   (public/_headers), yeni bir izin gerekmiyor. */
+let mammothLibPromise = null;
+
+function loadMammothLib() {
+  if (window.mammoth) return Promise.resolve(window.mammoth);
+  if (!mammothLibPromise) {
+    mammothLibPromise = new Promise(function (resolve, reject) {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js";
+      s.onload = function () { resolve(window.mammoth); };
+      s.onerror = function () { reject(new Error("Word okuma kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
+      document.head.appendChild(s);
+    });
+  }
+  return mammothLibPromise;
+}
+
+async function extractDocx(file) {
+  const mammoth = await loadMammothLib();
+  const buf = await file.arrayBuffer();
+  const sonuc = await mammoth.extractRawText({ arrayBuffer: buf });
+  return String((sonuc && sonuc.value) || "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/* ==================== Taranmış PDF için OCR (Madde 4) ====================
+   NEDEN: `extractPdf()` yalnızca PDF'in METİN KATMANINI okur. Taranmış
+   (görüntü tabanlı) bir PDF'te metin katmanı yoktur ve eskiden kullanıcıya
+   doğrudan hata gösterilip metni elle yapıştırması isteniyordu. Bu, sistemin
+   kendi "sessiz düşüş yok" ilkesiyle tutarlı ama kullanışsızdı.
+
+   ÇÖZÜM: pdf.js ile sayfa görüntüsü <canvas>'a çizilir, Tesseract.js (istemci
+   tarafı, WebAssembly) ile o görüntü OCR'lanır. Süreç TAMAMEN TARAYICIDA
+   çalışır; ne dosyanın kendisi ne de sayfa görüntüleri sunucuya gönderilir —
+   PDF için geçerli gizlilik taahhüdü burada da aynen geçerlidir.
+
+   SINIR: Bir OCR turu en fazla OCR_MAX_SAYFA sayfa işler (istemci CPU'sunda
+   sayfa başına birkaç saniye sürebilir; sınırsız bir kitabı OCR'lamaya
+   çalışmak sekmeyi uzun süre kilitler). Kırpma yapıldıysa kullanıcıya
+   açıkça söylenir — sessiz kırpma yok.
+
+   DÜRÜSTLÜK: OCR çıktısı asla PDF metin katmanı kadar güvenilir değildir.
+   Üretilen sayfalar `ocr: true` ile işaretlenir ve arayüzde bir uyarı
+   rozetiyle gösterilir (bkz. pdfPickerHtml). */
+let tesseractLibPromise = null;
+const OCR_MAX_SAYFA = 15;
+
+function loadTesseractLib() {
+  if (window.Tesseract) return Promise.resolve(window.Tesseract);
+  if (!tesseractLibPromise) {
+    tesseractLibPromise = new Promise(function (resolve, reject) {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.onload = function () { resolve(window.Tesseract); };
+      s.onerror = function () { reject(new Error("OCR kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
+      document.head.appendChild(s);
+    });
+  }
+  return tesseractLibPromise;
+}
+
+/** Taranmış bir PDF'in ilk OCR_MAX_SAYFA sayfasını OCR'lar (Türkçe). */
+async function ocrPdfSayfalari(file, ilerlemeCb) {
+  const [pdfLib, Tesseract] = await Promise.all([loadPdfLib(), loadTesseractLib()]);
+  const buf = await file.arrayBuffer();
+  const doc = await pdfLib.getDocument({ data: buf }).promise;
+  const toplamSayfa = doc.numPages;
+  const islenecek = Math.min(toplamSayfa, OCR_MAX_SAYFA);
+  // CSP yalnızca cdn.jsdelivr.net'e izin veriyor (public/_headers); Tesseract.js
+  // varsayılan olarak worker/core/dil dosyalarını başka barındırıcılardan
+  // çekebiliyor. Sessizce engellenmesin diye üçü de burada açıkça jsdelivr'e
+  // sabitleniyor.
+  /* 🔴 DÜZELTME — langPath 404 veriyordu (ölçüldü).
+     Eski değer ".../@tesseract.js-data/tur/4.0.0_best" idi. Tesseract.js v5
+     bu yola "/<dil>.traineddata.gz" ekliyor (kütüphane kaynağından
+     doğrulandı) ve @tesseract.js-data/tur paketinde "4.0.0_best" diye bir
+     dizin YOK — pakette yalnızca "4.0.0" ve "4.0.0_best_int" var. Sonuç:
+     OCR, tek bir sayfa işlemeden önce
+     "Network error while fetching ... Response code: 404" ile düşüyordu.
+
+     Yeni değer olarak "_best_int" seçildi, "4.0.0" değil. Gerekçe: yukarıdaki
+     ikinci argüman 1, yani oem = LSTM_ONLY. "4.0.0" paketi hem eski (legacy)
+     hem LSTM modelini taşır ve oem=1 ile legacy kısım hiç kullanılmaz;
+     "_best_int" tam olarak LSTM'dir — kütüphanenin langPath verilmediğinde
+     oem=1 için kendi seçtiği paket. Üstelik 2.141.291 bayt, 8.063.205 yerine
+     (ölçüldü): paylaşılan bir sunum ağında 4 kat daha az indirme.
+     Hız öncelikliyse tek yapılacak "_best_int" yerine "4.0.0" yazmaktır. */
+  const worker = await Tesseract.createWorker("tur", 1, {
+    workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+    corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js",
+    langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/tur@1.0.0/4.0.0_best_int"
+  });
+  const sayfalar = [];
+  try {
+    for (let i = 1; i <= islenecek; i++) {
+      if (ilerlemeCb) ilerlemeCb(i, islenecek);
+      const sayfa = await doc.getPage(i);
+      const viewport = sayfa.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      await sayfa.render({ canvasContext: ctx, viewport: viewport }).promise;
+      const { data } = await worker.recognize(canvas);
+      sayfalar.push({ n: i, text: String((data && data.text) || "").replace(/\s+/g, " ").trim(), ocr: true });
+    }
+  } finally {
+    await worker.terminate();
+  }
+  return { sayfalar: sayfalar, kirpildi: toplamSayfa > OCR_MAX_SAYFA, toplamSayfa: toplamSayfa };
+}
+
+/** Kullanıcının OCR teklifini görebilmesi için taranmış dosya bilgisini tutar. */
+let taranmisPdfDosya = null; // { file, sayfaSayisi } | null
+
+function ocrOneriHtml() {
+  if (!taranmisPdfDosya || state.pdf) return "";
+  if (state.ceForm.ocrLoading) {
+    return '<div class="ocr-offer"><div class="dz-spin"></div><div class="dz-sub">' +
+      escapeHtml(state.ceForm.ocrProgress || "OCR başlatılıyor…") + '</div></div>';
+  }
+  const fazlaSayfa = taranmisPdfDosya.sayfaSayisi > OCR_MAX_SAYFA;
+  return '<div class="ocr-offer">' +
+    '<button class="btn btn-secondary btn-sm" id="btnRunOcr">🔎 OCR ile Dene (' +
+    (fazlaSayfa ? "ilk " + OCR_MAX_SAYFA + " / " + taranmisPdfDosya.sayfaSayisi : taranmisPdfDosya.sayfaSayisi) +
+    ' sayfa)</button>' +
+    '<div class="dz-sub">Görüntü tabanlı sayfalar tarayıcıda otomatik okunur; sonuç kesin değildir, gözden geçirin.</div></div>';
+}
+
+async function runOcrOnScannedPdf() {
+  if (!taranmisPdfDosya) return;
+  const dosya = taranmisPdfDosya.file;
+  state.ceForm.ocrLoading = true;
+  state.ceForm.error = "";
+  state.ceForm.ocrProgress = "OCR başlatılıyor…";
+  renderAll();
+  try {
+    const sonuc = await ocrPdfSayfalari(dosya, function (i, toplam) {
+      state.ceForm.ocrProgress = "OCR çalışıyor: " + i + "/" + toplam + " sayfa";
+      renderAll();
+    });
+    const doluSayfa = sonuc.sayfalar.filter(function (s) { return s.text.length > 20; }).length;
+    if (!doluSayfa) {
+      state.ceForm.error = "OCR bu sayfalarda okunabilir metin bulamadı. Görüntü kalitesi düşük olabilir; " +
+        "metni elle kopyalayıp yapıştırmayı deneyin.";
+    } else {
+      pdfPages = sonuc.sayfalar;
+      const kayit = await kitapligaEkle(dosya.name, pdfPages);
+      state.pdf = {
+        ad: dosya.name,
+        sayfaSayisi: pdfPages.length,
+        from: 1,
+        to: Math.min(3, pdfPages.length),
+        kitapId: kayit ? kayit.id : null,
+        ocr: true
+      };
+      if (!state.ceForm.title) state.ceForm.title = dosya.name.replace(/\.pdf$/i, "");
+      state.ceForm.fileName = dosya.name + " — OCR ile okundu" +
+        (sonuc.kirpildi ? " (ilk " + OCR_MAX_SAYFA + " sayfa)" : "") +
+        (kayit ? ", kitaplığa eklendi" : "") + " — sayfa aralığı seçin";
+      taranmisPdfDosya = null;
+    }
+  } catch (err) {
+    state.ceForm.error = "OCR başarısız: " + String((err && err.message) || err);
+  } finally {
+    state.ceForm.ocrLoading = false;
+    state.ceForm.ocrProgress = "";
+    renderAll();
+  }
+}
+
 function pdfRangeText() {
   if (!pdfPages || !state.pdf) return "";
   const a = Math.max(1, Math.min(state.pdf.from, state.pdf.to));
@@ -1344,6 +1538,10 @@ function pdfPickerHtml() {
   const uzunluk = pdfRangeText().length;
   return '<div class="pdf-picker">' +
     '<div class="pp-head">📕 ' + escapeHtml(state.pdf.ad) + ' — <b>' + state.pdf.sayfaSayisi + ' sayfa</b></div>' +
+    (state.pdf.ocr
+      ? '<div class="pill pill-warning" style="margin-bottom:8px;">⚠️ Bu metin OCR (otomatik görüntü okuma) ile ' +
+        'çıkarıldı; yazım hataları olabilir, soru üretmeden önce gözden geçirin.</div>'
+      : "") +
     '<div class="pp-desc">Sorular hangi sayfalardan üretilsin? Tüm kitaptan değil, ' +
     'işlediğiniz bölümden soru üretmek daha isabetli sonuç verir.</div>' +
     '<div class="pp-row">' +
@@ -2109,6 +2307,9 @@ async function onGenerateQuestions() {
   state.ceForm.error = "";
   const doc = {
     title: state.ceForm.title || "Adsız Kaynak", subject: state.ceForm.subject, grade: state.ceForm.grade,
+    // Madde 1: şube yalnızca etiket olarak taşınır; AI çağrısına (aiGenerateQuestions)
+    // hiç gönderilmez, yalnızca üretilen soru nesnesine damgalanır.
+    sube: (state.ceForm.sube || "").trim(),
     outcome: state.ceForm.outcomeCode, outcomeLabel: outcomeLabel(state.ceForm.outcomeCode), text: text,
   };
   // Kaynak metin ÜRETİMDEN ÖNCE saklanır: model metne atıf yapan bir soru
@@ -2316,6 +2517,17 @@ function dilUyarisiHtml(q) {
     'Onaylamadan önce soruyu ve şıkları okuyup düzeltin.</div>';
 }
 
+/* Madde 1: şube (bölüm) etiketi yalnızca ORGANİZASYON/RAPORLAMA amaçlıdır.
+   MEB kazanımları şubeye göre değişmediği için bu bilgi hiçbir AI istemine
+   girmez (bkz. buildQuestionPrompt) ve kazanım filtrelemesini etkilemez
+   (outcomeUyar/uygunKazanimlar). Yalnızca "bu soru hangi şube için
+   üretildi" bilgisini soru kartlarında ve (Madde 3'te) öğretmenin havuz
+   filtresinde görünür kılar. */
+function subeRozetiHtml(q) {
+  if (!q || !q.sube) return "";
+  return '<span class="pill pill-neutral" title="Bu kaynak için belirtilen şube">👥 ' + escapeHtml(q.sube) + '</span>';
+}
+
 function renderPendingQuestionCard(q) {
   const optsHtml = q.type === "mc" ? q.options.map(function (o) {
     return '<div class="opt-row">' +
@@ -2330,6 +2542,7 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
     bloomPill(q.bloom) +
     '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
+    subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     dilUyarisiHtml(q) +
@@ -2445,6 +2658,13 @@ function ceCreateHtml() {
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
     GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
     '</select></div>' +
+    /* MADDE 1: Şube (bölüm) — yalnızca ORGANİZASYON/RAPORLAMA etiketidir,
+       kazanım filtrelemesini ETKİLEMEZ (MEB müfredatı şubeye göre değişmez)
+       ve AI istemine hiç girmez. Serbest metin: okulların şube adlandırması
+       (7-A, 7/A, 7-B1 ...) tek bir listeye sığmaz; <select> bunu kısıtlardı. */
+    '<div class="field"><label for="ceSube">Şube <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<input id="ceSube" type="text" maxlength="20" value="' + escapeHtml(state.ceForm.sube || "") + '" ' +
+    'placeholder="örn. ' + escapeHtml(siniflar()[0] || "7-A") + ' — boş bırakılabilir" title="Bu içerik hangi şube için üretiliyor? Yalnızca etiket amaçlıdır, kazanım listesini değiştirmez."></div>' +
     '<div class="field field-outcome"><label for="ceOutcome">Konu ve Kazanım</label>' +
     '<div class="input-with-actions">' +
     '<select id="ceOutcome">' +
@@ -2478,18 +2698,19 @@ function ceCreateHtml() {
         'title="Bu metni adlandırıp kitaplığa kaydet — bir daha yazmadan tekrar açabilirsiniz">📚 Kitaplığa kaydet</button>'
       : "") +
     '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
-    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf" style="display:none;">' +
+    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">' +
     '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
     (state.ceForm.pdfLoading
-      ? '<div class="dz-spin"></div><div class="dz-title">PDF okunuyor…</div>' +
-        '<div class="dz-sub">Sayfalar çıkarılıyor, bu birkaç saniye sürebilir.</div>'
+      ? '<div class="dz-spin"></div><div class="dz-title">Dosya okunuyor…</div>' +
+        '<div class="dz-sub">İçerik çıkarılıyor, bu birkaç saniye sürebilir.</div>'
       : '<div class="dz-icon">📄</div>' +
         '<div class="dz-title">Dosyayı buraya sürükleyin<span class="dz-or"> veya </span>' +
         '<button class="dz-browse" id="btnUpload" type="button">bilgisayarınızdan seçin</button></div>' +
-        '<div class="dz-sub">PDF · TXT · MD — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
+        '<div class="dz-sub">PDF · TXT · MD · DOCX — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
         'PDF\'ler kitaplığa kaydedilir; aynı dosyayı tekrar yüklemeniz gerekmez.</div>' +
         (state.ceForm.fileName ? '<div class="dz-file">✓ ' + escapeHtml(state.ceForm.fileName) + '</div>' : "")) +
     '</div>' +
+    ocrOneriHtml() +
     pdfPickerHtml() +
     kitaplikHtml() +
     '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
@@ -2500,6 +2721,15 @@ function ceCreateHtml() {
     '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
     '<div class="field"><label>Açık uçlu</label>' +
     '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div>' +
+    /* MADDE 2: bilişsel düzey ağırlığı — tamamen opsiyonel bir YÖNLENDİRME.
+       "Dengeli" seçiliyken istem hiç değişmez (mevcut davranış). Zorunlu bir
+       oran dayatmaz; öğretmen/içerik uzmanı isterse kullanır. */
+    '<div class="field"><label for="ceBloomFocus">Bilişsel düzey <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<select id="ceBloomFocus">' +
+    '<option value="dengeli"' + (state.ceForm.bloomFocus === "dengeli" ? " selected" : "") + '>Dengeli (varsayılan)</option>' +
+    '<option value="temel"' + (state.ceForm.bloomFocus === "temel" ? " selected" : "") + '>Temel düzeyi vurgula (hatırlama/anlama)</option>' +
+    '<option value="ust"' + (state.ceForm.bloomFocus === "ust" ? " selected" : "") + '>Üst düzeyi vurgula (analiz/değerlendirme)</option>' +
+    '</select></div>' +
     '<div class="gen-action">' +
     '<button class="btn btn-primary btn-lg" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
@@ -2521,6 +2751,7 @@ function cePoolHtml() {
         '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
         '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
+        subeRozetiHtml(q) +
         '<span class="pill pill-success">Onaylı</span></div></div>' +
         '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
@@ -2578,6 +2809,8 @@ function renderContentExpert() {
   };
   document.getElementById("ceOutcome").onchange = function (e) { kazanimSecildi(e.target.value); renderAll(); };
   document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
+  // Madde 1: şube yalnızca etiket — değişimi kazanım listesini tetiklemez.
+  document.getElementById("ceSube").oninput = function (e) { state.ceForm.sube = e.target.value.slice(0, 20); };
 
   // Kazanım tanımlama
   const bKat = document.getElementById("btnKatalog");
@@ -2634,6 +2867,8 @@ function renderContentExpert() {
   if (pt) pt.onchange = function (e) { state.pdf.to = Math.max(1, Math.min(state.pdf.sayfaSayisi, Number(e.target.value) || 1)); renderAll(); };
   const pa = document.getElementById("btnApplyPdf");
   if (pa) pa.onclick = applyPdfRange;
+  const runOcr = document.getElementById("btnRunOcr");
+  if (runOcr) runOcr.onclick = runOcrOnScannedPdf;
   const pc = document.getElementById("btnClearPdf");
   // "PDF'i kaldır" yalnızca AÇIK olan kitabı kapatır; kitaplıktan SİLMEZ.
   // Silme işlemi kitaplık listesindeki × düğmesindedir ve onay ister.
@@ -2643,7 +2878,33 @@ function renderContentExpert() {
   fileEl.onchange = async function () {
     const f = fileEl.files && fileEl.files[0];
     if (!f) return;
+    // Yeni bir dosya seçimi eski "taranmış PDF" OCR teklifini geçersiz kılar.
+    taranmisPdfDosya = null;
     if (f.size > 25 * 1024 * 1024) { state.ceForm.error = "Dosya çok büyük (en fazla 25 MB)."; renderAll(); return; }
+
+    // --- DOCX yolu ---
+    if (/\.docx$/i.test(f.name) || f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      state.ceForm.pdfLoading = true; state.ceForm.error = ""; renderAll();
+      try {
+        const metin = await extractDocx(f);
+        if (!metin) {
+          state.ceForm.error = "Bu Word belgesinde metin bulunamadı. Belge boş olabilir ya da yalnızca " +
+            "görsel/tablo içeriyor olabilir.";
+        } else {
+          state.ceForm.text = metin.slice(0, 6000);
+          state.ceForm.fileName = f.name + (metin.length > 6000 ? " — ilk 6000 karakter alındı" : " yüklendi");
+          if (!state.ceForm.title) state.ceForm.title = f.name.replace(/\.docx$/i, "");
+        }
+      } catch (err) {
+        state.ceForm.error = "Word belgesi okunamadı: " + String((err && err.message) || err) +
+          ". Metni kopyalayıp doğrudan yapıştırabilirsiniz.";
+      } finally {
+        state.ceForm.pdfLoading = false;
+        fileEl.value = "";
+        renderAll();
+      }
+      return;
+    }
 
     // --- PDF yolu ---
     if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") {
@@ -2652,9 +2913,11 @@ function renderContentExpert() {
         pdfPages = await extractPdf(f);
         const doluSayfa = pdfPages.filter(function (s) { return s.text.length > 20; }).length;
         if (!doluSayfa) {
+          const sayfaSayisi = pdfPages.length;
           state.pdf = null; pdfPages = null;
+          taranmisPdfDosya = { file: f, sayfaSayisi: sayfaSayisi };
           state.ceForm.error = "Bu PDF'te metin katmanı bulunamadı — taranmış görüntü olabilir. " +
-            "Böyle dosyalar için metni kopyalayıp aşağıya yapıştırın.";
+            "Aşağıdaki “OCR ile Dene” düğmesiyle sayfaları otomatik okutabilir ya da metni kopyalayıp yapıştırabilirsiniz.";
         } else {
           // Kitaplığa yaz: öğretmen aynı PDF'i her oturumda yeniden
           // yüklemek zorunda kalmasın. Başarısız olursa kitapligaEkle null
@@ -2699,6 +2962,7 @@ function renderContentExpert() {
   };
   document.getElementById("ceMcCount").onchange = function (e) { state.ceForm.mcCount = Math.max(0, Math.min(8, parseInt(e.target.value, 10) || 0)); renderAll(); };
   document.getElementById("ceOpenCount").onchange = function (e) { state.ceForm.openCount = Math.max(0, Math.min(4, parseInt(e.target.value, 10) || 0)); renderAll(); };
+  document.getElementById("ceBloomFocus").onchange = function (e) { state.ceForm.bloomFocus = e.target.value; saveSoon(); };
   wirePendingCards();
 }
 
@@ -2792,12 +3056,12 @@ function wireRejectedPool() {
    Bu ayrıca "önceki sınava göre gelişim" analizini mümkün kılar:
    tek sınavla kazanım trendi hesaplanamaz.                                 */
 let examIdSeq = 1;
-const OTURUM_ALANLARI = ["answers", "examStatus", "currentQIndex", "remainingSec",
+const OTURUM_ALANLARI = ["answers", "flagged", "examStatus", "currentQIndex", "remainingSec",
   "aiEvals", "reviews", "mcResults", "integrity"];
 
 function bosOturum() {
   return {
-    answers: {}, examStatus: "not_started", currentQIndex: 0, remainingSec: 0,
+    answers: {}, flagged: {}, examStatus: "not_started", currentQIndex: 0, remainingSec: 0,
     aiEvals: {}, reviews: {}, mcResults: {},
     integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                  pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] }
@@ -3218,6 +3482,40 @@ function canPublishExam() {
   return opens.every(function (q) { return state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100; });
 }
 function totalWeight(rub) { return rub.criteria.reduce(function (s, c) { return s + (Number(c.weight) || 0); }, 0); }
+
+/* ===========================================================================
+   MADDE 3 — öğretmen paneli sekme rozetleri (yalnızca ORGANİZASYON amaçlı)
+   ===========================================================================
+   NEDEN: İçerik Uzmanı sekmelerinde zaten "kaç soru bekliyor" rozeti var
+   (bkz. ceTabsHtml). Öğretmen tarafında eşdeğeri yoktu; 4 sekme arasında
+   "hangisine bakmam lazım" sorusunun cevabı yalnızca sekmeye tıklayıp
+   görmekti. Bu iki sayaç salt OKUNUR bir gezinme yardımıdır — hiçbir
+   onay/karar vermez, hiçbir soruyu/yanıtı otomatik işlemez (agents.md §1). */
+
+/** Aktif sınavda rubriği eksik/%100 olmayan açık uçlu soru sayısı. */
+function pendingRubricCount() {
+  const opens = state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+  return opens.filter(function (q) {
+    return !(state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100);
+  }).length;
+}
+
+/** Aktif sınavda, gönderilmiş açık uçlu yanıtlardan öğretmen onayı bekleyen sayısı. */
+function pendingReviewCount() {
+  if (state.exam.status !== "published") return 0;
+  const opens = state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+  if (!opens.length) return 0;
+  let sayac = 0;
+  submittedStudents().forEach(function (s) {
+    const ss = readSession(s.id);
+    opens.forEach(function (q) { if (!((ss.reviews || {})[q.id])) sayac++; });
+  });
+  return sayac;
+}
 // Model bir rubrik TASLAĞI önerir; öğretmen üzerinde serbestçe değişiklik
 // yapar. Taslak geldiğinde mevcut kriterler değiştirilir, ağırlıklar %100'e
 // normalleştirilmiş olarak gelir.
@@ -3462,6 +3760,9 @@ function filteredPool() {
     if (f.outcome && q.outcome !== f.outcome) return false;
     if (f.difficulty && q.difficulty !== f.difficulty) return false;
     if (f.type && q.type !== f.type) return false;
+    // Madde 3: Madde 1'de eklenen şube etiketiyle filtreleme — yalnızca
+    // organizasyon amaçlı, hangi sorunun onaylanacağına karışmaz.
+    if (f.sube && (q.sube || "") !== f.sube) return false;
     return true;
   });
 }
@@ -3515,14 +3816,16 @@ function poolFilterHtml() {
   if (onayliSayisi < 2) return "";
   const f = state.poolFilter;
   const kazanimlar = {};
+  const subeler = {};
   state.questions.filter(function (q) { return q.status === "approved"; })
-    .forEach(function (q) { kazanimlar[q.outcome] = true; });
+    .forEach(function (q) { kazanimlar[q.outcome] = true; if (q.sube) subeler[q.sube] = true; });
   const sec = function (id, deger, secenekler) {
     return '<select id="' + id + '"><option value="">Tümü</option>' +
       secenekler.map(function (o) {
         return '<option value="' + escapeHtml(o.v) + '"' + (deger === o.v ? " selected" : "") + '>' + escapeHtml(o.t) + '</option>';
       }).join("") + '</select>';
   };
+  const subeAlanlari = Object.keys(subeler).sort();
   return '<div class="pool-filter">' +
     '<div class="field"><label>Kazanım</label>' + sec("fltOutcome", f.outcome,
       Object.keys(kazanimlar).map(function (k) { return { v: k, t: k }; })) + '</div>' +
@@ -3530,6 +3833,12 @@ function poolFilterHtml() {
       [{ v: "easy", t: "Kolay" }, { v: "medium", t: "Orta" }, { v: "hard", t: "Zor" }]) + '</div>' +
     '<div class="field"><label>Soru türü</label>' + sec("fltType", f.type,
       [{ v: "mc", t: "Çoktan Seçmeli" }, { v: "open", t: "Açık Uçlu" }]) + '</div>' +
+    // Madde 3: yalnızca en az bir onaylı soruda şube etiketi VARSA görünür —
+    // aksi hâlde hep boş bir "Tümü" filtresi ekranı doldururdu.
+    (subeAlanlari.length
+      ? '<div class="field"><label>Şube</label>' + sec("fltSube", f.sube,
+          subeAlanlari.map(function (s) { return { v: s, t: s }; })) + '</div>'
+      : "") +
     '</div>';
 }
 
@@ -3553,7 +3862,7 @@ function teacherTab1Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + '</div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -3626,7 +3935,7 @@ function wireTeacherTab1() {
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
   const flt = document.getElementById("btnFiltreTemizle");
   if (flt) flt.onclick = function () {
-    state.poolFilter = { outcome: "", difficulty: "", type: "" };
+    state.poolFilter = { outcome: "", difficulty: "", type: "", sube: "" };
     saveSoon(); renderAll();
   };
   const fo = document.getElementById("fltOutcome");
@@ -3635,6 +3944,8 @@ function wireTeacherTab1() {
   if (fd) fd.onchange = function (e) { state.poolFilter.difficulty = e.target.value; renderAll(); };
   const ft = document.getElementById("fltType");
   if (ft) ft.onchange = function (e) { state.poolFilter.type = e.target.value; renderAll(); };
+  const fs = document.getElementById("fltSube");
+  if (fs) fs.onchange = function (e) { state.poolFilter.sube = e.target.value; renderAll(); };
 
   // --- havuzda soru düzenleme ---
   document.querySelectorAll(".pool-edit-btn").forEach(function (b) {
@@ -5070,9 +5381,19 @@ function teacherTab4Html() {
 
 function renderTeacher() {
   const root = document.getElementById("panel-teacher");
-  const tabs = [{ id: 1, label: "1 · Sınav Oluştur" }, { id: 2, label: "2 · Rubrik" }, { id: 3, label: "3 · Değerlendirme Onayı" }, { id: 4, label: "4 · Analitik" }];
+  // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
+  // birebir aynı — salt okunur sayaç, hiçbir onay/karar vermez.
+  const tabs = [
+    { id: 1, label: "1 · Sınav Oluştur" },
+    { id: 2, label: "2 · Rubrik", rozet: pendingRubricCount() },
+    { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
+    { id: 4, label: "4 · Analitik" }
+  ];
   root.innerHTML = '<div class="tabs" id="teacherTabs">' +
-    tabs.map(function (t) { return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.label + '</button>'; }).join("") +
+    tabs.map(function (t) {
+      return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
+        t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
+    }).join("") +
     '</div><div id="teacherTabContent"></div>';
   document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("teacherTabContent");
@@ -5303,10 +5624,27 @@ function studentTab2Html() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const q = items[state.currentQIndex];
   const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
+  const isFlagged = function (id) { return !!(state.flagged || {})[id]; };
+  // Madde 5: kalan süre görünürlüğü iki eşikli — 60 sn altı (mevcut "low",
+  // kırmızı) ve 5 dk altı (yeni "warn", uyarı rengi). Zaman hesaplama
+  // (endsAt/remainingSec) mantığına HİÇ dokunulmadı; yalnızca stil sınıfı.
+  const sureSinifi = state.remainingSec < 60 ? "low" : (state.remainingSec <= 300 ? "warn" : "");
   return integrityNoticeHtml() +
-    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + (state.remainingSec < 60 ? "low" : "") + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
-    '<div class="qnav">' + items.map(function (it, i) { return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") + '" data-idx="' + i + '">' + (i + 1) + '</div>'; }).join("") + '</div></div>' +
-    '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span><span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span></div>' +
+    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + sureSinifi + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
+    '<div class="qnav">' + items.map(function (it, i) {
+      return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") +
+        (isFlagged(it.id) ? " flagged" : "") + '" data-idx="' + i + '" title="' +
+        (isFlagged(it.id) ? "İşaretli — gözden geçirilecek" : "") + '">' + (i + 1) +
+        (isFlagged(it.id) ? ' <span class="qnav-flag">🚩</span>' : "") + '</div>';
+    }).join("") + '</div></div>' +
+    '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
+    '<span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span>' +
+    /* Madde 5: "gözden geçir" işareti — yanıtlanma durumundan bağımsız,
+       yalnızca öğrencinin kendi gezinmesine yardımcı olur, hiçbir puanı
+       etkilemez (aynı sınav bütünlüğü kaydı gibi: bilgi amaçlı, karar
+       öğrencinin/öğretmenin). */
+    '<button class="btn btn-secondary btn-sm' + (isFlagged(q.id) ? " flag-on" : "") + '" id="btnFlagQ" type="button" title="Bu soruyu daha sonra gözden geçirmek için işaretle">' +
+    (isFlagged(q.id) ? "🚩 İşaretli" : "🏳️ İşaretle") + '</button></div>' +
     kaynakBlokHtml(q, "student") +
     '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
     '<div class="exam-footer"><div><button class="btn btn-secondary" id="btnPrevQ" ' + (state.currentQIndex === 0 ? "disabled" : "") + '>← Önceki</button> ' +
@@ -5316,6 +5654,17 @@ function studentTab2Html() {
 function wireStudentTab2() {
   // Aktif sınav yokken bu sekme sınav başlatma kartlarını gösterir.
   if (state.examStatus !== "in_progress") { wireStudentTab1(); return; }
+  // Madde 5: gözden geçirme işareti — yanıtı değiştirmez, yalnızca toggle'lar.
+  const flagBtn = document.getElementById("btnFlagQ");
+  if (flagBtn) flagBtn.onclick = function () {
+    const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+    const q = items[state.currentQIndex];
+    if (!q) return;
+    state.flagged = state.flagged || {};
+    if (state.flagged[q.id]) delete state.flagged[q.id]; else state.flagged[q.id] = true;
+    saveSoon();
+    renderAll();
+  };
   // Yapıştırma tespiti: yalnızca KAÇ KARAKTER yapıştırıldığı tutulur,
   // metnin kendisi kaydedilmez (bkz. privacy-policy.html §2).
   const oa = document.getElementById("openAnswerInput");
@@ -5901,9 +6250,21 @@ function integritySummaryHtml() {
 /* ============================== Modal ============================== */
 function finishExamModalHtml() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-  const answeredCount = items.filter(function (it) { const a = state.answers[it.id]; return a && (a.selectedKey || (a.text && a.text.trim())); }).length;
+  const answered = function (it) { const a = state.answers[it.id]; return !!a && (a.selectedKey || (a.text && a.text.trim())); };
+  const answeredCount = items.filter(answered).length;
+  // Madde 5: hangi sorular yanıtsız olduğunu NUMARAYLA göster — eskiden
+  // yalnızca "6/8" gibi bir sayı vardı, öğrenci hangi 2 soruyu atladığını
+  // bulmak için sekmeler arasında gezinmek zorundaydı. Sınav akışına
+  // (süre, kayıt, bitirme) hiç dokunulmadı; bu yalnızca bu modalın içeriği.
+  const yanitsizNo = items.map(function (it, i) { return { it: it, no: i + 1 }; })
+    .filter(function (x) { return !answered(x.it); })
+    .map(function (x) { return x.no; });
   return '<h3>Sınavı bitirmek istediğinize emin misiniz?</h3>' +
     "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladınız. Bitirdikten sonra yanıtlarınızı değiştiremezsiniz; açık uçlu yanıtlarınız AI ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
+    (yanitsizNo.length
+      ? '<p class="pill pill-warning" style="display:block;">Yanıtsız sorular: ' +
+        yanitsizNo.map(function (n) { return "#" + n; }).join(", ") + '</p>'
+      : "") +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical" id="modalConfirmFinish">Evet, Bitir</button></div>';
 }
 /* ===========================================================================
@@ -6138,6 +6499,91 @@ function renderRoleNav() {
   }).join("");
   document.querySelectorAll(".role-btn").forEach(function (b) { b.onclick = function () { state.role = b.dataset.role; renderAll(); }; });
 }
+/* ===========================================================================
+   GİRİŞ KAPISI (public/index.html #girisKapisi) — YALNIZCA GÖRSEL KATMAN
+   ===========================================================================
+   İki aşamalı karşılama: (1) logo + slogan + giriş düğmesi, (2) kırmızı şerit
+   altında 3+2 düzeninde panel seçim kartları.
+
+   YÖNLENDİRME MANTIĞI DEĞİŞMEDİ: kartlar ROLES dizisinden üretilir ve tıklama,
+   üst çubuktaki mevcut rol düğmesiyle BİREBİR aynı iki satırı çalıştırır
+   (bkz. renderRoleNav):
+       state.role = <id>;  renderAll();
+   Yeni bir kimlik doğrulama, yetki kontrolü ya da yönlendirme kuralı YOKTUR;
+   bu katman kapandıktan sonra uygulama eskisi gibi davranır ve üst çubuktaki
+   rol düğmeleri çalışmaya devam eder.
+
+   KALICI DEĞİLDİR: kapının açık/kapalı durumu localStorage'a yazılmaz, yani
+   kayıtlı durum şeması (KALICI_ALANLAR) hiç değişmedi. Sayfa her açıldığında
+   karşılama ekranı görünür. */
+
+/** Panel seçim kartlarının HTML'i — kaynak ROLES, sıra da oradan gelir
+ *  (üst sıra: İçerik Uzmanı, Öğretmen, Öğrenci · alt sıra: Eğitim Yöneticisi,
+ *  Veli). Böylece rol eklenir/çıkarılırsa kartlar kendiliğinden uyar. */
+function girisKapisiKartlariHtml() {
+  /* Altın sarısı ÇİZGİ ikonlar. Dolgu yok; renk ve kalınlık CSS'ten gelir
+     (.gk-ikon svg *), bu yüzden burada yalnızca geometri var. */
+  const ikonlar = {
+    content_expert: '<path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 15.5h4"/>',
+    teacher:        '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8.5 20h7"/><path d="M8 10.5l2.5 2.5L16 8"/>',
+    student:        '<path d="M12 4l9 4.5-9 4.5-9-4.5z"/><path d="M6.5 10.5V15c0 1.7 2.5 3 5.5 3s5.5-1.3 5.5-3v-4.5"/><path d="M21 8.5V14"/>',
+    admin:          '<path d="M4 20h16"/><rect x="5.5" y="12" width="3.5" height="6"/><rect x="10.5" y="8" width="3.5" height="10"/><rect x="15.5" y="4.5" width="3.5" height="13.5"/>',
+    parent:         '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16.5" cy="9" r="2.2"/><path d="M3 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M15 19c0-2.2 1.3-3.7 3-3.7s3 1.5 3 3.7"/>'
+  };
+  return ROLES.map(function (r) {
+    return '<button class="gk-kart" type="button" data-role="' + r.id + '">' +
+      '<span class="gk-ikon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      (ikonlar[r.id] || "") + '</svg></span>' +
+      '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span>' +
+      '<span class="gk-kart-not">' + escapeHtml(r.hint) + '</span>' +
+      '<span class="gk-kart-alt" aria-hidden="true">→</span>' +
+      '</button>';
+  }).join("");
+}
+
+/** Giriş kapısını kurar: kartları basar, iki aşama geçişini ve kart
+ *  tıklamalarını bağlar. Açılışta bir kez çağrılır. */
+function girisKapisiKur() {
+  const kapi = document.getElementById("girisKapisi");
+  if (!kapi) return;   // kapı HTML'den kaldırılırsa uygulama eskisi gibi açılır
+
+  const kartlar = document.getElementById("gkKartlar");
+  if (kartlar) kartlar.innerHTML = girisKapisiKartlariHtml();
+
+  /* Kapı açıkken ARKADAKİ uygulama kaydırılmasın. Kapı position:fixed
+     olduğu için kaydırma onu oynatmıyordu ama sağda işlevsiz bir kaydırma
+     çubuğu duruyordu (ölçüldü: 860 px pencerede sayfa 1472 px). Kapının
+     kendi içeriği uzarsa o kendi içinde kayar (overflow-y: auto). */
+  document.body.style.overflow = "hidden";
+
+  const asama2 = document.getElementById("gkAsama2");
+  const girisBtn = document.getElementById("gkGirisBtn");
+  if (girisBtn) girisBtn.onclick = function () {
+    if (asama2) {
+      asama2.hidden = false;
+      /* Yeniden akış (reflow) ZORUNLU: hidden kalkar kalkmaz data-asama
+         değişirse tarayıcı iki durumu tek karede hesaplar ve geçiş hiç
+         oynamaz. Bu satır başlangıç durumunun hesaplanmasını garantiler. */
+      void kapi.offsetWidth;
+    }
+    kapi.dataset.asama = "2";
+    /* Odağı ilk karta taşı: klavye kullanıcısı geçişten sonra doğrudan
+       seçim yapabilsin. Geçiş süresi kadar beklenir. */
+    const ilkKart = kapi.querySelector(".gk-kart");
+    if (ilkKart) setTimeout(function () { ilkKart.focus(); }, 700);
+  };
+
+  kapi.querySelectorAll(".gk-kart").forEach(function (k) {
+    k.onclick = function () {
+      /* Üst çubuktaki rol düğmesiyle BİREBİR aynı iki satır. */
+      state.role = k.dataset.role;
+      renderAll();
+      kapi.hidden = true;
+      document.body.style.overflow = "";   // uygulamanın kaydırması geri gelsin
+    };
+  });
+}
+
 function renderPipeline() {
   const steps = [
     { label: "Havuz", done: state.questions.some(function (q) { return q.status === "approved"; }) },
@@ -7385,7 +7831,10 @@ setInterval(function () {
     "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
     "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman",
     "syncChipHtml", "syncDetayHtml", "renderSyncChip", "syncAyrintiToggle", "wireSyncChip",
-    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "bosDurumHtml", "wireSyncJoin"
+    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "bosDurumHtml", "wireSyncJoin",
+    "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
+    "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
+    "girisKapisiKartlariHtml", "girisKapisiKur"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -7402,6 +7851,21 @@ setInterval(function () {
 
 initPanels();
 loadState();
+/* 🔴 OCR "çalışıyor" bayrağı SAYFA YENİLENİNCE ASILI KALIYORDU (ölçüldü).
+   `ceForm` KALICI_ALANLAR içinde, yani tüm alanlarıyla localStorage'a yazılıyor
+   — `ocrLoading` ve `ocrProgress` dahil. OCR sürerken sekme kapatılır ya da
+   yenilenirse uygulama açılışta bu bayrakları geri yüklüyor ve ekranda hiç
+   bitmeyecek bir OCR spinner'ı ("OCR çalışıyor: 1/2 sayfa") gösteriyordu;
+   arkada çalışan bir OCR yok, "OCR ile Dene" düğmesi de bu yüzden hiç
+   görünmüyor — kullanıcının tek çıkışı "Verileri sıfırla" oluyordu.
+   Bunlar oturumluk (geçici) bayraklardır; açılışta sıfırlanmaları gerekir.
+   `pdfLoading` de AYNI kusuru taşıyor: yarım kalmış bir PDF/DOCX okuma
+   işleminden sonra uygulama açılışta "Dosya okunuyor…" ekranında kilitli
+   kalıyordu. Üçü de burada sıfırlanır — durum verisine (kitaplık, sorular,
+   oturumlar) dokunulmaz, yalnızca bu geçici bayraklar temizlenir. */
+state.ceForm.ocrLoading = false;
+state.ceForm.ocrProgress = "";
+state.ceForm.pdfLoading = false;
 // localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
 // doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
 ensureOutcomeMeta();
@@ -7418,6 +7882,7 @@ document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
 document.getElementById("btnReset").onclick = resetState;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
+girisKapisiKur();
 probeAiMode();
 // Sunucuda D1 bağlı mı? Bağlı değilse sınıf kodu özellikleri sessizce görünmez
 // (§28p): hiçbir düğme yanlış bir başarı iddia etmez, yalnızca teklif edilmez.
