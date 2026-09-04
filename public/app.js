@@ -7284,11 +7284,79 @@ function renderRoleNav() {
     return ex.status === "published" && durum === "not_started" && (!ex.startsAt || Date.now() >= ex.startsAt);
   }).length;
   const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady, admin: 0 };
-  document.getElementById("roleNav").innerHTML = ROLES.map(function (r) {
-    return '<button class="role-btn ' + (state.role === r.id ? "active" : "") + '" data-role="' + r.id + '"><span class="r-label">' + r.label + '</span><span class="r-hint">' + r.hint + '</span>' +
-      (badges[r.id] ? '<span class="badge">' + badges[r.id] + '</span>' : "") + '</button>';
-  }).join("");
-  document.querySelectorAll(".role-btn").forEach(function (b) { b.onclick = function () { state.role = b.dataset.role; renderAll(); }; });
+  const nav = document.getElementById("roleNav");
+
+  /* §33 — ROL İZOLASYONU. Eskiden burada beş rolün düğmesi birden duruyordu
+     ve kullanıcı giriş kapısından bir rol seçtikten sonra bile diğer dört
+     role tek tıkla geçebiliyordu. Artık üst çubuk YALNIZCA içinde bulunulan
+     rolü gösterir; rol değiştirmenin tek yolu Çıkış → giriş kapısı.
+
+     Panellerin kendisi zaten izoleydi (aşağıda renderAll içinde tek bir
+     panele .active veriliyor); değişen şey NAVİGASYON görünürlüğü, panel
+     çizim mantığı değil.
+
+     Bekleyen iş sayacı (badge) kayboLMAdı: aktif rolün rozeti aynı .badge
+     bileşeniyle etiketin yanında durmaya devam ediyor. */
+  const aktif = ROLES.find(function (r) { return r.id === state.role; });
+  if (!aktif) {
+    // Rol yok (henüz seçilmedi ya da Çıkış yapıldı) — üst çubukta rol alanı
+    // hiç görünmez; ekranı giriş kapısı kaplar.
+    nav.innerHTML = "";
+    nav.classList.remove("tek-rol");
+    return;
+  }
+  nav.classList.add("tek-rol");
+  nav.innerHTML =
+    '<div class="role-btn active" aria-current="page"><span class="r-label">' + escapeHtml(aktif.label) + '</span>' +
+    '<span class="r-hint">' + escapeHtml(aktif.hint) + '</span>' +
+    (badges[aktif.id] ? '<span class="badge">' + badges[aktif.id] + '</span>' : "") + '</div>' +
+    /* id DEĞİL class: bu düğme tek örnek olsa da projede daha önce iki panelin
+       aynı id'yi üretmesinden kaynaklı ölü düğme hatası yaşandı (§32). Aynı
+       tuzağa düşmemek için bağlama querySelectorAll ile yapılır. */
+    '<button type="button" class="btn btn-secondary btn-sm role-logout-btn" ' +
+    'title="Rolden çık — üretilen sorular, sınavlar ve tüm veriler korunur">Çıkış</button>';
+
+  document.querySelectorAll(".role-logout-btn").forEach(function (b) {
+    b.onclick = rolCikisYap;
+  });
+}
+
+/* ===========================================================================
+   ÇIKIŞ — YALNIZCA ROL OTURUMU KAPANIR, ÜRÜN VERİSİ KORUNUR (§33)
+   ===========================================================================
+   Bu fonksiyon bir "sıfırlama" DEĞİLDİR. Sıfırlama zaten var ve ayrı bir
+   düğme (btnReset). Buradaki tek iş: kullanıcıyı roldan çıkarıp giriş
+   kapısına döndürmek.
+
+   DOKUNULMAYANLAR (bilerek, tek tek): questions (üretilen/onaylanan/
+   reddedilen sorular ve tüm alanları: status, outcome, sube, topicArea,
+   bloomFocus, correctKey, distractorRationale, srcId), rubrics, reviews,
+   aiEvals, mcResults, exams, exam, answers, flagged, students, sources,
+   library, auditLog, outcomes, subjects, syncRoom ve diğer sync durumu,
+   activeTeacherName (hangi öğretmenin değerlendirdiği bir ÜRÜN bilgisidir,
+   state.exam.teacherName ile eşleşir), ceForm'un içeriği (yüklenmiş kaynak
+   metin, sayaçlar, seçili kazanım — bunlar yarım kalmış İŞTİR).
+
+   localStorage.clear(), IndexedDB silme, D1 silme YOKTUR. saveState() bu
+   fonksiyondan sonra renderAll içinde normal akışında çalışır ve korunan
+   alanları aynen geri yazar. */
+function rolCikisYap() {
+  // 1) Rol ve sekme konumu — saf navigasyon.
+  state.role = "";
+  state.ceTab = 1;
+  state.teacherTab = 1;
+  state.studentTab = 1;
+  // 2) Yalnızca bu oturuma ait AÇ/KAPA ve seçim durumları.
+  state.rejectedOpenByRole = { ce: false, teacher: false };
+  state.critDescOpen = null;
+  state.rubricSelectedQ = null;
+  // 3) Geçici hata/uyarı metinleri — bir sonraki girişte eski hata görünmesin.
+  state.poolError = "";
+  state.rubricError = "";
+  if (state.ceForm) state.ceForm.error = "";
+
+  renderAll();       // saveState() burada çalışır: ürün verisi aynen kaydedilir
+  girisKapisiniAc(); // en baştaki Mihenk ekranı (1. aşama)
 }
 /* ===========================================================================
    GİRİŞ KAPISI (public/index.html #girisKapisi) — YALNIZCA GÖRSEL KATMAN
@@ -7373,6 +7441,25 @@ function girisKapisiKur() {
       document.body.style.overflow = "";   // uygulamanın kaydırması geri gelsin
     };
   });
+}
+
+/* §33 — Giriş kapısını 1. AŞAMADAN yeniden açar (Çıkış sonrası).
+   Kartların HTML'i ve tıklama dinleyicileri girisKapisiKur() içinde BİR KEZ
+   kuruldu ve DOM'da duruyor; burada yeniden üretilmez, yoksa dinleyiciler
+   düşer ve kartlar ölür. Yalnızca görünürlük/aşama durumu geri alınır —
+   animasyonun kendisi ve zamanlaması değişmez, ilk açılıştakiyle aynı
+   CSS geçişi yeniden oynar. */
+function girisKapisiniAc() {
+  const kapi = document.getElementById("girisKapisi");
+  if (!kapi) return;
+  const asama2 = document.getElementById("gkAsama2");
+  if (asama2) asama2.hidden = true;
+  kapi.dataset.asama = "1";
+  kapi.hidden = false;
+  kapi.scrollTop = 0;
+  document.body.style.overflow = "hidden";   // arkadaki uygulama kaymasın
+  const girisBtn = document.getElementById("gkGirisBtn");
+  if (girisBtn) girisBtn.focus();            // klavye kullanıcısı akışa devam etsin
 }
 
 function renderPipeline() {
@@ -8627,6 +8714,10 @@ setInterval(function () {
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
     "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
     "girisKapisiKartlariHtml", "girisKapisiKur",
+    /* §33 — rol izolasyonu ve çıkış akışı. rolCikisYap üst çubuktaki tek
+       çıkış yolu; düşerse Çıkış düğmesi sessizce ölür (bu projede tam bu
+       sınıftan hata yaşandı, bkz. §30/§32). */
+    "rolCikisYap", "girisKapisiniAc",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
        değerlendirme analitiği. (calibration zaten yukarıda listede;
        şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */

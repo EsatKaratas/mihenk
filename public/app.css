@@ -217,6 +217,12 @@
     border-radius: 999px; background: var(--accent2); color: #fff; font-family: "IBM Plex Mono", monospace;
     font-size: 10.5px; font-weight: 600; display: grid; place-items: center; box-shadow: var(--shadow);
   }
+  /* §33 — rol seçildikten sonra üst çubukta rol DEĞİŞTİRİCİ yoktur; yalnızca
+     aktif rol etiketi ve Çıkış düğmesi durur. Beş sütunlu grid yerine tek
+     satır. Yeni renk YOK: etiket mevcut .role-btn.active görünümünü, düğme
+     mevcut .btn.btn-secondary.btn-sm görünümünü kullanır. */
+  .role-nav.tek-rol { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .role-nav.tek-rol .role-btn { flex: 0 1 auto; cursor: default; }
 
   /* ---------- Layout primitives ---------- */
   .panel { display: none; }

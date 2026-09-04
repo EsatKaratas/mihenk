@@ -4883,3 +4883,76 @@ model çıktı kararsızlığıdır ve hata sessizce yutulmuyor — kullanıcıy
 "Hiçbir soru üretilmedi" diye açıkça bildiriliyor, yerel simülasyona da
 düşülmüyor. Kazanım modunun bu hataya kaynak modundan daha sık düşüp
 düşmediği ÖLÇÜLMEDİ.
+
+---
+
+## 32. ROL İZOLASYONU MERGE'İ — `e06753b` ile birleştirme (4 Eylül 2026)
+
+`MIHENK_FINAL_ESAT_GUNCEL.bundle` ile gelen tek commit (`e06753b`,
+"rol bazlı panel görünürlüğü ve çıkış akışı") entegrasyon dalına alındı.
+
+### 32.1 Ayrışma tablosu (ölçüldü)
+
+```
+14d70e7  ORTAK ATA (§30 denetim commit'i — bundle bunu almış)
+   ├── e06753b  bundle: rol izolasyonu + çıkış        (1 commit)
+   └── e317b8c  şık vurgusu düzeltmesi
+       de4c99d  §31 kazanım modu                       (2 commit)
+```
+
+Yöntem: **tek `git merge --no-ff --no-commit`** (cherry-pick DEĞİL, §7 gerekçesi).
+Öncesinde `birlestirme-oncesi-20260904-1903` etiketi bırakıldı.
+
+### 32.2 Çakışma çıkmadı — ama bu tek başına güvence sayılmadı
+
+Beklenen çakışma noktası `selfCheck` listesiydi (iki taraf da ad eklemişti);
+git iki eklemeyi otomatik birleştirdi. **Temiz bir auto-merge de sessizce iş
+düşürebileceği için** her iki tarafın kodu ayrı ayrı denetlendi:
+
+| Denetlenen | Sonuç |
+|---|---|
+| selfCheck listesi | **252 ad** (250 + 2), duplicate 0, tanımsız 0 |
+| Bundle'dan: `rolCikisYap`, `girisKapisiniAc` | listede **ve** tanımlı |
+| Bundle'dan: `.role-nav.tek-rol` CSS bloğu | 6 satırın 6'sı duruyor |
+| Benden: §30'un 6 `wire*`/`render*` adı | hepsi duruyor |
+| Benden: §31'in 4 adı + `.mod-secici` CSS | hepsi duruyor |
+| Benden: şık vurgusu düzeltmesi (`SEÇİLİ ŞIK VURGUSU`) | duruyor |
+| Benden: `if (fileEl) fileEl.onchange` guard'ı | duruyor |
+
+### 32.3 Bundle'ın iddiası SINANDI — "çıkış veri silmez"
+
+Commit mesajı çıkışın yalnızca navigasyon alanlarını sıfırladığını, verinin
+korunduğunu söylüyordu. Bu iddiaya güvenilmedi, ölçüldü: demo verisi
+yüklendi, sayımlar alındı, çıkış yapıldı, başka bir role girildi.
+
+| Alan | Çıkış öncesi | Çıkış sonrası |
+|---|---|---|
+| questions / exams / students | 3 / 1 / 8 | 3 / 1 / 8 |
+| sources / rubrics / auditLog | 1 / 3 / 33 | 1 / 3 / 33 |
+| outcomes / `ceForm.text` | 4 / dolu | 4 / **aynı metin** |
+| `state.role` | `student` | `""` → sonra `teacher` |
+
+**Yalnızca `role` sıfırlandı. İddia doğru.**
+
+### 32.4 Tarayıcı doğrulaması (merge sonrası)
+
+| Kontrol | Sonuç |
+|---|---|
+| Üst çubukta rol değiştirici | **0** (eskiden 5) — `.role-nav.tek-rol` |
+| Görünen rol etiketi + Çıkış | 5 rolde de doğru, Çıkış handler'ı bağlı |
+| Çıkış → giriş kapısı | 5/5, hep **1. aşamadan** açılıyor |
+| Giriş kartından role giriş | 5/5, doğru panel, panel içeriği doluyor |
+| §31 kazanım modu (merge sonrası) | 4 sn'de 3 soru; metne atıf **0**, `needsSource` hepsi false, `srcId` null, "metin bulunamadı" **0** |
+| Kaynak modu + 30 krk kuralı | duruyor, hata mesajı aynı |
+| Şık vurgusu düzeltmesi | vurgu ve radyo aynı şıkta |
+| Konsol hatası | **0** (`error`/`unhandledrejection`/`console.error`) |
+| Öz-kontrol uyarı şeridi | çıkmadı |
+| Mobil 375×812, 5 rol | taşma **0**; Çıkış düğmesi 32 px (WCAG 2.5.8 geçti) |
+| `lint` / `test` / öz-kontrol / `check:config` | temiz / **185/185** / 252 eksik 0 / geçti |
+
+### 32.5 Ürün gözlemi (karar ekibin)
+
+Rol izolasyonu güvenlik/gerçekçilik açısından doğru, ama **demo hızını
+düşürüyor**: rol değiştirmek artık 1 tık değil 3 tık (Çıkış → giriş → kart).
+Jüri sunumunda beş rol arka arkaya gezilecekse bu fark hissedilir. Kod
+değiştirilmedi — bu bir ürün kararıdır, bilerek not düşülüyor.
