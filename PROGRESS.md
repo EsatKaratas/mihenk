@@ -5198,3 +5198,97 @@ uzak oturum açmaya çalışıp `CLOUDFLARE_API_TOKEN` istiyor
 (`wrangler whoami` → not authenticated). Yapılandırmaya **dokunulmadı**;
 yerel test `onizleme-sunucu.mjs` ile yapıldı (gerçek CSP uygulanıyor,
 Worker çalışmadığı için uygulama "Yerel simülasyon" moduna düşüyor).
+
+## 37. KAZANIM ISI HARİTASI — GERÇEK VERİ / ÖRNEK VERİ AYRIMI (5 Eylül 2026)
+
+**İstek:** "(örnek)" satırları kalsın ama gerçek sonuçlar geldikçe haritaya
+otomatik yansısın; yalnızca öğretmenin onayladığı sonuçlar sayılsın; veri
+yoksa yüzde uydurulmasın; örnek veriler gerçek hesap ve uyarılara karışmasın;
+gerçek veri her zaman öncelikli olsun; tasarım değişmesin.
+
+Önce mevcut kod incelendi ve **zaten doğru olanlar** ölçülerek doğrulandı;
+onlara dokunulmadı: AI'ın ham puanı (`ss.aiEvals`) hiçbir yerde okunmuyor,
+veri yoksa hücre `—`, okul geneli kutuları (`okulGercekDurum`) örnek veriden
+beslenmiyor, "en zayıf kazanım" kutusu gerçeği tercih edip örneğe düşerse
+bunu ekranda yazıyor, CSV dışa aktarımı örnek satır içermiyor, örnek
+satırlarda `●` canlı işareti yok.
+
+Dört gerçek kusur bulundu; dördü de tarayıcıda **kanıtlanarak** düzeltildi.
+
+### 37.1 ÇSS puanı öğretmen onayı olmadan haritaya giriyordu
+
+`classOutcomeScores()` koşulu `graded || submitted` idi. `submitted` =
+öğrenci gönderdi, öğretmen ONAYLAMADI. Açık uçluda zarar yoktu (puan ancak
+`ss.reviews[qid]` varsa okunuyor) ama `mcResults` gönderim anında oluştuğu
+için **çoktan seçmeli yüzdesi onaydan önce** görünüyordu.
+
+Ölçüm: tek öğrenci `examStatus:"submitted"`, `reviews:{}`, `aiEvals:{102:18}`
+iken satır `{"MAT.7.2.1":100}` gösteriyordu. Ekrandaki *"buradaki sayılar
+yalnızca öğretmen onayından geçmiş sonuçları yansıtır"* cümlesi bu yüzden
+**yanlış beyandı** (§6.3-5).
+
+Koşul `examStatus === "graded"` oldu. `graded` durumunu yalnızca
+`publishResults()` yazar, o da `allOpensReviewed()` olmadan çalışmaz — yani
+HITL'in tam karşılığı. Düzeltme sonrası aynı kurulum `{}` döndürüyor (tüm
+hücreler `—`); öğretmen yayınlayınca `{"MAT.7.2.1":100,"MAT.7.3.4":50}`.
+
+`realClassRows()` içindeki "(çözen/toplam)" sayacı BİLEREK `submitted`i
+saymaya devam ediyor: o bir katılım sayacıdır, puan değil.
+
+### 37.2 Yalnızca aktif sınav sayılıyordu
+
+`classOutcomeScores()` sadece `state.exam`'e bakıyordu; öğretmen yeni bir
+sınava geçtiğinde önceki sınavın sonuçları haritadan **kayboluyordu**.
+Artık `okulGercekDurum()` ile aynı desen: yayınlanmış her sınav kaydı
+gezilir, aktif sınavın oturumu `readSession()`, diğerlerininki
+`kayit.sessions` üzerinden okunur.
+
+Ölçüm: geçmiş bir yayınlanmış sınav eklendiğinde 7-A `MAT.7.2.1`
+`100 → 50` oldu (iki sonucun ortalaması). Birikim çalışıyor.
+
+### 37.3 Örnek satırlar `<55` uyarısına giriyordu
+
+`renderHeatmap()` içindeki düşük-hücre döngüsü TÜM satırları tarıyordu.
+Bugün görünmüyordu çünkü demo değerlerinin hepsi ≥58 — **kod yolu yine de
+yanlıştı**. Yanlış alarm üretilerek kanıtlandı: 6-A örnek değeri 30'a
+çekilince uyarı *"6-A (örnek) · MAT.7.2.1"* dedi. Döngü artık
+`rows.filter(r => !r.ornek)` üzerinden çalışıyor. Örnek hücre tabloda
+görünmeye devam ediyor, yalnızca uyarı üretmiyor.
+
+### 37.4 Gerçek sınıf ile aynı adlı örnek satır birlikte çiziliyordu
+
+Ölçüm: 6-A'da gerçek sonuç varken tabloda hem `6-A (1/1)` hem
+`6-A (örnek)` görünüyordu. Yeni `ornekSinifSatirlari()` yardımcısı, gerçek
+satırı bulunan şubenin örneğini eler. Düzeltme sonrası yalnızca
+`6-A (1/1)`; 8-B ve 8-C örnek satırları duruyor.
+
+Filtreler artık **görünen ada** bakmıyor: `realClassRows()` satırlara ham
+`sinif` alanı, örnek satırlar `ornek: true` işareti taşıyor. Ad kullanıcıya
+gösterilen bir metindir, ölçüt olamaz.
+
+### 37.5 Doğrulama
+
+| Test | Önce | Sonra |
+|---|---|---|
+| `submitted` + onay yok + AI puanı var | `{"MAT.7.2.1":100}` | **`{}`** → `—` |
+| Öğretmen yayınladı (`graded` + review) | — | `{"MAT.7.2.1":100,"MAT.7.3.4":50}` |
+| Örnek satırda %30 → uyarı | uyarıda **vardı** | uyarıda **yok**, tabloda %30 duruyor |
+| Gerçek 6-A varken satırlar | `6-A (1/1)` + `6-A (örnek)` | yalnızca `6-A (1/1)` |
+| Geçmiş yayınlanmış sınav | dahil **değildi** | 7-A `100 → 50` (birikiyor) |
+| Okul kutuları, örnek bozulunca | — | **değişmedi** |
+| CSV | — | örnek **yok** |
+
+Tasarım, CSS, tablo yapısı, renk skalası ve açıklama metni değişmedi.
+Yeni üst düzey fonksiyon `ornekSinifSatirlari` selfCheck listesine eklendi
+(TUZAK 7): **254 → 255**.
+
+`node --check` sessiz · öz-kontrol 255 ad eksik 0 · lint temiz ·
+**185/185** test · duplicate id 0 · console.error 0 ·
+mobil 375×812 taşma 0.
+
+### 37.6 Bu değişiklikle İLGİSİZ bulgu (düzeltilmedi)
+
+1100 px genişlikte öğretmen sekme 1'de yatay taşma var (**1166 > 1085**).
+Değişiklik `git stash` ile kenara alınıp **değişikliksiz `bb16e53`'te
+ölçüldü — orada da var**. Yani regresyon değil, mevcut bir durum.
+1280 px ve 375 px'te çıkmıyor. Ayrı bir iş olarak ele alınacak.

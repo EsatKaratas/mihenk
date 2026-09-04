@@ -5329,24 +5329,52 @@ function computeDemoClassScores() {
    Kazanım yüzdeleri, sonuçlanmış sınavların GERÇEK verisinden hesaplanır
    (çoktan seçmeli doğruluğu + öğretmenin ONAYLADIĞI açık uçlu puanlar).  */
 // Belirli bir şubenin kazanım yüzdeleri — gerçek oturumlardan.
+/* §37 — İKİ ÖLÇÜLMÜŞ DÜZELTME:
+
+   1) YALNIZCA ÖĞRETMENİN YAYINLADIĞI SONUÇ SAYILIR.
+      Eski koşul `graded || submitted` idi. `submitted` = öğrenci gönderdi,
+      öğretmen HENÜZ ONAYLAMADI. Açık uçlularda zarar yoktu (puan ancak
+      `ss.reviews[qid]` varsa okunuyor, o da onaydan sonra oluşur) ama
+      ÇOKTAN SEÇMELİDE `mcResults` gönderim anında oluştuğu için yüzde
+      onaydan ÖNCE ısı haritasına giriyordu. Ölçüldü: tek öğrenci
+      `submitted`, `reviews: {}` iken satır `{"MAT.7.2.1":100}` gösteriyordu.
+      Ekrandaki "buradaki sayılar yalnızca öğretmen onayından geçmiş
+      sonuçları yansıtır" cümlesi bu yüzden YANLIŞ BEYANDI (§6.3-5).
+      `graded` durumunu yalnızca `publishResults()` yazar ve o da
+      `allOpensReviewed()` olmadan çalışmaz — yani HITL'in tam karşılığı.
+
+   2) TEK SINAV DEĞİL, TÜM YAYINLANMIŞ SINAVLAR.
+      Eskiden yalnızca `state.exam` (aktif sınav) taranıyordu; öğretmen yeni
+      bir sınava geçtiğinde önceki sınavın sonuçları ısı haritasından
+      KAYBOLUYORDU. Ölçüldü. Artık `okulGercekDurum()` ile aynı desen
+      kullanılır: yayınlanmış her sınav kaydı gezilir, aktif sınavın oturumu
+      `readSession()`, diğerlerininki `kayit.sessions` üzerinden okunur.
+
+   AI'ın ham puanı (`ss.aiEvals`) HİÇBİR KOŞULDA okunmaz — burada da, eskiden
+   de. Değişmedi. */
 function classOutcomeScores(sinif) {
-  const ex = state.exam;
   const toplam = {}, adet = {};
-  (state.students || []).filter(function (o) { return o.sinif === sinif; }).forEach(function (ogr) {
-    const ss = readSession(ogr.id);
-    if (!ss || (ss.examStatus !== "graded" && ss.examStatus !== "submitted")) return;
-    (ex.questionIds || []).forEach(function (qid) {
-      const q = state.questions.find(function (x) { return x.id === qid; });
-      if (!q) return;
-      let pct = null;
-      if (q.type === "mc" && (ss.mcResults || {})[qid]) pct = ss.mcResults[qid].correct ? 100 : 0;
-      if (q.type === "open" && (ss.reviews || {})[qid]) {
-        const rub = state.rubrics[qid];
-        if (rub) pct = ss.reviews[qid].finalScore / rub.maxScore * 100;
-      }
-      if (pct == null) return;
-      toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
-      adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+  const ogrenciler = (state.students || []).filter(function (o) { return o.sinif === sinif; });
+  (state.exams || []).forEach(function (kayit) {
+    if (kayit.status !== "published") return;
+    const aktif = kayit.id === state.activeExamId;
+    const ex = aktif ? state.exam : kayit;
+    ogrenciler.forEach(function (ogr) {
+      const ss = aktif ? readSession(ogr.id) : ((kayit.sessions || {})[ogr.id] || null);
+      if (!ss || ss.examStatus !== "graded") return;
+      (ex.questionIds || []).forEach(function (qid) {
+        const q = state.questions.find(function (x) { return x.id === qid; });
+        if (!q) return;
+        let pct = null;
+        if (q.type === "mc" && (ss.mcResults || {})[qid]) pct = ss.mcResults[qid].correct ? 100 : 0;
+        if (q.type === "open" && (ss.reviews || {})[qid]) {
+          const rub = state.rubrics[qid];
+          if (rub) pct = ss.reviews[qid].finalScore / rub.maxScore * 100;
+        }
+        if (pct == null) return;
+        toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
+        adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+      });
     });
   });
   const sonuc = {};
@@ -5362,8 +5390,26 @@ function realClassRows() {
       const st = readSession(o.id).examStatus;
       return st === "submitted" || st === "graded";
     }).length;
-    return { name: sf + " (" + cozen + "/" + ogrenciler.length + ")", scores: classOutcomeScores(sf), live: cozen > 0 };
+    /* §37: `sinif` ham şube adıdır. Örnek satırların elenmesi ve uyarı
+       filtresi ARTIK GÖRÜNEN ADA (ör. "7-A (1/2)") bakmıyor — ad kullanıcıya
+       gösterilen bir metindir, ölçüt olamaz. */
+    return { sinif: sf, name: sf + " (" + cozen + "/" + ogrenciler.length + ")", scores: classOutcomeScores(sf), live: cozen > 0 };
   });
+}
+
+/* §37 — GERÇEK VERİ ÖNCELİKLİ: gerçek bir şube zaten satır olarak varsa,
+   AYNI ADLI örnek satır gösterilmez. Eskiden ikisi birden çiziliyordu;
+   ölçüldü: 6-A'da gerçek sonuç varken tabloda hem "6-A (1/1)" hem
+   "6-A (örnek)" görünüyordu ve yönetici hangisinin gerçek olduğunu
+   ayırt etmek zorunda kalıyordu. `ornek: true` işareti, uyarı ve
+   hesaplama filtrelerinin ada bakmadan çalışmasını sağlar. */
+function ornekSinifSatirlari(gercekSatirlar, adet) {
+  const gercekAdlar = {};
+  gercekSatirlar.forEach(function (r) { if (r.sinif) gercekAdlar[r.sinif] = true; });
+  return (state.baseline.classes || [])
+    .filter(function (c) { return !gercekAdlar[c.name]; })
+    .slice(0, adet == null ? undefined : adet)
+    .map(function (c) { return { sinif: c.name, name: c.name + " (örnek)", scores: c.scores, ornek: true }; });
 }
 
 // Bir sınavın kazanım yüzdeleri: SINIFIN TAMAMI üzerinden ortalama.
@@ -5449,9 +5495,8 @@ function trendHtml() {
 }
 
 function teacherHeatmapRows() {
-  return realClassRows().concat(state.baseline.classes.slice(0, 2).map(function (c) {
-    return { name: c.name + " (örnek)", scores: c.scores };
-  }));
+  const gercek = realClassRows();
+  return gercek.concat(ornekSinifSatirlari(gercek, 2));
 }
 /* ===========================================================================
    MADDE ANALİZİ — klasik test kuramı (item analysis)
@@ -6700,8 +6745,14 @@ function renderHeatmap(targetId, rows) {
     '<span class="legend-live">● işaretli şubeler bu sistemde gerçekten çözülen sınavlardan hesaplanır. ' +
     '"(örnek)" etiketli satırlar karşılaştırma amaçlı demo verileridir.</span></div>';
   el.querySelectorAll(".hm-cell[data-val]").forEach(bestTextColor);
+  /* §37 — UYARI YALNIZCA GERÇEK SATIRLARDAN. Bu döngü eskiden "(örnek)"
+     satırlarını da tarıyordu; demo verisi bir aksiyon uyarısı doğuramaz.
+     Bugünkü demo değerlerinin hepsi ≥58 olduğu için hata GÖRÜNMÜYORDU ama
+     kod yoluna sahipti: 6-A örnek değeri 30'a çekilerek yeniden üretildi —
+     uyarı "6-A (örnek) · MAT.7.2.1" satırını gösterdi. */
   const low = [];
-  rows.forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code)); }); });
+  rows.filter(function (r) { return !r.ornek; })
+    .forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code)); }); });
   if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
 
   /* ============ KAPALI DÖNGÜ ============
@@ -6742,9 +6793,8 @@ function renderHeatmap(targetId, rows) {
 }
 
 function buildAdminHeatmapRows() {
-  return realClassRows().concat(
-    state.baseline.classes.map(function (c) { return { name: c.name + " (örnek)", scores: c.scores }; })
-  );
+  const gercek = realClassRows();
+  return gercek.concat(ornekSinifSatirlari(gercek));
 }
 
 /* Okul geneli GERÇEK ölçme durumu.
@@ -8861,7 +8911,7 @@ setInterval(function () {
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",
     "examTotalPoints", "examSuggestedSec", "questionUsage", "rubRefreshBar",
-    "siniflar", "classOutcomeScores", "realClassRows", "okulGercekDurum", "demoSinifOturumlari",
+    "siniflar", "classOutcomeScores", "realClassRows", "ornekSinifSatirlari", "okulGercekDurum", "demoSinifOturumlari",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
     "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
