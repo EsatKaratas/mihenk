@@ -97,9 +97,66 @@ let qIdSeq = 1;
       kaynak metin bağlanıyor.
    Bu üretim bir TAKLİTTİR ve arayüzde "Yerel simülasyon" rozetiyle
    açıkça belirtilir; gerçek model çıktısı değildir. */
+/* §31 — ÜRETİM DAYANAĞI (mod) tek yerden okunur.
+   Eski durumlarda (localStorage'dan gelen ceForm) bu alan hiç yoktur;
+   o yüzden bilinmeyen her değer "kaynak"a düşer — eski kullanıcı verisi
+   davranış değiştirmez. */
+/* §31 — MOD SEÇİCİ. İki dayanak da gerçektir, bu yüzden gizli bir ayar değil
+   görünür bir seçim olarak sunulur; öğretmen hangi temele dayandığını bilmeli.
+   Seçim state.ceForm.mode'a yazılır ve KALICI_ALANLAR üzerinden saklanır. */
+function uretimModuSecHtml() {
+  const m = uretimModu();
+  const kart = function (deger, baslik, aciklama) {
+    return '<button type="button" class="mod-kart' + (m === deger ? " secili" : "") + '" ' +
+      'data-uretim-modu="' + deger + '" aria-pressed="' + (m === deger ? "true" : "false") + '">' +
+      '<span class="mod-ad">' + baslik + '</span>' +
+      '<span class="mod-not">' + aciklama + '</span></button>';
+  };
+  return '<div class="field"><label>Soru neye dayansın?</label>' +
+    '<div class="mod-secici">' +
+    kart("kaynak", "📄 Kaynak metinden",
+      "Yüklediğiniz ders notundan üretilir. Okuma kazanımları için gerekli — metin sınavda öğrenciye gösterilir.") +
+    kart("kazanim", "🎯 Kazanımdan",
+      "Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.") +
+    '</div></div>';
+}
+
+/* §31 — YÖNERGE ALANI. Yalnızca kazanım modunda görünür. Zorunlu değildir;
+   boş bırakılırsa istem yalnızca kazanıma dayanır (eski davranışın kazanım
+   karşılığı). Sunucuda kaynak metinle aynı enjeksiyon koruması uygulanır. */
+function yonergeAlaniHtml() {
+  const g = String(state.ceForm.guidance || "");
+  return '<div class="field ce-text-field"><div class="label-row">' +
+    '<label for="ceGuidance">Yönerge <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<span class="char-count' + (g.length > 540 ? " near" : "") + '">' + g.length + ' / 600</span></div>' +
+    '<textarea id="ceGuidance" rows="3" placeholder="örn. Günlük hayattan örneklerle, grafik yorumlatan sorular olsun. Sürtünme kuvvetine ağırlık ver.">' +
+    escapeHtml(g) + '</textarea>' +
+    '<div class="alan-not">Bu bir <b>odak ve üslup</b> isteğidir — soru sayısını, çıktı biçimini ve dil kurallarını değiştiremez. ' +
+    'Öğrencinin önünde okuyacağı bir metin olmayacağı için sorular metne atıf yapmaz.</div></div>';
+}
+
+function uretimModu() {
+  return state.ceForm && state.ceForm.mode === "kazanim" ? "kazanim" : "kaynak";
+}
+
+/* §31 — Kazanım modunda YEREL SİMÜLASYON için anahtar kelime kaynağı.
+   Gerçek model yokken (çevrimdışı/statik önizleme) simülasyon şablonu
+   anahtar kelimelere ihtiyaç duyar; kaynak metin olmadığı için bunlar
+   kazanım açıklamasından ve öğretmenin yönergesinden çıkarılır.
+   Bu YALNIZCA simülasyon yoludur — gerçek model yolunda kullanılmaz. */
+function kazanimAnahtarlari(doc) {
+  const havuz = [doc.outcomeLabel || "", doc.guidance || "", outcomeAlan(doc.outcome) || ""].join(" ");
+  const kw = extractKeywords(havuz, 10);
+  return kw.length ? kw : ["kavram", "ilişki", "örnek", "uygulama"];
+}
+
 function simulateQuestions(doc) {
-  const kw = extractKeywords(doc.text, 10);
+  /* §31: kazanım modunda kaynak metin yoktur; anahtar kelimeler kazanımdan
+     üretilir ve soru gövdeleri metne ATIF YAPMAZ (bkz. metneAtif). */
+  const kazanimModu = doc.mode === "kazanim";
+  const kw = kazanimModu ? kazanimAnahtarlari(doc) : extractKeywords(doc.text, 10);
   if (!kw.length) return [];
+  const metneAtif = !kazanimModu;
   const offset = (state.genCount * 2) % kw.length;
   const k = function (i) { return kw[(offset + i) % kw.length]; };
   const mk = function () { return qIdSeq++; };
@@ -113,15 +170,20 @@ function simulateQuestions(doc) {
     qs.push({
       id: mk(), type: "mc", difficulty: zorluklar[i % 3], outcome: doc.outcome,
       bloom: i % 2 === 0 ? "hatirlama" : "anlama",
-      body: 'Metne göre "' + k(t) + '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
+      body: (metneAtif ? 'Metne göre "' : 'Bu kazanım kapsamında "') + k(t) +
+        '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
       options: [
         { key: "A", text: k(t + 1) }, { key: "B", text: k(t + 2) },
-        { key: "C", text: k(t + 3) }, { key: "D", text: "Metinde bu konuya değinilmemiştir" }
+        { key: "C", text: k(t + 3) },
+        { key: "D", text: metneAtif ? "Metinde bu konuya değinilmemiştir" : "Bu kavramla doğrudan ilişkili değildir" }
       ],
       correctKey: "A", aiTime: 45 + i * 10, status: "ai_generated",
       refKeywords: [k(t), k(t + 1)],
-      // Simülasyon soruları da metne atıf yapıyor: metin sınavda gösterilmeli.
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      /* Kaynak modunda simülasyon soruları metne atıf yapar → metin sınavda
+         gösterilmeli. §31 kazanım modunda gösterilecek metin YOKTUR; burada
+         true bırakılsaydı öğrenci ekranında "metin bulunamadı" kutusu çıkardı
+         (sunucu tarafındaki zorlamanın simülasyon yolundaki karşılığı). */
+      needsSource: metneAtif, srcId: doc.srcId != null ? doc.srcId : null,
       sube: doc.sube || ""
     });
     // Paket 4b — tasarım kararı: simulateQuestions() GERÇEK bir AI çağrısı
@@ -142,11 +204,12 @@ function simulateQuestions(doc) {
     qs.push({
       id: mk(), type: "open", difficulty: i === 0 ? "hard" : "medium", outcome: doc.outcome,
       bloom: i === 0 ? "analiz" : "uygulama",
-      body: '"' + k(t) + '" ve "' + k(t + 1) + '" kavramları arasındaki ilişkiyi metinden ' +
-        'yararlanarak açıklayınız; en az bir örnek veriniz.',
+      body: '"' + k(t) + '" ve "' + k(t + 1) + '" kavramları arasındaki ilişkiyi ' +
+        (metneAtif ? 'metinden yararlanarak ' : '') +
+        'açıklayınız; en az bir örnek veriniz.',
       aiTime: 240, status: "ai_generated",
       refKeywords: [k(t), k(t + 1), k(t + 2)],
-      needsSource: true, srcId: doc.srcId != null ? doc.srcId : null,
+      needsSource: metneAtif, srcId: doc.srcId != null ? doc.srcId : null,
       sube: doc.sube || ""
     });
   }
@@ -246,7 +309,11 @@ async function aiGenerateQuestions(doc) {
   // "yapay zekânın ürettiği soru" gibi göstermek kullanıcıyı yanıltır.
   try {
     const j = await apiPost(AI_API.generate, {
-      sourceText: doc.text.slice(0, 6000),
+      // §31: kazanım modunda kaynak metin gönderilmez (sunucu şeması bu modda
+      // alt sınır aramaz); dayanak kazanımın kendisidir.
+      mode: doc.mode === "kazanim" ? "kazanim" : "kaynak",
+      guidance: doc.mode === "kazanim" ? (doc.guidance || undefined) : undefined,
+      sourceText: doc.mode === "kazanim" ? "" : doc.text.slice(0, 6000),
       subject: doc.subject,
       grade: String(doc.grade),
       outcomeCode: doc.outcome,
@@ -913,7 +980,11 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli" },
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli",
+    /* §31 — ÜRETİM DAYANAĞI. "kaynak" varsayılandır ve eski davranışın
+       birebir aynısıdır. "kazanim" modunda kaynak metin istenmez; dayanak
+       MEB kazanımıdır ve öğretmen isterse serbest bir yönerge yazar. */
+    mode: "kaynak", guidance: "" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -2406,8 +2477,20 @@ function sinavKaynakUyarisiHtml(secili) {
 
 async function onGenerateQuestions() {
   const text = state.ceForm.text.trim();
-  if (text.length < 30) {
+  /* §31 — 30 KARAKTER KURALI ARTIK MODA BAĞLI.
+     "kaynak" modunda kural aynen duruyor: dayanak metnin kendisi olduğu için
+     birkaç kelimeden soru üretmek modeli uydurmaya iter.
+     "kazanim" modunda ise kaynak metin HİÇ İSTENMEZ — dayanak MEB kazanımı
+     (kod + açıklama + konu alanı) olduğundan bir alt sınır anlamsızdır.
+     Sunucu şeması da aynı ayrımı yapar (src/schemas/ai.ts superRefine). */
+  const kazanimModu = uretimModu() === "kazanim";
+  if (!kazanimModu && text.length < 30) {
     state.ceForm.error = "Soru üretmek için en az birkaç cümlelik bir metin girin (min. 30 karakter).";
+    renderAll();
+    return;
+  }
+  if (kazanimModu && !state.ceForm.outcomeCode) {
+    state.ceForm.error = "Kazanımdan üretim için önce bir kazanım seçin — bu modda dayanak kazanımın kendisidir.";
     renderAll();
     return;
   }
@@ -2428,7 +2511,13 @@ async function onGenerateQuestions() {
   // üretirse (Türkçe okuma kazanımlarında bu gereklidir) o metin sınavda
   // öğrenciye gösterilebilsin. Eskiden metin atılıyordu ve soru
   // cevaplanamaz hale geliyordu.
-  doc.srcId = kaynakEkle(doc);
+  /* §31: kazanım modunda saklanacak bir uyaran metin yoktur. kaynakEkle()
+     çağrılmaz — çağrılsaydı boş/alakasız bir kaynak kaydı oluşur ve
+     KAYNAK_LIMIT kuyruğundan gerçek kaynakları iterdi. srcId null kalır;
+     needsSource da sunucuda zaten false'a sabitlenir. */
+  doc.srcId = kazanimModu ? null : kaynakEkle(doc);
+  doc.mode = kazanimModu ? "kazanim" : "kaynak";
+  doc.guidance = kazanimModu ? String(state.ceForm.guidance || "").trim() : "";
   // Yerel simülasyon da bu adetlere uymalı (§14h).
   doc.mcCount = state.ceForm.mcCount;
   doc.openCount = state.ceForm.openCount;
@@ -2964,6 +3053,8 @@ function ceCreateHtml() {
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
       : "") + '</div>' +
+    uretimModuSecHtml() +
+    (uretimModu() === "kazanim" ? yonergeAlaniHtml() :
     '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
     /* §28q: "öğretmen kendi ders oluşturabilsin, notlar kayıtlı dursun." Bu
        düğüm mevcut Kitaplık altyapısını (IndexedDB, kalıcı, ad+tarih+boyutla
@@ -2991,7 +3082,7 @@ function ceCreateHtml() {
     pdfPickerHtml() +
     kitaplikHtml() +
     '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
-    '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>' +
+    '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>') +
     (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
     '<div class="gen-bar">' +
     '<div class="field"><label>Çoktan seçmeli</label>' +
@@ -3010,7 +3101,11 @@ function ceCreateHtml() {
     '<div class="gen-action">' +
     '<button class="btn btn-primary btn-lg" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
-    '<span class="gen-hint">Seçilen metinden ' + state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir</span>' +
+    '<span class="gen-hint">' +
+    (uretimModu() === "kazanim"
+      ? escapeHtml(state.ceForm.outcomeCode || "seçili kazanım") + ' kazanımından '
+      : "Seçilen metinden ") +
+    state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir</span>' +
     '</div></div></div>' +
     '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
     alignmentBarHtml(pending) +
@@ -3085,7 +3180,29 @@ function renderContentExpert() {
     state.ceForm.showAllOutcomes = !state.ceForm.showAllOutcomes; renderAll();
   };
   document.getElementById("ceOutcome").onchange = function (e) { kazanimSecildi(e.target.value); renderAll(); };
-  document.getElementById("ceText").oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
+  /* §31: kazanım modunda #ceText hiç render edilmez; eski kod koşulsuz
+     getElementById().oninput yazıyordu ve bu modda TypeError atardı. */
+  const ceTextEl = document.getElementById("ceText");
+  if (ceTextEl) ceTextEl.oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
+  const ceGuidanceEl = document.getElementById("ceGuidance");
+  /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
+     yeniden çizilir ve kullanıcı yazarken odak kaybeder. Karakter sayacı bir
+     sonraki çizimde güncellenir; bu bilinçli bir ödünleşmedir. */
+  if (ceGuidanceEl) ceGuidanceEl.oninput = function (e) { state.ceForm.guidance = e.target.value.slice(0, 600); };
+  /* Mod kartları: beş panel aynı anda DOM'da olduğu için id değil SINIF +
+     querySelectorAll kullanılır (§6.3-2 dersi / TUZAK 1). */
+  document.querySelectorAll("[data-uretim-modu]").forEach(function (el) {
+    el.onclick = function () {
+      const yeni = el.dataset.uretimModu === "kazanim" ? "kazanim" : "kaynak";
+      if (uretimModu() === yeni) return;
+      state.ceForm.mode = yeni;
+      /* Mod değişince kullanıcının yazdığı metin ya da yönerge SİLİNMEZ —
+         geri döndüğünde bulur. Yalnızca hata mesajı temizlenir, çünkü eski
+         mod için geçerliydi. */
+      state.ceForm.error = "";
+      renderAll();
+    };
+  });
   // Madde 1: şube yalnızca etiket — değişimi kazanım listesini tetiklemez.
   document.getElementById("ceSube").oninput = function (e) { state.ceForm.sube = e.target.value.slice(0, 20); };
 
@@ -3152,7 +3269,12 @@ function renderContentExpert() {
   if (pc) pc.onclick = function () { state.pdf = null; pdfPages = null; state.ceForm.fileName = ""; renderAll(); };
   wireKitaplik();
 
-  fileEl.onchange = async function () {
+  /* §31: #ceFile yalnızca "kaynak" modunda render edilir. Bu atama korumasızdı
+     ve kazanım modunda TypeError atıyordu — hata wireCeCreate()'i ortasında
+     kesince ceMcCount/ceOpenCount/ceBloomFocus/wirePendingCards hiç bağlanmadan
+     kalıyor, yani "Soru Üret" düğmesi de dahil formun altı ÖLÜYORDU.
+     (Gerçek tarayıcı testinde yakalandı; node --check bunu göremez — TUZAK 2.) */
+  if (fileEl) fileEl.onchange = async function () {
     const f = fileEl.files && fileEl.files[0];
     if (!f) return;
     // Yeni bir dosya seçimi eski "taranmış PDF" OCR teklifini geçersiz kılar.
@@ -8519,7 +8641,9 @@ setInterval(function () {
        düğmesi ve reddedilenler havuzu gizle/göster). Öz-kontrolün var oluş
        sebebi bu; kapsam dışı kalmamaları gerekiyordu. */
     "wireCeTabs", "wirePendingCards", "wireRejectedPool", "wireExamSwitcher",
-    "renderAiBadge", "renderPipeline"
+    "renderAiBadge", "renderPipeline",
+    /* §31 — üretim dayanağı (kaynak metin / kazanım) seçimi. */
+    "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

@@ -242,3 +242,93 @@ describe('model çıktı şemaları — güvenilmez veriyi normalleştirir', () 
     expect(modelAlignmentSchema.parse({}).results).toEqual([]);
   });
 });
+
+// ============================================================================
+// §31 — generateQuestionsSchema: üretim dayanağı (mod) ve yönerge.
+//
+// NEDEN: 30 karakter alt sınırı alanın kendi .min(30)'undan superRefine'a
+// taşındı. Bu tür bir taşıma sessizce GEVŞEYEBİLİR (kural hiç uygulanmaz)
+// ya da SIKILAŞABİLİR (yeni mod da reddedilir). İkisi de test edilir.
+// ============================================================================
+describe('generateQuestionsSchema — §31 üretim dayanağı', () => {
+  const temel = {
+    subject: 'Fen Bilimleri',
+    grade: 7,
+    outcomeCode: 'FEN.7.1.2',
+    outcomeLabel: 'Sürtünme kuvvetinin etkilerini açıklar',
+  };
+
+  it('mod verilmezse "kaynak" varsayılır (geriye dönük uyumluluk)', () => {
+    const r = generateQuestionsSchema.safeParse({
+      ...temel,
+      sourceText: 'Sürtünme kuvveti hareketi yavaşlatan bir kuvvettir ve yüzeye bağlıdır.',
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.mode).toBe('kaynak');
+      expect(r.data.guidance).toBeUndefined();
+    }
+  });
+
+  it('kaynak modunda 30 karakter kuralı HÂLÂ uygulanır', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, sourceText: 'kısa' });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path.join('.') === 'sourceText')).toBe(true);
+    }
+  });
+
+  it('kaynak modunda kaynak metin HİÇ gönderilmezse reddedilir', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, mode: 'kaynak' });
+    expect(r.success).toBe(false);
+  });
+
+  it('kaynak modunda yalnızca boşluktan oluşan metin reddedilir', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, mode: 'kaynak', sourceText: ' '.repeat(80) });
+    expect(r.success).toBe(false);
+  });
+
+  it('kazanım modunda kaynak metin GEREKMEZ — 30 karakter sınırı yoktur', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, mode: 'kazanim' });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.mode).toBe('kazanim');
+      expect(r.data.sourceText).toBe('');
+    }
+  });
+
+  it('kazanım modunda kısa bir metin gönderilse bile reddedilmez', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, mode: 'kazanim', sourceText: 'ab' });
+    expect(r.success).toBe(true);
+  });
+
+  it('yönerge kabul edilir ve 600 karakterle sınırlıdır', () => {
+    const ok = generateQuestionsSchema.safeParse({
+      ...temel,
+      mode: 'kazanim',
+      guidance: 'Günlük hayattan örneklerle, grafik yorumlatan sorular olsun.',
+    });
+    expect(ok.success).toBe(true);
+
+    const uzun = generateQuestionsSchema.safeParse({
+      ...temel,
+      mode: 'kazanim',
+      guidance: 'a'.repeat(601),
+    });
+    expect(uzun.success).toBe(false);
+  });
+
+  it('bilinmeyen bir mod reddedilir (sessizce kaynağa düşmez)', () => {
+    const r = generateQuestionsSchema.safeParse({ ...temel, mode: 'serbest', sourceText: 'x'.repeat(50) });
+    expect(r.success).toBe(false);
+  });
+
+  it('kazanım modunda kazanım alanları hâlâ ZORUNLUDUR (dayanak onlar)', () => {
+    const r = generateQuestionsSchema.safeParse({
+      subject: 'Fen Bilimleri',
+      grade: 7,
+      mode: 'kazanim',
+    });
+    expect(r.success).toBe(false);
+  });
+});

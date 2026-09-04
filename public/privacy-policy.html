@@ -259,9 +259,10 @@
           <b>Tek istisna, yukarıda açıklanan sınıf kodu ile senkron özelliğidir:</b> bir sınıf kodu
           oluşturulduğunda ya da girildiğinde, sınav ve öğrenci oturum verileri o koda bağlı olarak
           sunucudaki veritabanında saklanır. Kod kullanılmadığı sürece bu aktarım <b>hiç gerçekleşmez</b>.
-          Yapay zekâ çağrıları sırasında soru metni, öğrenci yanıtı ve rubrik model sağlayıcısına
-          iletilir; <b>öğrenci adı ve kimlik bilgisi modele gönderilmez</b> — bu kural senkron
-          özelliğinden etkilenmemiştir. Yüklenen PDF ve Word (.docx) dosyaları tarayıcıda çözümlenir
+          Yapay zekâ çağrıları sırasında soru üretimi için verdiğiniz <b>kaynak metin</b> (ya da
+          kazanımdan üretimi seçtiyseniz yazdığınız <b>yönerge</b>), soru metni, öğrenci yanıtı ve
+          rubrik model sağlayıcısına iletilir; <b>öğrenci adı ve kimlik bilgisi modele
+          gönderilmez</b> — bu kural senkron özelliğinden etkilenmemiştir. Yüklenen PDF ve Word (.docx) dosyaları tarayıcıda çözümlenir
           (taranmış PDF'ler için OCR de dahil), dosyanın kendisi sunucuya gönderilmez; bu dosyalardan
           çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında
           (<code>IndexedDB</code>) tutulur ve <b>senkronla paylaşılmaz</b>. Yapay Zekâ Karar Günlüğü de

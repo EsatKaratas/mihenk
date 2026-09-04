@@ -104,6 +104,17 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
   }
 
+  /* §31 — KAZANIM MODU İKİNCİ KATMAN. İstem modele "metne atıf yapma ve
+     needsSource'u false yaz" diyor, ama istem tek başına GARANTİ DEĞİLDİR:
+     model yine "Metne göre..." yazabilir ve o zaman kaynakGerektirirMi()
+     deterministik olarak true döndürürdü. Bu modda gösterilecek bir metin
+     olmadığı için öğrenci ekranında "Bu soru bir metne dayanıyor ama metin
+     bulunamadı" kutusu çıkardı — yani sessiz değil ama YANLIŞ bir durum.
+     Bu yüzden needsSource burada koşulsuz false'a sabitlenir.
+     (Soru gövdesi yine de metne atıf içerebilir; onu İçerik Uzmanı onay
+     ekranında görür ve reddedebilir — karar yine insanda, agents.md §1.) */
+  const kazanimModu = b.mode === 'kazanim';
+
   const prompt = buildQuestionPrompt(
     {
       subject: b.subject,
@@ -118,6 +129,9 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       topicArea: b.topicArea,
       bloomFocus: b.bloomFocus,
       excludeQuestions: b.excludeQuestions,
+      // §31: üretim dayanağı ve (yalnızca kazanım modunda) öğretmen yönergesi.
+      mode: b.mode,
+      guidance: b.guidance,
     },
     b.sourceText
   );
@@ -172,7 +186,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),
-            needsSource: kaynakGerektirirMi(q.body, q.needsSource),
+            needsSource: kazanimModu ? false : kaynakGerektirirMi(q.body, q.needsSource),
             refKeywords: q.refKeywords.slice(0, 6),
             // Model Türkçe metne yabancı alfabe karıştırabiliyor (ölçüldü:
             // ~10 soruda 1). Otomatik düzeltmek yerine İÇERİK UZMANINA
@@ -186,7 +200,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
           difficulty: q.difficulty,
           bloom: q.bloom,
           aiTime: clamp(q.aiTime, 90, 600),
-          needsSource: kaynakGerektirirMi(q.body, q.needsSource),
+          needsSource: kazanimModu ? false : kaynakGerektirirMi(q.body, q.needsSource),
           refKeywords: q.refKeywords.slice(0, 6),
           dilUyarisi: soruDilUyarisi({ body: q.body }),
         };

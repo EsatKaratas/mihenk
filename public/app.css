@@ -299,6 +299,25 @@
   .empty-state { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13px;
     background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px; }
 
+  /* §31 — ÜRETİM DAYANAĞI SEÇİCİ (İçerik Uzmanı, soru üretim formu).
+     İki kart yan yana; dar ekranda alt alta iner. Her kural kendi zeminini
+     taşır (§6.3-2 dersi: zemin varsayan sınıflar tema değişince görünmez
+     oluyordu). */
+  .mod-secici { display: flex; gap: 10px; flex-wrap: wrap; }
+  .mod-secici .mod-kart { flex: 1 1 260px; display: flex; flex-direction: column; gap: 3px;
+    text-align: left; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: var(--surface); color: var(--text); cursor: pointer; font: inherit;
+    transition: border-color .12s ease, background .12s ease; }
+  .mod-secici .mod-kart:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .mod-secici .mod-kart.secili { border-color: var(--accent); background: var(--accent-soft);
+    box-shadow: inset 0 -2px 0 var(--accent2-line); }
+  .mod-secici .mod-ad { font-weight: 600; font-size: 13.5px; color: var(--text); }
+  .mod-secici .mod-kart.secili .mod-ad { color: var(--accent-strong); }
+  .mod-secici .mod-not { font-size: 11.5px; line-height: 1.45; color: var(--text-muted); }
+  /* Yönerge alanının altındaki açıklama satırı. */
+  .alan-not { margin-top: 6px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+
   /* ---------- Question cards ---------- */
   .q-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--surface); }
   .q-card .q-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }

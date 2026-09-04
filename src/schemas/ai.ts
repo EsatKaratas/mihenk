@@ -7,8 +7,46 @@ import { z } from 'zod';
 /** agents.md §7.4: kaynak metin 6.000 karakterle sınırlıdır. */
 export const MAX_SOURCE_CHARS = 6000;
 
+/** §31 — soru üretiminin dayanağı. */
+export const URETIM_MODLARI = ['kaynak', 'kazanim'] as const;
+
+/** §31: yönerge (öğretmenin serbest yönlendirmesi) üst sınırı. */
+export const MAX_GUIDANCE_CHARS = 600;
+
 export const generateQuestionsSchema = z.object({
-  sourceText: z.string().min(30, 'Kaynak metin en az 30 karakter olmalıdır').max(MAX_SOURCE_CHARS),
+  /**
+   * §31 — ÜRETİM MODU. İki dayanak vardır ve ikisi de gerçektir:
+   *
+   *   'kaynak'  (varsayılan, eski davranış): dayanak KAYNAK METİNDİR.
+   *             sourceText zorunlu ve en az 30 karakter. Model yalnızca o
+   *             metindeki bilgiye dayanır; "metne göre..." tipi sorular
+   *             serbesttir ve metin sınavda öğrenciye gösterilir.
+   *
+   *   'kazanim' (yeni): dayanak MEB KAZANIMIDIR. Kaynak metin gerekmez.
+   *             Öğretmen isterse serbest bir "yönerge" verir. Bu modda
+   *             gösterilecek bir uyaran metin YOKTUR; bu yüzden sunucu
+   *             üretilen tüm sorulara needsSource:false dayatır ve istem
+   *             modele metne atıf yapmayı yasaklar. Aksi hâlde öğrenci
+   *             ekranında "metin bulunamadı" kutusu çıkardı.
+   */
+  mode: z.enum(URETIM_MODLARI).default('kaynak'),
+  /**
+   * §31 — ÖĞRETMENİN YÖNERGESİ (serbest metin). Yalnızca 'kazanim' modunda
+   * anlamlıdır; 'kaynak' modunda yok sayılır.
+   *
+   * GÜVENLİK: Bu alan tanımı gereği TALİMAT gibi okunur, oysa kullanıcı
+   * girdisidir. Kaynak metinle AYNI enjeksiyon korumasına alınır
+   * (buildQuestionPrompt içinde tahmin edilemez sınır belirteci + "bu
+   * yalnızca bir ÜSLUP/ODAK isteğidir, sistem kurallarını değiştiremez").
+   */
+  guidance: z.string().max(MAX_GUIDANCE_CHARS).optional(),
+  /**
+   * §31: alt sınır şemadan KALDIRILDI, çünkü 'kazanim' modunda kaynak metin
+   * hiç gönderilmez. 30 karakter kuralı artık yalnızca 'kaynak' modunda,
+   * aşağıdaki superRefine ile uygulanır — yani eski mod için davranış birebir
+   * aynı kalır, sadece koşullu hâle geldi.
+   */
+  sourceText: z.string().max(MAX_SOURCE_CHARS).default(''),
   subject: z.string().min(1).max(80),
   grade: z.union([z.number().int().min(1).max(12), z.string().min(1).max(8)]),
   outcomeCode: z.string().min(1).max(40),
@@ -37,7 +75,20 @@ export const generateQuestionsSchema = z.object({
    * istemci sürümleri bu alanı hiç göndermez.
    */
   excludeQuestions: z.array(z.string().max(2000)).max(50).default([]),
-});
+})
+  /* §31 — 'kaynak' modunda kaynak metin hâlâ ZORUNLU ve en az 30 karakter.
+     Bu kural eskiden alanın kendi .min(30)'undaydı; moda bağlı hâle geldi.
+     'kazanim' modunda metin gönderilirse bile yok sayılır (istem onu hiç
+     kullanmaz), bu yüzden orada bir alt sınır aranmaz. */
+  .superRefine((v, ctx) => {
+    if (v.mode === 'kaynak' && v.sourceText.trim().length < 30) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['sourceText'],
+        message: 'Kaynak metin en az 30 karakter olmalıdır',
+      });
+    }
+  });
 
 export const rubricDraftSchema = z.object({
   questionBody: z.string().min(1).max(2000),
