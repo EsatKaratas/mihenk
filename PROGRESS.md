@@ -5404,3 +5404,74 @@ satırdan (`7-B · FEN.7.1.2`).
   temizlenecek. Dokunulmadı.
 * 1100 px'te öğretmen sekme 1 yatay taşması (§37.6): regresyon değil,
   ayrı iş. Dokunulmadı.
+
+---
+
+## 39. DEPLOY SONRASI DENETİMDE ÇIKAN ÜÇ HATA (5 Eylül 2026)
+
+`b595966` canlıya alındıktan sonra yapılan tam denetimde üç sorun bulundu.
+Üçü de ölçülerek kanıtlandı, düzeltildi ve tekrar ölçüldü.
+
+### 39.1 §36'da GETİRİLEN REGRESYON — null koruması kaybolmuştu
+
+§36, `syncActiveExam()` girişindeki `state.activeStudentId == null` kontrolünü
+`!Number.isFinite(Number(state.activeStudentId))` ile **değiştirdi**. NaN
+yakalandı ama **null kaçtı**: `Number(null)` **0**'dır ve 0 finite'tir.
+
+**Ölçüm:** aktif öğrenci yokken sınav kaydının oturum anahtarları arasında
+`"null"` belirdi (`["1","2","3","4","null"]`).
+
+`syncPaket()` bozuk anahtarı elediği için senkron kırılmıyordu — yani hata
+görünmezdi — ama kayıt kirleniyor ve `Object.keys(sessions)` üzerinden sayan
+her tüketici (ör. `gradedExamHistory`) sahte bir oturum görüyordu.
+
+**Çözüm:** iki kontrol birden. **Doğrulama:** `activeStudentId` sırayla `null`
+ve `NaN` yapılıp `syncActiveExam()` çağrıldı; anahtarlar `["1","2","3","4"]`
+olarak kaldı, ne `"null"` ne `"NaN"` oluştu.
+
+### 39.2 §37'NİN KARDEŞ FONKSİYONDA ATLANMIŞ HÂLİ
+
+§37 `classOutcomeScores()` içindeki `graded || submitted` koşulunu düzeltti,
+ama **`examOutcomeScores()` içindeki aynı koşul kaldı**. Bu fonksiyon
+"Sınavlar Arası Gelişim" kartını besliyor (öğretmen ve yönetici panellerinde)
+ve o kart ekranda açıkça şunu **yazıyor**:
+
+> "Kazanım yüzdeleri, öğretmen onayından geçmiş gerçek sonuçlardan hesaplanır."
+
+Oysa `submitted` = öğrenci gönderdi, öğretmen ONAYLAMADI; `mcResults` gönderim
+anında oluştuğu için çoktan seçmeli yüzdesi onaydan önce sayılıyordu. Yani
+beyan yanlıştı (§6.3-5) — §37'nin düzelttiği hatanın birebir aynısı.
+
+**Ölçüm (gerçek veriyle, 4 öğrenci):** aktif öğrenci `submitted` ve
+`reviews: 0` iken `{"FEN.7.1.2": 62}`; aynı öğrenci `graded` yapılınca
+`{"FEN.7.1.2": 67}`. Düzeltmeden sonra onaysız öğrenci hesaba katılmıyor,
+onaylanınca katılıyor. Durum bozulmadan geri alındı.
+
+Katılım sayacı (`realClassRows`) bilinçli olarak `submitted`i saymaya devam
+ediyor — o bir katılım göstergesidir, puan değil.
+
+### 39.3 MASAÜSTÜNDE YATAY TAŞMA — uzun cümleli `.pill`
+
+`.pill` bir ROZET bileşenidir ve `white-space: nowrap` taşır. Ama **dört
+yerde** uzun cümleli bilgi notu da `.pill` ile çiziliyor. Mobilde §media
+kuralı bunları sarmalıyordu; **masaüstünde sarmalamıyordu.**
+
+**Ölçüm:** 953 px görünümde Öğretmen panelinde taşan öğe
+`DIV.pill.pill-warning` ("4 öğrenci sınava başladı — süre ve açılış saati
+artık değiştirilemez…"), genişlik **620 px**, sayfa **1103 px** yani
+**150 px taşma**. Öğretmenin ana ekranında yatay kaydırma çıkıyordu.
+
+Bu, §38'de "ilgisiz bulgu, ayrı iş olarak ele alınacak" diye not edilen
+taşmanın kök nedenidir.
+
+**Çözüm:** blok olarak kullanılan dört bildirim `.pill-blok` ile işaretlendi;
+yalnızca onlar sarmalanıyor. Rozet davranışı değişmedi.
+
+**Doğrulama:** 5 rolde masaüstü (953-968 px) ve mobil (375 px) taşma **0**;
+blok bildirim `white-space: normal` (431 px), normal rozetler hâlâ `nowrap`.
+
+### 39.4 Doğrulama özeti
+
+`node --check` 4/4 · öz-kontrol 260 ad eksik 0 · lint temiz ·
+`npm test` **185/185** · `check:config` geçti · konsol hatası **0** ·
+çift id **0** · öz-kontrol uyarı şeridi çıkmadı.

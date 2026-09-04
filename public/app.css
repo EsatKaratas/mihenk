@@ -307,6 +307,19 @@
   .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
   .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  /* §39 — BLOK BİLDİRİM PILL'LERİ SARMALANIR.
+     .pill bir ROZET bileşenidir ve `white-space: nowrap` taşır — kısa
+     etiketler için doğru. Ama dört yerde uzun CÜMLELİ bilgi notu da .pill
+     ile çiziliyor ("4 öğrenci sınava başladı — süre ve açılış saati artık
+     değiştirilemez…"). Mobilde §media kuralı bunları sarmalıyordu, ama
+     MASAÜSTÜNDE sarmalamıyordu: 953 px görünümde not 620 px'e uzayıp sayfayı
+     150 px taşırıyor ve öğretmenin ana ekranında yatay kaydırma çıkıyordu
+     (ölçüldü; taşan öğe DIV.pill.pill-warning olarak tespit edildi).
+     Rozet davranışı bozulmasın diye yalnızca blok olarak kullanılanlar
+     .pill-blok ile işaretlendi. */
+  .pill.pill-blok { display: flex; white-space: normal; overflow-wrap: anywhere;
+    line-height: 1.5; padding: 6px 10px; }
+
   .pill-neutral { background: var(--surface-2); color: var(--text-muted); }
   .pill-accent2 { background: var(--accent2-soft); color: var(--accent2); }
   .pill-success { background: var(--success-soft); color: var(--success); }

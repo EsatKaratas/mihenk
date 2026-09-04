@@ -3301,7 +3301,7 @@ function cePoolHtml() {
         '<span class="pill pill-success">Onaylı</span></div></div>' +
         '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
-    (state.poolError ? '<div class="pill pill-critical" style="margin-top:10px;">' + escapeHtml(state.poolError) + '</div>' : "") + '</div>' +
+    (state.poolError ? '<div class="pill pill-blok pill-critical" style="margin-top:10px;">' + escapeHtml(state.poolError) + '</div>' : "") + '</div>' +
     rejectedPoolHtml("ce");
 }
 
@@ -3726,7 +3726,17 @@ function syncActiveExam() {
      yani sınıf kodu senkronu o sınav için BİR DAHA HİÇ çalışmaz ve
      kullanıcı yalnızca anlaşılmaz bir doğrulama hatası görür.
      (Gerçekten yaşandı; ölçülerek bulundu — bkz. PROGRESS §36.) */
-  if (state.activeExamId == null || !Number.isFinite(Number(state.activeStudentId))) return;
+  /* §39 — §36'DA GETİRİLEN REGRESYON DÜZELTİLDİ. §36 bu satırdaki
+     `state.activeStudentId == null` kontrolünü `!Number.isFinite(Number(...))`
+     ile DEĞİŞTİRDİ. NaN yakalandı ama null KAÇTI: `Number(null)` 0'dır ve 0
+     finite'tir, yani null koruma testinden geçip `ss[null] = {}` satırını
+     çalıştırıyordu — sınav kaydına "null" ADLI bir oturum anahtarı yazılıyordu.
+     Ölçüldü: aktif öğrenci yokken oturum anahtarları arasında "null" belirdi.
+     syncPaket() onu elediği için senkron kırılmıyordu, ama kayıt kirleniyor ve
+     `Object.keys(sessions)` üzerinden sayan her tüketici (ör. gradedExamHistory)
+     sahte bir oturum görüyordu. İKİ kontrol de gerekli. */
+  if (state.activeExamId == null || state.activeStudentId == null
+      || !Number.isFinite(Number(state.activeStudentId))) return;
   const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
   if (!kayit) return;
   Object.keys(state.exam).forEach(function (k) { kayit[k] = state.exam[k]; });
@@ -4577,12 +4587,12 @@ function teacherTab1Html() {
       : "") +
     (yayinda ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' +
       (locked
-        ? '<div class="pill pill-warning" style="margin-top:8px;">' + katilim.baslayan +
+        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' + katilim.baslayan +
           ' öğrenci sınava başladı — süre ve açılış saati artık değiştirilemez. ' +
           'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
         : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
-      (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
+      (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
     ) + "</div></div>" + rejectedPoolHtml("teacher");
 }
 
@@ -5554,7 +5564,15 @@ function examOutcomeScores(kayit) {
     const ss = (aktif)
       ? readSession(ogr.id)
       : ((kayit.sessions || {})[ogr.id] || null);
-    if (!ss || (ss.examStatus !== "graded" && ss.examStatus !== "submitted")) return;
+    /* §39 — §37'NİN KARDEŞ FONKSİYONDA ATLANMIŞ HÂLİ. §37 aynı hatayı
+       classOutcomeScores() içinde düzeltti ama burada eski koşul kaldı:
+       `submitted` = öğrenci gönderdi, ÖĞRETMEN ONAYLAMADI. mcResults gönderim
+       anında oluştuğu için çoktan seçmeli yüzdesi onaydan ÖNCE sayılıyordu.
+       Bu fonksiyon "Sınavlar Arası Gelişim" kartını besliyor ve o kart ekranda
+       açıkça "Kazanım yüzdeleri, öğretmen onayından geçmiş gerçek sonuçlardan
+       hesaplanır" DİYOR — yani beyan yanlıştı (§6.3-5). Katılım sayacı ayrı bir
+       fonksiyondadır (realClassRows), ona dokunulmadı. */
+    if (!ss || ss.examStatus !== "graded") return;
     (ex.questionIds || []).forEach(function (qid) {
       const q = state.questions.find(function (x) { return x.id === qid; });
       if (!q) return;
@@ -6883,7 +6901,7 @@ function renderHeatmap(targetId, rows) {
   const low = [];
   rows.filter(function (r) { return !r.ornek; })
     .forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code)); }); });
-  if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
+  if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-blok pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
 
   /* ============ KAPALI DÖNGÜ ============
      Analiz ekranı sadece sorunu göstermekle kalmaz, çözümü de başlatır:
