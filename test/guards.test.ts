@@ -20,6 +20,8 @@ import {
   kaynakGerektirirMi,
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
+  remapOptionsByOrder,
+  shuffleOptions,
 } from '../src/lib/guards';
 
 describe('kaynakGerektirirMi — uyaran metin tespiti', () => {
@@ -219,5 +221,131 @@ describe('soruDilUyarisi — sorunun tüm görünen metinleri', () => {
   it('alanlar eksikse çökmez', () => {
     expect(soruDilUyarisi({})).toBe(false);
     expect(soruDilUyarisi({ body: undefined, options: undefined })).toBe(false);
+  });
+});
+
+// ============================================================================
+// §32 (Burak Modül 4/3) — şık sırası: yeniden etiketleme ve karıştırma.
+//
+// NEDEN kritik: harf etiketleri konuma göre sabittir, içerik hareket eder.
+// Doğru cevap ve çeldirici gerekçeleri şıkkın HARFİNİ değil İÇERİĞİNİ takip
+// etmek zorunda; aksi halde "B şıkkını seçen öğrenci..." gerekçesi artık
+// B'de olmayan bir metne bağlı kalır ve öğrenciye yanlış geri bildirim gider.
+// ============================================================================
+
+describe('remapOptionsByOrder — sıra değişince doğru cevap ve gerekçe birlikte taşınır', () => {
+  const OPTIONS = [
+    { key: 'A', text: 'Elma' },
+    { key: 'B', text: 'Armut' },
+    { key: 'C', text: 'Kiraz' },
+    { key: 'D', text: 'Erik' },
+  ];
+  const RATIONALE = { A: 'Elma yanılgısı', B: 'Armut yanılgısı', D: 'Erik yanılgısı' };
+
+  it('doğru cevap Kiraz (C) iken A konumuna taşınınca correctKey A olur', () => {
+    const r = remapOptionsByOrder(OPTIONS, 'C', RATIONALE, [2, 0, 1, 3]);
+    expect(r.options.map((o) => o.text)).toEqual(['Kiraz', 'Elma', 'Armut', 'Erik']);
+    expect(r.options.map((o) => o.key)).toEqual(['A', 'B', 'C', 'D']);
+    expect(r.correctKey).toBe('A');
+  });
+
+  it('gerekçeler taşınan metinle birlikte yeni harfe geçer', () => {
+    const r = remapOptionsByOrder(OPTIONS, 'C', RATIONALE, [2, 0, 1, 3]);
+    // Elma B'ye, Armut C'ye, Erik D'de kaldı.
+    expect(r.distractorRationale).toEqual({
+      B: 'Elma yanılgısı',
+      C: 'Armut yanılgısı',
+      D: 'Erik yanılgısı',
+    });
+  });
+
+  it('yeni doğru şıkka denk gelen gerekçe düşürülür (gerekçe yalnızca çeldirici içindir)', () => {
+    const r = remapOptionsByOrder(OPTIONS, 'A', RATIONALE, [0, 1, 2, 3]);
+    expect(r.correctKey).toBe('A');
+    expect(r.distractorRationale.A).toBeUndefined();
+    expect(r.distractorRationale.B).toBe('Armut yanılgısı');
+  });
+
+  it('gerekçe konum harfiyle anahtarlanmışsa da bulunur (model ikisini karıştırabiliyor)', () => {
+    const garipKeyler = [
+      { key: 'a)', text: 'Elma' },
+      { key: 'b)', text: 'Armut' },
+      { key: 'c)', text: 'Kiraz' },
+    ];
+    const r = remapOptionsByOrder(garipKeyler, 'c)', { A: 'Elma yanılgısı' }, [2, 0, 1]);
+    expect(r.correctKey).toBe('A');
+    expect(r.distractorRationale.B).toBe('Elma yanılgısı');
+  });
+
+  it('correctKey tanınmazsa ilk şık doğru kabul edilir, çökmez', () => {
+    const r = remapOptionsByOrder(OPTIONS, 'ZZZ', RATIONALE, [1, 0, 2, 3]);
+    expect(r.options.map((o) => o.key)).toEqual(['A', 'B', 'C', 'D']);
+    expect(r.correctKey).toBe('B'); // eski A (Elma) yeni B konumunda
+  });
+
+  it('girdiyi mutasyona uğratmaz', () => {
+    const kopya = JSON.parse(JSON.stringify(OPTIONS));
+    remapOptionsByOrder(OPTIONS, 'C', RATIONALE, [3, 2, 1, 0]);
+    expect(OPTIONS).toEqual(kopya);
+  });
+});
+
+describe('shuffleOptions — üretim sonrası şık karıştırma', () => {
+  const OPTIONS = [
+    { key: 'A', text: 'Elma' },
+    { key: 'B', text: 'Armut' },
+    { key: 'C', text: 'Kiraz' },
+    { key: 'D', text: 'Erik' },
+  ];
+
+  it('doğru cevabın METNİ her karıştırmada korunur', () => {
+    for (let i = 0; i < 200; i++) {
+      const r = shuffleOptions(OPTIONS, 'C', undefined, Math.random);
+      const dogru = r.options.find((o) => o.key === r.correctKey);
+      expect(dogru?.text).toBe('Kiraz');
+    }
+  });
+
+  it('harfler her zaman konuma göre A,B,C,... olur', () => {
+    for (let i = 0; i < 100; i++) {
+      const r = shuffleOptions(OPTIONS, 'A', undefined, Math.random);
+      expect(r.options.map((o) => o.key)).toEqual(['A', 'B', 'C', 'D']);
+    }
+  });
+
+  it('400 denemede doğru cevap her harfte görülür (pozisyon önyargısı yok)', () => {
+    const dagilim: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
+    for (let i = 0; i < 400; i++) {
+      const r = shuffleOptions(OPTIONS, 'C', undefined, Math.random);
+      dagilim[r.correctKey]++;
+    }
+    Object.values(dagilim).forEach((n) => expect(n).toBeGreaterThan(20));
+  });
+
+  it('belirlenimci rng ile sonuç tekrarlanabilir', () => {
+    const sabitRng = () => 0; // her adımda j = 0
+    const a = shuffleOptions(OPTIONS, 'C', { A: 'x' }, sabitRng);
+    const b = shuffleOptions(OPTIONS, 'C', { A: 'x' }, sabitRng);
+    expect(a).toEqual(b);
+  });
+
+  it('gerekçeler karıştırmadan sonra da doğru metne bağlı kalır', () => {
+    const RATIONALE = { A: 'Elma yanılgısı', B: 'Armut yanılgısı', D: 'Erik yanılgısı' };
+    for (let i = 0; i < 200; i++) {
+      const r = shuffleOptions(OPTIONS, 'C', RATIONALE, Math.random);
+      const metinToHarf: Record<string, string> = {};
+      r.options.forEach((o) => { metinToHarf[o.text] = o.key; });
+      expect(r.distractorRationale[metinToHarf['Elma']]).toBe('Elma yanılgısı');
+      expect(r.distractorRationale[metinToHarf['Armut']]).toBe('Armut yanılgısı');
+      expect(r.distractorRationale[metinToHarf['Erik']]).toBe('Erik yanılgısı');
+      expect(r.distractorRationale[r.correctKey]).toBeUndefined();
+    }
+  });
+
+  it('üç şıklı soruda da çalışır', () => {
+    const uc = [{ key: 'A', text: 'x' }, { key: 'B', text: 'y' }, { key: 'C', text: 'z' }];
+    const r = shuffleOptions(uc, 'B', undefined, Math.random);
+    expect(r.options).toHaveLength(3);
+    expect(r.options.find((o) => o.key === r.correctKey)?.text).toBe('y');
   });
 });

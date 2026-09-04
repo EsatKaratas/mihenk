@@ -288,15 +288,17 @@ async function aiGenerateQuestions(doc) {
         // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
         sube: doc.sube || "",
       };
-      // Paket 4b: %25 şık dağılımı — AI ardışık üretimlerde doğru şıkkı hep
-      // aynı harfe (gözlemlenen: B) yerleştirme eğiliminde olabiliyor.
-      // Sunucu zaten harfleri A,B,C,... olarak konuma göre normalleştiriyor
-      // (src/routes/ai.ts) ama modelin kendi seçtiği KONUM hâlâ sapmalı
-      // olabilir; bu yüzden istemci tarafında üretim SONRASI, onaya
-      // gitmeden ÖNCE, Fisher-Yates ile şıklar yeniden karıştırılır. Doğru
-      // metin/gerekçeler shuffleQuestionOptions içindeki ortak
-      // relabelOptionsAndGetKeyMap/remapCorrectKeyAndRationale ile korunur.
-      shuffleQuestionOptions(soru);
+      /* Paket 4b + §32 (Burak Modül 4) — %25 şık dağılımı, TEK yerde.
+         Eskiden burada ayrıca `shuffleQuestionOptions(soru)` çağrılıyordu;
+         artık karıştırma SUNUCUDA yapılıyor (src/routes/ai.ts →
+         guards.ts `shuffleOptions`) ve bu satır kaldırıldı. Gerekçe:
+         karıştırma tek ve yetkili bir noktada olmalı — iki bağımsız
+         karıştırma sonucu bozmaz ama hangi katmanın sorumlu olduğunu
+         belirsizleştirir ve sunucu testleriyle (test/guards.ts) doğrulanan
+         davranışın istemcide sessizce değişmesine kapı açar.
+         `shuffleQuestionOptions` KALDIRILMADI: yerel simülasyon yolunda
+         (simulateQuestions) ve şık taşımada (moveOption, sürükle-bırak)
+         hâlâ kullanılıyor. */
       return soru;
     });
   } catch (e) {
@@ -902,7 +904,11 @@ const state = {
   rubricError: "",
   poolError: "",
   critDescOpen: null,
-  rejectedOpen: false,
+  /* §32 (Burak Modül 2): Reddedilenler havuzunun açık/kapalı durumu ROL
+     BAŞINA ayrı tutulur. Eskiden tek bir `rejectedOpen` vardı; beş panelin
+     DOM'u aynı anda render edildiği için İçerik Uzmanı ve Öğretmen aynı
+     düğmeyi paylaşıyor, birinde yapılan aç/kapa diğerini de etkiliyordu. */
+  rejectedOpenByRole: { ce: false, teacher: false },
   evalCache: {},
   simRunning: false,
   simStatus: null,
@@ -3048,7 +3054,7 @@ function renderContentExpert() {
   root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
     (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
   wireCeTabs();
-  if (state.ceTab === 2) { wireRejectedPool(); return; }
+  if (state.ceTab === 2) { wireRejectedPool("ce"); return; }
 
   const rg = document.getElementById("btnRemedialGen");
   if (rg) rg.onclick = onGenerateQuestions;
@@ -3271,6 +3277,14 @@ function deleteQuestion(qid) {
   return "";
 }
 
+/* §32 (Burak Modül 2): "bu rolde havuz açık mı?" — eksik/eski kayıtlarda
+   (localStorage'da `rejectedOpenByRole` yoksa) varsayılan KAPALI kalır,
+   böylece davranış eskisiyle aynı olur. */
+function rejectedAcikMi(mod) {
+  const durum = state.rejectedOpenByRole || {};
+  return durum[mod] === true;
+}
+
 function rejectedPoolHtml(mod) {
   const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
   const btn = mod === "ce"
@@ -3280,10 +3294,12 @@ function rejectedPoolHtml(mod) {
     ? "Reddettiğiniz sorular silinmez. Fikrinizi değiştirirseniz inceleme kuyruğuna geri alabilirsiniz."
     : "İçerik uzmanının reddettiği sorular. Sınavınıza uygun bulduklarınızı doğrudan onaylı havuza alabilirsiniz.";
   if (!rejected.length && mod === "teacher") return "";
-  const acik = state.rejectedOpen !== false;
+  const acik = rejectedAcikMi(mod);
   return '<div class="card" style="margin-top:16px;"><div class="card-head">' +
     '<h3>Reddedilen Soru Havuzu</h3>' +
-    '<button class="btn btn-secondary btn-sm" id="btnToggleRejected">' + rejected.length + ' soru · ' + (acik ? "gizle" : "göster") + '</button></div>' +
+    // §32: id role göre benzersiz — aksi halde iki panelde aynı id oluşur ve
+    // getElementById DOM sırasındaki İLKİNİ bulup ikinciyi ölü bırakır.
+    '<button class="btn btn-secondary btn-sm" id="btnToggleRejected-' + mod + '">' + rejected.length + ' soru · ' + (acik ? "gizle" : "göster") + '</button></div>' +
     (acik ? '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">' + aciklama + '</div>' : "") +
     (!acik ? "" : rejected.length
       ? rejected.map(function (q) {
@@ -3299,9 +3315,13 @@ function rejectedPoolHtml(mod) {
       : '<div class="empty-state">Reddedilen soru yok.</div>') + '</div>';
 }
 
-function wireRejectedPool() {
-  const tg = document.getElementById("btnToggleRejected");
-  if (tg) tg.onclick = function () { state.rejectedOpen = state.rejectedOpen === false; renderAll(); };
+function wireRejectedPool(mod) {
+  const tg = document.getElementById("btnToggleRejected-" + mod);
+  if (tg) tg.onclick = function () {
+    state.rejectedOpenByRole = state.rejectedOpenByRole || {};
+    state.rejectedOpenByRole[mod] = !rejectedAcikMi(mod);
+    renderAll();
+  };
   document.querySelectorAll(".del-q").forEach(function (b) {
     b.onclick = function () {
       state.poolError = deleteQuestion(Number(b.dataset.qid));
@@ -4262,7 +4282,7 @@ function teacherTab1Html() {
 function wireTeacherTab1() {
   wireSinifYonetim();
   wireExamSwitcher();
-  wireRejectedPool();
+  wireRejectedPool("teacher");
   // Boş durumdaki yönlendirme düğmeleri.
   const git = document.getElementById("btnIcerikUzmaninaGit");
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
@@ -8421,7 +8441,7 @@ setInterval(function () {
 (function selfCheck() {
   const gerekli = [
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
-    "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "renderPendingQuestionCard", "distractorHtml",
+    "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",

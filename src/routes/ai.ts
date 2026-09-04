@@ -27,6 +27,7 @@ import {
   round05,
   clamp,
   kaynakGerektirirMi,
+  shuffleOptions,
 } from '../lib/guards';
 import {
   generateQuestionsSchema,
@@ -127,7 +128,10 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   // JSON ayrıştırması ilk denemede başarısız olup gereksiz bir retry'a yol
   // açıyordu (gözlemlenen: 27 sn / 2 deneme). 420 tok/soru ile tek denemede
   // tamamlanıyor.
-  const maxTokens = clamp(600 + total * 420, 1200, 3000);
+  // §32 (Burak Modül 5): tekrar önleme listesi istemi büyütür; her önceki
+  // soru için küçük bir pay eklenir ve üst sınır 3000 → 3400'e çıkar, aksi
+  // halde uzun bir dedup listesinde yanıt yine ortada kesilebilirdi.
+  const maxTokens = clamp(600 + total * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
 
   try {
     const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
@@ -139,30 +143,32 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       );
     }
 
-    const letters = 'ABCDE'.split('');
     const questions = parsed.data.questions
       .map((q) => {
         if (q.type === 'mc') {
           const opts = (q.options || []).slice(0, b.optionCount);
           if (opts.length < 3) return null;
-          // Anahtarları A,B,C,... olarak normalleştir; doğru şıkkın yeni
-          // anahtarını eski konumundan taşı.
-          const oldKeys = opts.map((o) => String(o.key).trim().toUpperCase());
-          const correctIdx = Math.max(0, oldKeys.indexOf(String(q.correctKey || '').trim().toUpperCase()));
-          const options = opts.map((o, i) => ({ key: letters[i], text: String(o.text).trim() }));
-          const rationale: Record<string, string> = {};
-          if (q.distractorRationale) {
-            oldKeys.forEach((ok, i) => {
-              const val = q.distractorRationale?.[ok] ?? q.distractorRationale?.[letters[i]];
-              if (val && i !== correctIdx) rationale[letters[i]] = String(val);
-            });
-          }
+          /* §32 (Burak Modül 4): şıklar burada hem A,B,C,... olarak
+             normalleştirilir HEM DE rastgele karıştırılır. Eskiden yalnızca
+             normalleştirme vardı; modelin kendi seçtiği KONUM korunuyordu ve
+             doğru cevap sistematik olarak aynı harfe düşebiliyordu.
+             `shuffleOptions` doğru cevabı ve çeldirici gerekçelerini
+             İÇERİĞE göre yeni harfe taşır (bkz. src/lib/guards.ts).
+
+             Bu, karıştırmanın TEK yetkili noktasıdır: istemci canlı AI
+             yolunda ayrıca karıştırma yapmaz (bkz. public/app.js
+             `aiGenerateQuestions` — çift karıştırmayı önlemek için). */
+          const trimmedOpts = opts.map((o) => ({
+            key: String(o.key).trim().toUpperCase(),
+            text: String(o.text).trim(),
+          }));
+          const karisik = shuffleOptions(trimmedOpts, q.correctKey || '', q.distractorRationale);
           return {
             type: 'mc' as const,
             body: String(q.body).trim(),
-            options,
-            correctKey: letters[correctIdx],
-            distractorRationale: rationale,
+            options: karisik.options,
+            correctKey: karisik.correctKey,
+            distractorRationale: karisik.distractorRationale,
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),

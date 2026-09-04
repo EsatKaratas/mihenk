@@ -127,3 +127,79 @@ export function soruDilUyarisi(q: {
   if ((q.options || []).some((o) => yabanciAlfabeVarMi(o?.text || ''))) return true;
   return Object.values(q.distractorRationale || {}).some((v) => yabanciAlfabeVarMi(v));
 }
+
+/* ===========================================================================
+   ŞIK SIRASI — yeniden etiketleme ve karıştırma (§32, Burak Modül 4)
+   ===========================================================================
+   NEDEN: Model ardışık üretimlerde doğru şıkkı sistematik olarak aynı harfe
+   (gözlemlenen: B) yerleştirme eğiliminde olabiliyor. Öğrenci "şüphede
+   kalırsan B'yi işaretle" gibi bir strateji geliştirirse ölçüm geçerliliğini
+   kaybeder. Bu yüzden şıklar üretimden SONRA, istemciye gönderilmeden ÖNCE
+   sunucuda karıştırılır.
+
+   DEĞİŞMEZ KURAL: harf etiketleri (A,B,C,...) HER ZAMAN konuma göre atanır;
+   içerik hareket eder. Doğru cevap ve çeldirici gerekçeleri, taşınan şıkkın
+   HARFİNİ değil İÇERİĞİNİ takip eder — yoksa "B şıkkını seçen öğrenci..."
+   gerekçesi artık B'de olmayan bir metne bağlı kalırdı.
+
+   Bu iki fonksiyon saftır (girdiyi mutasyona uğratmaz) ve `shuffleOptions`
+   `remapOptionsByOrder` üzerine kuruludur — sıralama mantığı tek yerde. */
+
+const SIK_HARFLERI = 'ABCDE'.split('');
+
+type SikSonucu = {
+  options: { key: string; text: string }[];
+  correctKey: string;
+  distractorRationale: Record<string, string>;
+};
+
+/**
+ * `order[k]` = yeni k. konuma yerleşecek ESKİ dizin.
+ * Gerekçe anahtarları önce şıkkın kendi `key` değeriyle, bulunamazsa konum
+ * harfiyle aranır (model bazen ikisini karıştırıyor). Yeni doğru şıkka
+ * denk gelen gerekçe düşürülür — gerekçe yalnızca ÇELDİRİCİLER içindir.
+ */
+export function remapOptionsByOrder<T extends { key: string; text: string }>(
+  options: T[],
+  correctKey: string,
+  distractorRationale: Record<string, string> | undefined,
+  order: number[]
+): SikSonucu {
+  const oldKeys = options.map((o) => String(o.key).trim().toUpperCase());
+  const correctOldIdx = Math.max(0, oldKeys.indexOf(String(correctKey || '').trim().toUpperCase()));
+  const newOptions = order.map((origIdx, k) => ({
+    key: SIK_HARFLERI[k],
+    text: String(options[origIdx].text),
+  }));
+  const newCorrectIdx = order.indexOf(correctOldIdx);
+  const newCorrectKey = SIK_HARFLERI[newCorrectIdx >= 0 ? newCorrectIdx : 0];
+  const newRationale: Record<string, string> = {};
+  order.forEach((origIdx, k) => {
+    if (k === newCorrectIdx) return;
+    const ok = oldKeys[origIdx];
+    const val = distractorRationale?.[ok] ?? distractorRationale?.[SIK_HARFLERI[origIdx]];
+    if (val) newRationale[SIK_HARFLERI[k]] = String(val);
+  });
+  return { options: newOptions, correctKey: newCorrectKey, distractorRationale: newRationale };
+}
+
+/**
+ * Fisher-Yates ile şıkları karıştırır ve `remapOptionsByOrder` ile harf /
+ * doğru cevap / gerekçeleri yeniden hizalar. `rng` testte belirlenimci bir
+ * üreteçle değiştirilebilir.
+ */
+export function shuffleOptions<T extends { key: string; text: string }>(
+  options: T[],
+  correctKey: string,
+  distractorRationale: Record<string, string> | undefined,
+  rng: () => number = Math.random
+): SikSonucu {
+  const order = options.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = order[i];
+    order[i] = order[j];
+    order[j] = tmp;
+  }
+  return remapOptionsByOrder(options, correctKey, distractorRationale, order);
+}
