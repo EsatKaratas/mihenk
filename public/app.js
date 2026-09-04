@@ -3585,7 +3585,18 @@ function sessionOf(kayit, sid) {
 }
 
 function syncActiveExam() {
-  if (state.activeExamId == null || state.activeStudentId == null) return;
+  /* §36 — GEÇERSİZ ÖĞRENCİ KİMLİĞİ KORUMASI.
+     Buradaki kontrol yalnızca `== null` idi; NaN'ı YAKALAMIYORDU
+     (NaN == null → false). `activateStudent(Number(...))` bir yerde
+     tanımsız bir değer alırsa state.activeStudentId NaN olur ve aşağıdaki
+     `ss[state.activeStudentId] = {}` satırı sınav kaydına "NaN" ADLI bir
+     oturum anahtarı yazar. O anahtar KALICIDIR ve syncPaket() onu
+     studentId:null olarak gönderdiği için sunucu her push'u
+     "sessions.N.studentId: Expected number, received null" ile reddeder —
+     yani sınıf kodu senkronu o sınav için BİR DAHA HİÇ çalışmaz ve
+     kullanıcı yalnızca anlaşılmaz bir doğrulama hatası görür.
+     (Gerçekten yaşandı; ölçülerek bulundu — bkz. PROGRESS §36.) */
+  if (state.activeExamId == null || !Number.isFinite(Number(state.activeStudentId))) return;
   const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
   if (!kayit) return;
   Object.keys(state.exam).forEach(function (k) { kayit[k] = state.exam[k]; });
@@ -6076,25 +6087,10 @@ function teacherWhoamiHtml() {
     '</div>';
 }
 
-function renderTeacher() {
-  const root = document.getElementById("panel-teacher");
-  // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
-  // birebir aynı — salt okunur sayaç, hiçbir onay/karar vermez.
-  const tabs = [
-    { id: 1, label: "1 · Sınav Oluştur" },
-    { id: 2, label: "2 · Rubrik", rozet: pendingRubricCount() },
-    { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
-    { id: 4, label: "4 · Analitik" }
-  ];
-  // §29: öğretmen adı alanı (teacherWhoamiHtml) sekme şeridinin ÜSTÜNDE durur;
-  // sekme rozetleri (Madde 3) aşağıdaki map içinde aynen korunur.
-  root.innerHTML = teacherWhoamiHtml() +
-    '<div class="tabs" id="teacherTabs">' +
-    tabs.map(function (t) {
-      return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
-        t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
-    }).join("") +
-    '</div><div id="teacherTabContent"></div>';
+/* §34/§35 — öğretmen adı alanının olay bağlamaları. Eskiden renderTeacher
+   gövdesinin içindeydi; alan 3. sekmeye taşınınca içerik o sekme çizildikten
+   SONRA bağlanmalı, bu yüzden ayrı bir fonksiyona alındı. */
+function wireTeacherWhoami() {
   const whoami = document.getElementById("taWhoami");
   if (whoami) {
     /* TUZAK 3: oninput içinden renderAll() ÇAĞRILMAZ — yazarken odak kaybolur.
@@ -6126,11 +6122,41 @@ function renderTeacher() {
       renderAll();
     };
   });
+}
+
+function renderTeacher() {
+  const root = document.getElementById("panel-teacher");
+  // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
+  // birebir aynı — salt okunur sayaç, hiçbir onay/karar vermez.
+  const tabs = [
+    { id: 1, label: "1 · Sınav Oluştur" },
+    { id: 2, label: "2 · Rubrik", rozet: pendingRubricCount() },
+    { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
+    { id: 4, label: "4 · Analitik" }
+  ];
+  /* §35 — ÖĞRETMEN ADI ALANI ARTIK YALNIZCA "3 · Değerlendirme Onayı"
+     SEKMESİNDE. Eskiden sekme şeridinin ÜSTÜNDE, dört sekmede birden
+     duruyordu; alanın sorduğu şey ("bu sınavı kim değerlendiriyor") yalnızca
+     değerlendirme adımında anlamlı olduğu için sınav kurma, rubrik ve
+     analitik ekranlarında yer kaplıyordu.
+
+     BİLİNEN SONUÇ: createExam() yeni sınavı state.activeTeacherName'e atar
+     (bkz. o fonksiyondaki §29 notu). Alan 1. sekmede görünmediği için ad,
+     sınav oluşturulmadan ÖNCE girilemez. Kayıp değildir: 3. sekmede ad
+     girildiğinde state.exam.teacherName de güncellenir ve aktif sınavın
+     sahibi düzelir. Analitik sekmesi bu alandan bağımsızdır — kendi
+     listesini (state.adminSelectedTeacher) kullanır (ölçüldü). */
+  root.innerHTML = '<div class="tabs" id="teacherTabs">' +
+    tabs.map(function (t) {
+      return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
+        t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
+    }).join("") +
+    '</div><div id="teacherTabContent"></div>';
   document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("teacherTabContent");
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
-  if (state.teacherTab === 3) { content.innerHTML = teacherTab3Html(); wireTeacherTab3(); }
+  if (state.teacherTab === 3) { content.innerHTML = teacherWhoamiHtml() + teacherTab3Html(); wireTeacherWhoami(); wireTeacherTab3(); }
   if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
 }
 
@@ -8401,7 +8427,14 @@ function syncPaket() {
   };
 
   const ss = examSessions(kayit);
-  const oturumlar = Object.keys(ss).map(function (sid) {
+  /* §36 — İKİNCİ KATMAN: kayıtta zaten bozuk bir anahtar varsa (eski
+     verilerde olabilir) onu göndermeyiz. Sessizce atmak yerine burada
+     ELENİR ve senkron çalışmaya devam eder; tek bir bozuk anahtar yüzünden
+     tüm sınıfın verisi gitmemelidir. Anahtar temizliği için ayrıca
+     syncActiveExam() içindeki koruma var. */
+  const oturumlar = Object.keys(ss).filter(function (sid) {
+    return Number.isFinite(Number(sid));
+  }).map(function (sid) {
     const o = ss[sid] || {};
     const ogr = (state.students || []).find(function (x) { return String(x.id) === String(sid); });
     return {
@@ -8575,11 +8608,20 @@ function syncChipHtml() {
   if (!state.syncRoom) return "";   // koda bağlı değilken topbar tamamen sadedir
   const s = syncDurum();
   const cls = s.hata ? "pill-warning" : (s.busy ? "pill-accent2" : "pill-success");
+  /* §36 — KOD ile DURUM METNİ ayrı biçimlendirilir.
+     .sync-metin monospace + 0,06em harf aralığı kullanıyordu. Bu bir SINIF
+     KODU için doğrudur (AB2C9 karakter karakter okunur, O/0 ve I/1 karışmasın
+     diye), ama aynı stil "eşitleniyor…" / "eşitlenemedi" gibi TÜRKÇE
+     CÜMLELERE de uygulanıyordu ve kelime bozuk/aralıklı görünüyordu.
+     Artık monospace yalnızca gerçekten kod gösterilirken açılır. */
+  const kodMu = !s.busy && !s.hata;
   const metin = s.busy ? "eşitleniyor…" : (s.hata ? "eşitlenemedi" : state.syncRoom);
   return '<button class="sync-chip ' + cls + '" id="btnSyncDetay" aria-expanded="' +
-    (state.syncAyrintiAcik ? "true" : "false") + '" title="Sınıf kodu ayrıntıları">' +
+    (state.syncAyrintiAcik ? "true" : "false") + '" title="' +
+    (kodMu ? "Sınıf kodu " + escapeHtml(String(state.syncRoom)) + " — ayrıntılar"
+           : (s.hata ? "Eşitleme başarısız — ayrıntılar için tıklayın" : "Eşitleniyor…")) + '">' +
     '<span class="sync-nokta">' + (s.hata ? "!" : "●") + "</span>" +
-    '<span class="sync-metin">' + escapeHtml(metin) + "</span>" +
+    '<span class="sync-metin' + (kodMu ? " sync-kod" : "") + '">' + escapeHtml(metin) + "</span>" +
     '<span class="sync-ok">' + (state.syncAyrintiAcik ? "▴" : "▾") + "</span></button>" +
     syncDetayHtml();
 }
@@ -8843,7 +8885,7 @@ setInterval(function () {
     /* §31 — üretim dayanağı (kaynak metin / kazanım) seçimi. */
     "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari",
     /* §34 — öğretmen adı hızlı seçim listesi. */
-    "ogretmenSecenekleri"
+    "ogretmenSecenekleri", "wireTeacherWhoami"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

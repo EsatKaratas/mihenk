@@ -1326,7 +1326,12 @@
 .sync-chip { display: inline-flex; align-items: center; gap: 7px;
   padding: 5px 10px; border-radius: 999px; border: 1px solid transparent;
   font: 600 11.5px/1.4 inherit; cursor: pointer; max-width: 100%; }
-.sync-chip .sync-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.sync-chip .sync-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* §36: monospace + harf aralığı YALNIZCA gerçek sınıf kodu gösterilirken.
+   Kod için gerekli (karakterler tek tek okunur, O/0 ve I/1 ayırt edilir);
+   "eşitleniyor…" / "eşitlenemedi" gibi Türkçe durum metinlerine uygulanınca
+   kelime bozuk ve aralıklı görünüyordu. */
+.sync-chip .sync-metin.sync-kod {
   font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; }
 .sync-chip .sync-nokta { flex: none; font-size: 9px; line-height: 1; }
 .sync-chip .sync-ok { flex: none; font-size: 9px; opacity: .75; }

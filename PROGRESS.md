@@ -5031,3 +5031,96 @@ bir sınav bulunduğunu gösterir"* olarak düzeltildi. Projede aynı hata sın�
 | Mobil 375×812 | taşma yok, 6 çip ekran içinde, hepsi 32 px (WCAG 2.5.8 geçti) |
 
 Kadroyu değiştirmek için tek yapılacak `OGRETMEN_KADROSU` dizisini düzenlemek.
+
+---
+
+## 34. ÖĞRETMEN ADI YALNIZCA DEĞERLENDİRME SEKMESİNDE + SINIF KODU ÇİPİ (4 Eylül 2026)
+
+### 34.1 Öğretmen adı alanı 3. sekmeye taşındı
+
+**İstek:** "Bu pencere sadece sınav değerlendirirken çıksın."
+
+Alan sekme şeridinin ÜSTÜNDE, dört sekmede birden duruyordu. Sorduğu şey
+("bu sınavı kim değerlendiriyor") yalnızca değerlendirme adımında anlamlı;
+artık `teacherWhoamiHtml()` sadece **3 · Değerlendirme Onayı** sekmesinin
+içeriğine ekleniyor.
+
+Olay bağlamaları `renderTeacher()` gövdesinden `wireTeacherWhoami()` adlı ayrı
+bir fonksiyona alındı — içerik o sekme çizildikten SONRA bağlanmalı.
+
+**Bilinen sonuç (ölçüldü, gizlenmiyor):** `createExam()` yeni sınavı
+`state.activeTeacherName`'e atar. Alan 1. sekmede görünmediği için ad, sınav
+oluşturulmadan ÖNCE girilemez. Kayıp değildir: 3. sekmede ad girildiğinde
+`state.exam.teacherName` de güncellenir ve aktif sınavın sahibi düzelir.
+Analitik sekmesi bu alandan bağımsızdır (kendi `adminSelectedTeacher`
+listesini kullanır — ölçüldü).
+
+### 34.2 Sınıf kodu çipi — YANLIŞ ALARM ÖNCE ELENDİ
+
+Çip ekranda kırmızı **"eşitlenemedi"** gösteriyordu. Ürün hatası sanılmadan
+önce ortam ayrımı yapıldı:
+
+| Ortam | Boş oda `POST /api/sync/pull` |
+|---|---|
+| **Canlı** (`mihenk.bies.workers.dev`) | **200** · `{"exams":[],"sessions":[]}` |
+| **Yerel** (`wrangler dev`) | **500** `sync_failed` |
+
+Sebep: yerel D1'de `sync_exams` / `sync_sessions` tabloları yoktu (migration
+yerelde çalıştırılmamıştı). **Üründe kırıklık yoktu.** Tablolar yalnızca
+`--local` D1'e uygulandı (üretim veritabanına DOKUNULMADI, `agents.md` §9).
+
+### 34.3 GERÇEK HATA — tek bozuk oturum anahtarı senkronu kalıcı kırıyordu
+
+Tablolar kurulunca `pull` 200 döndü ama `push` **400** verdi:
+
+```
+sessions.8.studentId: Expected number, received null
+```
+
+**Kök neden:** `syncActiveExam()` girişindeki koruma yalnızca `== null` idi ve
+**NaN'ı yakalamıyordu** (`NaN == null` → false). `state.activeStudentId` bir
+kez NaN olursa `ss[state.activeStudentId] = {}` satırı sınav kaydına
+**`"NaN"` adlı bir oturum anahtarı** yazıyor. O anahtar KALICI: `syncPaket()`
+onu `studentId: null` olarak gönderiyor, sunucu her push'u reddediyor ve o
+sınav için sınıf kodu senkronu **bir daha hiç çalışmıyor** — kullanıcı yalnızca
+anlaşılmaz bir doğrulama hatası görüyor.
+
+Bu turdaki NaN'ın kaynağı §33.4'te düzeltilen `.sp-btn` çakışmasıydı
+(`activateStudent(Number(undefined))`). Yani tetikleyici kapatıldı — **ama
+uygulamanın kendisinde hiçbir savunma yoktu.** İki katman eklendi:
+
+1. `syncActiveExam()`: `Number.isFinite(Number(state.activeStudentId))` değilse
+   hiç yazmaz.
+2. `syncPaket()`: kayıtta zaten bozuk anahtar varsa (eski veri) o oturum
+   **elenir** ve senkron çalışmaya devam eder — tek bozuk anahtar yüzünden
+   tüm sınıfın verisi gitmez. Bozuk durum böylece kendiliğinden iyileşir.
+
+**Doğrulama:** düzeltmeden sonra aynı bozuk kayıtla
+`push → 200 {"exams":1,"sessions":8}`, `pull → 200` gerçek veriyle, çip yeşil,
+paketteki geçersiz `studentId` sayısı **0**.
+
+### 34.4 Çip tipografisi
+
+`.sync-metin` monospace + `.06em` harf aralığı kullanıyordu. Bu bir SINIF KODU
+için doğrudur (AB2C9 karakter karakter okunur, O/0 ve I/1 ayrılır) ama aynı
+stil `"eşitleniyor…"` / `"eşitlenemedi"` gibi **Türkçe cümlelere** de
+uygulanıyordu ve kelime bozuk/aralıklı görünüyordu. Monospace artık yalnızca
+gerçek kod gösterilirken (`.sync-kod`) açılıyor. Çipin `title`'ı da duruma
+göre anlamlı hale getirildi.
+
+Kontrast ölçüldü: çip metni / çip zemini **5,00:1** — WCAG AA (4,5) geçiyor,
+sorun kontrast değildi.
+
+### 34.5 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| Öğretmen alanı sekme 1/2/4 | **görünmüyor** |
+| Öğretmen alanı sekme 3 | 6 çip + input + Temizle, hepsi çalışıyor |
+| Sekme 3'te çip seçimi | `activeTeacherName` güncelleniyor, sekme 3'te kalınıyor |
+| Serbest metin | odak korunuyor |
+| Çip: kod durumu | IBM Plex Mono + 0,8px aralık (doğru) |
+| Çip: hata durumu | normal font, aralık `normal` |
+| Senkron push/pull | **200 / 200** |
+| lint · test · öz-kontrol · config | temiz · **185/185** · 254 eksik 0 · geçti |
+| Konsol hatası | **0** |
