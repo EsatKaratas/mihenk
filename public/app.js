@@ -1086,6 +1086,50 @@ const state = {
 // bırakılmasın diye konmuş bir etiket olduğu ismiyle bellidir.
 const VARSAYILAN_OGRETMEN_ADI = "İsimsiz Öğretmen";
 
+/* §34 — ÖĞRETMEN KADROSU (hızlı seçim listesi).
+
+   NEDEN AYRI BİR LİSTE: Üç öğretmen zaten `state.baseline.teachers` içinde
+   vardı ama oraya bir ad eklemek, o ada AİT UYDURMA PUANLAMA KAYDI da eklemek
+   demek — orası kalibrasyon karnesini besleyen ham (ai, nihai) puan çiftlerini
+   tutuyor. Yalnızca "seçilebilir isim" eklemek için oraya dokunulmadı
+   (§6.3-5: uydurma sayı yasak). Buradaki adların puan verisi YOKTUR; biri
+   seçilip gerçekten sınav değerlendirirse kalibrasyon karnesi o GERÇEK
+   kayıtlardan hesaplanır (bkz. teacherRoster / teacherExamRecords).
+
+   Bu liste yalnızca bir kolaylıktır: alan hâlâ serbest metindir, buradaki
+   adlar bir kısıt değildir. Kendi okulunuzun öğretmenleriyle değiştirmek
+   için yalnızca bu diziyi düzenleyin. */
+const OGRETMEN_KADROSU = [
+  { name: "Ahmet Yılmaz", subject: "Matematik" },
+  { name: "Ayşe Kaya", subject: "Fen Bilimleri" },
+  { name: "Mehmet Demir", subject: "Türkçe" },
+  { name: "Zeynep Arslan", subject: "Türkçe" },
+  { name: "Emre Şahin", subject: "Matematik" },
+  { name: "Fatma Öztürk", subject: "Fen Bilimleri" },
+];
+
+/* §34 — Hızlı seçim çiplerinde gösterilecek adlar.
+   Sıra: önce bu sistemde GERÇEKTEN sınav değerlendirmiş adlar, sonra kadro.
+   Aynı ad iki kez görünmez. Gerçek olanlar `gercek:true` ile işaretlenir —
+   ısı haritası ve teacherRoster'daki "(örnek)" sözleşmesiyle aynı mantık:
+   örnek olan hiçbir zaman gerçek gibi gösterilmez. */
+function ogretmenSecenekleri() {
+  const gorulen = {};
+  const liste = [];
+  (state.exams || []).forEach(function (k) {
+    const ad = String((k && k.teacherName) || "").trim();
+    if (!ad || gorulen[ad]) return;
+    gorulen[ad] = true;
+    liste.push({ name: ad, subject: null, gercek: true });
+  });
+  OGRETMEN_KADROSU.forEach(function (t) {
+    if (gorulen[t.name]) return;
+    gorulen[t.name] = true;
+    liste.push({ name: t.name, subject: t.subject, gercek: false });
+  });
+  return liste;
+}
+
 function findQuestion(id) { return state.questions.find(function (q) { return String(q.id) === String(id); }); }
 function outcomeLabel(code) { const o = OUTCOMES_LIST().find(function (x) { return x.code === code; }); return o ? o.label : code; }
 /* Madde 2: kazanımın müfredat kataloğundaki konu alanı ("alan") — yalnızca
@@ -5982,13 +6026,53 @@ function teacherTab4Html() {
    sınav `VARSAYILAN_OGRETMEN_ADI` altında toplanır (teacherRoster). */
 function teacherWhoamiHtml() {
   const ad = state.activeTeacherName || "";
-  const oneriler = (state.baseline.teachers || []).map(function (t) {
+  const secenekler = ogretmenSecenekleri();
+  /* §34: eskiden yalnızca bir <datalist> vardı. Tarayıcı datalist'i ancak
+     kullanıcı YAZMAYA BAŞLAYINCA açar; bu yüzden ekranda üç öğretmen tanımlı
+     olmasına rağmen alan bomboş görünüyor ve kimse listenin varlığını
+     bilmiyordu. Artık adlar GÖRÜNÜR çip olarak sunuluyor. datalist de
+     KORUNDU — yazarken tamamlama hâlâ çalışsın.
+
+     🔴 SINIF SEÇİMİ — ÖLÇÜLMÜŞ TUZAK: bu çiplere önce öğrenci seçicisinin
+     `.sp-btn` sınıfı verilmişti (görsel dil aynı olsun diye). Ama öğrenci
+     seçicisi `document.querySelectorAll(".sp-btn")` ile BELGE ÇAPINDA
+     bağlanıyor (bkz. wireStudentPicker) ve buradaki çiplerin onclick'ini
+     `activateStudent(...)` ile EZİYORDU — çipe basınca hiçbir şey olmuyordu.
+     Bu, TUZAK 1'in (duplicate id) sınıf tarafındaki eşi: paylaşılan bir
+     sınıfa belge çapında olay bağlayan başka bir bileşen varsa, o sınıfı
+     yeniden KULLANMAYIN. Görsel eşitlik CSS'te sağlanır (app.css'te
+     `.ta-who-btn` kuralları `.sp-btn` ile aynı satırlarda tanımlıdır). */
+  const cipler = secenekler.map(function (t) {
+    const secili = t.name === ad;
+    return '<button type="button" class="ta-who-btn' + (secili ? " active" : "") + '" ' +
+      'data-ad="' + escapeHtml(t.name) + '" aria-pressed="' + (secili ? "true" : "false") + '"' +
+      /* §34 — İFADE DOĞRULUĞU: `gercek` bayrağı yalnızca "bu ada ATANMIŞ
+         bir sınav var" demektir; o öğretmenin gerçekten puanlama yaptığını
+         göstermez (bir sınav oluşturulup hiç değerlendirilmemiş olabilir).
+         Etiket önce "kayıtlı" idi ve alt not "gerçekten sınav değerlendirdiğini
+         gösterir" diyordu — ekranı yalanlayan bir iddiaydı. Bu proje aynı
+         hata sınıfını daha önce dört kez düzeltti (§ fix: kayıtları). */
+      (t.subject ? ' title="Branş: ' + escapeHtml(t.subject) + '"' : ' title="Bu ada atanmış sınav var"') + '>' +
+      escapeHtml(t.name) +
+      (t.gercek ? '<span class="sc-tag">sınavı var</span>' : (t.subject ? '<span class="sc-class">' + escapeHtml(t.subject) + '</span>' : "")) +
+      '</button>';
+  }).join("");
+  const oneriler = secenekler.map(function (t) {
     return '<option value="' + escapeHtml(t.name) + '">';
   }).join("");
-  return '<div class="field" style="max-width:340px;margin-bottom:14px;">' +
-    '<label for="taWhoami">Öğretmen adınız <span class="hint">— bu sınavı kim değerlendiriyor</span></label>' +
-    '<input type="text" id="taWhoami" list="taWhoamiList" placeholder="örn. Ahmet Yılmaz" value="' + escapeHtml(ad) + '">' +
-    '<datalist id="taWhoamiList">' + oneriler + '</datalist>' +
+  return '<div class="ta-whoami">' +
+    '<div class="sp-label">Öğretmen adınız — bu sınavı kim değerlendiriyor</div>' +
+    '<div class="ta-who-list">' + cipler +
+    (ad && !secenekler.some(function (t) { return t.name === ad; })
+      ? '<button type="button" class="ta-who-btn active" data-ad="' + escapeHtml(ad) + '" aria-pressed="true">' + escapeHtml(ad) + '</button>'
+      : "") +
+    '</div>' +
+    '<div class="ta-who-input"><input type="text" id="taWhoami" list="taWhoamiList" ' +
+    'placeholder="ya da adınızı yazın — örn. Ahmet Yılmaz" value="' + escapeHtml(ad) + '">' +
+    (ad ? '<button type="button" class="btn btn-secondary btn-sm ta-who-temizle">Temizle</button>' : "") +
+    '<datalist id="taWhoamiList">' + oneriler + '</datalist></div>' +
+    '<div class="ta-who-not">Listedekiler yalnızca kolaylık; alan serbesttir — istediğiniz adı yazabilirsiniz. ' +
+    '<b>sınavı var</b> etiketi, o ada bu sistemde atanmış en az bir sınav bulunduğunu gösterir.</div>' +
     '</div>';
 }
 
@@ -6013,12 +6097,35 @@ function renderTeacher() {
     '</div><div id="teacherTabContent"></div>';
   const whoami = document.getElementById("taWhoami");
   if (whoami) {
+    /* TUZAK 3: oninput içinden renderAll() ÇAĞRILMAZ — yazarken odak kaybolur.
+       Çip seçimleri bir sonraki çizimde güncellenir; bilinçli ödünleşme. */
     whoami.oninput = function (e) {
       state.activeTeacherName = e.target.value;
       state.exam.teacherName = e.target.value; // aktif sınav bu öğretmene atanır
       saveSoon();
     };
   }
+  /* §34 — hızlı seçim çipleri. id DEĞİL sınıf + querySelectorAll: beş panel
+     aynı anda DOM'da (§6.3-2 / TUZAK 1). Çip TIKLAMASI bir yazma eylemi
+     olmadığı için renderAll() burada güvenlidir ve seçili çipi günceller. */
+  document.querySelectorAll(".ta-who-btn").forEach(function (b) {
+    b.onclick = function () {
+      const yeni = b.dataset.ad || "";
+      // Aynı çipe tekrar basmak seçimi kaldırır — yanlış seçimden çıkışın
+      // en kısa yolu; ayrıca "Temizle" düğmesi de var.
+      const ad = state.activeTeacherName === yeni ? "" : yeni;
+      state.activeTeacherName = ad;
+      state.exam.teacherName = ad;
+      renderAll();
+    };
+  });
+  document.querySelectorAll(".ta-who-temizle").forEach(function (b) {
+    b.onclick = function () {
+      state.activeTeacherName = "";
+      state.exam.teacherName = "";
+      renderAll();
+    };
+  });
   document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
   const content = document.getElementById("teacherTabContent");
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
@@ -8734,7 +8841,9 @@ setInterval(function () {
     "wireCeTabs", "wirePendingCards", "wireRejectedPool", "wireExamSwitcher",
     "renderAiBadge", "renderPipeline",
     /* §31 — üretim dayanağı (kaynak metin / kazanım) seçimi. */
-    "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari"
+    "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari",
+    /* §34 — öğretmen adı hızlı seçim listesi. */
+    "ogretmenSecenekleri"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

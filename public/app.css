@@ -386,11 +386,29 @@
     padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--border);
     border-radius: 10px; background: var(--surface-2); }
   .student-picker .sp-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
-  .sp-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
+  /* §34: .ta-who-btn (öğretmen adı çipi) görsel olarak .sp-btn ile AYNIDIR
+     ama AYRI bir sınıftır — .sp-btn'e öğrenci seçicisi belge çapında olay
+     bağlıyor ve paylaşılsaydı öğretmen çiplerinin handler'ını ezerdi
+     (ölçüldü, bkz. app.js teacherWhoamiHtml notu). */
+  .sp-btn, .ta-who-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
     border: 1px solid var(--border-strong); border-radius: 20px; background: var(--surface);
     color: var(--text); font-family: inherit; font-size: 12.5px; cursor: pointer; }
-  .sp-btn:hover { border-color: var(--accent); }
-  .sp-btn.active { background: var(--accent); border-color: var(--accent-strong); color: #fff; }
+  .sp-btn:hover, .ta-who-btn:hover { border-color: var(--accent); }
+  .sp-btn.active, .ta-who-btn.active { background: var(--accent); border-color: var(--accent-strong); color: #fff; }
+  .ta-who-btn .sc-class, .ta-who-btn .sc-tag { font-size: 10px; font-weight: 700;
+    opacity: .75; letter-spacing: .2px; }
+  .ta-who-btn.active .sc-class, .ta-who-btn.active .sc-tag { opacity: .9; }
+
+  /* §34 — ÖĞRETMEN ADI hızlı seçim bloğu. Görsel dil öğrenci/veli
+     seçicisiyle aynı (.sp-btn yeniden kullanıldı, yeni renk YOK).
+     Kural kendi zeminini taşır (§6.3-2 dersi). */
+  .ta-whoami { padding: 10px 12px; margin-bottom: 14px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--surface-2); }
+  .ta-whoami .sp-label { display: block; margin-bottom: 8px; }
+  .ta-who-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+  .ta-who-input { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .ta-who-input input[type="text"] { flex: 1 1 220px; min-width: 0; }
+  .ta-who-not { margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--text-muted); }
 
   .sim-progress:empty { display: none; }
   .sim-progress { margin-top: 12px; }

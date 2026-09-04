@@ -4956,3 +4956,78 @@ Rol izolasyonu güvenlik/gerçekçilik açısından doğru, ama **demo hızını
 düşürüyor**: rol değiştirmek artık 1 tık değil 3 tık (Çıkış → giriş → kart).
 Jüri sunumunda beş rol arka arkaya gezilecekse bu fark hissedilir. Kod
 değiştirilmedi — bu bir ürün kararıdır, bilerek not düşülüyor.
+
+---
+
+## 33. ÖĞRETMEN ADI — görünür hızlı seçim listesi (4 Eylül 2026)
+
+**İstek:** "Öğretmen adınız alanına birkaç kişi ekleyelim."
+
+### 33.1 Asıl sorun: üç öğretmen zaten VARDI, görünmüyordu
+
+Alan çıplak bir metin kutusu değildi — arkasında bir `<datalist>` ve
+`state.baseline.teachers`'tan gelen üç ad (Ahmet Yılmaz, Ayşe Kaya, Mehmet
+Demir) vardı. Ama tarayıcı `datalist`'i ancak kullanıcı **yazmaya başlayınca**
+açar; ekranda hiçbir ipucu yoktu, kimse listenin varlığını bilmiyordu.
+
+### 33.2 Neden `baseline.teachers`'a ad EKLENMEDİ
+
+Oraya bir ad eklemek, o ada ait **uydurma puanlama kaydı** da eklemek demek —
+`baseline.teachers` kalibrasyon karnesini besleyen ham (ai, nihai) puan
+çiftlerini tutuyor (§6.3-5: uydurma sayı yasak). Bu yüzden yalnızca
+"seçilebilir isim" için ayrı bir sabit açıldı: **`OGRETMEN_KADROSU`**
+(6 ad + branş, puan verisi YOK). Kalibrasyon karnesi hâlâ yalnızca gerçek
+kayıtlardan ya da etiketli örnek veriden hesaplanıyor.
+
+### 33.3 Ne yapıldı
+
+* `OGRETMEN_KADROSU` — 6 öğretmen (ad + branş), tek satırda düzenlenebilir.
+* `ogretmenSecenekleri()` — önce bu sistemde sınavı olan GERÇEK adlar, sonra
+  kadro; ad tekrarı yok, gerçek olanlar `gercek:true` ile işaretli.
+* `teacherWhoamiHtml()` yeniden yazıldı: **görünür çipler** + serbest metin
+  kutusu + **Temizle** + `datalist` (yazarken tamamlama için korundu).
+  Listede olmayan bir ad yazılırsa o da seçili bir çip olarak görünür.
+* Aynı çipe tekrar basmak seçimi kaldırır.
+
+### 33.4 ÖLÇÜLEN TUZAK — paylaşılan sınıfa belge çapında olay bağlama
+
+Çiplere önce öğrenci seçicisinin `.sp-btn` sınıfı verildi (görsel dil aynı
+olsun diye). **Çipler tıklandığında hiçbir şey olmuyordu.** Çalışma zamanında
+ölçüldü: çipin `onclick`'i `function () { activateStudent(...) }` idi —
+öğrenci seçicisi `document.querySelectorAll(".sp-btn")` ile **belge çapında**
+bağlanıyor ve sonradan çalışıp öğretmen çiplerinin handler'ını **eziyordu**.
+
+Bu, TUZAK 1'in (duplicate id) **sınıf tarafındaki eşi**: paylaşılan bir sınıfa
+belge çapında olay bağlayan başka bir bileşen varsa, o sınıf yeniden
+KULLANILMAMALIDIR. Çözüm: kendi sınıfı (`.ta-who-btn`), görsel eşitlik CSS'te
+aynı kural satırlarında sağlandı. `node --check` ve 185 testin hiçbiri bunu
+göremezdi — yalnızca gerçek tarayıcıda görüldü (TUZAK 2).
+
+### 33.5 İFADE DÜZELTMESİ — etiket ekranı yalanlıyordu
+
+Çip etiketi önce **"kayıtlı"**, alt not ise *"o adın bu sistemde gerçekten
+sınav değerlendirdiğini gösterir"* diyordu. Oysa `gercek` bayrağı yalnızca
+**o ada atanmış bir sınav olduğunu** gösterir; öğretmen hiç puanlama yapmamış
+olabilir. Bir öğretmen seçilir seçilmez etiket beliriyor ve fazla iddia
+ediyordu. Etiket **"sınavı var"**, alt not *"o ada bu sistemde atanmış en az
+bir sınav bulunduğunu gösterir"* olarak düzeltildi. Projede aynı hata sınıfı
+(§ "metin ekranı yalanlıyor") daha önce dört `fix:` commit'inde düzeltilmişti.
+
+### 33.6 Doğrulama (gerçek tarayıcı)
+
+| Kontrol | Sonuç |
+|---|---|
+| Çip sayısı / handler | 6 / hepsinde kendi handler'ı |
+| Çip seçimi | `activeTeacherName` **ve** `state.exam.teacherName` birlikte güncelleniyor |
+| Çipler arası geçiş | aktif çip doğru taşınıyor |
+| Aynı çipe tekrar basma | seçim kalkıyor |
+| Temizle | ad, input ve aktif çip temizleniyor; düğme gizleniyor |
+| Serbest metin | çalışıyor, **odak korunuyor** (TUZAK 3'e düşülmedi) |
+| Listede olmayan ad | ek çip olarak görünüyor |
+| Öğrenci seçicisi (regresyon) | hâlâ çalışıyor (Esat → İrem) |
+| `teacherRoster()` zinciri | seçilen ad "(gerçek)", kadro adları "(örnek)" |
+| Öz-kontrol / lint / test / config | 253 eksik 0 · temiz · **185/185** · geçti |
+| Konsol hatası | **0** |
+| Mobil 375×812 | taşma yok, 6 çip ekran içinde, hepsi 32 px (WCAG 2.5.8 geçti) |
+
+Kadroyu değiştirmek için tek yapılacak `OGRETMEN_KADROSU` dizisini düzenlemek.
