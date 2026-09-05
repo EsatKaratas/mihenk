@@ -37,8 +37,8 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz olmalı
-npm test                            # 227/227
-node tools/ozkontrol-dogrula.mjs    # 319 ad · kapsama %100
+npm test                            # 243/243
+node tools/ozkontrol-dogrula.mjs    # 326 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 curl -s https://mihenk.bies.workers.dev/api/ai/status
@@ -59,7 +59,7 @@ doğrulanmamış varsayımla ilerlemenin bedeli defalarca ödendi.
    çıktıyı göster. Test etmediysen "test etmedim" de.
 4. **`PROGRESS.md`'yi her adımda güncelle** — yaptığın işi, **kök nedeni** ve
    **ölçüm sonucunu** yaz. Bu dosya projenin hafızası ve **tek doğruluk
-   kaynağıdır**; şu an §47b'ye kadar dolu.
+   kaynağıdır**; şu an §48'e kadar dolu.
 5. **Sessiz düşüş yasak.** Bir şey başarısız olduysa, elendiyse, kısıldıysa
    kullanıcıya **söylenmeli**. Bu, projede en çok ihlal edilen ve en çok
    düzeltilen kuraldır.
@@ -141,17 +141,29 @@ bunları bilmeden yenisini ekleme:
 
 Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 
-## 7. Şu anki durum (5 Eylül 2026, commit `a1afcce`)
+## 7. Şu anki durum (6 Eylül 2026, §48 canlıda)
 
 | | |
 |---|---|
-| Test | 227/227 |
+| Test | 243/243 |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | 319 ad · kapsama %100 |
+| Öz-kontrol | 326 ad · kapsama %100 |
 | Konsol hatası | 0 |
 | Canlı ↔ disk | `app.js`, `app.css`, `index.html` SHA-256 eş |
 | Yedek model | çalışıyor (`fallbackSorunu: null`) |
 | Cloudflare | Workers Paid, `Active`, **26 Eylül'de yenilenir** |
+
+## 7b. §48'de eklenen iki şey (6 Eylül)
+
+- **Sorular beceri temelli isteniyor** (`prompts.ts` "SORU TARZI" bloğu):
+  bağlam → veri → görev. A/B ölçüldü, gövde 11,7 → 24,7 kelimeye çıktı ve her
+  soru artık veri taşıyor; ama istemin kendi 40+ kelime hedefine yerel koşumda
+  **hiçbir soru ulaşmadı** (canlıda 5'te 2). "Sorularımız beceri temelli"
+  demeden önce PROGRESS §48.3 ve §48.8'deki tabloyu oku.
+- **Ders ve kazanım artık kullanıcı tarafından eklenip silinebiliyor**
+  (sekme şeridi). Son olan silinemez; havuzda sorusu olan silinemez.
+
+Üretim süresi 15 → 25 sn'ye çıktı; sunumda bu farkı bil.
 
 ## 8. Açık kalan işler
 
@@ -191,7 +203,7 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 
 ## 11. İlk üç adım
 
-1. `PROGRESS.md`'yi **sondan başa** oku: §47b → §47 → §46 → §45 → §44 → §43.
+1. `PROGRESS.md`'yi **sondan başa** oku: §48 → §47b → §47 → §46 → §45 → §44 → §43.
 2. `agents.md`'yi oku — öneri değil, anayasa.
 3. `DEVIR.md`'yi oku (bu prompt'un uzun hâli) ve §2'deki komutları
    **çalıştırıp çıktılarını göster.**

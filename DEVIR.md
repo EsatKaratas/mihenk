@@ -5,7 +5,7 @@
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026 · Problem 2 (Ölçme ve Değerlendirme)
 
 Bu belge v2'nin (ve ondan önceki `MIHENK_DEVIR.pdf`'in) yerini alır.
-v2'den bu yana **beş tur iş** yapıldı — §43'ten §47b'ye. Hepsi §5'te özetli,
+v2'den bu yana **altı tur iş** yapıldı — §43'ten §48'e. Hepsi §5'te özetli,
 tamamı `PROGRESS.md`'de.
 
 > **v2'de yanlış olan neydi:** v2, sınıf kodunu çalışan bir özellik olarak
@@ -21,9 +21,9 @@ tamamı `PROGRESS.md`'de.
 |---|---|
 | Dal | `main` = `final-birlestirme` = `a1afcce` (ikisi aynı, ayrışma yok) |
 | Canlı | `mihenk.bies.workers.dev` — deploy edilen `app.js`, `app.css` ve `index.html` diskle **SHA-256 eş** |
-| Test | **227/227** |
+| Test | **243/243** |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **319 ad · eksik 0 · kapsama %100** |
+| Öz-kontrol | **326 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
@@ -38,8 +38,8 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 227/227
-node tools/ozkontrol-dogrula.mjs    # 319 ad · kapsama %100
+npm test                            # 243/243
+node tools/ozkontrol-dogrula.mjs    # 326 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```
@@ -234,7 +234,7 @@ kazanım üzerinden yapılır. Hiçbir öğrenci verisi model eğitiminde kullan
 
 ---
 
-## 5. v2'DEN BU YANA NE DEĞİŞTİ (§43 → §47b)
+## 5. v2'DEN BU YANA NE DEĞİŞTİ (§43 → §48)
 
 ### 5.0 §43 — Sınıf kodu kaldırıldı, yedek model çalışır oldu (5 Eylül)
 
@@ -284,6 +284,25 @@ santilitre?"* sorusunda anahtar yanlıştı (1000 yerine 100). Olgusal hatayı
 hiçbir şema yakalayamaz — **onay ekranı yakaladı**. Yine de istem
 sertleştirildi ve A/B ölçüldü: kazanım modunda eski istem **0/2**, yeni istem
 **4/4** doğru.
+
+### 5.0f §48 — Beceri temelli soru + ders/kazanım sekmeleri (6 Eylül)
+
+Dışarıdan bir yama belgesi geldi; **tabanı §43 öncesiydi** ve 6 dosyanın 2'si
+reddedildi. `prompts.ts` ile `routes/ai.ts` elle işlendi ki §46'nın birim
+kuralı ve §47'nin çeldirici düzeltmesi geri alınmasın. Ayrıntı: PROGRESS §48.
+
+- **Beceri temelli soru istemi.** A/B ölçüldü: gövde 11,7 → 24,7 kelime, veri
+  içeren soru %55 → %100, yasak klasik kalıp 1 → 0. **40+ kelime hedefine
+  yerel koşumda ulaşılamadı (0/9), canlıda 2/5 ulaştı** — iddia edilmiyor,
+  ölçülen bu. Bedeli: üretim 15 → 25 sn.
+- **Token bütçesi** 700 + n·700 (tavan 5600). Sayılar tahmin, "kesilme yok"
+  davranışı ölçüldü. `lib/ai.ts`'te gerçek bir hata düzeltildi: kesilme
+  sonrası bütçe `Math.min(maxTokens*2, 4000)` ile **düşebiliyordu**.
+- **Ders/kazanım sekmeleri.** Kendi dersini/kazanımını ekle-sil; son olan
+  silinemez, sorusu olan silinemez (sayısı ekranda yazar).
+- **İki kusur ölçülüp kapatıldı:** `YABANCI_ALFABE` Latin harfli yabancı
+  karakteri kaçırıyordu (`phứcekli`, U+1EE9 → `dilUyarisi` false); ve
+  `extractKeywords` "İzmir"i "Zmir"e çeviriyordu.
 
 ### 5.0e §47 + §47b — Çeldirici gerekçeleri (5 Eylül)
 
@@ -481,7 +500,7 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   227 test, 6 dosya
+test/                   243 test, 6 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)
@@ -489,7 +508,7 @@ tools/
   injection-test.py     5 saldırı vektörü — tekrar koşulabilir
 routes.ts               ⚠️ REFERANS İSKELETİ — çalışan kod DEĞİL
 schema.sql              14 üretim tablosu (senkron tabloları §43'te silindi)
-PROGRESS.md             Kronolojik günlük — TEK DOĞRULUK KAYNAĞI (§47b'ye kadar)
+PROGRESS.md             Kronolojik günlük — TEK DOĞRULUK KAYNAĞI (§48'e kadar)
 docs/ekran/*.png        5 ekran görüntüsü — betikle, canlıdan üretilir
 agents.md               Proje anayasası
 ```

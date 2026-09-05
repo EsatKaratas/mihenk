@@ -6663,3 +6663,38 @@ doğrudan öğrencinin önüne çıkıyor.
   yalnızca "kesilme olmadı" davranışı ölçüldü. Soru sayısı artarsa Workers
   Logs'taki `ai_call` kayıtlarından bakılmalı.
 - Süre 15 → 25,3 sn'ye çıktı; kabul edilebilir ama sunum öncesi bilinmeli.
+
+### 48.8 CANLIYA ALINDI — doğrulama (6 Eylül 2026, `3cddad4`)
+
+`npm run deploy:demo` ile yayınlandı (Version ID `d82f6427`). Yalnızca
+`app.js` ve `app.css` yüklendi (21 varlık zaten yüklüydü).
+
+| Kontrol | Sonuç |
+|---|---|
+| Canlı ↔ disk `app.js` · `app.css` · `index.html` | **SHA-256 eş** (üçü de) |
+| `/api/health` | `{"ok":true,"env":"demo"}` |
+| `/api/ai/status` | `ready:true`, `fallbackSorunu: null` |
+| Beş rol paneli canlıda | hepsi çizildi |
+| Yinelenen `id` | 67 id, **0** |
+| Konsol hatası | **0** |
+| 7 yeni fonksiyon canlıda tanımlı | evet |
+| `extractKeywords` İ/I düzeltmesi canlıda | `İzmir` · `Isparta` ✔ |
+| Gerçek üretim (2 tur, kazanım modu) | 5 soru, hata yok, kesilme yok, 18 sn/tur |
+
+#### 🟢 Canlı ölçüm yereli DÜZELTTİ: 40+ kelime hedefi ulaşılabilirmiş
+
+§48.3'teki A/B yerel dev sunucusunda koşulmuştu ve **0/9** soru 40 kelimeyi
+geçmişti. Aynı ölçüm canlıda:
+
+| | yerel (9 soru) | canlı (5 soru) |
+|---|---:|---:|
+| Ortalama gövde | 24,7 kelime | **43,0 kelime** |
+| 40+ kelime | **0/9** | **2/5** |
+| Ortalama cümle | 2,9 | **4,6** |
+| Yasak klasik kalıp | 0 | **0** |
+
+Örneklem küçük (5 soru) ve model olasılıksal; **"hedef tutturuldu" denmiyor.**
+Ama §48.3'teki "hiçbir soru 40 kelimeye ulaşmadı" cümlesi yalnızca yerel koşum
+için doğrudur — canlıda ulaşan sorular var. İki koşum arasındaki farkın
+nedeni ayrıştırılmadı (model tarafındaki değişkenlik en olası açıklama).
+Sunum öncesi daha büyük bir örneklemle bakılmalıdır.
