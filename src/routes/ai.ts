@@ -52,7 +52,7 @@ import {
   MAX_SOURCE_CHARS,
 } from '../schemas/ai';
 
-type Bindings = AiEnv & { DB?: D1Database };
+type Bindings = AiEnv;
 
 // Hız sınırı, kaynak metin tespiti ve sayısal yardımcılar ayrı bir modülde:
 // dışa açık olmadıkları için test edilemiyorlardı (agents.md §6 birim testi

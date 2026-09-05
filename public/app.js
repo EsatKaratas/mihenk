@@ -656,15 +656,16 @@ function renderAiBadge() {
   const col = document.getElementById("colophon");
   if (col) {
     /* 🔴 BU METİN EKRANI YALANLAMAMALI (§17a-3, §25b).
-       Eskiden sabit olarak "dört rolü" ve "veriler sunucuya gönderilmez"
-       diyordu. Rol sayısı beşe çıktı ve sınıf kodu kullanıldığında veri
-       GERÇEKTEN sunucuya gidiyor (§28b). İkisi de artık duruma göre yazılıyor;
-       rol sayısı ROLES dizisinden SAYILIYOR ki bir daha ayrışmasın. */
+       Rol sayısı ROLES dizisinden SAYILIYOR ki bir daha ayrışmasın.
+       §43'e kadar burada bir de "sınıf kodu kullanılıyorsa veri sunucuya
+       gider" dalı vardı; sınıf kodu kaldırıldığı için o dal düştü. */
     const rolAdedi = ["", "tek", "iki", "üç", "dört", "beş", "altı"][ROLES.length] || String(ROLES.length);
-    const depoNotu = state.syncRoom
-      ? "sınıf kodu (" + state.syncRoom + ") kullanıldığı için sınav ve yanıt verileri, cihazlar arasında " +
-        "paylaşılmak üzere sunucudaki veritabanında da saklanır; üst çubuktaki sınıf kodu çipinin altındaki “Sunucudaki veriyi sil” ile kaldırılabilir."
-      : "sınıf kodu girilmediği için veriler sunucuya gönderilmez, yalnızca bu tarayıcıda saklanır ve sayfa yenilenince korunur.";
+    /* §43 — SINIF KODU KALDIRILDI, bu cümlenin artık koşulu yok.
+       Sınav ve yanıt verisi sunucuya HİÇ gitmez; yalnızca AI adımlarında
+       (soru üretimi, açık uçlu puan önerisi) ilgili metin modele gönderilir
+       ve saklanmaz. Cümle bunu olduğu gibi söyler — abartmaz. */
+    const depoNotu = "sınav ve yanıt verileri yalnızca bu tarayıcıda saklanır ve sunucuya gönderilmez; " +
+      "yalnızca yapay zekâ adımlarında ilgili metin modele iletilir.";
     const model = state.ai.mode === "live"
       ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir."
       : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür.";
@@ -689,10 +690,7 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "sinifKuruldu",
   // §29: "kim olarak değerlendiriyorum" — sayfa yenilenince kaybolmamalı.
   "activeTeacherName",
-  /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
-     girmek zorunda kalmamalı. `state.sync` çalışma zamanı durumudur ve
-     bilinçli olarak kalıcı DEĞİLDİR. */
-  "syncRoom", "parentStudentId",
+  "parentStudentId",
   /* Öğretmenin "veliye bildirilsin" onayı (§28e). Bu bir İNSAN KARARIDIR ve
      kaybolmamalıdır; sinyalin kendisi her seferinde yeniden hesaplanır. */
   "dikkatOnay"];
@@ -1179,7 +1177,6 @@ const state = {
           targetClass: "",
           // §29: bu sınavı hangi öğretmen değerlendiriyor (bkz. state.activeTeacherName).
           teacherName: "" },
-  syncRoom: "",   // cihazlar arası senkron sınıf kodu (§28b)
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
   answers: {},
   // Madde 5: öğrencinin "gözden geçir" için işaretlediği sorular (qid -> true).
@@ -3785,7 +3782,7 @@ function siniflar() {
    YAN ETKİ KORUMASI: liste artık gerçekten boş kalabildiği için
    `state.students[0].id` okuması ARTIK ERİŞİLEBİLİR bir çökme yoluydu
    (TypeError). Boş listede aktif öğrenci null bırakılır; `activeStudent()`,
-   `syncActiveExam()`, `veliCocugu()` ve `studentPickerHtml()` bu durumu
+   `aktifOturumuYaz()`, `veliCocugu()` ve `studentPickerHtml()` bu durumu
    zaten karşılıyor (tek tek kontrol edildi). */
 function ensureStudents() {
   state.students = state.students || [];
@@ -3825,17 +3822,20 @@ function sessionOf(kayit, sid) {
   return ss[sid];
 }
 
-function syncActiveExam() {
-  /* §36 — GEÇERSİZ ÖĞRENCİ KİMLİĞİ KORUMASI.
+/* §43 — ESKİ ADI `aktifOturumuYaz` İDİ. Cihazlar arası senkron kaldırıldı;
+   bu fonksiyonun onunla hiçbir ilgisi yoktu ve olmadı: tek işi AKTİF
+   öğrencinin canlı alanlarını sınav kaydının `sessions` haritasına yazmak.
+   Ad, kalan tek "sync" izi olarak yanıltıcıydı — sonraki okuyucu senkronun
+   hâlâ var olduğunu sanabilirdi (bu depoda tam bu sınıftan hata yaşandı). */
+function aktifOturumuYaz() {
+  /* §36 — GEÇERSİZ ÖĞRENCİ KİMLİĞİ KORUMASI. KORUMA HÂLÂ GEREKLİ.
      Buradaki kontrol yalnızca `== null` idi; NaN'ı YAKALAMIYORDU
      (NaN == null → false). `activateStudent(Number(...))` bir yerde
      tanımsız bir değer alırsa state.activeStudentId NaN olur ve aşağıdaki
      `ss[state.activeStudentId] = {}` satırı sınav kaydına "NaN" ADLI bir
-     oturum anahtarı yazar. O anahtar KALICIDIR ve syncPaket() onu
-     studentId:null olarak gönderdiği için sunucu her push'u
-     "sessions.N.studentId: Expected number, received null" ile reddeder —
-     yani sınıf kodu senkronu o sınav için BİR DAHA HİÇ çalışmaz ve
-     kullanıcı yalnızca anlaşılmaz bir doğrulama hatası görür.
+     oturum anahtarı yazar. O anahtar KALICIDIR: senkron kaldırıldıktan sonra
+     da `Object.keys(sessions)` üzerinden sayan her tüketici (ör.
+     gradedExamHistory, submittedStudents) sahte bir oturum görür.
      (Gerçekten yaşandı; ölçülerek bulundu — bkz. PROGRESS §36.) */
   /* §39 — §36'DA GETİRİLEN REGRESYON DÜZELTİLDİ. §36 bu satırdaki
      `state.activeStudentId == null` kontrolünü `!Number.isFinite(Number(...))`
@@ -3843,9 +3843,9 @@ function syncActiveExam() {
      finite'tir, yani null koruma testinden geçip `ss[null] = {}` satırını
      çalıştırıyordu — sınav kaydına "null" ADLI bir oturum anahtarı yazılıyordu.
      Ölçüldü: aktif öğrenci yokken oturum anahtarları arasında "null" belirdi.
-     syncPaket() onu elediği için senkron kırılmıyordu, ama kayıt kirleniyor ve
-     `Object.keys(sessions)` üzerinden sayan her tüketici (ör. gradedExamHistory)
-     sahte bir oturum görüyordu. İKİ kontrol de gerekli. */
+     Kayıt kirleniyor ve `Object.keys(sessions)` üzerinden sayan her tüketici
+     (ör. gradedExamHistory) sahte bir oturum görüyordu. İKİ kontrol de
+     gerekli. */
   if (state.activeExamId == null || state.activeStudentId == null
       || !Number.isFinite(Number(state.activeStudentId))) return;
   const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
@@ -3890,7 +3890,7 @@ function submittedStudents() {
 // Öğrenci değiştir: mevcut oturumu kaydet, hedefinkini yükle.
 function activateStudent(sid) {
   if (sid === state.activeStudentId) return;
-  syncActiveExam();
+  aktifOturumuYaz();
   state.activeStudentId = sid;
   const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
   const s = kayit ? sessionOf(kayit, sid) : bosOturum();
@@ -3900,7 +3900,7 @@ function activateStudent(sid) {
 
 function activateExam(id) {
   if (id === state.activeExamId) return;
-  syncActiveExam();
+  aktifOturumuYaz();
   const kayit = state.exams.find(function (x) { return x.id === id; });
   if (!kayit) return;
   state.activeExamId = id;
@@ -3932,7 +3932,7 @@ function activateExam(id) {
 }
 
 function createExam(baslik) {
-  syncActiveExam();
+  aktifOturumuYaz();
   const id = examIdSeq++;
   // §29: yeni sınav, o an "ben buyum" dediğimiz öğretmene atanır.
   const ogretmen = state.activeTeacherName || "";
@@ -4013,7 +4013,6 @@ function unpublishExam(id) {
   kayit.status = "draft";
   if (id === state.activeExamId) state.exam.status = "draft";
   renderAll();
-  syncOtomatik();
   return true;
 }
 
@@ -4058,7 +4057,7 @@ function ensureExamList() {
     state.activeExamId = id;
   }
   if (state.activeExamId == null) state.activeExamId = state.exams[0].id;
-  syncActiveExam();
+  aktifOturumuYaz();
 }
 
 function examStatusPill(st, sessionStatus) {
@@ -4135,7 +4134,6 @@ function sinifYonetimHtml() {
     escapeHtml((ogrenciler[ogrenciler.length - 1] || {}).sinif || "") + '">' +
     '<button class="btn btn-secondary btn-sm" id="btnOgrenciEkle">+ Öğrenci ekle</button></div>' +
     (state.sy && state.sy.hata ? '<div class="sy-hata">' + escapeHtml(state.sy.hata) + '</div>' : "") +
-    syncShareLineHtml() +
     '</div>';
 }
 
@@ -4145,7 +4143,7 @@ function wireSinifYonetim() {
     if (!confirm("Örnek öğrenci listesi (" + state.students.length + " kişi) çıkarılacak. Devam edilsin mi?")) return;
     state.students = [];
     state.activeStudentId = null;
-    saveState(); renderAll(); syncOtomatik();
+    saveState(); renderAll();
   };
   document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
     b.onclick = function () {
@@ -4158,7 +4156,7 @@ function wireSinifYonetim() {
       if (!confirm(uyari + " Devam edilsin mi?")) return;
       state.students = state.students.filter(function (x) { return x.id !== id; });
       state.activeStudentId = state.students.length ? state.students[0].id : null;
-      saveState(); renderAll(); syncOtomatik();
+      saveState(); renderAll();
     };
   });
   var ekle = document.getElementById("btnOgrenciEkle");
@@ -4171,9 +4169,8 @@ function wireSinifYonetim() {
     state.students = state.students || [];
     state.students.push({ id: studentIdSeq++, name: ad, sinif: sinif || "7-A", demo: false });
     if (state.activeStudentId == null) state.activeStudentId = state.students[state.students.length - 1].id;
-    saveState(); renderAll(); syncOtomatik();
+    saveState(); renderAll();
   };
-  wireSyncShareLine();
 }
 
 function examSwitcherHtml() {
@@ -5439,7 +5436,7 @@ function teacherTab3Html() {
        · Eğitim Yöneticisi    -> "%75 · 3/4 tamamlandı", ısı haritası 7-A %90,
                                  7-B %48, "Dikkat gereken 1 hücre"
      Yani YÖNETİCİ, o sonuçları üreten ÖĞRETMENİN göremediği veriyi görüyordu.
-     Gerçek kullanımda etkisi daha ağır: sınıf koduyla 30 öğrenci kağıdını
+     Gerçek kullanımda etkisi daha ağır: sınıfta 30 öğrenci kağıdını
      gönderse bile, öğretmenin cihazında seçili "aktif öğrenci" bitirmediyse
      kuyruk boş görünür ve hiçbir kağıt değerlendirilemez.
 
@@ -6112,7 +6109,7 @@ function calibration() {
    ROTASI eklenmedi — `src/routes/sync.ts`'in "sunucu gövdeyi yorumlamaz"
    ilkesi bilinçli olarak korundu; hesap tamamen istemcide (`app.js`) kalır. */
 function teacherExamRecords(teacherName) {
-  syncActiveExam(); // aktif sınav/öğrencinin en güncel hâli kayit.sessions'a yazılsın
+  aktifOturumuYaz(); // aktif sınav/öğrencinin en güncel hâli kayit.sessions'a yazılsın
   const kayitlar = [];
   (state.exams || []).forEach(function (kayit) {
     const ad = (kayit.teacherName || "").trim() || VARSAYILAN_OGRETMEN_ADI;
@@ -6148,7 +6145,7 @@ function teacherExamRecords(teacherName) {
    örnek satırlar her zaman `demo:true` ile etiketlenir, gerçek veriyle
    karıştırılmaz. */
 function teacherRoster() {
-  syncActiveExam();
+  aktifOturumuYaz();
   const gercekAdlar = {};
   (state.exams || []).forEach(function (k) {
     const ad = (k.teacherName || "").trim() || VARSAYILAN_OGRETMEN_ADI;
@@ -6576,7 +6573,7 @@ let autosaveTimer = null;
 let _saveTimer = null;
 function saveSoon() {
   if (_saveTimer) clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(function () { syncActiveExam(); saveState(); _saveTimer = null; }, 400);
+  _saveTimer = setTimeout(function () { aktifOturumuYaz(); saveState(); _saveTimer = null; }, 400);
 }
 
 function flashAutosave() { const m = document.getElementById("autosaveMsg"); if (m) m.innerHTML = '<span class="dot-save"></span> Kaydedildi ✓'; }
@@ -6620,9 +6617,6 @@ async function finishExam() {
   } finally {
     state.ai.busy = false;
     renderAll();
-    /* ÜRÜNÜN ANA BOŞLUĞU BURADA KAPANIYOR: öğrencinin bitirdiği kağıt,
-       öğretmenin cihazındaki panele ancak buradan gönderilirse düşer (§28b). */
-    syncOtomatik();
   }
 }
 
@@ -6725,7 +6719,6 @@ function studentTab1Html() {
 }
 
 function wireStudentTab1() {
-  wireSyncJoin();
   document.querySelectorAll(".exam-act").forEach(function (b) {
     b.onclick = function () {
       const id = Number(b.dataset.exam);
@@ -7899,7 +7892,7 @@ function renderRoleNav() {
    reddedilen sorular ve tüm alanları: status, outcome, sube, topicArea,
    bloomFocus, correctKey, distractorRationale, srcId), rubrics, reviews,
    aiEvals, mcResults, exams, exam, answers, flagged, students, sources,
-   library, auditLog, outcomes, subjects, syncRoom ve diğer sync durumu,
+   library, auditLog, outcomes, subjects,
    activeTeacherName (hangi öğretmenin değerlendirdiği bir ÜRÜN bilgisidir,
    state.exam.teacherName ile eşleşir), ceForm'un içeriği (yüklenmiş kaynak
    metin, sayaçlar, seçili kazanım — bunlar yarım kalmış İŞTİR).
@@ -8106,7 +8099,7 @@ function renderDepoUyarisi() {
 
 function renderAll() {
   renderAiBadge();
-  syncActiveExam();
+  aktifOturumuYaz();
   saveState();
   renderDepoUyarisi();
   renderRoleNav();
@@ -8117,7 +8110,6 @@ function renderAll() {
   renderStudent();
   renderAdmin();
   renderParent();
-  renderSyncChip();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   bindFieldLabels();
@@ -8370,9 +8362,7 @@ function renderParent() {
   const cocuk = veliCocugu();
 
   if (!cocuk) {
-    // §35: veli panelinde sınıf kodu GİRİŞ formu gösterilmez (bkz. syncJoinHtml).
-    root.innerHTML = bosDurumHtml("Henüz tanımlı bir öğrenci yok.", true);
-    wireSyncJoin();
+    root.innerHTML = bosDurumHtml("Henüz tanımlı bir öğrenci yok.");
     return;
   }
 
@@ -8397,11 +8387,9 @@ function renderParent() {
 
   const sonuclar = veliSonuclari(cocuk.id);
   if (!sonuclar.length) {
-    // §35: veli panelinde sınıf kodu GİRİŞ formu gösterilmez (bkz. syncJoinHtml).
     root.innerHTML = secici + bosDurumHtml(
       escapeHtml(cocuk.name || "Öğrenci") + " için öğretmen onayından geçmiş bir sonuç henüz yok. " +
-      "Öğretmen sonuçları yayınladığında burada görünecek.",
-      true
+      "Öğretmen sonuçları yayınladığında burada görünecek."
     );
     wireParent();
     return;
@@ -8470,7 +8458,6 @@ function wireParent() {
   document.querySelectorAll('[data-vid]').forEach(function (b) {
     b.onclick = function () { state.parentStudentId = Number(b.dataset.vid); saveState(); renderAll(); };
   });
-  wireSyncJoin();
 }
 
 /* ==================== DİKKAT SİNYALİ (§28e) ====================
@@ -8558,7 +8545,6 @@ function dikkatVeliyeOnayla(sid) {
   auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sinavda isaret" });
   saveState();
   renderAll();
-  syncOtomatik();
   return true;
 }
 
@@ -8567,7 +8553,6 @@ function dikkatOnayGeriAl(sid) {
   delete onay[sid];
   saveState();
   renderAll();
-  syncOtomatik();
   return true;
 }
 
@@ -8767,490 +8752,14 @@ function wireDisaAktar() {
   };
 }
 
-/* ==================== CİHAZLAR ARASI SENKRON (§28b, §28p) ====================
-   3 Eylül'e kadar tüm veri `localStorage` + IndexedDB'deydi; her tarayıcı kendi
-   verisini görüyordu ve ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞMÜYORDU.
-   Bu modül o köprüyü kurar.
-
-   TASARIM KARARI — `renderAll()` SENKRON KALIR.
-   Uygulamanın tamamı senkron HTML dizesi üretir (§3.1). Okuma yollarını
-   asenkrona çevirmek `app.js`'in tamamına dokunurdu. Bunun yerine D1 bir
-   ÖNBELLEK DEĞİL, BİR KÖPRÜDÜR: veri çekilir, `state`e yazılır, sonra bir kez
-   `renderAll()` çağrılır. Çizim kaynağı hâlâ `state`tir.
-
-   BU BİR KİMLİK DOĞRULAMA DEĞİLDİR ve arayüzde de öyle yazar.
-
-   🔴 §28p — ARAYÜZ YENİDEN TASARLANDI (3 Eylül, ikinci tur).
-   İlk sürüm tek bir geniş şerit olarak üst çubukta duruyordu ve HER ROLDE
-   görünüyordu — İçerik Uzmanı hiç kullanmadığı bir kavramla karşılaşıyordu.
-   Kullanıcının kendi ifadesiyle: "ne işe yaradığını bile bilmiyorum." Kök
-   sebep arayüz değil YERLEŞİMDİ: kavram yalnızca İKİ anda anlamlıdır —
-   öğretmen bir sınavı paylaşırken, öğrenci/veli bir koda girerken. Onun
-   dışında her yerde gürültüdür. Çözüm dört parçaya bölündü:
-     · syncChipHtml()      — topbar, YALNIZCA bir koda bağlıyken görünür
-     · syncShareLineHtml() — öğretmenin sınav listesi kartında, bağlamsal
-     · syncJoinHtml()      — öğrenci/veli boş ekranında, bağlamsal; §28s'den
-       beri bosDurumHtml() içinde, boş durum mesajıyla TEK kutuda
-     · otomatik eşitleme   — Gönder/Yenile düğmelerini gündelik kullanımdan
-       kaldırır; kalan tek elle kontrol topbar çipinin altındadır. */
-
-/* Karışan karakterler (0/O, 1/I) bilinçli olarak dışarıda: kod sesli okunup
-   elle yazılacak. Sunucudaki ROOM_RE ile aynı kümedir. */
-const ODA_ALFABE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const ODA_KOD_DESENI = /^[A-HJ-NP-Z2-9]{4,12}$/;
-
-function syncOdaUret() {
-  let k = "";
-  const rnd = new Uint32Array(6);
-  crypto.getRandomValues(rnd);
-  for (let i = 0; i < 6; i++) k += ODA_ALFABE[rnd[i] % ODA_ALFABE.length];
-  return k;
+/* ==================== BOŞ DURUM ====================
+   §43'e kadar bu fonksiyon senkron modülünün içindeydi ve boş durum mesajının
+   yanına bir SINIF KODU GİRİŞ FORMU basıyordu. Sınıf kodu kaldırıldı (§43);
+   geriye yalnızca durumu söyleyen kutu kaldı. Fonksiyon SİLİNMEDİ çünkü
+   öğrenci ve veli ekranlarındaki dört boş durumun tamamı buradan geçer. */
+function bosDurumHtml(mesaj) {
+  return '<div class="card"><div class="empty-state">' + mesaj + '</div></div>';
 }
-
-/** Çalışma zamanı senkron durumu. KALICI DEĞİLDİR — yalnızca `syncRoom` kalıcıdır. */
-function syncDurum() {
-  if (!state.sync) state.sync = { ready: null, busy: false, mesaj: "", sonGonderim: null, sonCekim: null, hata: "" };
-  return state.sync;
-}
-
-/** Sunucuda D1 bağlı mı? Bağlı değilse arayüz "kapalı" yazar (§6.3-5). */
-async function syncProbe() {
-  const s = syncDurum();
-  try {
-    const r = await fetch("/api/sync/status", { cache: "no-store" });
-    const j = await r.json();
-    s.ready = !!j.ready;
-  } catch (e) {
-    s.ready = false;
-  }
-  renderAll();
-  return s.ready;
-}
-
-/** Bu cihazın gönderebileceği her şeyi tek bir gövdede topla. */
-function syncPaket() {
-  syncActiveExam();
-  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
-  if (!kayit) return null;
-
-  /* Sınav gövdesi SORULARI DA TAŞIR. Başka bir cihazdaki öğrencinin sınavı
-     çözebilmesi için soru metinleri, şıkları ve uyaran metinleri gerekir;
-     yalnızca sınav kaydını göndermek öğrenciye BOŞ bir sınav gösterirdi. */
-  const sorular = (kayit.questionIds || [])
-    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
-    .filter(Boolean);
-  const rubrikler = {};
-  sorular.forEach(function (q) { if (state.rubrics[q.id]) rubrikler[q.id] = state.rubrics[q.id]; });
-  const kaynaklar = (state.sources || []).filter(function (k) {
-    return sorular.some(function (q) { return q.srcId === k.id; });
-  });
-
-  const sinav = {
-    examId: kayit.id,
-    title: String(kayit.title || "Adsız Sınav").slice(0, 200),
-    payload: JSON.stringify({
-      exam: {
-        title: kayit.title, questionIds: kayit.questionIds, timeOverrides: kayit.timeOverrides,
-        status: kayit.status, durationMin: kayit.durationMin, startMode: kayit.startMode,
-        startAtLocal: kayit.startAtLocal, startsAt: kayit.startsAt, mcPoint: mcPuani(kayit),
-        targetClass: kayit.targetClass || ""
-      },
-      questions: sorular, rubrics: rubrikler, sources: kaynaklar,
-      /* 🔴 `sinif` BURADA EKSİKTİ (§28q'da bulundu). Sonucu ölçüldü: başka
-         cihazdan katılınca öğrenci sınıf etiketi kayboluyordu ("Ali Veli
-         (undefined)"). Öğretmenin §28q'da eklediği "kendi eliyle sınıf kur"
-         özelliği bu alan olmadan cihazlar arasında anlamsızlaşırdı. */
-      students: (state.students || []).map(function (o) { return { id: o.id, name: o.name, sinif: o.sinif || "", demo: !!o.demo }; })
-    })
-  };
-
-  const ss = examSessions(kayit);
-  /* §36 — İKİNCİ KATMAN: kayıtta zaten bozuk bir anahtar varsa (eski
-     verilerde olabilir) onu göndermeyiz. Sessizce atmak yerine burada
-     ELENİR ve senkron çalışmaya devam eder; tek bir bozuk anahtar yüzünden
-     tüm sınıfın verisi gitmemelidir. Anahtar temizliği için ayrıca
-     syncActiveExam() içindeki koruma var. */
-  const oturumlar = Object.keys(ss).filter(function (sid) {
-    return Number.isFinite(Number(sid));
-  }).map(function (sid) {
-    const o = ss[sid] || {};
-    const ogr = (state.students || []).find(function (x) { return String(x.id) === String(sid); });
-    return {
-      examId: kayit.id,
-      studentId: Number(sid),
-      studentName: String((ogr && ogr.name) || "").slice(0, 120),
-      status: o.examStatus || "not_started",
-      payload: JSON.stringify(o)
-    };
-  }).slice(0, 60);
-
-  return { room: state.syncRoom, exam: sinav, sessions: oturumlar };
-}
-
-async function syncGonder() {
-  const s = syncDurum();
-  if (!state.syncRoom) { s.hata = "Önce bir sınıf kodu oluşturun ya da girin."; renderAll(); return false; }
-  const paket = syncPaket();
-  if (!paket) { s.hata = "Gönderilecek sınav yok."; renderAll(); return false; }
-  s.busy = true; s.hata = ""; renderAll();
-  try {
-    const r = await fetch("/api/sync/push", {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(paket)
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.message || "Gönderilemedi");
-    s.sonGonderim = Date.now();
-    s.mesaj = j.sessions + " oturum gönderildi";
-  } catch (e) {
-    // SESSİZ GERİ DÜŞÜŞ YASAĞI (§6.3-5): başarısızlık ekranda yazar.
-    s.hata = (e && e.message) || "Sunucuya yazılamadı";
-  }
-  s.busy = false; renderAll();
-  return !s.hata;
-}
-
-async function syncCek() {
-  const s = syncDurum();
-  if (!state.syncRoom) { s.hata = "Önce bir sınıf kodu oluşturun ya da girin."; renderAll(); return false; }
-  s.busy = true; s.hata = ""; renderAll();
-  try {
-    const r = await fetch("/api/sync/pull", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ room: state.syncRoom })
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.message || "Okunamadı");
-    const say = syncBirlestir(j);
-    s.sonCekim = Date.now();
-    s.mesaj = say.sinav + " sınav · " + say.oturum + " oturum alındı";
-  } catch (e) {
-    s.hata = (e && e.message) || "Sunucudan okunamadı";
-  }
-  s.busy = false;
-  renderAll();
-  return !s.hata;
-}
-
-/**
- * Sunucudan geleni yerel duruma karıştır.
- *
- * 🔴 EN KRİTİK KURAL: ŞU AN ÇÖZÜLMEKTE OLAN OTURUM EZİLMEZ.
- * Öğrenci sınavı yazarken bir çekme işlemi yapılırsa, sunucudaki eski kopya
- * öğrencinin yazdıklarının üstüne binerdi — veri kaybı, üstelik sessiz.
- * Aktif öğrencinin `in_progress` oturumu bu yüzden korunur.
- */
-function syncBirlestir(veri) {
-  let sinavSay = 0, oturumSay = 0;
-
-  (veri.exams || []).forEach(function (satir) {
-    let govde;
-    try { govde = JSON.parse(satir.payload); } catch (e) { return; }
-    if (!govde || !govde.exam) return;
-
-    // Sorular, rubrikler ve kaynaklar yerelde yoksa eklenir (kimlikler korunur).
-    (govde.questions || []).forEach(function (q) {
-      if (!state.questions.some(function (x) { return x.id === q.id; })) {
-        state.questions.push(q);
-        if (q.id >= qIdSeq) qIdSeq = q.id + 1;
-      }
-    });
-    Object.keys(govde.rubrics || {}).forEach(function (qid) {
-      if (!state.rubrics[qid]) state.rubrics[qid] = govde.rubrics[qid];
-    });
-    (govde.sources || []).forEach(function (k) {
-      if (!(state.sources || []).some(function (x) { return x.id === k.id; })) state.sources.push(k);
-    });
-    /* §28r Madde 2 — ESKİDEN yalnızca YOKSA ekleniyordu; öğrencinin adı ya da
-       sınıfı SONRADAN değiştirilirse bu değişiklik diğer cihazlara hiç
-       yayılmıyordu. Artık var olan kayıt da güncellenir ("son gönderen
-       kazanır" — sınav/oturum verilerinin tamamı zaten aynı kuralla
-       çalışıyor, agents.md kimlik doğrulama olmadığı için çakışma çözümü
-       burada da basit tutuldu). */
-    (govde.students || []).forEach(function (o) {
-      var mevcut = (state.students || []).find(function (x) { return x.id === o.id; });
-      if (!mevcut) { state.students.push(o); return; }
-      mevcut.name = o.name;
-      mevcut.sinif = o.sinif;
-      mevcut.demo = !!o.demo;
-    });
-
-    let kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
-    if (!kayit) {
-      kayit = { id: satir.exam_id, sessions: {} };
-      state.exams.push(kayit);
-      if (satir.exam_id >= examIdSeq) examIdSeq = satir.exam_id + 1;
-    }
-    Object.keys(govde.exam).forEach(function (k) { kayit[k] = govde.exam[k]; });
-    if (kayit.id === state.activeExamId) {
-      Object.keys(govde.exam).forEach(function (k) { state.exam[k] = govde.exam[k]; });
-    }
-    sinavSay++;
-  });
-
-  (veri.sessions || []).forEach(function (satir) {
-    let o;
-    try { o = JSON.parse(satir.payload); } catch (e) { return; }
-    const kayit = state.exams.find(function (x) { return x.id === satir.exam_id; });
-    if (!kayit) return;
-
-    const aktifOturum = kayit.id === state.activeExamId && String(satir.student_id) === String(state.activeStudentId);
-    if (aktifOturum && state.examStatus === "in_progress") return;   // çözülmekte — DOKUNMA
-
-    const ss = examSessions(kayit);
-    ss[satir.student_id] = o;
-    if (aktifOturum) {
-      OTURUM_ALANLARI.forEach(function (k) { state[k] = o[k] !== undefined ? o[k] : bosOturum()[k]; });
-    }
-    oturumSay++;
-  });
-
-  saveState();
-  return { sinav: sinavSay, oturum: oturumSay };
-}
-
-async function syncSil() {
-  const s = syncDurum();
-  if (!state.syncRoom) return false;
-  if (!confirm("“" + state.syncRoom + "” sınıfındaki TÜM veriler sunucudan kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?")) return false;
-  s.busy = true; s.hata = ""; renderAll();
-  try {
-    const r = await fetch("/api/sync/reset", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ room: state.syncRoom })
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.message || "Silinemedi");
-    s.mesaj = j.deleted + " kayıt sunucudan silindi";
-  } catch (e) {
-    s.hata = (e && e.message) || "Silinemedi";
-  }
-  s.busy = false; renderAll();
-  return !s.hata;
-}
-
-/** Önemli bir olaydan sonra sessizce gönder — başarısızlık çipte görünür. */
-function syncOtomatik() {
-  if (!state.syncRoom || syncDurum().ready !== true) return;
-  syncGonder();
-}
-
-function syncZaman(ts) {
-  if (!ts) return "—";
-  return new Date(ts).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-}
-
-/* -------------------- 1) TOPBAR ÇİPİ — her rolde, yalnızca bağlıyken -------
-   `.ai-chip` / `.ai-mode-detay` ile AYNI kalıp (renderAiBadge): küçük bir
-   durum çipi + tıklayınca açılan ayrıntı paneli. Bağımsız sınıf (§6.3-2). */
-function syncChipHtml() {
-  if (!state.syncRoom) return "";   // koda bağlı değilken topbar tamamen sadedir
-  const s = syncDurum();
-  const cls = s.hata ? "pill-warning" : (s.busy ? "pill-accent2" : "pill-success");
-  /* §36 — KOD ile DURUM METNİ ayrı biçimlendirilir.
-     .sync-metin monospace + 0,06em harf aralığı kullanıyordu. Bu bir SINIF
-     KODU için doğrudur (AB2C9 karakter karakter okunur, O/0 ve I/1 karışmasın
-     diye), ama aynı stil "eşitleniyor…" / "eşitlenemedi" gibi TÜRKÇE
-     CÜMLELERE de uygulanıyordu ve kelime bozuk/aralıklı görünüyordu.
-     Artık monospace yalnızca gerçekten kod gösterilirken açılır. */
-  const kodMu = !s.busy && !s.hata;
-  const metin = s.busy ? "eşitleniyor…" : (s.hata ? "eşitlenemedi" : state.syncRoom);
-  return '<button class="sync-chip ' + cls + '" id="btnSyncDetay" aria-expanded="' +
-    (state.syncAyrintiAcik ? "true" : "false") + '" title="' +
-    (kodMu ? "Sınıf kodu " + escapeHtml(String(state.syncRoom)) + " — ayrıntılar"
-           : (s.hata ? "Eşitleme başarısız — ayrıntılar için tıklayın" : "Eşitleniyor…")) + '">' +
-    '<span class="sync-nokta">' + (s.hata ? "!" : "●") + "</span>" +
-    '<span class="sync-metin' + (kodMu ? " sync-kod" : "") + '">' + escapeHtml(metin) + "</span>" +
-    '<span class="sync-ok">' + (state.syncAyrintiAcik ? "▴" : "▾") + "</span></button>" +
-    syncDetayHtml();
-}
-
-function syncDetayHtml() {
-  if (!state.syncAyrintiAcik) return "";
-  const s = syncDurum();
-  const satir = function (etiket, deger) {
-    return '<div class="aim-satir"><span class="aim-etiket">' + escapeHtml(etiket) + "</span>" +
-      '<span class="aim-deger">' + escapeHtml(deger) + "</span></div>";
-  };
-  return '<div class="ai-mode-detay sync-detay" id="syncDetay">' +
-    satir("Sınıf kodu", state.syncRoom) +
-    satir("Son gönderilen", syncZaman(s.sonGonderim)) +
-    satir("Son alınan", syncZaman(s.sonCekim)) +
-    (s.hata ? '<div class="aim-not sync-detay-err">' + escapeHtml(s.hata) + "</div>" : "") +
-    '<div class="aim-not">Bu bir kimlik doğrulama değildir: kodu bilen herkes bu sınıfın ' +
-    "verisini görebilir. Sınav bittikten ve karneler yayınlandıktan sonra silmeniz önerilir.</div>" +
-    '<div class="sync-detay-actions">' +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncDetayYenile" ' + (s.busy ? "disabled" : "") + ">Şimdi eşitle</button>" +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncDetayCik">Kodu değiştir</button>' +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncDetaySil">Sunucudaki veriyi sil</button>' +
-    "</div></div>";
-}
-
-function renderSyncChip() {
-  const el = document.getElementById("syncChip");
-  if (!el) return;
-  el.innerHTML = syncChipHtml();
-  wireSyncChip();
-}
-
-function syncAyrintiToggle() {
-  state.syncAyrintiAcik = !state.syncAyrintiAcik;
-  renderSyncChip();
-}
-
-function wireSyncChip() {
-  const btn = document.getElementById("btnSyncDetay");
-  if (btn) btn.onclick = syncAyrintiToggle;
-  const yenile = document.getElementById("btnSyncDetayYenile");
-  if (yenile) yenile.onclick = function () { syncCek(); syncGonder(); };
-  const cik = document.getElementById("btnSyncDetayCik");
-  if (cik) cik.onclick = function () {
-    state.syncRoom = ""; syncDurum().mesaj = ""; syncDurum().hata = ""; state.syncAyrintiAcik = false;
-    saveState(); renderAll();
-  };
-  const sil = document.getElementById("btnSyncDetaySil");
-  if (sil) sil.onclick = function () { syncSil(); };
-}
-
-/* -------------------- 2) ÖĞRETMEN — sınav listesi kartındaki paylaşım satırı
-   Kavram burada ilk kez karşısına çıkar: "sınavımı öğrencilerime nasıl
-   ulaştırırım" sorusunun yanıtı. examSwitcherHtml() içinde kullanılır. */
-function syncShareLineHtml() {
-  if (syncDurum().ready === false) return "";   // sunucu bağlı değilse hiç gösterme
-  if (state.syncRoom) {
-    return '<div class="sync-share sync-share-active">' +
-      "<span>Sınıf kodu: <b class=\"sync-code\">" + escapeHtml(state.syncRoom) + "</b> — " +
-      "öğrencilere verin, sınavları ve sonuçları bu cihazla paylaşsın.</span>" +
-      '<button class="btn btn-secondary btn-sm" id="btnSyncKopyala">Kopyala</button></div>';
-  }
-  return '<div class="sync-share">' +
-    "<span>Sınıfınız şu anda yalnızca bu cihazda. Öğrenciler kendi telefonlarından " +
-    "girecekse bir kod oluşturun.</span>" +
-    '<button class="btn btn-secondary btn-sm" id="btnSyncPaylasKod">Sınıf kodu oluştur</button></div>';
-}
-
-function wireSyncShareLine() {
-  const olustur = document.getElementById("btnSyncPaylasKod");
-  if (olustur) olustur.onclick = function () {
-    state.syncRoom = syncOdaUret(); saveState();
-    syncGonder();   // ilk gönderim; kendi içinde renderAll çağırır
-  };
-  const kopyala = document.getElementById("btnSyncKopyala");
-  if (kopyala) kopyala.onclick = function () {
-    const eskiMetin = kopyala.textContent;
-    const bitir = function (metin) {
-      kopyala.textContent = metin;
-      setTimeout(function () { kopyala.textContent = eskiMetin; }, 1500);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(state.syncRoom).then(function () { bitir("Kopyalandı ✓"); }, function () { bitir("Kopyalanamadı"); });
-    } else {
-      bitir("Kopyalanamadı");
-    }
-  };
-}
-
-/* -------------------- 3) ÖĞRENCİ / VELİ — boş ekrandaki katılma kutusu ----
-   Kavram burada ikinci ve son kez karşısına çıkar: "öğretmenimin verdiği
-   kodu nereye yazacağım" sorusunun yanıtı. Yalnızca çözülecek/görülecek
-   sınav yokken (boş durumlarda) görünür — dolu ekranlarda gürültü olurdu.
-
-   🔴 §28s (3 Eylül, beşinci tur): bu kutu ARTIK TEK BAŞINA DURMUYOR. Eskiden
-   "sonuç yok" mesajı bir kartta, sınıf kodu kutusu apayrı bir kartta duruyordu
-   ve aralarında hiçbir görsel bağ yoktu — veli "sonuç yok" yazısını okuyup ne
-   yapması gerektiğini anlamıyordu, çünkü çözüm ekranın başka bir yerindeydi.
-   Artık her zaman `bosDurumHtml()` içinden çağrılır ve `.empty-state`in
-   DEVAMI olarak çizilir: üstte durum, ince ayırıcı, altında o durumu
-   değiştirecek tek eylem. */
-/* `girisGizle` (§35): yalnızca KOD GİRİŞ FORMUNU (açıklama + kutu + "Gir")
-   bastırır. Veli paneli bunu kullanır — sınıf kodunu öğretmen oluşturur,
-   öğrenci girer; velinin girecek bir kodu yoktur, kutu orada yalnızca
-   kafa karıştırıyordu. Bağlıyken gösterilen durum satırı ("Bu cihaz …
-   koduna bağlı" + "Şimdi kontrol et") KALDIRILMADI: o bir giriş formu
-   değil, velinin sonuçları tazeleyebildiği tek yer.
-   Öğrenci ve öğretmen tarafı bu parametreyi HİÇ vermez, davranışları
-   birebir eskisi gibi kalır. */
-function syncJoinHtml(girisGizle) {
-  if (syncDurum().ready === false) return "";
-  if (state.syncRoom) {
-    /* Bağlıyken "…yayınladığında burada görünecek" DENMEZ: hemen üstteki boş
-       durum mesajı zaten bunu söylüyor, iki kez yazmak kutuyu şişiriyordu. */
-    return '<div class="sync-join sync-join-active">' +
-      "<span>Bu cihaz <b>" + escapeHtml(state.syncRoom) + "</b> sınıf koduna bağlı.</span> " +
-      '<button class="btn btn-secondary btn-sm js-sync-yenile">Şimdi kontrol et</button></div>';
-  }
-  if (girisGizle) return "";
-  return '<div class="sync-join">' +
-    "<b>Öğretmeninizden sınıf kodu aldıysanız buraya girin:</b>" +
-    '<div class="sync-join-row">' +
-    '<input class="sync-join-input js-sync-input" maxlength="12" placeholder="ör. 2D9543" aria-label="Sınıf kodu">' +
-    '<button class="btn btn-primary btn-sm js-sync-gir">Gir</button></div>' +
-    (syncDurum().hata ? '<span class="sync-join-err">' + escapeHtml(syncDurum().hata) + "</span>" : "") +
-    "</div>";
-}
-
-/* Boş ekran = DURUM + onu değiştirecek EYLEM, tek görsel birimde (§28s).
-   Öğrenci ve veli ekranlarındaki dört boş durumun tamamı buradan geçer;
-   böylece "yok" mesajı ile sınıf kodu girişi bir daha ayrı düşemez. */
-function bosDurumHtml(mesaj, girisGizle) {
-  return '<div class="card"><div class="empty-state">' + mesaj + syncJoinHtml(girisGizle) + "</div></div>";
-}
-
-/* 🔴 §28s — BURADA ID KULLANILMAZ, ÖLÇÜLMÜŞ BİR HATADIR.
-   Tüm rol panelleri AYNI ANDA DOM'a basılır (yalnızca aktif olan CSS ile
-   görünür). Bu yüzden katılma kutusu bir sayfada BİRDEN ÇOK kez bulunur:
-   öğrencinin boş ekranında bir, velinin boş ekranında bir. Eskiden düğme ve
-   giriş kutusu `id` taşıyordu ve buradaki `getElementById` yalnızca İLKİNİ
-   (öğrencininkini) buluyordu.
-
-   Ölçüldü (yerel dev, tarayıcı): veli panelindeki "Gir" düğmesinin `onclick`
-   değeri `null`'dı — yani veli sınıf kodunu yazıp "Gir"e bastığında HİÇBİR
-   ŞEY OLMUYORDU. Aynı hata `.wait-pill` sayacında da yaşanmıştı (§28a).
-   Çözüm orada olduğu gibi burada da: id yerine sınıf, `querySelectorAll` ile
-   HEPSİNİ bağla, her kutu kendi girdisini `closest()` ile bulsun. */
-function wireSyncJoin() {
-  document.querySelectorAll(".js-sync-gir").forEach(function (btn) {
-    const kutu = btn.closest(".sync-join");
-    const girTikla = function () {
-      const inp = kutu ? kutu.querySelector(".js-sync-input") : null;
-      const v = String((inp || {}).value || "").trim().toUpperCase();
-      if (!ODA_KOD_DESENI.test(v)) {
-        syncDurum().hata = "Kod 4-12 karakter olmalı; I, O harfleri ile 0, 1 rakamları kullanılmaz.";
-        renderAll(); return;
-      }
-      /* §28r Madde 3 — bir kod GİRİLEREK gerçek bir sınıfa katılınıyorsa ve bu
-         cihazda hâlâ dokunulmamış ÖRNEK liste duruyorsa, katılmadan önce onu
-         temizle. Aksi hâlde 4 sahte isim gerçek öğrencilerle karışıyordu ve
-         "örnek listeyi temizle" ipucu da bir daha görünmüyordu (liste artık
-         tamamen varsayılan olmadığı için). Öğretmenin KENDİ cihazında kod
-         OLUŞTURMASına dokunulmadı — yalnızca KATILMA anı. */
-      if (varsayilanListeMi()) { state.students = []; state.activeStudentId = null; }
-      state.syncRoom = v; syncDurum().hata = ""; saveState();
-      syncCek();
-    };
-    btn.onclick = girTikla;
-    const inp = kutu ? kutu.querySelector(".js-sync-input") : null;
-    if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") girTikla(); };
-  });
-  document.querySelectorAll(".js-sync-yenile").forEach(function (b) {
-    b.onclick = function () { syncCek(); };
-  });
-}
-
-/* -------------------- 4) OTOMATİK EŞİTLEME (öğretmen/yönetici kalp atışı) --
-   Öğrencinin gönderdiği kağıt önemli olaylarda zaten otomatik gönderiliyor
-   (finishExam, publishResults, finalizeReview → syncOtomatik). Eksik olan
-   ÇEKME tarafıydı: öğretmen elle "Yenile"ye basmak zorundaydı. Bu kalp atışı
-   onu kapatır — yalnızca öğretmen/yönetici ekranındayken ve bir alana
-   YAZMIYORKEN çeker (§6.3-3: renderAll() odak kaybettirmemeli, aynı koruma
-   §28a'daki bekleme sayacı ticker'ında da kullanıldı). */
-setInterval(function () {
-  if (!state.syncRoom || syncDurum().ready !== true || syncDurum().busy) return;
-  if (state.role !== "teacher" && state.role !== "admin") return;
-  const odak = document.activeElement;
-  const yaziliyor = !!odak && (odak.tagName === "INPUT" || odak.tagName === "TEXTAREA" || odak.isContentEditable);
-  if (yaziliyor) return;
-  syncCek();
-}, 20000);
 
 /* ==================== Öz-kontrol ====================
    Geliştirme sırasında bir yeniden yazım, çağrılan bir fonksiyonu sessizce
@@ -9306,10 +8815,7 @@ setInterval(function () {
     "csvHucre", "csvSayi", "csvSatirlar", "disaAktarimAdi", "ogrenciCsv", "sinifCsv", "disaAktarHtml", "wireDisaAktar",
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "ogrenciSilGuard", "varsayilanListeMi", "sinifYonetimHtml", "wireSinifYonetim", "kaynakKitapligaKaydet",
-    "syncOdaUret", "syncDurum", "syncProbe", "syncPaket", "syncGonder", "syncCek",
-    "syncBirlestir", "syncSil", "syncOtomatik", "syncZaman",
-    "syncChipHtml", "syncDetayHtml", "renderSyncChip", "syncAyrintiToggle", "wireSyncChip",
-    "syncShareLineHtml", "wireSyncShareLine", "syncJoinHtml", "bosDurumHtml", "wireSyncJoin",
+    "bosDurumHtml",
     "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
     "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
     "girisKapisiKartlariHtml", "girisKapisiKur",
@@ -9358,7 +8864,7 @@ setInterval(function () {
     "findQuestion", "outcomeLabel", "addOutcome", "removeOutcome", "addSubject",
     "loadPdfLib", "extractPdf", "pdfRangeText", "applyPdfRange", "pdfPickerHtml",
     "onGenerateQuestions", "alignKey", "ceTabsHtml", "bosOturum", "examSessions", "sessionOf",
-    "syncActiveExam", "ensureExamList", "examStatusPill", "canPublishExam", "totalWeight",
+    "aktifOturumuYaz", "ensureExamList", "examStatusPill", "canPublishExam", "totalWeight",
     "ensureRubric", "mcPuani", "examTrayHtml", "filteredPool", "simProgress", "kriterPuani",
     "allOpensReviewed", "computeDemoClassScores", "gradedExamHistory", "trendOku",
     "teacherHeatmapRows", "flashAutosave", "examCardState", "examActionBtn",
@@ -9417,9 +8923,6 @@ setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 girisKapisiKur();
 probeAiMode();
-// Sunucuda D1 bağlı mı? Bağlı değilse sınıf kodu özellikleri sessizce görünmez
-// (§28p): hiçbir düğme yanlış bir başarı iddia etmez, yalnızca teklif edilmez.
-syncProbe();
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.
 katalogHazirla();

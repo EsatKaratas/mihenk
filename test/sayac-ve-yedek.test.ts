@@ -18,7 +18,6 @@ import {
   RATE_LIMIT_PER_MIN,
 } from '../src/lib/guards';
 import { saglayiciHazirMi, fallbackSorunu, temizAnahtar, type AiEnv } from '../src/lib/ai';
-import { SYNC_RESET_PER_MIN, SYNC_WRITE_PER_MIN, SYNC_PULL_PER_MIN } from '../src/routes/sync';
 
 describe('budaHizSayaci — sayaç haritası sınırsız büyümez', () => {
   it('penceresi kapanmış anahtarları siler, canlıları korur', () => {
@@ -134,16 +133,21 @@ describe('fallbackSorunu — tanımlı ama çalışmayan yedek sessiz kalmaz', (
     expect(m).toBeTruthy();
     expect(m).toContain('AI binding');
   });
-});
 
-describe('SYNC_RESET_PER_MIN — silme, yazmadan daha dar sınırda', () => {
-  it('silme sınırı yazma sınırından KÜÇÜKTÜR', () => {
-    expect(SYNC_RESET_PER_MIN).toBeLessThan(SYNC_WRITE_PER_MIN);
-    expect(SYNC_RESET_PER_MIN).toBeLessThan(SYNC_PULL_PER_MIN);
-  });
-
-  it('meşru kullanımı engellemeyecek kadar geniştir', () => {
-    // Silme, confirm() arkasında ve dönem başına birkaç kez yapılan bir iştir.
-    expect(SYNC_RESET_PER_MIN).toBeGreaterThanOrEqual(3);
+  /* §43 — CANLIDAKİ YAPILANDIRMANIN KENDİSİ. wrangler.demo.jsonc yedeği
+     workers-ai + llama-4-scout olarak tanımlar ve AI binding bağlıdır; yani
+     secret OLMADAN yedek gerçekten çalışır durumdadır. Bu test o kararı
+     kilitler: biri yedeği tekrar harici bir sağlayıcıya çevirir ve anahtarı
+     koymayı unutursa, /api/ai/status yeniden kırmızı uyarı basacaktır. */
+  it('🟢 workers-ai yedeği binding VARKEN sorun bildirmez (canlıdaki yapılandırma)', () => {
+    const env: AiEnv = {
+      AI: {} as AiEnv['AI'],
+      AI_PROVIDER: 'workers-ai',
+      AI_MODEL: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+      AI_FALLBACK_PROVIDER: 'workers-ai',
+      AI_FALLBACK_MODEL: '@cf/meta/llama-4-scout-17b-16e-instruct',
+    };
+    expect(fallbackSorunu(env)).toBeNull();
+    expect(saglayiciHazirMi(env)).toBe(true);
   });
 });

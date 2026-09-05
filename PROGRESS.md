@@ -5832,3 +5832,131 @@ Bu projenin en pahalı hata sınıfı yine tekrarladı; üçü de kayda geçiyor
 konsol hatası **0** · canlı `/api/health` `{"ok":true}` · öğretmen 3. ve 4.
 sekmeleri sınıf verisini gösteriyor ve yönetici paneliyle **aynı sayıları**
 veriyor.
+
+---
+
+## 43. SINIF KODU KALDIRILDI + YEDEK MODEL GERÇEKTEN ÇALIŞIR OLDU (5 Eylül 2026)
+
+**İstek (kullanıcı):** *"bu api sorununu çözmemiz gerekiyor. sınıf kodu kısmını
+komple kaldırmak istiyorum artısını eksisini değerlendir ona göre sınıf kodu
+kısmını komple her yerden çıkaralım."*
+
+### 43.1 API sorunu — anahtar satın alınmadı, KOD OKUNDU
+
+§42.2'de teşhis edilen sorun şuydu: `wrangler.demo.jsonc` bir OpenAI yedeği
+tanımlıyor ama `AI_FALLBACK_API_KEY` secret'ı yok, yani yedek devreye
+**giremiyor**. Uç bunu dürüstçe söylüyordu ama sorun duruyordu.
+
+Çözüm yeni bir sağlayıcı ya da kredi kartı olmadı. `src/lib/ai.ts` okundu:
+
+```ts
+export function fallbackConfigured(env: AiEnv): boolean {
+  const f = fallbackEnv(env);
+  if (!f) return false;
+  return providerName(f) === 'workers-ai' ? !!f.AI : !!temizAnahtar(f.AI_API_KEY);
+}
+```
+
+**Yedek sağlayıcı `workers-ai` ise API anahtarı ARANMAZ**, yalnızca AI binding
+aranır — ve `fallbackEnv()` `AI` binding'ini zaten geçiriyor. Yani yedek,
+secret olmadan da gerçekten çalışır kılınabilirdi.
+
+Yedek `@cf/meta/llama-4-scout-17b-16e-instruct`'a alındı. Model tahminle
+seçilmedi: §33'teki 6 modelli karşılaştırmada birincili geçen **tek** aday oydu
+(üst düzey soru 3/4'e karşı 1/4; farklı doğru şık harfi 3'e karşı 2). Model
+kimliğinin hesapta var olduğu `npx wrangler ai models` ile **doğrulandı**.
+
+**Ölçüm (yerel, `/api/ai/status`):**
+
+```json
+"fallback": { "provider": "workers-ai", "model": "@cf/meta/llama-4-scout-17b-16e-instruct" },
+"fallbackSorunu": null
+```
+
+**DÜRÜSTLÜK NOTU — bu yarım bir emniyet ağıdır.** İki model de aynı Cloudflare
+Neuron havuzundan yer; **hesap kotası tükenmesine karşı KORUMAZ**. Koruduğu
+şey modele özgü başarısızlıktır: modelin kaldırılması (§7'de bir kez yaşandı),
+aşırı yüklenme, zaman aşımı, ayrıştırılamayan JSON. Kota riski zaten §19'dan
+beri Workers Paid'de hata değil ücrettir. Hesap dışı gerçek koruma isteniyorsa
+`wrangler.demo.jsonc`'taki "SEÇENEK A" açılır ve anahtar **insan tarafından**
+girilir; o seçenekteki `gpt-5.6-luna` ölçümü 26 Ağustos'ta yapıldı, açmadan
+önce model adının hâlâ geçerli olduğu doğrulanmalıdır.
+
+Karar bir testle kilitlendi (`test/sayac-ve-yedek.test.ts`): biri yedeği tekrar
+harici bir sağlayıcıya çevirir ve anahtarı koymayı unutursa test kırılır.
+
+### 43.2 Sınıf kodu — ARTI/EKSİ, sonra karar
+
+Kullanıcı komple kaldırmayı istedi; önce ikisi de yazıldı.
+
+**Artıları:** (1) Ürünün kabul ettiği tek gerçek gizlilik açığı kapanır —
+erişim ölçütü bir ODA KODUYDU, kimlik doğrulama değildi; kodu bilen herkes o
+sınıfın öğrenci yanıtlarını okuyabiliyordu. (2) `/api/sync/reset` gider: kodu
+bilen herkes tüm sınıf verisini **geri alınamaz** biçimde silebiliyordu (hız
+sınırı 5/dk ile daraltılmıştı, kaldırılmamıştı — §42.7-6). (3) D1 bağımlılığı
+biter, deploy ve yarışma sonrası altyapı kapatma sadeleşir. (4) ~1.100 satır
+bakım yükü ve demo günü bir kırılganlık kaynağı (D1 gecikmesi → "eşitlenemedi")
+gider.
+
+**Eksileri:** (1) Ürünün "gerçek sistem" olduğunu gösteren en somut kanıt
+gider: öğrenci artık kendi telefonundan giremez, her şey tek tarayıcıda yaşar.
+(2) Problem 2 briefi roller arası akış istiyor; tek cihazda simülasyon daha
+zayıf durur. (3) Geri dönüş zahmetlidir.
+
+**Karar (Claude, kullanıcı yetkisiyle):** komple sökme. Gerekçe: yarısını
+yapmak — yalnızca arayüzü gizlemek — kaldırılmak istenen asıl şeyi, yani
+**halka açık ve tahmin edilebilir bir kodla korunan bir ucu** ayakta bırakırdı.
+
+### 43.3 Ne silindi
+
+| Katman | Ne |
+|---|---|
+| `public/app.js` | 19 fonksiyon (`syncOdaUret`…`wireSyncJoin`), 13 çağrı yeri, `state.syncRoom`/`state.sync`/`syncAyrintiAcik`, `ODA_ALFABE`, açılıştaki `syncProbe()` |
+| `public/index.html` | `#syncChip` yuvası + kolofon cümlesi |
+| `public/app.css` | `.sync-chip / .sync-detay / .sync-share / .sync-join` bloğu (~85 satır) |
+| `src/index.ts` | `/api/sync` route bağlaması + `DB` binding |
+| Silinen dosyalar | `src/routes/sync.ts` (312), `src/schemas/sync.ts` (79), `test/sync-schemas.test.ts` (224) |
+| `schema.sql` | `sync_exams`, `sync_sessions`, `rate_limits` (14 üretim tablosu DOKUNULMADI) |
+| `wrangler.demo.jsonc` | `d1_databases` bağlaması |
+| Belgeler | README, DEVIR, privacy-policy.html, mimari.html güncellendi; AKTARIM.md "eskidir" bandıyla işaretlendi |
+
+### 43.4 İKİ TUZAK — körlemesine silinseydi ürün ölürdü
+
+1. **`syncActiveExam()` senkron fonksiyonu DEĞİLDİ.** Adında "sync" geçiyor ama
+   ağla hiçbir ilgisi yok: tek işi aktif öğrencinin canlı alanlarını sınav
+   kaydının `sessions` haritasına yazmak. 9 yerden çağrılıyor; silinseydi tüm
+   çok-öğrencili akış ölürdü. Korundu ve **`aktifOturumuYaz()`** olarak yeniden
+   adlandırıldı — kalan tek "sync" izi olarak sonraki okuyucuyu yanıltırdı.
+   §36/§39'daki NaN **ve** null korumaları aynen duruyor; gerekçeleri senkrondan
+   bağımsız olarak hâlâ geçerli (kirli oturum anahtarı `submittedStudents` ve
+   `gradedExamHistory` sayımlarını bozar).
+2. **`bosDurumHtml()` senkron bloğunun İÇİNDE tanımlıydı** ama öğrenci ve veli
+   ekranlarındaki dört boş durumun tamamı ondan geçiyor. Blok olarak silinseydi
+   o dört ekran çökerdi. Fonksiyon korundu, ikinci parametresi (`girisGizle`)
+   ve içindeki `syncJoinHtml()` çağrısı kaldırıldı.
+
+### 43.5 Doğrulama — ölçüldü, iddia edilmedi
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **199/199** (235 → 36 senkron testi düştü, 1 yedek testi eklendi) |
+| `node tools/ozkontrol-dogrula.mjs` | **314 ad · eksik 0 · kapsama %100** |
+| `npm run check:config` | geçti |
+| `node --check public/app.js` | temiz |
+| Yerel `/api/sync/status` | **404** `{"error":"not_found"}` |
+| Yerel `/api/sync/reset` (POST) | **404** |
+| Yerel `/api/ai/status` | `fallbackSorunu: null`, `fallback` dolu |
+| Tarayıcı (8788) | konsol hatası **0**; beş rol de çizildi |
+| Tarayıcı — DOM taraması | Beş panel aynı anda DOM'dayken "sınıf kodu" metni **0 kez**, `.sync-*` öğe **0**, `.js-sync-gir` **0**, `state.syncRoom` **yok** |
+| Tarayıcı — düğme bağları | `btnOgrenciEkle`, `Örnek listeyi temizle` ve 4 silme düğmesinin `onclick`'i **bağlı** (bu üç işleyiciden `syncOtomatik()` çağrısı çıkarılmıştı, kopmadıkları ölçüldü) |
+| §8.4 tuzağı | Servis edilen `app.js` diskle **SHA-256 eş** (490.637 bayt) — bayat dosya ölçmedik |
+
+### 43.6 Açık kalan
+
+- **Çok cihazlılık artık YOK.** "Öğrenci kendi telefonundan girer" iddiası
+  geçersizdir; sunumda söylenmemelidir. Gerçek çok cihazlı çalışma Better Auth
+  + `users` tablosu ile gelmelidir (DEVIR §6.5).
+- Canlıya **henüz yayınlanmadı**; `deploy:demo` izne tabidir (DEVIR §9).
+- D1'deki eski oda verileri (varsa) tablolarla birlikte düşmez; uzak D1'de
+  duruyor olabilir. Silinmesi `--remote` gerektirir ve izne tabidir.

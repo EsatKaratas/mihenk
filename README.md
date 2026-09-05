@@ -262,14 +262,15 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 - **Cloudflare Workers + Hono** — tüm API rotaları tek bir Worker üzerinde
   çalışır; rota haritası `routes.ts` dosyasındadır (`/api/documents`,
   `/api/questions`, `/api/exams`, `/api/student/*`, `/api/admin/*`, …).
-- **D1 (SQLite)** — 17 tablo. Hedef şemanın 14 tablosu:
+- **D1 (SQLite)** — 14 tablo, **hedef mimari** (canlıda bağlı değil):
   `ai_evaluations`, `analytics_snapshots`, `exam_assignments`,
   `exam_questions`, `exams`, `learning_outcomes`, `questions`, `rubrics`,
   `schools`, `source_document_outcomes`, `source_documents`, `submissions`,
   `teacher_reviews`, `users`.
-  **Canlıda gerçekten yazılan 3 tablo:** `sync_exams`, `sync_sessions`
-  (sınıf kodu senkronu) ve `rate_limits` (hız sınırı sayacı).
-  Tam tanım: `schema.sql`.
+  5 Eylül'e kadar canlıda üç tablo (`sync_exams`, `sync_sessions`,
+  `rate_limits`) gerçekten yazılıyordu; sınıf kodu özelliğiyle birlikte
+  **kaldırıldılar**. Bugün canlıda **hiçbir D1 tablosu yazılmıyor**, bağlama
+  da yok. Tam tanım: `schema.sql`.
 - **Workers AI** — soru üretimi ve açık uçlu yanıtların ilk (öneri niteliğinde)
   puanlanması için model çağrıları.
 - **R2** — içerik uzmanının yüklediği kaynak dosyalar ve öğretmenin dışa
@@ -295,26 +296,26 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** (§3.1) |
 > | MEB kazanım katalogları (606 çıktı) | ✅ | ✅ **çalışıyor** |
 > | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ | ✅ **çalışıyor** |
-> | D1 (SQLite) | ✅ | ✅ **bağlı ve çalışıyor** — sınıf koduyla cihazlar arası senkron (3 Eylül) |
+> | D1 (SQLite) | ✅ | ❌ bağlı değil — sınıf kodu senkronu 5 Eylül'de kaldırıldı, tek kullanıcısı oydu |
 > | R2 nesne depolama | ✅ | ❌ bağlı değil — PDF istemcide işlenir, sunucuya hiç gitmez |
 > | Queues (asenkron AI) | ✅ | ❌ bağlı değil — AI çağrıları senkron yapılır |
-> | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir; erişim **sınıf koduyla** belirlenir (kimlik doğrulama değildir, arayüzde de öyle yazar) |
+> | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir; kimlik doğrulama yoktur ve arayüzde de öyle yazar |
 >
-> **D1 3 Eylül'de bağlandı.** Öncesinde tüm veri `localStorage` + IndexedDB'deydi,
-> yani **öğrencinin çözdüğü sınav öğretmenin paneline düşemiyordu.** Artık
-> öğretmen bir **sınıf kodu** üretip öğrencilere veriyor; aynı kodu girenler
-> arasında sınav, yanıtlar ve onaylar sunucudaki veritabanı üzerinden paylaşılıyor.
+> **Sınıf kodu 5 Eylül'de kaldırıldı.** 3 Eylül'de cihazlar arası bir köprü
+> olarak eklenmişti: öğretmen bir kod üretiyor, aynı kodu girenler sınav ve
+> yanıtları sunucudaki veritabanı üzerinden paylaşıyordu. Sorun, erişim
+> ölçütünün **kodun kendisi** olmasıydı — kimlik doğrulama değildi; kodu bilen
+> herkes o sınıfın yanıtlarını okuyabiliyor ve `/api/sync/reset` ile geri
+> alınamaz biçimde silebiliyordu. Prototipin buna ihtiyacı yoktu, riski vardı;
+> özellik uçlarıyla, tablolarıyla ve bağlamasıyla birlikte söküldü.
 >
-> Üretim şemasındaki **14 tabloya dokunulmadı.** Sebep: yabancı anahtar zinciri
-> altı tablo derin (`teacher_reviews -> ... -> users -> schools`) ve prototipte
-> kimlik doğrulama yok; tek bir yanıtı o zincire yazmak **uydurma kullanıcı ve
-> okul satırları** üretmeyi gerektirirdi. Bu proje veri uydurmaz. Köprü bu yüzden
-> ayrı ve açıkça adlandırılmış iki tabloda (`sync_exams`, `sync_sessions`);
-> kimlik doğrulama geldiğinde bu ikisi düşer, asıl şema devralır.
+> **Bedeli açık:** ürün artık **tek cihazda** yaşar. Gerçek çok cihazlı çalışma,
+> oda koduyla değil **Better Auth + `users` tablosu** ile gelmelidir.
 >
-> **Sınıf kodu girilmediği sürece hiçbir veri cihazdan çıkmaz** — ürün tamamen
-> yerel çalışmaya devam eder. Yüklenen PDF'ler ve Karar Günlüğü **hiçbir koşulda**
-> paylaşılmaz, yalnızca tarayıcıda kalır. Ayrıntısı gizlilik bölümünde (§10).
+> **Bugün hiçbir sınav/yanıt verisi cihazdan çıkmaz.** Yalnızca yapay zekâ
+> adımlarında ilgili metin modele iletilir; öğrenci adı gönderilmez. Yüklenen
+> PDF'ler ve Karar Günlüğü **hiçbir koşulda** paylaşılmaz, yalnızca tarayıcıda
+> kalır. Ayrıntısı gizlilik bölümünde (§10).
 
 ### 3.1 Tek sağlayıcıya bağımlı değil — otomatik yedek
 
@@ -361,7 +362,7 @@ bağlantısına bakın.
 ├── tsconfig.json          # TypeScript strict yapılandırması
 ├── wrangler.jsonc         # ÜRETİM: Workers + D1 + R2 + Queues + AI
 ├── wrangler.demo.jsonc    # DEMO: yalnızca statik varlıklar + AI (bkz. §5)
-├── schema.sql             # D1 şeması — 17 tablo (3ü canlıda aktif)
+├── schema.sql             # D1 şeması — 14 üretim tablosu (canlıda hiçbiri aktif değil)
 ├── routes.ts              # tam rota iskeleti (referans; handler'lar TODO)
 ├── agents.md              # geliştirici/AI asistan kuralları
 ├── README.md              # bu dosya
@@ -379,7 +380,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 133 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 199 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -599,18 +600,19 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
 - **Yedeğin puanlama sertliği farklı:** Aynı yanıta birincil model 15-16/20,
   yedek 20/20 verdi. Nihai puanı öğretmen onayladığı için kritik değil, ama
   yedeğe düşüldüğünde tutarlılığın değiştiği bilinmelidir.
-- **Rate limit — iki ayrı sayaç var.** `/api/sync/*` uçlarının sayacı
-  **3 Eylül'de D1'e taşındı** (`rate_limits` tablosu, atomik
-  `INSERT … ON CONFLICT … RETURNING`); isolate'ler arasında paylaşılır ve
-  canlıda ölçülerek doğrulandı (80 paralel istek → 60 kabul, 20 reddedildi).
-  `src/routes/ai.ts` içindeki dakikada 5 istek sınırı ise hâlâ bellek-içi bir
-  `Map` ile tutulur; Cloudflare Workers'da bu her isolate için ayrıdır,
-  dağıtık bir garanti değildir (`agents.md` §7.4 buna açıkça izin veriyor).
-  Oradaki pratik koruma ön ödemeli kredi ve otomatik yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **133 test**
-  koşar (`test/guards.test.ts` 47 · `test/schemas.test.ts` 27 ·
-  `test/ai-lib.test.ts` 24 · `test/sync-schemas.test.ts` 35) — kaynak tespiti, hız sınırı, yabancı alfabe
-  denetimi, Zod şema sınırları, JSON onarımı ve sağlayıcı seçimi kapsanır.
+- **Rate limit bellek-içidir, dağıtık değildir.** 3 Eylül'de `/api/sync/*` için
+  D1 tabanlı (dağıtık) bir sayaç eklenmişti; o uçlar 5 Eylül'de kaldırıldığı
+  için sayaç da gitti. Kalan tek sınır `src/routes/ai.ts` içindeki dakikada
+  5 istek kuralıdır ve bellek-içi bir `Map` ile tutulur; Cloudflare Workers'da
+  bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
+  §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
+  yüklemenin kapalı olmasıdır.
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **199 test**
+  koşar (`test/guards.test.ts` 74 · `test/schemas.test.ts` 44 ·
+  `test/ai-lib.test.ts` 24 · `test/prompts.test.ts` 23 ·
+  `test/prompts-guvenlik.test.ts` 19 · `test/sayac-ve-yedek.test.ts` 15) —
+  kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
+  JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
   dosya sonunda **211 fonksiyon adını denetleyen bir öz-kontrol** ve elle

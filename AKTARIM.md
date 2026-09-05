@@ -1,4 +1,13 @@
 # PROJE AKTARIM DOKÜMANI — MİHENK
+
+> ## 🔴 BU BELGE ESKİDİR — ÖNCE `DEVIR.md`'İ OKUYUN
+>
+> Son güncel devir belgesi `DEVIR.md`'dir (v2, 5 Eylül 2026). Aşağıdaki metin
+> 3-4 Eylül'de kalmıştır ve **artık doğru olmayan iddialar içerir**; en
+> önemlisi `app.js` boyutu ve **sınıf kodu / cihazlar arası senkron**
+> bölümleridir. Sınıf kodu 5 Eylül'de (PROGRESS §43) **tamamen kaldırıldı**:
+> `/api/sync/*` uçları, D1 bağlaması ve ilgili tablolar yoktur.
+> Bu dosya tarihsel kayıt olarak korunuyor, kılavuz olarak değil.
 ## T3 Vakfı Bursiyer Yapay Zekâ Creathon — Problem 2 · Takım BİES
 
 > **Bu dokümanı okuyan yapay zekâ asistanına:**

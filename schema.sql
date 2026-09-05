@@ -195,67 +195,14 @@ CREATE TABLE analytics_snapshots (
 CREATE INDEX idx_analytics_scope ON analytics_snapshots(scope, scope_ref);
 
 -- ============================================================================
--- 10. SENKRON KATMANI — cihazlar arası köprü (§28b)
+-- 10. SENKRON KATMANI — KALDIRILDI (§43, 5 Eylül 2026)
 --
--- NEDEN AYRI:
--- Yukarıdaki 9 bölüm ürünün ÜRETİM hedef şemasıdır ve derin bir yabancı anahtar
--- zinciri taşır: teacher_reviews -> ai_evaluations -> submissions ->
--- exam_assignments -> exams -> users -> schools. Prototipte kimlik doğrulama
--- YOKTUR (roller arayüzden simüle edilir), dolayısıyla tek bir öğrenci yanıtını
--- bu zincire yazmak için UYDURMA `users` ve `schools` satırları üretmek
--- gerekirdi. Bu proje veri uydurmayı reddeder (PROGRESS §25b). Bu yüzden
--- cihazlar arası köprü, üretim şemasına dokunmadan ayrı ve açıkça adlandırılmış
--- iki tabloda tutulur. Kimlik doğrulama geldiğinde bu iki tablo düşer, yukarıdaki
--- şema devralır.
+-- Buradaki üç tablo (sync_exams, sync_sessions, rate_limits) cihazlar arası
+-- "sınıf kodu" köprüsü içindi. Kimlik doğrulama olmadığı için erişim ölçütü
+-- bir ODA KODUYDU: kodu bilen herkes o odanın öğrenci yanıtlarını okuyabiliyor,
+-- /api/sync/reset ile geri alınamaz biçimde silebiliyordu. Bu, ürünün kabul
+-- ettiği tek gerçek gizlilik açığıydı ve prototipin ihtiyacı değildi.
 --
--- ODA (room) KAVRAMI:
--- Kimlik doğrulama olmadığı için "hangi öğretmen hangi öğrenciyi görür"
--- sorusunun cevabı bir ODA KODUDUR. Öğretmen kodu üretir, öğrencilere verir;
--- yalnızca aynı kodu girenler aynı veriyi görür. BU BİR KİMLİK DOĞRULAMA
--- DEĞİLDİR ve arayüzde de öyle yazar: kodu bilen herkes o odayı görebilir.
--- Demo/jüri açısından yararı, her denemenin kendi odasında yalıtılmasıdır.
+-- Yukarıdaki 14 üretim tablosu DEĞIŞMEDİ. Gerçek çok cihazlı çalışma, oda kodu
+-- ile değil, users tablosu + Better Auth ile gelir (bkz. DEVIR §6.5).
 -- ============================================================================
-
-CREATE TABLE sync_exams (
-  exam_key    TEXT PRIMARY KEY,     -- "<oda>:<sinav_id>"
-  room        TEXT NOT NULL,
-  exam_id     INTEGER NOT NULL,
-  title       TEXT,
-  payload     TEXT NOT NULL,        -- sınav tanımı + sorular + rubrikler (JSON)
-  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE INDEX idx_sync_exams_room ON sync_exams(room);
-
-CREATE TABLE sync_sessions (
-  session_key TEXT PRIMARY KEY,     -- "<oda>:<sinav_id>:<ogrenci_id>"
-  room        TEXT NOT NULL,
-  exam_id     INTEGER NOT NULL,
-  student_id  INTEGER NOT NULL,
-  student_name TEXT,                -- öğretmenin kağıdı kime ait bilmesi için
-  status      TEXT NOT NULL,        -- not_started | in_progress | submitted | graded
-  payload     TEXT NOT NULL,        -- yanıtlar + ai değerlendirmesi + onaylar (JSON)
-  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE INDEX idx_sync_sessions_room ON sync_sessions(room, exam_id);
-
--- ============================================================================
--- 11. HIZ SINIRI — dağıtık sayaç (§28r Madde 6)
---
--- NEDEN AYRI TABLO, KV DEĞİL: Bu Worker zaten D1'e bağlı (senkron katmanı
--- için); yeni bir Cloudflare kaynağı (KV namespace) açmak yerine var olan
--- bağlantıyı kullanmak hem daha az risk hem daha az kurulum adımıdır.
---
--- SABİT PENCERE (fixed window), KAYAN PENCERE DEĞİL: her istek için ayrı
--- satır tutup temizlemek D1'de gereksiz karmaşıklık olurdu. Bunun yerine
--- her (uç+IP) çifti için TEK satır tutulur; pencere 60 saniyeden eskiyse
--- sayaç sıfırlanır. Bu yüzden tablo aktif IP sayısı kadar satır tutar,
--- sınırsız büyümez.
--- ============================================================================
-
-CREATE TABLE rate_limits (
-  bucket_key    TEXT PRIMARY KEY,     -- "<uc>:<ip>", örn. "pull:203.0.113.7"
-  window_start  INTEGER NOT NULL,     -- pencerenin başladığı Date.now() (ms)
-  count         INTEGER NOT NULL
-);

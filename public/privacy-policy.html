@@ -235,19 +235,14 @@
           <b>indiren kurumun sorumluluğundadır</b>; öğrenci adı içerdiği için KVKK kapsamında
           korunmalı ve gereksiz yere çoğaltılmamalıdır. Sınıf-kazanım dosyasına
           <b>“(örnek)” demo satırları dahil edilmez</b>.</li>
-          <li><b>Sınıf kodu ile senkron (cihazlar arası paylaşım):</b> Öğrencinin çözdüğü sınavın
-          eğitmenin cihazındaki panele düşebilmesi için, eğitmen bir <b>sınıf kodu</b> oluşturur ve
-          öğrencilere verir. Aynı kodu giren cihazlar arasında şu veriler <b>sunucudaki veritabanında
-          (Cloudflare D1)</b> saklanır: sınav tanımı ve soruları, öğrencinin <b>adı</b>, sınav durumu,
-          <b>yanıt metinleri</b>, yapay zekâ puan önerileri ve eğitmenin nihai puan kararı.
-          <b>Bu özellik yalnızca sınıf kodu oluşturulduğunda veya girildiğinde çalışır</b>; kod
-          girilmezse hiçbir veri cihazdan çıkmaz ve ürün tamamen yerel olarak çalışmaya devam eder.
-          <b>Sınıf kodu bir kimlik doğrulama değildir:</b> kodu bilen herkes o sınıfın verisini
-          görebilir. Bu sınır arayüzde de açıkça yazılıdır. Kod, karıştırılması kolay karakterler
-          (I, O, 0, 1) dışlanarak üretilir ve tahmin edilmesi zor olacak uzunluktadır, ancak
-          <b>gerçek kimlik doğrulama üretim sürümüne aittir</b>. Eğitmen, arayüzdeki
-          <b>“Sunucudaki veriyi sil”</b> düğmesiyle o sınıf koduna ait tüm sunucu verisini
-          <b>kalıcı olarak</b> silebilir (bkz. §9 Veri Sahibinin Hakları).</li>
+          <li><b>Sınıf kodu ile senkron — KALDIRILDI (5 Eylül 2026):</b> Bu prototipte daha önce
+          cihazlar arası paylaşım için bir <b>sınıf kodu</b> vardı; aynı kodu giren cihazların sınav
+          ve yanıt verileri sunucudaki veritabanında (Cloudflare D1) saklanıyordu. Kod bir kimlik
+          doğrulama değildi — kodu bilen herkes o sınıfın verisini görebiliyordu. <b>Özellik tamamen
+          kaldırıldı:</b> ilgili dört sunucu ucu (<code>/api/sync/*</code>) sökülmüş, veritabanı
+          bağlaması ve ilgili tablolar kaldırılmıştır. <b>Artık sınav ve yanıt verisi hiçbir koşulda
+          sunucuya gönderilmez.</b> Gerçek çok cihazlı çalışma, üretim sürümünde kimlik doğrulama
+          (Better Auth) ile gelecektir.</li>
         </ul>
 
         <div class="hitl-box">
@@ -256,19 +251,18 @@
           adları, ders notları, kaynak metinler ve değerlendirme sonuçları yalnızca <b>kullanılan
           tarayıcının yerel deposunda</b> (<code>localStorage</code>) tutulur; sayfa yenilendiğinde
           korunur, tarayıcı verisi temizlendiğinde silinir.
-          <b>Tek istisna, yukarıda açıklanan sınıf kodu ile senkron özelliğidir:</b> bir sınıf kodu
-          oluşturulduğunda ya da girildiğinde, sınav ve öğrenci oturum verileri o koda bağlı olarak
-          sunucudaki veritabanında saklanır. Kod kullanılmadığı sürece bu aktarım <b>hiç gerçekleşmez</b>.
+          <b>Bunun istisnası yoktur:</b> sınıf kodu ile senkron özelliği 5 Eylül 2026'da kaldırıldığından
+          sınav ve öğrenci oturum verileri sunucuya <b>hiç aktarılmaz</b>.
           Yapay zekâ çağrıları sırasında soru üretimi için verdiğiniz <b>kaynak metin</b> (ya da
           kazanımdan üretimi seçtiyseniz yazdığınız <b>yönerge</b>), soru metni, öğrenci yanıtı ve
           rubrik model sağlayıcısına iletilir; <b>öğrenci adı ve kimlik bilgisi modele
-          gönderilmez</b> — bu kural senkron özelliğinden etkilenmemiştir. Yüklenen PDF ve Word (.docx) dosyaları tarayıcıda çözümlenir
+          gönderilmez</b>. Yüklenen PDF ve Word (.docx) dosyaları tarayıcıda çözümlenir
           (taranmış PDF'ler için OCR de dahil), dosyanın kendisi sunucuya gönderilmez; bu dosyalardan
           çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında
-          (<code>IndexedDB</code>) tutulur ve <b>senkronla paylaşılmaz</b>. Yapay Zekâ Karar Günlüğü de
+          (<code>IndexedDB</code>) tutulur. Yapay Zekâ Karar Günlüğü de
           <b>yalnızca yerelde</b> kalır.
-          Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim sınıf koduyla
-          değil kullanıcı hesabıyla belirlenecektir.
+          Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim
+          kullanıcı hesabıyla belirlenecektir.
         </div>
       </section>
 
@@ -363,10 +357,8 @@
           <span class="tag">Bu prototipte silme hakkı</span>
           Silme hakkı bu prototipte <b>başvuru beklemeden, doğrudan arayüzden</b> kullanılabilir:
           <b>“Verileri sıfırla”</b> düğmesi cihazdaki tüm yerel veriyi (yanıtlar, karar günlüğü,
-          Müfredat Kitaplığı) siler; sınıf kodu ile senkron kullanılıyorsa
-          <b>“Sunucudaki veriyi sil”</b> düğmesi o sınıf koduna ait sınav ve öğrenci oturum
-          kayıtlarının <b>tamamını sunucudan kalıcı olarak</b> kaldırır. İkinci işlem geri alınamaz
-          ve onay sorularak yapılır.
+          Müfredat Kitaplığı) siler. Sunucuda silinecek bir veri yoktur: sınıf kodu ile senkron
+          5 Eylül 2026'da kaldırıldığından sınav ve yanıt verisi sunucuya hiç gönderilmez.
         </div>
       </section>
 

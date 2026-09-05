@@ -59,8 +59,31 @@
     // gpt-5.6-luna doğrulama istemeden çalışıyor ve daha yeni nesil.
     // Ölçülen (26 Ağustos, gerçek anahtar): luna 1215 ms, nano 994 ms.
     // Fiyat: luna $0,20/M girdi + $1,20/M çıktı → tam tur ~$0,016.
-    , "AI_FALLBACK_PROVIDER": "openai"
-    , "AI_FALLBACK_MODEL": "gpt-5.6-luna"
+    // --- ETKİN (§43): Workers AI, ikinci model — ANAHTAR GEREKTİRMEZ -------
+    // `fallbackConfigured()` (src/lib/ai.ts) yedek sağlayıcı "workers-ai" ise
+    // API anahtarı DEĞİL, yalnızca AI binding'i arar; binding zaten bağlı.
+    // Yani bu iki satır secret olmadan yedeği GERÇEKTEN çalışır kılar ve
+    // /api/ai/status'taki "yedek tanımlı ama çalışmaz" uyarısını kapatır.
+    //
+    // Model seçimi tahmin değil: PROGRESS §33'teki 6 modelli karşılaştırmada
+    // llama-4-scout, mevcut birincili geçen TEK adaydı (üst düzey soru 3/4'e
+    // karşı 1/4; doğru şık harfi dağılımı 3'e karşı 2).
+    //
+    // DÜRÜST SINIR: iki model de aynı Cloudflare Neuron havuzundan yer. Bu
+    // yedek, HESAP KOTASI tükenmesine karşı KORUMAZ; koruduğu şey modele özgü
+    // başarısızlıktır — model kaldırılması (§7'de bir kez yaşandı), aşırı
+    // yüklenme, zaman aşımı, ayrıştırılamayan JSON. Workers Paid'de (§19)
+    // kota aşımı zaten hata değil ücrettir, yani asıl risk buydu.
+    , "AI_FALLBACK_PROVIDER": "workers-ai"
+    , "AI_FALLBACK_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct"
+    //
+    // --- SEÇENEK A: OpenAI (hesap dışı gerçek emniyet ağı, anahtar ister) --
+    // Kota tükenmesine karşı gerçek koruma isteniyorsa bu ikisi açılır ve
+    // `npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc`
+    // çalıştırılır. UYARI: "gpt-5.6-luna" ölçümü 26 Ağustos'ta yapıldı;
+    // açmadan önce model adının HÂLÂ geçerli olduğunu doğrulayın.
+    // , "AI_FALLBACK_PROVIDER": "openai"
+    // , "AI_FALLBACK_MODEL": "gpt-5.6-luna"
     //
     // --- SEÇENEK B: Google Gemini (ücretsiz katman, kart istemiyor) --------
     // Anahtar: https://aistudio.google.com/apikey
@@ -100,13 +123,10 @@
   // R2 ve Queues hâlâ BAĞLI DEĞİL (Queues ücretsiz planda kullanılamaz);
   // üretim mimarisi wrangler.jsonc'ta olduğu gibi duruyor.
   // ===========================================================================
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "olcme-db",
-      "database_id": "daeb141d-bc0a-4471-b369-928832fda984"
-    }
-  ],
+  /* §43 — D1 BAĞLAMASI KALDIRILDI. Tek kullanıcısı /api/sync/* idi
+     (sınıf kodu köprüsü); o uçlar söküldü. Üretim mimarisi wrangler.jsonc'ta
+     D1'i korur: gerçek çok cihazlı çalışma users tablosu + Better Auth ile
+     gelecek, oda koduyla değil. */
 
   // Statik varlıklar: public/index.html (prototip), mimari.html,
   // privacy-policy.html, 404.html, robots.txt

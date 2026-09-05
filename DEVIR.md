@@ -1,6 +1,6 @@
 # MİHENK — DEVİR BELGESİ v2
 
-**Tarih:** 5 Eylül 2026 · **Commit:** `6932b58` · **Canlı:** https://mihenk.bies.workers.dev
+**Tarih:** 5 Eylül 2026 (§43 ile güncellendi) · **Canlı:** https://mihenk.bies.workers.dev
 **Takım:** BİES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026 · Problem 2 (Ölçme ve Değerlendirme)
 
@@ -13,24 +13,25 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 
 | | |
 |---|---|
-| Dal | `main` = `final-birlestirme` = `6932b58` (üçü aynı, ayrışma yok) |
-| Canlı | `mihenk.bies.workers.dev` — deploy edilen dosya diskle **byte-byte aynı** (514.767) |
-| Test | **235/235** |
+| Dal | `sinif-kodu-kaldirma` — §43 çalışması; `main` = `final-birlestirme` = `342c230` |
+| Canlı | `mihenk.bies.workers.dev` — ⚠️ §43 **henüz yayınlanmadı**; canlı hâlâ `342c230` |
+| Test | **199/199** (§43'te 36 senkron testi düştü) |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **333 ad · eksik 0 · kapsama %100** |
+| Öz-kontrol | **314 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
-| Yedek model | ⚠️ **TANIMLI AMA KURULU DEĞİL** — bkz. §6.1 |
+| Yedek model | ✅ Workers AI · `@cf/meta/llama-4-scout-17b-16e-instruct` · `fallbackSorunu: null` — bkz. §6.1 |
+| Sınıf kodu | ❌ **KALDIRILDI (§43)** — veri artık sunucuya hiç gitmez |
 
 Doğrulama komutları:
 
 ```bash
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
-git rev-parse --short HEAD          # 6932b58
+git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 235/235
-node tools/ozkontrol-dogrula.mjs    # 333 ad · kapsama %100
+npm test                            # 199/199
+node tools/ozkontrol-dogrula.mjs    # 314 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```
@@ -80,7 +81,9 @@ Depo kökündeki `routes.ts` bir **referans iskeletidir**: her handler
 - `GET  /api/health`
 - `/api/ai/*` → 7 uç (status, generate-questions, evaluate, rubric,
   sample-answers, misconceptions, outcome-alignment)
-- `/api/sync/*` → 4 uç (status, push, pull, reset)
+
+§43'e kadar bir de `/api/sync/*` (4 uç) vardı; sınıf koduyla birlikte kaldırıldı
+ve artık 404 döner.
 
 Ürünün geri kalanının **tamamı** `public/app.js` içinde, tarayıcıda çalışır.
 İlk kez bakan biri `routes.ts`'i görüp "auth, exams, grading rotaları var"
@@ -92,18 +95,20 @@ sanabilir — yoktur.
 |---|---|---|
 | `localStorage` | Tüm ürün durumu (sorular, sınavlar, oturumlar, rubrikler, denetim izi) | Uygulama senkron `renderAll()` ile HTML dizesi üretir; çizim kaynağı `state` olmalı |
 | IndexedDB | Müfredat Kitaplığı — PDF sayfa metinleri | 200 sayfalık kitap 400-800 KB; localStorage'ın ~5 MB paylaşımlı kotasını doldurup **ana veriyi** riske atardı |
-| D1 (Cloudflare) | Cihazlar arası **köprü** (`sync_exams`, `sync_sessions`, `rate_limits`) | Öğrencinin kağıdının öğretmenin cihazına düşmesi için |
+| ~~D1 (Cloudflare)~~ | **§43'te kaldırıldı** | Cihazlar arası köprüydü; erişim ölçütü bir oda koduydu, kimlik doğrulama değildi |
 
-**D1 bir önbellek değil, bir köprüdür.** Sunucu `payload`'ı **yorumlamaz**;
-yalnızca taşır ve saklar. Onay zinciri istemcide, öğretmenin elinde kalır.
+**Sunucuda ürün verisi YOKTUR.** Worker yalnızca yapay zekâ çağrılarını
+taşır; sınav, yanıt, öğrenci adı ve puan hiçbir koşulda sunucuya gitmez.
+D1 bağlaması `wrangler.demo.jsonc`'tan da kaldırıldı (`wrangler.jsonc`
+üretim hedefinde durur).
 
 ### 2.3 Kimlik doğrulama YOKTUR
 
-Roller bir `state.role` seçimidir. Sınıf kodu (oda kodu) bir **paylaşım
-anahtarıdır**, kimlik doğrulama değildir: kodu bilen herkes o odanın verisini
-görebilir. Bu ekranda da açıkça yazar (`syncDetayHtml`). Gerçek kimlik
-doğrulama (Better Auth + `users` tablosu) üretim hedefidir; şema
-`schema.sql`'de hazır durur.
+Roller bir `state.role` seçimidir. §43'e kadar bir **sınıf kodu** vardı ve
+kimlik doğrulama değildi — kodu bilen herkes o odanın verisini görebiliyordu;
+kaldırıldı. Bugün paylaşılan hiçbir veri yok: her cihaz kendi
+`localStorage`'ında yaşar. Gerçek kimlik doğrulama (Better Auth + `users`
+tablosu) üretim hedefidir; şema `schema.sql`'de hazır durur.
 
 ---
 
@@ -206,7 +211,24 @@ kazanım üzerinden yapılır. Hiçbir öğrenci verisi model eğitiminde kullan
 
 ---
 
-## 5. BU TURDA NE DEĞİŞTİ (§42)
+## 5. BU TURDA NE DEĞİŞTİ (§43 ve §42)
+
+### 5.0 §43 — Sınıf kodu kaldırıldı, yedek model çalışır oldu (5 Eylül)
+
+| Ne | Sonuç |
+|---|---|
+| Sınıf kodu (cihazlar arası senkron) | **Tamamen söküldü** — 19 istemci fonksiyonu, `/api/sync/*` 4 uç, 2 sunucu dosyası, 3 D1 tablosu, D1 bağlaması, CSS bloğu |
+| `/api/sync/reset` açığı | Kapandı — uç artık yok (404) |
+| Yedek model | Workers AI ikinci modeline alındı, `fallbackSorunu: null` |
+| `syncActiveExam()` | `aktifOturumuYaz()` olarak yeniden adlandırıldı (senkronla ilgisi yoktu, ad yanıltıcıydı) |
+| Test | 235 → **199** (36 senkron testi düştü, 1 yedek testi eklendi) |
+| Öz-kontrol | 333 → **314 ad**, kapsama yine %100 |
+
+**Bedeli açıkça yazılsın:** ürün artık **tek cihazda** yaşar. "Öğrenci kendi
+telefonundan girer" iddiası geçerli değildir; çok cihazlı çalışma Better Auth
+ile gelecektir (§6.5). Ayrıntı `PROGRESS.md` §43'te.
+
+### 5.1 §42 — Dış inceleme
 
 Bağımsız bir kod incelemesi yapıldı; 8 gerçek kusur bulundu ve kapatıldı.
 Tam gerekçeler `PROGRESS.md` §42'de.
@@ -233,23 +255,40 @@ değerlendiremezdi.
 
 ## 6. AÇIK KALAN İŞLER
 
-### 6.1 ⚠️ YEDEK MODEL KURULU DEĞİL (insan işi, 2 dakika)
+### 6.1 ✅ YEDEK MODEL ÇALIŞIR HÂLE GETİRİLDİ (§43) — ama sınırını bilin
 
-`wrangler.demo.jsonc` bir OpenAI yedeği **tanımlıyor** ama
-`AI_FALLBACK_API_KEY` secret'ı yok. Workers AI ücretsiz kotası günde ~10 tam
-demo turu; **jüri günü kota dolarsa AI adımları hata verir ve emniyet ağı
-yoktur.**
+Eskiden `wrangler.demo.jsonc` bir OpenAI yedeği **tanımlıyor** ama
+`AI_FALLBACK_API_KEY` secret'ı olmadığı için yedek **devreye giremiyordu**.
+Çözüm anahtar almak olmadı; kod okundu:
+
+```ts
+// src/lib/ai.ts
+return providerName(f) === 'workers-ai' ? !!f.AI : !!temizAnahtar(f.AI_API_KEY);
+```
+
+Yedek sağlayıcı `workers-ai` ise **API anahtarı gerekmez**, AI binding yeter.
+Yedek `@cf/meta/llama-4-scout-17b-16e-instruct`'a alındı — bu, ekibin kendi
+6 modelli ölçümünde (§33) birincili geçen tek adaydı. Uç artık şunu döndürür:
+
+```json
+"fallback": { "provider": "workers-ai", "model": "@cf/meta/llama-4-scout-17b-16e-instruct" },
+"fallbackSorunu": null
+```
+
+**DÜRÜST SINIR — abartmayın.** İki model de aynı Cloudflare Neuron havuzundan
+yer. Bu yedek **hesap kotası tükenmesine karşı KORUMAZ**; koruduğu şey modele
+özgü başarısızlıktır (model kaldırılması, aşırı yüklenme, zaman aşımı, bozuk
+JSON). Kota riski zaten Workers Paid'de (§19) hata değil ücrettir.
+
+Hesap dışı gerçek bir emniyet ağı isteniyorsa `wrangler.demo.jsonc`'taki
+"SEÇENEK A" açılır ve **anahtar insan tarafından** girilir:
 
 ```bash
 npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc
-npm run deploy:demo
-curl -s https://mihenk.bies.workers.dev/api/ai/status   # fallbackSorunu null olmalı
 ```
 
-Şu an uç şunu döndürüyor (kod artık dürüstçe söylüyor):
-
-> `"fallbackSorunu": "Yedek sağlayıcı \"openai\" olarak tanımlı ama
-> AI_FALLBACK_API_KEY secret'ı yok; kota dolarsa yedek devreye GİREMEZ."`
+⚠️ O seçenekteki `gpt-5.6-luna` ölçümü 26 Ağustos'ta yapıldı; açmadan önce
+model adının hâlâ geçerli olduğunu **doğrulayın**.
 
 ### 6.2 Model karşılaştırması tekrarlanmalı
 
@@ -268,11 +307,13 @@ değiştirmeyin** (gerekçe `guards.ts` `BENZERLIK_ESIGI` üstünde yazılı).
 Elle taranmış (eğik/gölgeli) bir belgeyle hiç denenmedi; §40'taki test temiz,
 dijital üretilmiş bir görüntüyleydi.
 
-### 6.5 Kimlik doğrulama
+### 6.5 Kimlik doğrulama ve çok cihazlılık
 
-Sınıf kodu kimlik doğrulama değildir. `/api/sync/reset` kodu bilen herkes
-tarafından çağrılabilir (hız sınırı 5/dk ile daraltıldı ama kaldırılmadı).
-Üretim için Better Auth gerekiyor.
+§43'te sınıf kodu kaldırıldı; bu, §6.5'teki açığı (kodu bilen herkes odayı
+okuyabilir, `/api/sync/reset` ile silebilirdi) **kapattı** ama çok cihazlı
+çalışmayı da götürdü: ürün artık tek tarayıcıda yaşar. Gerçek çok cihazlı
+kullanım, oda koduyla değil **Better Auth + `users` tablosu** ile gelmelidir;
+şema `schema.sql`'de hazır durur. Bu, üretim için AÇIK BİR İŞTİR.
 
 ---
 
@@ -363,12 +404,11 @@ yüzdesini basıyor; listeye eklenmeyen bir fonksiyon CI'ı kırar.
 
 ```
 src/
-  index.ts              Worker girişi — /api/health, /api/ai/*, /api/sync/*
+  index.ts              Worker girişi — /api/health, /api/ai/*
   lib/ai.ts             Sağlayıcı soyutlaması, JSON ayıklama, yedek mantığı
   lib/prompts.ts        5 istem kurucusu — "modele ne söylüyoruz" dosyası
   lib/guards.ts         Saf yardımcılar: hız sınırı, şık karıştırma, benzerlik
   routes/ai.ts          7 AI ucu
-  routes/sync.ts        4 senkron ucu (D1 köprüsü)
   schemas/              Zod girdi + model çıktı şemaları
 public/
   app.js                ÜRÜNÜN TAMAMI (~9.400 satır)
@@ -376,12 +416,12 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   235 test, 7 dosya
+test/                   199 test, 6 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)
 routes.ts               ⚠️ REFERANS İSKELETİ — çalışan kod DEĞİL
-schema.sql              16 tablo (14 üretim + 2 senkron + rate_limits)
+schema.sql              14 üretim tablosu (senkron tabloları §43'te silindi)
 PROGRESS.md             Kronolojik günlük — TEK DOĞRULUK KAYNAĞI (§42'ye kadar)
 agents.md               Proje anayasası
 ```
