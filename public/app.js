@@ -335,6 +335,21 @@ async function aiGenerateQuestions(doc) {
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
+    /* §41 Madde 4-5 — SUNUCU KISITLAMASI VE ELEMESİ SESSİZ KALMAZ.
+       Sunucu (a) kaynak metin kısaysa soru sayısını düşürebilir, (b) önceki
+       sorulara ya da birbirine çok benzeyen soruları eleyebilir. İkisi de
+       istenenden AZ soru dönmesine yol açar; sebebi söylenmezse kullanıcı
+       "sistem bozuk" sanır (§6.3-5 sessiz düşüş yasağı). */
+    state.ceForm.uretimNotu = "";
+    if (j.meta) {
+      const notlar = [];
+      if (j.meta.kisiltmaNotu) notlar.push(j.meta.kisiltmaNotu);
+      if (j.meta.elenenTekrar) {
+        notlar.push(j.meta.elenenTekrar + " soru, daha önce üretilenlere ya da birbirine çok " +
+          "benzediği için elendi. Farklı bir kazanım seçerek çeşitliliği artırabilirsiniz.");
+      }
+      state.ceForm.uretimNotu = notlar.join(" ");
+    }
     return (j.questions || []).map(function (q) {
       const soru = {
         id: qIdSeq++, type: q.type, difficulty: q.difficulty, outcome: doc.outcome,
@@ -348,6 +363,11 @@ async function aiGenerateQuestions(doc) {
         // (ölçüldü: llama ~10 soruda 1 kez Kiril harfi karıştırıyor).
         // Otomatik düzeltilmez; İçerik Uzmanına gösterilir.
         dilUyarisi: !!q.dilUyarisi,
+        /* §41 Madde 2: sunucu, modelin verdiği cevap anahtarının şıklarda
+           BULUNMADIĞINI saptadıysa işaretler. Eskiden bu durum sessizce
+           "A doğru" sayılıyordu. Otomatik tahmin yok — İçerik Uzmanı
+           onay ekranında uyarıyı görür ve doğru şıkkı kendisi seçer. */
+        anahtarBelirsiz: !!q.anahtarBelirsiz,
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
@@ -370,6 +390,10 @@ async function aiGenerateQuestions(doc) {
     });
   } catch (e) {
     state.ai.error = String((e && e.message) || e);
+    /* §41: bir önceki BAŞARILI üretimin bilgi notu (kısıtlama/eleme) hata
+       durumunda ekranda kalıyordu — kullanıcı, başarısız olan istekle ilgili
+       sanıyordu. Hata yolunda not temizlenir. */
+    state.ceForm.uretimNotu = "";
     state.ceForm.error = "Soru üretilemedi: " + state.ai.error +
       " — Bağlantınızı kontrol edip tekrar deneyin. Hiçbir soru üretilmedi.";
     return [];
@@ -1114,7 +1138,9 @@ const state = {
     /* §31 — ÜRETİM DAYANAĞI. "kaynak" varsayılandır ve eski davranışın
        birebir aynısıdır. "kazanim" modunda kaynak metin istenmez; dayanak
        MEB kazanımıdır ve öğretmen isterse serbest bir yönerge yazar. */
-    mode: "kaynak", guidance: "" },
+    mode: "kaynak", guidance: "",
+    /* §41: sunucunun kısıtlama/eleme açıklaması (bkz. aiGenerateQuestions). */
+    uretimNotu: "" },
   questions: [],
   rubrics: {},
   rubricSelectedQ: null,
@@ -2885,6 +2911,24 @@ function wireAlignment() {
  * bozabilir. Karar zaten insanda (agents.md §1); doğru davranış gizlemek
  * değil GÖSTERMEK (§6.3-5).
  */
+/* §41 Madde 2 — GEÇERSİZ CEVAP ANAHTARI UYARISI.
+   Model şıklarda olmayan bir cevap anahtarı döndürdüğünde sunucu soruyu
+   `anahtarBelirsiz` ile işaretler. Burada İçerik Uzmanına AÇIKÇA söylenir;
+   soru sessizce "A doğru" diye onaya sunulmaz. */
+function anahtarUyarisiHtml(q) {
+  if (!q || !q.anahtarBelirsiz) return "";
+  return '<div class="anahtar-uyari">⚠ <b>Model geçerli bir cevap anahtarı vermedi.</b> ' +
+    'Aşağıda işaretli görünen şık YALNIZCA bir yer tutucudur — doğru olduğu ' +
+    'DOĞRULANMAMIŞTIR. Onaylamadan önce doğru şıkkı kendiniz seçin.</div>';
+}
+
+/* §41 Madde 7 — kelime/karakter sayacı metni. Saf fonksiyon; sınır koymaz. */
+function yanitSayacMetni(metin) {
+  const t = String(metin || "").trim();
+  const kelime = t ? t.split(/\s+/).length : 0;
+  return kelime + " kelime · " + String(metin || "").length + " karakter";
+}
+
 function dilUyarisiHtml(q) {
   if (!q || !q.dilUyarisi) return "";
   return '<div class="dil-uyari">⚠ <b>Bu soruda Türkçe olmayan karakterler var.</b> ' +
@@ -3024,6 +3068,7 @@ function renderPendingQuestionCard(q) {
     subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
+    anahtarUyarisiHtml(q) +
     dilUyarisiHtml(q) +
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
@@ -3078,7 +3123,14 @@ function wirePendingCards() {
     el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { const o = q.options.find(function (x) { return x.key === el.dataset.okey; }); if (o) o.text = el.value; } };
   });
   document.querySelectorAll(".correct-radio").forEach(function (el) {
-    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) q.correctKey = el.dataset.okey; };
+    el.onchange = function () {
+      const q = findQuestion(el.dataset.qid);
+      if (!q) return;
+      q.correctKey = el.dataset.okey;
+      /* §41 Madde 2: İçerik Uzmanı doğru şıkkı ELLE seçtiği an belirsizlik
+         ortadan kalkar — uyarı kartta durmaya devam etmemeli. */
+      if (q.anahtarBelirsiz) { q.anahtarBelirsiz = false; renderAll(); }
+    };
   });
   // Paket 4a — erişilebilir yukarı/aşağı düğmeleri (sürükle-bırak yapılamayan
   // ortamlar: klavye, dokunmatik, test otomasyonu için).
@@ -3257,7 +3309,10 @@ function ceCreateHtml() {
     kitaplikHtml() +
     '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
     '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>') +
-    (state.ceForm.error ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
+    (state.ceForm.error ? '<div class="pill pill-blok pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
+    /* §41: sunucunun soru sayısını neden düşürdüğü / kaç soruyu neden elediği.
+       Hata değil BİLGİdir; bu yüzden uyarı (warning) tonunda. */
+    (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning" style="margin-bottom:10px;">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
     '<div class="gen-bar">' +
     '<div class="field"><label>Çoktan seçmeli</label>' +
     '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
@@ -3665,11 +3720,17 @@ function bosOturum() {
 let studentIdSeq = 1;
 
 // Varsayılan sınıf listesi — BIES takımı, iki şube.
+/* §41 Madde 9 — VARSAYILAN ÖĞRENCİLER ARTIK TAKIM ÜYELERİ DEĞİL.
+   Liste BİES takımının kendi adlarını taşıyordu; jüri ekranında geliştiricinin
+   adının "öğrenci" olarak görünmesi ürünü demo gibi gösteriyordu. Nötr,
+   açıkça örnek olduğu belli adlarla değiştirildi. Sayı ve şube dağılımı
+   AYNI bırakıldı (2 × 7-A, 2 × 7-B) — sınıf ortalaması, ısı haritası ve
+   simülasyon davranışı değişmesin diye. */
 const VARSAYILAN_OGRENCILER = [
-  { name: "Esat Talha Karataş", sinif: "7-A" },
-  { name: "İrem Yazıcı",        sinif: "7-A" },
-  { name: "Zeynep Sude Demir",  sinif: "7-B" },
-  { name: "Burak Özçelik",      sinif: "7-B" }
+  { name: "Ada Yılmaz",    sinif: "7-A" },
+  { name: "Kerem Aydın",   sinif: "7-A" },
+  { name: "Elif Şahin",    sinif: "7-B" },
+  { name: "Mert Doğan",    sinif: "7-B" }
 ];
 
 function siniflar() {
@@ -6531,7 +6592,14 @@ function mcAnswerHtml(q) {
 }
 function openAnswerHtml(q) {
   const a = state.answers[q.id] || {};
-  return '<textarea id="openAnswerInput" data-qid="' + q.id + '" rows="7" placeholder="Yanıtınızı buraya yazın...">' + escapeHtml(a.text || "") + '</textarea>' +
+  /* §41 Madde 7 — YANIT KUTUSU BÜYÜTÜLDÜ + KELİME SAYACI.
+     rows="7" idi; öğrenci birkaç cümle yazınca kutu kaydırmaya başlıyor ve
+     yazdığını göremiyordu. Sınavda yazdığını görememek doğrudan ölçmeyi
+     bozar. Satır sayısı artırıldı, CSS'te min-height verildi ve altına
+     canlı bir kelime/karakter sayacı kondu. Sayaç bir SINIR DEĞİLDİR —
+     hiçbir yerde kesme/uyarı yapmaz, yalnızca bilgi verir. */
+  return '<textarea id="openAnswerInput" data-qid="' + q.id + '" rows="14" placeholder="Yanıtınızı buraya yazın...">' + escapeHtml(a.text || "") + '</textarea>' +
+    '<div class="yanit-sayac" id="yanitSayac">' + yanitSayacMetni(a.text || "") + '</div>' +
     '<div class="autosave-status" id="autosaveMsg"><span class="dot-save"></span> ' + (a.text ? "Kaydedildi" : "Henüz yanıt verilmedi") + '</div>';
 }
 
@@ -6658,6 +6726,10 @@ function wireStudentTab2() {
     state.answers[qid] = state.answers[qid] || {};
     state.answers[qid].text = openEl.value;
     state.answers[qid].savedAt = Date.now();
+    /* §41 Madde 7: sayaç YALNIZCA kendi düğümünü günceller. renderAll()
+       ÇAĞRILMAZ — öğrenci yazarken odak kaybolurdu (TUZAK 3). */
+    const sayacEl = document.getElementById("yanitSayac");
+    if (sayacEl) sayacEl.textContent = yanitSayacMetni(openEl.value);
     // ÖNEMLİ: bu satır olmadan "Kaydedildi ✓" göstergesi yalnızca görseldi;
     // yanıt state'te duruyor ama diske YAZILMIYORDU. Tarayıcı kapanırsa
     // veya bağlantı koparsa öğrencinin yazdığı her şey kayboluyordu.
@@ -9099,7 +9171,9 @@ setInterval(function () {
     /* §31 — üretim dayanağı (kaynak metin / kazanım) seçimi. */
     "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari",
     /* §34 — öğretmen adı hızlı seçim listesi. */
-    "ogretmenSecenekleri", "wireTeacherWhoami"
+    "ogretmenSecenekleri", "wireTeacherWhoami",
+    /* §41 — geçersiz cevap anahtarı uyarısı ve öğrenci yanıt sayacı. */
+    "anahtarUyarisiHtml", "yanitSayacMetni"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

@@ -349,3 +349,112 @@ describe('shuffleOptions — üretim sonrası şık karıştırma', () => {
     expect(r.options.find((o) => o.key === r.correctKey)?.text).toBe('y');
   });
 });
+
+// ============================================================================
+// §41 — ÜÇ ÖLÇÜLMÜŞ SORUNUN SUNUCU TARAFI KORUMALARI
+//
+// NEDEN TEST: üçü de ölçme DOĞRULUĞUNA dokunuyor. Özellikle cevap anahtarı:
+// yanlış anahtar öğrenciye yanlış puan olarak yansır ve sessizce olur.
+// ============================================================================
+import {
+  cevapAnahtariGecerliMi,
+  benzerlik,
+  jetonla,
+  makulSoruSayisi,
+  BENZERLIK_ESIGI,
+} from '../src/lib/guards';
+
+describe('cevapAnahtariGecerliMi — §41 Madde 2: sessiz "A" düzeltmesi', () => {
+  const OPT = [
+    { key: 'A', text: 'Elma' }, { key: 'B', text: 'Armut' },
+    { key: 'C', text: 'Kiraz' }, { key: 'D', text: 'Erik' },
+  ];
+
+  it('şıklarda BULUNAN anahtarı geçerli sayar', () => {
+    expect(cevapAnahtariGecerliMi(OPT, 'A')).toBe(true);
+    expect(cevapAnahtariGecerliMi(OPT, 'D')).toBe(true);
+  });
+
+  it('küçük harf ve boşluk toleranslıdır (gerçekten geçerli anahtarı reddetmez)', () => {
+    expect(cevapAnahtariGecerliMi(OPT, 'c')).toBe(true);
+    expect(cevapAnahtariGecerliMi(OPT, ' b ')).toBe(true);
+  });
+
+  it('şıklarda OLMAYAN anahtarların HEPSİNİ geçersiz sayar', () => {
+    // Ölçülen gerçek durum: bunların beşi de sessizce "A" oluyordu.
+    for (const g of ['E', 'Z', 'AB', '1', 'X']) {
+      expect(cevapAnahtariGecerliMi(OPT, g)).toBe(false);
+    }
+  });
+
+  it('boş / tanımsız anahtarı geçersiz sayar', () => {
+    expect(cevapAnahtariGecerliMi(OPT, '')).toBe(false);
+    expect(cevapAnahtariGecerliMi(OPT, undefined)).toBe(false);
+  });
+
+  it('3 şıklı soruda da doğru çalışır (D geçersiz olmalı)', () => {
+    const uc = OPT.slice(0, 3);
+    expect(cevapAnahtariGecerliMi(uc, 'C')).toBe(true);
+    expect(cevapAnahtariGecerliMi(uc, 'D')).toBe(false);
+  });
+});
+
+describe('benzerlik — §41 Madde 4: sunucu tarafı tekrar denetimi', () => {
+  it('birebir aynı soru 1.0 döner', () => {
+    const s = 'Sürtünme kuvvetinin büyüklüğü neye bağlıdır?';
+    expect(benzerlik(s, s)).toBe(1);
+  });
+
+  it('anlamca aynı, cümlesi farklı sorular eşiği aşar', () => {
+    const a = 'Sürtünme kuvvetinin büyüklüğü yüzeyin pürüzlülüğüne nasıl bağlıdır?';
+    const b = 'Yüzeyin pürüzlülüğü sürtünme kuvvetinin büyüklüğünü nasıl etkiler?';
+    expect(benzerlik(a, b)).toBeGreaterThanOrEqual(BENZERLIK_ESIGI);
+  });
+
+  it('FARKLI konudaki sorular eşiğin ALTINDA kalır (meşru soru elenmez)', () => {
+    const a = 'Sürtünme kuvvetinin büyüklüğü neye bağlıdır?';
+    const b = 'Fotosentez sürecinde klorofilin görevi nedir?';
+    expect(benzerlik(a, b)).toBeLessThan(BENZERLIK_ESIGI);
+  });
+
+  it('ortak soru kalıbı iki soruyu benzer YAPMAZ', () => {
+    // "Aşağıdakilerden hangisi ... nedir?" kalıbı elenmezse her soru benzer çıkardı.
+    const a = 'Aşağıdakilerden hangisi sürtünme kuvvetinin bir sonucudur?';
+    const b = 'Aşağıdakilerden hangisi fotosentezin bir ürünüdür?';
+    expect(benzerlik(a, b)).toBeLessThan(BENZERLIK_ESIGI);
+  });
+
+  it('boş metinlerde 0 döner (çökmez)', () => {
+    expect(benzerlik('', 'bir şey')).toBe(0);
+    expect(benzerlik('bir şey', '')).toBe(0);
+  });
+
+  it('jetonla kısa sözcükleri ve durdurma sözcüklerini eler', () => {
+    const j = jetonla('Bu bir ve ile için sürtünme kuvveti');
+    expect(j.has('bu')).toBe(false);
+    expect(j.has('ile')).toBe(false);
+    expect(j.has('için')).toBe(false);
+    expect(j.has('sürtünme')).toBe(true);
+    expect(j.has('kuvveti')).toBe(true);
+  });
+});
+
+describe('makulSoruSayisi — §41 Madde 5: metin uzunluğu / soru sayısı', () => {
+  it('389 karakterlik metinde 8 soru istenemez', () => {
+    // Kullanıcının bildirdiği gerçek durum.
+    expect(makulSoruSayisi(389)).toBeLessThan(8);
+  });
+
+  it('uzun metinde daha çok soruya izin verir', () => {
+    expect(makulSoruSayisi(2000)).toBeGreaterThan(makulSoruSayisi(400));
+  });
+
+  it('çok kısa metinde bile en az 2 soru verir (özellik kullanılamaz olmasın)', () => {
+    expect(makulSoruSayisi(30)).toBe(2);
+    expect(makulSoruSayisi(0)).toBe(2);
+  });
+
+  it('6000 karakterlik üst sınırda 8+4 istek tamamen karşılanır', () => {
+    expect(makulSoruSayisi(6000)).toBeGreaterThanOrEqual(12);
+  });
+});

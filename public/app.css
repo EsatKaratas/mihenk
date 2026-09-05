@@ -357,6 +357,27 @@
   .alan-not { margin-top: 6px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
 
+  /* §41 Madde 2 — geçersiz cevap anahtarı uyarısı. .dil-uyari ile aynı
+     kalıp; kendi zeminini taşır (§6.3-2). Kritik tonda, çünkü yanlış cevap
+     anahtarı bir ölçme ürününde en pahalı hatadır. */
+  .anahtar-uyari { margin: 8px 0; padding: 8px 11px; border-radius: 8px;
+    background: var(--critical-soft); color: var(--critical);
+    border: 1px solid var(--critical); font-size: 12px; line-height: 1.5; }
+
+  /* §41 Madde 7 — öğrenci açık uçlu yanıt kutusu ve kelime sayacı.
+     Kutu rows=7 idi ve öğrenci birkaç cümleden sonra yazdığını göremiyordu.
+     min-height ile taban yükseklik garanti edilir; dikey yeniden boyutlama
+     serbest bırakılır (yatay değil — satır uzunluğu okunabilirliği bozar). */
+  /* width:100% ŞART: textarea'nın genişlik kuralı yoktu ve tarayıcının
+     varsayılan `cols` değerine düşüyordu — 375 px ekranda kutu yalnızca
+     157 px oluyor, satır başına ~20 karakter sığıyordu (ölçüldü). Maddenin
+     amacı tam olarak "öğrenci yazdığını göremiyor" sorunuydu; yükseklik tek
+     başına yetmez. box-sizing olmadan %100 + padding taşma yapardı. */
+  #openAnswerInput { width: 100%; box-sizing: border-box;
+    min-height: 260px; resize: vertical; line-height: 1.6; }
+  .yanit-sayac { margin-top: 6px; font-size: 11.5px; color: var(--text-muted);
+    font-variant-numeric: tabular-nums; text-align: right; }
+
   /* ---------- Question cards ---------- */
   .q-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--surface); }
   .q-card .q-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }

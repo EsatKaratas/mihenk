@@ -203,3 +203,113 @@ export function shuffleOptions<T extends { key: string; text: string }>(
   }
   return remapOptionsByOrder(options, correctKey, distractorRationale, order);
 }
+
+/* ============================================================================
+   §41 — ÜÇ ÖLÇÜLMÜŞ SORUN İÇİN SUNUCU TARAFI KORUMALAR
+   ============================================================================ */
+
+/**
+ * §41 Madde 2 — GEÇERSİZ CEVAP ANAHTARI SESSİZCE "A" OLUYORDU.
+ *
+ * `remapOptionsByOrder` içindeki `Math.max(0, oldKeys.indexOf(...))` ifadesi,
+ * model şıklarda BULUNMAYAN bir `correctKey` döndürdüğünde (-1) sessizce 0'a
+ * düşüyor ve İLK ŞIKKI doğru sayıyordu. Ölçüldü: 'E', 'Z', '', 'AB', '1'
+ * değerlerinin BEŞİ de uyarısız "A" oldu. Bir ölçme ürününde yanlış cevap
+ * anahtarı en pahalı hatadır ve bu tam olarak §6.3-5'in yasakladığı SESSİZ
+ * DÜŞÜŞTÜR.
+ *
+ * Otomatik tahmin YAPILMAZ (hangi şıkkın doğru olduğu bilinemez); soru
+ * işaretlenir ve İçerik Uzmanı doğru şıkkı kendisi seçer — karar zaten
+ * insanda (agents.md §1).
+ */
+export function cevapAnahtariGecerliMi(
+  options: { key: string; text: string }[],
+  correctKey: string | undefined
+): boolean {
+  const k = String(correctKey || '').trim().toUpperCase();
+  if (!k) return false;
+  return options.some((o) => String(o.key).trim().toUpperCase() === k);
+}
+
+/**
+ * §41 Madde 4 — TEKRARLAYAN SORULAR.
+ *
+ * İsteme "tekrar etme" yazmak ölçülerek YETERSİZ bulundu (27 soruda 15 benzer
+ * çift). Bu yüzden benzerlik SUNUCUDA denetlenir.
+ *
+ * Yöntem: Jaccard benzerliği (ortak jeton / birleşik jeton). Türkçe için
+ * kök bulma yapılmaz — soru gövdeleri zaten aynı kalıptan üretildiği için
+ * yüzeysel jeton örtüşmesi ayırt edici. Çok kısa jetonlar ve sık kullanılan
+ * soru kalıbı sözcükleri elenir, yoksa "aşağıdakilerden hangisi" gibi ortak
+ * kalıplar her soruyu birbirine benzetirdi.
+ */
+const DURDURMA = new Set([
+  've', 'ile', 'bir', 'bu', 'da', 'de', 'için', 'gibi', 'daha', 'en', 'olan',
+  'hangi', 'hangisi', 'aşağıdakilerden', 'aşağıdaki', 'nedir', 'nasıl', 'niçin',
+  'açıklayınız', 'yazınız', 'belirtiniz', 'veriniz', 'söyleyiniz', 'ifade',
+  'göre', 'olarak', 'olan', 'olur', 'eden', 'edilen', 'sonucu', 'durumu',
+]);
+
+export function jetonla(s: string): Set<string> {
+  return new Set(
+    String(s || '')
+      .toLocaleLowerCase('tr')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter((t) => t.length >= 4 && !DURDURMA.has(t))
+  );
+}
+
+export function benzerlik(a: string, b: string): number {
+  const A = jetonla(a);
+  const B = jetonla(b);
+  if (!A.size || !B.size) return 0;
+  let kesisim = 0;
+  A.forEach((t) => { if (B.has(t)) kesisim++; });
+  return kesisim / (A.size + B.size - kesisim);
+}
+
+/**
+ * Bu eşiğin ÜSTÜ "aynı soru" sayılır.
+ *
+ * DEĞER ÖLÇÜLEREK SEÇİLDİ, tahminle değil. 11 gerçek soru çifti iki sınıfa
+ * ayrıldı (elenmeli / korunmalı) ve iki ölçü karşılaştırıldı:
+ *
+ *   ölçü      | ELENMELİ en düşük | KORUNMALI en yüksek
+ *   ----------|-------------------|--------------------
+ *   Jaccard   |       0,333       |       0,250
+ *   kapsama   |       0,500       |       1,000
+ *
+ * Kapsama (ortak/en küçük küme) ayırt ETMİYOR: "Kuvvet nedir?" sorusu
+ * "Bir arabanın frenlemesinde hangi kuvvet rol oynar?" içinde tamamen
+ * geçtiği için 1,000 veriyor ama iki soru özgün. Bu yüzden Jaccard kullanılır.
+ *
+ * Eşik, ayrımın tam ortasına (0,250 ile 0,333 arası) konuldu. İlk yazımda
+ * 0,6 seçilmişti ve ÖLÇÜM bunun çok yüksek olduğunu gösterdi: anlamca aynı
+ * ama yeniden yazılmış sorular 0,33-0,50 alıyor, yani hiç yakalanmıyordu —
+ * kullanıcının bildirdiği "27 soruda 15 benzer çift" sorununun sebebi buydu.
+ *
+ * Yeniden ayarlanacaksa ölçümü tekrarlayın; sabiti tahminle değiştirmeyin.
+ */
+export const BENZERLIK_ESIGI = 0.3;
+
+/**
+ * §41 Madde 5 — SORU SAYISI / METİN UZUNLUĞU DENGESİ.
+ *
+ * 389 karakterlik bir metinden 8 soru istendiğinde metinde o kadar ölçülebilir
+ * ayrıntı yoktur; model aynı şeyi farklı cümleyle tekrar sorar. Kullanıcının
+ * "saçma soru" şikâyetinin ölçülen asıl sebebi budur.
+ *
+ * Yaklaşık 180 karakterde bir soruluk özgün içerik varsayılır (cömert bir
+ * tahmin; tipik bir ders notu paragrafı 150-250 karakter). Alt sınır 2'dir:
+ * çok kısa bir metinden bile iki soru istenebilir, yoksa özellik kullanılamaz
+ * hâle gelirdi.
+ *
+ * SESSİZCE KISMAZ: çağıran taraf kaç sorunun neden düştüğünü kullanıcıya
+ * bildirmek zorundadır (bkz. routes/ai.ts `kisiltmaNotu`).
+ */
+export const KARAKTER_BASINA_SORU = 180;
+
+export function makulSoruSayisi(metinUzunlugu: number): number {
+  return Math.max(2, Math.floor(metinUzunlugu / KARAKTER_BASINA_SORU));
+}

@@ -5543,3 +5543,123 @@ yapıldı; gerçek bir tarayıcı çıktısı daha zordur. Sayfa başına süre 
 ölçülmedi (tek sayfa, 20 sn'lik pencerede tamamlandı).
 
 Test dosyası (`public/test-tarali.pdf`) testten sonra silindi; depoya girmedi.
+
+---
+
+## 41. 13 MADDELİK GERİ BİLDİRİM — ÖNCE ÖLÇÜLDÜ, SONRA UYGULANDI (5 Eylül 2026)
+
+Ekipten 13 maddelik bir liste geldi. Hiçbiri doğrudan uygulanmadı; her madde
+önce **mevcut kodda gerçekten var mı** diye ölçüldü. Yedisi zaten çözülmüştü.
+
+### 41.1 Ölçüm tablosu
+
+| # | Madde | Ölçüm sonucu |
+|---|---|---|
+| 1 | Kazanım seçici kilidi | **Zaten düzeltilmiş** (§28n). Ölçüldü: demo sonrası ders "Fen Bilimleri", **26 kazanım** yüklü, seçici açık |
+| 2 | Doğru şık sessizce "A" | **GERÇEK.** `E`, `Z`, boş, `AB`, `1` değerlerinin **beşi de** uyarısız "A" oldu |
+| 3 | Sunucuda şık karıştırma | **Zaten var** (Burak M4). 2000 üretimde dağılım A:%23,3 B:%25,1 C:%25,9 D:%25,7 — hep-aynı-harf stratejisi **%25,9** |
+| 4 | Tekrarlayan sorular | **GERÇEK.** İstem tarafı vardı, **sunucuda benzerlik denetimi yoktu** |
+| 5 | Soru sayısı / metin uzunluğu | **GERÇEK.** Hiçbir sınır yoktu |
+| 6 | Rubrik akışı | **Zaten düzeltilmiş** (§31 M4). Soru bazlı uyarı + "Rubrik Sayfasına Git" düğmesi sekmeye geçip **o soruyu seçiyor** |
+| 7 | Öğrenci yanıt kutusu | **GERÇEK.** rows=7, sayaç yok, **genişlik kuralı da yoktu** |
+| 8 | Model karşılaştırması | Ekibin kendi ölçümü; "önce 4-5 yapılmalı" denmişti — model DEĞİŞTİRİLMEDİ |
+| 9 | Analitikte demo verisi | **Yarısı yapılmış** (§37 örnek/gerçek ayrımı). Varsayılan öğrenciler hâlâ takım adlarıydı |
+| 10 | Yönetici risk | Sude'de — dokunulmadı |
+| 11 | D1 / cihazlar arası | **Altyapı var ve çalışıyor** — ölçüldü |
+| 12 | Veli paneli | **Zaten doğru.** Açıklama cümlesi hariç tutulunca ekranda sınıf ortalaması, sıralama ve yüzde **yok** |
+| 13 | Dikkat uyarısı | **Zaten istenen tasarımda** — dikkatVeliyeOnayla var, öğretmen onaylamadan veliye gitmiyor |
+
+### 41.2 Madde 2 — geçersiz cevap anahtarı artık sessiz değil
+
+`remapOptionsByOrder` içindeki `Math.max(0, indexOf(...))`, model şıklarda
+bulunmayan bir `correctKey` döndürdüğünde (-1) sessizce **0'a** düşüyor ve
+ilk şıkkı doğru sayıyordu. Bir ölçme ürününde yanlış cevap anahtarı en pahalı
+hatadır ve bu §6.3-5'in yasakladığı sessiz düşüştür.
+
+Otomatik tahmin YAPILMAZ. `cevapAnahtariGecerliMi()` sunucuda denetler, soru
+`anahtarBelirsiz` ile işaretlenir ve İçerik Uzmanı kartta şunu görür:
+"Model geçerli bir cevap anahtarı vermedi. İşaretli görünen şık YALNIZCA bir
+yer tutucudur." Doğru şıkkı elle seçince uyarı kalkar.
+
+### 41.3 Madde 4 — benzerlik eşiği ÖLÇÜLEREK seçildi
+
+İlk yazımda eşik 0,6 kondu. Kalibrasyon bunun **çok yüksek** olduğunu
+gösterdi. 11 gerçek soru çifti iki sınıfa ayrıldı:
+
+| Ölçü | ELENMELİ en düşük | KORUNMALI en yüksek |
+|---|---|---|
+| Jaccard | **0,333** | **0,250** |
+| kapsama | 0,500 | **1,000** |
+
+Kapsama ayırt etmiyor ("Kuvvet nedir?" başka bir sorunun içinde tamamen
+geçtiği için 1,000 veriyor). Jaccard temiz ayırıyor; eşik ayrımın ortasına
+**0,30** olarak konuldu. 0,6 ile anlamca aynı ama yeniden yazılmış sorular
+(0,33-0,50) **hiç yakalanmıyordu** — bildirilen "27 soruda 15 benzer çift"in
+sebebi buydu.
+
+Eleme sessiz değildir: kaç sorunun elendiği `meta.elenenTekrar` ile döner ve
+arayüzde yazılır.
+
+**Uçtan uca doğrulandı:** aynı metinle ikinci üretimde model aynı soruları
+döndürdü, sunucu **hepsini eledi** ve şunu yazdı: "Üretilen soruların tamamı
+daha önce üretilenlerle çok benzerdi." Havuza tekrar eklenmedi.
+
+### 41.4 Madde 5 — metin uzunluğu / soru sayısı
+
+~180 karakterde bir soruluk özgün içerik varsayılır (alt sınır 2). Sessizce
+kısmaz; `meta.kisiltmaNotu` ile sebep yazılır. Kazanım modunda uygulanmaz
+(ölçülecek metin yok).
+
+**Doğrulandı:** 181 karakterlik metinden 12 soru istendi, 2 soru üretildi ve
+ekrana şu yazıldı: "Kaynak metin 181 karakter. Bu uzunlukta 2 soruluk özgün
+içerik var; 12 soru istendiği için 10 soru düşürüldü."
+
+Kısıtlarken önce ÇSS düşürülür: açık uçlu soru üst düzey ölçtüğü için daha
+değerlidir.
+
+### 41.5 Madde 7 — yanıt kutusu
+
+`rows` 7 → 14, `min-height: 260px` ve **`width: 100%`**. Genişlik kuralı hiç
+yoktu ve kutu tarayıcının varsayılan `cols` değerine düşüyordu: 375 px ekranda
+yalnızca **157 px** (satır başına ~20 karakter). Yükseklik tek başına maddenin
+amacını karşılamazdı. Düzeltmeden sonra **293 px** (kapsayıcının tam genişliği).
+
+Altına kelime/karakter sayacı kondu. Sayaç bir SINIR DEĞİLDİR. `renderAll()`
+çağrılmaz, yalnızca kendi düğümü güncellenir (TUZAK 3).
+
+Doğrulandı: boş "0 kelime · 0 karakter", 5 kelime "5 kelime · 19 karakter",
+cümle "10 kelime · 66 karakter"; odak korunuyor.
+
+### 41.6 Madde 9 — varsayılan öğrenciler
+
+Liste BİES takımının adlarını taşıyordu; jüri ekranında geliştiricinin adının
+"öğrenci" olarak görünmesi ürünü demo gibi gösteriyordu. Nötr adlarla
+değiştirildi (Ada Yılmaz, Kerem Aydın, Elif Şahin, Mert Doğan). Sayı ve şube
+dağılımı AYNI (2×7-A, 2×7-B) — ısı haritası ve simülasyon davranışı değişmesin.
+
+### 41.7 Madde 11 — D1 durumu (dürüst durum)
+
+"Veri her tarayıcıda ayrı duruyor" **sınıf kodu kullanılmadığında** doğru.
+Kod kullanılınca veri gerçekten D1'e gidiyor: ölçüldü — kod oluşturulup
+gönderildikten sonra sunucudan **1 sınav + 4 oturum** okundu (öğrenci adları
+ve durumlarıyla birlikte).
+
+Yani altyapı var ve çalışıyor; eksik olan **hesap sistemi** (kod girmeden
+otomatik paylaşım). Bu bir ürün kararıdır, hata değil.
+
+### 41.8 Uygulama sırasında yapılan iki hata (kendi kayıtları)
+
+1. `yanitSayacMetni` içindeki boşluk regex'i araç zincirinde bozuldu ve
+   boşluk yerine "s" harfinden bölüyordu. Tarayıcıda yakalandı
+   ("5 kelime" yerine "1 kelime").
+2. Sayacın canlı güncelleme kodu bir düzenleme betiği ortada hata verince
+   **hiç yazılmadı**; grep ile yokluğu görülüp eklendi.
+
+Ayrıca hata yolunda önceki başarılı üretimin bilgi notu ekranda kalıyordu;
+temizlendi.
+
+### 41.9 Doğrulama
+
+`npm test` **200/200** (185 → 200, 15 yeni test) · lint temiz ·
+öz-kontrol **262 ad, eksik 0** · `check:config` geçti · `node --check` 4/4 ·
+5 rol masaüstü ve mobil **taşma 0** · çift id 0 · konsol hatası **0**.

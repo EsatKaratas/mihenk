@@ -28,6 +28,10 @@ import {
   clamp,
   kaynakGerektirirMi,
   shuffleOptions,
+  cevapAnahtariGecerliMi,
+  benzerlik,
+  BENZERLIK_ESIGI,
+  makulSoruSayisi,
 } from '../lib/guards';
 import {
   generateQuestionsSchema,
@@ -115,14 +119,38 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      ekranında görür ve reddedebilir — karar yine insanda, agents.md §1.) */
   const kazanimModu = b.mode === 'kazanim';
 
+  /* §41 Madde 5 — SORU SAYISI / METİN UZUNLUĞU DENGESİ.
+     Kısa bir metinden çok soru istendiğinde model aynı şeyi tekrar sorar.
+     İstek burada kısıtlanır; SESSİZCE değil — kaç sorunun neden düştüğü
+     yanıtın meta alanında döner ve arayüz bunu kullanıcıya yazar.
+     Kazanım modunda kaynak metin YOKTUR, dolayısıyla bu sınır uygulanmaz:
+     dayanak MEB kazanımıdır, uzunluğu ölçülecek bir metin yok. */
+  const istenenToplam = b.mcCount + b.openCount;
+  const ustSinir = kazanimModu ? istenenToplam : makulSoruSayisi(b.sourceText.trim().length);
+  let mcSayi = b.mcCount;
+  let openSayi = b.openCount;
+  let kisiltmaNotu: string | null = null;
+  if (istenenToplam > ustSinir) {
+    // Açık uçlu soru daha değerlidir (üst düzey ölçer); önce ÇSS kısılır.
+    const dusecek = istenenToplam - ustSinir;
+    const mcDusen = Math.min(dusecek, mcSayi);
+    mcSayi -= mcDusen;
+    openSayi -= dusecek - mcDusen;
+    if (mcSayi + openSayi < 1) { mcSayi = 1; openSayi = 0; }
+    kisiltmaNotu =
+      `Kaynak metin ${b.sourceText.trim().length} karakter. Bu uzunlukta ` +
+      `${ustSinir} soruluk özgün içerik var; ${istenenToplam} soru istendiği için ` +
+      `${istenenToplam - (mcSayi + openSayi)} soru düşürüldü. Daha fazla soru için metni uzatın.`;
+  }
+
   const prompt = buildQuestionPrompt(
     {
       subject: b.subject,
       grade: b.grade,
       outcomeCode: b.outcomeCode,
       outcomeLabel: b.outcomeLabel,
-      mcCount: b.mcCount,
-      openCount: b.openCount,
+      mcCount: mcSayi,
+      openCount: openSayi,
       optionCount: b.optionCount,
       // Madde 2: ikisi de opsiyonel ek bağlam/yönlendirmedir; JSON çıktı
       // şemasını değiştirmez (bkz. src/lib/prompts.ts QuestionSpec notu).
@@ -145,7 +173,9 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   // §32 (Burak Modül 5): tekrar önleme listesi istemi büyütür; her önceki
   // soru için küçük bir pay eklenir ve üst sınır 3000 → 3400'e çıkar, aksi
   // halde uzun bir dedup listesinde yanıt yine ortada kesilebilirdi.
-  const maxTokens = clamp(600 + total * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
+  // §41 Madde 5: token payı KISITLANMIŞ sayıya göre hesaplanır; aksi hâlde
+  // düşürülen sorular için boşuna token ayrılırdı.
+  const maxTokens = clamp(600 + (mcSayi + openSayi) * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
 
   try {
     const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
@@ -176,12 +206,23 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
             key: String(o.key).trim().toUpperCase(),
             text: String(o.text).trim(),
           }));
+          /* §41 Madde 2 — GEÇERSİZ CEVAP ANAHTARI ARTIK SESSİZ DEĞİL.
+             `remapOptionsByOrder` şıklarda bulunmayan bir correctKey'i
+             sessizce İLK ŞIKKA düşürüyordu (ölçüldü: 'E','Z','','AB','1'
+             beşi de uyarısız "A" oldu). Bir ölçme ürününde yanlış cevap
+             anahtarı en pahalı hatadır.
+             Otomatik tahmin YAPILMAZ — hangi şıkkın doğru olduğu bilinemez.
+             Soru `anahtarBelirsiz` ile işaretlenir; İçerik Uzmanı onay
+             ekranında uyarıyı görür ve doğru şıkkı kendisi seçer
+             (agents.md §1: karar insanda). */
+          const anahtarGecerli = cevapAnahtariGecerliMi(trimmedOpts, q.correctKey);
           const karisik = shuffleOptions(trimmedOpts, q.correctKey || '', q.distractorRationale);
           return {
             type: 'mc' as const,
             body: String(q.body).trim(),
             options: karisik.options,
             correctKey: karisik.correctKey,
+            anahtarBelirsiz: !anahtarGecerli,
             distractorRationale: karisik.distractorRationale,
             difficulty: q.difficulty,
             bloom: q.bloom,
@@ -207,13 +248,44 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       })
       .filter(Boolean);
 
-    if (!questions.length) {
-      return c.json({ error: 'model_output_empty', message: 'Kullanılabilir soru üretilemedi.' }, 502);
+    /* §41 Madde 4 — TEKRAR DENETİMİ SUNUCUDA.
+       İsteme "tekrar etme" yazmak ölçülerek yetersiz bulundu (27 soruda 15
+       benzer çift). Burada iki yönlü denetim yapılır:
+         a) yeni sorular ile ÖNCEKİ sorular (excludeQuestions) arasında,
+         b) yeni soruların KENDİ aralarında.
+       Eşiği aşanlar elenir ama SESSİZCE DEĞİL: kaç tanesinin elendiği meta
+       ile döner ve arayüz bunu kullanıcıya yazar (§6.3-5). */
+    const oncekiler = (b.excludeQuestions || []).filter(Boolean);
+    const kabul: typeof questions = [];
+    let elenenTekrar = 0;
+    for (const q of questions) {
+      const govde = String((q as any).body || '');
+      const eskiyeBenzer = oncekiler.some((o) => benzerlik(govde, o) >= BENZERLIK_ESIGI);
+      const yeniyeBenzer = kabul.some((k) => benzerlik(govde, String((k as any).body || '')) >= BENZERLIK_ESIGI);
+      if (eskiyeBenzer || yeniyeBenzer) { elenenTekrar++; continue; }
+      kabul.push(q);
+    }
+
+    if (!kabul.length) {
+      return c.json({
+        error: 'model_output_empty',
+        message: elenenTekrar
+          ? 'Üretilen soruların tamamı daha önce üretilenlerle çok benzerdi. Kaynak metni değiştirin ya da farklı bir kazanım seçin.'
+          : 'Kullanılabilir soru üretilemedi.',
+      }, 502);
     }
 
     return c.json({
-      questions,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      questions: kabul,
+      /* §41: kısıtlama ve eleme SESSİZ OLMAZ — arayüz bu iki alanı
+         kullanıcıya yazar (§6.3-5 sessiz düşüş yasağı). */
+      meta: {
+        provider: usedProvider, model: usedModel, attempts, fellBack,
+        istenen: istenenToplam,
+        uretilen: kabul.length,
+        elenenTekrar,
+        kisiltmaNotu,
+      },
     });
   } catch (e) {
     return c.json(
