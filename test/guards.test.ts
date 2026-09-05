@@ -14,6 +14,7 @@ import {
   yabanciAlfabeVarMi,
   soruDilUyarisi,
   metinDilUyarisi,
+  sikImzasi,
   anahtarla,
   round05,
   clamp,
@@ -507,5 +508,75 @@ describe('metinDilUyarisi — model çıktısındaki yabancı alfabe (§45)', ()
 
   it('sayı, noktalama ve yüzde işareti temiz sayılır', () => {
     expect(metinDilUyarisi('6/8 puan (%40) — “iyi” denebilir; ancak…')).toBe(false);
+  });
+});
+
+/* ===========================================================================
+   §46 — sikImzasi: gövdesi farklı, ŞIKLARI AYNI sorular
+   ===========================================================================
+   Kullanıcı "aynı sorular çıkıyor" diye bildirdi ve ekran görüntüsü gönderdi.
+   Tek üretimde iki soru vardı; gövdeleri farklı yazılmıştı ama dört şıkkı da
+   aynıydı (A ve B yer değişmişti — o karıştırmayı `shuffleOptions` yapıyor).
+   §41'in gövde benzerliği denetimi bunu kaçırıyordu.
+
+   Aşağıdaki ilk test o gerçek çiftin kendisidir.                             */
+describe('sikImzasi — aynı şık kümesi tespiti (§46)', () => {
+  const SIKLAR_1 = [
+    { key: 'A', text: 'Yer şekilleri, bitki örtüsü ve toprak yapısı' },
+    { key: 'B', text: 'Deniz seviyesi, dağların yüksekliği' },
+    { key: 'C', text: 'Güneş ışınlarının açısı, rüzgar yönü' },
+    { key: 'D', text: 'Sıcaklık, nem ve atmosferik basınç' },
+  ];
+  // Aynı küme, KARIŞTIRILMIŞ sırayla (shuffleOptions'ın ürettiği durum).
+  const SIKLAR_2 = [
+    { key: 'A', text: 'Deniz seviyesi, dağların yüksekliği' },
+    { key: 'B', text: 'Yer şekilleri, bitki örtüsü ve toprak yapısı' },
+    { key: 'C', text: 'Güneş ışınlarının açısı, rüzgar yönü' },
+    { key: 'D', text: 'Sıcaklık, nem ve atmosferik basınç' },
+  ];
+
+  it('🔴 canlıda GÖZLENEN çift: sıra farklı, imza AYNI', () => {
+    expect(sikImzasi(SIKLAR_1)).toBe(sikImzasi(SIKLAR_2));
+  });
+
+  it('gerçekten farklı şık kümeleri farklı imza verir', () => {
+    const baska = [
+      { key: 'A', text: 'Hava olayları kısa süreli ve yereldir' },
+      { key: 'B', text: 'Hava olayları sıcak ve nemlidir' },
+      { key: 'C', text: 'Hava olayları mevsimlere göre değişir' },
+      { key: 'D', text: 'Hava olayları rüzgar ve yağmurdur' },
+    ];
+    expect(sikImzasi(SIKLAR_1)).not.toBe(sikImzasi(baska));
+  });
+
+  it('büyük/küçük harf, noktalama ve fazla boşluk imzayı değiştirmez', () => {
+    const kirli = [
+      { key: 'A', text: '  SICAKLIK, NEM ve ATMOSFERİK BASINÇ.  ' },
+      { key: 'B', text: 'Güneş  ışınlarının   açısı; rüzgar yönü!' },
+      { key: 'C', text: 'Deniz seviyesi — dağların yüksekliği' },
+      { key: 'D', text: 'Yer şekilleri, bitki örtüsü ve toprak yapısı' },
+    ];
+    expect(sikImzasi(kirli)).toBe(sikImzasi(SIKLAR_1));
+  });
+
+  it('Türkçe büyük I/İ farkı imzayı bozmaz', () => {
+    expect(sikImzasi([{ text: 'İKLİM' }])).toBe(sikImzasi([{ text: 'iklim' }]));
+  });
+
+  it('tek şık farklıysa imza da farklıdır — fazla eleme yapmaz', () => {
+    const birFarkli = SIKLAR_1.slice(0, 3).concat([{ key: 'D', text: 'Yalnızca yağış miktarı' }]);
+    expect(sikImzasi(birFarkli)).not.toBe(sikImzasi(SIKLAR_1));
+  });
+
+  it('boş/eksik girdi güvenle boş imza verir (açık uçlu soruda şık yoktur)', () => {
+    expect(sikImzasi(undefined)).toBe('');
+    expect(sikImzasi([])).toBe('');
+    expect(sikImzasi([{ text: '' }, { text: '   ' }, null])).toBe('');
+  });
+
+  it('boş imza eleme tetiklemez — iki açık uçlu soru birbirini elememeli', () => {
+    // Uç, imza boşsa denetimi atlar; bu test o sözleşmeyi kayda geçirir.
+    expect(sikImzasi([])).toBe('');
+    expect(sikImzasi([]) === sikImzasi([])).toBe(true);
   });
 });

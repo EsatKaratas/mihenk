@@ -6191,3 +6191,138 @@ Logo zaten depoda (`public/mihenk-logo.png`); dört sayfaya `icon` ve
 | Canlı `/api/ai/evaluate` | `dilUyarisi` alanı dönüyor |
 | Canlı `/favicon` | `index.html` içinde `rel="icon"` var, **konsol hatası 0** |
 | Ekran görüntüleri | 5 dosya, canlıdan, gerçek model çağrısıyla, konsol hatası 0 |
+
+---
+
+## 46. AYNI SORULAR + YANLIŞ CEVAP ANAHTARI — ikisi de kullanıcıdan geldi, ikisi de ölçüldü (5 Eylül 2026)
+
+Kullanıcı iki ayrı ekran görüntüsü gönderdi. İkisi de gerçek kusurdu; ikisi de
+farklı sınıftan.
+
+### 46.1 🔴 "Aynı sorular çıkıyor" — gövdesi farklı, ŞIKLARI AYNI
+
+**Kanıt (kullanıcı ekran görüntüsü, FB.8.1.2).** Tek üretimde yan yana:
+
+| # | Soru |
+|---|---|
+| 1 | "İklim ve hava olaylarını **karşılaştırmak için** hangi faktörler dikkate alınmalıdır?" |
+| 3 | "Hava olaylarının **oluşumunda** hangi faktörler önemlidir?" |
+
+Dördü de **aynı şıklardı** — yalnızca A ve B yer değişmişti, ki o yer
+değişikliğini `shuffleOptions` bizzat yapıyor (§32) — ve doğru cevap ikisinde
+de aynı metindi ("Sıcaklık, nem ve atmosferik basınç"). Öğrenci için bu, aynı
+soruyu iki kez cevaplamaktır.
+
+**Kök neden.** §41'in tekrar denetimi yalnızca `body` karşılaştırıyordu:
+
+```ts
+const eskiyeBenzer = oncekiler.some((o) => benzerlik(govde, o) >= BENZERLIK_ESIGI);
+const yeniyeBenzer = kabul.some((k) => benzerlik(govde, String((k as any).body || '')) >= BENZERLIK_ESIGI);
+```
+
+İki gövdenin Jaccard benzerliği 0,30'un altında kaldığı için ikisi de geçti.
+Ölçüt yanlış yere bakıyordu: **şıklar aynıysa soru aynıdır**, gövde nasıl
+yazılırsa yazılsın.
+
+**Düzeltme — eşik DEĞİL, kesin ölçüt.** `guards.ts`'e `sikImzasi()` eklendi:
+şık metinleri Türkçe küçük harfe çevrilir, noktalama atılır, **sıralanır** ve
+birleştirilir. İki ÇSS'nin imzası birebir aynıysa ikincisi elenir.
+
+- **Sıralama şart:** `shuffleOptions` şıkları kasten karıştırıyor; sıraya
+  duyarlı bir imza aynı kümeyi farklı sanardı.
+- **Kalibre edilecek sabit YOK.** §41'deki 0,30 gibi bir eşik gerekmedi;
+  birebir eşleşme aranıyor, dolayısıyla yanlış eleme riski yok.
+- **Kapsam sınırı (bilerek):** `excludeQuestions` yalnızca gövde METNİ taşır,
+  şık bilgisi içermez. Şık denetimi bu yüzden **aynı üretim turu içinde**
+  çalışır; turlar arası tekrar hâlâ gövde benzerliğine bakar.
+
+Eleme sessiz değil: `meta.elenenAyniSik` ile döner ve arayüz şunu yazar:
+*"N soru, başka bir soruyla AYNI şık kümesini paylaştığı için elendi
+(gövdesi farklı yazılmış olsa da aynı seçenekleri ölçüyordu)."*
+
+İsteme de bir **çeşitlilik kuralı** eklendi ki eleme gerekmeden azalsın.
+
+**Ölçüm (yerel, gerçek model, 3 tur, FB.8.1.2 hava/iklim metni):**
+
+```
+TUR 1  istenen 5 | üretilen 3 | elenenTekrar 1 | elenenAyniSik 0
+TUR 2  istenen 5 | üretilen 2 | elenenTekrar 2 | elenenAyniSik 0
+TUR 3  istenen 5 | üretilen 4 | elenenTekrar 0 | elenenAyniSik 0
+→ DÖNEN sorularda aynı şık kümesi çakışması: 0
+```
+
+**7 test eklendi**; ilki kullanıcının gönderdiği gerçek çiftin kendisidir.
+
+### 46.2 🔴 YANLIŞ CEVAP ANAHTARI — "1 kilogram su kaç santilitre yapar?"
+
+**Kanıt (kullanıcı ekran görüntüsü, MAT.7.4.5).** Model doğru cevabı
+**B) 1000 santilitre** işaretlemişti. Doğrusu:
+
+```
+1 kg su = 1 litre          (yoğunluk 1 g/cm³)
+1 litre = 100 santilitre   (1 cL = 10 mL)
+→ 1 kg su = 100 santilitre
+```
+
+Model **santilitre ile mililitreyi karıştırmış**: 1000 rakamı *mililitre* için
+doğru olurdu. Çeldirici gerekçeleri de kendini ele veriyordu — A (10000) ve D
+(100000) için ikisi de "çok yüksek" diyor, **C (100) için "çok düşük" diyor;
+oysa doğru olan C.**
+
+**Hiçbir mevcut koruma bunu yakalayamaz ve yakalamamalı.** §41'deki
+`cevapAnahtariGecerliMi` yalnızca anahtarın şıklar arasında BULUNUP
+bulunmadığına bakar — burada bulunuyor, sadece yanlış şıkkı gösteriyor. Bu
+**olgusal** bir hatadır; şema doğrulaması, benzerlik ölçümü ya da regex ile
+tespit edilemez. Ürünün cevabı zaten mimarîdir: soru "onay bekleyenler"de
+durdu, havuza girmedi, sınava girmedi, hiçbir öğrenciye ulaşmadı. **Kullanıcı
+onu yakaladı — HITL'in çalıştığı an budur.**
+
+**Yine de üretim tarafı sertleştirildi.** İsteme sayısal/birim kuralı eklendi:
+işlemi adım adım yap ve doğrula; mL/cL/dL/L karışıklığına karşı dönüşüm
+zinciri (1 L = 10 dL = 100 cL = 1000 mL) ve 1 kg su = 1 L açıkça verildi;
+her çeldirici BELİRLİ bir işlem hatasından doğsun ve gerekçeleri
+BİRBİRİNDEN FARKLI olsun (yukarıdaki "iki kez çok yüksek" kusuru).
+
+#### Ölçüm — önce hatayı YENİDEN ÜRETTİK, sonra A/B koştuk
+
+Bu bölümün en önemli kısmı budur, çünkü **ilk ölçüm yanıltıcı çıktı:**
+
+1. Yeni istemle, dönüşümü İÇEREN bir kaynak metinden 12 soru üretildi →
+   12/12 doğru. Sevindirici ama **kanıt değil**.
+2. Kontrol için eski isteme dönüldü (`git stash`) ve aynı metin koşuldu →
+   **eski istem de 8/8 doğru verdi.** Yani metin dönüşümü açıkça
+   söylüyorsa hata zaten olmuyordu; ölçüm yanlış koşulu test ediyordu.
+3. Gerçek koşul bulundu: **kazanım modu** — kaynak metin YOK, model bilgiyi
+   kendinden üretmek zorunda. Eski istemle koşuldu:
+
+   | Tur | Soru | İşaretli | Doğru mu |
+   |---|---|---|---|
+   | 2 | "1 kilogram su kaç santilitreye eşittir?" | **1000 cL** | ❌ |
+   | 3 | "1 kilogram su kaç santilitre yapar?" | **1000 cL** | ❌ |
+
+   **Hata birebir yeniden üretildi — 2/2 yanlış.**
+4. Yeni istem geri yüklenip aynı test koşuldu (4 tur):
+
+   | Kaç kez çıktı | Doğru anahtar |
+   |---|---|
+   | 4 | **4/4** — 100 cL; 1000 cL artık ÇELDİRİCİ |
+
+   Ek olarak "250 mL kaç cL" sorusu da doğru (25 cL) geldi.
+
+**DÜRÜSTLÜK NOTU:** örneklem küçük ve model olasılıksal. Ayrıca yeni turlarda
+model soruyu "1 litre su kaç santilitre" diye sordu, "1 kilogram su" diye
+değil — yani birebir aynı gövde tekrarlamadı. Ölçülen dönüşüm aynı (L↔cL) ve
+eski istemin düştüğü tuzak artık çeldirici konumunda. **Garanti değildir;
+ölçülmüş bir iyileşmedir.** Nihai güvence hâlâ İçerik Uzmanının onayıdır.
+
+### 46.3 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **212/212** (205 → +7, §46.1 şık imzası testleri) |
+| `node tools/ozkontrol-dogrula.mjs` | **318 ad · kapsama %100** |
+| `npm run check:config` | exit 0 |
+| §8.4 tuzağı | Servis edilen `app.js` diskle SHA-256 eş |
+| Şık kümesi çakışması | 3 turda **0** |
+| Birim dönüşümü A/B | eski **0/2 doğru** → yeni **4/4 doğru** |

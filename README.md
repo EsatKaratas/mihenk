@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-205%2F205-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-212%2F212-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -48,6 +48,7 @@ Proje günlüğü `PROGRESS.md`'dir ve **44 bölümdür**; her madde kök nedeni
 | **Sınıf kodu kaldırıldı** (§43) | Cihazlar arası paylaşım bir *oda koduyla* korunuyordu — kimlik doğrulama değildi: kodu bilen herkes o sınıfın öğrenci yanıtlarını okuyabiliyor ve geri alınamaz biçimde silebiliyordu. Özellik uçlarıyla, tablolarıyla ve veritabanı bağlamasıyla söküldü. **Bedeli açıkça yazıldı:** ürün artık tek cihazda çalışır. |
 | **Yedek model gerçekten çalışır oldu** (§43) | Yedek *tanımlıydı ama devreye giremiyordu* (secret yoktu). Çözüm anahtar almak değil kodu okumak oldu; ayrıntısı [§3.1](#31-tek-sağlayıcıya-bağımlı-değil--otomatik-yedek)'de. |
 | **Analiz turu: 2 gerçek kusur + 3 küçük** (§44) | En ağırı: boş kriter adıyla sınav **yayınlanabiliyordu** ve hata ancak *puanlama anında* çıkıyordu. Ölçüt tek yere alındı; şerit artık sebebi yazıyor. |
+| **Aynı sorular / yanlış cevap anahtarı** (§46) | Kullanıcı iki ekran görüntüsü gönderdi. Biri: gövdesi farklı ama **şıkları aynı** iki soru — tekrar denetimi yalnızca gövdeye bakıyordu, artık şık kümesinin **sıradan bağımsız imzasına** da bakıyor. Diğeri: *"1 kilogram su kaç santilitre?"* sorusunda cevap anahtarı yanlıştı (1000 yerine 100). Olgusal hatayı hiçbir şema doğrulaması yakalayamaz — **onay ekranı yakaladı**; yine de istem sertleştirildi ve A/B ile ölçüldü: eski istem **0/2** doğru, yeni istem **4/4**. |
 | **Değerlendirme çıktısında dil denetimi** (§45) | Yabancı alfabe koruması yalnızca soru üretiminde vardı. Bu README için çekilen ekran görüntüsünde modelin **öğrenciye gidecek** geri bildirim taslağına CJK karakteri sızdığı görüldü; denetim değerlendirme çıktısına da eklendi ve testle kilitlendi. |
 
 <sub>Bu tablo bir değişiklik listesi değil, bir <b>çalışma biçimi</b> örneğidir:
@@ -421,7 +422,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 205 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 212 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -661,8 +662,8 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **205 test**
-  koşar (`test/guards.test.ts` 80 · `test/schemas.test.ts` 44 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **212 test**
+  koşar (`test/guards.test.ts` 87 · `test/schemas.test.ts` 44 ·
   `test/ai-lib.test.ts` 24 · `test/prompts.test.ts` 23 ·
   `test/prompts-guvenlik.test.ts` 19 · `test/sayac-ve-yedek.test.ts` 15) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,

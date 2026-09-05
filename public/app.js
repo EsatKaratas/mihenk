@@ -353,6 +353,12 @@ async function aiGenerateQuestions(doc) {
         notlar.push(j.meta.elenenTekrar + " soru, daha önce üretilenlere ya da birbirine çok " +
           "benzediği için elendi. Farklı bir kazanım seçerek çeşitliliği artırabilirsiniz.");
       }
+      /* §46: gövdesi farklı ama şıkları aynı olan sorular. Kullanıcı bunu
+         "aynı sorular çıkıyor" diye bildirdi; sebebini artık sistem söylüyor. */
+      if (j.meta.elenenAyniSik) {
+        notlar.push(j.meta.elenenAyniSik + " soru, başka bir soruyla AYNI şık kümesini " +
+          "paylaştığı için elendi (gövdesi farklı yazılmış olsa da aynı seçenekleri ölçüyordu).");
+      }
       /* §44: şıkkı eksik dönen sorular da sessizce düşmez. Bu, kullanıcının
          yapabileceği bir hata değildir — modelin kusurudur; cümle de öyle der. */
       if (j.meta.elenenGecersiz) {

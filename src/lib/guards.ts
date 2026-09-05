@@ -347,6 +347,44 @@ export function benzerlik(a: string, b: string): number {
  */
 export const BENZERLIK_ESIGI = 0.3;
 
+/* ===========================================================================
+   §46 — ŞIK KÜMESİ İMZASI: gövdesi farklı, ŞIKLARI AYNI sorular
+   ===========================================================================
+   🔴 KULLANICI BİLDİRDİ, EKRAN GÖRÜNTÜSÜYLE ÖLÇÜLDÜ. Tek üretimde
+   şu iki soru yan yana geldi:
+
+     1) "İklim ve hava olaylarını karşılaştırmak için hangi faktörler
+         dikkate alınmalıdır?"
+     3) "Hava olaylarının oluşumunda hangi faktörler önemlidir?"
+
+   Dördü de AYNI şıklardı (yalnızca A ve B yer değişmişti — ki o yer
+   değişikliğini `shuffleOptions` bizzat yapıyor) ve doğru cevap ikisinde de
+   aynı metindi. Öğrenci için bu, aynı soruyu iki kez cevaplamaktır.
+
+   §41'in tekrar denetimi bunları KAÇIRIYORDU çünkü yalnızca `body`
+   karşılaştırıyordu; iki gövdenin Jaccard benzerliği eşiğin altındaydı.
+
+   ÇÖZÜM EŞİK DEĞİL, KESİN ÖLÇÜT: şık metinleri normalleştirilip SIRALANIR ve
+   birleştirilir. İki çoktan seçmeli sorunun imzası birebir aynıysa bunlar
+   aynı seçenek kümesini ölçüyor demektir — tahmine gerek yok, bu yüzden
+   kalibre edilecek bir sabit de yok (§41'deki 0,30 gibi).
+
+   Sıralama ŞART: `shuffleOptions` şıkları kasten karıştırıyor, dolayısıyla
+   sıraya duyarlı bir imza aynı kümeyi farklı sanardı.                       */
+export function sikImzasi(options?: Array<{ text?: string } | null>): string {
+  const parcalar = (options || [])
+    .map((o) =>
+      String((o && o.text) || '')
+        .toLocaleLowerCase('tr')
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')   // noktalama ve simgeler elenir
+        .trim()
+        .replace(/\s+/g, ' ')
+    )
+    .filter((t) => t.length > 0)
+    .sort();
+  return parcalar.length ? parcalar.join('|') : '';
+}
+
 /**
  * §41 Madde 5 — SORU SAYISI / METİN UZUNLUĞU DENGESİ.
  *

@@ -35,6 +35,7 @@ import {
   cevapAnahtariGecerliMi,
   benzerlik,
   BENZERLIK_ESIGI,
+  sikImzasi,
   makulSoruSayisi,
 } from '../lib/guards';
 import {
@@ -275,15 +276,38 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
          a) yeni sorular ile ÖNCEKİ sorular (excludeQuestions) arasında,
          b) yeni soruların KENDİ aralarında.
        Eşiği aşanlar elenir ama SESSİZCE DEĞİL: kaç tanesinin elendiği meta
-       ile döner ve arayüz bunu kullanıcıya yazar (§6.3-5). */
+       ile döner ve arayüz bunu kullanıcıya yazar (§6.3-5).
+
+       §46 — ÜÇÜNCÜ DENETİM: AYNI ŞIK KÜMESİ.
+       Gövde benzerliği yetmiyordu. Ölçüldü (kullanıcı ekran görüntüsü):
+       "…karşılaştırmak için hangi faktörler…" ve "…oluşumunda hangi
+       faktörler…" soruları AYNI dört şıkka sahipti; gövde Jaccard'ı eşiğin
+       altında kaldığı için ikisi de geçmişti. Şıklar aynıysa soru aynıdır.
+       Bu denetimin eşiği YOKTUR: imza birebir eşleşmesi arar (bkz. guards.ts
+       sikImzasi), dolayısıyla kalibre edilecek bir sabit de yoktur.
+
+       KAPSAM SINIRI (bilerek): `excludeQuestions` yalnızca gövde METNİ
+       taşır, şık bilgisi içermez. Bu yüzden şık denetimi yalnızca AYNI
+       üretim turu içinde çalışır; turlar arası tekrar hâlâ gövde
+       benzerliğine bakar. */
     const oncekiler = (b.excludeQuestions || []).filter(Boolean);
     const kabul: typeof questions = [];
+    const gorulenSikImzalari = new Set<string>();
     let elenenTekrar = 0;
+    let elenenAyniSik = 0;
     for (const q of questions) {
       const govde = String((q as any).body || '');
       const eskiyeBenzer = oncekiler.some((o) => benzerlik(govde, o) >= BENZERLIK_ESIGI);
       const yeniyeBenzer = kabul.some((k) => benzerlik(govde, String((k as any).body || '')) >= BENZERLIK_ESIGI);
       if (eskiyeBenzer || yeniyeBenzer) { elenenTekrar++; continue; }
+
+      if ((q as any).type === 'mc') {
+        const imza = sikImzasi((q as any).options);
+        if (imza) {
+          if (gorulenSikImzalari.has(imza)) { elenenAyniSik++; continue; }
+          gorulenSikImzalari.add(imza);
+        }
+      }
       kabul.push(q);
     }
 
@@ -292,7 +316,9 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         error: 'model_output_empty',
         message: elenenTekrar
           ? 'Üretilen soruların tamamı daha önce üretilenlerle çok benzerdi. Kaynak metni değiştirin ya da farklı bir kazanım seçin.'
-          : elenenGecersiz
+          : elenenAyniSik
+            ? 'Üretilen soruların tamamı aynı şık kümesini paylaşıyordu, yani aslında tek bir soruydu. Tekrar deneyin ya da metni zenginleştirin.'
+            : elenenGecersiz
             ? 'Model, şık sayısı yetersiz sorular döndürdüğü için kullanılabilir soru kalmadı. Tekrar deneyin.'
             : 'Kullanılabilir soru üretilemedi.',
       }, 502);
@@ -307,6 +333,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         istenen: istenenToplam,
         uretilen: kabul.length,
         elenenTekrar,
+        // §46: gövdesi farklı ama şık kümesi aynı olduğu için elenen soru sayısı.
+        elenenAyniSik,
         // §44: modelin kullanılamaz döndürdüğü (şıkkı eksik) soru sayısı.
         elenenGecersiz,
         kisiltmaNotu,

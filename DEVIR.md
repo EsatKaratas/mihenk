@@ -15,9 +15,9 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 |---|---|
 | Dal | `sinif-kodu-kaldirma` — §43 çalışması; `main` = `final-birlestirme` = `342c230` |
 | Canlı | `mihenk.bies.workers.dev` — ⚠️ §43 **henüz yayınlanmadı**; canlı hâlâ `342c230` |
-| Test | **199/199** (§43'te 36 senkron testi düştü) |
+| Test | **212/212** |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **317 ad · eksik 0 · kapsama %100** |
+| Öz-kontrol | **318 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
@@ -30,8 +30,8 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 199/199
-node tools/ozkontrol-dogrula.mjs    # 317 ad · kapsama %100
+npm test                            # 212/212
+node tools/ozkontrol-dogrula.mjs    # 318 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```

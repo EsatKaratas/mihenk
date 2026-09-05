@@ -161,6 +161,27 @@ Bağlam:
 Üretilecek:
 - ${spec.mcCount} adet çoktan seçmeli soru (her biri ${spec.optionCount} şıklı)
 - ${spec.openCount} adet açık uçlu soru
+
+ÇEŞİTLİLİK KURALI (§46 — ölçülmüş bir kusura karşı): Her soru FARKLI bir alt
+konuyu ya da farklı bir kavramı ölçmelidir. İki sorunun ŞIK KÜMESİ aynı
+olmamalıdır; gövdeyi yeniden yazıp aynı dört seçeneği tekrar sunmak, aynı
+soruyu iki kez sormaktır. Aynı seçenek kümesini paylaşan sorular sunucuda
+elenir ve istediğinizden az soru üretilmiş olur.
+
+SAYISAL VE BİRİM DÖNÜŞÜMÜ KURALI (§46 — ölçülmüş bir kusura karşı): Soru bir
+hesap ya da birim dönüşümü içeriyorsa, doğru şıkkı işaretlemeden ÖNCE işlemi
+adım adım yap ve sonucu bir kez daha doğrula. Birim adlarını karıştırma —
+özellikle mililitre (mL), santilitre (cL), desilitre (dL) ve litre (L)
+birbirine sık karıştırılır: 1 L = 10 dL = 100 cL = 1000 mL. Kütle-hacim
+geçişinde suyun yoğunluğunu kullan: 1 kg su = 1 L.
+Bir hata GÖZLENDİ ve bu kural onun için eklendi: "1 kilogram su kaç santilitre
+yapar?" sorusunda doğru cevap 100 cL iken model 1000 cL'yi (mililitre karşılığı)
+işaretledi.
+Çeldiriciler de rastgele büyük/küçük sayılar olmasın: her çeldirici BELİRLİ bir
+hatadan doğsun (yanlış birim kullanmak, ondalık kaydırmak, ters oranla çarpmak
+gibi) ve her çeldiricinin gerekçesi BİRBİRİNDEN FARKLI olsun. İki çeldiriciye
+"çok yüksek değer" gibi aynı gerekçeyi yazma; hangi işlem hatasının o şıkka
+götürdüğünü söyle.
 ${spec.bloomFocus === 'temel' ? `
 Bilişsel düzey yönlendirmesi: Sorularının ÇOĞUNLUĞU "hatirlama" ve "anlama" düzeyinde olsun
 (temel bilgi ve kavrama ölçülsün). Yine de tamamı aynı düzeyde olmasın; en az bir soru daha
