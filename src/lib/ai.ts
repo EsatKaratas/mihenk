@@ -41,11 +41,25 @@ export type AiEnv = {
  * girildiğine bağlı kalmamak için sunucu tarafında da temizliyoruz:
  * BOM, sıfır genişlikli karakterler ve baş/son boşluklar atılır.
  */
-function temizAnahtar(k?: string): string {
+export function temizAnahtar(k?: string): string {
   return (k || '')
     .replace(/^\uFEFF/, '')
     .replace(/[\u200B-\u200D\u2060]/g, '')
     .trim();
+}
+
+/**
+ * Birincil sa\u011Flay\u0131c\u0131 \u00E7a\u011Fr\u0131labilir durumda m\u0131?
+ *
+ * \u00A742: `/status` ucu bunu `!!c.env.AI_API_KEY` ile ham olarak \u00F6l\u00E7\u00FCyordu \u2014
+ * yani BOM'lu ya da yaln\u0131zca bo\u015Fluktan olu\u015Fan bir anahtar "haz\u0131r" g\u00F6r\u00FCn\u00FCyordu.
+ * Oysa `callModel()` ayn\u0131 anahtar\u0131 `temizAnahtar()`'dan ge\u00E7irip bo\u015F bulunca
+ * hata f\u0131rlat\u0131yor. \u0130ki \u00F6l\u00E7\u00FCt ayr\u0131\u015Fm\u0131\u015Ft\u0131: rozet ye\u015Fil, \u00E7a\u011Fr\u0131 \u00F6l\u00FC.
+ * BOM tuza\u011F\u0131 bu dosyada zaten bir kez ya\u015Fand\u0131 (bkz. temizAnahtar notu);
+ * haz\u0131rl\u0131k kontrol\u00FC de ayn\u0131 temizlikten ge\u00E7mek zorunda.
+ */
+export function saglayiciHazirMi(env: AiEnv): boolean {
+  return providerName(env) === 'workers-ai' ? !!env.AI : !!temizAnahtar(env.AI_API_KEY);
 }
 
 export function fallbackEnv(env: AiEnv): AiEnv | null {
@@ -63,6 +77,38 @@ export function fallbackConfigured(env: AiEnv): boolean {
   const f = fallbackEnv(env);
   if (!f) return false;
   return providerName(f) === 'workers-ai' ? !!f.AI : !!temizAnahtar(f.AI_API_KEY);
+}
+
+/**
+ * §42 — YEDEK SAĞLAYICI SESSİZCE ÖLÜ KALAMAZ.
+ *
+ * 🔴 ÖLÇÜLDÜ (5 Eylül, canlı uçtan):
+ *   curl https://mihenk.bies.workers.dev/api/ai/status
+ *   -> {"provider":"workers-ai", ..., "fallback":null}
+ * Oysa `wrangler.demo.jsonc` AI_FALLBACK_PROVIDER="openai" ve
+ * AI_FALLBACK_MODEL="gpt-5.6-luna" TANIMLIYOR ve yorumunda "demo günü için
+ * ŞİDDETLE ÖNERİLİR" yazıyor. Sebep: `AI_FALLBACK_API_KEY` secret'ı deploy
+ * edilmiş Worker'da yok, dolayısıyla `fallbackConfigured()` false dönüyor.
+ *
+ * Eski davranış bu iki DURUMU AYIRT ETMİYORDU:
+ *   (a) yedek hiç tanımlanmamış  -> bilinçli bir tercih
+ *   (b) yedek tanımlı ama anahtarı yok -> YAPILANDIRMA HATASI
+ * İkisi de `fallback: null` dönüyor ve arayüzde "yapılandırılmamış" yazıyordu.
+ * Yani konfigin vaat ettiği emniyet ağı yokken kimse uyarılmıyordu; kota
+ * jüri günü dolduğunda bu ancak ilk hatayla anlaşılacaktı.
+ * §6.3-5 (sessiz düşüş yasağı) tam olarak bunu yasaklıyor.
+ *
+ * Null döner = söylenecek bir sorun yok. Metin döner = yapılandırma eksik.
+ */
+export function fallbackSorunu(env: AiEnv): string | null {
+  if (!env.AI_FALLBACK_PROVIDER) return null;   // (a) bilinçli tercih — sorun değil
+  if (fallbackConfigured(env)) return null;      // yedek gerçekten hazır
+  const p = String(env.AI_FALLBACK_PROVIDER).toLowerCase();
+  return p === 'workers-ai'
+    ? 'Yedek sağlayıcı "workers-ai" olarak tanımlı ama AI binding yok; kota dolarsa yedek devreye giremez.'
+    : `Yedek sağlayıcı "${p}" olarak tanımlı ama AI_FALLBACK_API_KEY secret'ı yok; ` +
+      'kota dolarsa yedek devreye GİREMEZ. Kurmak için: ' +
+      'npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc';
 }
 
 export type CallOptions = {

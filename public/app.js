@@ -265,9 +265,14 @@ async function probeAiMode() {
     state.ai.model = j.model || "";
     state.ai.mode = j.ready ? "live" : "simulation";
     state.ai.fallback = j.fallback || null;
+    /* §42: yedek TANIMLI ama ANAHTARSIZ ise sunucu bunu açıkça bildirir.
+       Eskiden bu durum "yedek yok" ile aynı görünüyordu; yani konfigin
+       vaat ettiği emniyet ağı yokken kimse uyarılmıyordu (§6.3-5). */
+    state.ai.fallbackSorunu = j.fallbackSorunu || "";
     state.ai.error = j.ready ? "" : "model sağlayıcısı yapılandırılmamış";
   } catch (e) {
     state.ai.mode = "simulation";
+    state.ai.fallbackSorunu = "";
     state.ai.error = "API'ye ulaşılamadı";
   }
   renderAll();
@@ -602,7 +607,16 @@ function aiAyrintiHtml() {
     icerik += satir("Model", a.model || "—", true);
     icerik += a.fallback
       ? satir("Yedek", saglayiciAdi(a.fallback.provider) + " · " + (a.fallback.model || "—"))
-      : satir("Yedek", "yapılandırılmamış");
+      : satir("Yedek", a.fallbackSorunu ? "TANIMLI AMA ÇALIŞMAZ" : "yapılandırılmamış");
+    /* §42 — YAPILANDIRMA HATASI SESSİZ KALMAZ. wrangler.demo.jsonc bir yedek
+       sağlayıcı TANIMLIYOR ama anahtarı yoksa yedek fiilen yoktur. Ölçüldü
+       (5 Eylül, canlı): /api/ai/status -> fallback:null, oysa konfigde
+       AI_FALLBACK_PROVIDER="openai" yazıyor. Kota jüri günü dolarsa bu ancak
+       ilk hatayla anlaşılırdı. Artık ayrıntı panelinde açıkça yazar. */
+    if (a.fallbackSorunu) {
+      icerik += '<div class="aim-not sync-detay-err">⚠ <b>Yedek model kurulmamış.</b> ' +
+        escapeHtml(a.fallbackSorunu) + '</div>';
+    }
     icerik += '<div class="aim-not">' +
       (a.usingFallback
         ? "Şu an <b>yedek model</b> yanıtlıyor — birincil sağlayıcı başarısız oldu."
@@ -669,6 +683,10 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
   "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
+  /* §42: sınıf listesi bir kez kuruldu mu? Bu bayrak KALICI OLMAK ZORUNDA —
+     tek işi, kullanıcının boşalttığı listeyi açılışta yeniden tohumlamayı
+     engellemek (bkz. ensureStudents). Oturumluk olsaydı hata geri gelirdi. */
+  "sinifKuruldu",
   // §29: "kim olarak değerlendiriyorum" — sayfa yenilenince kaybolmamalı.
   "activeTeacherName",
   /* Sınıf (oda) kodu KALICIDIR: sayfa yenilenince öğrenci kodu yeniden
@@ -1105,7 +1123,8 @@ const state = {
   // Eğitim Yöneticisi panelinde seçili öğretmen karnesi (yalnızca UI durumu,
   // kalıcı DEĞİL — sayfa yenilenince listeye geri döner).
   adminSelectedTeacher: null,
-  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false },
+  // §42: fallbackSorunu — yedek TANIMLI ama kullanılamaz durumunun metni.
+  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false, fallbackSorunu: "" },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
@@ -1145,6 +1164,10 @@ const state = {
   rubrics: {},
   rubricSelectedQ: null,
   students: [],       // sınıf listesi
+  /* §42: sınıf listesi bir kez kuruldu mu? false = hiç tohumlanmadı (ilk
+     açılış), true = kuruldu; kullanıcı boşaltsa bile bir daha tohumlanmaz.
+     Bkz. ensureStudents() başındaki not. */
+  sinifKuruldu: false,
   activeStudentId: null,
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
@@ -3739,20 +3762,47 @@ function siniflar() {
   return Object.keys(set).sort();
 }
 
+/* ===========================================================================
+   🔴 §42 — "ÖRNEK LİSTEYİ TEMİZLE" SAYFA YENİLENİNCE GERİ ALINIYORDU
+   ===========================================================================
+   ESKİ AKIŞ: `ensureStudents()` açılışta, `loadState()`'ten SONRA çalışır ve
+   `if (!state.students.length)` görünce dört varsayılan öğrenciyi ekler.
+   Ama "Örnek listeyi temizle" (ve son öğrenciyi tek tek silmek) tam olarak
+   `state.students = []` yazıp kaydediyor. Sonuç: öğretmen listeyi temizler,
+   sayfayı yeniler ve DÖRT SAHTE İSİM GERİ GELİR. Kullanıcının bilinçli
+   kararı sessizce geri alınıyordu.
+
+   Kök neden: kod iki farklı durumu ayırt etmiyordu —
+     (a) liste HİÇ KURULMADI (ilk açılış)      -> örnekleri koy
+     (b) kullanıcı listeyi BOŞALTTI            -> boş bırak
+   İkisi de "length === 0" görünüyordu.
+
+   ÇÖZÜM: `sinifKuruldu` kalıcı bayrağı (KALICI_ALANLAR'a eklendi). Bir kez
+   kurulduktan sonra bu fonksiyon bir daha tohum ekmez. "Verileri sıfırla"
+   localStorage'ı tamamen sildiği için bayrak da gider ve ilk açılış
+   davranışı aynen geri gelir.
+
+   YAN ETKİ KORUMASI: liste artık gerçekten boş kalabildiği için
+   `state.students[0].id` okuması ARTIK ERİŞİLEBİLİR bir çökme yoluydu
+   (TypeError). Boş listede aktif öğrenci null bırakılır; `activeStudent()`,
+   `syncActiveExam()`, `veliCocugu()` ve `studentPickerHtml()` bu durumu
+   zaten karşılıyor (tek tek kontrol edildi). */
 function ensureStudents() {
   state.students = state.students || [];
   state.students.forEach(function (s) {
     if (s.id >= studentIdSeq) studentIdSeq = s.id + 1;
     if (!s.sinif) s.sinif = "7-A";
   });
-  if (!state.students.length) {
+  if (!state.students.length && !state.sinifKuruldu) {
     VARSAYILAN_OGRENCILER.forEach(function (o) {
       state.students.push({ id: studentIdSeq++, name: o.name, sinif: o.sinif, demo: false });
     });
   }
+  // Bir kez kurulduysa bir daha tohumlanmaz — boşaltma kalıcıdır.
+  state.sinifKuruldu = true;
   if (state.activeStudentId == null ||
       !state.students.some(function (s) { return s.id === state.activeStudentId; })) {
-    state.activeStudentId = state.students[0].id;
+    state.activeStudentId = state.students.length ? state.students[0].id : null;
   }
 }
 
@@ -3955,8 +4005,13 @@ function unpublishExam(id) {
       ". Yanıtları SİLİNMEZ, sınav yeniden yayınlandığında yerinde durur.";
   }
   if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
-  if (id === state.activeExamId) state.exam.status = "draft"; else kayit.status = "draft";
+  /* §42: burada `if (aktif) state.exam.status=...; else kayit.status=...;`
+     vardı ve HEMEN ARDINDAN koşulsuz `kayit.status = "draft"` geliyordu —
+     yani `else` dalı hiçbir şey eklemiyordu. Aktif sınavda İKİ yerin de
+     güncellenmesi gerekiyor (canlı `state.exam` + kayıt), diğerinde yalnızca
+     kayıt. Niyet artık koşulsuz ve açık yazılıyor. */
   kayit.status = "draft";
+  if (id === state.activeExamId) state.exam.status = "draft";
   renderAll();
   syncOtomatik();
   return true;
@@ -4053,9 +4108,16 @@ function sinifYonetimHtml() {
   });
   return '<div class="card sinif-yonetim"><div class="card-head"><h3>Sınıfım</h3>' +
     '<span class="hint">' + ogrenciler.length + ' öğrenci</span></div>' +
+    /* §42 — EKRAN KENDİNİ YALANLIYORDU. Bu cümle "(takım üyelerinin adları)"
+       diyordu; §41 Madde 9 tam da jüri ekranında geliştirici adı görünmesin
+       diye o adları nötr örnek adlarla DEĞİŞTİRDİ (Ada Yılmaz, Kerem Aydın…)
+       ama bu satır güncellenmedi. Canlıda ölçüldü: liste nötr adları
+       gösterirken uyarı hâlâ takım adlarından söz ediyordu.
+       Bu, projenin beş kez düzelttiği "yanlış beyan" sınıfının aynısıdır
+       (§17a-3, §21d, §25b, §37, §7e). */
     (varsayilanListeMi()
-      ? '<div class="sy-ornek-uyari">Bu örnek bir liste (takım üyelerinin adları). Kendi ' +
-        'sınıfınızı eklerken tek tıkla temizleyebilirsiniz. ' +
+      ? '<div class="sy-ornek-uyari">Bu, ürünle birlikte gelen <b>örnek bir listedir</b>; ' +
+        'gerçek öğrencileriniz değildir. Kendi sınıfınızı eklerken tek tıkla temizleyebilirsiniz. ' +
         '<button class="btn btn-secondary btn-sm" id="btnOrnekTemizle">Örnek listeyi temizle</button></div>'
       : "") +
     (ogrenciler.length
@@ -4211,11 +4273,14 @@ async function aiSuggestRubric(qid) {
   }
   state.ai.busy = true; busySince = Date.now(); state.rubricError = ""; renderAll();
   try {
+    // §42: ders/sınıf içerik uzmanı formundan DEĞİL, sorunun kazanımından
+    // türetilir (bkz. soruDersSinif).
+    const bag = soruDersSinif(q);
     const j = await apiPost(AI_API.rubric, {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
-      subject: state.ceForm.subject,
-      grade: String(state.ceForm.grade),
+      subject: bag.subject,
+      grade: bag.grade,
       maxScore: state.rubrics[qid].maxScore,
     });
     state.rubrics[qid].criteria = (j.criteria || []).map(function (c) {
@@ -4229,6 +4294,29 @@ async function aiSuggestRubric(qid) {
     state.ai.busy = false;
     renderAll();
   }
+}
+
+/* ===========================================================================
+   §42 — İSTEME GİDEN DERS/SINIF SORUNUN KENDİSİNDEN TÜRETİLİR
+   ===========================================================================
+   `aiSuggestRubric()` ve `simulateClass()` model istemine ders ve sınıfı
+   `state.ceForm.subject` / `state.ceForm.grade`'ten gönderiyordu. Ama `ceForm`
+   İÇERİK UZMANI FORMUNUN o anki hâlidir — sorunun ait olduğu ders/sınıf
+   DEĞİL. Öğretmen soruyu Fen 7'de üretip forma sonradan Matematik 8 yazarsa,
+   rubrik istemi "Ders: Matematik · Sınıf düzeyi: 8" diyerek YANLIŞ BAĞLAM
+   taşır; model de o bağlama göre ölçüt üretir.
+
+   Bu, §14a'da düzeltilen "ders/kazanım/sınıf birbirinden bağımsızdı"
+   hatasının istem tarafındaki artığıdır. Doğru kaynak sorunun KAZANIMIDIR:
+   kazanım kaydı zaten `subject`/`grade` taşıyor (bkz. VARSAYILAN_KAZANIMLAR,
+   kazanimSecildi); taşımıyorsa kod önekinden çıkarılır (kodDanDers/kodDanSinif);
+   o da olmazsa eski davranışa, yani forma düşülür — geriye dönük uyum. */
+function soruDersSinif(q) {
+  const kod = (q && q.outcome) || "";
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === kod; })[0];
+  const ders = (o && o.subject) || kodDanDers(kod) || state.ceForm.subject || "";
+  const sinif = (o && o.grade) || kodDanSinif(kod) || state.ceForm.grade || "";
+  return { subject: String(ders), grade: String(sinif) };
 }
 
 function ensureRubric(qid) {
@@ -4888,7 +4976,8 @@ async function simulateClass(adet) {
         const j = await apiPost(AI_API.sampleAnswers, {
           questionBody: q.body,
           outcomeLabel: outcomeLabel(q.outcome),
-          grade: String(state.ceForm.grade),
+          // §42: sınıf düzeyi sorunun kazanımından gelir (bkz. soruDersSinif).
+          grade: soruDersSinif(q).grade,
           levels: seviyeler
         });
         yanitlar[q.id] = j.answers || [];
@@ -5301,15 +5390,71 @@ function injectionWarnHtml(ev) {
     'vermeniz önerilir. Bu tek başına kopya kanıtı değildir.</div>';
 }
 
+/* §42 — SINIF VERİSİ KUTUSU AYRI FONKSİYONA ALINDI.
+   Eskiden `teacherTab3Html` gövdesinin içindeydi ve o gövdeye ancak kapıdan
+   geçilebiliyordu. Kapı kapalıyken (kimse göndermemişken) "5 öğrencilik sınıf
+   simüle et" düğmesi de görünmüyordu — yani kilidi açacak tek araç kilidin
+   ARKASINDA kalıyordu. Artık boş durumda da çizilebiliyor. */
+function sinifVerisiKutusuHtml(gonderenSayisi) {
+  return '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<h3>Sınıf Verisi</h3><span class="hint">' + gonderenSayisi + ' öğrenci sınavı gönderdi</span></div>' +
+    '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">' +
+    'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf ' +
+    'oluşturabilirsiniz: yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
+    '<b>değerlendirme gerçek modelle ve sizin tanımladığınız rubrikle</b> yapılır. ' +
+    'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
+    (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
+    '<div class="cache-row">Değerlendirme önbelleği: <b>' + evalCacheCount() + '</b> kayıt' +
+    (evalCacheCount() ? ' <button class="btn btn-secondary btn-sm" id="btnClearCache">Temizle</button>' : "") +
+    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; ücretsiz model kotasını korur.</span></div>' +
+    '<div id="simProgress" class="sim-progress">' +
+    (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
+    '</div></div>';
+}
+
 function teacherTab3Html() {
   if (state.exam.status !== "published") return '<div class="empty-state">Sınav henüz yayınlanmadı.</div>';
-  if (state.examStatus === "not_started" || state.examStatus === "in_progress")
-    return '<div class="empty-state">Öğrenci sınavı henüz bitirmedi. Değerlendirme kuyruğu, "Sınavı Bitir" dendiğinde dolacak.</div>';
 
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const mcs = items.filter(function (q) { return q.type === "mc"; });
   const opens = items.filter(function (q) { return q.type === "open"; });
   const gonderenler = submittedStudents();
+
+  /* ===========================================================================
+     🔴 §42 — DEĞERLENDİRME KUYRUĞU ARTIK SINIFA BAKIYOR, AKTİF ÖĞRENCİYE DEĞİL
+     ===========================================================================
+     ESKİ KAPI:
+       if (state.examStatus === "not_started" || state.examStatus === "in_progress")
+         return "Öğrenci sınavı henüz bitirmedi...";
+     `state.examStatus` YALNIZCA AKTİF ÖĞRENCİNİN oturum durumudur (bkz. §3.2:
+     aktif öğrencinin oturumu state kökünde canlı durur). Sınıfın geri kalanı
+     `kayit.sessions` içindedir ve bu kapı onlara hiç bakmıyordu.
+
+     ÖLÇÜLDÜ (5 Eylül, canlı — mihenk.bies.workers.dev, Demo Akışı ile):
+     sınav yayında, `demoSinifOturumlari()` üç öğrenciyi `graded` yazmış,
+     aktif öğrenci (Ada Yılmaz) sınava hiç girmemiş. Aynı anda:
+       · Öğretmen · 3. sekme  -> "Öğrenci sınavı henüz bitirmedi."
+       · Öğretmen · 4. sekme  -> "Sınıf analitikleri ... oluşacak."
+       · Eğitim Yöneticisi    -> "%75 · 3/4 tamamlandı", ısı haritası 7-A %90,
+                                 7-B %48, "Dikkat gereken 1 hücre"
+     Yani YÖNETİCİ, o sonuçları üreten ÖĞRETMENİN göremediği veriyi görüyordu.
+     Gerçek kullanımda etkisi daha ağır: sınıf koduyla 30 öğrenci kağıdını
+     gönderse bile, öğretmenin cihazında seçili "aktif öğrenci" bitirmediyse
+     kuyruk boş görünür ve hiçbir kağıt değerlendirilemez.
+
+     DOĞRU ÖLÇÜT ZATEN VARDI: `submittedStudents()` — bu fonksiyonun geri
+     kalanı (kuyruk, ÇSS listesi, özet, yayın kutusu) baştan beri onu
+     kullanıyordu; yalnızca KAPI yanlış değişkene bakıyordu.
+
+     Boş durumda `sinifVerisiKutusuHtml()` DE çizilir: aksi hâlde kilidi
+     açacak "sınıf simüle et" düğmesi kilidin arkasında kalırdı. */
+  if (!gonderenler.length) {
+    return '<div class="card"><div class="empty-state">' +
+      'Bu sınavda henüz kağıdını gönderen öğrenci yok. Değerlendirme kuyruğu, ' +
+      'bir öğrenci “Sınavı Bitir” dediğinde dolacak.' +
+      '</div></div>' + sinifVerisiKutusuHtml(0);
+  }
 
   // Tüm sınıfın açık uçlu yanıtları tek kuyrukta: öğretmen öğrenci öğrenci
   // gezinmek zorunda kalmasın.
@@ -5391,21 +5536,8 @@ function teacherTab3Html() {
         done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
 
-  const simKutusu = '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
-    '<h3>Sınıf Verisi</h3><span class="hint">' + gonderenler.length + ' öğrenci sınavı gönderdi</span></div>' +
-    '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">' +
-    'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf ' +
-    'oluşturabilirsiniz: yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
-    '<b>değerlendirme gerçek modelle ve sizin tanımladığınız rubrikle</b> yapılır. ' +
-    'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
-    '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
-    (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
-    '<div class="cache-row">Değerlendirme önbelleği: <b>' + evalCacheCount() + '</b> kayıt' +
-    (evalCacheCount() ? ' <button class="btn btn-secondary btn-sm" id="btnClearCache">Temizle</button>' : "") +
-    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; ücretsiz model kotasını korur.</span></div>' +
-    '<div id="simProgress" class="sim-progress">' +
-    (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
-    '</div></div>';
+  // §42: gövde tek yerde (bkz. sinifVerisiKutusuHtml) — boş durumda da çizilir.
+  const simKutusu = sinifVerisiKutusuHtml(gonderenler.length);
 
   return ozet + simKutusu + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
 }
@@ -6261,8 +6393,30 @@ function wireMisconceptions() {
   });
 }
 
+/* §42 — SINIF DÜZEYİNDE SINAV DURUMU.
+   `examStatusLabel()` `state.examStatus`'u, yani YALNIZCA AKTİF ÖĞRENCİNİN
+   durumunu okur. Analitik kutusu bir SINIF görünümüdür; orada "Başlamadı"
+   yazarken aynı ekranda "3/4 öğrenci tamamladı" yazması ekranın kendini
+   yalanlamasıdır. Bu etiket sınıfın tamamından türetilir.
+   `examStatusLabel()` KALDIRILMADI — öğrenci panelinde hâlâ doğru araç. */
+function sinifSinavDurumEtiketi() {
+  const durumlar = (state.students || []).map(function (o) {
+    return readSession(o.id).examStatus || "not_started";
+  });
+  if (durumlar.some(function (d) { return d === "in_progress"; })) return "Sürüyor";
+  const gonderen = durumlar.filter(function (d) { return d === "submitted" || d === "graded"; });
+  if (!gonderen.length) return "Başlamadı";
+  return gonderen.every(function (d) { return d === "graded"; }) ? "Sonuçlandı" : "Değerlendiriliyor";
+}
+
 function teacherTab4Html() {
-  if (state.exam.status !== "published" || state.examStatus === "not_started") return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
+  /* §42 — bkz. teacherTab3Html içindeki ayrıntılı not: kapı `state.examStatus`
+     (aktif öğrenci) yerine `submittedStudents()` (sınıf) ölçütüne geçti.
+     Ölçüldü: 3 öğrenci `graded` iken bu ekran boştu, Eğitim Yöneticisi ise
+     aynı veriden ısı haritası çiziyordu. */
+  if (state.exam.status !== "published" || !submittedStudents().length) {
+    return '<div class="empty-state">Sınıf analitikleri, sınav yayınlanıp öğrenciler tamamladıkça burada oluşacak.</div>';
+  }
   const scores = computeDemoClassScores();
   const vals = Object.keys(scores).map(function (k) { return scores[k]; });
   const avg = vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0;
@@ -6275,7 +6429,8 @@ function teacherTab4Html() {
   const subeEtiketi = subeler.length ? subeler.join(" · ") : "sınıf";
   return '<div class="grid-3col" style="margin-bottom:18px;">' +
     '<div class="stat-tile"><div class="s-label">Sınıf Ortalaması</div><div class="s-value tabular">%' + avg + '</div><div class="s-sub">tüm kazanımlar</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + examStatusLabel() + '</div></div>' +
+    // §42: sınıf görünümünde SINIFIN durumu yazar (bkz. sinifSinavDurumEtiketi).
+    '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + sinifSinavDurumEtiketi() + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">' + bitiren + '/' + tumOgr + '</div><div class="s-sub">tamamladı</div></div></div>' +
     '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
@@ -6411,7 +6566,9 @@ function renderTeacher() {
   if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
   if (state.teacherTab === 3) { content.innerHTML = teacherWhoamiHtml() + teacherTab3Html(); wireTeacherWhoami(); wireTeacherTab3(); }
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && state.examStatus !== "not_started") renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+  // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
+  // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && submittedStudents().length) renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -6636,9 +6793,11 @@ function studentTab2Html() {
           examActionBtn(x) + '</div>';
       }).join("") + '</div>';
   }
-  if (state.examStatus === "submitted") return '<div class="card"><div class="empty-state">Yanıtlarınız gönderildi. Öğretmen onayını bekliyor — karne, onaylandığında 3. Sekme\'de görünecek.</div></div>';
-  if (state.examStatus === "graded") return '<div class="card"><div class="empty-state">Bu sınav sonuçlandı. Karneyi 3. Sekme\'den görebilirsiniz.</div></div>';
-
+  /* §42: burada iki satırlık ÖLÜ KOD vardı — `examStatus === "submitted"` ve
+     `=== "graded"` dalları. Yukarıdaki ilk `if` bu iki durumu ZATEN kapsıyor
+     ve her hâlükârda dönüyor, dolayısıyla bu satırlara hiç ulaşılmıyordu.
+     Aynı mesajlar yukarıdaki `bosDurumHtml()` çağrısında zaten üretiliyor.
+     Ölü kod, sonraki okuyucuya "bu dal çalışıyor" diye yalan söyler. */
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const q = items[state.currentQIndex];
   const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
@@ -7678,7 +7837,12 @@ function closeModal() { document.getElementById("modalOverlay").classList.remove
 /* ============================== Üst çubuk & sayfa iskeleti ============================== */
 function renderRoleNav() {
   const pendingReview = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
-  const pendingApproval = Object.keys(state.aiEvals).filter(function (qid) { return !state.reviews[qid]; }).length;
+  /* §42: üst çubuktaki öğretmen rozeti de yalnızca AKTİF ÖĞRENCİNİN
+     `state.aiEvals`/`state.reviews`'ini sayıyordu — sınıfın geri kalanı
+     rozete hiç yansımıyordu. `pendingReviewCount()` aynı soruyu sınıf
+     düzeyinde ve öğretmen sekmesindeki rozetle AYNI formülle yanıtlar;
+     iki rozet artık ayrışamaz. */
+  const pendingApproval = pendingReviewCount();
   // Çözülmeyi bekleyen TÜM yayındaki sınavlar sayılır (yalnızca aktif olan değil).
   const examReady = (state.exams || []).filter(function (x) {
     const aktif = x.id === state.activeExamId;
@@ -9173,7 +9337,37 @@ setInterval(function () {
     /* §34 — öğretmen adı hızlı seçim listesi. */
     "ogretmenSecenekleri", "wireTeacherWhoami",
     /* §41 — geçersiz cevap anahtarı uyarısı ve öğrenci yanıt sayacı. */
-    "anahtarUyarisiHtml", "yanitSayacMetni"
+    "anahtarUyarisiHtml", "yanitSayacMetni",
+    /* =======================================================================
+       §42 — LİSTE %100 KAPSAMA ÇIKARILDI
+       =======================================================================
+       ÖLÇÜLDÜ: dosyada 330 üst düzey fonksiyon vardı, listede 262 — yani
+       68'i (%21) ağın DIŞINDAYDI. Aralarında `escapeHtml` de vardı: ürünün
+       TEK XSS savunması. Bir birleştirme onu düşürseydi öz-kontrol hiçbir
+       uyarı vermez, ürün çalışma anında dağılırdı.
+
+       Ayrıca devir belgesindeki kural TERS yazılmıştı: "listeye eklemezsen
+       kırmızı şerit çıkar" deniyordu. Şerit `typeof window[f] !== "function"`
+       ile tetiklenir — yani YALNIZCA listede olup tanımı olmayan ad için.
+       Listeye eklemezsen HİÇBİR uyarı çıkmaz; koruma sessizce eksik kalır.
+       Bu yüzden kapsama artık `tools/ozkontrol-dogrula.mjs` tarafından
+       ÇİFT YÖNLÜ denetleniyor ve CI'da kırılıyor. */
+    "OUTCOMES_LIST", "SUBJECTS_LIST", "escapeHtml", "truncate", "bloomPill", "diffLabel",
+    "formatTime", "examStatusLabel", "pseudoRandom", "extractKeywords",
+    "simulateQuestions", "simulateAIEvaluation", "probeAiMode", "apiPost", "resetState", "tickBusy",
+    "findQuestion", "outcomeLabel", "addOutcome", "removeOutcome", "addSubject",
+    "loadPdfLib", "extractPdf", "pdfRangeText", "applyPdfRange", "pdfPickerHtml",
+    "onGenerateQuestions", "alignKey", "ceTabsHtml", "bosOturum", "examSessions", "sessionOf",
+    "syncActiveExam", "ensureExamList", "examStatusPill", "canPublishExam", "totalWeight",
+    "ensureRubric", "mcPuani", "examTrayHtml", "filteredPool", "simProgress", "kriterPuani",
+    "allOpensReviewed", "computeDemoClassScores", "gradedExamHistory", "trendOku",
+    "teacherHeatmapRows", "flashAutosave", "examCardState", "examActionBtn",
+    "mcAnswerHtml", "openAnswerHtml", "relLuminance", "bestTextColor", "scaleStep",
+    "buildAdminHeatmapRows", "integrityReset", "integrityNote", "integrityTotal",
+    "updateIntegrityBadge", "requestExamFullscreen", "exitExamFullscreen",
+    "finishExamModalHtml", "katalogFiltreDurumu", "openModal", "closeModal", "initPanels",
+    /* §42 — bu turda eklenen yeni üst düzey fonksiyonlar. */
+    "sinifVerisiKutusuHtml", "sinifSinavDurumEtiketi", "soruDersSinif"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

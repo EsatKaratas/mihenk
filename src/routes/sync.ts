@@ -57,6 +57,51 @@ type Bindings = { DB?: D1Database };
 export const SYNC_PULL_PER_MIN = 60;
 export const SYNC_WRITE_PER_MIN = 30;
 
+/**
+ * §42 — SİLME UCU AYRI VE DAHA DAR BİR SINIRA ALINDI.
+ *
+ * `/reset` diğer yazma uçlarıyla aynı sınırı (30/dk) paylaşıyordu. Ama bu iki
+ * uç aynı sınıfta değildir: `/push` yanlış çağrılırsa veri ÜZERİNE yazılır,
+ * `/reset` çağrılırsa veri YOK OLUR ve geri alınamaz. Kimlik doğrulama
+ * olmadığı için (bu dosyanın başındaki nota bakın) oda kodunu ele geçiren
+ * biri için `/reset` en yıkıcı uçtur.
+ *
+ * 5/dk, meşru kullanımı hiç etkilemez — silme bir kez yapılan, `confirm()`
+ * arkasındaki bir işlemdir (bkz. public/app.js syncSil) — ama otomatik bir
+ * silme taramasını yavaşlatır. Kimlik doğrulamanın YERİNE GEÇMEZ; onu
+ * ucuzlatılmış bir saldırı yolundan çıkarır.
+ */
+export const SYNC_RESET_PER_MIN = 5;
+
+/**
+ * §42 — `rate_limits` SATIRLARI HİÇ SİLİNMİYORDU.
+ *
+ * Sayaç D1'e taşınırken (§28g Madde 6) tabloya her IP+bucket çifti için bir
+ * satır yazıldı ama hiçbir temizlik yolu eklenmedi: pencere kapansa da satır
+ * kalıyor. Bir dönem boyunca tablo, bir daha asla okunmayacak satırlarla
+ * büyür — `agents.md` §4'ün kaynak disiplinine aykırı.
+ *
+ * Temizlik her istekte YAPILMAZ (gereksiz yazma maliyeti): isolate başına en
+ * fazla `TEMIZLIK_ARALIGI`'nda bir. Sayaç mantığını etkilemez, yalnızca
+ * penceresi çoktan kapanmış satırları düşürür.
+ */
+const TEMIZLIK_ARALIGI = 600_000;   // 10 dakika
+const ESKI_SATIR_YASI = 3_600_000;  // 1 saat
+let sonTemizlik = 0;
+
+async function eskiSayaclariTemizle(db: D1Database, simdi: number): Promise<void> {
+  if (simdi - sonTemizlik < TEMIZLIK_ARALIGI) return;
+  sonTemizlik = simdi;
+  try {
+    await db.prepare(`DELETE FROM rate_limits WHERE ?1 - window_start > ?2`)
+      .bind(simdi, ESKI_SATIR_YASI)
+      .run();
+  } catch (e: any) {
+    // Temizlik bir bakım işidir; başarısız olursa istek AKIŞINI BOZMAZ.
+    console.error(JSON.stringify({ ev: 'rate_limit_cleanup_failed', message: e?.message }));
+  }
+}
+
 /** İstemci kimliği: Cloudflare'in eklediği gerçek IP başlığı. */
 function istemciAnahtari(c: any, ek: string): string {
   const ip =
@@ -74,6 +119,7 @@ function istemciAnahtari(c: any, ek: string): string {
 async function hizSinirli(db: D1Database, c: any, ek: string, limit: number): Promise<boolean> {
   const anahtar = istemciAnahtari(c, ek);
   const simdi = Date.now();
+  await eskiSayaclariTemizle(db, simdi);
   try {
     const sonuc = await db
       .prepare(
@@ -245,7 +291,8 @@ sync.post('/pull', zValidator('json', syncPullSchema, onInvalid), async (c) => {
 // ---------------------------------------------------------------------------
 sync.post('/reset', zValidator('json', syncResetSchema, onInvalid), async (c) => {
   if (!c.env.DB) return dbYok(c);
-  if (await hizSinirli(c.env.DB, c, 'reset', SYNC_WRITE_PER_MIN)) return cokFazla(c);
+  // §42: silme, yazmadan DAHA DAR bir sınıra tabidir — bkz. SYNC_RESET_PER_MIN.
+  if (await hizSinirli(c.env.DB, c, 'reset', SYNC_RESET_PER_MIN)) return cokFazla(c);
   const { room } = c.req.valid('json');
   const db = c.env.DB;
 

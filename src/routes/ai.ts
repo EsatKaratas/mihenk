@@ -17,7 +17,10 @@ import {
   buildMisconceptionPrompt,
   buildAlignmentPrompt,
 } from '../lib/prompts';
-import { callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv, type AiEnv } from '../lib/ai';
+import {
+  callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
+  fallbackSorunu, saglayiciHazirMi, type AiEnv,
+} from '../lib/ai';
 import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
@@ -83,10 +86,18 @@ ai.get('/status', (c) => {
   return c.json({
     provider: providerName(c.env),
     model: modelName(c.env),
-    ready: providerName(c.env) === 'workers-ai' ? !!c.env.AI : !!c.env.AI_API_KEY,
+    // §42: ham `!!c.env.AI_API_KEY` yerine `saglayiciHazirMi()` — BOM'lu ya da
+    // yalnızca boşluktan oluşan bir anahtar artık "hazır" görünmüyor
+    // (bkz. src/lib/ai.ts temizAnahtar notu: bu tuzağa bir kez düşüldü).
+    ready: saglayiciHazirMi(c.env),
     fallback: fallbackConfigured(c.env)
       ? { provider: providerName(yedek!), model: modelName(yedek!) }
       : null,
+    /* §42: yedek TANIMLI ama KULLANILAMAZ durumu artık sessiz kalmıyor.
+       Boş dönerse söylenecek bir şey yok; dolu dönerse arayüz bunu
+       yapılandırma uyarısı olarak gösterir (bkz. public/app.js
+       aiAyrintiHtml). §6.3-5 sessiz düşüş yasağı. */
+    fallbackSorunu: fallbackSorunu(c.env),
   });
 });
 
@@ -509,8 +520,14 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
 ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
 
-  // agents.md §7.4: hız sınırı. Anahtar soru gövdesinden türetilir.
-  if (rateLimited(`mis:${b.questionBody.slice(0, 60)}`)) {
+  /* agents.md §7.4: hız sınırı. Anahtar soru gövdesinden türetilir.
+     §42: diğer dört uç `anahtarla()` kullanırken burası ham gövdenin ilk 60
+     karakterini anahtar yapıyordu. İki sonucu vardı: (1) aynı kalıpla
+     başlayan iki FARKLI soru ("Aşağıdakilerden hangisi ...") aynı sayaca
+     düşüp birbirini engelleyebiliyordu, (2) sayaç anahtarı sınırsız uzunlukta
+     ham kullanıcı metni taşıyordu. `anahtarla()` ikisini de çözer ve uçlar
+     arasındaki tutarsızlığı kaldırır. */
+  if (rateLimited(`mis:${anahtarla(b.questionBody)}`)) {
     return c.json(
       { error: 'rate_limited', message: 'Aynı soru için dakikada en fazla 5 analiz isteği gönderebilirsiniz. Biraz bekleyip tekrar deneyin.' },
       429

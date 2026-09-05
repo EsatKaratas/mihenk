@@ -66,8 +66,15 @@
   // ---------------------------------------------------------------------
   // Queues — ağır AI işlerini (soru üretimi, açık uçlu değerlendirme)
   // istek-yanıt döngüsünden ayırmak için. `npm run queue:create` ile oluşturun.
-  // Ücretsiz/deneme planında Queues kullanılamıyorsa bu bloğu kaldırıp
-  // /internal/ai/* rotalarını doğrudan (senkron) çağırabilirsiniz.
+  //
+  // 🔴 §42 UYARI — `npm run deploy` (ÜRETİM) BU BLOK YÜZÜNDEN BAŞARISIZ OLUR.
+  // Queues ÜCRETSİZ PLANDA KULLANILAMAZ; bu depo da ücretsiz planda çalışıyor
+  // (bkz. wrangler.demo.jsonc: "R2 ve Queues hâlâ BAĞLI DEĞİL"). Yani bu dosya
+  // ÜRETİM HEDEF MİMARİSİNİ tarif eder, deploy edilebilir bir yapılandırma
+  // DEĞİLDİR. Canlı sistem `wrangler.demo.jsonc` ile yayınlanır
+  // (`npm run deploy:demo`) ve `/api/health` orada "env":"demo" döner.
+  // Bu dosyayla deploy etmek gerekirse önce ya plan yükseltilmeli ya da
+  // aşağıdaki "queues" bloğu (ve kullanılmıyorsa "r2_buckets") kaldırılmalı.
   // ---------------------------------------------------------------------
   "queues": {
     "producers": [

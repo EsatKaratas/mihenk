@@ -5663,3 +5663,172 @@ temizlendi.
 `npm test` **200/200** (185 → 200, 15 yeni test) · lint temiz ·
 öz-kontrol **262 ad, eksik 0** · `check:config` geçti · `node --check` 4/4 ·
 5 rol masaüstü ve mobil **taşma 0** · çift id 0 · konsol hatası **0**.
+
+---
+
+## 42. DIŞ İNCELEME — 8 GERÇEK KUSUR, ÖNCE ÖLÇÜLDÜ SONRA KAPATILDI (5 Eylül 2026)
+
+Bağımsız bir kod incelemesi yapıldı: `public/app.js`'in 9233 satırının tamamı,
+`src/` altındaki 8 dosya, `routes.ts`, `schema.sql`, iki wrangler konfigi,
+`_headers`, araçlar ve testler okundu; bulguların her biri **canlı sistemde ya
+da yerel sunucuda ölçülerek** doğrulandı. Tahminle hiçbir madde açılmadı.
+
+### 42.1 🔴 Öğretmen, kendi ürettiği sınıf verisini göremiyordu
+
+**Kök neden.** `teacherTab3Html()` ve `teacherTab4Html()` kapılarında
+`state.examStatus` okunuyordu. Bu alan **yalnızca AKTİF ÖĞRENCİNİN** oturum
+durumudur (§3.2: aktif öğrencinin oturumu state kökünde canlı durur; sınıfın
+geri kalanı `kayit.sessions` içindedir). Kapı sınıfa hiç bakmıyordu.
+
+**Ölçüm (canlı — mihenk.bies.workers.dev, Demo Akışı ile).** Sınav yayında,
+`demoSinifOturumlari()` üç öğrenciyi `graded` yazmış, aktif öğrenci sınava hiç
+girmemiş. Aynı anda:
+
+| Ekran | Gördüğü |
+|---|---|
+| Öğretmen · 3. sekme | "Öğrenci sınavı henüz bitirmedi." |
+| Öğretmen · 4. sekme | "Sınıf analitikleri … oluşacak." |
+| **Eğitim Yöneticisi** | **%75 · 3/4 tamamlandı**, ısı haritası 7-A %90 · 7-B %48 |
+
+Yani **yönetici, o sonuçları üreten öğretmenin göremediği veriyi görüyordu.**
+Gerçek kullanımda etkisi daha ağır: sınıf koduyla 30 öğrenci kağıdını gönderse
+bile, öğretmenin cihazında seçili "aktif öğrenci" bitirmediyse kuyruk boş
+görünür ve hiçbir kağıt değerlendirilemez.
+
+**Düzeltme.** Kapı `submittedStudents()`'a geçti — doğru ölçüt zaten vardı ve
+fonksiyonun geri kalanı baştan beri onu kullanıyordu; yalnızca kapı yanlış
+değişkene bakıyordu. Ek olarak:
+
+- `sinifVerisiKutusuHtml()` ayrı fonksiyona alındı ve **boş durumda da**
+  çizilir. Eskiden "5 öğrencilik sınıf simüle et" düğmesi kapının arkasındaydı;
+  yani kilidi açacak tek araç kilidin içinde kalıyordu.
+- `sinifSinavDurumEtiketi()` eklendi: analitik kutusundaki "Sınav Durumu" artık
+  `examStatusLabel()` (aktif öğrenci) yerine sınıfın tamamından türetilir. Aksi
+  hâlde aynı ekranda "Başlamadı" ve "3/4 tamamladı" yan yana yazıyordu.
+- `renderHeatmap` kapısı da aynı koşula bağlandı — ayrışırsa kart çizilir ama
+  içi boş kalırdı.
+- Üst çubuktaki öğretmen rozeti (`renderRoleNav` → `pendingApproval`) de
+  yalnızca aktif öğrenciyi sayıyordu; `pendingReviewCount()`'a geçti. İki rozet
+  artık aynı formülü kullanıyor, ayrışamaz.
+
+**Doğrulama (yerel, gerçek tarayıcı).** Aynı senaryo yeniden kuruldu
+(`aktifOgrenciDurumu: "not_started"` localStorage'dan teyit edildi). 3. sekme:
+"Sonuçlar yayınlandı · ÇSS 2/3 · onay bekleyen 0 · 3 öğrenci karnesini
+görebiliyor". 4. sekme: "%62 ortalama · Sonuçlandı · 3/4 tamamladı" ve ısı
+haritası **7-A %90 · 7-B %48** — yönetici paneliyle birebir aynı.
+
+### 42.2 🔴 Yedek model canlıda yapılandırılmamıştı ve bunu kimse söylemiyordu
+
+**Ölçüm.** `curl https://mihenk.bies.workers.dev/api/ai/status` →
+`"fallback": null`. Oysa `wrangler.demo.jsonc` `AI_FALLBACK_PROVIDER:"openai"`
+ve `AI_FALLBACK_MODEL:"gpt-5.6-luna"` **tanımlıyor** ve yorumunda "demo günü
+için ŞİDDETLE ÖNERİLİR" yazıyor. Sebep: `AI_FALLBACK_API_KEY` secret'ı deploy
+edilmiş Worker'da yok.
+
+**Asıl kusur teşhiste.** Kod iki durumu ayırt etmiyordu: (a) yedek hiç
+tanımlanmamış — bilinçli tercih, (b) yedek tanımlı ama anahtarsız —
+yapılandırma hatası. İkisi de `fallback:null` dönüyor ve arayüzde
+"yapılandırılmamış" yazıyordu. Kota jüri günü dolsaydı bu ancak ilk hatayla
+anlaşılacaktı; §6.3-5 (sessiz düşüş yasağı) tam olarak bunu yasaklıyor.
+
+**Düzeltme.** `fallbackSorunu(env)` eklendi; `/api/ai/status` bu alanı döndürür
+ve arayüzdeki model ayrıntı paneli "⚠ Yedek model kurulmamış" satırıyla kurulum
+komutunu da yazar. Ölçüldü (yerel): uç artık uyarı metnini döndürüyor.
+
+**AÇIK KALAN — İNSAN İŞİ:** kod artık uyarıyor ama yedek hâlâ KURULU DEĞİL.
+Kurmak için: `npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc`
+
+### 42.3 🟠 Ekran kendini yalanlıyordu: "takım üyelerinin adları"
+
+Sınıfım kartındaki uyarı "Bu örnek bir liste (takım üyelerinin adları)" diyordu.
+Oysa §41.6 tam da jüri ekranında geliştirici adı görünmesin diye o adları nötr
+örnek adlarla DEĞİŞTİRMİŞTİ. Kod değişti, cümle kalmıştı — canlıda ekran
+görüntüsüyle doğrulandı. Bu, projenin altıncı "yanlış beyan" düzeltmesidir
+(§17a-3, §21d, §25b, §37, §7e ile aynı sınıf). Metin düzeltildi.
+
+### 42.4 🟠 "Örnek listeyi temizle" sayfa yenilenince geri alınıyordu
+
+`ensureStudents()` açılışta `loadState()`'ten sonra çalışır ve
+`if (!state.students.length)` görünce dört varsayılanı ekler. Ama "Örnek listeyi
+temizle" (ve son öğrenciyi tek tek silmek) tam olarak `students = []` yazıp
+kaydediyor. Sonuç: öğretmen listeyi temizler, yeniler, **dört sahte isim geri
+gelir**. Kod iki durumu ayırt etmiyordu: "hiç kurulmadı" ve "kullanıcı boşalttı"
+— ikisi de `length === 0`.
+
+**Düzeltme.** `sinifKuruldu` kalıcı bayrağı (KALICI_ALANLAR'a eklendi). Bir kez
+kurulduktan sonra tohum eklenmez; "Verileri sıfırla" bayrağı da sildiği için ilk
+açılış davranışı aynen korunur. Liste artık gerçekten boş kalabildiği için
+`state.students[0].id` okuması erişilebilir bir TypeError yoluydu — boş listede
+aktif öğrenci `null` bırakılıyor (bağlı beş tüketici tek tek kontrol edildi).
+Doğrulandı: `sinifKuruldu` localStorage'a `true` olarak yazılıyor.
+
+### 42.5 🟠 Öz-kontrol ağı %79 kapsıyordu; `escapeHtml` dışarıdaydı
+
+**Ölçüm.** 330 üst düzey fonksiyonun **68'i** (%21) `selfCheck` listesinde
+değildi. Aralarında `escapeHtml` — ürünün TEK XSS savunması — ayrıca `apiPost`,
+`openModal`/`closeModal`, `syncActiveExam`, `ensureRubric`, `canPublishExam`,
+`mcPuani` vardı. Bir birleştirme `escapeHtml`'i düşürseydi hiçbir uyarı çıkmaz,
+ürün çalışma anında dağılırdı.
+
+**Ayrıca devir belgesindeki kural TERSTİ.** "Listeye eklemezsen kırmızı şerit
+çıkar" deniyordu. Şerit `typeof window[f] !== "function"` ile tetiklenir — yani
+YALNIZCA listede olup tanımı olmayan ad için. Listeye eklemezsen hiçbir uyarı
+çıkmaz; koruma sessizce eksik kalır.
+
+**Düzeltme.** Liste 333 ada çıkarıldı (kapsama %100) ve
+`tools/ozkontrol-dogrula.mjs` **çift yönlü** hâle getirildi: artık "tanımlı ama
+listede yok" durumunda da CI kırılıyor ve kapsama yüzdesi basılıyor.
+
+### 42.6 🟡 En kritik istemin enjeksiyon savunması test edilmiyordu
+
+`prompts.ts`'teki beş istem kurucusundan yalnızca `buildQuestionPrompt` test
+ediliyordu. Test edilmeyen dördü arasında **`buildEvaluationPrompt`** vardı —
+öğrenci yanıtını saran, ürünün en doğrudan saldırı yüzeyi. Savunma koddaydı ama
+ağı yoktu: bir yeniden yazım sınır belirtecini sabit `"""` dizesine geri
+döndürseydi hiçbir test kırılmazdı.
+
+`test/prompts-guvenlik.test.ts` eklendi (19 test): tahmin edilemez belirteç,
+belirtecin her çağrıda değişmesi, `"""`'e dönmeme, gömülü belirtecin
+nötrleştirilmesi (üreteç `vi.spyOn` ile belirlenimci yapılarak), güvenlik bloğu,
+HITL ifadeleri, kriter tavanı hesabı ve diğer dört kurucunun sertleştirmesi.
+
+### 42.7 🟡 Küçük kusurlar
+
+| # | Yer | Düzeltme |
+|---|---|---|
+| 1 | `studentTab2Html` | İki satır **ölü kod** — üstteki `if` `submitted`/`graded`'i zaten kapsıyor ve dönüyordu. Kaldırıldı. |
+| 2 | `aiSuggestRubric`, `simulateClass` | İsteme ders/sınıf `state.ceForm`'dan gidiyordu (içerik uzmanı formunun O ANKİ hâli), sorunun kendi kazanımından değil. `soruDersSinif()` eklendi: kazanım kaydı → kod öneki → form sırasıyla düşer. |
+| 3 | `/api/ai/status` | `!!c.env.AI_API_KEY` ham okunuyordu; BOM'lu/boşluklu anahtar "hazır" görünüyordu. `saglayiciHazirMi()` (temizAnahtar üzerinden) kullanılıyor — bu tuzağa `ai.ts` içinde bir kez düşülmüştü. |
+| 4 | `guards.ts` `hits` Map | Anahtar kullanıcı girdisinden türediği için harita sınırsız büyüyordu. `budaHizSayaci()` + `HIZ_SAYACI_TAVANI` (500) eklendi; sınır davranışı değişmedi. |
+| 5 | `sync.ts` `rate_limits` | Satırlar hiç silinmiyordu. İsolate başına 10 dakikada bir, 1 saatten eski satırlar temizleniyor. Başarısız olursa istek akışı bozulmaz. |
+| 6 | `/api/sync/reset` | Yazma sınırını (30/dk) paylaşıyordu. `SYNC_RESET_PER_MIN = 5` ile ayrıldı: `/push` üzerine yazar, `/reset` YOK EDER ve geri alınamaz. Kimlik doğrulamanın yerine geçmez, ucuz silme taramasını yavaşlatır. |
+| 7 | `misconceptions` hız sınırı | Anahtar ham gövdenin ilk 60 karakteriydi; aynı kalıpla başlayan farklı sorular birbirini engelleyebiliyordu. Diğer dört uçtaki gibi `anahtarla()` kullanılıyor. |
+| 8 | `unpublishExam` | `if/else`'in ardından koşulsuz `kayit.status="draft"` vardı; `else` dalı ölüydü. Niyet açık yazıldı. |
+| 9 | `wrangler.jsonc` | `npm run deploy` (üretim) Queues yüzünden ücretsiz planda **başarısız olur**. Dosyanın üretim hedef mimarisi olduğu, canlının `deploy:demo` ile yayınlandığı açıkça yazıldı. |
+
+### 42.8 Uygulama sırasında ölçüm araçları ÜÇ KEZ yanıldı (kod değil)
+
+Bu projenin en pahalı hata sınıfı yine tekrarladı; üçü de kayda geçiyor:
+
+1. **Test yardımcısı yanıldı.** `buildEvaluationPrompt` testi "nötrleştirme
+   çalışmıyor" diye kırıldı. Kod doğruydu: güvenlik paragrafı, modele hangi
+   etiketler arasına bakacağını söylemek için belirteci **metin olarak da**
+   anıyor, yani istemde iki kez geçiyor. `split(...)[1]` güvenlik cümlesinin
+   ortasını veriyordu. `blokIci()` yardımcısı `lastIndexOf` ile yazıldı.
+2. **Yerel sunucu bayat kod sunuyordu.** `wrangler dev` 403.684 baytlık bir
+   `app.js` veriyordu, diskte 514.767 vardı; `§42` işaretleri yoktu.
+3. **Kök neden (2)'nin altında:** `~/.claude/launch.json` içindeki
+   **"t3-olcme-demo"** girdisi `C:\Users\pc\t3-olcme-degerlendirme` — yani
+   **eski bir depo kopyası** (main, `81c7a03`) — başlatıyordu ve o kopyanın
+   3 Eylül'den kalma dev sunucusu 8787'yi tutuyordu. Doğru girdi
+   **"mihenk-final"** (port 8788). Eski süreç durduruldu; ölçümler yeniden
+   yapıldı. **Ders: yerel doğrulamadan önce servis edilen dosyanın diskteki
+   dosyayla aynı olduğunu kanıtlayın.**
+
+### 42.9 Doğrulama
+
+`npm test` **235/235** (200 → 235, 35 yeni test) · lint temiz · öz-kontrol
+**333 ad, eksik 0, kapsama %100** · `check:config` geçti · `node --check` 4/4 ·
+konsol hatası **0** · canlı `/api/health` `{"ok":true}` · öğretmen 3. ve 4.
+sekmeleri sınıf verisini gösteriyor ve yönetici paneliyle **aynı sayıları**
+veriyor.

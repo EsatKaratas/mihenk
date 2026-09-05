@@ -31,12 +31,47 @@ export const RATE_LIMIT_EVAL_PER_MIN = 45;
  * Sayaç dışarıdan verilir ki test edilebilir olsun ve isolate ömrüne
  * bağımlılık gizli kalmasın.
  */
+/**
+ * §42 — SAYAÇ HARİTASI SINIRSIZ BÜYÜYORDU.
+ *
+ * `rateLimited` her yeni anahtar için bir girdi yazıyor ama HİÇBİRİNİ
+ * silmiyordu. Anahtar kullanıcı girdisinden türetiliyor (docKey, soru
+ * gövdesinin hash'i, IP), yani kümesi sınırsızdır: uzun ömürlü bir isolate'te
+ * harita, penceresi çoktan kapanmış on binlerce ölü girdiyle büyür.
+ * Bir sızıntı, ölçülebilir bir çökme değil — ama sınırsız büyüyen bellek
+ * `agents.md` §4'ün kaynak disiplinine aykırıdır.
+ *
+ * Penceresi dolmuş (son 60 saniyede hiç isteği olmayan) anahtarları siler ve
+ * kaç tanesini attığını döner. Map'ten iterasyon sırasında silmek JS'te
+ * tanımlıdır ve güvenlidir.
+ */
+export function budaHizSayaci(hits: Map<string, number[]>, now: number = Date.now()): number {
+  let atilan = 0;
+  hits.forEach((zamanlar, anahtar) => {
+    if (!zamanlar.some((t) => now - t < 60_000)) {
+      hits.delete(anahtar);
+      atilan++;
+    }
+  });
+  return atilan;
+}
+
+/**
+ * Budamanın tetikleneceği anahtar sayısı. Her çağrıda taramak gereksiz;
+ * harita bu boyutu aşınca bir kez süpürülür. Değer, gerçek bir sınıfın
+ * (30-40 öğrenci × birkaç uç) çok üstünde ama belleği bağlayacak kadar
+ * yüksek değil.
+ */
+export const HIZ_SAYACI_TAVANI = 500;
+
 export function rateLimited(
   hits: Map<string, number[]>,
   key: string,
   limit: number = RATE_LIMIT_PER_MIN,
   now: number = Date.now()
 ): boolean {
+  // §42: harita şişmişse önce ölü anahtarları at (yukarıdaki nota bakın).
+  if (hits.size > HIZ_SAYACI_TAVANI) budaHizSayaci(hits, now);
   const win = (hits.get(key) || []).filter((t) => now - t < 60_000);
   if (win.length >= limit) {
     hits.set(key, win);
