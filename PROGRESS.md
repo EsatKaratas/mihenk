@@ -5960,3 +5960,125 @@ yapmak — yalnızca arayüzü gizlemek — kaldırılmak istenen asıl şeyi, y
 - Canlıya **henüz yayınlanmadı**; `deploy:demo` izne tabidir (DEVIR §9).
 - D1'deki eski oda verileri (varsa) tablolarla birlikte düşmez; uzak D1'de
   duruyor olabilir. Silinmesi `--remote` gerektirir ve izne tabidir.
+
+---
+
+## 44. §43 SONRASI SİSTEM ANALİZİ — 2 GERÇEK KUSUR + 3 KÜÇÜK (5 Eylül 2026)
+
+**İstek (kullanıcı):** *"sistemi analiz et hataları bul"* → ardından *"sen sorunları
+çöz benden onay beklemene gerek yok"*.
+
+Analiz, deponun KENDİ tuzak listesinden (DEVIR §8) başlatıldı; sonra sunucu
+uçları ve puanlama zinciri okundu. Bulguların tamamı **ölçülerek** doğrulandı
+ya da doğrulanamadığı açıkça yazıldı.
+
+### 44.0 Temiz çıkanlar — bunlar da ölçüldü
+
+| Tuzak / değişmez | Ölçüm |
+|---|---|
+| #1 Yinelenen `id` (beş panel aynı anda DOM'da) | 73 id, yinelenen **0** |
+| #3 `oninput` içinden `renderAll()` | 12 işleyicinin hiçbirinde yok |
+| #8 `state.exam` alan tutarlılığı | 13 alan; `activateExam` ve `createExam` literalleri **tam eşleşiyor** |
+| HITL değişmezi (agents.md §1) | `status="approved"` yalnızca 2 yerde: demo tohumu + **insan tıklaması** (denetim izi kaydıyla). Otomatik onay, güven eşiği, toplu onay **yok** |
+| §42.1 düzeltmesi (§43 rename sonrası) | `submittedStudents()`=3 · Öğretmen 3./4. sekme boş mesaj vermiyor · Yönetici **%75 (3/4)** — üçü aynı veriyi gösteriyor |
+| AI başarısızlık yolu | Öğretmen elle puan girebiliyor, hata metni ekranda |
+
+### 44.1 🟠 Boş kriter etiketiyle sınav YAYINLANABİLİYORDU, hata PUANLAMA ANINDA çıkıyordu
+
+**Kök neden.** `canPublishExam()` ve `pendingRubricCount()` aynı koşulu **ayrı
+ayrı** yazıyordu ve ikisi de yalnızca kriter SAYISINI ve ağırlık toplamının 100
+olmasını denetliyordu; **etiketin boş olmadığını denetlemiyordu.** Yeni kriter
+`rub.criteria.push({ label: "", ... })` ile boş adla eklenir.
+
+**Ölçüm A (tarayıcı, düzeltme öncesi).** İki kriter, ağırlıklar 60+40=100,
+ikincisinin etiketi boş:
+
+```
+{ toplamAgirlik: 100, bosEtiketVar: true, yayinlanabilirMi: true }
+```
+
+**Ölçüm B (sunucu ucu).** Aynı rubrikle `/api/ai/evaluate`:
+
+```
+{"error":"validation_failed",
+ "message":"criteria.1.label: String must contain at least 1 character(s)"}
+```
+
+Karşılaştırma isteği (etiket dolu) → **200**.
+
+**Yani koruma vardı ama YANLIŞ YERDEYDİ.** Öğretmen sınavı yayınlar, öğrenciler
+çözer, kağıtlar gelir — ve hata ancak PUANLAMA anında, "İstek gövdesi geçersiz"
+gibi anlaşılmaz bir cümleyle ortaya çıkardı. Sunum ortasında en pahalı an.
+
+**Düzeltme.** Ölçüt tek yere alındı: `rubrikGecerliMi(rub)` — kriter var mı,
+ağırlık toplamı 100 mü, **her etiket dolu mu**. `canPublishExam()` ve
+`pendingRubricCount()` artık bu tek kaynaktan okur; bir daha ayrışamazlar
+(ayrışan ikiz koşul bu depoda §42.1'de bir kez üründe hataya dönüştü).
+
+Ayrıca `yayinEngeliMetni()` eklendi: "disabled" bir düğme sebebini söylemez.
+Şerit artık genel bir cümle yerine gerçek sebebi yazıyor.
+
+**Ölçüm C (düzeltme sonrası, tarayıcı — beş durum):**
+
+| Durum | yayınlanabilir | ekrandaki mesaj |
+|---|---|---|
+| Etiket boş | **false** | "1 rubrikte kriter adı boş (boş adlı kriterle puanlama sunucuda reddedilir)" |
+| Etiket yalnızca boşluk | **false** | aynı |
+| Ağırlık %90 | **false** | "1 rubrikte ağırlık toplamı %100 değil" |
+| Rubrik yok | **false** | "1 açık uçlu sorunun rubriği yok" |
+| Geçerli rubrik | **true** | (boş) |
+
+`btnPublishExam.disabled === true` ve şerit metni ekrandan okundu.
+
+### 44.2 🟡 Şıkkı eksik üretilen sorular SESSİZCE düşüyordu
+
+`src/routes/ai.ts`: model 3'ten az şıklı bir ÇSS döndürürse soru `return null`
+ile eleniyor ve `.filter(Boolean)` onu atıyordu. §41'de tekrar elemesi ve soru
+sayısı kısıtlaması için özenle kurulan "sebebini söyle" kuralı **bu yola
+uygulanmamıştı**: `meta` yalnızca `kisiltmaNotu` ve `elenenTekrar` taşıyor,
+arayüz de yalnızca o ikisini yazıyordu.
+
+**Sonucu:** kullanıcı 5 soru ister, 3 alır, **hiçbir açıklama görmez** — tam da
+§6.3-5'in yasakladığı sessiz düşüş.
+
+**Düzeltme.** `elenenGecersiz` sayacı eklendi, `meta` ile dönüyor, arayüz
+yazıyor. Hiç soru kalmadığı durumda dönen 502 mesajı da bu sebebi ayırt ediyor.
+Cümle suçu doğru yere koyuyor: bu kullanıcının hatası değil, modelin kusuru.
+
+**Ölçüm (yerel, gerçek model çağrısı).** Uç artık alanı döndürüyor:
+
+```
+soru: 2 | meta: {"istenen":3,"uretilen":2,"elenenTekrar":0,"elenenGecersiz":0,
+"kisiltmaNotu":"Kaynak metin 467 karakter. ... 1 soru düşürüldü."}
+```
+
+**DÜRÜSTLÜK NOTU:** `elenenGecersiz > 0` yolu uçtan uca gözlenemedi — koşulu
+model üretmediği sürece tetiklenemiyor ve model kasten bozulamıyor. Alanın
+uçtan döndüğü ve arayüz kodunun `elenenTekrar` ile **birebir aynı** kalıpta
+olduğu doğrulandı; sayacın artışı yalnızca kod okunarak teyit edildi.
+
+### 44.3 🔵 Üç küçük düzeltme
+
+| # | Yer | Neydi | Ne yapıldı |
+|---|---|---|---|
+| 1 | `deleteQuestion()` | `state.rubrics[qid]` siliniyor ama `state.rubricSelectedQ` silinen soruyu göstermeye devam ediyordu | Seçim de temizleniyor. **Ölçüldü: bu sarkan seçim bugün çökmeye yol açmıyordu** (rubrik ekranı boş rubriği çizmiyor, `renderAll()` hatasız) — sebep kaynağında kesildi |
+| 2 | `rubMax` / `.crit-label` / `.crit-weight` işleyicileri | `state.rubrics[state.rubricSelectedQ]`'yu null kontrolsüz okuyorlardı; `.crit-desc` aynı yerde kontrol YAPIYORDU | Dördü de aynı ölçüte getirildi. Tutarsız koruma, sonraki değişiklikte gerçek bir TypeError'a dönüşür |
+| 3 | `/api/ai/evaluate` boş yanıt erken dönüşü | `injectionAttempt` alanı yoktu, istemci `undefined` görüyordu | `false` olarak açıkça dönüyor (ölçüldü) |
+
+Ayrıca `package.json`'daki `db:seed:local` **var olmayan** `./seed.sql`'i
+gösteriyordu; gerçek dosya `seed/turkishmmlu/01_learning_outcomes.sql`. §43
+öncesinden beri kırıktı, düzeltildi.
+
+### 44.4 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **199/199** |
+| `node tools/ozkontrol-dogrula.mjs` | **317 ad · eksik 0 · kapsama %100** (3 yeni fonksiyon) |
+| `npm run check:config` | exit 0 |
+| `node --check public/app.js` | temiz |
+| §8.4 tuzağı | Servis edilen `app.js` diskle **SHA-256 eş** |
+| Tarayıcı | konsol hatası **0** · beş rol de çizildi · yinelenen id **0** |
+| `/api/ai/evaluate` boş yanıt | `injectionAttempt: false` |
+| Gerçek model çağrısı | 200, `meta.elenenGecersiz` alanı mevcut |

@@ -17,7 +17,7 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 | Canlı | `mihenk.bies.workers.dev` — ⚠️ §43 **henüz yayınlanmadı**; canlı hâlâ `342c230` |
 | Test | **199/199** (§43'te 36 senkron testi düştü) |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **314 ad · eksik 0 · kapsama %100** |
+| Öz-kontrol | **317 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
@@ -31,7 +31,7 @@ git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
 npm test                            # 199/199
-node tools/ozkontrol-dogrula.mjs    # 314 ad · kapsama %100
+node tools/ozkontrol-dogrula.mjs    # 317 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```
@@ -227,6 +227,19 @@ kazanım üzerinden yapılır. Hiçbir öğrenci verisi model eğitiminde kullan
 **Bedeli açıkça yazılsın:** ürün artık **tek cihazda** yaşar. "Öğrenci kendi
 telefonundan girer" iddiası geçerli değildir; çok cihazlı çalışma Better Auth
 ile gelecektir (§6.5). Ayrıntı `PROGRESS.md` §43'te.
+
+### 5.0b §44 — Analiz: 2 gerçek kusur + 3 küçük (5 Eylül)
+
+| Kusur | Durum |
+|---|---|
+| 🟠 Boş kriter etiketiyle sınav yayınlanabiliyordu, hata PUANLAMA anında çıkıyordu | Kapatıldı — ölçüt `rubrikGecerliMi()` ile tek yere alındı; şerit artık sebebi yazıyor |
+| 🟡 Şıkkı eksik üretilen sorular sessizce düşüyordu | Kapatıldı — `meta.elenenGecersiz` ile bildiriliyor |
+| 🔵 `deleteQuestion()` sarkan `rubricSelectedQ` bırakıyordu | Kapatıldı (çökme üretmiyordu, ölçüldü) |
+| 🔵 3 rubrik işleyicisinde tutarsız null koruması | Dördü de aynı ölçütte |
+| 🔵 Boş yanıtta `injectionAttempt` alanı yoktu | `false` dönüyor |
+
+Ayrıntı `PROGRESS.md` §44'te. **Temiz çıkanlar da ölçüldü:** yinelenen id 0,
+`oninput`→`renderAll()` yok, `state.exam` alanları tutarlı, HITL zinciri sağlam.
 
 ### 5.1 §42 — Dış inceleme
 

@@ -353,6 +353,12 @@ async function aiGenerateQuestions(doc) {
         notlar.push(j.meta.elenenTekrar + " soru, daha önce üretilenlere ya da birbirine çok " +
           "benzediği için elendi. Farklı bir kazanım seçerek çeşitliliği artırabilirsiniz.");
       }
+      /* §44: şıkkı eksik dönen sorular da sessizce düşmez. Bu, kullanıcının
+         yapabileceği bir hata değildir — modelin kusurudur; cümle de öyle der. */
+      if (j.meta.elenenGecersiz) {
+        notlar.push(j.meta.elenenGecersiz + " soru, model yeterli sayıda şık üretmediği için " +
+          "kullanılamadı ve elendi. Tekrar üretmeyi deneyebilirsiniz.");
+      }
       state.ceForm.uretimNotu = notlar.join(" ");
     }
     return (j.questions || []).map(function (q) {
@@ -3645,6 +3651,12 @@ function deleteQuestion(qid) {
   state.questions = state.questions.filter(function (x) { return String(x.id) !== String(qid); });
   delete state.rubrics[qid];
   if (state.editingQid === qid) state.editingQid = null;
+  /* §44: seçim de bırakılmalı. Rubrik silindiği hâlde `rubricSelectedQ` silinen
+     soruyu göstermeye devam ediyordu; rubrik ekranı bugün boş rubriği çizmediği
+     için görünür bir çökme yoktu (ölçüldü), ama işleyicilerin `rub`'ı null
+     kontrolsüz okuduğu satırlar bu sarkan seçime bakıyordu. Sebebi kaynağında
+     kesiyoruz. */
+  if (state.rubricSelectedQ === qid) state.rubricSelectedQ = null;
   return "";
 }
 
@@ -4213,12 +4225,58 @@ function wireExamSwitcher() {
 }
 
 /* ============================== Öğretmen ============================== */
+/* §44 — RUBRİK GEÇERLİLİĞİNİN TEK YETKİLİ ÖLÇÜTÜ.
+
+   🔴 ÖLÇÜLMÜŞ HATA. Eskiden aynı koşul `canPublishExam()` ve
+   `pendingRubricCount()` içinde AYRI AYRI yazılıydı ve ikisi de ETİKETİN
+   BOŞ OLMADIĞINI kontrol etmiyordu. Yeni kriter `label: ""` ile eklenir
+   (bkz. aşağıdaki `rub.criteria.push`), yani öğretmen ağırlığı 100 yapıp
+   etiketi boş bırakabiliyordu.
+
+   Sonucu ölçüldü: sınav YAYINLANABİLİYORDU (canPublishExam → true), ama
+   sunucu şemasında `label: z.string().min(1)` olduğu için değerlendirme
+   isteği PUANLAMA ANINDA reddediliyordu:
+     {"error":"validation_failed",
+      "message":"criteria.1.label: String must contain at least 1 character(s)"}
+   Yani koruma vardı ama YANLIŞ YERDEYDİ: yazım anında değil, öğrenciler
+   sınavı çözdükten sonra. §6.3-5 (geç/anlaşılmaz düşüş yasağı).
+
+   Ölçüt artık TEK yerde. İki tüketicinin koşulu bir daha ayrışamaz —
+   bu depoda ayrışan ikiz koşul sınıfından hata yaşandı (§42.1). */
+function rubrikGecerliMi(rub) {
+  if (!rub || !rub.criteria || !rub.criteria.length) return false;
+  if (totalWeight(rub) !== 100) return false;
+  return rub.criteria.every(function (c) { return String((c && c.label) || "").trim().length > 0; });
+}
+
+/** Aktif sınavdaki açık uçlu sorular (rubrik gerektirenler). */
+function acikUcluSorular() {
+  return state.exam.questionIds
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type === "open"; });
+}
+
 function canPublishExam() {
   if (!state.exam.questionIds.length) return false;
-  const opens = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(function (q) { return q && q.type === "open"; });
-  return opens.every(function (q) { return state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100; });
+  return acikUcluSorular().every(function (q) { return rubrikGecerliMi(state.rubrics[q.id]); });
 }
 function totalWeight(rub) { return rub.criteria.reduce(function (s, c) { return s + (Number(c.weight) || 0); }, 0); }
+
+/** Yayını engelleyen sebebi İNSAN DİLİYLE söyler — "disabled" düğme sebebini söylemez. */
+function yayinEngeliMetni() {
+  const opens = acikUcluSorular();
+  const eksikRubrik = opens.filter(function (q) { const r = state.rubrics[q.id]; return !r || !r.criteria || !r.criteria.length; }).length;
+  const agirlikBozuk = opens.filter(function (q) { const r = state.rubrics[q.id]; return r && r.criteria && r.criteria.length && totalWeight(r) !== 100; }).length;
+  const bosEtiket = opens.filter(function (q) {
+    const r = state.rubrics[q.id];
+    return r && r.criteria && r.criteria.length && r.criteria.some(function (c) { return !String((c && c.label) || "").trim(); });
+  }).length;
+  const p = [];
+  if (eksikRubrik) p.push(eksikRubrik + " açık uçlu sorunun rubriği yok");
+  if (agirlikBozuk) p.push(agirlikBozuk + " rubrikte ağırlık toplamı %100 değil");
+  if (bosEtiket) p.push(bosEtiket + " rubrikte kriter adı boş (boş adlı kriterle puanlama sunucuda reddedilir)");
+  return p.length ? "Rubrik sekmesinden düzeltin: " + p.join("; ") + "." : "";
+}
 
 /* ===========================================================================
    MADDE 3 — öğretmen paneli sekme rozetleri (yalnızca ORGANİZASYON amaçlı)
@@ -4234,9 +4292,8 @@ function pendingRubricCount() {
   const opens = state.exam.questionIds
     .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
     .filter(function (q) { return q && q.type === "open"; });
-  return opens.filter(function (q) {
-    return !(state.rubrics[q.id] && state.rubrics[q.id].criteria.length > 0 && totalWeight(state.rubrics[q.id]) === 100);
-  }).length;
+  // §44: ölçüt `rubrikGecerliMi()` — canPublishExam ile AYNI kaynaktan.
+  return opens.filter(function (q) { return !rubrikGecerliMi(state.rubrics[q.id]); }).length;
 }
 
 /** Aktif sınavda, gönderilmiş açık uçlu yanıtlardan öğretmen onayı bekleyen sayısı. */
@@ -4738,7 +4795,10 @@ function teacherTab1Html() {
           'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
         : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
       '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
-      (!canPublishExam() && state.exam.questionIds.length ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.</div>' : "")
+      (!canPublishExam() && state.exam.questionIds.length
+        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' +
+          escapeHtml(yayinEngeliMetni() || "Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.") + '</div>'
+        : "")
     ) + "</div></div>" + rejectedPoolHtml("teacher");
 }
 
@@ -5185,7 +5245,11 @@ function wireTeacherTab2() {
 
   const maxEl = document.getElementById("rubMax");
   if (maxEl) maxEl.onchange = function () {
+    /* §44: `.crit-desc` işleyicisi bu kontrolü zaten yapıyordu, diğer üçü
+       yapmıyordu. Tutarsız koruma, sonraki değişiklikte gerçek bir TypeError'a
+       dönüşür; ölçüt her yerde aynı. */
     const rub = state.rubrics[state.rubricSelectedQ];
+    if (!rub) return;
     rub.maxScore = Math.max(1, Math.min(100, Number(maxEl.value) || 1));
     rub.userEdited = true;
     renderAll();
@@ -5193,7 +5257,8 @@ function wireTeacherTab2() {
 
   document.querySelectorAll(".crit-label").forEach(function (el) {
     el.oninput = function () {
-      const rub = state.rubrics[state.rubricSelectedQ];
+      const rub = state.rubrics[state.rubricSelectedQ];          // §44: null koruması
+      if (!rub || !rub.criteria[Number(el.dataset.idx)]) return;
       rub.criteria[Number(el.dataset.idx)].label = el.value;
       rub.userEdited = true;
       saveSoon();
@@ -5204,8 +5269,9 @@ function wireTeacherTab2() {
   // karşılığını, çubuğu ve durum satırını yerinde güncelleriz.
   document.querySelectorAll(".crit-weight").forEach(function (el) {
     el.oninput = function () {
-      const rub = state.rubrics[state.rubricSelectedQ];
+      const rub = state.rubrics[state.rubricSelectedQ];          // §44: null koruması
       const i = Number(el.dataset.idx);
+      if (!rub || !rub.criteria[i]) return;
       rub.criteria[i].weight = Math.max(0, Math.min(100, Number(el.value) || 0));
       rub.userEdited = true;
       const pEl = document.querySelector('.crit-points[data-idx="' + i + '"]');
@@ -8801,6 +8867,7 @@ function bosDurumHtml(mesaj) {
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
+    "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
     "activateExam", "createExam", "deleteExam", "unpublishExam", "sinavKatilim", "sinavZamanKilitli", "saveState", "loadState", "saveSoon", "kalanMetni", "yerelDamga",
     "ensureStudents", "activeStudent", "readSession", "writeSession", "submittedStudents",
     "activateStudent", "studentPickerHtml", "studentChip", "simulateClass", "examOutcomeScores",

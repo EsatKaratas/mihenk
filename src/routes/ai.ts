@@ -188,6 +188,9 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   // düşürülen sorular için boşuna token ayrılırdı.
   const maxTokens = clamp(600 + (mcSayi + openSayi) * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
 
+  // §44: kullanılamaz biçimde dönen (şıkkı eksik) soru sayısı — meta ile bildirilir.
+  let elenenGecersiz = 0;
+
   try {
     const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
     const parsed = modelQuestionsSchema.safeParse(data);
@@ -202,7 +205,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       .map((q) => {
         if (q.type === 'mc') {
           const opts = (q.options || []).slice(0, b.optionCount);
-          if (opts.length < 3) return null;
+          /* §44 — BU ELEME ARTIK SESSİZ DEĞİL.
+             Model 3'ten az şıklı bir ÇSS döndürürse soru kullanılamaz ve
+             burada düşer. §41 tekrar elemesi ve sayı kısıtlaması için özenle
+             kurulan "sebebini söyle" kuralı bu yola UYGULANMAMIŞTI: kullanıcı
+             5 soru isteyip 3 alıyor ve hiçbir açıklama görmüyordu (§6.3-5).
+             Sayaç aşağıda meta.elenenGecersiz olarak döner. */
+          if (opts.length < 3) { elenenGecersiz++; return null; }
           /* §32 (Burak Modül 4): şıklar burada hem A,B,C,... olarak
              normalleştirilir HEM DE rastgele karıştırılır. Eskiden yalnızca
              normalleştirme vardı; modelin kendi seçtiği KONUM korunuyordu ve
@@ -282,7 +291,9 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         error: 'model_output_empty',
         message: elenenTekrar
           ? 'Üretilen soruların tamamı daha önce üretilenlerle çok benzerdi. Kaynak metni değiştirin ya da farklı bir kazanım seçin.'
-          : 'Kullanılabilir soru üretilemedi.',
+          : elenenGecersiz
+            ? 'Model, şık sayısı yetersiz sorular döndürdüğü için kullanılabilir soru kalmadı. Tekrar deneyin.'
+            : 'Kullanılabilir soru üretilemedi.',
       }, 502);
     }
 
@@ -295,6 +306,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         istenen: istenenToplam,
         uretilen: kabul.length,
         elenenTekrar,
+        // §44: modelin kullanılamaz döndürdüğü (şıkkı eksik) soru sayısı.
+        elenenGecersiz,
         kisiltmaNotu,
       },
     });
@@ -338,6 +351,10 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
         points: 0,
         reason: 'Yanıt boş.',
       })),
+      /* §44: diğer tüm /evaluate yanıtlarında bu alan var; burada yoktu ve
+         istemci `undefined` görüyordu. Boş yanıtta enjeksiyon denemesi de
+         olamaz, o yüzden değeri açıkça false — "bilinmiyor" değil. */
+      injectionAttempt: false,
       meta: { provider: providerName(c.env), model: modelName(c.env), skipped: true },
     });
   }

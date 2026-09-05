@@ -32,7 +32,7 @@
     "cf-typegen": "wrangler types",
     "db:migrate:local": "wrangler d1 execute olcme-db --local --file=./schema.sql",
     "db:migrate:remote": "wrangler d1 execute olcme-db --remote --file=./schema.sql",
-    "db:seed:local": "wrangler d1 execute olcme-db --local --file=./seed.sql",
+    "db:seed:local": "wrangler d1 execute olcme-db --local --file=./seed/turkishmmlu/01_learning_outcomes.sql",
     "db:tables:local": "wrangler d1 execute olcme-db --local --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
     "queue:create": "wrangler queues create olcme-ai-tasks",
     "r2:create": "wrangler r2 bucket create t3-olcme-source-assets",
