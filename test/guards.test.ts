@@ -190,6 +190,26 @@ describe('yabanciAlfabeVarMi — model çıktısında Türkçe dışı alfabe', 
     expect(yabanciAlfabeVarMi(undefined as unknown as string)).toBe(false);
   });
 
+  /* §48 — CANLIDA GÖRÜLEN KUSUR. Liste Latin DIŞI alfabelerle sınırlıydı;
+     Latin harfli ama Türkçe olmayan karakterler sessizce geçiyordu. İlk test
+     canlı sistemde üretilmiş şıkkın kendisidir. */
+  it('Latin Extended Additional (Vietnamca) yakalanır — canlıda görüldü', () => {
+    expect(yabanciAlfabeVarMi('Şiirde phứcekli ve zor kelimeler kullanılmalıdır')).toBe(true);
+    expect(yabanciAlfabeVarMi('ứ')).toBe(true);
+    expect(yabanciAlfabeVarMi('Tiếng Việt')).toBe(true);
+  });
+
+  it('Türkçenin kendi harfleri yanlış pozitif üretmez', () => {
+    // ğ ı İ ş Ş Ğ, Latin Extended-A'dadır ve BİLEREK kapsam dışıdır.
+    expect(yabanciAlfabeVarMi('Işık ölçümü: ĞİŞğış')).toBe(false);
+    expect(yabanciAlfabeVarMi('Öğrenci şunu düşündü: ılık su')).toBe(false);
+  });
+
+  it('metinDilUyarisi da Vietnamca karakteri görür', () => {
+    expect(metinDilUyarisi('temiz cümle', 'Şiirde phứcekli sözcük')).toBe(true);
+    expect(metinDilUyarisi('temiz', 'yine temiz')).toBe(false);
+  });
+
   it('sayı ve noktalama uyarı vermez', () => {
     expect(yabanciAlfabeVarMi('1906 yılında — %50; (iki) "üç"')).toBe(false);
   });

@@ -6472,3 +6472,194 @@ kullanımdan veri toplandığında eşik ölçülerek konabilir.
 | `npm test` | **227/227** (212 → +15) |
 | `node tools/ozkontrol-dogrula.mjs` | 319 ad · kapsama %100 |
 | Kalıp açılış (gerçek model, 24 gerekçe) | **0** |
+
+---
+
+## 48. BECERİ TEMELLİ SORU + DERS/KAZANIM SEKMELERİ — dış yama, tabanı eski çıktı (6 Eylül 2026)
+
+**İstek (kullanıcı):** `MIHENK-TUM-DEGISIKLIKLER.md` adlı, iki değişikliği ve
+`git apply` ile uygulanabilir diff'lerini taşıyan bir belge verildi. *"Yapılan
+değişikleri çok iyi bir şekilde kontrol et. Artılarını eksilerini düşün. Eğer
+bir sıkıntı yoksa ve sana da mantıklı geliyorsa değişiklikleri gerçekleştir."*
+
+### 48.1 🔴 İLK BULGU: YAMANIN TABANI §43 ÖNCESİYDİ
+
+Belge "deponun değiştirilmemiş hâline uygulanır" diyordu. Uygulanmadı:
+
+```
+git apply --check mihenk.patch
+error: patch failed: src/lib/prompts.ts:195
+error: patch failed: src/routes/ai.ts:186
+```
+
+Dosya bazında: **4 uyar, 2 reddedilir.**
+
+Tabanın eskiliği üç bağımsız kanıtla saptandı:
+
+| Kanıt | Ne gösteriyor |
+|---|---|
+| `routes/ai.ts` bağlamında §44'ün eklediği `let elenenGecersiz = 0;` satırları YOK | taban §44 öncesi |
+| `prompts.ts` bağlamında 4. kural eski hâlinde ve JSON örneği `"bu şıkkı seçen öğrenci ... sanmaktadır"` | taban §47 öncesi — **üstelik bu örnek §47.2'de kusurun KÖK NEDENİ olarak saptanıp değiştirilmişti** |
+| Belgenin doğrulama tablosu "248 test / **7 dosya**" diyor | 7. dosya §43'te silinen `test/sync-schemas.test.ts`; taban **§43 öncesi** (235 test) |
+
+**Sonuç:** yama olduğu gibi uygulansaydı §47'nin ölçülmüş kök neden düzeltmesi
+sessizce geri alınırdı. Ayrıca belgedeki doğrulama sayılarının (248 test,
+340 ad) hiçbiri bu depoya taşınmaz; hepsi yeniden ölçüldü.
+
+**Yapılan:** 4 dosya `git apply` ile alındı; `prompts.ts` ve `routes/ai.ts`
+**elle işlendi** ve §46/§47 çalışması korundu. Korunduğu ölçüldü:
+
+```
+SAYISAL VE BİRİM DÖNÜŞÜMÜ KURALI (§46)          : 1
+ÇELDİRİCİ GEREKÇELERİ (§47) 4. kural            : 1
+JSON örneği "Sürtünmeyi hareketi başlatan..."   : 1
+```
+
+### 48.2 Değişiklik 1 — ders ve kazanım sekmeleri
+
+Ders `<select>`'i sekme şeridine döndü: `+` ekler, `×` kalıcı siler; kazanımda
+da aynı sistem. 7 yeni fonksiyon (`removeSubject`, `dersSec`, `dersFormuKaydet`,
+`dersSecicisiHtml`, `kazanimSecicisiHtml`, `wireSecimSekmeleri`, `yedekBaglam`),
+hepsi `selfCheck` listesinde.
+
+**Tarayıcıda ölçüldü (yerel 8788, servis edilen `app.js` diskle SHA-256 eş):**
+
+| Kontrol | Sonuç |
+|---|---|
+| Beş panel aynı anda DOM'da · yinelenen `id` | 67 id, **0 yinelenen** |
+| Konsol hatası | **0** |
+| Son ders silinemez | *"Son ders silinemez — panelde en az bir ders kalmalı."* |
+| Son kazanım silinemez | aynı biçimde engellendi |
+| Havuzda sorusu olan ders | *"“Müzik” silinemez: bu derse ait 1 soru havuzda duruyor."* |
+| Kullanılan kazanım | *"“MUZ.7.1.1” silinemez: 1 soru bu kazanımı kullanıyor."* |
+| Soru silinince ikisi de silinebiliyor | evet, seçim `Türkçe`ye tazelendi |
+| Kendi dersi + kendi kazanımı, sayfa yenilendikten sonra | ders, kazanım ve **seçim** korundu (`MUZ.7.1.1` aktif chip) |
+| `oninput` içinden `renderAll()` (TUZAK 3) | yeni işleyicilerde **yok** |
+
+**Karanlık tema — kusur YOK, ölçüm hatası vardı.** İlk ölçümde chip arka planı
+koyu temada beyaz kalıyor göründü (beyaz üstüne beyaz). Kural doğruydu
+(`background: var(--surface)`), değişken de doğru çözülüyordu (`#211a12`), ama
+`.chip-tab` üzerinde `transition: ... background .12s` tanımlı ve tarayıcı
+sekmesi **arka planda** olduğu için (`document.visibilityState === "hidden"`)
+geçiş hiç ilerlemiyor, `getComputedStyle` başlangıç değerini döndürüyordu.
+`transition:none` ile ölçülünce doğru değerler geldi: pasif `rgb(33,26,18)`,
+aktif `rgb(61,21,18)`. Ders: **geçişi olan bir özelliği gizli sekmede ölçme.**
+
+### 48.3 Değişiklik 2 — beceri temelli (yeni nesil) soru
+
+`buildQuestionPrompt`'a "SORU TARZI" bloğu eklendi: bağlam → veri → görev,
+klasik hatırlatma kalıpları yasak, çeldiriciler belirli bir akıl yürütme
+hatasından doğsun, gövde 40-110 kelime. Çözüm süresi aralıkları da güncellendi
+(ÇSS 30-120 → 45-150, açık uçlu 120-400 → 150-400).
+
+#### 🟡 ÖLÇÜLDÜ — A/B: kısmen işe yarıyor, hedefine ulaşmıyor
+
+Aynı uç, aynı üç kazanım (MAT.7.2.1 / FEN.7.1.2 / MAT.7.3.4), 3'er tur,
+kazanım modu (kaynak metin YOK — en zorlu koşul). Tek değişken `prompts.ts`;
+iki kol arasında dev sunucu **durdurulup yeniden başlatıldı** (bayat derleme
+ölçmemek için).
+
+| | eski istem | yeni istem |
+|---|---:|---:|
+| Dönen soru | 11 | 9 |
+| Ortalama gövde uzunluğu | 11,7 kelime | **24,7 kelime** |
+| Ortalama cümle sayısı | 1,5 | **2,9** |
+| Veri/sayı içeren soru | 6/11 (%55) | **9/9 (%100)** |
+| Yasaklanan klasik kalıp | 1 | **0** |
+| **Hedef olan 40+ kelime** | **0/11** | **0/9** |
+| Ortalama süre | 15 sn | **25,3 sn** |
+
+**Dürüst okuma:** değişiklik ölçülebilir ve istenen yönde — gövde iki katına
+çıkıyor, cümle sayısı iki katına çıkıyor, artık her soru veri taşıyor ve
+yasaklanan kalıp sıfırlandı. **Ama istemin kendi koyduğu 40-110 kelime
+hedefine hiçbir soru ulaşmadı.** "Sorular artık beceri temelli" diye iddia
+EDİLMİYOR; ölçülen şey yukarıdaki tablodur. §47'nin dersi burada da geçerli:
+istem bir rica, garanti değil.
+
+**Bedeli:** üretim süresi %69 arttı (15 → 25,3 sn). Jüri demosunda görünür bir
+farktır; arayüzdeki sayaç bunu zaten gösteriyor.
+
+#### Token bütçesi ve `lib/ai.ts`'te bulunan gerçek hata
+
+Gövde uzadığı için bütçe `600 + n*420` (tavan 3400) yerine `700 + n*700`
+(tavan 5600) yapıldı. Sayılar modelin token sayacıyla ölçülmedi; kod içindeki
+not bunu açıkça söylüyor. **Ölçülen davranıştır:** 6 üretim turunun hiçbirinde
+yanıt kesilmedi, hata dönmedi.
+
+`lib/ai.ts`'teki hata gerçekti: kesilme sonrası ikinci deneme bütçesi
+`Math.min(opts.maxTokens * 2, 4000)` ile hesaplanıyordu; ilk deneme 4000'i
+aştığı anda bu ifade bütçeyi **artırmıyor, düşürüyordu**. Eski tavan 3400
+olduğu için hiç tetiklenmiyordu; yeni tavanla görünür hâle gelirdi.
+`Math.max(opts.maxTokens, ...)` ile bütçe artık ilk denemenin altına inemiyor,
+tavan 8000.
+
+### 48.4 🔴 KENDİ BULDUĞUM İKİ KUSUR — ikisi de yeniden üretildi
+
+**(a) `YABANCI_ALFABE` Latin harfli yabancı karakterleri kaçırıyordu.**
+Canlı sistemde üretilen şık: *"Şiirde **phứcekli** ve zor kelimeler
+kullanılmalıdır"* — `ứ` = U+1EE9 (Vietnamca) ve `dilUyarisi` **false** döndü,
+yani §45.2'de tam bunun için eklenen uyarı İçerik Uzmanına hiç gösterilmedi.
+Depodaki gerçek fonksiyonla deterministik olarak yeniden üretildi:
+
+```
+true   | §45.2'deki CJK vakası (下的)
+false  | phứcekli            ← KAÇIYORDU
+true   | Kiril
+false  | temiz Türkçe
+```
+
+Kök neden: liste yalnızca Latin DIŞI blokları tarıyordu; Latin Extended
+Additional (U+1E00–1EFF) yoktu. Aralık eklendi. **Latin Extended-A/B bilerek
+eklenmedi:** Türkçenin `ğ ı İ ş Ş Ğ` harfleri orada yaşıyor (U+011E, U+011F,
+U+0130, U+0131, U+015E, U+015F) ve o bloğu toptan eklemek meşru Türkçeyi
+işaretlerdi. Eşik yok, kalibrasyon yok. 3 test eklendi; ilki canlıda görülen
+şıkkın kendisidir.
+
+**(b) `extractKeywords` Türkçe "İ" harfini yok ediyordu.** Yama, I/İ tuzağının
+BÜYÜTME yarısını düzeltmişti (`toLocaleUpperCase("tr")`) ama küçültme yarısını
+düzeltmemişti: `toLowerCase()` "İ" harfini "i" + U+0307 (birleşen nokta) diye
+iki karaktere böler, bir alt satırdaki karakter süzgeci o noktayı siler ve
+kelime parçalanır.
+
+```
+öncesi: "ilke ilişki ışık İzmir sürtünme" -> ["İlke","İlişki","Işık","Zmir","Sürtünme"]
+sonrası:                                  -> ["İlke","İlişki","Işık","İzmir","Sürtünme"]
+        "ISPARTA ilkbahar IŞIK ..."       -> ["Isparta","İlkbahar","Işık", ...]
+```
+
+`toLocaleLowerCase("tr")` yapıldı. Bu kelimeler yerel yedeğin şık metinlerinde
+doğrudan öğrencinin önüne çıkıyor.
+
+### 48.5 Canlı koşumda gözlenen iki şey — kusur değil, kanıt
+
+1. **Dil uyarısı çalıştı.** Üretilen açık uçlu sorunun gövdesinde `重要` (CJK)
+   çıktı ve `dilUyarisi: true` döndü — koruma İçerik Uzmanına gösterdi.
+2. **Yanlış cevap anahtarı yine görüldü.** *"Bir bisiklet 2 saatte 40 km yol
+   kat ediyorsa, 5 saatte kaç km yol kateder?"* — doğrusu 100 km (A), model
+   **120 km (B)** işaretledi. §46.2'deki sınıfın aynısı: olgusal hata, şema
+   yakalayamaz, `anahtarBelirsiz` de yakalamaz (anahtar şıklar arasında var).
+   Soru onay bekleyenlerde durdu, havuza girmedi. **Ürünün cevabı mimarîdir.**
+
+### 48.6 Doğrulama
+
+| Kontrol | Öncesi | Sonrası |
+|---|---|---|
+| `npm run lint` | temiz | **temiz** |
+| `npm test` | 227/227 | **243/243** (+13 istem testi, +3 dil testi) |
+| `node tools/ozkontrol-dogrula.mjs` | 319 ad · %100 | **326 ad · %100** |
+| `npm run check:config` | exit 0 | **exit 0** |
+| `node --check public/app.js` | temiz | **temiz** |
+| Servis edilen `app.js` ↔ disk | — | **SHA-256 eş** |
+| Konsol hatası (5 rol) | 0 | **0** |
+| Yinelenen `id` | 0 | **0** |
+| HITL değişmezi | `approved` 2 yerde | **değişmedi** (diff'te `approved` geçmiyor) |
+
+### 48.7 Açık kalan
+
+- **40-110 kelime hedefi tutturulamadı** (0/9). Gerçekten isteniyorsa yol istem
+  değil sunucu tarafıdır: gövde kelime sayısı ölçülüp kısa sorular elenebilir
+  ya da yeniden istenebilir. Eleme eşiği **ölçülerek** konmalıdır.
+- **Token bütçesi sayıları (700 / 5600) modelin sayacıyla doğrulanmadı;**
+  yalnızca "kesilme olmadı" davranışı ölçüldü. Soru sayısı artarsa Workers
+  Logs'taki `ai_call` kayıtlarından bakılmalı.
+- Süre 15 → 25,3 sn'ye çıktı; kabul edilebilir ama sunum öncesi bilinmeli.

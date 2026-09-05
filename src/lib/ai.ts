@@ -346,6 +346,13 @@ export async function callModelJson(
   }
 }
 
+/**
+ * Yanıt kesildiğinde ikinci denemede çıkılabilecek EN YÜKSEK token bütçesi.
+ * Beceri temelli soru gövdeleri uzadığı için 4000 yetersiz kaldı
+ * (bkz. src/routes/ai.ts token bütçesi notu).
+ */
+const KESILME_TOKEN_TAVANI = 8000;
+
 async function callOne(
   env: AiEnv,
   prompt: string,
@@ -363,7 +370,19 @@ async function callOne(
       : prompt + (kesilmis
           ? '\n\nONEMLI: Onceki yanitin YARIDA KESILDI. Daha KISA yaz: her gerekceyi tek cumleyle sinirla. Yalnizca gecerli JSON dondur.'
           : '\n\nONEMLI: Onceki yanitin gecerli JSON degildi. SADECE gecerli JSON dondur; hicbir aciklama, baslik veya kod blogu isareti ekleme.');
-    const buOpts = kesilmis ? { maxTokens: Math.min(opts.maxTokens * 2, 4000), temperature: opts.temperature } : opts;
+    /* 🔴 BU SATIR BÜTÇEYİ KÜÇÜLTEBİLİYORDU.
+       Eski hâli `Math.min(opts.maxTokens * 2, 4000)` idi. İlk denemenin
+       bütçesi 4000'i aştığı anda (beceri temelli sorularda 3 soru bile
+       ~2800, 6 soru ~4900 token istiyor) bu ifade bütçeyi ARTIRMIYOR,
+       DÜŞÜRÜYORDU — yani "yanıt kesildi, daha çok yer ver" denemesi yanıtı
+       daha da erken kesiyordu. Tavan yükseltildi ve ifade, bütçenin hiçbir
+       koşulda ilk denemenin altına inemeyeceği biçimde yazıldı. */
+    const buOpts = kesilmis
+      ? {
+          maxTokens: Math.max(opts.maxTokens, Math.min(opts.maxTokens * 2, KESILME_TOKEN_TAVANI)),
+          temperature: opts.temperature,
+        }
+      : opts;
     try {
       const raw = await callModel(env, p, buOpts);
       const data = extractJson(raw);

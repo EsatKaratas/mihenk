@@ -66,7 +66,13 @@ function examStatusLabel() {
 function pseudoRandom(seed) { const x = Math.sin(seed * 9301 + 49297) % 1; return Math.abs(x); }
 
 function extractKeywords(text, n) {
-  const words = (text || "").toLowerCase()
+  /* §48 — TUZAĞIN DİĞER YARISI. Aşağıdaki büyütme zaten "tr" yerelinde
+     yapılıyordu, ama KÜÇÜLTME yapılmıyordu: toLowerCase() "İ" harfini
+     "i" + U+0307 (birleşen nokta) olarak iki karaktere böler; bir alt
+     satırdaki karakter süzgeci o noktayı silince "İzmir" -> "zmir"
+     olur ve şık metninde "Zmir" görünür (ÖLÇÜLDÜ). toLocaleLowerCase("tr")
+     tek karakter üretir; "I" da doğru biçimde "ı" olur ve süzgeçten geçer. */
+  const words = (text || "").toLocaleLowerCase("tr")
     .replace(/[^a-zçğıöşü\s]/gi, " ")
     .split(/\s+/)
     .filter(function (w) { return w.length > 3 && !STOPWORDS.has(w); });
@@ -79,7 +85,13 @@ function extractKeywords(text, n) {
     if (uniq.indexOf(fallback[fi]) === -1) uniq.push(fallback[fi]);
     fi++;
   }
-  return uniq.slice(0, n).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); });
+  /* toUpperCase() Türkçe'de I/İ çiftinde yanılır: "ilke" -> "Ilke",
+     "ilişki" -> "Ilişki". Bu kelimeler yedek soruların şık metinlerinde
+     doğrudan öğrencinin önüne çıkıyor. toLocaleUpperCase("tr") doğru harfi
+     verir (aynı tuzak addSubject'te de kayıtlı). */
+  return uniq.slice(0, n).map(function (w) {
+    return w.charAt(0).toLocaleUpperCase("tr") + w.slice(1);
+  });
 }
 
 /* ====================== Yerel Yedek (Simülasyon) ======================
@@ -150,6 +162,31 @@ function kazanimAnahtarlari(doc) {
   return kw.length ? kw : ["kavram", "ilişki", "örnek", "uygulama"];
 }
 
+/* ==================== BECERİ TEMELLİ YEDEK ŞABLONLARI ====================
+   Ürün artık beceri temelli (yeni nesil) soru üretmeyi taahhüt ediyor
+   (bkz. src/lib/prompts.ts "SORU TARZI" bloğu). Yerel yedek bir TAKLİTTİR ve
+   arayüzde "Yerel simülasyon" rozetiyle işaretlenir; ama kalıbı klasik
+   kalsaydı ürün, model sunucusuna ulaşılamadığı anda söz verdiği soru
+   tipinden SESSİZCE başka bir şeye düşerdi.
+
+   ŞABLON SAYI VE OLGU UYDURMAZ. Gerçek bir fiyat ya da ölçüm uydurmak,
+   öğretmenin ekranına doğrulanmamış veri koymak demektir; bunu yapan taraf
+   modeldir ve onun çıktısı zaten onaydan geçer. Yedek yalnızca kavramın
+   KULLANILDIĞI bir durumu kurar ve karar/çıkarım sorar. */
+var YEDEK_BAGLAMLAR = [
+  "Bir okul kulübü hafta sonu düzenleyeceği etkinlik için iki seçenek arasında karar veriyor.",
+  "Bir ailede alışveriş listesi hazırlanırken iki farklı seçenek karşılaştırılıyor.",
+  "Bir öğrenci okula giderken denediği farklı yolları ve sürelerini not ediyor.",
+  "Bir mutfakta hazırlanan tarif daha kalabalık bir grup için yeniden ölçeklendiriliyor.",
+  "Bir mahallede geri dönüşüm kutularının yeri ve sayısı yeniden planlanıyor.",
+  "Bir takım, antrenman ölçümlerini haftalara göre bir tabloya işliyor."
+];
+
+/** Yedek soru için bağlam cümlesi; liste dolanarak her üretimde değişir. */
+function yedekBaglam(i) {
+  return YEDEK_BAGLAMLAR[((i % YEDEK_BAGLAMLAR.length) + YEDEK_BAGLAMLAR.length) % YEDEK_BAGLAMLAR.length];
+}
+
 function simulateQuestions(doc) {
   /* §31: kazanım modunda kaynak metin yoktur; anahtar kelimeler kazanımdan
      üretilir ve soru gövdeleri metne ATIF YAPMAZ (bkz. metneAtif). */
@@ -169,15 +206,23 @@ function simulateQuestions(doc) {
     const t = i * 3;
     qs.push({
       id: mk(), type: "mc", difficulty: zorluklar[i % 3], outcome: doc.outcome,
-      bloom: i % 2 === 0 ? "hatirlama" : "anlama",
-      body: (metneAtif ? 'Metne göre "' : 'Bu kazanım kapsamında "') + k(t) +
-        '" kavramıyla en doğrudan ilişkili seçenek hangisidir?',
+      /* Bloom düzeyi de yükseldi: eski şablon "hatirlama"/"anlama" üretiyordu,
+         yani ürünün analiz panelinde beceri temelli iddianın tam tersi bir
+         dağılım görünüyordu. */
+      bloom: i % 2 === 0 ? "uygulama" : "analiz",
+      body: yedekBaglam(i + state.genCount) + ' Bu durumda karar verilirken "' + k(t) +
+        '" kavramının nasıl kullanılacağı tartışılıyor. ' +
+        (metneAtif ? 'Kaynak metindeki bilgilere göre' : 'Kazanımın kapsamına göre') +
+        ' aşağıdakilerden hangisi bu durum için doğru bir çıkarımdır?',
       options: [
-        { key: "A", text: k(t + 1) }, { key: "B", text: k(t + 2) },
-        { key: "C", text: k(t + 3) },
-        { key: "D", text: metneAtif ? "Metinde bu konuya değinilmemiştir" : "Bu kavramla doğrudan ilişkili değildir" }
+        { key: "A", text: '"' + k(t + 1) + '" ile birlikte değerlendirilmelidir' },
+        { key: "B", text: '"' + k(t + 2) + '" tek başına yeterlidir' },
+        { key: "C", text: '"' + k(t + 3) + '" bu durumda sonucu değiştirmez' },
+        { key: "D", text: metneAtif ? "Kaynak metinde bu duruma değinilmemiştir" : "Bu kavram bu durumla ilişkili değildir" }
       ],
-      correctKey: "A", aiTime: 45 + i * 10, status: "ai_generated",
+      /* Bağlam okuması ek süre ister; sunucu tarafındaki istem de aynı
+         gerekçeyle 30-120'den 45-150'ye çıkarıldı. */
+      correctKey: "A", aiTime: 70 + i * 15, status: "ai_generated",
       refKeywords: [k(t), k(t + 1)],
       /* Kaynak modunda simülasyon soruları metne atıf yapar → metin sınavda
          gösterilmeli. §31 kazanım modunda gösterilecek metin YOKTUR; burada
@@ -203,11 +248,16 @@ function simulateQuestions(doc) {
     const t = i * 2;
     qs.push({
       id: mk(), type: "open", difficulty: i === 0 ? "hard" : "medium", outcome: doc.outcome,
-      bloom: i === 0 ? "analiz" : "uygulama",
-      body: '"' + k(t) + '" ve "' + k(t + 1) + '" kavramları arasındaki ilişkiyi ' +
-        (metneAtif ? 'metinden yararlanarak ' : '') +
-        'açıklayınız; en az bir örnek veriniz.',
-      aiTime: 240, status: "ai_generated",
+      bloom: i === 0 ? "degerlendirme" : "analiz",
+      /* Beceri temelli açık uçlu soru bir KARAR ve GEREKÇE ister; "ilişkiyi
+         açıklayınız" kalıbı tanım yazarak da yanıtlanabiliyordu. */
+      body: yedekBaglam(i + 3 + state.genCount) + ' Bu durumda "' + k(t) + '" ve "' + k(t + 1) +
+        '" kavramlarını birlikte kullanarak nasıl bir karar verirdiniz? ' +
+        /* Önek KAZANIM MODUNDA BOŞTUR; cümle başı buraya düşer. Büyük harf
+           önekin içinde olsaydı bu modda soru küçük harfle başlardı. */
+        (metneAtif ? 'Kaynak metindeki bilgilerden yararlanarak kararınızı' : 'Kararınızı') +
+        ' gerekçesiyle birlikte yazınız.',
+      aiTime: 260, status: "ai_generated",
       refKeywords: [k(t), k(t + 1), k(t + 2)],
       needsSource: metneAtif, srcId: doc.srcId != null ? doc.srcId : null,
       sube: doc.sube || ""
@@ -1149,6 +1199,16 @@ const state = {
   outcomes: VARSAYILAN_KAZANIMLAR.slice(),
   subjects: VARSAYILAN_DERSLER.slice(),
   newOutcome: { open: false, code: "", label: "", error: "" },
+  /* Kullanıcının kendi dersini yazdığı satır ("+" sekmesi). `newOutcome` ile
+     AYNI desendir: yalnızca ARAYÜZ durumudur, KALICI_ALANLAR'a GİRMEZ — sayfa
+     yenilenince form kapanır. Eklenen DERSİN kendisi `state.subjects`
+     içindedir ve o KALICIDIR (localStorage). */
+  newSubject: { open: false, ad: "", error: "" },
+  /* Sekme ekleme/silme reddedilirse gerekçesi buraya yazılır ve ekranda
+     görünür. Sessiz düşüş yasağı (§6.3-5): "×'e bastım, hiçbir şey olmadı"
+     durumu kullanıcı için bir hatadır, sessizce geçilemez. */
+  subjectError: "",
+  outcomeError: "",
   ceTab: 1,
   pdf: null, // { ad, sayfaSayisi, from, to } — sayfa metinleri bellekte (pdfPages)
 
@@ -1503,56 +1563,37 @@ function kazanimSecildi(kod) {
   saveSoon();
 }
 
+/**
+ * Kazanım <select>'i — ARTIK YALNIZCA MEB KATALOĞUDUR.
+ *
+ * NEDEN DEĞİŞTİ: eklenmiş kazanımlar artık SEKME olarak çizilir
+ * (`kazanimSecicisiHtml`), çünkü her birinin sağında kendi "×" silme düğmesi
+ * olmalı — bir <option>'ın yanına düğme konulamaz. Aynı kazanımı hem sekmede
+ * hem seçenekte listelemek ise aynı şeyi iki kez göstermek olurdu.
+ *
+ * Bu yüzden seçicinin işi tek bir şeye indi: "henüz eklenmemiş MEB
+ * kazanımlarına göz at ve birini ekle". Seçim yapıldığı anda
+ * `kazanimSecildi()` onu `state.outcomes`'a taşır; kazanım bir sonraki
+ * çizimde SEKME olarak görünür ve seçici yer tutucuya geri döner.
+ *
+ * KONU GRUPLAMASI KORUNDU: gruplar dersin kendi yapısını izler —
+ *   Fen / Matematik -> ünite ("3. Ünite · CANLILARIN YAPISINA YOLCULUK")
+ *   Türkçe          -> beceri alanı (Okuma / Yazma / Dinleme / Konuşma)
+ * Türkçe'de kodda ünite YOKTUR; temalar kazanımlara diktir (aynı okuma
+ * kazanımı her temada çalışılır), bu yüzden tema dayatmak yanlış olurdu.
+ */
 function kazanimSecenekleriHtml() {
-  const hepsi = OUTCOMES_LIST();
-  const gosterilecek = state.ceForm.showAllOutcomes
-    ? hepsi
-    : hepsi.filter(function (o) {
-        return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) ||
-               o.code === state.ceForm.outcomeCode;
-      });
-  // Yer tutucu AŞAĞIDA hesaplanır: metni, seçilebilir kazanım olup olmamasına
-  // göre değişir ve bunu bilmek için katalog listesinin de hesaplanmış olması
-  // gerekir.
-  const secenek = function (o, uyarEtiketi) {
-    const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
-    // value özniteliği de kaçırılmalı: kod serbest metindir ve tırnak içeren
-    // bir kod özniteliği kapatıp kendi HTML'ini yazabilirdi.
-    return '<option value="' + escapeHtml(o.code) + '" ' +
-      (o.code === state.ceForm.outcomeCode ? "selected" : "") + '>' +
-      escapeHtml(o.label) + (uyarEtiketi && !uyar ? "  (başka ders/sınıf)" : "") + "</option>";
-  };
-
   const eklenmisKodlar = {};
-  hepsi.forEach(function (o) { eklenmisKodlar[o.code] = true; });
+  OUTCOMES_LIST().forEach(function (o) { eklenmisKodlar[o.code] = true; });
 
-  /* KATALOG: seçili ders/sınıfın MEB kazanımları. Zaten eklenmiş olanlar
-     tekrar gösterilmez. Varsayılan olarak YALNIZCA yazılı sınavla ölçülebilen
-     kazanımlar listelenir — bir konuşma kazanımı çoktan seçmeli soruyla
-     ölçülemez (PROGRESS §12c). "Tümünü göster" açıksa hepsi gelir. */
+  /* Varsayılan olarak YALNIZCA yazılı sınavla ölçülebilen kazanımlar
+     listelenir — bir konuşma kazanımı çoktan seçmeli soruyla ölçülemez
+     (PROGRESS §12c). "Tümünü göster" açıksa hepsi gelir. */
   const katalog = katalogKazanimlari().filter(function (o) {
     if (eklenmisKodlar[o.code]) return false;
     return state.ceForm.showAllOutcomes || o.uygunluk === "yazili";
   });
 
-  const grupla = function (baslik, liste, uyarEtiketi) {
-    if (!liste.length) return "";
-    return '<optgroup label="' + escapeHtml(baslik) + '">' +
-      liste.map(function (o) { return secenek(o, uyarEtiketi); }).join("") + "</optgroup>";
-  };
-
-  /* KONU + KAZANIM — iki katmanlı seçici (kullanıcı isteği).
-     AYRI BİR "Konu" ALANI AÇILMADI. Sebep: konu bağımsız bir seçim değil,
-     her kazanım tam olarak bir konuya ait. Ayrı alan olsaydı ders/sınıf/kazanım
-     uyuşmazlığının (§14a) aynısı konu düzeyinde tekrarlanırdı — öğretmen
-     "Kesirler" seçip "Geometri" kazanımı seçebilirdi.
-     Bunun yerine konu, seçicinin içinde BAŞLIK olarak görünür.
-
-     Gruplama dersin kendi yapısını izler, uydurulmaz:
-       Fen / Matematik -> ünite ("3. Ünite · CANLILARIN YAPISINA YOLCULUK")
-       Türkçe          -> beceri alanı (Okuma / Yazma / Dinleme / Konuşma)
-     Türkçe'de kodda ünite YOKTUR; temalar kazanımlara diktir (aynı okuma
-     kazanımı her temada çalışılır), bu yüzden tema dayatmak yanlış olurdu. */
   const konuGruplari = {};
   const konuSirasi = [];
   katalog.forEach(function (o) {
@@ -1561,23 +1602,30 @@ function kazanimSecenekleriHtml() {
     konuGruplari[g].push(o);
   });
 
-  /* Yer tutucu — seçim boşken <select>'te görünen satır.
-     Metin DURUMA GÖRE değişir (kullanıcı isteği): eskiden her hâlükârda
-     "— bu ders/sınıf için kazanım seçilmedi —" yazıyordu; bu hem soğuk bir
-     ifadeydi hem de seçilecek 39 kazanım varken sanki hiç yokmuş gibi
-     okunuyordu. Artık seçenek varsa DAVET eder, gerçekten yoksa durumu söyler. */
-  const secilebilirVar = gosterilecek.length + katalog.length > 0;
-  const yerTutucu = state.ceForm.outcomeCode
-    ? ""
-    : '<option value="" selected>' +
-      (secilebilirVar ? "Bir kazanım seçin…" : "— bu ders/sınıf için kazanım yok —") +
-      "</option>";
+  /* value özniteliği de kaçırılır: kod serbest metindir ve tırnak içeren bir
+     kod, özniteliği kapatıp kendi HTML'ini yazabilirdi. */
+  const secenek = function (o) {
+    return '<option value="' + escapeHtml(o.code) + '">' + escapeHtml(o.label) + "</option>";
+  };
+  const grupla = function (baslik, liste) {
+    if (!liste.length) return "";
+    return '<optgroup label="' + escapeHtml(baslik) + '">' +
+      liste.map(secenek).join("") + "</optgroup>";
+  };
 
-  return yerTutucu +
+  /* Yer tutucu HER ZAMAN seçilidir: burası bir "seçim" alanı değil bir "ekle"
+     alanıdır. Seçilen kazanım sekmeye taşındığı için seçici yeniden boşa
+     döner ve aynı kazanım ikinci kez eklenemez. */
+  const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
+  const yerTutucu = '<option value="" selected>' +
     (katalog.length
-      ? grupla("Eklenen kazanımlar", gosterilecek, true) +
-        konuSirasi.map(function (g) { return grupla(g, konuGruplari[g], false); }).join("")
-      : gosterilecek.map(function (o) { return secenek(o, true); }).join(""));
+      ? "MEB öğretim programından kazanım ekleyin… (" + katalog.length + " kazanım)"
+      : katalogVar
+        ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
+        : "— bu ders/sınıf için hazır MEB kataloğu yok; “+” ile kendiniz yazın —") +
+    "</option>";
+
+  return yerTutucu + konuSirasi.map(function (g) { return grupla(g, konuGruplari[g]); }).join("");
 }
 
 /**
@@ -1605,9 +1653,11 @@ function kazanimNotuHtml() {
   const uygun = uygunKazanimlar();
   const gizli = hepsi.length - uygun.length;
 
-  /* Seçicide GERÇEKTEN listelenenler. Aşağıdaki iki filtre
-     `kazanimSecenekleriHtml()` ile birebir aynıdır; ayrışırlarsa bu satır
-     yeniden seçiciyi yalanlamaya başlar. */
+  /* GERÇEKTEN seçilebilir olanlar = SEKMELER + SEÇİCİ.
+     Aşağıdaki iki filtre `kazanimSecicisiHtml()` (eklenmiş kazanım sekmeleri)
+     ve `kazanimSecenekleriHtml()` (MEB katalog seçicisi) ile BİREBİR AYNIDIR;
+     ayrışırlarsa bu satır yeniden ekranı yalanlamaya başlar — bu dosyada bir
+     kez gerçekleşmiş bir hata sınıfıdır (yukarıdaki uzun nota bakınız). */
   const gosterilenEklenmis = state.ceForm.showAllOutcomes
     ? hepsi.length
     : hepsi.filter(function (o) {
@@ -1645,7 +1695,7 @@ function kazanimNotuHtml() {
       " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
       (katalogVar
         ? "<b>Katalog</b> düğmesiyle MEB müfredatından ekleyin."
-        : "<b>+</b> düğmesiyle elle tanımlayın (bu ders/sınıf için hazır katalog yok).") +
+        : "<b>+</b> sekmesiyle elle tanımlayın (bu ders/sınıf için hazır katalog yok).") +
       tumunuGoster + "</span>";
   }
 
@@ -1658,7 +1708,14 @@ function kazanimNotuHtml() {
     satir += " · <b>" + katalogSecilebilir + " tanesi</b> MEB öğretim programından; " +
       "seçtiğiniz kazanım okulun listesine eklenir";
   } else {
-    satir += " · <b>Katalog</b> ile MEB müfredatından ekleyin, <b>+</b> ile elle tanımlayın";
+    /* Katalog GERÇEKTEN var mı? Kullanıcının kendi eklediği bir ders için
+       (Müzik, Görsel Sanatlar…) hazır katalog olmayabilir; "Katalog ile
+       ekleyin" demek o durumda karşılığı olmayan bir yönlendirme olurdu —
+       bu satırın daha önce düştüğü "ekranı yalanlama" hatasının aynı sınıfı. */
+    satir += MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)]
+      ? " · <b>Katalog</b> ile MEB müfredatından ekleyin, <b>+</b> sekmesiyle elle tanımlayın"
+      : " · bu ders/sınıf için hazır MEB kataloğu yok; <b>+</b> sekmesiyle elle tanımlayın";
+    satir += "; her sekmenin “×”i o kazanımı kalıcı olarak siler";
   }
   return satir + tumunuGoster + "</span>";
 }
@@ -1701,22 +1758,320 @@ function addOutcome(code, label, subject, grade) {
   return "";
 }
 
+/**
+ * Kazanımı kalıcı olarak siler. "" = silindi, dolu metin = neden silinemediği.
+ *
+ * DÖNÜŞ TÜRÜ DEĞİŞTİ (bool -> metin). Eskiden yalnızca `false` dönüyordu ve
+ * çağıran taraf tek bir genel cümle basıyordu: "ya son kazanım ya da kullanan
+ * sorular var". Kullanıcı hangisi olduğunu bilmiyordu. Artık gerekçe kararın
+ * verildiği yerde üretilir — `addOutcome`/`addSubject` ile aynı sözleşme.
+ */
 function removeOutcome(code) {
   // Kullanımda olan kazanım silinemez: mevcut sorular sahipsiz kalmasın.
-  if (state.questions.some(function (q) { return q.outcome === code; })) return false;
-  if (OUTCOMES_LIST().length <= 1) return false;
+  const kullanan = state.questions.filter(function (q) { return q.outcome === code; }).length;
+  if (kullanan) {
+    return "“" + code + "” silinemez: " + kullanan +
+      " soru bu kazanımı kullanıyor. Önce o soruları havuzdan silin.";
+  }
+  if (OUTCOMES_LIST().length <= 1) return "Son kazanım silinemez — panelde en az bir kazanım kalmalı.";
   state.outcomes = OUTCOMES_LIST().filter(function (o) { return o.code !== code; });
-  if (state.ceForm.outcomeCode === code) state.ceForm.outcomeCode = OUTCOMES_LIST()[0].code;
-  return true;
+  /* Seçili kazanım silindiyse listenin İLKİNE atlamak yanlıştı: o kazanım
+     başka bir derse ait olabilir ve ekranda hemen "kazanım ile ders birbirini
+     tutmuyor" uyarısı çıkardı. `outcomeSeciminiTazele()` uyan ilkini seçer,
+     uyan yoksa seçimi boşaltır (§MADDE 2 ile aynı kural). */
+  if (state.ceForm.outcomeCode === code) outcomeSeciminiTazele();
+  return "";
 }
 
+/* ====================== DERS LİSTESİ — KULLANICININ KENDİ DERSLERİ =========
+   Ders artık sabit bir <select> değil, İÇERİK ÜRETİCİSİNİN YÖNETTİĞİ bir
+   SEKME listesidir (kullanıcı isteği):
+     · listenin en başında "+" sekmesi -> kendi dersini yazar,
+     · her sekmenin en sağında "×"     -> fazlalık dersi kalıcı olarak siler.
+   Liste `state.subjects` içindedir ve `KALICI_ALANLAR` sayesinde
+   localStorage'a yazılır; yani ekleme ve silme SAYFA YENİLENSE DE KALICIDIR.
+
+   NEDEN <select> DEĞİL: seçicide bir seçeneğin yanına silme düğmesi konamaz
+   ve "listeye kendi maddeni ekle" davranışı yoktur. Kapsam da artık sabit
+   değil — kullanıcı Müzik, Görsel Sanatlar, Din Kültürü gibi kendi dersini
+   tanımlayabildiği için liste açık uçludur.                                */
+
+/**
+ * Ders ekler; zaten varsa onu seçer.
+ * Dönüş sözleşmesi `addOutcome` ile aynıdır: "" = başarı, dolu metin =
+ * kullanıcıya gösterilecek hata. Eskiden bu fonksiyon boş adda SESSİZCE
+ * dönüyordu; kullanıcı neden hiçbir şey olmadığını öğrenemiyordu.
+ */
 function addSubject(ad) {
-  ad = (ad || "").trim();
-  if (!ad) return;
-  if (!SUBJECTS_LIST().some(function (s) { return s.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr"); })) {
-    state.subjects = SUBJECTS_LIST().concat([ad]);
+  ad = String(ad == null ? "" : ad).trim().replace(/\s+/g, " ");
+  if (!ad) return "Ders adı boş olamaz.";
+  if (ad.length > 40) return "Ders adı en fazla 40 karakter olabilir.";
+  /* Karşılaştırma Türkçe'ye duyarlı: "İngilizce" ile "ingilizce" aynı derstir.
+     toLowerCase() I/İ çiftinde yanılır (§6.3-14 Türkçe ek/harf tuzağı), bu
+     yüzden toLocaleLowerCase("tr"). */
+  const mevcut = SUBJECTS_LIST().filter(function (s) {
+    return s.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr");
+  })[0];
+  if (mevcut) {
+    /* Zaten var: hata vermek yerine O DERSİ SEÇ. Kullanıcının istediği sonuç
+       "bu derste çalışmak"tı; ikinci bir kayıt açmak değil. */
+    state.ceForm.subject = mevcut;
+    outcomeSeciminiTazele();
+    saveSoon();
+    return "";
   }
+  state.subjects = SUBJECTS_LIST().concat([ad]);
   state.ceForm.subject = ad;
+  outcomeSeciminiTazele();
+  saveSoon();
+  return "";
+}
+
+/**
+ * Bir dersi panelden KALICI olarak çıkarır.
+ * "" = silindi, dolu metin = neden silinemediği.
+ *
+ * İKİ KORUMA VAR, ikisi de veri kaybını önler:
+ *  1) SON DERS SİLİNEMEZ. `SUBJECTS_LIST()` boş listede VARSAYILAN_DERSLER'e
+ *     düşer; liste tamamen boşaltılsaydı silinen dersler bir sonraki çizimde
+ *     geri gelir ve kullanıcıya "sildim ama duruyor" gibi görünürdü.
+ *  2) HAVUZDA O DERSE AİT SORU VARSA SİLİNMEZ — sorular sahipsiz kalmasın
+ *     (`removeOutcome` ile birebir aynı ilke).
+ *
+ * Dersin kazanımları BİLEREK silinmez: ders yanlışlıkla silinip yeniden
+ * eklenirse kazanımlar yerinde bulunur. Arada görünmezler, çünkü kazanım
+ * sekmeleri zaten seçili derse göre süzülür.
+ */
+function removeSubject(ad) {
+  const liste = SUBJECTS_LIST();
+  if (liste.length <= 1) return "Son ders silinemez — panelde en az bir ders kalmalı.";
+  if (liste.indexOf(ad) === -1) return "";
+  const dersKodlari = {};
+  OUTCOMES_LIST().forEach(function (o) { if (o.subject === ad) dersKodlari[o.code] = true; });
+  const kullanan = state.questions.filter(function (q) { return dersKodlari[q.outcome]; }).length;
+  if (kullanan) {
+    return "“" + ad + "” silinemez: bu derse ait " + kullanan +
+      " soru havuzda duruyor. Önce o soruları silin.";
+  }
+  state.subjects = liste.filter(function (s) { return s !== ad; });
+  if (state.ceForm.subject === ad) {
+    state.ceForm.subject = state.subjects[0];
+    outcomeSeciminiTazele();
+  }
+  saveSoon();
+  return "";
+}
+
+/** Ders sekmesine tıklandığında: seçimi taşı, kazanımı ve kataloğu tazele. */
+function dersSec(ad) {
+  if (!ad || state.ceForm.subject === ad) return;
+  state.ceForm.subject = ad;
+  // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
+  outcomeSeciminiTazele();
+  saveSoon();
+  renderAll();
+  katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
+}
+
+/** "+" sekmesiyle açılan ders formunu kaydeder. */
+function dersFormuKaydet() {
+  const hata = addSubject(state.newSubject.ad);
+  if (hata) {
+    state.newSubject.error = hata;
+  } else {
+    state.newSubject = { open: false, ad: "", error: "" };
+    state.subjectError = "";
+  }
+  renderAll();
+  katalogHazirla(true);
+}
+
+/**
+ * Ders sekmelerinin HTML'i.
+ *
+ * "+" EN BAŞTA durur (kullanıcı isteği: "mevcut ders listesinin en üstüne bir
+ * artı işaretli sekme"). Sekme gövdesi <span>'dir ve İÇİNDE İKİ AYRI <button>
+ * vardır: ad ve "×". Neden iç içe <button> değil: HTML'de bir düğmenin içine
+ * düğme konamaz — tarayıcı ağacı bozar ve "×" tıklaması ada da giderdi.
+ */
+function dersSecicisiHtml() {
+  const secili = state.ceForm.subject;
+  const liste = SUBJECTS_LIST();
+  const tekDers = liste.length <= 1;
+
+  const sekmeler = liste.map(function (d) {
+    return '<span class="chip-tab' + (d === secili ? " active" : "") + '">' +
+      '<button type="button" class="chip-ad" data-ders="' + escapeHtml(d) + '"' +
+      (d === secili ? ' aria-current="true"' : "") +
+      ' title="' + escapeHtml(d) + ' dersine geç">' + escapeHtml(d) + "</button>" +
+      '<button type="button" class="chip-x" data-ders-sil="' + escapeHtml(d) + '"' +
+      (tekDers ? " disabled" : "") + ' title="' +
+      escapeHtml(tekDers ? "Son ders silinemez" : d + " dersini kalıcı olarak sil") +
+      '" aria-label="' + escapeHtml(d) + ' dersini sil">×</button></span>';
+  }).join("");
+
+  const form = state.newSubject.open
+    ? '<div class="chip-yeni"><div class="field"><label for="nsAd">Yeni ders adı</label>' +
+      '<input id="nsAd" maxlength="40" value="' + escapeHtml(state.newSubject.ad) + '" ' +
+      'placeholder="örn. Sosyal Bilgiler"></div>' +
+      (state.newSubject.error
+        ? '<div class="pill pill-critical" style="margin-bottom:8px;">' +
+          escapeHtml(state.newSubject.error) + "</div>"
+        : "") +
+      '<button class="btn btn-primary btn-sm" id="btnSaveSubject">Dersi Ekle</button> ' +
+      '<button class="btn btn-secondary btn-sm" id="btnCancelSubject">Vazgeç</button>' +
+      '<div class="field-note">Eklediğiniz ders bu tarayıcıda <b>kalıcıdır</b>; sayfayı ' +
+      "yenileseniz de panelinizde durmaya devam eder. Kendi dersiniz için hazır MEB " +
+      "kataloğu olmayabilir; kazanımlarını kazanım satırındaki “+” sekmesiyle " +
+      "kendiniz yazabilirsiniz.</div></div>"
+    : "";
+
+  return '<div class="field field-dersler"><label>Ders</label>' +
+    '<div class="chip-tabs" id="ceSubjectTabs">' +
+    '<button type="button" class="chip-tab chip-tab-add' +
+    (state.newSubject.open ? " active" : "") + '" id="btnNewSubject" ' +
+    'title="Kendi dersinizi ekleyin" aria-label="Yeni ders ekle">+</button>' +
+    sekmeler + "</div>" +
+    (state.subjectError
+      ? '<div class="pill pill-critical" style="margin-top:8px;">' +
+        escapeHtml(state.subjectError) + "</div>"
+      : "") +
+    form + "</div>";
+}
+
+/**
+ * Kazanım sekmelerinin HTML'i — ders sekmeleriyle AYNI sistem.
+ *
+ * Burada listelenenler "okulun eklediği kazanımlar"dır, yani
+ * `state.outcomes`. MEB kataloğunun 606 kazanımı sekmeye ÇEVRİLMEZ: altındaki
+ * <select> ile gezilir ve seçilen kazanım buraya bir sekme olarak düşer
+ * (`kazanimSecildi`). Böylece "okulun çalıştığı kazanımlar" listesi
+ * kullanıldıkça büyür — katalog tasarım kararının aynısı.
+ */
+function kazanimSecicisiHtml() {
+  const secili = state.ceForm.outcomeCode;
+  const hepsi = OUTCOMES_LIST();
+  /* Filtre `kazanimNotuHtml()` ile birebir aynı olmalıdır; ayrışırlarsa alt
+     satırdaki sayı yeniden ekranı yalanlamaya başlar. */
+  const gosterilecek = state.ceForm.showAllOutcomes
+    ? hepsi
+    : hepsi.filter(function (o) {
+        return outcomeUyar(o, state.ceForm.subject, state.ceForm.grade) || o.code === secili;
+      });
+  const sonKazanim = hepsi.length <= 1;
+
+  const sekmeler = gosterilecek.map(function (o) {
+    const uyar = outcomeUyar(o, state.ceForm.subject, state.ceForm.grade);
+    const kullanan = state.questions.filter(function (q) { return q.outcome === o.code; }).length;
+    const silinemez = sonKazanim || kullanan > 0;
+    /* Silinemeyen "×" GİZLENMEZ, devre dışı bırakılır ve nedeni title'a yazar.
+       Gizlemek "bu kazanım silinemez" bilgisini de yok ederdi. */
+    const silNedeni = sonKazanim
+      ? "Son kazanım silinemez"
+      : kullanan
+        ? kullanan + " soru bu kazanımı kullanıyor — önce onları silin"
+        : o.code + " kazanımını kalıcı olarak sil";
+    return '<span class="chip-tab' + (o.code === secili ? " active" : "") +
+      (uyar ? "" : " chip-uyusmaz") + '" title="' + escapeHtml(o.label) + '">' +
+      '<button type="button" class="chip-ad" data-kazanim="' + escapeHtml(o.code) + '"' +
+      (o.code === secili ? ' aria-current="true"' : "") + ">" +
+      escapeHtml(truncate(o.label, 46)) +
+      (uyar ? "" : ' <span class="chip-not">başka ders/sınıf</span>') + "</button>" +
+      '<button type="button" class="chip-x" data-kazanim-sil="' + escapeHtml(o.code) + '"' +
+      (silinemez ? " disabled" : "") + ' title="' + escapeHtml(silNedeni) +
+      '" aria-label="' + escapeHtml(o.code) + ' kazanımını sil">×</button></span>';
+  }).join("");
+
+  return '<div class="chip-tabs" id="ceOutcomeTabs">' +
+    '<button type="button" class="chip-tab chip-tab-add' +
+    (state.newOutcome.open ? " active" : "") + '" id="btnNewOutcome" ' +
+    'title="Kendi kazanımınızı yazın" aria-label="Yeni kazanım ekle">+</button>' +
+    (sekmeler ||
+      '<span class="chip-bos">bu ders ve sınıf için henüz kazanım eklenmedi — ' +
+      "<b>+</b> ile kendiniz yazın ya da aşağıdaki MEB listesinden seçin</span>") +
+    "</div>" +
+    (state.outcomeError
+      ? '<div class="pill pill-critical" style="margin-top:8px;">' +
+        escapeHtml(state.outcomeError) + "</div>"
+      : "");
+}
+
+/**
+ * Ders ve kazanım sekmelerinin olay bağlantıları.
+ *
+ * TUZAK 1 (§6.3-2): beş panelin DOM'u aynı anda ayaktadır. Bu düğümler
+ * yalnızca İçerik Uzmanı panelinde çizilse de arama KÖKTEN DARALTILIR;
+ * ileride başka bir panel aynı `data-*` adını kullanırsa çakışma olmaz.
+ */
+function wireSecimSekmeleri() {
+  const kok = document.getElementById("panel-content_expert");
+  if (!kok) return;
+
+  /* ---- Ders sekmeleri ---- */
+  kok.querySelectorAll("[data-ders]").forEach(function (el) {
+    el.onclick = function () { state.subjectError = ""; dersSec(el.dataset.ders); };
+  });
+  kok.querySelectorAll("[data-ders-sil]").forEach(function (el) {
+    el.onclick = function () {
+      const ad = el.dataset.dersSil;
+      /* Kalıcı silme ONAY ister — geri alma yoktur. Sınav silmede de aynı
+         desen kullanılıyor ("KALICI OLARAK silinecek"). */
+      if (!window.confirm("“" + ad + "” dersi panelinizden KALICI OLARAK silinecek.\n\n" +
+        "Bu dersin kazanımları silinmez; dersi tekrar eklerseniz yerinde bulursunuz.\n\n" +
+        "Devam edilsin mi?")) return;
+      state.subjectError = removeSubject(ad);
+      renderAll();
+      katalogHazirla(true);
+    };
+  });
+  const bNS = document.getElementById("btnNewSubject");
+  if (bNS) bNS.onclick = function () {
+    state.newSubject = { open: !state.newSubject.open, ad: "", error: "" };
+    state.subjectError = "";
+    renderAll();
+  };
+  const nsAd = document.getElementById("nsAd");
+  if (nsAd) {
+    /* TUZAK 3: oninput'tan renderAll() ÇAĞRILMAZ — kullanıcı yazarken odak
+       kaybeder. Alan yalnızca form açılıp kapanınca yeniden çizilir. */
+    nsAd.oninput = function (e) { state.newSubject.ad = e.target.value; };
+    nsAd.onkeydown = function (ev) {
+      if (ev.key === "Enter") { ev.preventDefault(); dersFormuKaydet(); }
+    };
+    nsAd.focus();
+    try { nsAd.setSelectionRange(nsAd.value.length, nsAd.value.length); } catch (e) {}
+  }
+  const bSS = document.getElementById("btnSaveSubject");
+  if (bSS) bSS.onclick = dersFormuKaydet;
+  const bCS = document.getElementById("btnCancelSubject");
+  if (bCS) bCS.onclick = function () {
+    state.newSubject = { open: false, ad: "", error: "" }; renderAll();
+  };
+
+  /* ---- Kazanım sekmeleri ---- */
+  kok.querySelectorAll("[data-kazanim]").forEach(function (el) {
+    el.onclick = function () {
+      state.outcomeError = "";
+      kazanimSecildi(el.dataset.kazanim);
+      renderAll();
+    };
+  });
+  kok.querySelectorAll("[data-kazanim-sil]").forEach(function (el) {
+    el.onclick = function () {
+      const kod = el.dataset.kazanimSil;
+      if (!window.confirm("“" + kod + "” kazanımı panelinizden KALICI OLARAK silinecek.\n\n" +
+        "Devam edilsin mi?")) return;
+      state.outcomeError = removeOutcome(kod);
+      saveSoon();
+      renderAll();
+    };
+  });
+  const bNO = document.getElementById("btnNewOutcome");
+  if (bNO) bNO.onclick = function () {
+    state.newOutcome = { open: !state.newOutcome.open, code: "", label: "", error: "" };
+    state.outcomeError = "";
+    renderAll();
+  };
 }
 
 
@@ -3295,18 +3650,16 @@ function ceCreateHtml() {
     '<div class="ce-layout">' +
     '<div class="card ce-source"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">sorular buradan üretilir</span></div>' +
     '<div class="ce-meta-grid">' +
+    /* DERS — SEKME LİSTESİ (kullanıcı isteği).
+       Önce <datalist>'li serbest metindi, sonra <select> oldu; ikisi de tek
+       bir şeyi yapamıyordu: içerik üreticisinin KENDİ dersini eklemesi ve
+       fazlalığı SİLMESİ. Bir <option>'ın yanına silme düğmesi konulamaz. Bu
+       yüzden ders artık sekme listesidir: en baştaki "+" ekler, her sekmenin
+       sağındaki "×" kalıcı olarak siler. Liste `state.subjects` -> localStorage.
+       Ders satırı Başlık'tan ÖNCE ve tam genişlikte durur: kazanım listesini,
+       kataloğu ve soru üretimini belirleyen ilk karar odur. */
+    dersSecicisiHtml() +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
-    /* MADDE 1 (kullanıcı bildirdi): Burası serbest metin girişi + <datalist>
-       idi. İki sorun vardı: (a) yazdıkça liste filtreleniyor, kullanıcı
-       "sadece Matematik çıkıyor" sanıyordu; (b) datalist açılır listesi
-       tarayıcının kendi çizimi, biçimlendirilemiyor ve formun geri kalanıyla
-       uyumsuz görünüyor. Kapsam üç derse indiği için <select> doğru kontrol:
-       hepsi her zaman görünür ve diğer alanlarla aynı görünümde. */
-    '<div class="field"><label for="ceSubject">Ders</label><select id="ceSubject">' +
-    SUBJECTS_LIST().map(function (d) {
-      return '<option value="' + escapeHtml(d) + '"' +
-        (d === state.ceForm.subject ? " selected" : "") + ">" + escapeHtml(d) + "</option>";
-    }).join("") + '</select></div>' +
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
     GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
     '</select></div>' +
@@ -3317,16 +3670,19 @@ function ceCreateHtml() {
     '<div class="field"><label for="ceSube">Şube <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
     '<input id="ceSube" type="text" maxlength="20" value="' + escapeHtml(state.ceForm.sube || "") + '" ' +
     'placeholder="örn. ' + escapeHtml(siniflar()[0] || "7-A") + ' — boş bırakılabilir" title="Bu içerik hangi şube için üretiliyor? Yalnızca etiket amaçlıdır, kazanım listesini değiştirmez."></div>' +
-    '<div class="field field-outcome"><label for="ceOutcome">Konu ve Kazanım</label>' +
-    '<div class="input-with-actions">' +
-    '<select id="ceOutcome">' +
-    // Yalnızca seçili ders + sınıfa ait kazanımlar listelenir. "Tümünü göster"
-    // açıksa hepsi gelir; seçili kazanım her durumda listede kalır ki
-    // öğretmenin mevcut seçimi sessizce kaybolmasın.
+    /* KAZANIM — DERSLE AYNI SİSTEM (kullanıcı isteği).
+       Üstte sekmeler: "+" kendi kazanımını yazdırır, her sekmenin "×"i o
+       kazanımı kalıcı siler. Altta seçici: MEB kataloğundan EKLEME kanalı —
+       606 kazanımı sekmeye çevirmek ekranı kullanılamaz hale getirirdi, bu
+       yüzden katalog seçicide kalır ve seçilen kazanım yukarıya sekme olarak
+       düşer. */
+    '<div class="field field-outcome"><label>Konu ve Kazanım</label>' +
+    kazanimSecicisiHtml() +
+    '<div class="input-with-actions kazanim-ekle-satiri">' +
+    '<select id="ceOutcome" aria-label="MEB öğretim programından kazanım ekle"' +
+    (katalogKazanimlari().length ? "" : " disabled") + ">" +
     kazanimSecenekleriHtml() +
     '</select>' +
-    '<button class="icon-btn" id="btnNewOutcome" title="Yeni kazanım tanımla" aria-label="Yeni kazanım tanımla">+</button>' +
-    '<button class="icon-btn" id="btnDelOutcome" title="Seçili kazanımı sil" aria-label="Seçili kazanımı sil">−</button>' +
     '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="MEB öğretim programından kazanım seç">Katalog</button></div>' +
     kazanimNotuHtml() + '</div>' +
     outcomeUyusmazlikHtml() +
@@ -3337,7 +3693,12 @@ function ceCreateHtml() {
         '<div class="field" style="flex:2;"><label>Açıklama</label><input id="noLabel" value="' + escapeHtml(state.newOutcome.label) + '" placeholder="örn. Işığın Yansıması"></div></div>' +
         (state.newOutcome.error ? '<div class="pill pill-critical" style="margin-bottom:8px;">' + escapeHtml(state.newOutcome.error) + '</div>' : "") +
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
-        '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button></div>'
+        '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button>' +
+        /* Kazanımın HANGİ ders/sınıfa yazılacağı açıkça söylenir: artık koddan
+           tahmin edilmiyor, o anki seçim kullanılıyor (bkz. btnSaveOutcome). */
+        '<div class="field-note">Bu kazanım <b>' + escapeHtml(state.ceForm.subject) + " · " +
+        escapeHtml(String(state.ceForm.grade)) + ". sınıf</b> altına eklenecek ve " +
+        "panelinizde kalıcı olarak duracak.</div></div>"
       : "") + '</div>' +
     uretimModuSecHtml() +
     (uretimModu() === "kazanim" ? yonergeAlaniHtml() :
@@ -3394,7 +3755,11 @@ function ceCreateHtml() {
     (uretimModu() === "kazanim"
       ? escapeHtml(state.ceForm.outcomeCode || "seçili kazanım") + ' kazanımından '
       : "Seçilen metinden ") +
-    state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir</span>' +
+    state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir' +
+    /* Söz verilen soru tipi kullanıcıya GÖRÜNÜR olmalı: aksi halde "neden
+       sorular bu kadar uzun?" sorusunun cevabı yalnızca kodda kalırdı. */
+    '<br><b>Beceri temelli (yeni nesil):</b> günlük hayat bağlamı + veri + ' +
+    'çıkarım/karar isteyen sorular (MEB ÖGM · LGS/YKS · PISA-TIMSS çizgisi)</span>' +
     '</div></div></div>' +
     '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
     alignmentBarHtml(pending) +
@@ -3449,16 +3814,9 @@ function renderContentExpert() {
   if (kks) kks.onclick = kaynakKitapligaKaydet;
   wireAlignment();
   document.getElementById("ceTitle").oninput = function (e) { state.ceForm.title = e.target.value; };
-  const subEl = document.getElementById("ceSubject");
-  const dersDegisti = function (deger) {
-    addSubject(deger);
-    // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
-    outcomeSeciminiTazele();
-    renderAll();
-    katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
-  };
-  // Ders artık <select>; serbest metin ve Enter dinleyicisi kaldırıldı.
-  subEl.onchange = function (e) { dersDegisti(e.target.value); };
+  /* Ders artık <select> değil sekme listesi; ders ve kazanım sekmelerinin
+     tüm olayları tek yerde bağlanır. */
+  wireSecimSekmeleri();
   document.getElementById("ceGrade").onchange = function (e) {
     state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value;
     outcomeSeciminiTazele(); saveSoon(); renderAll();
@@ -3468,7 +3826,14 @@ function renderContentExpert() {
   if (tumKaz) tumKaz.onclick = function () {
     state.ceForm.showAllOutcomes = !state.ceForm.showAllOutcomes; renderAll();
   };
-  document.getElementById("ceOutcome").onchange = function (e) { kazanimSecildi(e.target.value); renderAll(); };
+  /* Seçici artık bir "ekle" kanalıdır. Boş değer YER TUTUCU satırıdır; onu
+     `kazanimSecildi("")`e geçirmek seçili kazanımı SESSİZCE silerdi. */
+  document.getElementById("ceOutcome").onchange = function (e) {
+    if (!e.target.value) return;
+    state.outcomeError = "";
+    kazanimSecildi(e.target.value);
+    renderAll();
+  };
   /* §31: kazanım modunda #ceText hiç render edilmez; eski kod koşulsuz
      getElementById().oninput yazıyordu ve bu modda TypeError atardı. */
   const ceTextEl = document.getElementById("ceText");
@@ -3498,21 +3863,21 @@ function renderContentExpert() {
   // Kazanım tanımlama
   const bKat = document.getElementById("btnKatalog");
   if (bKat) bKat.onclick = function () { katalogAc(); };
-  document.getElementById("btnNewOutcome").onclick = function () {
-    state.newOutcome = { open: true, code: "", label: "", error: "" }; renderAll();
-  };
-  document.getElementById("btnDelOutcome").onclick = function () {
-    if (!removeOutcome(state.ceForm.outcomeCode)) {
-      state.ceForm.error = "Bu kazanım silinemez: ya son kazanım ya da kullanan sorular var.";
-    }
-    renderAll();
-  };
+  /* Eski "+" ve "−" ikon düğmeleri KALDIRILDI:
+       "+" -> kazanım sekmelerinin başındaki artı sekmesi (wireSecimSekmeleri),
+       "−" -> her sekmenin kendi "×"i. Tek bir "seçili olanı sil" düğmesi,
+              silmek istediğin kazanımı önce SEÇMENİ gerektiriyordu. */
   const noC = document.getElementById("noCode"), noL = document.getElementById("noLabel");
   if (noC) noC.oninput = function (e) { state.newOutcome.code = e.target.value; };
   if (noL) noL.oninput = function (e) { state.newOutcome.label = e.target.value; };
   const noSave = document.getElementById("btnSaveOutcome");
   if (noSave) noSave.onclick = function () {
-    const hata = addOutcome(state.newOutcome.code, state.newOutcome.label);
+    /* Ders ve sınıf ARTIK AÇIKÇA geçirilir. Eskiden yalnızca koddan
+       çıkarılıyordu (MAT.7.2.1 -> Matematik, 7). Kullanıcı kendi dersini
+       ("Müzik") ve kendi kod düzenini yazınca çıkarım başarısız oluyor,
+       kazanım DERSSİZ kaydediliyor ve HER dersin sekmesinde görünüyordu. */
+    const hata = addOutcome(state.newOutcome.code, state.newOutcome.label,
+      state.ceForm.subject, state.ceForm.grade);
     if (hata) state.newOutcome.error = hata;
     else state.newOutcome = { open: false, code: "", label: "", error: "" };
     renderAll();
@@ -7866,7 +8231,7 @@ async function katalogAc() {
         '. sınıf</b> için müfredat kataloğu yok.</p>' +
         "<p>Şu an katalog bulunan ders/sınıflar: <b>" + mevcutKataloglar().join(", ") + "</b>. " +
         "Kazanımlar sınıfa özeldir; bu yüzden başka bir sınıfın kataloğu açılmaz. " +
-        "Diğer ders ve sınıflar için kazanımları <b>+</b> düğmesiyle elle ekleyebilirsiniz.</p>" +
+        "Diğer ders ve sınıflar için kazanımları <b>+</b> sekmesiyle elle ekleyebilirsiniz.</p>" +
         '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
       return;
     }
@@ -8975,7 +9340,14 @@ function bosDurumHtml(mesaj) {
     "updateIntegrityBadge", "requestExamFullscreen", "exitExamFullscreen",
     "finishExamModalHtml", "katalogFiltreDurumu", "openModal", "closeModal", "initPanels",
     /* §42 — bu turda eklenen yeni üst düzey fonksiyonlar. */
-    "sinifVerisiKutusuHtml", "sinifSinavDurumEtiketi", "soruDersSinif"
+    "sinifVerisiKutusuHtml", "sinifSinavDurumEtiketi", "soruDersSinif",
+    /* Ders/kazanım sekmeleri (kullanıcı isteği). Öz-kontrol ağı ÇİFT YÖNLÜ
+       denetleniyor: yeni bir üst düzey fonksiyon buraya yazılmazsa CI kırılır
+       (tools/ozkontrol-dogrula.mjs). */
+    "removeSubject", "dersSec", "dersFormuKaydet", "dersSecicisiHtml",
+    "kazanimSecicisiHtml", "wireSecimSekmeleri",
+    // Beceri temelli yedek şablonu.
+    "yedekBaglam"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {

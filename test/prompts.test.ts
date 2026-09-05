@@ -232,3 +232,102 @@ describe('buildQuestionPrompt — §31 üretim dayanağı (mod)', () => {
     expect(p).toContain('Bilişsel düzey yönlendirmesi');
   });
 });
+
+// ============================================================================
+// BECERİ TEMELLİ (YENİ NESİL) SORU BLOĞU
+//
+// NEDEN TEST EDİLİYOR: bu blok ürünün soru KALİTESİ iddiasının tamamını
+// taşıyor. İstem tek dosyada ve uzun; bir birleştirmede sessizce düşerse
+// hiçbir şey hata vermez — ürün yalnızca eskisi gibi ezber sorusu üretmeye
+// döner ve bunu kimse fark etmez. Ayrıca blok, VAR OLAN iki davranışa
+// dokunmamalıdır: (a) varsayılanda bloomFocus yönlendirmesi eklenmemesi,
+// (b) çıktı JSON şemasının değişmemesi.
+// ============================================================================
+describe('buildQuestionPrompt — beceri temelli (yeni nesil) soru', () => {
+  it('kaynak modunda soru tarzı bloğu ve dayanakları yer alır', () => {
+    const p = buildQuestionPrompt(temelSpec, 'Sürtünme yüzeye bağlıdır.');
+    expect(p).toContain('SORU TARZI — BECERİ TEMELLİ');
+    expect(p).toContain('PISA');
+    expect(p).toContain('TIMSS');
+    expect(p).toContain('LGS');
+    expect(p).toContain('YKS');
+    expect(p).toContain('ÖGM');
+  });
+
+  it('kazanım modunda da aynı blok vardır (soru tarzı moda bağlı değildir)', () => {
+    const p = buildQuestionPrompt({ ...temelSpec, mode: 'kazanim' }, '');
+    expect(p).toContain('SORU TARZI — BECERİ TEMELLİ');
+  });
+
+  it('bağlamın süs olmasını yasaklar (beceri temelli tanımının çekirdeği)', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('BAĞLAM SÜS OLAMAZ');
+    expect(p).toContain('EN AZ İKİ ADIM');
+  });
+
+  it('doğrudan hatırlatma kalıplarını açıkça yasaklar', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('Doğrudan hatırlatma kalıpları YASAK');
+    expect(p).toContain('tanımıdır');
+  });
+
+  it('çeldiricilerin akıl yürütme hatasını temsil etmesini ister', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('AKIL YÜRÜTME HATASINI');
+  });
+
+  it('sayısal tutarlılığı zorunlu kılar', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('SAYILAR TUTMALI');
+  });
+
+  it('"Yukarıdaki" kalıbını yasaklar — kaynak atıf denetimiyle çakışmasın', () => {
+    // guards.ts KAYNAK_ATIF listesi "yukarıdaki" kalıbını ayrı bir kaynak
+    // metne atıf sayar; soru kendi tablosuna böyle atıf yaparsa needsSource
+    // yanlış işaretlenir (bkz. src/lib/guards.ts).
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('"Yukarıdaki..." ifadesini KULLANMA');
+    expect(p).toContain('Buna göre...');
+  });
+
+  it('kaynak modunda bağlam istisnası vardır ama kaynak sadakati korunur', () => {
+    const p = buildQuestionPrompt({ ...temelSpec, mode: 'kaynak' }, 'Sürtünme yüzeye bağlıdır.');
+    // Eski kural yerinde:
+    expect(p).toContain('SADECE kaynak metindeki bilgilere dayanmalıdır');
+    // Yeni istisna yalnızca BAĞLAM için:
+    expect(p).toContain('TEK İSTİSNA — BAĞLAM');
+    expect(p).toContain('doğru cevabın gerekçesi OLAMAZ');
+  });
+
+  it('kazanım modunda bağlam uydurmak serbest, olgu uydurmak değil', () => {
+    const p = buildQuestionPrompt({ ...temelSpec, mode: 'kazanim' }, '');
+    expect(p).toContain('BAĞLAMI KAPSAMAZ');
+    expect(p).toContain('emin OLMADIĞIN hiçbir olguyu');
+  });
+
+  it('açık uçlu soru karar + gerekçe ister', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('AÇIK UÇLU SORULAR bir KARAR');
+  });
+
+  it('çözüm süresi aralığı bağlam okumasını hesaba katar', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).toContain('45-150');
+    expect(p).toContain('150-400');
+  });
+
+  it('REGRESYON: yeni blok varsayılanda bloomFocus yönlendirmesi getirmez', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    expect(p).not.toContain('Bilişsel düzey yönlendirmesi');
+    expect(p).not.toContain('Konu alanı:');
+  });
+
+  it('REGRESYON: çıktı JSON şemasının alan adları değişmedi', () => {
+    const p = buildQuestionPrompt(temelSpec, 'metin');
+    ['"questions"', '"type"', '"body"', '"options"', '"correctKey"',
+     '"distractorRationale"', '"difficulty"', '"bloom"', '"aiTime"',
+     '"needsSource"', '"refKeywords"'].forEach((alan) => {
+      expect(p).toContain(alan);
+    });
+  });
+});

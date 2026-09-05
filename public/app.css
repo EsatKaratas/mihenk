@@ -567,6 +567,60 @@
   .icon-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
   .icon-btn:disabled { opacity: .35; cursor: not-allowed; }
 
+  /* ===================== DERS / KAZANIM SEKMELERİ =========================
+     Kullanıcının kendi listesini yönettiği sekme şeridi: en başta "+" ekler,
+     her sekmenin sağındaki "×" kalıcı olarak siler.
+     Sekme bir <span>'dir ve İÇİNDE İKİ <button> vardır (ad + "×"); HTML'de
+     düğme içine düğme konulamaz. Bu yüzden odak halkası düğmelerin
+     kendisinde, seçili görünüm ise kapsayıcıdadır.                        */
+  .chip-tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 2px; }
+  .chip-tab { display: inline-flex; align-items: stretch; max-width: 100%;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    background: var(--surface); overflow: hidden;
+    transition: border-color .12s, background .12s; }
+  .chip-tab:hover { border-color: var(--accent); }
+  .chip-tab .chip-ad { flex: 1; min-width: 0; border: none; background: none;
+    font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text);
+    padding: 6px 3px 6px 13px; cursor: pointer; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-tab .chip-x { flex: none; border: none; background: none;
+    color: var(--text-muted); font: inherit; font-size: 15px; line-height: 1;
+    padding: 0 10px 0 6px; cursor: pointer; transition: color .12s, background .12s; }
+  .chip-tab .chip-x:hover:not(:disabled) { color: #fff; background: var(--critical); }
+  /* Devre dışı "×" GİZLENMEZ: silinemeyeceği de bir bilgidir ve nedeni
+     title'da yazar. Gizlemek o bilgiyi yok ederdi. */
+  .chip-tab .chip-x:disabled { opacity: .3; cursor: not-allowed; }
+  .chip-tab.active { border-color: var(--accent-strong); background: var(--accent-soft); }
+  .chip-tab.active .chip-ad { color: var(--accent-strong); }
+  .chip-tab.active .chip-x { color: var(--accent-strong); }
+  /* Başka ders/sınıfa ait kazanım: seçilebilir ama görsel olarak ayrışır. */
+  .chip-tab.chip-uyusmaz { border-style: dashed; }
+  .chip-tab.chip-uyusmaz .chip-ad { color: var(--text-muted); font-weight: 500; }
+  .chip-not { font-size: 10.5px; font-weight: 400; color: var(--text-muted);
+    font-style: italic; }
+
+  /* "+" sekmesi listenin EN BAŞINDA durur. Kesikli çerçeve onu bir
+     "ders/kazanım" değil bir EYLEM olarak okutur. */
+  .chip-tab-add { flex: none; width: 32px; height: 30px; display: inline-flex;
+    align-items: center; justify-content: center; padding: 0;
+    border: 1px dashed var(--accent); border-radius: 999px;
+    background: var(--surface); color: var(--accent-strong);
+    font-family: inherit; font-size: 17px; font-weight: 700; line-height: 1;
+    cursor: pointer; transition: background .12s, border-color .12s; }
+  .chip-tab-add:hover { background: var(--accent-soft); }
+  .chip-tab-add.active { background: var(--accent-strong); color: #fff;
+    border-style: solid; border-color: var(--accent-strong); }
+
+  .chip-bos { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+
+  /* "+" ile açılan ekleme formu — `.new-outcome` ile aynı görsel dil. */
+  .chip-yeni { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
+    border-radius: 9px; background: var(--accent-soft); }
+  .chip-yeni .field { margin-bottom: 10px; }
+  .chip-yeni .field-note { margin-top: 8px; }
+
+  .kazanim-ekle-satiri { margin-top: 10px; }
+
   /* Sürükle-bırak alanı */
   .dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 5px; padding: 22px 18px; margin-bottom: 12px; text-align: center; cursor: pointer;
@@ -633,6 +687,14 @@
      metni taşıyan alan olduğu için KENDİ TAM GENİŞLİKTEKİ SATIRINA alındı.
      Başlık/Ders/Sınıf kısa alanlar, üstte yan yana kalabilir. */
   .ce-meta-grid > .field-outcome { grid-column: 1 / -1; }
+  /* Ders sekmeleri kendi tam genişlikteki satırında durur: sayıları açık uçlu
+     (içerik üreticisi kendi dersini ekleyebilir) ve 220 px'lik bir ızgara
+     gözünde üçüncü sekmeden sonra sarılıp okunmaz hale gelirdi. */
+  .ce-meta-grid > .field-dersler { grid-column: 1 / -1; }
+  /* "+" ile açılan kazanım formu da tam satır: 220 px'lik bir ızgara gözünde
+     "Kazanım kodu" ve "Açıklama" kutularına ~100 px kalıyor ve yazılan metin
+     okunmuyordu. */
+  .ce-meta-grid > .new-outcome { grid-column: 1 / -1; }
   .field-outcome select { font-size: 13.5px; }
   .ce-text-field textarea { min-height: 190px; font-size: 14px; line-height: 1.6; }
   .gen-bar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;

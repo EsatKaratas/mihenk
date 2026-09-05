@@ -143,8 +143,26 @@ export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
  * Kapsam: Kiril, Yunan, Arap, İbrani, CJK ve Hangul blokları. Türkçenin
  * kendi harfleri (çğıöşü) ve noktalama kapsam dışıdır.
  */
+/*
+ * §48 — ÖLÇÜLMÜŞ EKSİK: LATİN HARFLİ YABANCI KARAKTERLER KAÇIYORDU.
+ *
+ * Liste yalnızca Latin DIŞI alfabeleri tarıyordu. Canlı sistemde şu şık
+ * üretildi ve `dilUyarisi` FALSE döndü — uyarı İçerik Uzmanına hiç
+ * gösterilmedi:
+ *
+ *   "Şiirde phứcekli ve zor kelimeler kullanılmalıdır"
+ *              ^^^ U+1EE9
+ *
+ * `ứ` Latin Extended Additional bloğundadır (U+1E00–1EFF, Vietnamca) ve blok
+ * listede yoktu. Aralık eklendi.
+ *
+ * LATIN EXTENDED-A/B BİLEREK EKLENMEDİ: Türkçenin ğ ı İ ş Ş Ğ harfleri tam da
+ * orada yaşıyor (U+011E, U+011F, U+0130, U+0131, U+015E, U+015F). O bloğu
+ * toptan eklemek MEŞRU TÜRKÇEYİ işaretlerdi. U+1E00–1EFF'te Türkçe harf
+ * yoktur; yanlış pozitif riski taşımaz ve kalibre edilecek bir eşik doğurmaz.
+ */
 export const YABANCI_ALFABE =
-  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/;
+  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF]/;
 
 /** Metinde Türkçe dışı alfabe geçiyorsa true. */
 export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));

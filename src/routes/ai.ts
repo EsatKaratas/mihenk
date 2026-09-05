@@ -190,7 +190,21 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   // halde uzun bir dedup listesinde yanıt yine ortada kesilebilirdi.
   // §41 Madde 5: token payı KISITLANMIŞ sayıya göre hesaplanır; aksi hâlde
   // düşürülen sorular için boşuna token ayrılırdı.
-  const maxTokens = clamp(600 + (mcSayi + openSayi) * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
+  /* §48 — BECERİ TEMELLİ SORU BÜTÇEYİ BÜYÜTÜR.
+     Soru gövdesi artık tek cümle değil: 2-5 cümlelik bağlam + veri + görev
+     (yaklaşık 40-110 kelime), üstüne şıklar ve her çeldirici için bir gerekçe.
+     420 tok/soru bu uzunluk için yetmez; yanıt ortada kesilir, JSON
+     ayrıştırması düşer ve istek gereksiz bir retry'a girer — 420 değeri de
+     zaten aynı sınıftan bir kesilme ölçümünden sonra 220'den yükseltilmişti.
+
+     DÜRÜSTLÜK NOTU: 420 -> 700 ve 3400 -> 5600 değerleri modelin token
+     sayacıyla ölçülmedi; gövde uzunluğundan çıkarılmış GEREKÇELİ TAHMİNDİR
+     (yaklaşık 110 kelime gövde + 4 şık + 4 gerekçe ≈ 600-650 token, üstüne
+     pay). ÖLÇÜLEN tek şey davranıştır: §48'de gerçek modelle koşulan
+     üretimlerde yanıt kesilmedi ve tek denemede tamamlandı (bkz. PROGRESS
+     §48 ölçüm tablosu). Sayının KENDİSİ doğrulanmış değildir; soru sayısı
+     artarsa Workers Logs'taki `ai_call` kayıtlarından yeniden bakılmalıdır. */
+  const maxTokens = clamp(700 + (mcSayi + openSayi) * 700 + (b.excludeQuestions?.length || 0) * 12, 1600, 5600);
 
   // §44: kullanılamaz biçimde dönen (şıkkı eksik) soru sayısı — meta ile bildirilir.
   let elenenGecersiz = 0;
