@@ -17,6 +17,7 @@ import {
   sikImzasi,
   gerekceyiSadelestir,
   gerekceleriSadelestir,
+  gerekceTekrariVarMi,
   anahtarla,
   round05,
   clamp,
@@ -653,5 +654,41 @@ describe('gerekceyiSadelestir — kalıp açılış temizliği (§47)', () => {
     expect(gerekceleriSadelestir({ B: '   ', C: 'Birimi karıştırıyor' }))
       .toEqual({ C: 'Birimi karıştırıyor' });
     expect(gerekceleriSadelestir(undefined)).toEqual({});
+  });
+});
+
+/* §47b — iki çeldiriciye BİREBİR aynı gerekçe. Canlıda, §47 yayınlandıktan
+   hemen sonra gözlendi; aşağıdaki ilk test o çıktının kendisidir.           */
+describe('gerekceTekrariVarMi — aynı gerekçe iki çeldiricide (§47b)', () => {
+  it('🔴 canlıda GÖRÜLEN çıktıyı yakalar', () => {
+    expect(gerekceTekrariVarMi({
+      A: 'İklimi belirleyen faktörleri hava olayları ile karıştırmaktadır.',
+      B: 'İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır.',
+      D: 'İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır.',
+    })).toBe(true);
+  });
+
+  it('gerçekten farklı gerekçelerde uyarmaz', () => {
+    expect(gerekceTekrariVarMi({
+      A: 'Yükselti ile sıcaklık arasındaki ilişkiyi ters sanıyor',
+      B: 'Yükselti değişiminin sıcaklığı etkilemediğini düşünüyor',
+      D: 'Ondalık basamağı kaydırıyor',
+    })).toBe(false);
+  });
+
+  it('büyük/küçük harf ve noktalama farkı tekrarı gizlemez', () => {
+    expect(gerekceTekrariVarMi({
+      A: 'Birimleri karıştırıyor.',
+      B: 'birimleri  karıştırıyor',
+    })).toBe(true);
+  });
+
+  it('boş gerekçeler tekrar sayılmaz', () => {
+    expect(gerekceTekrariVarMi({ A: '', B: '   ', C: 'Ters oranla çarpıyor' })).toBe(false);
+  });
+
+  it('boş/null harita güvenle false döner', () => {
+    expect(gerekceTekrariVarMi(undefined)).toBe(false);
+    expect(gerekceTekrariVarMi({})).toBe(false);
   });
 });

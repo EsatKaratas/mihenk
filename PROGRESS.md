@@ -6431,6 +6431,30 @@ edilmiyor**; ölçülen şey kalıbın tamamen kalktığıdır.
 
 **10 test eklendi**; ilki canlıda görülen cümlenin kendisidir.
 
+### 47b. İKİ ÇELDİRİCİYE AYNI GEREKÇE — §47 yayınlandıktan hemen sonra görüldü
+
+§47 canlıya alındıktan sonra doğrulama çağrısında şu çıktı geldi:
+
+```
+S: Bir bölgenin iklimini belirleyen faktörler nelerdir?
+   A) İklimi belirleyen faktörleri hava olayları ile karıştırmaktadır.
+   B) İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır.
+   D) İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır.
+```
+
+Kalıp açılış gitmişti (0/6) ama **B ve D birebir aynıydı**. İki farklı
+çeldiricinin AYNI yanılgıyı ölçtüğünü söylemek, ikisinden birinin gereksiz
+olduğu anlamına gelir — ölçme açısından gerçek bir sinyal.
+
+**Düzeltme:** `gerekceTekrariVarMi()` — küçük harfe indirgenip noktalaması
+atılmış hâliyle **BİREBİR EŞİTLİK** arar. Benzerlik değil eşitlik olduğu için
+kalibre edilecek eşik doğmaz. Soru `gerekceTekrari` bayrağıyla işaretlenir ve
+İçerik Uzmanı onay kartında uyarıyı görür.
+
+**Otomatik düzeltilmez.** Hangi gerekçenin yeniden yazılacağı bir ölçme
+kararıdır; agents.md §1 gereği insanda kalır. 5 test eklendi; ilki canlıda
+görülen çıktının kendisidir.
+
 ### 47.6 Açık kalan — bilerek yapılmadı
 
 Yukarıdaki örnekteki *"Yanlış bir oranlama yapıyor"* gibi **genel geçer**
@@ -6445,6 +6469,6 @@ kullanımdan veri toplandığında eşik ölçülerek konabilir.
 | Kontrol | Sonuç |
 |---|---|
 | `npm run lint` | temiz |
-| `npm test` | **222/222** (212 → +10) |
-| `node tools/ozkontrol-dogrula.mjs` | 318 ad · kapsama %100 |
+| `npm test` | **227/227** (212 → +15) |
+| `node tools/ozkontrol-dogrula.mjs` | 319 ad · kapsama %100 |
 | Kalıp açılış (gerçek model, 24 gerekçe) | **0** |

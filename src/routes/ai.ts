@@ -37,6 +37,7 @@ import {
   BENZERLIK_ESIGI,
   sikImzasi,
   gerekceleriSadelestir,
+  gerekceTekrariVarMi,
   makulSoruSayisi,
 } from '../lib/guards';
 import {
@@ -240,6 +241,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
              (agents.md §1: karar insanda). */
           const anahtarGecerli = cevapAnahtariGecerliMi(trimmedOpts, q.correctKey);
           const karisik = shuffleOptions(trimmedOpts, q.correctKey || '', q.distractorRationale);
+          // §47: kalıp açılış temizliği karıştırmadan SONRA — anahtarlar yeni harfler.
+          const sadeGerekceler = gerekceleriSadelestir(karisik.distractorRationale);
           return {
             type: 'mc' as const,
             body: String(q.body).trim(),
@@ -251,7 +254,11 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
                hâlâ kalıplıydı), bu yüzden §3.3'ün yolu izlendi — çıktı
                sunucuda normalleştirilir. Karıştırmadan SONRA uygulanır ki
                anahtarlar `shuffleOptions`'ın verdiği yeni harflerle kalsın. */
-            distractorRationale: gerekceleriSadelestir(karisik.distractorRationale),
+            distractorRationale: sadeGerekceler,
+            /* §47b: iki çeldiriciye BİREBİR aynı gerekçe yazılmışsa İçerik
+               Uzmanına bildirilir. Otomatik düzeltilmez — hangi gerekçenin
+               yeniden yazılacağı bir ölçme kararıdır, insanda kalır. */
+            gerekceTekrari: gerekceTekrariVarMi(sadeGerekceler),
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),

@@ -385,6 +385,9 @@ async function aiGenerateQuestions(doc) {
            "A doğru" sayılıyordu. Otomatik tahmin yok — İçerik Uzmanı
            onay ekranında uyarıyı görür ve doğru şıkkı kendisi seçer. */
         anahtarBelirsiz: !!q.anahtarBelirsiz,
+        /* §47b: iki çeldiriciye birebir aynı gerekçe yazılmış. Otomatik
+           düzeltilmez; İçerik Uzmanı görür ve karar verir. */
+        gerekceTekrari: !!q.gerekceTekrari,
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
@@ -2966,6 +2969,15 @@ function yanitSayacMetni(metin) {
   return kelime + " kelime · " + String(metin || "").length + " karakter";
 }
 
+/* §47b — İKİ ÇELDİRİCİYE AYNI GEREKÇE. Sunucu birebir eşitlik arar (eşik
+   yok); burada yalnızca gösterilir. Karar İçerik Uzmanında (agents.md §1). */
+function gerekceTekrariHtml(q) {
+  if (!q || !q.gerekceTekrari) return "";
+  return '<div class="dil-uyari">⚠ <b>İki çeldiricinin gerekçesi birebir aynı.</b> ' +
+    'Aynı yanılgıyı ölçen iki çeldiriciden biri gereksizdir. ' +
+    'Onaylamadan önce gerekçelerden birini yeniden yazın ya da o şıkkı değiştirin.</div>';
+}
+
 function dilUyarisiHtml(q) {
   if (!q || !q.dilUyarisi) return "";
   return '<div class="dil-uyari">⚠ <b>Bu soruda Türkçe olmayan karakterler var.</b> ' +
@@ -3117,6 +3129,7 @@ function renderPendingQuestionCard(q) {
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     anahtarUyarisiHtml(q) +
     dilUyarisiHtml(q) +
+    gerekceTekrariHtml(q) +
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
@@ -8862,7 +8875,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "dilUyarisiHtml", "degerlendirmeDilUyarisiHtml",
+    "injectionWarnHtml", "dilUyarisiHtml", "degerlendirmeDilUyarisiHtml", "gerekceTekrariHtml",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",

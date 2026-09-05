@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-222%2F222-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-227%2F227-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -422,7 +422,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 222 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 227 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -662,15 +662,15 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **222 test**
-  koşar (`test/guards.test.ts` 97 · `test/schemas.test.ts` 44 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **227 test**
+  koşar (`test/guards.test.ts` 102 · `test/schemas.test.ts` 44 ·
   `test/ai-lib.test.ts` 24 · `test/prompts.test.ts` 23 ·
   `test/prompts-guvenlik.test.ts` 19 · `test/sayac-ve-yedek.test.ts` 15) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **318 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  dosya sonunda **319 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir

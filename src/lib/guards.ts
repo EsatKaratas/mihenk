@@ -397,6 +397,39 @@ export function gerekceyiSadelestir(metin?: string | null): string {
   return ilkHarfiBuyut(kirpilmis);
 }
 
+/**
+ * §47b — İKİ ÇELDİRİCİYE AYNI GEREKÇE YAZILMIŞ MI?
+ *
+ * 🔴 CANLIDA GÖZLENDİ (§47 yayınlandıktan hemen sonra, aynı uçtan):
+ *   A) "İklimi belirleyen faktörleri hava olayları ile karıştırmaktadır."
+ *   B) "İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır."
+ *   D) "İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır."
+ * B ve D BİREBİR aynı. İki farklı çeldiricinin aynı yanılgıyı ölçtüğünü
+ * söylemek, ikisinden birinin gereksiz olduğu anlamına gelir — ölçme
+ * açısından anlamlı bir sinyal.
+ *
+ * OTOMATİK DÜZELTİLMEZ, GÖSTERİLİR (§3.3 / agents.md §1): hangi gerekçenin
+ * yeniden yazılacağına İçerik Uzmanı karar verir.
+ *
+ * BENZERLİK DEĞİL, BİREBİR EŞİTLİK aranır — küçük harfe indirgenmiş ve
+ * noktalaması atılmış hâliyle. Böylece kalibre edilecek bir eşik doğmaz
+ * (bkz. BENZERLIK_ESIGI üstündeki not: sabitler tahminle konmaz).
+ */
+export function gerekceTekrariVarMi(harita?: Record<string, string> | null): boolean {
+  const gorulen = new Set<string>();
+  for (const v of Object.values(harita || {})) {
+    const n = String(v || '')
+      .toLocaleLowerCase('tr')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+    if (!n) continue;
+    if (gorulen.has(n)) return true;
+    gorulen.add(n);
+  }
+  return false;
+}
+
 /** Bir çeldirici gerekçesi haritasının tamamını sadeleştirir. */
 export function gerekceleriSadelestir(
   harita?: Record<string, string> | null
