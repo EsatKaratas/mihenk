@@ -1,11 +1,17 @@
-# MİHENK — DEVİR BELGESİ v2
+# MİHENK — DEVİR BELGESİ v3
 
-**Tarih:** 5 Eylül 2026 (§43 ile güncellendi) · **Canlı:** https://mihenk.bies.workers.dev
+**Tarih:** 5 Eylül 2026, 20:00 · **Commit:** `a1afcce` · **Canlı:** https://mihenk.bies.workers.dev
 **Takım:** BİES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026 · Problem 2 (Ölçme ve Değerlendirme)
 
-Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
-**bir kural yanlıştı** — §7'de düzeltildi, lütfen okuyun.
+Bu belge v2'nin (ve ondan önceki `MIHENK_DEVIR.pdf`'in) yerini alır.
+v2'den bu yana **beş tur iş** yapıldı — §43'ten §47b'ye. Hepsi §5'te özetli,
+tamamı `PROGRESS.md`'de.
+
+> **v2'de yanlış olan neydi:** v2, sınıf kodunu çalışan bir özellik olarak
+> anlatıyordu ve yedek modelin "tanımlı ama kurulu değil" olduğunu söylüyordu.
+> İkisi de artık geçersiz: sınıf kodu **kaldırıldı**, yedek model **çalışıyor**.
+> Eski bir kopyayla çalışıyorsanız bu belgeye güvenin, ona değil.
 
 ---
 
@@ -13,8 +19,8 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 
 | | |
 |---|---|
-| Dal | `sinif-kodu-kaldirma` — §43 çalışması; `main` = `final-birlestirme` = `342c230` |
-| Canlı | `mihenk.bies.workers.dev` — ⚠️ §43 **henüz yayınlanmadı**; canlı hâlâ `342c230` |
+| Dal | `main` = `final-birlestirme` = `a1afcce` (ikisi aynı, ayrışma yok) |
+| Canlı | `mihenk.bies.workers.dev` — deploy edilen `app.js`, `app.css` ve `index.html` diskle **SHA-256 eş** |
 | Test | **227/227** |
 | Lint (`tsc --noEmit`) | temiz |
 | Öz-kontrol | **319 ad · eksik 0 · kapsama %100** |
@@ -22,7 +28,9 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
 | Yedek model | ✅ Workers AI · `@cf/meta/llama-4-scout-17b-16e-instruct` · `fallbackSorunu: null` — bkz. §6.1 |
-| Sınıf kodu | ❌ **KALDIRILDI (§43)** — veri artık sunucuya hiç gitmez |
+| Sınıf kodu | ❌ **KALDIRILDI (§43)** — sınav/yanıt verisi sunucuya hiç gitmez |
+| Favicon | ✅ eklendi (§45) — canlıda 404 üretiyordu |
+| Cloudflare | Workers **Paid**, abonelik `Active`, **26 Eylül'de yenilenir** |
 
 Doğrulama komutları:
 
@@ -164,6 +172,21 @@ Sunucu her yanıtı Zod şemasıyla doğrular ve normalleştirir:
   Eşik 11 gerçek soru çiftiyle kalibre edildi, tahminle konmadı.
 - **Soru sayısı / metin uzunluğu** — ~180 karakterde bir soruluk özgün içerik
   varsayılır; fazlası **sessizce değil**, gerekçesiyle kısılır.
+- **Aynı şık kümesi (§46)** — gövdesi farklı ama şıkları aynı sorular elenir.
+  `sikImzasi()` şık metinlerini normalleştirip **sıralar**; birebir eşitlik
+  aranır, dolayısıyla **kalibre edilecek eşik yoktur**. Kapsam: aynı üretim
+  turu (önceki sorular yalnızca gövde metni olarak saklanıyor).
+- **Kullanılamaz soru (§44)** — 3'ten az şıklı ÇSS düşer; kaç tanesi düştüğü
+  `meta.elenenGecersiz` ile bildirilir.
+- **Gerekçe kalıbı (§47)** — model her çeldirici gerekçesine "bu şıkkı seçen
+  öğrenci…" diye başlıyordu. İstemle engellenemedi (**ölçüldü: 24/24 hâlâ
+  kalıplıydı**); açılış sunucuda deterministik kesiliyor. Kalıp yoksa metne
+  dokunulmaz; temizlik cümleyi yok ederse orijinal korunur.
+- **Aynı gerekçe iki çeldiricide (§47b)** — birebir eşitse soru
+  `gerekceTekrari` ile işaretlenir. Otomatik düzeltilmez, **gösterilir**.
+- **Değerlendirme çıktısında yabancı alfabe (§45)** — `/evaluate`'in gerekçesi,
+  kriter açıklamaları ve **öğrenciye gidecek geri bildirim taslağı** da
+  denetlenir. Canlıda CJK sızıntısı gözlendikten sonra eklendi.
 
 ---
 
@@ -211,7 +234,7 @@ kazanım üzerinden yapılır. Hiçbir öğrenci verisi model eğitiminde kullan
 
 ---
 
-## 5. BU TURDA NE DEĞİŞTİ (§43 ve §42)
+## 5. v2'DEN BU YANA NE DEĞİŞTİ (§43 → §47b)
 
 ### 5.0 §43 — Sınıf kodu kaldırıldı, yedek model çalışır oldu (5 Eylül)
 
@@ -240,6 +263,34 @@ ile gelecektir (§6.5). Ayrıntı `PROGRESS.md` §43'te.
 
 Ayrıntı `PROGRESS.md` §44'te. **Temiz çıkanlar da ölçüldü:** yinelenen id 0,
 `oninput`→`renderAll()` yok, `state.exam` alanları tutarlı, HITL zinciri sağlam.
+
+### 5.0c §45 — Depo vitrini + iki kusur (5 Eylül)
+
+Ekran görüntüleri ürünü **yalanlıyordu**: eski tema, dört rol, "Demo senaryosu"
+düğmesi ve öğretmen ekranında §42.1'de **kapatılmış** bir hatanın görüntüsü.
+Elle yenilemek yerine `tools/ekran-goruntusu-al.mjs` yazıldı — canlıyı açar,
+sınavı yayınlar, öğrenciyi sınava sokar, **modeli gerçekten çağırır**, onayı
+verir ve beş paneli kırpar. Sahne kurgulanmaz.
+
+Betiği koştururken iki gerçek kusur çıktı: **(1)** yabancı alfabe denetimi
+`/evaluate` çıktısında yoktu (öğrenciye gidecek metne CJK sızmıştı),
+**(2)** favicon yoktu, canlıda her ziyaret 404 üretiyordu.
+
+### 5.0d §46 — Aynı sorular + yanlış cevap anahtarı (5 Eylül)
+
+Kullanıcı bildirdi. **(1)** Gövdesi farklı ama **şıkları aynı** iki soru tekrar
+denetiminden kaçıyordu → `sikImzasi()`. **(2)** *"1 kilogram su kaç
+santilitre?"* sorusunda anahtar yanlıştı (1000 yerine 100). Olgusal hatayı
+hiçbir şema yakalayamaz — **onay ekranı yakaladı**. Yine de istem
+sertleştirildi ve A/B ölçüldü: kazanım modunda eski istem **0/2**, yeni istem
+**4/4** doğru.
+
+### 5.0e §47 + §47b — Çeldirici gerekçeleri (5 Eylül)
+
+Gerekçeler hep aynı kalıpla başlıyordu; kaynağı istemin **kendi JSON
+örneğiydi**. İstem düzeltildi, **ölçüldü, işe yaramadı** (24/24 hâlâ kalıplı) →
+temizlik sunucuya alındı: **24/24 → 0/24**. Hemen ardından canlıda iki
+çeldiriciye **birebir aynı** gerekçe yazıldığı görüldü; o da işaretleniyor.
 
 ### 5.1 §42 — Dış inceleme
 
@@ -419,8 +470,9 @@ yüzdesini basıyor; listeye eklenmeyen bir fonksiyon CI'ı kırar.
 src/
   index.ts              Worker girişi — /api/health, /api/ai/*
   lib/ai.ts             Sağlayıcı soyutlaması, JSON ayıklama, yedek mantığı
-  lib/prompts.ts        5 istem kurucusu — "modele ne söylüyoruz" dosyası
-  lib/guards.ts         Saf yardımcılar: hız sınırı, şık karıştırma, benzerlik
+  lib/prompts.ts        6 istem kurucusu — "modele ne söylüyoruz" dosyası
+  lib/guards.ts         Saf yardımcılar: hız sınırı, şık karıştırma, benzerlik,
+                        şık imzası (§46), gerekçe temizliği (§47), dil denetimi
   routes/ai.ts          7 AI ucu
   schemas/              Zod girdi + model çıktı şemaları
 public/
@@ -429,13 +481,16 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   199 test, 6 dosya
+test/                   227 test, 6 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)
+  ekran-goruntusu-al.mjs README görüntülerini CANLIDAN üretir (§45)
+  injection-test.py     5 saldırı vektörü — tekrar koşulabilir
 routes.ts               ⚠️ REFERANS İSKELETİ — çalışan kod DEĞİL
 schema.sql              14 üretim tablosu (senkron tabloları §43'te silindi)
-PROGRESS.md             Kronolojik günlük — TEK DOĞRULUK KAYNAĞI (§42'ye kadar)
+PROGRESS.md             Kronolojik günlük — TEK DOĞRULUK KAYNAĞI (§47b'ye kadar)
+docs/ekran/*.png        5 ekran görüntüsü — betikle, canlıdan üretilir
 agents.md               Proje anayasası
 ```
 
@@ -443,7 +498,7 @@ agents.md               Proje anayasası
 
 ## 11. YENİ BAŞLAYANA İLK ÜÇ ADIM
 
-1. `PROGRESS.md`'yi **sondan başa** okuyun: §42 → §41 → §40 → §39.
+1. `PROGRESS.md`'yi **sondan başa** okuyun: §47b → §47 → §46 → §45 → §44 → §43.
 2. `agents.md`'yi okuyun — öneri değil, anayasa.
 3. Depoyu klonlayıp §0'daki altı komutu **çalıştırıp çıktılarını gösterin.**
    Tutmuyorsa durun.
