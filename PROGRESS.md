@@ -5475,3 +5475,71 @@ blok bildirim `white-space: normal` (431 px), normal rozetler hâlâ `nowrap`.
 `node --check` 4/4 · öz-kontrol 260 ad eksik 0 · lint temiz ·
 `npm test` **185/185** · `check:config` geçti · konsol hatası **0** ·
 çift id **0** · öz-kontrol uyarı şeridi çıkmadı.
+
+---
+
+## 40. OCR UÇTAN UCA DOĞRULANDI — §15'teki en eski açık madde kapandı (5 Eylül 2026)
+
+İrem'in devir belgesi §15 ve `PROGRESS.md` §29.5/§30.4, OCR'ın
+`sayfa.render(...)` adımını (pdf.js'in PDF sayfasını `<canvas>`'a çizmesi)
+**"hiç doğrulanmadı, çalışıyor KABUL ETMEYİN"** diye taşıyordu. Sebep: test
+ortamlarının tarayıcı paneli gizli çalışıyordu ve gizli sekmede
+`requestAnimationFrame` tetiklenmiyor; pdf.js'in çizimi buna bağlı.
+
+**Bu tur o adım gerçekten çalıştırıldı ve geçti.**
+
+### 40.1 Test yöntemi
+
+Metin katmanı OLMAYAN bir PDF üretildi: metin önce bir görüntüye çizildi,
+görüntü PDF'e gömüldü, üstüne hafif tarama gürültüsü eklendi. Kanıt:
+`get_text()` **0 karakter**, sayfada **1 görüntü**.
+
+Dosya gerçek CSP altında (`wrangler dev`, `public/_headers` uygulanıyor)
+`#ceFile` girdisine `DataTransfer` ile verildi ve `change` olayı tetiklendi —
+yani ürünün gerçek dosya okuma yolu çalıştı. CSP ölçüldü:
+`script-src ... 'wasm-unsafe-eval'` ve `connect-src ... data:` **aktif**.
+
+### 40.2 Sonuçlar
+
+| Adım | Sonuç |
+|---|---|
+| Metin katmanı tespiti | Uygulama doğru anladı: *"Bu PDF'te metin katmanı bulunamadı — taranmış görüntü olabilir."* |
+| OCR teklifi | `.ocr-offer` çıktı: *"🔎 OCR ile Dene (1 sayfa)"* |
+| **`sayfa.render(...)` + Tesseract** | **ÇALIŞTI** |
+| OCR çıktısı | Taranan metinle **birebir aynı** (aşağıda) |
+| Metne aktarma | `#btnApplyPdf` ile kutuya düştü (397 karakter) |
+| Uyarı rozeti | *"OCR ile çıkarıldı; yazım hataları olabilir, soru üretmeden önce gözden geçirin"* — dürüst etiketleme çalışıyor |
+| Gerçek modelle soru üretimi | **12 saniyede 3 soru**, hepsi taranan içerikten |
+| Konsol hatası | **0** (`error` / `unhandledrejection` / `console.error`) |
+
+OCR çıktısı (kısaltılmadan, ilk satırlar):
+
+```
+KUVVET VE HAREKET Bir cisme etki eden kuvvetler dengelenmemisse cismin
+hareket durumu degisir. Cisim hizlanabilir, yavaslayabilir ya da yon
+degistirebilir. Surtunme kuvveti, hareket eden bir cismin hareketine zit
+yonde etki eder ve onu yavaslatir. Surtunme kuvvetinin buyuklugu yuzeyin
+puruzlulugune baglidir. Puruzlu yuzeylerde surtunme kuvveti daha buyuktur.
+Kaygan yuzeylerde ise daha kucuktur.
+```
+
+Üretilen sorulardan biri: *"Puruzlu ve kaygan yüzeylerde sürtünme kuvvetinin
+büyüklüğü nasıl değişir? Açıklayınız."* — yani soru gerçekten OCR'la okunan
+metinden üretildi.
+
+### 40.3 Ölçüm notu
+
+İlk ölçümde "ağ isteği yok, OCR çalışmadı" sanıldı. Yanlıştı: Tesseract
+çekirdeği ve dil paketi **worker içinde `importScripts` ile** yükleniyor,
+ana iş parçacığına konan `fetch` kancasına takılmıyor. Doğru kanıt
+`state.pdf.ocr === true` ve `pdfPages[0].ocr === true` alanlarıydı
+(TUZAK 10: ölçüm aracı yanıldı, kod değil).
+
+### 40.4 Hâlâ ölçülmeyen
+
+OCR'ın **gerçek dünya isabet oranı** (elle taranmış, eğik/gölgeli bir belgede)
+ölçülmedi. Buradaki test temiz, dijital olarak üretilmiş bir görüntüyle
+yapıldı; gerçek bir tarayıcı çıktısı daha zordur. Sayfa başına süre de
+ölçülmedi (tek sayfa, 20 sn'lik pencerede tamamlandı).
+
+Test dosyası (`public/test-tarali.pdf`) testten sonra silindi; depoya girmedi.
