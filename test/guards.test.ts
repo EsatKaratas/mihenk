@@ -13,6 +13,7 @@ import {
   rateLimited,
   yabanciAlfabeVarMi,
   soruDilUyarisi,
+  metinDilUyarisi,
   anahtarla,
   round05,
   clamp,
@@ -456,5 +457,55 @@ describe('makulSoruSayisi — §41 Madde 5: metin uzunluğu / soru sayısı', ()
 
   it('6000 karakterlik üst sınırda 8+4 istek tamamen karşılanır', () => {
     expect(makulSoruSayisi(6000)).toBeGreaterThanOrEqual(12);
+  });
+});
+
+/* ===========================================================================
+   §45 — metinDilUyarisi: DEĞERLENDİRME çıktısında yabancı alfabe
+   ===========================================================================
+   Bu testler gerçek bir sızıntıdan doğdu. README için canlı sistemden ekran
+   görüntüsü alınırken, modelin ÖĞRENCİYE GİDECEK geri bildirim taslağında
+   CJK karakteri çıktı:
+
+     "Sürtünme kuvvetinin farklı durumlar下的 etkilerini düşün"
+
+   §3.3'ün koruması vardı ama YALNIZCA soru üretimine bağlıydı; /evaluate
+   çıktısı (gerekçe, kriter açıklamaları, geri bildirim taslağı) hiç
+   denetlenmiyordu. Aşağıdaki ilk test o cümlenin kendisidir.                */
+describe('metinDilUyarisi — model çıktısındaki yabancı alfabe (§45)', () => {
+  it('🔴 canlıda GÖZLENEN sızıntıyı yakalar', () => {
+    const gercekCikti =
+      'Doğru bir başlangıç yaptın, şimdi açıklamana daha fazla örnek ve ayrıntı eklemeyi dene. ' +
+      'Sürtünme kuvvetinin farklı durumlar下的 etkilerini düşün ve bunları açıklamana dahil et.';
+    expect(metinDilUyarisi(gercekCikti)).toBe(true);
+  });
+
+  it('temiz Türkçe metinde uyarı vermez', () => {
+    expect(metinDilUyarisi(
+      'Öğrenci dengelenmemiş kuvvetlerin cismin hızını değiştirdiğini doğru açıklamıştır.',
+      'Şıklar, çeldiriciler ve ölçüt açıklamaları eksiksiz.',
+      'Çığır açan bir yanıt değil ama yeterli.'
+    )).toBe(false);
+  });
+
+  it('metinlerden HERHANGİ BİRİ kirliyse uyarır — sıra fark etmez', () => {
+    expect(metinDilUyarisi('temiz', 'temiz', 'Кирилл')).toBe(true);
+    expect(metinDilUyarisi('Кирилл', 'temiz')).toBe(true);
+  });
+
+  it('null/undefined/boş güvenle işlenir (kriter gerekçesi boş dönebilir)', () => {
+    expect(metinDilUyarisi(null, undefined, '')).toBe(false);
+    expect(metinDilUyarisi()).toBe(false);
+  });
+
+  it('Kiril, Yunan, Arap ve Hangul da yakalanır', () => {
+    expect(metinDilUyarisi('kuvvet ve hareket Кириллица')).toBe(true);
+    expect(metinDilUyarisi('enerji αβγ dönüşümü')).toBe(true);
+    expect(metinDilUyarisi('yanıt العربية içeriyor')).toBe(true);
+    expect(metinDilUyarisi('한국어 karışmış')).toBe(true);
+  });
+
+  it('sayı, noktalama ve yüzde işareti temiz sayılır', () => {
+    expect(metinDilUyarisi('6/8 puan (%40) — “iyi” denebilir; ancak…')).toBe(false);
   });
 });

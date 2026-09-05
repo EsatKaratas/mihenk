@@ -6082,3 +6082,112 @@ gösteriyordu; gerçek dosya `seed/turkishmmlu/01_learning_outcomes.sql`. §43
 | Tarayıcı | konsol hatası **0** · beş rol de çizildi · yinelenen id **0** |
 | `/api/ai/evaluate` boş yanıt | `injectionAttempt: false` |
 | Gerçek model çağrısı | 200, `meta.elenenGecersiz` alanı mevcut |
+
+---
+
+## 45. DEPO VİTRİNİ TAZELENDİ — ve tazelerken İKİ GERÇEK KUSUR ÇIKTI (5 Eylül 2026)
+
+**İstek (kullanıcı):** *"github özellikle read me ekranını düzenle, github çok
+eski kalmış."*
+
+Bu bölüm bir belge güncellemesi olarak başladı, iki ürün kusuruyla bitti.
+İkisi de belgeyi tazelerken **ölçüm sırasında** ortaya çıktı — yani depo
+vitrinini ciddiye almak, ürünü de düzeltti.
+
+### 45.1 🔴 Ekran görüntüleri ürünü YALANLIYORDU
+
+`docs/ekran/*.png` 4 Eylül'de kalmıştı. Sorun eskilik değil, **yanlışlık**:
+
+| Görüntüde ne vardı | Bugün ne var |
+|---|---|
+| Eski lacivert tema | Krem/bordo Mihenk paleti (§29) |
+| **DÖRT** rol kartı | **BEŞ** rol — veli eksikti (§28f) |
+| "Demo senaryosu" düğmesi | "Demo Akışı" (§38) |
+| Kolofonda "dört rolü … veriler sunucuya gönderilmez" | Beş rol, §43 metni |
+| **Öğretmen ekranında "Öğrenci sınavı henüz bitirmedi" boş kutusu** | §42.1'de KAPATILAN hatanın ta kendisi |
+
+Sonuncusu en ağırı: depo vitrini, ürünün **düzeltilmiş bir hatasını** teşhir
+ediyordu. Üstelik README'deki alt yazı o görüntüde olmayan bir şeyi anlatıyordu
+("puan önerisi kriter bazında gelir, gerekçesiyle birlikte" — görüntüde boş bir
+durum kutusu vardı).
+
+**Çözüm elle yeni görüntü almak değil**, `tools/ekran-goruntusu-al.mjs` yazmak
+oldu. Betik canlı sistemi açar, demo senaryosunu yükler, **sınavı yayınlar,
+öğrenciyi sınava sokar, modeli GERÇEKTEN çağırır**, öğretmen onayını verir ve
+beş paneli sırayla kırpar. Sahne kurgulanmaz; bu yüzden görüntüler ürünle bir
+daha ayrışamaz. Kadraj da hedef öğeye göre alınır — alt yazı neyi vaat
+ediyorsa kadraj onu gösterir.
+
+```bash
+node tools/ekran-goruntusu-al.mjs            # canlı
+node tools/ekran-goruntusu-al.mjs http://localhost:8788
+```
+
+### 45.2 🔴 YABANCI ALFABE DENETİMİ DEĞERLENDİRME ÇIKTISINDA YOKTU
+
+Betiğin ürettiği ilk öğretmen görüntüsünde, modelin **öğrenciye gidecek** geri
+bildirim taslağı şöyleydi:
+
+> "Doğru bir başlangıç yaptın, şimdi açıklamana daha fazla örnek ve ayrıntı
+> eklemeyi dene. Sürtünme kuvvetinin farklı durumlar**下的** etkilerini düşün…"
+
+CJK karakteri. §3.3'te bu tam olarak öngörülmüş ve `YABANCI_ALFABE` +
+`soruDilUyarisi()` ile korunmuştu — **ama koruma yalnızca soru üretimine
+bağlanmıştı** (`src/routes/ai.ts` satır 255 ve 266). `/api/ai/evaluate`
+çıktısının üç metni — `justification`, her kriterin `reason`'ı ve
+`studentFeedback` — hiç denetlenmiyordu.
+
+**Neden önemli:** o üç metinden biri öğretmene, biri öğretmenin onayıyla
+**öğrenci karnesine** gider. Ürünün kendi kuralı (§3.3) "otomatik düzeltme yok,
+ama insana GÖSTER" diyordu; burada gösterilmiyordu bile.
+
+**Düzeltme.** `guards.ts` içine genel amaçlı `metinDilUyarisi(...metinler)`
+eklendi; `/evaluate` yanıtı artık `dilUyarisi` alanı taşıyor ve arayüzde
+`degerlendirmeDilUyarisiHtml()` ile öğretmene gösteriliyor. Ayrı bir cümle
+kullanıldı: burada düzeltilecek şey soru değil, modelin gerekçesi ve öğrenciye
+gidecek taslaktır. Boş yanıt erken dönüşü de aynı alanı `false` ile taşıyor
+(şekil tutarlılığı).
+
+**6 test eklendi** (`test/guards.test.ts`) ve ilki **canlıda gözlenen cümlenin
+kendisidir** — bir daha sessizce geçemez.
+
+### 45.3 🟡 Favicon yoktu — canlıda her ziyaret 404 üretiyordu
+
+Ekran görüntüsü betiği konsol hatalarını da topluyor ve **1 hata** raporladı:
+
+```
+Failed to load resource: the server responded with a status of 404 ()
+```
+
+Ölçüldü: `/favicon.ico` → **404**. Dört HTML sayfasının hiçbirinde `rel="icon"`
+yoktu; tarayıcı her açılışta favicon isteyip 404 alıyor, sekmede ikon
+çıkmıyordu. Jüri ekranında görünen bir eksik.
+
+Logo zaten depoda (`public/mihenk-logo.png`); dört sayfaya `icon` ve
+`apple-touch-icon` bağlantısı eklendi. **Yeniden ölçüldü: konsol hatası 0.**
+
+### 45.4 README'de düzeltilen eskimiş bilgiler
+
+| Neydi | Ne oldu |
+|---|---|
+| Test rozeti `133/133` | `205/205` |
+| Yedek sağlayıcı `openai · gpt-5.6-luna` (§3.1 ve §9'da) | `workers-ai · llama-4-scout` + neden değiştiği ve **kotaya karşı korumadığı** |
+| "Demo senaryosu" düğmesi (2 yerde) | "Demo Akışı" + rehberli 5 adım |
+| Öz-kontrol "211 fonksiyon" | 318 ad, **çift yönlü** denetim |
+| Test dökümü 199 | 205, dosya bazında güncel |
+| 4 ekran görüntüsü | 5 (veli eklendi) + betikle üretildiği notu |
+| Backend kapsamı | `routes.ts`'in iskelet olduğu açıkça yazıldı |
+| — | **"Son değişiklikler"** bölümü eklendi (§43-§45 özeti) |
+| — | §9'a "çok cihazlı çalışma YOK" maddesi, gerekçesi ve bedeliyle |
+
+### 45.5 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **205/205** (199 → +6, §45.2 dil testleri) |
+| `node tools/ozkontrol-dogrula.mjs` | **318 ad · eksik 0 · kapsama %100** |
+| `npm run check:config` | exit 0 |
+| Canlı `/api/ai/evaluate` | `dilUyarisi` alanı dönüyor |
+| Canlı `/favicon` | `index.html` içinde `rel="icon"` var, **konsol hatası 0** |
+| Ekran görüntüleri | 5 dosya, canlıdan, gerçek model çağrısıyla, konsol hatası 0 |

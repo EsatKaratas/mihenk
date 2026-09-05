@@ -513,7 +513,12 @@ async function aiEvaluate(q, answerText, rubric, force) {
                     breakdown: j.breakdown, confidence: j.confidence,
                     // Sunucu, ogrenci yanitinin modele talimat vermeye calistigini bildirir.
                     // Engelleme DEGIL, ogretmene sinyal (agents.md §7.1: karar insanda).
-                    injectionAttempt: !!j.injectionAttempt };
+                    injectionAttempt: !!j.injectionAttempt,
+                    /* §45: model çıktısında Türkçe dışı alfabe var mı. Soru
+                       üretiminde bu koruma vardı, değerlendirmede YOKTU;
+                       canlıda geri bildirim taslağına CJK karakteri sızdığı
+                       ölçüldü. Otomatik düzeltilmez, öğretmene gösterilir. */
+                    dilUyarisi: !!j.dilUyarisi };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
     // Denetim izi: yapay zekâ PUAN ÖNERDİ. Nihai puan değil — öğretmen
@@ -2962,6 +2967,16 @@ function dilUyarisiHtml(q) {
     'Onaylamadan önce soruyu ve şıkları okuyup düzeltin.</div>';
 }
 
+/* §45 — AYNI UYARININ DEĞERLENDİRME TARAFI.
+   Ayrı bir fonksiyon çünkü cümle farklı olmalı: burada düzeltilecek şey soru
+   değil, modelin gerekçesi ve ÖĞRENCİYE GİDECEK geri bildirim taslağıdır. */
+function degerlendirmeDilUyarisiHtml(ev) {
+  if (!ev || !ev.dilUyarisi) return "";
+  return '<div class="dil-uyari">⚠ <b>Bu değerlendirmede Türkçe olmayan karakterler var.</b> ' +
+    'Model, gerekçeye ya da geri bildirim taslağına başka bir alfabeden harf karıştırmış. ' +
+    'Metni öğrenciye aktarmadan önce okuyup düzeltin.</div>';
+}
+
 /* Madde 1: şube (bölüm) etiketi yalnızca ORGANİZASYON/RAPORLAMA amaçlıdır.
    MEB kazanımları şubeye göre değişmediği için bu bilgi hiçbir AI istemine
    girmez (bkz. buildQuestionPrompt) ve kazanım filtrelemesini etkilemez
@@ -5350,6 +5365,7 @@ function evalCardHtml(q, student, ev) {
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
     injectionWarnHtml(ev) +
+    degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
@@ -8840,7 +8856,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "dilUyarisiHtml",
+    "injectionWarnHtml", "dilUyarisiHtml", "degerlendirmeDilUyarisiHtml",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",

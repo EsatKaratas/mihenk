@@ -16,11 +16,12 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-133%2F133-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-205%2F205-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
 [![Model](https://img.shields.io/badge/model-Llama%203.3%2070B-0f9d58?style=flat-square)](./src/lib/prompts.ts)
+[![Yedek model](https://img.shields.io/badge/yedek-Llama%204%20Scout-0f9d58?style=flat-square)](#31-tek-sağlayıcıya-bağımlı-değil--otomatik-yedek)
 [![Human in the Loop](https://img.shields.io/badge/Human--in--the--Loop-zorunlu-8957e5?style=flat-square)](./agents.md)
 [![Injection testi](https://img.shields.io/badge/injection%20testi-5%2F5-2ea44f?style=flat-square)](./tools/injection-test.py)
 [![Madde analizi](https://img.shields.io/badge/madde%20analizi-p%20%C2%B7%20d%20%C2%B7%20%C3%A7eldirici-0f9d58?style=flat-square)](#112-diğer-eklemeler)
@@ -37,16 +38,37 @@ model istemleri, geliştirme kuralları, güvenlik testi.</sub>
 Ama yapay zekâ hiçbir şeye karar vermez: soru **önerir**, puan **önerir**,
 rubrik **önerir**. Onaylayan her zaman insandır.
 
-### Ekranlar
+### Son değişiklikler — 5 Eylül 2026
 
-Aşağıdaki görüntüler **canlı sistemden**, demo senaryosu yüklü hâlde alınmıştır.
+Proje günlüğü `PROGRESS.md`'dir ve **44 bölümdür**; her madde kök nedeni ve
+ölçüm sonucuyla yazılır. Son üç tur:
+
+| | |
+|---|---|
+| **Sınıf kodu kaldırıldı** (§43) | Cihazlar arası paylaşım bir *oda koduyla* korunuyordu — kimlik doğrulama değildi: kodu bilen herkes o sınıfın öğrenci yanıtlarını okuyabiliyor ve geri alınamaz biçimde silebiliyordu. Özellik uçlarıyla, tablolarıyla ve veritabanı bağlamasıyla söküldü. **Bedeli açıkça yazıldı:** ürün artık tek cihazda çalışır. |
+| **Yedek model gerçekten çalışır oldu** (§43) | Yedek *tanımlıydı ama devreye giremiyordu* (secret yoktu). Çözüm anahtar almak değil kodu okumak oldu; ayrıntısı [§3.1](#31-tek-sağlayıcıya-bağımlı-değil--otomatik-yedek)'de. |
+| **Analiz turu: 2 gerçek kusur + 3 küçük** (§44) | En ağırı: boş kriter adıyla sınav **yayınlanabiliyordu** ve hata ancak *puanlama anında* çıkıyordu. Ölçüt tek yere alındı; şerit artık sebebi yazıyor. |
+| **Değerlendirme çıktısında dil denetimi** (§45) | Yabancı alfabe koruması yalnızca soru üretiminde vardı. Bu README için çekilen ekran görüntüsünde modelin **öğrenciye gidecek** geri bildirim taslağına CJK karakteri sızdığı görüldü; denetim değerlendirme çıktısına da eklendi ve testle kilitlendi. |
+
+<sub>Bu tablo bir değişiklik listesi değil, bir <b>çalışma biçimi</b> örneğidir:
+kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de yazılır.</sub>
+
+### Ekranlar
 
 | | |
 |---|---|
 | <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — AI'ın ürettiği soru taslakları, her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
-| **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi kriter bazında gelir, gerekçesiyle birlikte. Öğretmen onaylayana kadar öğrenciye ulaşmaz. |
+| **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
 | <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım ısı haritası ve gerçek/örnek satır ayrımı" width="100%"> |
-| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve puanın hangi ölçütten geldiği. Puanı yapay zekânın mı önerdiği, öğretmenin mi değiştirdiği açıkça yazar. | **Eğitim Yöneticisi** — kazanım ısı haritası ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
+| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım ısı haritası ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
+| <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | |
+| **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | |
+
+> Bu görüntüler elle alınmadı: [`tools/ekran-goruntusu-al.mjs`](./tools/ekran-goruntusu-al.mjs)
+> **canlı sistemi** açar, sınavı yayınlar, öğrenciyi sınava sokar, **modeli
+> gerçekten çağırır**, öğretmen onayını verir ve her paneli sırayla kırpar.
+> Sahne kurgulanmıyor; bu yüzden görüntüler ürünle bir daha ayrışmaz.
+> Yeniden üretmek için: `node tools/ekran-goruntusu-al.mjs`
 
 ### İçindekiler
 
@@ -143,7 +165,9 @@ CSV / JSON olarak indirilebilir`"]
 ### Canlıda ölçülen değerler
 
 Aşağıdakiler tahmin değil; **canlı sistemde, gerçek modelle** (Llama 3.3 70B)
-birden fazla turda ölçülmüş sürelerdir (son ölçüm: 27 Ağustos 2026).
+birden fazla turda ölçülmüş sürelerdir (son süre ölçümü: 27 Ağustos 2026;
+sistem 5 Eylül'de yeniden uçtan uca koşuldu — yukarıdaki ekran görüntüleri
+o koşumdan).
 
 **Tek sayı yerine aralık veriyoruz, çünkü değişkenlik gerçekten yüksek:** aynı
 uç farklı koşumlarda **6 sn ile 29 sn** arasında ölçüldü. Model sağlayıcısının
@@ -176,9 +200,10 @@ sistemin sessizce simülasyona düşüp gerçek yapay zekâ gibi görünmesini e
 ### Hemen deneyin
 
 **Kurulum gerekmez:** [canlı sistemi açın](https://mihenk.bies.workers.dev),
-üst çubuktaki **"Demo senaryosu"** düğmesine basın ve rol seçiciden beş rol
-arasında gezinin. Yüklenen sorular uydurma değil, modelin gerçekten ürettiği
-çıktılar; değerlendirme canlı çalışır.
+üst çubuktaki **"Demo Akışı"** düğmesine basın. Rehber sizi beş adımda,
+beş rolün arasında sırayla gezdirir — hangi ekranda ne yapacağınızı yazar.
+Yüklenen sorular uydurma değil, modelin gerçekten ürettiği çıktılar;
+değerlendirme canlı çalışır.
 
 **Yerelde çalıştırmak isterseniz** (Node.js ≥ 18 ve bir Cloudflare hesabı):
 
@@ -324,7 +349,7 @@ değişkeniyle** belirlenir (§5.2). Canlıdaki kurulum:
 
 ```
 Birincil : workers-ai · @cf/meta/llama-3.3-70b-instruct-fp8-fast
-Yedek    : openai     · gpt-5.6-luna
+Yedek    : workers-ai · @cf/meta/llama-4-scout-17b-16e-instruct
 ```
 
 `AI_FALLBACK_*` tanımlıysa birincil sağlayıcı başarısız olduğu anda (kesinti,
@@ -335,9 +360,25 @@ gizlemez:
 - Workers Logs'a `ai_fallback` olayı düşer (nereden nereye, sebebiyle)
 - Yedek yapılandırılmamışsa hata olduğu gibi bildirilir — sahte puan üretilmez
 
-**Canlıda doğrulandı:** birincil sağlayıcı kasten devre dışı bırakılarak yedeğe
-düşürüldü; `gpt-5.6-luna` uçtan uca puan üretti, rozet ve `meta.fellBack`
-geçişi doğru bildirdi, sonra birincile geri dönüldü.
+**Canlıda doğrulandı:** birincil model kasten bozularak (`@cf/meta/BOZUK-MODEL-TESTI`)
+yedeğe düşürüldü; istek yine HTTP 200 döndü, puan üretildi, rozet ve
+`meta.fellBack` geçişi doğru bildirdi.
+
+**Yedek 5 Eylül'de değişti — ve neden değiştiği önemli.** Önceki yedek harici
+bir sağlayıcıydı (`openai · gpt-5.6-luna`) ama `AI_FALLBACK_API_KEY` secret'ı
+kurulmamıştı: yani yedek **tanımlıydı, çalışmıyordu**. Kod okununca çözümün
+anahtar satın almak olmadığı görüldü — `fallbackConfigured()` yedek sağlayıcı
+`workers-ai` ise **API anahtarı değil AI binding** arıyor ve binding zaten
+bağlı. Yedek, ekibin kendi 6 modelli karşılaştırmasında birincili geçen tek
+aday olan `llama-4-scout`a alındı; `/api/ai/status` artık `fallbackSorunu: null`
+döndürüyor.
+
+> **DÜRÜST SINIR:** iki model de aynı Cloudflare Neuron havuzundan yer. Bu
+> yedek **hesap kotası tükenmesine karşı KORUMAZ**; koruduğu şey modele özgü
+> başarısızlıktır (modelin kaldırılması, aşırı yüklenme, zaman aşımı,
+> ayrıştırılamayan JSON). Kota riski zaten Workers Paid'de hata değil ücrettir.
+> Hesap dışı gerçek bir emniyet ağı isteyen için `wrangler.demo.jsonc` içinde
+> "SEÇENEK A" yorumlu hazır durur.
 
 > **Neden yedek duruyor:** Workers AI'ın günlük ücretsiz kotası **10.000
 > neuron** ile sınırlı ve ölçülen bir tam değerlendirme turu bunun yaklaşık
@@ -380,7 +421,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 199 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 205 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -496,9 +537,10 @@ altındadır.
 ## 6. Demo akışı (jüri için önerilen sıra)
 
 Canlı sistemde (ya da `npm run dev:demo` ile yerelde) şu sıra izlenebilir.
-Üst çubuktaki **"Demo senaryosu"** düğmesi hazır bir başlangıç noktası
-yükler — yüklediği sorular uydurma değil, modelin gerçekten ürettiği
-çıktılardır; değerlendirme yine canlı çalışır.
+Üst çubuktaki **"Demo Akışı"** düğmesi hazır bir başlangıç noktası yükler ve
+sizi **beş adımda rehberli** olarak gezdirir; her adımda hangi rolde ne
+yapacağınız üst şeritte yazar. Yüklediği sorular uydurma değil, modelin
+gerçekten ürettiği çıktılardır; değerlendirme yine canlı çalışır.
 
 1. **İçerik Uzmanı** sekmesinde bir ders notu yapıştırıp "AI ile Soru Üret"e
    basın; üretilen 2 çoktan seçmeli + 1 açık uçlu soruyu inceleyip onaylayın.
@@ -572,10 +614,11 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
 
 ## 9. Bilinen sınırlamalar ve yol haritası
 
-- **Backend kapsamı:** Yalnızca `/api/ai/*` uçları uygulanmıştır (soru üretimi
-  ve açık uçlu ön değerlendirme). `routes.ts` içindeki diğer rotalar hâlâ
-  iskelettir; kimlik doğrulama (Better Auth), kalıcı D1 yazımı ve rol bazlı
-  yetkilendirme henüz uygulanmamıştır.
+- **Backend kapsamı:** Yalnızca `/api/health` ve `/api/ai/*` (7 uç)
+  uygulanmıştır. `routes.ts` içindeki diğer rotalar hâlâ **iskelettir**
+  (her handler `c.json({ todo: ... })` döndürür — ilk bakan biri auth/exams
+  rotalarının var olduğunu sanabilir, yoktur); kimlik doğrulama (Better Auth),
+  kalıcı D1 yazımı ve rol bazlı yetkilendirme henüz uygulanmamıştır.
 - **Kalıcı veritabanı yazımı yok:** Prototip durumu D1'e yazılmaz. Ancak
   durum **tarayıcıda kalıcıdır** (`localStorage`, anahtar `t3-olcme-durum-v1`):
   sayfa yenilense, tarayıcı kapansa ya da bağlantı kopsa öğrencinin yazdığı
@@ -592,14 +635,25 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   Isı haritasındaki *karşılaştırma* sınıfları (6-A, 8-B, 8-C) demo verisidir
   ve arayüzde "(örnek)" etiketiyle işaretlidir — canlı şubeler gerçek veriden
   hesaplanır. Mekanizma gerçek, karşılaştırma sınıfları simüle.
-- **Yedek sağlayıcı OpenAI `gpt-5.6-luna`'dır.** Daha önce denenen Gemini
-  ücretsiz katmanı **günde 20 istekle** sınırlıydı ve bir tam değerlendirme
-  turu 11 istek gerektirdiği için günde ~1,8 tura denk geliyordu; bu yüzden
-  vazgeçildi. Yedeğin kullanım tavanı önceden sabitlenmiştir ve otomatik
-  yükseltme **kapalıdır**; sınır aşılamaz.
-- **Yedeğin puanlama sertliği farklı:** Aynı yanıta birincil model 15-16/20,
-  yedek 20/20 verdi. Nihai puanı öğretmen onayladığı için kritik değil, ama
-  yedeğe düşüldüğünde tutarlılığın değiştiği bilinmelidir.
+- **Yedek, kota tükenmesine karşı koruma DEĞİLDİR.** Yedek model
+  `@cf/meta/llama-4-scout-17b-16e-instruct` ve birincille **aynı Cloudflare
+  Neuron havuzundan** yer. Modele özgü arızaya (modelin kaldırılması, aşırı
+  yüklenme, zaman aşımı, bozuk JSON) karşı korur; hesap kotası biterse ikisi
+  de durur. Hesap dışı gerçek bir emniyet ağı isteniyorsa
+  `wrangler.demo.jsonc` içindeki "SEÇENEK A" açılır ve bir API anahtarı
+  girilir (§3.1).
+- **Yedeğin puanlama sertliği farklı olabilir:** ölçülen bir örnekte aynı
+  yanıta birincil model 15-16/20, yedek 20/20 verdi. Nihai puanı öğretmen
+  onayladığı için kritik değil, ama yedeğe düşüldüğünde tutarlılığın
+  değiştiği bilinmelidir.
+- **Çok cihazlı çalışma YOK (5 Eylül'de kaldırıldı).** Daha önce bir "sınıf
+  kodu" vardı: öğretmen kod üretiyor, aynı kodu girenler sınav ve yanıtları
+  sunucu üzerinden paylaşıyordu. Erişim ölçütü kodun kendisiydi — kimlik
+  doğrulama değildi; kodu bilen herkes o sınıfın yanıtlarını okuyabiliyor ve
+  geri alınamaz biçimde silebiliyordu. Prototipin buna ihtiyacı yoktu, riski
+  vardı; özellik uçlarıyla ve tablolarıyla birlikte söküldü. **Bedeli açık:**
+  ürün artık tek tarayıcıda yaşar. Gerçek çok cihazlı kullanım oda koduyla
+  değil, **Better Auth + `users` tablosu** ile gelmelidir.
 - **Rate limit bellek-içidir, dağıtık değildir.** 3 Eylül'de `/api/sync/*` için
   D1 tabanlı (dağıtık) bir sayaç eklenmişti; o uçlar 5 Eylül'de kaldırıldığı
   için sayaç da gitti. Kalan tek sınır `src/routes/ai.ts` içindeki dakikada
@@ -607,16 +661,18 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **199 test**
-  koşar (`test/guards.test.ts` 74 · `test/schemas.test.ts` 44 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **205 test**
+  koşar (`test/guards.test.ts` 80 · `test/schemas.test.ts` 44 ·
   `test/ai-lib.test.ts` 24 · `test/prompts.test.ts` 23 ·
   `test/prompts-guvenlik.test.ts` 19 · `test/sayac-ve-yedek.test.ts` 15) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **211 fonksiyon adını denetleyen bir öz-kontrol** ve elle
-  sürülen uçtan uca senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
+  dosya sonunda **318 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
+  tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
+  senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
   güvenlik testi var: `tools/injection-test.py` (bkz. §11).
 - Geliştirici kuralları (branch stratejisi, token/kaynak sınırları) için
   `agents.md` dosyasına bakın.

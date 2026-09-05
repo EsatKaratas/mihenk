@@ -150,6 +150,25 @@ export const YABANCI_ALFABE =
 export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));
 
 /**
+ * §45 — HERHANGİ BİR MODEL METNİ İÇİN yabancı alfabe denetimi.
+ *
+ * 🔴 ÖLÇÜLMÜŞ EKSİK. `soruDilUyarisi()` yalnızca SORU ÜRETİMİNDE
+ * çağrılıyordu; `/api/ai/evaluate` çıktısı (gerekçe, kriter açıklamaları ve
+ * öğrenciye giden GERİ BİLDİRİM TASLAĞI) hiç denetlenmiyordu. Kanıt canlı
+ * sistemden geldi — README için çekilen ekran görüntüsünde modelin geri
+ * bildirim taslağı şöyle çıktı:
+ *
+ *   "Sürtünme kuvvetinin farklı durumlar下的 etkilerini düşün"
+ *
+ * Yani CJK karakteri, öğretmenin onayıyla ÖĞRENCİ KARNESİNE gidebilecek bir
+ * metne sızmıştı. §3.3'ün kuralı burada da geçerli: otomatik düzeltme YOK
+ * (tahmin anlamı bozar), ama insana GÖSTERİLİR.
+ */
+export function metinDilUyarisi(...metinler: Array<string | null | undefined>): boolean {
+  return metinler.some((m) => yabanciAlfabeVarMi(m || ''));
+}
+
+/**
  * Bir sorunun görünen tüm metinlerini tarar (gövde + şıklar + gerekçeler).
  * Herhangi birinde yabancı alfabe varsa true döner.
  */

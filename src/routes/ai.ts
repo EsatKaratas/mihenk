@@ -26,6 +26,7 @@ import {
   RATE_LIMIT_EVAL_PER_MIN,
   rateLimited as rateLimitedRaw,
   soruDilUyarisi,
+  metinDilUyarisi,
   anahtarla,
   round05,
   clamp,
@@ -355,6 +356,8 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
          istemci `undefined` görüyordu. Boş yanıtta enjeksiyon denemesi de
          olamaz, o yüzden değeri açıkça false — "bilinmiyor" değil. */
       injectionAttempt: false,
+      // §45: model hiç çağrılmadı, denetlenecek metin de yok.
+      dilUyarisi: false,
       meta: { provider: providerName(c.env), model: modelName(c.env), skipped: true },
     });
   }
@@ -396,6 +399,18 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
 
     const aiScore = round05(breakdown.reduce((s, x) => s + x.points, 0));
 
+    /* §45 — ÇIKTI METİNLERİ DE DENETLENİR.
+       §3.3'teki yabancı alfabe koruması yalnızca soru üretimine
+       uygulanmıştı. Burada üretilen metinlerin ikisi kullanıcıya doğrudan
+       gider (gerekçe öğretmene, geri bildirim taslağı onaydan sonra
+       ÖĞRENCİYE) ve sızıntı canlıda gözlendi. Otomatik düzeltme yok;
+       öğretmene bildirilir, karar onda kalır (agents.md §1). */
+    const dilUyarisi = metinDilUyarisi(
+      parsed.data.justification,
+      parsed.data.studentFeedback,
+      ...breakdown.map((x) => x.reason)
+    );
+
     return c.json({
       aiScore,
       maxScore: b.maxScore,
@@ -404,6 +419,8 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       studentFeedback: parsed.data.studentFeedback.trim(),
       confidence: parsed.data.confidence,
       injectionAttempt: parsed.data.injectionAttempt,
+      // §45: model çıktısına Türkçe dışı alfabe karıştıysa öğretmene bildirilir.
+      dilUyarisi,
       breakdown,
       meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
     });
