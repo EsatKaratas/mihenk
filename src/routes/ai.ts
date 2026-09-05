@@ -36,6 +36,7 @@ import {
   benzerlik,
   BENZERLIK_ESIGI,
   sikImzasi,
+  gerekceleriSadelestir,
   makulSoruSayisi,
 } from '../lib/guards';
 import {
@@ -245,7 +246,12 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
             options: karisik.options,
             correctKey: karisik.correctKey,
             anahtarBelirsiz: !anahtarGecerli,
-            distractorRationale: karisik.distractorRationale,
+            /* §47: modelin ısrarla yazdığı "bu şıkkı seçen öğrenci..." kalıp
+               açılışı burada kesilir. İstemle engellenemedi (ölçüldü: 24/24
+               hâlâ kalıplıydı), bu yüzden §3.3'ün yolu izlendi — çıktı
+               sunucuda normalleştirilir. Karıştırmadan SONRA uygulanır ki
+               anahtarlar `shuffleOptions`'ın verdiği yeni harflerle kalsın. */
+            distractorRationale: gerekceleriSadelestir(karisik.distractorRationale),
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),

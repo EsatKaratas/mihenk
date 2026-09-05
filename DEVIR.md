@@ -15,7 +15,7 @@ Bu belge `MIHENK_DEVIR.pdf`'in (commit `d7ffef8`) yerini alır. O belgedeki
 |---|---|
 | Dal | `sinif-kodu-kaldirma` — §43 çalışması; `main` = `final-birlestirme` = `342c230` |
 | Canlı | `mihenk.bies.workers.dev` — ⚠️ §43 **henüz yayınlanmadı**; canlı hâlâ `342c230` |
-| Test | **212/212** |
+| Test | **222/222** |
 | Lint (`tsc --noEmit`) | temiz |
 | Öz-kontrol | **318 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
@@ -30,7 +30,7 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 212/212
+npm test                            # 222/222
 node tools/ozkontrol-dogrula.mjs    # 318 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health

@@ -6326,3 +6326,125 @@ eski istemin düştüğü tuzak artık çeldirici konumunda. **Garanti değildir
 | §8.4 tuzağı | Servis edilen `app.js` diskle SHA-256 eş |
 | Şık kümesi çakışması | 3 turda **0** |
 | Birim dönüşümü A/B | eski **0/2 doğru** → yeni **4/4 doğru** |
+
+---
+
+## 47. ÇELDİRİCİ GEREKÇELERİ — istemle olmadı, sunucuda çözüldü (5 Eylül 2026)
+
+**İstek (kullanıcı):** *"bi de bu çeldirici gerekçelerini düzenleyelim"* —
+ekran görüntüsüyle.
+
+### 47.1 Kusur
+
+Her çeldirici gerekçesi aynı kalıpla başlıyordu ve üçü üst üste gelince
+okunmaz oluyordu:
+
+```
+A  bu şıkkı seçen öğrenci iklim ve hava olaylarını coğrafi faktörlerle karıştırmaktadır
+B  bu şıkkı seçen öğrenci iklim ve hava olaylarını jeolojik faktörlerle karıştırmaktadır
+C  bu şıkkı seçen öğrenci iklim ve hava olaylarını astronomik ve hidrolojik faktörlerle karıştırmaktadır
+```
+
+İki ayrı sorun var: (a) her cümlenin başındaki **kalıp özne**, (b) gerekçelerin
+tek bir sıfat değişerek **birbirini kopyalaması** — bu bir teşhis değil,
+şıkkın kategorisine etiket yapıştırmak.
+
+### 47.2 Kök neden İSTEMİN KENDİ ÖRNEĞİYDİ
+
+`buildQuestionPrompt`'un JSON çıktı örneği aynen şunu diyordu:
+
+```json
+"distractorRationale": {"B": "bu şıkkı seçen öğrenci ... sanmaktadır"}
+```
+
+Model örneği birebir taklit ediyordu. Örnek gerçek bir gerekçeyle değiştirildi
+ve kural 4 yeniden yazıldı: kalıpla başlama, şıkkın KENDİ içeriğine bak,
+gerekçeler birbirinin kopyası olmasın, kötü/iyi örnek verildi.
+
+### 47.3 🔴 ÖLÇÜLDÜ: İSTEM DÜZELTMESİ İŞE YARAMADI
+
+Yeni istemle 3 tur, 24 gerekçe:
+
+```
+Gerekçe sayısı                : 24
+"bu şıkkı seçen öğrenci" ile  : 24  (%100)
+Soru içi gerekçe benzerliği   : ort 0,46 · en yüksek 0,73
+```
+
+**Sıfır iyileşme.** Model bu kalıba fazla demirlemiş; talimat okunuyor ama
+uygulanmıyor.
+
+> **Ölçüm aracı yine yanılttı — bu projede yedinci kez.** İlk kontrolde
+> `grep "ÇELDİRİCİ GEREKÇELERİ" bundle` **0** döndü ve "dev sunucu eski
+> istemi servis ediyor, ölçüm geçersiz" sonucuna varıldı. Yanlıştı: grep
+> deseni Türkçe karakterlerde kabuk kodlaması yüzünden eşleşmiyordu. ASCII
+> parçalarla (`"kuvvet san"`, `"20 kelime"`) tekrar bakıldığında **iki
+> bundle'da da yeni istemin yüklü olduğu** görüldü. Yani ölçüm baştan
+> geçerliydi ve istem gerçekten işe yaramamıştı. Ders yine aynı: **ölçüm
+> aracının kendisi kanıtlanmadan sonuca varılmaz** (bkz. §8.4, §42.8).
+
+### 47.4 Çözüm: §3.3'ün yoluna dönüldü
+
+Ürünün zaten yazılı ilkesi var: **model çıktısı güvenilmez kabul edilir,
+sunucu normalleştirir.** İstemle rica etmek bırakıldı.
+
+`guards.ts` içine iki saf fonksiyon eklendi:
+
+- `gerekceyiSadelestir(metin)` — baştaki kalıp özneyi deterministik olarak
+  keser ("bu şıkkı/seçeneği/cevabı seçen/işaretleyen/tercih eden öğrenci",
+  ardından gelen virgül/iki nokta dahil), kalanın ilk harfini **Türkçeye
+  duyarlı** büyütür (i → İ).
+- `gerekceleriSadelestir(harita)` — tüm haritayı işler, anahtarları korur.
+
+**Eşik yok, tahmin yok.** Ve iki güvenlik kuralı:
+
+1. Kalıp yoksa metne **dokunulmaz** (fonksiyon idempotenttir).
+2. Temizlik cümleyi yok ederse **orijinal geri verilir** — bir gerekçeyi
+   silmektense kalıplı bırakmak yeğdir.
+
+`shuffleOptions`'tan **sonra** uygulanır ki anahtarlar karıştırmanın verdiği
+yeni harflerle kalsın.
+
+### 47.5 Ölçüm — aynı test, aynı metin, 3 tur
+
+| | İstem düzeltmesi sonrası | Sunucu temizliği sonrası |
+|---|---:|---:|
+| Gerekçe sayısı | 24 | 24 |
+| Kalıp açılışla başlayan | **24 (%100)** | **0 (%0)** |
+| Ortalama kelime | 11,5 | 10,0 |
+| Soru içi benzerlik (ort) | 0,46 | **0,32** |
+| Soru içi benzerlik (en yüksek) | 0,73 | **0,61** |
+
+Çıktı örneği (sonrası):
+
+```
+S: Yükselti arttıkça sıcaklık nasıl değişir?
+   · Yükselti ile sıcaklık arasındaki ilişkiyi ters sanıyor
+   · Yükselti değişiminin sıcaklığı etkileyip etkilemediğini sorguluyor
+   · Yanlış bir oranlama yapıyor
+```
+
+Benzerlik düşüşü **temizliğin doğrudan sonucu değildir** — ortak açılış
+kalkınca Jaccard payı da düşer; ayrıca istem kuralının bir katkısı olabilir.
+İkisi ayrıştırılmadı, dolayısıyla "gerekçeler daha çeşitli oldu" diye **iddia
+edilmiyor**; ölçülen şey kalıbın tamamen kalktığıdır.
+
+**10 test eklendi**; ilki canlıda görülen cümlenin kendisidir.
+
+### 47.6 Açık kalan — bilerek yapılmadı
+
+Yukarıdaki örnekteki *"Yanlış bir oranlama yapıyor"* gibi **genel geçer**
+gerekçeler hâlâ çıkabiliyor. Bunu yakalamak için gerekçeler arası bir
+benzerlik eşiği (§41'deki 0,30 gibi) düşünüldü ve **eklenmedi**: kalibre
+edecek veri yok, sunumdan saatler önce tahminle sabit koymak bu deponun
+açıkça yasakladığı şey (bkz. `guards.ts` `BENZERLIK_ESIGI` notu). Gerçek
+kullanımdan veri toplandığında eşik ölçülerek konabilir.
+
+### 47.7 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **222/222** (212 → +10) |
+| `node tools/ozkontrol-dogrula.mjs` | 318 ad · kapsama %100 |
+| Kalıp açılış (gerçek model, 24 gerekçe) | **0** |

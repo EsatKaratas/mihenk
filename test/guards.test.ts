@@ -15,6 +15,8 @@ import {
   soruDilUyarisi,
   metinDilUyarisi,
   sikImzasi,
+  gerekceyiSadelestir,
+  gerekceleriSadelestir,
   anahtarla,
   round05,
   clamp,
@@ -578,5 +580,78 @@ describe('sikImzasi — aynı şık kümesi tespiti (§46)', () => {
     // Uç, imza boşsa denetimi atlar; bu test o sözleşmeyi kayda geçirir.
     expect(sikImzasi([])).toBe('');
     expect(sikImzasi([]) === sikImzasi([])).toBe(true);
+  });
+});
+
+/* ===========================================================================
+   §47 — çeldirici gerekçesindeki kalıp açılış
+   ===========================================================================
+   Kullanıcı bildirdi: her gerekçe "bu şıkkı seçen öğrenci..." diye başlıyor ve
+   üç gerekçe üst üste gelince okunmaz oluyordu. İstemle engellenmeye çalışıldı,
+   ÖLÇÜLDÜ ve olmadı (24 gerekçenin 24'ü hâlâ kalıplıydı). Bu yüzden temizlik
+   sunucuya alındı. Aşağıdaki ilk test canlıda görülen cümlenin kendisidir.   */
+describe('gerekceyiSadelestir — kalıp açılış temizliği (§47)', () => {
+  it('🔴 canlıda GÖRÜLEN cümlenin açılışını keser', () => {
+    expect(gerekceyiSadelestir(
+      'bu şıkkı seçen öğrenci iklim ve hava olaylarını coğrafi faktörlerle karıştırmaktadır'
+    )).toBe('İklim ve hava olaylarını coğrafi faktörlerle karıştırmaktadır');
+  });
+
+  it('büyük harfle başlayan ve virgüllü biçimi de keser', () => {
+    expect(gerekceyiSadelestir(
+      'Bu şıkkı seçen öğrenci, enlemin sıcaklık üzerindeki etkisini göz ardı ediyor.'
+    )).toBe('Enlemin sıcaklık üzerindeki etkisini göz ardı ediyor.');
+  });
+
+  it('"seçeneği seçen" ve "işaretleyen" varyantlarını da yakalar', () => {
+    expect(gerekceyiSadelestir('bu seçeneği seçen öğrenci birimleri karıştırıyor'))
+      .toBe('Birimleri karıştırıyor');
+    expect(gerekceyiSadelestir('Bu şıkkı işaretleyen öğrenci ondalık basamağı kaydırıyor'))
+      .toBe('Ondalık basamağı kaydırıyor');
+  });
+
+  it('kalıp yoksa metne DOKUNMAZ', () => {
+    const iyi = 'Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder';
+    expect(gerekceyiSadelestir(iyi)).toBe(iyi);
+  });
+
+  it('idempotenttir — iki kez uygulamak aynı sonucu verir', () => {
+    const bir = gerekceyiSadelestir('bu şıkkı seçen öğrenci birimleri karıştırıyor');
+    expect(gerekceyiSadelestir(bir)).toBe(bir);
+  });
+
+  it('🔴 temizlik cümleyi YOK EDERSE orijinali korur — gerekçe silinmez', () => {
+    // Yalnızca kalıptan ibaret bir gerekçe: kırpılırsa geriye hiçbir şey kalmaz.
+    const sadeceKalip = 'Bu şıkkı seçen öğrenci';
+    expect(gerekceyiSadelestir(sadeceKalip)).toBe(sadeceKalip);
+  });
+
+  it('boş/null güvenle işlenir', () => {
+    expect(gerekceyiSadelestir(undefined)).toBe('');
+    expect(gerekceyiSadelestir(null)).toBe('');
+    expect(gerekceyiSadelestir('   ')).toBe('');
+  });
+
+  it('cümlenin İÇİNDEKİ benzer ifadeye dokunmaz — yalnızca AÇILIŞ kesilir', () => {
+    const ic = 'Öğrenci, bu şıkkı seçen arkadaşının mantığını taklit ediyor';
+    expect(gerekceyiSadelestir(ic)).toBe(ic);
+  });
+
+  it('gerekceleriSadelestir tüm haritayı işler ve anahtarları korur', () => {
+    const sonuc = gerekceleriSadelestir({
+      B: 'bu şıkkı seçen öğrenci birimleri karıştırıyor',
+      C: 'Bu şıkkı seçen öğrenci, ondalık kaydırıyor',
+      D: 'Ters oranla çarpıyor',
+    });
+    expect(Object.keys(sonuc).sort()).toEqual(['B', 'C', 'D']);
+    expect(sonuc.B).toBe('Birimleri karıştırıyor');
+    expect(sonuc.C).toBe('Ondalık kaydırıyor');
+    expect(sonuc.D).toBe('Ters oranla çarpıyor');
+  });
+
+  it('boş değerli anahtarlar haritadan düşer', () => {
+    expect(gerekceleriSadelestir({ B: '   ', C: 'Birimi karıştırıyor' }))
+      .toEqual({ C: 'Birimi karıştırıyor' });
+    expect(gerekceleriSadelestir(undefined)).toEqual({});
   });
 });

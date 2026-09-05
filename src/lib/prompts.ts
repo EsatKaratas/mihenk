@@ -213,8 +213,23 @@ ${kazanimModu ? `1. Soruların tamamı YUKARIDAKİ KAZANIMIN kapsamına dayanmal
    hâle getirir.
 3. Çoktan seçmeli sorularda tek bir doğru şık bulunur; çeldiriciler makul
    olmalı, "hepsi"/"hiçbiri" kalıplarını en fazla bir soruda kullan.
-4. Her çeldirici için, o şıkkı seçen öğrencinin hangi kavram yanılgısına
-   düştüğünü tek cümleyle açıkla.
+4. ÇELDİRİCİ GEREKÇELERİ (§47 — ölçülmüş bir kusura karşı).
+   Her çeldirici için, o şıkkı seçen öğrencinin YAPTIĞI HATAYI yaz.
+   a) "Bu şıkkı seçen öğrenci..." diye BAŞLAMA. Arayüz hangi şıkkın gerekçesi
+      olduğunu zaten gösteriyor; cümle doğrudan hatanın kendisine girsin.
+   b) Şıkkın KENDİ İÇERİĞİNE bak. Şıkkı bir kategoriye etiketlemek gerekçe
+      DEĞİLDİR.
+      KÖTÜ:  "iklim ve hava olaylarını coğrafi faktörlerle karıştırmaktadır"
+      İYİ:   "Yer şekilleri iklimi belirleyen bir etmendir; bunu anlık hava
+              durumunu ölçen bir büyüklük sanıyor."
+   c) Gerekçeler BİRBİRİNİN KOPYASI OLMASIN. Aynı cümlede tek bir kelimeyi
+      değiştirerek tekrar etme — "coğrafi / jeolojik / astronomik faktörlerle
+      karıştırmaktadır" üçlüsü bunun ölçülmüş örneğidir ve KABUL EDİLMEZ.
+      Her gerekçe FARKLI bir yanılgıyı anlatmalı.
+   d) Öğretmen okuyunca "evet, öğrencilerim tam bunu yapıyor" diyebilmeli.
+      "Yanlış ilişkilendirmektedir", "çok yüksek değer" gibi genel geçer
+      cümleler hiçbir şey öğretmez.
+   e) Tek cümle, en fazla 20 kelime.
 5. Açık uçlu sorular, ezber değil açıklama/ilişkilendirme/gerekçelendirme
    istemelidir.
 6. Her soru için tahmini çözüm süresini saniye cinsinden ver (çoktan seçmeli
@@ -249,7 +264,7 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
       "body": "soru metni",
       "options": [{"key": "A", "text": "..."}, {"key": "B", "text": "..."}],
       "correctKey": "A",
-      "distractorRationale": {"B": "bu şıkkı seçen öğrenci ... sanmaktadır"},
+      "distractorRationale": {"B": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder"},
       "difficulty": "medium",
       "bloom": "uygulama",
       "aiTime": 60,

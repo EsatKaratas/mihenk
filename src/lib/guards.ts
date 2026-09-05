@@ -348,6 +348,68 @@ export function benzerlik(a: string, b: string): number {
 export const BENZERLIK_ESIGI = 0.3;
 
 /* ===========================================================================
+   §47 — ÇELDİRİCİ GEREKÇESİNDEKİ KALIP AÇILIŞI TEMİZLENİR
+   ===========================================================================
+   🔴 KULLANICI BİLDİRDİ, İKİ KEZ ÖLÇÜLDÜ. Model her çeldirici
+   gerekçesine aynı açılışı yazıyordu:
+
+     "bu şıkkı seçen öğrenci iklim ve hava olaylarını coğrafi faktörlerle
+      karıştırmaktadır"
+     "bu şıkkı seçen öğrenci iklim ve hava olaylarını jeolojik faktörlerle
+      karıştırmaktadır"
+
+   Kalıbın kaynağı istemin KENDİ JSON örneğiydi
+   (`"distractorRationale": {"B": "bu şıkkı seçen öğrenci ... sanmaktadır"}`).
+   Örnek düzeltildi ve isteme açıkça "böyle başlama" kuralı yazıldı (§47,
+   kural 4a). ÖLÇÜLDÜ: hiçbir işe yaramadı — 24 gerekçenin 24'ü hâlâ aynı
+   açılışla geldi (%100). Model bu kalıba fazla demirlemiş.
+
+   Bu yüzden istemle rica etmek bırakıldı ve §3.3'ün ilkesine dönüldü:
+   MODEL ÇIKTISI GÜVENİLMEZ KABUL EDİLİR, SUNUCU NORMALLEŞTİRİR. Açılış
+   burada deterministik olarak kesilir — eşik yok, tahmin yok.
+
+   NE SİLİNMEZ: yalnızca baştaki kalıp öznenin kendisi. Cümlenin geri kalanına
+   dokunulmaz ve temizlik sonrası metin boş kalırsa ORİJİNAL geri verilir —
+   bir gerekçeyi yok etmektense kalıplı bırakmak yeğdir.
+
+   Arayüz zaten hangi şıkkın gerekçesi olduğunu harfle gösteriyor; cümlenin
+   "bu şıkkı seçen öğrenci" diye başlamasına gerek yok, üstelik üç gerekçede
+   üst üste tekrarlanınca okunurluğu düşürüyordu.                             */
+const GEREKCE_KALIP_ACILIS =
+  /^\s*bu\s+(?:ş[ıi]kk?[ıi]|seçene[ğg]i|cevab[ıi])\s+(?:seçen|i̇?şaretleyen|tercih\s+eden)\s+(?:ö[ğg]renci(?:ler)?)\s*[,:;-]?\s*/iu;
+
+/** Türkçe'ye duyarlı ilk harf büyütme (i → İ). */
+function ilkHarfiBuyut(s: string): string {
+  if (!s) return s;
+  return s.charAt(0).toLocaleUpperCase('tr') + s.slice(1);
+}
+
+/**
+ * Çeldirici gerekçesinden kalıp açılışı temizler. Saf fonksiyondur.
+ * Açılış yoksa metin aynen döner (idempotenttir).
+ */
+export function gerekceyiSadelestir(metin?: string | null): string {
+  const ham = String(metin || '').trim();
+  if (!ham) return '';
+  const kirpilmis = ham.replace(GEREKCE_KALIP_ACILIS, '').trim();
+  // Güvenlik: temizlik cümleyi yok ettiyse orijinali koru.
+  if (!kirpilmis) return ham;
+  return ilkHarfiBuyut(kirpilmis);
+}
+
+/** Bir çeldirici gerekçesi haritasının tamamını sadeleştirir. */
+export function gerekceleriSadelestir(
+  harita?: Record<string, string> | null
+): Record<string, string> {
+  const sonuc: Record<string, string> = {};
+  Object.entries(harita || {}).forEach(([k, v]) => {
+    const t = gerekceyiSadelestir(v);
+    if (t) sonuc[k] = t;
+  });
+  return sonuc;
+}
+
+/* ===========================================================================
    §46 — ŞIK KÜMESİ İMZASI: gövdesi farklı, ŞIKLARI AYNI sorular
    ===========================================================================
    🔴 KULLANICI BİLDİRDİ, EKRAN GÖRÜNTÜSÜYLE ÖLÇÜLDÜ. Tek üretimde
