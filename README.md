@@ -334,13 +334,11 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > | Queues (asenkron AI) | ✅ | ❌ bağlı değil — AI çağrıları senkron yapılır |
 > | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir; kimlik doğrulama yoktur ve arayüzde de öyle yazar |
 >
-> **Sınıf kodu 5 Eylül'de kaldırıldı.** 3 Eylül'de cihazlar arası bir köprü
-> olarak eklenmişti: öğretmen bir kod üretiyor, aynı kodu girenler sınav ve
-> yanıtları sunucudaki veritabanı üzerinden paylaşıyordu. Sorun, erişim
-> ölçütünün **kodun kendisi** olmasıydı — kimlik doğrulama değildi; kodu bilen
-> herkes o sınıfın yanıtlarını okuyabiliyor ve `/api/sync/reset` ile geri
-> alınamaz biçimde silebiliyordu. Prototipin buna ihtiyacı yoktu, riski vardı;
-> özellik uçlarıyla, tablolarıyla ve bağlamasıyla birlikte söküldü.
+> **D1 neden bağlı değil:** ürün, öğrenci verisini sunucuda tutmama kararını
+> verdi. 3 Eylül'de cihazlar arası köprü olarak bir *sınıf kodu* eklenmişti;
+> erişim ölçütü kodun kendisiydi, yani **kimlik doğrulama değildi**. Prototipin
+> buna ihtiyacı yoktu, riski vardı — özellik uçlarıyla, tablolarıyla ve
+> veritabanı bağlamasıyla birlikte 5 Eylül'de tamamen söküldü.
 >
 > **Bedeli açık:** ürün artık **tek cihazda** yaşar. Gerçek çok cihazlı çalışma,
 > oda koduyla değil **Better Auth + `users` tablosu** ile gelmelidir.
@@ -673,7 +671,7 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **326 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  dosya sonunda **336 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir

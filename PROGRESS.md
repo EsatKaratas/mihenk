@@ -7428,3 +7428,43 @@ iddia edilmiş olmaz.
 Ayrıca artık var olmayan `openai · gpt-5.6-luna` model adına yapılan atıf
 kalktı. `grep` ile doğrulandı: `gpt-5.6-luna` ve "ücretsiz kotası" README'de
 **0 kez** geçiyor.
+
+### 50l. VİTRİN TARAMASI + SIR DENETİMİ (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Başka böyle bir şey var mı kontrol et"* ve
+*"GitHub linkinin içinde API yok değil mi?"*
+
+#### Bulunan iki şey
+
+1. **🔴 BAYAT SAYI.** README §9: *"dosya sonunda **326 fonksiyon adını** çift
+   yönlü denetleyen bir öz-kontrol"*. Gerçek sayı **336** (§50f'de 2 fonksiyon
+   daha eklendi). Düzeltildi.
+
+2. **Blok alıntı geçmişteki açıkla açılıyordu.** §3'teki mimari notu
+   *"Sınıf kodu 5 Eylül'de kaldırıldı… kodu bilen herkes o sınıfın yanıtlarını
+   okuyabiliyor ve `/api/sync/reset` ile geri alınamaz biçimde silebiliyordu"*
+   diye başlıyordu — §50i ve §50k'daki kusurun aynısı, bu kez mimari
+   bölümünde. Bugünkü **garanti** öne alındı ("ürün, öğrenci verisini sunucuda
+   tutmama kararını verdi"), kaldırma gerekçesi ve **bedeli aynen korundu**.
+
+Tarama boş çıkanlar: `**...değildi/yoktu/çalışmıyordu**` kalıbıyla açılan
+başka cümle **yok**; 606 kazanım iddiası **doğrulandı** (Türkçe 365 · Fen 141 ·
+Matematik 100 = 606, dosyalardan sayıldı); 263 test, 7 uç, 18 Keşif kazanımı,
+5 rol sayıları ölçümle uyuyor.
+
+#### 🔒 SIR DENETİMİ — depoda API anahtarı YOK
+
+| Denetim | Sonuç |
+|---|---|
+| Takip edilen dosyalarda anahtar deseni (`sk-`, `Bearer`, `ghp_`, `AKIA`, `xox*`, PRIVATE KEY) | **0** — tek eşleşme `.dev.vars.example` içindeki yer tutucu yorum |
+| **TÜM git geçmişi** (`git log --all -p`) | **0** — silinmiş bir commit'te bile yok |
+| `.dev.vars` · `.env` · `anahtar.txt` geçmişte commit edilmiş mi | **hiçbiri** — üçü de `.gitignore`'da |
+| Canlı `/api/ai/status` | anahtar/sır alanı **yok** |
+| Canlı `app.js` içinde anahtar deseni | **0** |
+| `ANAHTAR-*.bat` · `tools/anahtar-*.mjs` | anahtar **gömülü değil**; yerel `anahtar.txt`'den okur, o da `.gitignore`'da |
+
+Depoda duran tek kimlik alanı `wrangler.jsonc` içindeki D1 `database_id`'dir.
+Bu bir **sır değildir** (kullanmak için hesap kimlik doğrulaması gerekir),
+`agents.md` §7 onu açıkça istisna tutar ve o veritabanı §43'ten beri
+**zaten bağlı değildir**. Yapılandırmalardaki tüm `AI_API_KEY` geçişleri
+`wrangler secret put` kullanımını anlatan **yorum satırlarıdır** — doğru desen.
