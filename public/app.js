@@ -1397,7 +1397,7 @@ const DEMO_ADIMLARI = [
     hazir: function () { return state.examStatus === "graded"; },
     kilit: "Önce değerlendirmeleri onaylayıp sonuçları yayınlayın" },
   { no: 5, rol: "admin", sekme: null, roleAd: "Eğitim Yöneticisi",
-    aciklama: "Öğretmenin yayınladığı sonuçlar analiz ekranına ve kazanım ısı haritasına düştü.",
+    aciklama: "Öğretmenin yayınladığı sonuçlar analiz ekranına ve kazanım başarı grafiğine düştü.",
     sonraki: "Demoyu Bitir",
     hazir: function () { return true; },
     kilit: "" },
@@ -7369,7 +7369,7 @@ function misconceptionHtml() {
 
   return '<div class="card" style="margin-top:18px;">' +
     '<div class="card-head"><h3>Kavram Yanılgısı Analizi</h3>' +
-    '<span class="hint">ısı haritası "hangi kazanım zayıf" der, bu bölüm "neden zayıf" der</span></div>' +
+    '<span class="hint">başarı grafiği "hangi kazanım zayıf" der, bu bölüm "neden zayıf" der</span></div>' +
     '<div class="mis-giris">Sınıfın açık uçlu yanıtlarında <b>en az iki öğrencide tekrarlayan</b> ' +
     "hatalar gruplanır. Bu bir puanlama değildir, hiçbir öğrencinin notunu etkilemez; " +
     "yarın sınıfta neyi tekrar anlatacağınıza karar vermeniz içindir. " +
@@ -8331,7 +8331,7 @@ function renderAdmin() {
     'eksik kalındığını tek bakışta gösterir. Puanların hiçbiri yapay zekâ tarafından ' +
     'kesinleştirilmemiştir; buradaki sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçları yansıtır. ' +
     'Aşağıdaki üç kutu <b>yalnızca bu sistemde gerçekten yürütülen</b> sınavlardan hesaplanır. ' +
-    'Isı haritasındaki <b>“(örnek)”</b> etiketli satırlar ise karşılaştırma için konmuş demo verisidir ' +
+    'Grafikteki <b>“(örnek)”</b> etiketli şubeler ise karşılaştırma için konmuş demo verisidir ' +
     've bu kutulara dahil <b>edilmez</b>.' +
     '</div></div>' +
 

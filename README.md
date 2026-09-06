@@ -40,11 +40,15 @@ rubrik **önerir**. Onaylayan her zaman insandır.
 
 ### Son değişiklikler — 6 Eylül 2026
 
-Proje günlüğü `PROGRESS.md`'dir ve **48 bölümdür**; her madde kök nedeni ve
+Proje günlüğü `PROGRESS.md`'dir ve **50 bölümdür**; her madde kök nedeni ve
 ölçüm sonucuyla yazılır. Son turlar:
 
 | | |
 |---|---|
+| **Keşif Kampüsü — belgeye kilitli üretim** (§49-§50) | Okulun kendi atölye müfredatı ürüne girdi: üç atölye (Kimya ve İnsan Bilimleri · Kişisel Gelişim · Fizik) ve **18 kazanım**, hepsi okulun kendi ders belgesine bağlı. "Kazanımdan" modunda üretim o belgeye **kilitlenir** — model belgenin dışına çıkamaz, belge okunamazsa **üretim hiç yapılmaz** ve sebebi ekranda yazar. Kaynak metin 6.000 karakteri aşarsa kırpma **sessiz olmaz**: kaç karakterin dışarıda kaldığı yazılır. Kazanım metinleri uydurulmadı; belgelerin kendi `KAZANIMLAR` bölümlerinden alındı, türetilenler kodda **türetme olarak işaretlendi**. |
+| **Kazanım başarı grafiği** (§49) | Isı haritasının yerini gruplu sütun grafiği aldı: grup = kazanım, sütun = şube, yüzde sütunun üzerinde, **%55 kritik eşik** kesikli çizgiyle. Eşik çizgisi paletten bağımsız kendi belirtecini kullanır ve **kırmızı kalır** — uyarı rengi marka rengine karışmasın diye. |
+| **Renk kimliği** (§49-§50) | Palet lacivert + turuncuya alındı (`#0d3db0` · `#F2994A`), logo dâhil. Tonlar **ölçülerek** ayrıldı: `#F2994A` beyaz üstünde 2,23:1 olduğu için metin taşıyan rollerde `#9a5410` kullanılıyor (beyazda **5,75** · soft zeminde **4,92** — ikisi de WCAG AA), parlak ton yalnızca çizgi ve vurguda. |
+| **Göç yazılmasaydı sessiz veri kaybı olacaktı** (§50) | Atölyeler önce *sınıf* listesindeydi; müfredat eksenine taşınınca daha önce siteyi açmış her tarayıcıda o kazanımların sınıfı listede bulunmaz ve **hiçbir seçimde görünmez** olacaktı. İki ayrı göç yazıldı: biri eski değeri doğru alana taşır, diğeri sürümle gelen yeni kazanımları kayıtlı listeye **yalnızca ekler** (kullanıcının sildiğini geri getirmez). Canlıda gerçek bayat kayıtla ölçüldü. |
 | **Sınıf kodu kaldırıldı** (§43) | Cihazlar arası paylaşım bir *oda koduyla* korunuyordu — kimlik doğrulama değildi: kodu bilen herkes o sınıfın öğrenci yanıtlarını okuyabiliyor ve geri alınamaz biçimde silebiliyordu. Özellik uçlarıyla, tablolarıyla ve veritabanı bağlamasıyla söküldü. **Bedeli açıkça yazıldı:** ürün artık tek cihazda çalışır. |
 | **Yedek model gerçekten çalışır oldu** (§43) | Yedek *tanımlıydı ama devreye giremiyordu* (secret yoktu). Çözüm anahtar almak değil kodu okumak oldu; ayrıntısı [§3.1](#31-tek-sağlayıcıya-bağımlı-değil--otomatik-yedek)'de. |
 | **Analiz turu: 2 gerçek kusur + 3 küçük** (§44) | En ağırı: boş kriter adıyla sınav **yayınlanabiliyordu** ve hata ancak *puanlama anında* çıkıyordu. Ölçüt tek yere alındı; şerit artık sebebi yazıyor. |
@@ -61,16 +65,14 @@ kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de yazılı
 
 | | |
 |---|---|
-> ⚠️ **Aşağıdaki beş ekran görüntüsü 6 Eylül 2026 · §48b tarihlidir ve BAYATTIR.**
-> Ürün o tarihten sonra krem/bordo paletten mavi/su yeşiline geçti ve kazanım ısı
-> haritasının yerini gruplu sütun grafiği aldı (§49). Görüntüler henüz yenilenmedi;
-> yenilemek için `node tools/ekran-goruntusu-al.mjs` — canlıdan, gerçek model
-> çağrısıyla üretir.
+> ℹ️ Ekran görüntüleri `tools/ekran-goruntusu-al.mjs` ile **canlı sistemden**,
+> gerçek model çağrısıyla üretilir — sahne kurgulanmaz. Palet lacivert + turuncu
+> (§50), kazanım panosunda ısı haritası yerine **gruplu sütun grafiği** vardır (§49).
 
 | <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — AI'ın ürettiği soru taslakları, her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
 | **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
 | <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım başarı grafiği ve gerçek/örnek satır ayrımı" width="100%"> |
-| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım ısı haritası ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
+| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım başarı grafiği ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
 | <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | |
 | **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | |
 
@@ -145,7 +147,7 @@ güven skoru · geri bildirim taslağı`"] -->|öneri| H
 onaylar ya da puanı değiştirir`"] --> I["`**📄 Öğrenci Karnesi**
 nihai puan · kendi yanıtı · puan kırılımı`"]
     H --> J["`**📊 Kazanım Analizi**
-ısı haritası · madde analizi · kavram yanılgısı`"]
+başarı grafiği · madde analizi · kavram yanılgısı`"]
     J -.->|"tekrar sorusu üret"| A
 
     C -.-> L
@@ -260,7 +262,7 @@ taraf odur.
 | **İçerik Uzmanı**<br><sub>2 sekme</sub> | Kaynak metni yükler (yapıştır · `.txt` · `.md` · **PDF**) veya Müfredat Kitaplığı'ndan sayfa aralığı seçer; ders, sınıf ve **MEB kazanımını** belirler; yapay zekânın ürettiği çoktan seçmeli ve açık uçlu taslakları — her çeldiricinin hangi kavram yanılgısını ölçtüğüyle birlikte — inceler. | Soru `ai_generated` durumunda bekler; **onaylanmadan havuza girmez.** Onay ve red kararlarının ikisi de denetim izine yazılır. |
 | **Öğretmen**<br><sub>4 sekme</sub> | Havuzdan kazanım/zorluk/türe göre sınav kurar, **çoktan seçmeli soru puanını belirler**, süre önerilerini değiştirebilir; açık uçlu sorular için rubrik tanımlar (yapay zekâ taslak önerir); **Bloom düzey dengesi** sınavın ezber mi ölçtüğünü söyler; puan önerilerini *en düşük güvenli en üstte* sırayla inceler; madde analizi ve kavram yanılgısı kümelerini görür. | Puan `aiEvals`'ta durur; öğretmen onaylayana kadar **öğrenciye ulaşmaz.** Geri bildirim taslağı da ayrı bir kutuda bekler, "Nota Aktar" denmeden gitmez. |
 | **Öğrenci**<br><sub>3 sekme</sub> | Geri sayımlı ekranda sınavı çözer; açık uçlu yanıtlar otomatik kaydedilir (sayfa yenilense de kaybolmaz); metne dayalı sorularda kaynak metin soruyla birlikte gösterilir. Karnesinde **nihai puanını**, her soruda **kendi yazdığı yanıtı** ve puanın hangi ölçütten geldiğini görür. | Karne yalnızca öğretmen **yayınladıktan** sonra açılır. Karnede puanı yapay zekânın mı önerdiği, öğretmenin mi değiştirdiği **açıkça yazar.** |
-| **Eğitim Yöneticisi**<br><sub>tek sayfa</sub> | Okul geneli tamamlanma, bekleyen onay sayısı, **kazanım ısı haritası**, öğretmen–yapay zekâ uyum ölçümü, **risk altındaki öğrenci listesi** (ABC çerçevesi: devam · davranış · başarı), **Excel/CSV dışa aktarma** ve **Yapay Zekâ Karar Günlüğü** (CSV/JSON indirilebilir denetim izi). Isı haritasında %55 altı hücreler ayrıca uyarı olarak listelenir ve tek tıkla o kazanım için yeni soru üretimine döner. | Panodaki sayılar **yalnızca öğretmen onayından geçmiş** sonuçlardan hesaplanır; onaylanmamış hiçbir puan buraya yansımaz. Risk listesi bir **tahmin değil, bir özettir**; müdahale kararı insanındır. |
+| **Eğitim Yöneticisi**<br><sub>tek sayfa</sub> | Okul geneli tamamlanma, bekleyen onay sayısı, **kazanım başarı grafiği**, öğretmen–yapay zekâ uyum ölçümü, **risk altındaki öğrenci listesi** (ABC çerçevesi: devam · davranış · başarı), **Excel/CSV dışa aktarma** ve **Yapay Zekâ Karar Günlüğü** (CSV/JSON indirilebilir denetim izi). Grafikte %55 kritik eşiğin altında kalan sütunlar ayrıca uyarı olarak listelenir ve tek tıkla o kazanım için yeni soru üretimine döner. | Panodaki sayılar **yalnızca öğretmen onayından geçmiş** sonuçlardan hesaplanır; onaylanmamış hiçbir puan buraya yansımaz. Risk listesi bir **tahmin değil, bir özettir**; müdahale kararı insanındır. |
 | **Veli**<br><sub>salt okunur</sub> | Yalnızca **kendi çocuğunun** öğretmen onayından geçmiş sonuçlarını, kazanım bazlı güçlü/gelişime açık alanlarını ve öğretmenin onayladığı geri bildirimini görür. | Yapay zekânın ham puan önerisi veliye **asla ulaşmaz**; öğretmen yayınlamadıysa veli hiçbir şey görmez. **Sınıf ortalaması, sıralama ve başka öğrenci bilgisi bu ekranda yer almaz.** Sınav bütünlüğü sinyali veliye **ancak öğretmen onaylarsa** ve suçlayıcı olmayan dille iletilir. |
 
 **Brief'in üç akışıyla eşleşme:** Akış 01 (İçerik Uzmanı: kaynak → kazanım →
@@ -563,7 +565,7 @@ gerçekten ürettiği çıktılardır; değerlendirme yine canlı çalışır.
 5. **Öğretmen → 3. Sekme**'de AI'nin puan/gerekçe önerisini görün; tek tıkla
    onaylayın veya puanı değiştirip onaylayın.
 6. **Öğrenci → 3. Sekme**'de karneyi, **Eğitim Yöneticisi** panelinde ise
-   kazanım ısı haritasının canlı güncellendiğini gösterin.
+   kazanım başarı grafiğinin canlı güncellendiğini gösterin.
 
 > **Bu akıştaki yapay zekâ adımları simülasyon DEĞİLDİR.** Soru üretimi,
 > rubrik taslağı ve açık uçlu puan/gerekçe önerisi canlı sistemde
@@ -642,7 +644,7 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   başına tutulur; öğretmen tüm sınıfın açık uçlu yanıtlarını tek kuyrukta,
   **AI güveni en düşük olan en üstte** görür. Kazanım yüzdeleri tüm
   öğrencilerin öğretmen onayından geçmiş gerçek sonuçlarından ortalanır.
-  Isı haritasındaki *karşılaştırma* sınıfları (6-A, 8-B, 8-C) demo verisidir
+  Grafikteki *karşılaştırma* şubeleri (6-A, 8-B, 8-C) demo verisidir
   ve arayüzde "(örnek)" etiketiyle işaretlidir — canlı şubeler gerçek veriden
   hesaplanır. Mekanizma gerçek, karşılaştırma sınıfları simüle.
 - **Yedek, kota tükenmesine karşı koruma DEĞİLDİR.** Yedek model
@@ -772,8 +774,8 @@ sınırı vardır.
 | **Bloom bilişsel düzey dengesi** | Sınav ezber mi ölçüyor? Alt düzey (hatırlama/anlama) ve üst düzey (uygulama/analiz/değerlendirme/yaratma) dağılımı sınav kurarken görünür. **Hedef oran dayatılmaz** — ölçmede sabit bir "doğru oran" yoktur; yalnızca iki uç bildirilir: hiç üst düzey soru yoksa *"sınav büyük olasılıkla ezber ölçüyor"*, hiç alt düzey yoksa *"temel bilgi hiç ölçülmüyor"* |
 | **Madde analizi** *(klasik test kuramı)* | Üretilen sorunun **iyi bir ölçme aracı olup olmadığını** ölçer: güçlük indeksi (p) ve ayırt edicilik indeksi (d). En değerli sinyal **negatif d** — iyi öğrenciler yanlış, zayıflar doğru yanıtlıyorsa soru ya da cevap anahtarı hatalıdır. **İşlevsiz çeldirici** (hiç kimsenin seçmediği şık) da işaretlenir. Sınıf 10 kişiden azsa sonuç "gösterge niteliğindedir" uyarısıyla verilir — istatistiksel dürüstlük. AI çağrısı yapılmaz, saf hesap |
 | **Öğretmen-AI uyumu** *(kalibrasyon)* | Brief'in *"değerlendiriciler arasında tutarsızlık"* sorununa doğrudan cevap. AI cimri mi cömert mi davranıyor, ortalama sapma kaç puan, kaç yanıtı olduğu gibi onayladınız. **Güven skorunun kendisini de denetler:** AI "eminim" dediğinde gerçekten daha isabetli mi? Değilse *"kuyruk sıralamasına bu veriyle güvenmeyin"* uyarısı çıkar |
-| **Kavram yanılgısı kümeleme** | Isı haritası *"hangi kazanım zayıf"* der; bu bölüm **"neden zayıf"** der. Sınıfın açık uçlu yanıtlarında en az iki öğrencide tekrarlayan hataları gruplar, yanıtlardan **birebir alıntı** gösterir ve öğretmene tek cümlelik somut öneri verir. Öğrenci adı yapay zekâya gönderilmez; hiçbir puanı etkilemez |
-| **Kapalı döngü** | Isı haritasında %60 altındaki kazanım için "tekrar sorusu üret" düğmesi; İçerik Uzmanı paneline geçip kazanımı seçer. Zincir kapanır: içerik → sınav → değerlendirme → analiz → **yeni içerik** |
+| **Kavram yanılgısı kümeleme** | Başarı grafiği *"hangi kazanım zayıf"* der; bu bölüm **"neden zayıf"** der. Sınıfın açık uçlu yanıtlarında en az iki öğrencide tekrarlayan hataları gruplar, yanıtlardan **birebir alıntı** gösterir ve öğretmene tek cümlelik somut öneri verir. Öğrenci adı yapay zekâya gönderilmez; hiçbir puanı etkilemez |
+| **Kapalı döngü** | Grafikte %60 altındaki kazanım için "tekrar sorusu üret" düğmesi; İçerik Uzmanı paneline geçip kazanımı seçer. Zincir kapanır: içerik → sınav → değerlendirme → analiz → **yeni içerik** |
 | **Otomatik yedek sağlayıcı** | Birincil sağlayıcıda kesinti olursa sistem yedeğe geçer ve **hangi modelin yanıtladığını ekranda yazar** (§3.1). Yedek yalnızca gerçek arızada devreye girer — ölçme ölçütü sınav içinde değişmesin diye |
 | **Değerlendirme önbelleği** | Aynı yanıt + aynı rubrik + aynı model → model **yeniden çağrılmaz**. Ölçüldü: 6012 ms → **0 ms**. Başarısız değerlendirme asla önbelleğe girmez; önbellekten gelen sonuç arayüzde işaretlenir |
 | **Sınav bütünlüğü kaydı** | Sekme değişimi, odak kaybı, tam ekrandan çıkış ve **yanıta metin yapıştırma** kaydedilir; öğretmene bağlam olarak sunulur. Hile *önleme* iddiası yok — tarayıcı tabanlı hiçbir sistem bunu yapamaz. Öğrenci ne kaydedildiğini görür; gizli izleme yok; hiçbir puanı otomatik etkilemez |

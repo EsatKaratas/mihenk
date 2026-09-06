@@ -21,9 +21,9 @@ tamamı `PROGRESS.md`'de.
 |---|---|
 | Dal | `main` = `final-birlestirme` = `a1afcce` (ikisi aynı, ayrışma yok) |
 | Canlı | `mihenk.bies.workers.dev` — deploy edilen `app.js`, `app.css` ve `index.html` diskle **SHA-256 eş** |
-| Test | **243/243** |
+| Test | **263/263** (7 dosya) |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **326 ad · eksik 0 · kapsama %100** |
+| Öz-kontrol | **336 ad · eksik 0 · kapsama %100** |
 | `check:config` | exit 0 |
 | Konsol hatası | 0 |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
@@ -38,8 +38,8 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 243/243
-node tools/ozkontrol-dogrula.mjs    # 326 ad · kapsama %100
+npm test                            # 263/263
+node tools/ozkontrol-dogrula.mjs    # 336 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```
@@ -67,7 +67,7 @@ Zinciri beş rol taşıyor:
 4. **Yapay zekâ** açık uçlu yanıtlara rubriğe göre puan **önerir** + gerekçe yazar.
 5. **Öğretmen** her öneriyi görür, değiştirir ya da onaylar. **Nihai puan
    yalnızca burada oluşur.** Sonuçlar öğretmen "yayınla" demeden öğrenciye gitmez.
-6. **Eğitim Yöneticisi** okul geneli tamamlanma, kazanım ısı haritası, öğretmen
+6. **Eğitim Yöneticisi** okul geneli tamamlanma, kazanım başarı grafiği, öğretmen
    kalibrasyonu ve yapay zekâ karar günlüğünü görür.
 7. **Veli** yalnızca kendi çocuğunun **onaylanmış** sonuçlarını görür. Sınıf
    ortalaması, sıralama ve AI'ın ham puan önerisi veliye **asla** gitmez.
@@ -521,7 +521,7 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   243 test, 6 dosya
+test/                   263 test, 7 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)

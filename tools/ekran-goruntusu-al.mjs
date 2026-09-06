@@ -119,10 +119,10 @@ await sayfa.evaluate(() => {
 await cek('03-ogrenci-karne.png', 'onaylanmış karne', '#panel-student .card');
 
 // ---------------------------------------------------------------------------
-// 4) EĞİTİM YÖNETİCİSİ — kazanım ısı haritası
+// 4) EĞİTİM YÖNETİCİSİ — kazanım başarı grafiği
 // ---------------------------------------------------------------------------
 await sayfa.evaluate(() => { state.role = 'admin'; renderAll(); });
-await cek('04-egitim-yoneticisi.png', 'okul geneli + kazanım ısı haritası', '.heatmap, #panel-admin .card');
+await cek('04-egitim-yoneticisi.png', 'okul geneli + kazanım başarı grafiği', '#panel-admin .card');
 
 // ---------------------------------------------------------------------------
 // 5) VELİ — beşinci rol, README'de hiç yoktu

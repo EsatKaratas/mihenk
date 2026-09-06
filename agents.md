@@ -8,7 +8,7 @@ setidir. Bir değişiklik önerirken önce burayı okuyun; burada yazan bir kura
 Bu proje **T3 Vakfı Creathon — Problem 2: Yapay Zekâ Destekli Ölçme ve
 Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 
-> ## ⚠️ GÜNCELLİK NOTU — 6 Eylül 2026 (PROGRESS §48b)
+> ## ⚠️ GÜNCELLİK NOTU — 6 Eylül 2026 (PROGRESS §50f)
 >
 > **Bu dosyanın bir kısmı HEDEF mimariyi anlatır, KURULU olanı değil.** Kural
 > setinin kendisi geçerlidir; ama §2, §4 ve §5'teki bazı teknik ayrıntılar
@@ -22,7 +22,7 @@ Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 > | §5 dosya ağacı (`routes/auth.ts`, `documents.ts`, `lib/rubric.ts`, `migrations/`) | Gerçek ağaç: `src/index.ts`, `src/routes/ai.ts`, `src/lib/{ai,guards,prompts}.ts`, `src/schemas/ai.ts`. `migrations/` yok |
 > | §4 `AI_TASKS_QUEUE` ile asenkron işleme | Queue **kullanılmıyor**; çağrılar senkron. (Ücretsiz planda Queues yüzünden `npm run deploy` kırılır — `deploy:demo` kullanılır) |
 > | §4 `max_tokens` **yaklaşık 600–800** | Bu sayı tek soru içindi. Bugün istek başına hesaplanır: `700 + soru×700`, tavan **5600** (§48). Sınır hâlâ AÇIKÇA verilir — "sınırsız üretim" yasağı aynen geçerlidir |
-> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/guards.test.ts` ve `test/schemas.test.ts` (243 test) ile `tools/ozkontrol-dogrula.mjs` koşar |
+> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/guards.test.ts` ve `test/schemas.test.ts` (263 test) ile `tools/ozkontrol-dogrula.mjs` koşar |
 > | §8 demo kontrol listesi (`d1 execute --remote`, test hesapları) | D1 ve hesap yok; demo tohumu istemcide (`loadDemoScenario`). §8.5'teki `/privacy-policy` ve `/robots.txt` maddeleri geçerlidir ve canlıda doğrulanmıştır |
 >
 > **Değişmeyen ve tam bağlayıcı olanlar:** §1 (Human-in-the-Loop), §7

@@ -40,8 +40,8 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD          # ac606cb ya da daha yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 243/243, 6 dosya
-node tools/ozkontrol-dogrula.mjs    # 326 ad · kapsama %100
+npm test                            # 263/263, 7 dosya
+node tools/ozkontrol-dogrula.mjs    # 336 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -52,13 +52,14 @@ Beklenen test dökümü:
 
 ```
 test/guards.test.ts          105
+test/prompts.test.ts          47
 test/schemas.test.ts          44
-test/prompts.test.ts          36
 test/ai-lib.test.ts           24
 test/prompts-guvenlik.test.ts 19
 test/sayac-ve-yedek.test.ts   15
+test/atolye-ve-materyal.test.ts 9
                              ---
-                             243
+                             263
 ```
 
 Beklenen canlı çıktı:
@@ -245,13 +246,13 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | | |
 |---|---|
 | Depo | dal `main`, `origin/main` ile eş, çalışma ağacı temiz |
-| Canlı Version | `fff8f306` |
-| Test | **243/243** (6 dosya) |
+| Canlı Version | `712f8b0c` |
+| Test | **263/263** (7 dosya) |
 | Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **326 ad · kapsama %100** |
+| Öz-kontrol | **336 ad · kapsama %100** |
 | Konsol hatası (5 rol, canlı) | **0** |
-| Yinelenen `id` | **0** (75 id) |
-| Canlı ↔ disk | `public/` altındaki **23 varlık SHA-256 eş** |
+| Yinelenen `id` | **0** |
+| Canlı ↔ disk | `app.js` · `app.css` · `index.html` · logo **SHA-256 eş** |
 | Yapay zekâ uçları | **7 uç + `/api/health` çalışıyor** |
 | Yedek model | çalışıyor (`fallbackSorunu: null`) |
 | Üretim süresi | **15-25 sn** (§48'de beceri temelli soruyla arttı) |

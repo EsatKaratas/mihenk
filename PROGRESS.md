@@ -7258,3 +7258,58 @@ konsol hatası           : 0
 ```
 
 263/263 · lint temiz · öz-kontrol 336 ad %100.
+
+### 50g. DEPO EKSİKSİZLİK TURU — belgeler, ekran görüntüleri ve ÜRÜNDE KALAN BAYAT METİN (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"GitHub'a pushla, orası eksiksiz olsun."*
+
+#### Belgelerdeki bayat sayılar
+
+| Dosya | Neydi | Ne oldu |
+|---|---|---|
+| `DEVRALAN_PROMPT.md` | 243/243 · 6 dosya · 326 ad · Version `fff8f306` · test dökümü eski | **263/263 · 7 dosya · 336 ad · `712f8b0c`** · döküm yeniden yazıldı |
+| `DEVIR.md` | 243/243 · "243 test, 6 dosya" · 326 ad | **263/263 · 7 dosya · 336 ad** |
+| `agents.md` | "(243 test)" · bant "§48b" | **"(263 test)"** · bant **"§50f"** |
+| `README.md` | "48 bölümdür" · 8 yerde "ısı haritası" | **"50 bölümdür"** · hepsi "kazanım başarı grafiği" |
+
+README'ye §49-§50 turları eklendi: Keşif Kampüsü ve belge kilidi, başarı
+grafiği, renk kimliği ve **iki göç** (yazılmasaydı sessiz veri kaybı olacaktı).
+
+#### 🔴 ÜRÜNDE KALAN BAYAT METİN — ekran görüntüsü ortaya çıkardı
+
+Yenilenen `04-egitim-yoneticisi.png` okunurken panelin giriş paragrafında şu
+görüldü: *"**Isı haritasındaki** "(örnek)" etiketli satırlar..."* — ısı
+haritası §49'da kaldırılmıştı. Ürünün kendisi olmayan bir bileşene atıf
+yapıyordu. Aynı sınıftan iki metin daha bulundu:
+
+```
+demo akışı adım metni : "...kazanım ısı haritasına düştü."
+kavram yanılgısı ipucu: "ısı haritası 'hangi kazanım zayıf' der..."
+panel giriş paragrafı : "Isı haritasındaki '(örnek)' etiketli satırlar..."
+```
+
+Üçü de düzeltildi. **Kod yorumlarındaki tarihsel "ısı haritası" ifadelerine
+DOKUNULMADI** — onlar geçmişi anlatıyor, bugünü değil.
+
+`tools/ekran-goruntusu-al.mjs` içindeki `.heatmap` seçicisi de **ölüydü**:
+o sınıf §49'da kaldırıldı ve seçici hiç eşleşmiyordu; kadraj sessizce
+`#panel-admin .card`'dan geliyordu. Ölü seçici atıldı, etiketi düzeltildi.
+
+#### Ekran görüntüleri
+
+**İKİ KEZ çekildi.** İlk çekim string düzeltmesinden ÖNCEYDİ, yani 04 numaralı
+görüntü artık üründe olmayan bir cümleyi sergiliyordu — §45.1'in aynısı.
+Düzeltme canlıya alındıktan sonra yeniden çekildi.
+
+```
+01-icerik-uzmani      turuncu=334  lacivert=257   bordo=46
+04-egitim-yoneticisi  turuncu=21   lacivert=1318  bordo=276
+```
+
+04'teki kırmızı, kritik eşik çizgisidir — bilerek paletten bağımsız.
+Konsol hatası **0** (betiğin kendi ölçümü).
+
+**DÜRÜSTLÜK NOTU:** yukarıdaki sayaç kaba bir RGB kova sayımıdır, kesin bir
+palet denetimi değildir; `01`'de 87 piksel "turkuaz" kovasına düştü. CSS'te
+turkuaz hex **kalmadığı** ayrıca `grep` ile doğrulandı (§50c), dolayısıyla bu
+sayı sınıflandırıcının gevşekliğidir — üründe turkuaz olduğu anlamına gelmez.
