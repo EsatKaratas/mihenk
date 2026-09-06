@@ -285,6 +285,27 @@ hiçbir şema yakalayamaz — **onay ekranı yakaladı**. Yine de istem
 sertleştirildi ve A/B ölçüldü: kazanım modunda eski istem **0/2**, yeni istem
 **4/4** doğru.
 
+### 5.0g §48b — Tam denetim + demo tohumu düzeltildi (6 Eylül)
+
+Depo ve canlı baştan sona denetlendi. Temiz çıkanlar: 24 varlık canlı-disk
+SHA-256 eş, 7 yapay zekâ ucu + `/api/health` çalışıyor, kırık bağlantı yok,
+sır sızıntısı yok, CI beş adımı da koşuyor.
+
+**Bulunan kusur — demo tohumu ürünü yalanlıyordu.** Soruları klasik
+hatırlatma kalıbındaydı ve altı çeldirici gerekçesi de §47'nin temizlediği
+"bu şıkkı seçen öğrenci..." kalıbıyla başlıyordu. Gerçek modele ürettirmek
+denendi ve YETMEDİ (bir adayın cevap anahtarı yanlıştı, biri Türkçe cümle
+içinde "necessary" taşıyordu); üç soru elle yazıldı ve koddaki "bu sorular
+gerçek model çıktısıdır" iddiası **kaldırıldı**. Sunumda demo sorularının
+model ürettiği SÖYLENMEMELİDİR.
+
+Ekran görüntüleri canlıdan yenilendi; yenilerken §45.1'in kusuru 01 numaralı
+görüntüde sürüyordu (betik yanlış sekmeyi çekiyordu), düzeltildi.
+
+`agents.md`'ye güncellik bandı eklendi: §2/§4/§5 HEDEF mimariyi anlatıyor,
+kurulu olanı değil. §3'ün "PR zorunlu" maddesinin fiilen uygulanmadığı da
+oraya yazıldı.
+
 ### 5.0f §48 — Beceri temelli soru + ders/kazanım sekmeleri (6 Eylül)
 
 Dışarıdan bir yama belgesi geldi; **tabanı §43 öncesiydi** ve 6 dosyanın 2'si

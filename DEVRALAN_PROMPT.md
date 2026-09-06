@@ -165,6 +165,20 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 
 Üretim süresi 15 → 25 sn'ye çıktı; sunumda bu farkı bil.
 
+## 7c. §48b — bunu bilmeden sunum yapma (6 Eylül)
+
+- **Demo soruları artık ELLE YAZILDI.** Kodda eskiden "bu sorular gerçek
+  model çıktısıdır" yazıyordu; o iddia kaldırıldı. Gerçek modele ürettirmek
+  denendi, adaylardan birinin **cevap anahtarı yanlıştı**. Sunumda "demo
+  soruları modelin ürettiğidir" DEME; canlı üretimi göstermek istersen
+  "AI ile Soru Üret" düğmesine bas.
+- **`agents.md` artık bir güncellik bandı taşıyor:** §2, §4 ve §5 HEDEF
+  mimariyi anlatır (D1, `requireRole`, Queue, `migrations/`), kurulu olanı
+  değil. Onu okurken banda bak.
+- **`dilUyarisi` yabancı ALFABE arar, yabancı DİLİ değil.** Türkçe cümlenin
+  içindeki İngilizce bir kelime ("necessary") uyarı üretmez — kasten
+  eklenmedi, kalibre edilecek veri yok.
+
 ## 8. Açık kalan işler
 
 - **Çok cihazlılık yok.** Gerçek çözüm oda kodu değil, **Better Auth +

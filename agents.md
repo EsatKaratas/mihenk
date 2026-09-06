@@ -6,8 +6,41 @@ setidir. Bir değişiklik önerirken önce burayı okuyun; burada yazan bir kura
 çelişen bir öneri, açıkça gerekçelendirilmeden birleştirilmez (merge edilmez).
 
 Bu proje **T3 Vakfı Creathon — Problem 2: Yapay Zekâ Destekli Ölçme ve
-Değerlendirme Sistemi** kapsamında geliştirilmektedir. Teknik mimari:
-Cloudflare Workers + Hono + D1 (SQLite) + R2 + Workers AI.
+Değerlendirme Sistemi** kapsamında geliştirilmektedir.
+
+> ## ⚠️ GÜNCELLİK NOTU — 6 Eylül 2026 (PROGRESS §48b)
+>
+> **Bu dosyanın bir kısmı HEDEF mimariyi anlatır, KURULU olanı değil.** Kural
+> setinin kendisi geçerlidir; ama §2, §4 ve §5'teki bazı teknik ayrıntılar
+> ürünün bugünkü hâliyle örtüşmez. Yeni katkıda bulunan buna göre okumalıdır:
+>
+> | Bu dosyada yazan | Ürünün bugünkü hâli |
+> |---|---|
+> | `D1 (SQLite) + R2` bağlı | **D1 bağlaması YOK** (§43'te söküldü, tek kullanıcısı sınıf kodu senkronuydu). R2 hiç bağlanmadı. Sunucuda ürün verisi tutulmaz; her şey `localStorage` + IndexedDB'dedir |
+> | §2 `requireRole(...)` middleware'i | **Kimlik doğrulama YOKTUR.** Rol bir `state.role` seçimidir; sunucuda korunan rota yoktur |
+> | §2 rota yapısı, `routes.ts` durum makinesi | `routes.ts` **çalışan kod değil**, referans iskelettir; her handler `c.json({ todo })` döner |
+> | §5 dosya ağacı (`routes/auth.ts`, `documents.ts`, `lib/rubric.ts`, `migrations/`) | Gerçek ağaç: `src/index.ts`, `src/routes/ai.ts`, `src/lib/{ai,guards,prompts}.ts`, `src/schemas/ai.ts`. `migrations/` yok |
+> | §4 `AI_TASKS_QUEUE` ile asenkron işleme | Queue **kullanılmıyor**; çağrılar senkron. (Ücretsiz planda Queues yüzünden `npm run deploy` kırılır — `deploy:demo` kullanılır) |
+> | §4 `max_tokens` **yaklaşık 600–800** | Bu sayı tek soru içindi. Bugün istek başına hesaplanır: `700 + soru×700`, tavan **5600** (§48). Sınır hâlâ AÇIKÇA verilir — "sınırsız üretim" yasağı aynen geçerlidir |
+> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/guards.test.ts` ve `test/schemas.test.ts` (243 test) ile `tools/ozkontrol-dogrula.mjs` koşar |
+> | §8 demo kontrol listesi (`d1 execute --remote`, test hesapları) | D1 ve hesap yok; demo tohumu istemcide (`loadDemoScenario`). §8.5'teki `/privacy-policy` ve `/robots.txt` maddeleri geçerlidir ve canlıda doğrulanmıştır |
+>
+> **Değişmeyen ve tam bağlayıcı olanlar:** §1 (Human-in-the-Loop), §7
+> (yasaklar), §3'ün commit biçimi (Conventional Commits) ve §4'ün kaynak
+> disiplini ilkeleri. Son üçü ölçülerek doğrulandı: kaynak metin istemcide
+> 6.000 karaktere kırpılıyor (`app.js`) ve sunucuda `MAX_SOURCE_CHARS` ile
+> reddediliyor; hız sınırı **altı ucun hepsinde** bağlı (`rateLimited(...)`);
+> `max_tokens` her çağrıda açıkça veriliyor ve `ev: "ai_call"` kaydı
+> `approxPromptChars` + `maxTokens` ile Workers Logs'a yazılıyor.
+>
+> **§3'te fiilen UYGULANMAYAN madde:** "PR zorunlu · `main`'e doğrudan push
+> yasaktır". 150 commit'in yalnızca 4'ü birleştirmedir; §43'ten beri iş
+> doğrudan `main` üzerinde yürüyor (tek kişilik bakım + yarışma takvimi).
+> Kural yazılı bırakıldı çünkü ekip çalışmasına dönüldüğünde geçerli olmalı;
+> ama **bugün böyle çalışılmadığı burada kayıtlıdır** — okuyan yanılmasın.
+>
+> Tek doğruluk kaynağı `PROGRESS.md`'dir.
+
 
 ## 1. Değiştirilemez ilke: Human-in-the-Loop
 
@@ -31,7 +64,8 @@ zayıflatılamaz**:
 - **Rota yapısı:** Her panel/sekme kendi Hono alt-router'ında yaşar
   (`app.route("/api/exams", exams)` gibi). Yeni bir panel eklenmeden yeni bir
   üst-seviye router açmayın.
-- **Yetkilendirme:** Her korumalı rota `requireRole(...)` middleware'inden
+- **Yetkilendirme:** *(HEDEF — bugün kimlik doğrulama yok, bkz. güncellik notu.)*
+  Her korumalı rota `requireRole(...)` middleware'inden
   geçmelidir. Rol kontrolünü route handler içine gömülü `if` ifadeleriyle
   tekrar tekrar yazmayın.
 - **Girdi doğrulama:** Dışarıdan gelen her `POST`/`PATCH` gövdesi
@@ -75,14 +109,16 @@ edilemez bir risktir.
   istemci tarafında **6.000 karaktere** kırpılır/uyarılır; bu sınırı aşan
   istekler `413`-benzeri bir hata ile reddedilir (`internal/ai/generate-questions`).
 - **Üretim çıktı sınırı:** Soru üretimi isteklerinde model çağrısına
-  `max_tokens` (yaklaşık 600–800) açıkça verilir; sınırsız üretim isteği
-  kod inceleme sırasında reddedilir.
+  `max_tokens` **açıkça** verilir; sınırsız üretim isteği kod inceleme
+  sırasında reddedilir. *(Değer güncellendi: 600–800 tek soru içindi; bugün
+  `700 + soru×700`, tavan 5600 — bkz. PROGRESS §48.)*
 - **Hız sınırlama:** Bir kullanıcı, aynı kaynak doküman için dakikada en fazla
   **5** "AI ile soru üret" isteği gönderebilir (basit bellek-içi ya da D1 tabanlı
   sayaç yeterlidir; harici bir rate-limit servisi gerekmez).
 - **D1 sorgu disiplini:** `SELECT *` yerine ihtiyaç duyulan sütunlar; büyük
   listelerde (soru havuzu, analitik) sayfalama (`LIMIT`/`OFFSET`) zorunludur.
-- **Queue kullanımı:** Senkron istek-yanıt döngüsünü 5 saniyeden uzun sürecek
+- **Queue kullanımı:** *(HEDEF — bugün Queue kullanılmıyor, çağrılar senkron.)*
+  Senkron istek-yanıt döngüsünü 5 saniyeden uzun sürecek
   bir AI çağrısıyla bloklamayın — `AI_TASKS_QUEUE` üzerinden asenkron işleyin.
 - **Maliyet görünürlüğü:** Her AI çağrısının tahmini token sayısı
   `console.log` ile Workers Logs'a yazılır; demo öncesi ekip bu logları
