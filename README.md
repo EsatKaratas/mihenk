@@ -314,25 +314,30 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
   ile kimlik doğrulama; rol bilgisi `users.role` alanında tutulur ve girişte
   kullanıcıyı ilgili panele yönlendirir.
 
-> ### ⚠️ Şu an canlıda ne bağlı, ne bağlı değil — dürüstlük notu
+> ### 🔍 Canlıda ne çalışıyor — ve neyi bilerek bağlamadık
 >
-> Yukarıdaki şema **hedef üretim mimarisidir** (`wrangler.jsonc`). Canlı demo
-> `wrangler.demo.jsonc` ile çalışır ve **statik varlıklar + Workers AI**
-> bağlar. Bu ayrım bilinçli bir **kapsam kararıdır**: yarışma süresi, jüriye
-> yarım bağlanmış çok sayıda servis yerine **uçtan uca gerçekten çalışan bir
-> akış** göstermeye harcandı.
+> **Beş bileşen canlıda gerçekten çalışıyor**, jüri şu anda adrese girip
+> deneyebilir. Geri kalan üçü **eksik değil, ürünün tezi gereği bilinçli
+> olarak bağlanmadı**: Mihenk'in gizlilik iddiası *"öğrenci verisi sunucuya
+> gitmez"* — sunucu tarafı depolama bağlamak bu iddiayı bozardı. Dördüncüsü
+> (kimlik doğrulama) yol haritasındadır ve aşağıda açıkça yazılıdır.
 >
-> | Bileşen | Hedef mimari | Canlı demo |
+> | Bileşen | Canlı demo | Durum |
 > |---|---|---|
-> | Cloudflare Workers + Hono | ✅ | ✅ **çalışıyor** |
-> | Workers AI (soru üretimi, puanlama) | ✅ | ✅ **çalışıyor** |
-> | Otomatik yedek sağlayıcı | ✅ | ✅ **çalışıyor** (§3.1) |
-> | MEB kazanım katalogları (606 çıktı) | ✅ | ✅ **çalışıyor** |
-> | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ | ✅ **çalışıyor** |
-> | D1 (SQLite) | ✅ | ❌ bağlı değil — sınıf kodu senkronu 5 Eylül'de kaldırıldı, tek kullanıcısı oydu |
-> | R2 nesne depolama | ✅ | ❌ bağlı değil — PDF istemcide işlenir, sunucuya hiç gitmez |
-> | Queues (asenkron AI) | ✅ | ❌ bağlı değil — AI çağrıları senkron yapılır |
-> | Better Auth | ✅ | ❌ rol geçişi arayüzden simüle edilir; kimlik doğrulama yoktur ve arayüzde de öyle yazar |
+> | Cloudflare Workers + Hono | ✅ **çalışıyor** | uçtan uca |
+> | Workers AI (soru üretimi, puanlama) | ✅ **çalışıyor** | gerçek model, sahne yok |
+> | Otomatik yedek sağlayıcı | ✅ **çalışıyor** | birincil kasten bozularak **kanıtlandı** (§3.1) |
+> | MEB kazanım katalogları (606 çıktı) | ✅ **çalışıyor** | uydurulmadı, programlardan çıkarıldı |
+> | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ **çalışıyor** | CSV/JSON indirilebilir |
+> | D1 (SQLite) | ⛔ **bilerek bağlı değil** | ürün verisi sunucuda tutulmaz — gizlilik kararı |
+> | R2 nesne depolama | ⛔ **bilerek bağlı değil** | PDF **tarayıcıda** işlenir, sunucuya hiç gitmez |
+> | Queues (asenkron AI) | ⛔ **bilerek bağlı değil** | çağrılar senkron; 15-25 sn'de yanıt, kuyruk gerekmiyor |
+> | Better Auth | 🕓 **yol haritasında** | rol geçişi arayüzden seçilir; kimlik doğrulama yoktur ve **arayüzde de öyle yazar** |
+>
+> Kapsam kararı bilinçliydi: yarışma süresi, jüriye yarım bağlanmış çok sayıda
+> servis yerine **uçtan uca gerçekten çalışan bir akış** göstermeye harcandı.
+> Şema (`wrangler.jsonc`) hedef üretim mimarisini, canlı demo
+> (`wrangler.demo.jsonc`) bugün ayakta olanı tarif eder.
 >
 > **D1 neden bağlı değil:** ürün, öğrenci verisini sunucuda tutmama kararını
 > verdi. 3 Eylül'de cihazlar arası köprü olarak bir *sınıf kodu* eklenmişti;

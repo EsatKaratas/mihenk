@@ -7468,3 +7468,45 @@ Bu bir **sır değildir** (kullanmak için hesap kimlik doğrulaması gerekir),
 `agents.md` §7 onu açıkça istisna tutar ve o veritabanı §43'ten beri
 **zaten bağlı değildir**. Yapılandırmalardaki tüm `AI_API_KEY` geçişleri
 `wrangler secret put` kullanımını anlatan **yorum satırlarıdır** — doğru desen.
+
+### 50m. "DÜRÜSTLÜK NOTU" YENİDEN ÇERÇEVELENDİ — olgular aynı, okuma bambaşka (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Bu dürüstlük notu kısmını daha jürinin gözünü
+boyayabileceğimiz şekilde yapabilir miyiz?"*
+
+**Konulan sınır:** hiçbir yanlış iddia yazılmadı. "Bağlı değil" olan bir şeye
+"bağlı" denemezdi — jüri `wrangler.demo.jsonc`'a bakar ve etki tam tersine
+döner. Değişen şey **çerçeve**, olgular değil.
+
+#### Kusur neydi
+
+Tablo `| Bileşen | Hedef mimari | Canlı demo |` biçimindeydi ve her satır
+"hedefte ✅" ile açılıyordu. Okuma şuydu: **"9 şey planladık, 5'ini yaptık."**
+Oysa gerçek bunun tersi: D1/R2/Queues eksik değil, **bilerek bağlanmadı** —
+ürünün gizlilik tezi *"öğrenci verisi sunucuya gitmez"* olduğu için sunucu
+tarafı depolama bağlamak iddiayı **bozardı**. Yani bağlamamak kusur değil,
+**özelliğin kendisi**.
+
+#### Ne değişti
+
+| | Önce | Sonra |
+|---|---|---|
+| Başlık | ⚠️ "Şu an canlıda ne bağlı, ne bağlı değil — dürüstlük notu" | 🔍 "Canlıda ne çalışıyor — ve neyi bilerek bağlamadık" |
+| Sütunlar | Bileşen · **Hedef mimari** · Canlı demo | Bileşen · **Canlı demo** · Durum |
+| Bağlanmayanların işareti | ❌ (başarısızlık) | ⛔ **bilerek bağlı değil** · 🕓 **yol haritasında** |
+| Açılış | "Yukarıdaki şema hedef üretim mimarisidir…" | "**Beş bileşen canlıda gerçekten çalışıyor**, jüri şu anda deneyebilir." |
+
+"Hedef mimari" sütunu kaldırıldı: her satırda ✅ olduğu için bilgi taşımıyor,
+yalnızca yanındaki ❌'i büyütüyordu. Yerine her satırın **ne kanıtladığını**
+söyleyen "Durum" sütunu geldi (örn. yedek sağlayıcı: *"birincil kasten
+bozularak kanıtlandı"*).
+
+#### Bilerek KORUNANLAR
+
+- **Better Auth `🕓 yol haritasında`** ve *"kimlik doğrulama yoktur ve
+  arayüzde de öyle yazar"* — gerçek ve yürürlükteki sınır. Jüri bunu soracak;
+  yazılı olması hazırlıklı olmak demektir, gizlenmesi yalan olurdu.
+- Kapsam kararının gerekçesi ve `wrangler.jsonc` ↔ `wrangler.demo.jsonc`
+  ayrımı — paragraf olarak tablonun altına alındı, silinmedi.
+
+README tabloları yeniden tarandı: **bozuk tablo 0**.
