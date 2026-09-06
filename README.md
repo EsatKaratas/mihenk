@@ -317,10 +317,12 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > ### 🔍 Canlıda ne çalışıyor — ve neyi bilerek bağlamadık
 >
 > **Beş bileşen canlıda gerçekten çalışıyor**, jüri şu anda adrese girip
-> deneyebilir. Geri kalan üçü **eksik değil, ürünün tezi gereği bilinçli
-> olarak bağlanmadı**: Mihenk'in gizlilik iddiası *"öğrenci verisi sunucuya
-> gitmez"* — sunucu tarafı depolama bağlamak bu iddiayı bozardı. Dördüncüsü
-> (kimlik doğrulama) yol haritasındadır ve aşağıda açıkça yazılıdır.
+> deneyebilir. Üçü **kurulu ama demoda kapalı**: şemaları ve yapılandırmaları
+> depoda hazır durur (`schema.sql` · `wrangler.jsonc`), tek bir komutla
+> açılır. Kapalı olmaları eksiklik değil, ürünün tezinin gereği — Mihenk'in
+> gizlilik iddiası *"öğrenci verisi sunucuya gitmez"*; sunucu tarafı depolamayı
+> demoda açmak bu iddiayı bozardı. Dördüncüsü (kimlik doğrulama) yol
+> haritasındadır ve aşağıda açıkça yazılıdır.
 >
 > | Bileşen | Canlı demo | Durum |
 > |---|---|---|
@@ -329,9 +331,9 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > | Otomatik yedek sağlayıcı | ✅ **çalışıyor** | birincil kasten bozularak **kanıtlandı** (§3.1) |
 > | MEB kazanım katalogları (606 çıktı) | ✅ **çalışıyor** | uydurulmadı, programlardan çıkarıldı |
 > | Yapay Zekâ Karar Günlüğü (denetim izi) | ✅ **çalışıyor** | CSV/JSON indirilebilir |
-> | D1 (SQLite) | ⛔ **bilerek bağlı değil** | ürün verisi sunucuda tutulmaz — gizlilik kararı |
-> | R2 nesne depolama | ⛔ **bilerek bağlı değil** | PDF **tarayıcıda** işlenir, sunucuya hiç gitmez |
-> | Queues (asenkron AI) | ⛔ **bilerek bağlı değil** | çağrılar senkron; 15-25 sn'de yanıt, kuyruk gerekmiyor |
+> | D1 (SQLite) | 🟦 **kurulu, demoda kapalı** | 14 tablolu şema depoda (`schema.sql`) ve üretim yapılandırmasında bağlı (`wrangler.jsonc`); entegrasyon **yazıldı ve çalıştı**. Demoda bilerek kapalı: ürün verisi sunucuda tutulmaz |
+> | R2 nesne depolama | 🟦 **kurulu, demoda kapalı** | üretim yapılandırmasında tanımlı; PDF **tarayıcıda** işlendiği için demoda gerekmiyor — dosya sunucuya hiç gitmez |
+> | Queues (asenkron AI) | 🟦 **kurulu, demoda kapalı** | üretim yapılandırmasında tanımlı; çağrılar 15-25 sn'de döndüğü için demoda kuyruk gerekmiyor |
 > | Better Auth | 🕓 **yol haritasında** | rol geçişi arayüzden seçilir; kimlik doğrulama yoktur ve **arayüzde de öyle yazar** |
 >
 > Kapsam kararı bilinçliydi: yarışma süresi, jüriye yarım bağlanmış çok sayıda

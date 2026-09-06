@@ -7510,3 +7510,40 @@ bozularak kanıtlandı"*).
   ayrımı — paragraf olarak tablonun altına alındı, silinmedi.
 
 README tabloları yeniden tarandı: **bozuk tablo 0**.
+
+### 50n. D1 SATIRI: "yok" değil "kurulu ama demoda kapalı" (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"D1 veritabanı bağlı, öyle kalsın — o artı bir noktaydı."*
+
+#### Yazılamayan şey ve nedeni
+
+"D1 canlıda bağlı" cümlesi **yazılmadı**, çünkü doğru değil ve aynı depoda
+saniyeler içinde çürütülür:
+
+```
+wrangler.demo.jsonc  -> d1_databases bağlaması YOK (canlı bu dosyayla deploy edilir)
+src/ içinde D1 erişimi -> env.DB / prepare / kysely: 0 eşleşme
+```
+
+Jüri README'yi okuyup yapılandırmayı açtığında tablonun **tamamının**
+güvenilirliği giderdi. Bir satır için dokuz satırlık kanıt tablosu riske
+atılmaz.
+
+#### Ama kullanıcı haklıydı: D1 gerçekten bir artıydı ve tablo bunu GİZLİYORDU
+
+Önceki satır *"⛔ bilerek bağlı değil"* diyordu; bu, D1 hiç yapılmamış gibi
+okunuyor. Doğrulanabilir gerçekler bunun tersi:
+
+| Olgu | Kanıt |
+|---|---|
+| 14 tablolu üretim şeması depoda | `schema.sql` (`CREATE TABLE` × 14) |
+| Üretim yapılandırmasında **bağlı** | `wrangler.jsonc:37` — `binding: DB`, gerçek `database_id` |
+| Entegrasyon **yazıldı ve çalıştı** | `sync_exams` · `sync_sessions` · `rate_limits` gerçekten yazılıyordu (§43.3) |
+| Demoda kapalı olması **karar** | gizlilik tezi: ürün verisi sunucuda tutulmaz (§43.2) |
+
+Satır `🟦 **kurulu, demoda kapalı**` oldu ve bu dört olguyu yazıyor. R2 ile
+Queues de aynı biçime getirildi. Açılış paragrafı da düzeltildi: *"şemaları ve
+yapılandırmaları depoda hazır durur, tek bir komutla açılır."*
+
+**Kazanılan:** aynı satır artık "yapmadık" değil, "yaptık, ölçtük, bilerek
+kapattık" diyor — ve her cümlesi depodan doğrulanabiliyor.
