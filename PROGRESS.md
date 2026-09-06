@@ -7338,3 +7338,49 @@ yalnızca metin olarak okumak markdown çizim kusurunu göstermiyor.
 
 Altı görüntü de yeniden çekildi (canlı, gerçek model çağrısı), konsol hatası
 **0**. README'ye giriş ekranı, alt yazısıyla eklendi.
+
+### 50i. README VİTRİN TURU — başlıklar sonucu adlandırıyor (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Değişiklikler kısmını da kontrol et, GitHub'da bizi
+kötü gösterecek bir şey olmasın. Bir de buradaki uyarıyı kaldıralım."*
+
+#### Ne kaldırıldı
+
+"Ekranlar" bölümündeki `ℹ️` bilgi notu kaldırıldı.
+
+#### 🟡 BULGU: içerik değil, BAŞLIKLAR sorunluydu
+
+"Son değişiklikler" tablosunun gövdesi bir güç göstergesidir — ölçülmüş,
+kapatılmış kusurlar. Ama **sol sütun** kusurun kendisini adlandırıyordu ve
+tabloyu tarayan biri bir arıza listesi görüyordu:
+
+| Önceki başlık | Yeni başlık |
+|---|---|
+| Göç yazılmasaydı **sessiz veri kaybı olacaktı** | Sürüm geçişlerinde **veri güvenliği** |
+| **Sınıf kodu kaldırıldı** | **Öğrenci verisi artık sunucuya hiç gitmiyor** |
+| **Analiz turu: 2 gerçek kusur + 3 küçük** | **Sınav yayın kapısı sertleştirildi** |
+| **Aynı sorular / yanlış cevap anahtarı** | **Tekrar eleme + birim dönüşümü sertleştirmesi** |
+| **Dil denetiminde ölçülmüş bir boşluk** | **Yabancı alfabe denetimi genişletildi** |
+| **Yedek model gerçekten çalışır oldu** | **Otomatik yedek model devrede** |
+| Değerlendirme çıktısında dil denetimi | **Öğrenciye gidecek metin de denetleniyor** |
+
+**HİÇBİR OLGU SİLİNMEDİ.** Kök neden, ölçüm ve bedel gövdelerde aynen duruyor;
+`PROGRESS.md`'ye hiç dokunulmadı. Değişen tek şey sol sütunun ne vaat ettiği:
+kusurun adı değil, **kusurun kapatılmasıyla kazanılan yetenek**.
+
+#### Bilerek DOKUNULMAYANLAR — bunlar zayıflık değil, güvenilirliktir
+
+- *"Bedeli açıkça yazıldı: ürün artık tek cihazda çalışır"* — gerçek ve
+  yürürlükteki bir sınır. Gizlenmesi jüriye yalan söylemek olurdu.
+- *"'Hedef tutturuldu' denmiyor"* (§48 A/B ölçümü) — ölçüm neyse o.
+- §9 **Bilinen sınırlamalar** bölümünün tamamı — 10 madde, hepsi duruyor.
+- Alt yazı: *"Bu tablo bir değişiklik listesi değil, bir çalışma biçimi
+  örneğidir: kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de
+  yazılır."*
+
+#### Bütünlük denetimi
+
+Beş belgedeki **179 markdown tablosu** ayırıcı satırlarından tarandı; başlıksız
+ya da satırsız **bozuk tablo 0** (§50h'deki kusurun tekrarı yok). §9'daki hız
+sınırı maddesi kaldırılmış `/api/sync/*` ucuna atıf yapıyor ama **tarihli ve
+doğru** bir tarihçe cümlesidir — bayat iddia değil, dokunulmadı.
