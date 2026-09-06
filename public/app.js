@@ -2365,9 +2365,9 @@ function atolyeSecicisiHtml() {
       ' title="' + escapeHtml(a) + ' atölyesine geç">' + escapeHtml(a) +
       ' <span class="chip-not">' + kazanimSayisi + " kazanım</span></button></span>";
   }).join("");
-  return '<div class="field field-atolye"><label>Atölye</label>' +
+  return '<div class="field field-atolye"><label>Keşif</label>' +
     '<div class="chip-tabs" id="ceAtolyeTabs">' + sekmeler + "</div>" +
-    '<div class="field-note">Atölyeler Keşif müfredatının çalışma birimidir — ' +
+    '<div class="field-note">Keşif müfredatı atölyelere ayrılır — atölye bir ' +
     "sınıf düzeyi değildir. Seçtiğiniz atölye aşağıdaki kazanım listesini süzer." +
     "</div></div>";
 }
@@ -4139,6 +4139,12 @@ function ceCreateHtml() {
         escapeHtml(sinifEtiketi(g)) + "</option>";
     }).join("") +
     '</select></div>' +
+    /* KEŞİF — SINIF İLE ŞUBE ARASINDA (kullanıcı isteği, §50d).
+       Yeri rastgele değil: sınıf "Keşif" seçildiği anda bir sonraki karar
+       hangi atölyede çalışılacağıdır. Şubenin arkasına konursa kullanıcı
+       kazanım listesinin neden süzüldüğünü göremiyordu. Sınıf Keşif değilse
+       bu alan hiç çizilmez. */
+    atolyeSecicisiHtml() +
     /* MADDE 1: Şube (bölüm) — yalnızca ORGANİZASYON/RAPORLAMA etiketidir,
        kazanım filtrelemesini ETKİLEMEZ (MEB müfredatı şubeye göre değişmez)
        ve AI istemine hiç girmez. Serbest metin: okulların şube adlandırması
@@ -4152,7 +4158,6 @@ function ceCreateHtml() {
        606 kazanımı sekmeye çevirmek ekranı kullanılamaz hale getirirdi, bu
        yüzden katalog seçicide kalır ve seçilen kazanım yukarıya sekme olarak
        düşer. */
-    atolyeSecicisiHtml() +
     '<div class="field field-outcome"><label>Konu ve Kazanım</label>' +
     kazanimSecicisiHtml() +
     '<div class="input-with-actions kazanim-ekle-satiri">' +

@@ -7136,3 +7136,31 @@ yorumunun ürünü yalanlaması bu depoda §45.1 ve §48b'de iki kez kusur oldu.
 **Canlıda ölçüldü** (Version `71a3b907`): `--accent #0d3db0` (değişmedi) ·
 `--accent2 #9a5410` · `--accent2-line #F2994A` · `--kat-2 #c26a1c` ·
 `--gk-altin #F2994A` · konsol hatası **0** · 263/263 test.
+
+### 50d. "KEŞİF" BÖLÜMÜ SINIF İLE ŞUBE ARASINA ALINDI (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Şube yazan yer ile sınıf yazan yerin arasına Keşif diye
+bir kısım ekliyoruz, oranın içine müfredatları koyuyoruz."*
+
+Atölye seçicisi §50'de kazanım alanının üstüne konmuştu ve satır düzeninde
+Şubenin **arkasına** düşüyordu. Yeri rastgele değil: sınıf "Keşif" seçildiği
+anda bir sonraki karar hangi atölyede çalışılacağıdır; Şubenin arkasında
+kalınca kullanıcı kazanım listesinin neden süzüldüğünü göremiyordu.
+Etiketi de "Atölye" yerine **"Keşif"** oldu.
+
+**Canlıda ölçüldü** (Version `6401507c`), alan sırası:
+
+```
+Ders · Başlık · Sınıf · KEŞİF · Şube (opsiyonel) · Konu ve Kazanım
+```
+
+Keşif bölümünün içeriği (gönderilen müfredatlar):
+
+```
+Kimya ve İnsan Bilimleri Atölyesi   6 kazanım
+Kişisel Gelişim Atölyesi            6 kazanım
+Fizik Atölyesi                      2 kazanım
+```
+
+Sınıf "Keşif" değilse bu alan **hiç çizilmez**. Konsol hatası **0** ·
+263/263 · öz-kontrol 336 ad %100.
