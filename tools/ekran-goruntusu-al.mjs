@@ -75,8 +75,15 @@ async function cek(dosya, aciklama, secici) {
 // ---------------------------------------------------------------------------
 // 1) İÇERİK UZMANI — onay bekleyen AI soru taslağı
 // ---------------------------------------------------------------------------
-await sayfa.evaluate(() => { state.role = 'content_expert'; state.ceTab = 2; renderAll(); });
-await cek('01-icerik-uzmani.png', 'onay bekleyen soru taslağı', '.pending-card, .p-body, .pool-item');
+/* §48b — SEKME DÜZELTİLDİ. Burası `ceTab = 2` (Soru Havuzu) idi: kadrajda
+   onaylanmış sorular ve "Sil" düğmeleri çıkıyordu. README'deki alt yazı ise
+   "her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri"
+   diyordu — yani §45.1'in kusuru (alt yazı kadrajda OLMAYAN bir şeyi
+   anlatıyor) 01 numaralı görüntüde sürüyordu. Onay bekleyen kart `ceTab = 1`
+   içindedir; hedef öğe `.q-card`, çeldirici gerekçeleri onun içindeki
+   `.distractor-box`tur. */
+await sayfa.evaluate(() => { state.role = 'content_expert'; state.ceTab = 1; renderAll(); });
+await cek('01-icerik-uzmani.png', 'onay bekleyen soru taslağı + çeldirici gerekçeleri', '.q-card');
 
 // ---------------------------------------------------------------------------
 // 2) ÖĞRETMEN — gerçek AI puan önerisi

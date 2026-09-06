@@ -6810,3 +6810,15 @@ bir liste tanımlanabilir.
 yasaklanan *"...etkisi nedir?"* sorusunu sergiliyordu. §45'te yazılan
 `tools/ekran-goruntusu-al.mjs` ile **canlıdan, gerçek model çağrısıyla**
 yeniden üretildi.
+
+**Ve yenilerken §45.1'in kusuru 01 numaralı görüntüde SÜRDÜĞÜ görüldü.**
+Betik `state.ceTab = 2` (Soru Havuzu) çekiyordu: kadrajda onaylanmış sorular
+ve "Sil" düğmeleri vardı. README'deki alt yazı ise *"her çeldirici için kavram
+yanılgısı gerekçesi ve **onay/red düğmeleri**"* diyordu — yani alt yazı
+kadrajda OLMAYAN bir şeyi anlatıyordu, tam da §45'in kapattığı kusur.
+Onay bekleyen kart `ceTab = 1` içindedir; betik oraya alındı ve hedef öğe
+`.q-card` yapıldı. Yeni görüntüde çeldirici gerekçeleri ve
+"✓ Onayla → Havuza Aktar / Reddet" düğmeleri görünüyor.
+
+Beş görüntünün beşi de alt yazısıyla karşılaştırıldı; hepsi uyuyor.
+Betik koşumunda konsol hatası **0**.
