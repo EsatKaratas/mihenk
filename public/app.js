@@ -843,61 +843,114 @@ function kitapligiSil() {
 }
 
 /* ==================== Demo senaryosu ====================
-   Aşağıdaki sorular ve şıklar UYDURULMAMIŞTIR: geliştirme sırasında
-   @cf/meta/llama-3.3-70b-instruct-fp8-fast modelinin gerçekten ürettiği
-   çıktılardır ve olduğu gibi saklanmıştır. Amaç, sunum sırasında her seferinde
-   10-17 saniyelik üretimi beklememektir; jüri isterse "AI ile Soru Üret"e
-   basarak canlı üretimi de görebilir.                                        */
+   KÖKEN — §48b'de DEĞİŞTİ, dürüstçe yazılıyor.
+
+   Bu sorular §48b'ye kadar gerçek model çıktısıydı ve öyle saklanıyordu. §48
+   ürünü beceri temelli soru üretmeye geçirince o tohum ürünü yalanlar hâle
+   geldi: soruları klasik hatırlatma kalıbındaydı ("... etkisi nedir?") ve
+   çeldirici gerekçelerinin altısı da §47'nin ölçüp sunucuda temizlediği
+   "bu şıkkı seçen öğrenci..." kalıbıyla başlıyordu.
+
+   ÖNCE YENİDEN ÜRETMEYİ DENEDİK. Canlı sistemden FEN.7.1.2 için 4 tur gerçek
+   üretim koşuldu (12 aday istendi, tekrar elemesinden 4'ü geçti) ve HİÇBİRİ
+   demo tohumu olacak nitelikte değildi:
+     · bir adayın CEVAP ANAHTARI YANLIŞTI — sürtünme kuvveti F = 0,2·1500·10
+       ile 3000 N iken model 300 N işaretledi (ayrıca sürtünme katsayısı
+       7. sınıf kapsamında değil),
+     · bir aday Türkçe cümlenin içinde "necessary" kelimesi taşıyordu ve
+       `dilUyarisi` bunu YAKALAMADI — koruma yabancı ALFABE arar, Latin
+       harfli yabancı DİLİ değil (PROGRESS §48b'de açık madde),
+     · ikisi kazanım dışıydı (hız-zaman, iş) ve soru cümlesini iki kez
+       tekrarlıyordu.
+
+   Bu yüzden aşağıdaki üç soru ELLE YAZILDI: bağlam + veri + görev biçiminde,
+   7. sınıf FEN.7.1.2 kapsamında, cevap anahtarları elle doğrulanmış.
+   Gerekçeler kalıpsızdır ve her biri FARKLI bir akıl yürütme hatasını anlatır.
+
+   "Gerçek model çıktısı" iddiası artık BU SORULAR İÇİN GEÇERLİ DEĞİLDİR ve
+   sunumda öyle söylenmemelidir. Jüri canlı üretimi görmek isterse "AI ile
+   Soru Üret" düğmesi gerçek modeli çağırır — demo tohumu yalnızca sunumda
+   her seferinde 15-25 saniyelik üretimi beklememek içindir.                  */
+/* §48b — DEMO SORULARI BECERİ TEMELLİ.
+   Eskiden "Bir cisme etki eden dengelenmemiş kuvvetlerin etkisi NEDİR?" gibi
+   tek adımda ezberden yanıtlanan sorulardı ve çeldirici gerekçelerinin altısı
+   da "bu şıkkı seçen öğrenci..." ile başlıyordu — yani demo, ürünün §47'de
+   düzelttiği kusuru ve §48'de terk ettiği soru tipini jüriye sergiliyordu.
+   Gövdeler bağlam + veri + görev biçiminde yeniden yazıldı; gerekçeler
+   kalıpsız ve her biri FARKLI bir akıl yürütme hatasını anlatıyor.
+
+   DİKKAT: gövdelerde `guards.ts` KAYNAK_ATIF kalıpları (metinde, parçada,
+   yukarıdaki, verilen metin...) KULLANILMAZ. Kullanılsaydı `needsSource`
+   zorla true olur ve öğrenciye gösterilecek bir uyaran metin olmadığı için
+   ekranda boş bir kutu çıkardı. "Buna göre" bilerek seçildi: veriye atıf
+   yapar ama ayrı bir kaynak metne işaret etmez. */
 const DEMO_SORULAR = [
   {
-    type: "mc", difficulty: "medium", bloom: "anlama", aiTime: 60,
-    body: "Bir cisme etki eden dengelenmemiş kuvvetlerin etkisi nedir?",
+    type: "mc", difficulty: "medium", bloom: "uygulama", aiTime: 90,
+    body: "Ali, markette dolu alışveriş arabasını sabit hızla itiyor. Bu sırada arabaya etki eden " +
+          "sürtünme kuvveti 30 N, Ali'nin uyguladığı itme kuvveti de 30 N. Reyonun sonuna yaklaşırken " +
+          "Ali itme kuvvetini 45 N'a çıkarıyor, sürtünme ise değişmiyor. Buna göre arabanın hareketi " +
+          "nasıl değişir?",
     options: [
-      { key: "A", text: "Cismin hızını değiştirir" },
-      { key: "B", text: "Cismin hızını değiştirmez" },
-      { key: "C", text: "Cismin yönünü değiştirir ancak hızını değiştirmez" },
-      { key: "D", text: "Cismin hareketini durdurur" }
+      { key: "A", text: "Hızlanarak hareketine devam eder" },
+      { key: "B", text: "Sabit hızla hareketine devam eder" },
+      { key: "C", text: "Yavaşlar ve bir süre sonra durur" },
+      { key: "D", text: "Anında durur" }
     ],
     correctKey: "A",
     distractorRationale: {
-      B: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin cismin hızını değiştirmediğini sanmaktadır",
-      C: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin sadece yönü değiştirdiğini sanmaktadır",
-      D: "bu şıkkı seçen öğrenci dengelenmemiş kuvvetlerin her zaman hareketi durdurduğunu sanmaktadır"
+      B: "45 N ile 30 N'u hâlâ eşit sayıyor; kuvvetlerin artık dengelenmediğini fark etmemiş.",
+      C: "Sürtünmenin her durumda baskın olduğunu düşünüyor, net kuvvetin yönünü hesaplamamış.",
+      D: "Kuvvet artışını frenleme sanıyor; itmenin yönüyle sürtünmenin yönünü karıştırmış."
     },
-    refKeywords: ["dengelenmemiş kuvvet", "hız", "hareket"]
+    refKeywords: ["dengelenmemiş kuvvet", "net kuvvet", "hızlanma"]
   },
   {
-    type: "mc", difficulty: "easy", bloom: "hatirlama", aiTime: 30,
-    body: "Sürtünme kuvvetinin etkisi nedir?",
+    type: "mc", difficulty: "medium", bloom: "analiz", aiTime: 100,
+    body: "Bir okul kulübü, aynı oyuncak arabayı aynı eğimli rampadan bırakıp durana kadar aldığı " +
+          "yolu üç farklı zeminde ölçüyor: halıda 45 cm, parkede 120 cm, buzlu zeminde 260 cm. " +
+          "Buna göre zemin ile sürtünme kuvveti arasındaki ilişki için ne söylenebilir?",
     options: [
-      { key: "A", text: "Harekete zıt yönde etki eder" },
-      { key: "B", text: "Harekete aynı yönde etki eder" },
-      { key: "C", text: "Hareketi durdurur" },
-      { key: "D", text: "Hareketi hızlandırır" }
+      { key: "A", text: "Zemin pürüzlendikçe sürtünme artar, araba daha kısa yol alır" },
+      { key: "B", text: "Zemin pürüzlendikçe sürtünme azalır, araba daha uzun yol alır" },
+      { key: "C", text: "Sürtünme zemine bağlı değildir; farkı arabanın ağırlığı oluşturur" },
+      { key: "D", text: "Sürtünme yalnızca hareket başlarken etkilidir, alınan yolu değiştirmez" }
     ],
     correctKey: "A",
     distractorRationale: {
-      B: "bu şıkkı seçen öğrenci sürtünme kuvvetinin harekete aynı yönde etki ettiğini sanmaktadır",
-      C: "bu şıkkı seçen öğrenci sürtünme kuvvetinin her zaman hareketi durdurduğunu sanmaktadır",
-      D: "bu şıkkı seçen öğrenci sürtünme kuvvetinin hareketi hızlandırdığını sanmaktadır"
+      B: "İlişkiyi ters kurmuş; en kısa yolun halıda alınmasını sürtünmenin azalmasına bağlıyor.",
+      C: "Üç ölçümde de değişen tek etkenin zemin olduğunu gözden kaçırıp ağırlığı sorumlu tutuyor.",
+      D: "Sürtünmeyi yalnızca başlangıç anına bağlıyor, hareket boyunca sürdüğünü hesaba katmamış."
     },
-    refKeywords: ["sürtünme kuvveti", "hareket"]
+    refKeywords: ["sürtünme kuvveti", "pürüzlülük", "alınan yol"]
   },
   {
-    type: "open", difficulty: "hard", bloom: "analiz", aiTime: 240,
-    body: "Bir cisme etki eden kuvvetler hareketini nasıl etkiler? Sürtünme kuvvetini de içerecek biçimde açıklayınız.",
-    refKeywords: ["kuvvet", "hareket", "sürtünme"]
+    type: "open", difficulty: "hard", bloom: "degerlendirme", aiTime: 300,
+    body: "Bir kargo deposunda ağır koliler taşınacak. Depo zemini pürüzlü betondur ve iki seçenek " +
+          "tartışılıyor: kolileri zeminde doğrudan itmek ya da tekerlekli bir platforma koyup çekmek. " +
+          "Hangi seçeneği önerirsin? Kararını kuvvet ve sürtünme kavramlarını kullanarak gerekçelendir.",
+    refKeywords: ["sürtünme", "kuvvet", "tekerlek", "yuvarlanma"]
   }
 ];
 
+/* Demo ders notu. Beceri temelli soruların dayanağı burada: yalnızca tanım
+   değil, günlük hayatta ölçülebilir bir durum da anlatır. */
 const DEMO_METIN = "Bir cisme etki eden kuvvet, cismin hareket durumunu değiştirir. " +
   "Dengelenmiş kuvvetler cismin hızını değiştirmez; cisim ya durur ya da sabit hızla " +
   "hareketine devam eder. Dengelenmemiş kuvvetler ise cismi hızlandırır, yavaşlatır veya " +
-  "yönünü değiştirir. Sürtünme kuvveti harekete zıt yönde etki eder ve yüzeyin pürüzlülüğü " +
-  "arttıkça büyür. Havada hareket eden cisimlere hava direnci etki eder.";
+  "yönünü değiştirir. Bir cisme zıt yönde eşit büyüklükte iki kuvvet etki ediyorsa net " +
+  "kuvvet sıfırdır. Sürtünme kuvveti harekete zıt yönde etki eder ve yüzeyin pürüzlülüğü " +
+  "arttıkça büyür: aynı cisim halıda betondan, betonda buzdan daha kısa yol alır. " +
+  "Tekerlek kullanmak kayma sürtünmesi yerine daha küçük olan yuvarlanma sürtünmesini " +
+  "devreye sokar; bu yüzden ağır yükler tekerlekli araçlarla daha az kuvvetle taşınır. " +
+  "Havada hareket eden cisimlere hava direnci etki eder.";
 
-const DEMO_YANIT = "Dengelenmemiş kuvvetler cismin hızını değiştirir. Örneğin duran bir topa " +
-  "vurulduğunda top hareket eder. Sürtünme kuvveti ise harekete zıt yönde etki ederek topu yavaşlatır.";
+/* Demo kullanıcısının açık uçlu yanıtı. Sınav bitirildiğinde bu metin GERÇEK
+   modele gider (/api/ai/evaluate); rubrik kriterlerinin üçünü de karşılayacak
+   ama kusursuz olmayacak biçimde yazıldı ki puan önerisi 20/20 çıkmasın. */
+const DEMO_YANIT = "Tekerlekli platformu öneririm. Pürüzlü betonda koliyi doğrudan itersem " +
+  "sürtünme kuvveti büyük olur ve harekete zıt yönde beni zorlar. Tekerlek kullanınca kayma " +
+  "yerine yuvarlanma olur, sürtünme azalır ve aynı koliyi daha az kuvvetle taşırım.";
 
 /* §38 — DEMO AKIŞI: sahne artık "her şey bitmiş" değil, ADIM ADIM İLERLETİLİR.
 
@@ -1089,22 +1142,22 @@ function demoSinifOturumlari() {
   // ÇSS doğruluğu da öğrenciden öğrenciye değişir.
   const desenler = [
     { mc: [true, true],   ai: 16, nihai: 16, karar: "approved_as_is", guven: 0.88,
-      yanit: "Dengelenmemiş kuvvetler cismin hızını değiştirir. Duran bir topa vurulduğunda top hareket eder. Sürtünme ise harekete zıt yönde etki edip topu yavaşlatır, bu yüzden top bir süre sonra durur.",
+      yanit: "Tekerlekli platformu öneririm. Pürüzlü betonda koli doğrudan itilirse sürtünme kuvveti büyük olur ve harekete zıt yönde etki eder. Tekerlek kayma yerine yuvarlanma sağladığı için sürtünme azalır, aynı koli daha az kuvvetle taşınır.",
       kirilim: [8, 5, 3],
-      gerekce: ["Dengelenmemiş kuvvet ile hız değişimi arasındaki ilişkiyi ve sürtünmenin yönünü doğru kurmuş.",
-                "Topa vurma örneğini vermiş ancak sürtünmeye ait ayrı bir örnek eklememiş.",
+      gerekce: ["Sürtünmenin harekete zıt yönde etki ettiğini ve zeminin pürüzlülüğüyle ilişkisini doğru kurmuş.",
+                "Tekerleğin yuvarlanma sağladığını söylemiş ancak günlük hayattan ikinci bir örnek vermemiş.",
                 "Anlatım anlaşılır fakat cümleler kısa; nedensellik bağlaçları zayıf."] },
     { mc: [true, false],  ai: 13, nihai: 11, karar: "revised", guven: 0.62,
-      yanit: "Kuvvet cismi hareket ettirir. Sürtünme de onu yavaşlatır ama nasıl olduğunu tam bilmiyorum.",
+      yanit: "Tekerlekli olan daha iyi bence. İtince zor oluyor, tekerlekle daha kolay gidiyor ama nedenini tam bilmiyorum.",
       kirilim: [5, 3, 3],
-      gerekce: ["Kuvvetin hareketi başlattığını söylemiş ama dengelenmiş/dengelenmemiş ayrımına girmemiş.",
-                "Hiç örnek vermemiş; kavram günlük hayatla ilişkilendirilmemiş.",
+      gerekce: ["Doğru seçeneği işaretlemiş ama kararını sürtünme kavramıyla hiç ilişkilendirmemiş.",
+                "Gözleme dayalı bir gerekçe vermiş; kuvvet ve sürtünme kavramları kullanılmamış.",
                 "İfade açık ancak öğrenci bilmediğini belirterek açıklamayı yarıda bırakmış."] },
     { mc: [false, true],  ai: 7,  nihai: 7,  karar: "approved_as_is", guven: 0.71,
-      yanit: "Kuvvet itmek ve çekmektir. Sürtünme kuvveti vardır.",
+      yanit: "Kuvvet itmek ve çekmektir. Depoda sürtünme kuvveti vardır.",
       kirilim: [4, 1, 2],
-      gerekce: ["Kuvvetin tanımını vermiş ama sorunun sorduğu HAREKETE etkisini hiç açıklamamış.",
-                "Örnek yok; sürtünme yalnızca adıyla anılmış.",
+      gerekce: ["Kuvvetin tanımını vermiş ama sorunun istediği KARARI hiç belirtmemiş.",
+                "Örnek ya da gerekçe yok; sürtünme yalnızca adıyla anılmış.",
                 "İki cümlelik yanıt kazanımı karşılamak için yeterli değil."] },
   ];
 

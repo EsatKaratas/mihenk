@@ -6698,3 +6698,115 @@ Ama §48.3'teki "hiçbir soru 40 kelimeye ulaşmadı" cümlesi yalnızca yerel k
 için doğrudur — canlıda ulaşan sorular var. İki koşum arasındaki farkın
 nedeni ayrıştırılmadı (model tarafındaki değişkenlik en olası açıklama).
 Sunum öncesi daha büyük bir örneklemle bakılmalıdır.
+
+---
+
+## 48b. TAM DENETİM — depo, canlı ve DEMO TOHUMU (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"githubda eksiklik var mı ya da bayat kalmış bir yer var
+mı canlıda çalışmayan veya bayat kalan bir yer var mı tek tek kontrol et."*
+
+### 48b.1 Temiz çıkanlar — bunlar da ölçüldü
+
+| Denetim | Sonuç |
+|---|---|
+| Çalışma ağacı · HEAD ↔ `origin/main` | temiz · eş |
+| `.gitignore` · sır sızıntısı | `.dev.vars.example` dışında sır yok |
+| `package.json` betiklerinin hedefleri | 14 betiğin hepsinde dosya mevcut |
+| README iç bağlantıları | kırık bağlantı **0** |
+| Kaldırılmış özelliklere (sınıf kodu, `/api/sync`, D1) atıflar | hepsi **tarihli "kaldırıldı" notu**, bayat iddia yok |
+| `public/` altındaki 24 dosya canlıda | hepsi 200 · **SHA-256 eş** (`.html`'ler uzantısız yolda) |
+| `/`, `/mimari`, `/privacy-policy`, `/404` | 200 · diskle eş |
+| `/robots.txt` · olmayan yol | 200 · 404 |
+| **7 yapay zekâ ucu + `/api/health`** | **hepsi 200**, gerçek çağrıyla sınandı (3-5 sn) |
+| `/evaluate` yanıt alanları | `aiScore, justification, studentFeedback, confidence, injectionAttempt, dilUyarisi, breakdown, meta` |
+| CI iş akışı | lint · test · check:config · `node --check` · öz-kontrol — beşi de koşuyor |
+
+`/favicon.ico` 404 döner; bu bir kusur DEĞİLDİR — §45.3'te ikon
+`<link rel="icon">` ile `mihenk-logo.png`'ye bağlandı ve konsol hatası 0
+ölçüldü (canlıda yeniden doğrulandı).
+
+### 48b.2 🔴 BULUNAN KUSUR: DEMO TOHUMU ÜRÜNÜ YALANLIYORDU
+
+Demo, jürinin gördüğü İLK şeydir. §48 ürünü beceri temelli soruya geçirince
+tohum iki noktada ürünle çelişir hâle geldi:
+
+1. **Soruları klasik hatırlatma kalıbındaydı** — *"Bir cisme etki eden
+   dengelenmemiş kuvvetlerin etkisi **nedir**?"*, *"Sürtünme kuvvetinin etkisi
+   **nedir**?"*; biri `bloom: "hatirlama"`. Yeni istem bu kalıbı AÇIKÇA
+   yasaklıyor. README artık "beceri temelli" diyor, demo bunu yalanlıyordu.
+2. **Altı çeldirici gerekçesinin altısı da** `"bu şıkkı seçen öğrenci..."` ile
+   başlıyordu — §47'nin ölçüp sunucuda temizlediği kalıbın ta kendisi. Tohum
+   sunucudan geçmediği için `gerekceyiSadelestir` ona hiç dokunmuyordu.
+
+Bu, §45.1'in aynı sınıfı: **vitrin, ürünün düzelttiği kusuru sergiliyordu.**
+
+#### Önce yeniden üretmeyi denedik — ve model yetmedi
+
+§45'in ilkesi "sahne kurgulama, gerçek sistemden üret". Canlıdan FEN.7.1.2 için
+**4 tur** gerçek üretim koşuldu (12 aday istendi, tekrar elemesinden 4'ü geçti).
+Dördü de demo tohumu olacak nitelikte DEĞİLDİ:
+
+| Aday | Sorun |
+|---|---|
+| 1 | **CEVAP ANAHTARI YANLIŞ.** F = μ·m·g = 0,2·1500·10 = **3000 N** (ivmeden gidilse 2083 N); model **300 N** işaretledi. Ayrıca sürtünme katsayısı 7. sınıf kapsamı değil |
+| 2 | Kazanım dışı (hız-zaman), tek adımlı, soru cümlesi iki kez tekrarlanmış |
+| 3 | **Türkçe cümlenin içinde "necessary"** — İngilizce kelime; kazanım dışı |
+| 4 | Kazanım dışı (iş/Joule), gereksiz veri, gerekçeler tutarsız |
+
+**Karar:** üç soru ELLE yazıldı (bağlam + veri + görev, 35-42 kelime, cevap
+anahtarları elle doğrulandı, gerekçeler kalıpsız ve her biri farklı bir akıl
+yürütme hatasını anlatıyor). Kod içindeki köken yorumu **düzeltildi**: eskiden
+"bu sorular gerçek model çıktısıdır ve olduğu gibi saklanmıştır" diyordu; artık
+elle yazıldıklarını, neden yazıldıklarını ve bu iddianın **artık geçerli
+olmadığını** söylüyor. Sunumda "demo soruları modelin ürettiğidir" DENMEMELİDİR.
+
+**Değişmeyen:** soru sayısı ve türleri, kazanım, puan desenleri
+(`mc/ai/nihai/karar/guven/kirilim`). Analitik çıktılar bu yüzden kaymadı.
+
+**Gövdeler `KAYNAK_ATIF` kalıplarından kasten kaçınır** ("metinde", "parçada",
+"yukarıdaki"...). Kullanılsalardı `needsSource` zorla true olur, öğrenciye
+gösterilecek uyaran metin olmadığı için ekranda boş kutu çıkardı. Ölçüldü:
+
+```
+soru 1: needsSource zorlanır mı = false  (42 kelime)
+soru 2: needsSource zorlanır mı = false  (39 kelime)
+soru 3: needsSource zorlanır mı = false  (35 kelime)
+```
+
+#### Uçtan uca doğrulama (yerel, servis edilen `app.js` diskle SHA-256 eş)
+
+| Kontrol | Sonuç |
+|---|---|
+| Demo tohumu | 3 soru (mc onaylı · mc onay bekliyor · açık uçlu onaylı), sınavda 2 soru |
+| Rubrik | otomatik kuruldu: Kavram %40 · Örnek %30 · Anlatım %30 |
+| Simüle sınıf | 4 öğrenci, **3 gönderim** (§44.0 ile aynı) |
+| Sınav yayını | `yayinEngeliMetni()` boş, düğme etkin, `published` |
+| **Gerçek model değerlendirmesi** | **16/20**, 3 kriterde gerekçeli kırılım, `dilUyarisi:false`, `injectionAttempt:false`, 22 sn |
+| Öğretmen onayı → karne | **21/25 (%84)** |
+| Veli ekranı | yalnızca onaylı sonuç, sıralama yok |
+| Yönetici | okul geneli tablo doldu; gönderim oranı **%100** (§44.0'daki %75, demo kullanıcısı sınavı bitirmeden ölçülmüştü — 4/4 olunca %100 doğrudur) |
+| Konsol hatası | **0** |
+| Yinelenen `id` | **0** |
+
+### 48b.3 🟡 YENİ AÇIK MADDE: `dilUyarisi` YABANCI DİLİ DEĞİL, YABANCI ALFABEYİ ARIYOR
+
+Yukarıdaki 3. aday Türkçe bir cümlenin ortasında **"necessary"** kelimesi
+taşıyordu ve `dilUyarisi` **false** döndü. Doğru davranış: koruma
+`YABANCI_ALFABE` ile *alfabe* denetler (Kiril, CJK, ... ve §48'de eklenen
+Latin Extended Additional). "necessary" düz ASCII Latin'dir, alfabe denetimine
+takılmaz.
+
+**Kasten düzeltilmedi.** Latin harfli yabancı kelimeyi yakalamak sözlük ya da
+kelime listesi ister; ikisi de yanlış pozitif üretir (Türkçede yerleşik
+alıntılar, özel adlar, birimler) ve bu depo **kalibre edilmemiş sabit koymayı
+yasaklıyor** (§5 tuzak 9). İstem zaten "başka bir dilden kelime karıştırma"
+diyor; nihai güvence İçerik Uzmanının onayıdır. Veri toplandığında ölçülerek
+bir liste tanımlanabilir.
+
+### 48b.4 Ekran görüntüleri
+
+`docs/ekran/*.png` 5 Eylül 21:09'da kalmıştı ve İçerik Uzmanı görüntüsü artık
+yasaklanan *"...etkisi nedir?"* sorusunu sergiliyordu. §45'te yazılan
+`tools/ekran-goruntusu-al.mjs` ile **canlıdan, gerçek model çağrısıyla**
+yeniden üretildi.
