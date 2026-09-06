@@ -7164,3 +7164,44 @@ Fizik Atölyesi                      2 kazanım
 
 Sınıf "Keşif" değilse bu alan **hiç çizilmez**. Konsol hatası **0** ·
 263/263 · öz-kontrol 336 ad %100.
+
+### 50e. 🔴 KEŞİF DERSİ SEÇİLİNCE EKRAN BOŞ KALIYORDU (6 Eylül 2026)
+
+**Kanıt (kullanıcı ekran görüntüsü).** "Keşif Kampüsü" dersi seçili, Sınıf
+"7. sınıf"ta kalmış ve ekranda şu yazıyor:
+
+```
+0 kazanım · Keşif Kampüsü · 7. sınıf · bu ders ve sınıf için henüz kazanım
+tanımlı değil.   [başka ders/sınıfa ait 17 kazanım gizlendi — tümünü göster]
+```
+
+**Kök neden.** Keşif kazanımlarının tamamı `grade: "Keşif"` taşıyor ve atölye
+şeridi de yalnızca o sınıfta çiziliyordu. Yani ürün, kullanıcıdan **aynı
+kararı iki ayrı yerden** vermesini bekliyordu: önce Ders sekmesinden "Keşif
+Kampüsü", sonra ayrıca Sınıf açılır listesinden "Keşif". İkincisi yapılmazsa
+17 kazanımın hepsi gizleniyor, atölye şeridi hiç çizilmiyor ve panel boş
+görünüyordu. Kullanıcının hatası değil, arayüzün kusuru.
+
+**Düzeltme — ders ile sınıf eşleştirildi.** İkisi bir arada anlamlıdır:
+
+| Eylem | Sonuç |
+|---|---|
+| Ders → "Keşif Kampüsü" | Sınıf kendiliğinden **Keşif** olur |
+| Ders → Keşif'ten başka bir şey | Sınıf sayısal düzeye (7) **geri döner** — "Türkçe · Keşif" gibi karşılığı olmayan birleşim kalmaz |
+| Sınıf → "Keşif" | Ders kendiliğinden **Keşif Kampüsü** olur (simetri) |
+
+Atölye şeridi ayrıca dersten de tetikleniyor; sınıfı henüz göçmemiş bir
+kayıtta da çizilir.
+
+**Canlıda GERÇEK TIKLAMAYLA ölçüldü** (Version `6dd8f675`) — DOM `.click()`
+değil, kullanıcının ekranındaki başlangıç durumundan:
+
+```
+öncesi : ders "Fen Bilimleri" · sınıf 7        · Keşif alanı YOK
+tıklama: "Keşif Kampüsü" ders sekmesi
+sonrası: ders "Keşif Kampüsü" · sınıf "Keşif"  · Keşif alanı VAR · 6 kazanım
+
+geri dönüş: "Türkçe" sekmesi -> sınıf 7 · Keşif alanı YOK   (birleşim temiz)
+```
+
+Konsol hatası **0** · 263/263 · öz-kontrol 336 ad %100.

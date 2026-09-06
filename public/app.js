@@ -25,6 +25,7 @@ const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri", "Keşif Ka
    DÜZEYİ değildir. Sınıf ekseninde artık tek bir "Keşif" girdisi var;
    atölyeler MÜFREDAT eksenine, kazanımın üstüne taşındı. */
 const KESIF_SINIFI = "Keşif";
+const KESIF_DERSI = "Keşif Kampüsü";
 const ATOLYELER = [
   "Kimya ve İnsan Bilimleri Atölyesi",
   "Kişisel Gelişim Atölyesi",
@@ -2264,6 +2265,16 @@ function removeSubject(ad) {
 function dersSec(ad) {
   if (!ad || state.ceForm.subject === ad) return;
   state.ceForm.subject = ad;
+  /* KEŞİF DERSİ İLE KEŞİF SINIFI BİRLİKTE ANLAMLIDIR (§50e).
+     Kullanıcı "Keşif Kampüsü" dersini seçip sınıf "7. sınıf"ta kalınca ekranda
+     "0 kazanım — bu ders ve sınıf için kazanım tanımlı değil" çıkıyordu:
+     kazanımların hepsi Keşif sınıfında duruyor, atölye şeridi de yalnızca o
+     sınıfta çiziliyor. Kullanıcının iki ayrı yerden aynı kararı vermesi
+     bekleniyordu. Artık ders seçimi sınıfı da getiriyor; Keşif'ten çıkılınca
+     sınıf sayısal düzeye geri döner, yoksa Türkçe + Keşif gibi boş bir
+     birleşim kalırdı. */
+  if (ad === KESIF_DERSI) state.ceForm.grade = KESIF_SINIFI;
+  else if (String(state.ceForm.grade) === KESIF_SINIFI) state.ceForm.grade = 7;
   // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
   outcomeSeciminiTazele();
   saveSoon();
@@ -2353,7 +2364,8 @@ function dersSecicisiHtml() {
  * Kazanım listesini süzer (bkz. outcomeUyar).
  */
 function atolyeSecicisiHtml() {
-  if (String(state.ceForm.grade) !== KESIF_SINIFI) return "";
+  if (String(state.ceForm.grade) !== KESIF_SINIFI &&
+      state.ceForm.subject !== KESIF_DERSI) return "";
   const secili = state.ceForm.atolye;
   const sekmeler = ATOLYELER.map(function (a) {
     const kazanimSayisi = OUTCOMES_LIST().filter(function (o) {
@@ -4306,6 +4318,14 @@ function renderContentExpert() {
   wireSecimSekmeleri();
   document.getElementById("ceGrade").onchange = function (e) {
     state.ceForm.grade = parseInt(e.target.value, 10) || e.target.value;
+    /* Simetri: sınıf listesinden "Keşif" seçilirse ders de Keşif Kampüsü
+       olur. Aksi hâlde "Türkçe · Keşif" gibi karşılığı olmayan bir birleşim
+       kalır ve kazanım listesi boş görünür (bkz. dersSec). */
+    if (String(state.ceForm.grade) === KESIF_SINIFI &&
+        state.ceForm.subject !== KESIF_DERSI &&
+        SUBJECTS_LIST().indexOf(KESIF_DERSI) >= 0) {
+      state.ceForm.subject = KESIF_DERSI;
+    }
     outcomeSeciminiTazele(); saveSoon(); renderAll();
     katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
   };
