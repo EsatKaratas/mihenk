@@ -6987,3 +6987,78 @@ Kırpma **sessiz değil**: kaç karakterin dışarıda kaldığı ekranda yazıy
 - Gerçek model çağrısıyla **belgeye kilitli üretim denenmedi** — şerit
   "belge okundu" diyor, ama üretilen soruların gerçekten belgeden çıktığı
   ölçülmedi.
+
+---
+
+## 50. ATÖLYE SINIF OLMAKTAN ÇIKTI — "Keşif" sınıfı + müfredat ekseni (6 Eylül 2026)
+
+**İstek (kullanıcı, ekran görüntüsüyle):** *"buradaki en alttaki 3 tanesi sınıf
+değil kazanım... keşif diye bi sınıf gibi sekme aç, müfredat olarak da o alttaki
+atölyeleri ekle, ben sana kazanım olarak vericem."*
+
+### 50.1 Kusur
+
+§49'de gelen yama atölyeleri doğrudan `GRADES`'e katmıştı:
+
+```
+5. sınıf · 6. sınıf · 7. sınıf · 8. sınıf ·
+Kimya ve İnsan Bilimleri Atölyesi · Kişisel Gelişim Atölyesi · Fizik Atölyesi
+```
+
+Tek bir açılır listede **tür olarak birbirine benzemeyen** iki şey yan yanaydı.
+Atölye bir sınıf DÜZEYİ değildir; Keşif müfredatının çalışma birimidir.
+
+### 50.2 Yapılan
+
+| Eksen | Öncesi | Sonrası |
+|---|---|---|
+| Sınıf | 5 · 6 · 7 · 8 · üç atölye | **5 · 6 · 7 · 8 · Keşif** |
+| Atölye | (sınıfın içindeydi) | kazanımın üstünde **ayrı seçici**, kazanım listesini süzer |
+| Kazanım kaydı | `grade: "Fizik Atölyesi"` | `grade: "Keşif", atolye: "Fizik Atölyesi"` |
+
+`atolyeSecicisiHtml()` yalnızca sınıf "Keşif" iken çizilir ve her atölyenin
+kaç kazanımı olduğunu yazar. İki yeni fonksiyon öz-kontrol listesine eklendi.
+
+**İkiz koşul yazılmadı (TUZAK 7).** Atölye süzgeci `outcomeUyar()` içine
+konuldu — kazanım sekmelerini, alttaki not satırını ve seçim tazelemesini
+besleyen **yedi çağıranın hepsi** o tek fonksiyondan geçiyor. Ayrı bir süzgeç
+yazılsaydı §44.1'deki `canPublishExam`/`pendingRubricCount` ayrışması
+tekrarlanırdı.
+
+### 50.3 🔴 GÖÇ — yazılmasaydı SESSİZ VERİ KAYBI olurdu
+
+Siteyi daha önce açmış her tarayıcının `localStorage`'ında kazanımlar
+`grade: "Fizik Atölyesi"` diye duruyor. `GRADES` değişince o sınıf listede
+bulunmaz ve kazanımlar **hiçbir seçimde görünmez** hâle gelirdi — jürinin
+tarayıcısı dahil. `loadState()` içine göç eklendi: eski değeri `atolye`
+alanına taşır, `grade`'i `Keşif` yapar. Fikir üretmez, yalnızca taşır.
+
+**Canlıda gerçek bayat veriyle ölçüldü** (tarayıcıda §49 testinden kalan
+`grade: "Fizik Atölyesi"` kaydı vardı):
+
+```
+eski atölye-sınıfı kalan kazanım : 0
+KK.* kazanımların sınıfı         : 7/7 "Keşif"
+atölye alanı                     : 7/7 dolu, doğru atölye
+sınıf açılır listesi             : 5. sınıf · 6. sınıf · 7. sınıf · 8. sınıf · Keşif
+atölye seçici                    : Kimya 2 · Kişisel Gelişim 3 · Fizik 2 kazanım
+konsol hatası                    : 0
+```
+
+### 50.4 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run lint` | temiz |
+| `npm test` | **263/263** |
+| `node tools/ozkontrol-dogrula.mjs` | **336 ad · %100** (+2) |
+| `node --check public/app.js` | temiz |
+| Canlı Version | `006a360e` |
+| Konsol hatası (Keşif + atölye geçişi) | **0** |
+
+### 50.5 Sırada
+
+Kullanıcı atölyelerin **gerçek müfredatını** gönderecek. Eklenecek yer hazır:
+`VARSAYILAN_KAZANIMLAR` içine `subject: "Keşif Kampüsü", grade: KESIF_SINIFI,
+atolye: "<atölye adı>"` taşıyan kayıtlar eklemek yeterli; belge kilidi
+isteniyorsa `materyal` alanı `DERS_MATERYALLERI` anahtarını gösterir.

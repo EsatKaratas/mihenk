@@ -19,12 +19,18 @@ const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri", "Keşif Ka
    kazanımlar da o atölyelerin altında tanımlı. Sayısal düzeyler (5-8) MEB
    kataloglarına bağlı olduğu için AYNEN duruyor — atölyeler onların yanına
    eklendi, yerlerine geçmedi. */
+/* KEŞİF (kullanıcı isteği, §50): atölyeler ÖNCE sınıf listesine katılmıştı ve
+   "5/6/7/8 · Kimya ve İnsan Bilimleri Atölyesi" gibi tür olarak birbirine
+   benzemeyen şeyler aynı açılır listede yan yana duruyordu. Atölye bir sınıf
+   DÜZEYİ değildir. Sınıf ekseninde artık tek bir "Keşif" girdisi var;
+   atölyeler MÜFREDAT eksenine, kazanımın üstüne taşındı. */
+const KESIF_SINIFI = "Keşif";
 const ATOLYELER = [
   "Kimya ve İnsan Bilimleri Atölyesi",
   "Kişisel Gelişim Atölyesi",
   "Fizik Atölyesi",
 ];
-const GRADES = [5, 6, 7, 8].concat(ATOLYELER);
+const GRADES = [5, 6, 7, 8, KESIF_SINIFI];
 
 /**
  * Sınıf alanının EKRANDAKİ karşılığı.
@@ -52,27 +58,27 @@ const VARSAYILAN_KAZANIMLAR = [
      seçilirse üretim o belgeye KİLİTLENİR: model belgenin dışına çıkamaz.
      Alanı olmayan kazanımlarda hiçbir şey değişmez (geriye dönük uyum). */
   { code: "KK.KIM.1", label: "KK.KIM.1 — Maddenin Tanecikli Yapısı",
-    subject: "Keşif Kampüsü", grade: "Kimya ve İnsan Bilimleri Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
     materyal: "maddenin-tanecikli-yapisi" },
   { code: "KK.KIM.2", label: "KK.KIM.2 — Maddenin Hal Değişimi",
-    subject: "Keşif Kampüsü", grade: "Kimya ve İnsan Bilimleri Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
     materyal: "maddenin-hal-degisimi" },
 
   { code: "KK.KGA.1", label: "KK.KGA.1 — Doğa ve Saygı",
-    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
     materyal: "dogaya-saygi" },
   { code: "KK.KGA.2", label: "KK.KGA.2 — Beden Dili",
-    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
     materyal: "beden-dili" },
   { code: "KK.KGA.3", label: "KK.KGA.3 — Sınırlar",
-    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
     materyal: "sinirlar" },
 
   { code: "KK.FIZ.1", label: "KK.FIZ.1 — Kuvvet",
-    subject: "Keşif Kampüsü", grade: "Fizik Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
     materyal: "kuvvet" },
   { code: "KK.FIZ.2", label: "KK.FIZ.2 — Sürtünme Kuvveti",
-    subject: "Keşif Kampüsü", grade: "Fizik Atölyesi",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
     materyal: "surtunme-kuvveti" },
 ];
 
@@ -1054,6 +1060,28 @@ function loadState() {
     const d = JSON.parse(raw);
     KALICI_ALANLAR.forEach(function (k) { if (d[k] !== undefined) state[k] = d[k]; });
     if (d._qIdSeq) qIdSeq = d._qIdSeq;
+
+    /* ---- GÖÇ (§50): atölye SINIF olmaktan çıktı ----------------------------
+       Önceki sürümde Keşif kazanımlarının `grade` alanı doğrudan atölye adını
+       taşıyordu ("Fizik Atölyesi"). Artık sınıf "Keşif", atölye ayrı bir alan.
+       Göç YAPILMAZSA daha önce siteyi açmış her tarayıcıda — jürininki dahil —
+       o kazanımların sınıfı GRADES listesinde bulunmaz ve kazanımlar hiçbir
+       seçimde görünmez hâle gelir. Sessiz veri kaybı olurdu.
+       Göç fikir üretmez: yalnızca eski değeri doğru alana taşır. */
+    if (Array.isArray(state.outcomes)) {
+      state.outcomes.forEach(function (o) {
+        if (o && ATOLYELER.indexOf(String(o.grade)) >= 0) {
+          if (!o.atolye) o.atolye = String(o.grade);
+          o.grade = KESIF_SINIFI;
+        }
+      });
+    }
+    if (state.ceForm && ATOLYELER.indexOf(String(state.ceForm.grade)) >= 0) {
+      state.ceForm.atolye = String(state.ceForm.grade);
+      state.ceForm.grade = KESIF_SINIFI;
+    }
+    /* Alan sonradan eklendi; eski kayıtta hiç yok. */
+    if (state.ceForm && !state.ceForm.atolye) state.ceForm.atolye = ATOLYELER[0];
     // Süresi dolmuş bir sınavı yarım bırakmayalım.
     if (state.examStatus === "in_progress" && state.remainingSec <= 0) state.examStatus = "submitted";
     // PDF okuma sırasında sayfa yenilenirse buton sonsuza dek kilitli kalırdı.
@@ -1547,7 +1575,7 @@ const state = {
   simRunning: false,
   simStatus: null,
 
-  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli",
+  ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, atolye: ATOLYELER[0], sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli",
     /* §31 — ÜRETİM DAYANAĞI. "kaynak" varsayılandır ve eski davranışın
        birebir aynısıdır. "kazanim" modunda kaynak metin istenmez; dayanak
        MEB kazanımıdır ve öğretmen isterse serbest bir yönerge yazar. */
@@ -1771,9 +1799,15 @@ function ensureOutcomeMeta() {
 }
 
 /** Kazanım seçili ders/sınıfa uyuyor mu? Alanı yoksa uyar sayılır. */
-function outcomeUyar(o, ders, sinif) {
+function outcomeUyar(o, ders, sinif, atolye) {
   if (o.subject && ders && o.subject !== ders) return false;
   if (o.grade && sinif && String(o.grade) !== String(sinif)) return false;
+  /* Keşif altında ayrım ATÖLYEYE göre yapılır. Ölçüt bilerek bu tek
+     fonksiyondadır (TUZAK 7 — ikiz koşul yazma): yedi çağıran da buradan
+     geçer, atölye argümanı verilmezse o anki seçim okunur. Böylece
+     `kazanimSecicisiHtml()` ile `kazanimNotuHtml()` bir daha ayrışamaz. */
+  const a = atolye === undefined ? (state.ceForm && state.ceForm.atolye) : atolye;
+  if (String(sinif) === KESIF_SINIFI && a && o.atolye && o.atolye !== a) return false;
   return true;
 }
 
@@ -2269,6 +2303,41 @@ function dersSecicisiHtml() {
  * (`kazanimSecildi`). Böylece "okulun çalıştığı kazanımlar" listesi
  * kullanıldıkça büyür — katalog tasarım kararının aynısı.
  */
+/**
+ * ATÖLYE SEÇİCİSİ — yalnızca sınıf "Keşif" iken çizilir.
+ * Atölye bir sınıf düzeyi değil, Keşif müfredatının çalışma birimidir; bu
+ * yüzden sınıf açılır listesinde değil, kazanımın hemen üstünde durur.
+ * Kazanım listesini süzer (bkz. outcomeUyar).
+ */
+function atolyeSecicisiHtml() {
+  if (String(state.ceForm.grade) !== KESIF_SINIFI) return "";
+  const secili = state.ceForm.atolye;
+  const sekmeler = ATOLYELER.map(function (a) {
+    const kazanimSayisi = OUTCOMES_LIST().filter(function (o) {
+      return o.atolye === a;
+    }).length;
+    return '<span class="chip-tab' + (a === secili ? " active" : "") + '">' +
+      '<button type="button" class="chip-ad" data-atolye="' + escapeHtml(a) + '"' +
+      (a === secili ? ' aria-current="true"' : "") +
+      ' title="' + escapeHtml(a) + ' atölyesine geç">' + escapeHtml(a) +
+      ' <span class="chip-not">' + kazanimSayisi + " kazanım</span></button></span>";
+  }).join("");
+  return '<div class="field field-atolye"><label>Atölye</label>' +
+    '<div class="chip-tabs" id="ceAtolyeTabs">' + sekmeler + "</div>" +
+    '<div class="field-note">Atölyeler Keşif müfredatının çalışma birimidir — ' +
+    "sınıf düzeyi değildir. Seçtiğiniz atölye aşağıdaki kazanım listesini süzer." +
+    "</div></div>";
+}
+
+/** Atölye değişince seçili kazanım başka bir atölyeye ait kalabilir. */
+function atolyeSec(ad) {
+  if (!ad || state.ceForm.atolye === ad) return;
+  state.ceForm.atolye = ad;
+  outcomeSeciminiTazele();
+  saveSoon();
+  renderAll();
+}
+
 function kazanimSecicisiHtml() {
   const secili = state.ceForm.outcomeCode;
   const hepsi = OUTCOMES_LIST();
@@ -2368,6 +2437,11 @@ function wireSecimSekmeleri() {
   if (bCS) bCS.onclick = function () {
     state.newSubject = { open: false, ad: "", error: "" }; renderAll();
   };
+
+  /* ---- Atölye sekmeleri (yalnızca Keşif sınıfında çizilir) ---- */
+  kok.querySelectorAll("[data-atolye]").forEach(function (el) {
+    el.onclick = function () { atolyeSec(el.dataset.atolye); };
+  });
 
   /* ---- Kazanım sekmeleri ---- */
   kok.querySelectorAll("[data-kazanim]").forEach(function (el) {
@@ -4035,6 +4109,7 @@ function ceCreateHtml() {
        606 kazanımı sekmeye çevirmek ekranı kullanılamaz hale getirirdi, bu
        yüzden katalog seçicide kalır ve seçilen kazanım yukarıya sekme olarak
        düşer. */
+    atolyeSecicisiHtml() +
     '<div class="field field-outcome"><label>Konu ve Kazanım</label>' +
     kazanimSecicisiHtml() +
     '<div class="input-with-actions kazanim-ekle-satiri">' +
@@ -9807,6 +9882,8 @@ function bosDurumHtml(mesaj) {
     // Beceri temelli yedek şablonu.
     "yedekBaglam",
     /* Keşif Kampüsü — sınıf etiketi ve kazanıma kilitli ders belgesi. */
+    /* Keşif: atölye artık sınıf değil, müfredat birimi (§50). */
+    "atolyeSecicisiHtml", "atolyeSec",
     "sinifEtiketi", "materyalBilgisi", "seciliMateryal", "materyalDurumu",
     "materyalGetir", "materyalHazirla", "materyalSeridiHtml", "materyalDizinYukle"
   ];
