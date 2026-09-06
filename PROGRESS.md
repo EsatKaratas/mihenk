@@ -6944,16 +6944,46 @@ kendi doğrulaması iddia ettiğinden bir adım eksik yapılmış.
 | `node --check public/app.js` | temiz | **temiz** |
 | HITL değişmezi | `approved` 2 yerde | **değişmedi** |
 
-### 49.7 🔴 BU COMMIT'TE ÖLÇÜLMEYENLER — dürüstlük notu
+### 49.7 CANLIYA ALINDI VE TARAYICIDA DOĞRULANDI (Version `77fc4f01`)
 
-Sunum saatine 15 dakika kala birleştirildi. **Yapılmadı:**
+`npm run deploy:demo` — 15 varlık yüklendi (16'sı zaten yüklüydü).
 
-- **Tarayıcı denemesi koşulmadı.** Deponun 1 numaralı tuzağı bunu açıkça
-  yasaklıyor: `node --check` yetmez, `public/app.js` değişikliği gerçek
-  tarayıcıda açılmadan "bitti" sayılmaz. Beş panel, yinelenen `id`, konsol
-  hatası, Keşif Kampüsü akışı ve yeni grafik **canlıda doğrulanmadı**.
-- **`docs/ekran/*.png` BAYAT.** Beş görüntü de krem/bordo paleti ve ısı
-  haritasını gösteriyor; ürün artık mavi ve grafikli. §45.1'in kapattığı
-  kusurun aynısı yeniden açıldı. Düzeltmesi: `node tools/ekran-goruntusu-al.mjs`
-  (canlıya alındıktan sonra koşar, gerçek model çağırır).
-- **README** hâlâ `243/243` ve "krem/bordo Mihenk paleti" diyor.
+| Kontrol | Sonuç |
+|---|---|
+| `/api/health` · `/api/ai/status` | `ok:true` · `ready:true` · `fallbackSorunu: null` |
+| Canlı ↔ disk SHA-256 | `app.js` · `app.css` · `index.html` · `mihenk-logo.png` · `dersler/index.json` · `dersler/sinirlar.pdf` — **altısı da EŞ** |
+| Konsol hatası (giriş + İçerik Uzmanı + demo senaryosu + Yönetici) | **0** |
+| Yinelenen `id` | **0** (67 id) |
+| Öz-kontrol uyarı şeridi | çıkmadı; 8 yeni fonksiyonun hepsi tanımlı |
+| Giriş kapısı | mavi/su yeşili palet + yeni logo çizildi; beş rol kartı da göründü |
+| Ders sekmeleri | `Türkçe · Matematik · Fen Bilimleri · Keşif Kampüsü` |
+| Atölye seçimi | "Fizik Atölyesi" seçildi, `sinifEtiketi()` "7. sınıf" bozukluğu üretmedi |
+| Isı haritası | kaldırıldığı doğrulandı (`renderHeatmap` tanımsız, `.heatmap-cell` yok) |
+| Yeni grafik | 9 sütun çizildi, `aria-label` yerinde, kritik eşik çizgisi **kırmızı** (`rgb(192,40,31)`) |
+
+**BELGE KİLİDİ UÇTAN UCA ÇALIŞTI.** KK.FIZ.1 seçilince şerit şunu yazdı:
+
+```
+🔒 Bu kazanım bir ders belgesine bağlı
+Ders 1 ve 2 — Kuvvet · kuvvet.txt
+✓ belge okundu · 9.873 karakter · ilk 6.000 karakter kullanılacak
+  (sunucu sınırı; belgenin sonundaki 3.873 karakter bu üretime girmez)
+Sorular yalnızca bu belgeden üretilir; model belgenin dışına çıkamaz.
+Belge okunamazsa üretim yapılmaz.
+```
+
+Kırpma **sessiz değil**: kaç karakterin dışarıda kaldığı ekranda yazıyor (§6.3-5).
+
+### 49.8 Hâlâ bayat olanlar — kapatılmadı
+
+- `docs/ekran/*.png` — beş görüntü de krem/bordo paleti ve ısı haritasını
+  gösteriyor; ürün artık mavi ve gruplu sütun grafiğinde. §45.1'in kapattığı
+  kusur yeniden açık. Düzeltmesi: `node tools/ekran-goruntusu-al.mjs`
+  (canlıdan, gerçek model çağrısıyla üretir).
+- `README.md` — hâlâ `243/243` ve "krem/bordo Mihenk paleti" diyor;
+  doğrusu **263/263** ve mavi/su yeşili palet.
+- `EKLENTILER_3` yaması **uygulanmadı** (bu bölümdeki iş `EKLENTILER` #2 ile
+  yapıldı; ikisi arasında 131 satır fark var).
+- Gerçek model çağrısıyla **belgeye kilitli üretim denenmedi** — şerit
+  "belge okundu" diyor, ama üretilen soruların gerçekten belgeden çıktığı
+  ölçülmedi.
