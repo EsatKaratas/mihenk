@@ -63,12 +63,18 @@ kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de yazılı
 
 ### Ekranlar
 
-| | |
-|---|---|
 > ℹ️ Ekran görüntüleri `tools/ekran-goruntusu-al.mjs` ile **canlı sistemden**,
 > gerçek model çağrısıyla üretilir — sahne kurgulanmaz. Palet lacivert + turuncu
 > (§50), kazanım panosunda ısı haritası yerine **gruplu sütun grafiği** vardır (§49).
 
+<img src="docs/ekran/00-giris.png" alt="Mihenk giriş ekranı — logo, lacivert ve turuncu palet, tek bir giriş düğmesi" width="100%">
+
+**Giriş ekranı** — jürinin gördüğü ilk ekran. Tek bir düğme var; rol seçimi
+düğmeye basıldıktan sonra gelir. Kimlik doğrulama yoktur, rol bir seçimdir
+(bkz. [§9](#9-bilinen-sınırlamalar-ve-yol-haritası)).
+
+| | |
+|---|---|
 | <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — AI'ın ürettiği soru taslakları, her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
 | **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
 | <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım başarı grafiği ve gerçek/örnek satır ayrımı" width="100%"> |

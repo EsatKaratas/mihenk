@@ -44,6 +44,18 @@ sayfa.on('pageerror', (e) => hatalar.push(String(e)));
 console.log('→ ' + URL);
 await sayfa.goto(URL, { waitUntil: 'networkidle' });
 
+// ---------------------------------------------------------------------------
+// 0) GİRİŞ EKRANI — jürinin gördüğü İLK ekran (kullanıcı isteği, §50h)
+//
+// Kapıdan GEÇMEDEN çekilir; aşağıdaki blok onu kapattığı için sıra önemlidir.
+// Kadraj tam ekrandır: anlatılan şey tek bir bileşen değil, ekranın bütünü
+// (logo, palet, dalga ve tek giriş düğmesi). Hedef öğe verilseydi kadraj
+// daralır ve alt yazı kadrajda olmayan bir şeyi anlatırdı (§45.1).
+// Giriş animasyonu 0,55 sn; bitmesi beklenir, yoksa yarım kadraj çıkar.
+// ---------------------------------------------------------------------------
+await bekle(900);
+await cek('00-giris.png', 'giriş ekranı — logo, palet ve tek giriş düğmesi', null);
+
 // Giriş kapısını kapat + demo senaryosunu yükle (rehber şeridi kapalı: görüntü sade kalsın).
 await sayfa.evaluate(() => {
   loadDemoScenario();

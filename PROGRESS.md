@@ -7313,3 +7313,28 @@ Konsol hatası **0** (betiğin kendi ölçümü).
 palet denetimi değildir; `01`'de 87 piksel "turkuaz" kovasına düştü. CSS'te
 turkuaz hex **kalmadığı** ayrıca `grep` ile doğrulandı (§50c), dolayısıyla bu
 sayı sınıflandırıcının gevşekliğidir — üründe turkuaz olduğu anlamına gelmez.
+
+### 50h. GİRİŞ EKRANI GÖRÜNTÜSÜ + README'DE BOZUK TABLO (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Buradaki ilk baştaki ekranın da ss'ini ekleyelim."*
+
+`tools/ekran-goruntusu-al.mjs`'ye **0. çekim** eklendi: giriş kapısı, kapıdan
+GEÇMEDEN. Sıra önemli — bir alt satırdaki blok kapıyı kapatıyor. Kadraj tam
+ekran bırakıldı: anlatılan şey tek bir bileşen değil, ekranın bütünü (logo,
+palet, dalga, tek düğme); hedef öğe verilseydi kadraj daralır ve alt yazı
+kadrajda olmayan bir şeyi anlatırdı (§45.1). Giriş animasyonu 0,55 sn olduğu
+için 900 ms beklenir.
+
+#### 🟡 README'DE BOZUK MARKDOWN TABLOSU — ekran görüntüsü ortaya çıkardı
+
+Kullanıcının gönderdiği GitHub ekran görüntüsünde "Ekranlar" başlığının altında
+**boş bir tablo kutusu** görüldü. §50g'de eklediğim bilgi notu, tablo başlığı
+(`| | |` + `|---|---|`) ile satırlarının **ARASINA** girmişti: GitHub başlığı
+boş bir tablo olarak çiziyor, satırlar da başlıksız ikinci bir tablo oluyordu.
+Başlık ait olduğu ilk satırın önüne alındı.
+
+**Kendi hatam** ve ancak kullanıcının ekran görüntüsüyle görüldü — depoyu
+yalnızca metin olarak okumak markdown çizim kusurunu göstermiyor.
+
+Altı görüntü de yeniden çekildi (canlı, gerçek model çağrısı), konsol hatası
+**0**. README'ye giriş ekranı, alt yazısıyla eklendi.
