@@ -1,0 +1,44 @@
+{
+  "beden-dili": {
+    "dosya": "beden-dili.txt",
+    "tur": "txt",
+    "ad": "Beden Dili",
+    "ozgun": "bedendili.docx"
+  },
+  "kuvvet": {
+    "dosya": "kuvvet.txt",
+    "tur": "txt",
+    "ad": "Ders 1 ve 2 — Kuvvet",
+    "ozgun": "Ders 1 ve 2_ Kuvvet .docx"
+  },
+  "maddenin-tanecikli-yapisi": {
+    "dosya": "maddenin-tanecikli-yapisi.txt",
+    "tur": "txt",
+    "ad": "Ders 1 — Maddenin Tanecikli Yapısı",
+    "ozgun": "Ders 1_ Maddenin Tanecikli Yapısı.docx"
+  },
+  "maddenin-hal-degisimi": {
+    "dosya": "maddenin-hal-degisimi.txt",
+    "tur": "txt",
+    "ad": "Ders 2 — Maddenin Hal Değişimi",
+    "ozgun": "Ders 2_ Maddenin Hal Değişimi.docx"
+  },
+  "surtunme-kuvveti": {
+    "dosya": "surtunme-kuvveti.txt",
+    "tur": "txt",
+    "ad": "Ders 3 — Sürtünme Kuvveti",
+    "ozgun": "Ders 3_ Sürtünme Kuvveti.docx"
+  },
+  "dogaya-saygi": {
+    "dosya": "dogaya-saygi.txt",
+    "tur": "txt",
+    "ad": "Doğaya Saygı",
+    "ozgun": "doğaya saygı.docx"
+  },
+  "sinirlar": {
+    "dosya": "sinirlar.pdf",
+    "tur": "pdf",
+    "ad": "Sınırlar",
+    "ozgun": "SINIRLAR.pdf"
+  }
+}

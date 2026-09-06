@@ -41,7 +41,9 @@
     "anahtar": "node tools/anahtar-dogrula.mjs",
     "anahtar:ekran": "node tools/anahtar-ekran.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev:deneme": "wrangler dev -c wrangler.deneme.jsonc",
+    "deploy:deneme": "wrangler deploy -c wrangler.deneme.jsonc"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.2",

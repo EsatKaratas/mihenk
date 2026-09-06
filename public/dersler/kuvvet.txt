@@ -1,0 +1,174 @@
+KUVVET ATÖLYESİ DERS PLANI
+KONU: Kuvvet
+SÜRE: 60 dakika
+KAVRAMLAR: Kuvvet, kuvvet çeşitleri, temas gerektiren kuvvet, temas gerektirmeyen kuvvet
+
+DERS ETİKETLERİ
+
+1.HAREKETE GEÇ
+Öğrencilere ‘Kuvvet denilince aklınıza ne geliyor?’ sorusu yöneltilir.
+Kuvvet Nedir?
+Kuvvet iki cisim ya da sistem arasındaki etkileşimdir. En genel anlamda cisimlerin birbirini çekmesi ya da itmesidir. “F” harfi ile gösterilir. Kuvvetin kendisini göremeyiz ama etkilerini görebiliriz. Kuvvet hayatımızın hemen her yerinde karşımıza çıkar. Topa vururken, yazı yazarken, kitabın sayfalarını çevirirken, musluğu açıp kapatırken, eşyaların yerlerini değiştirirken bilerek ya da bilmeyerek kuvvetin etkilerinden yararlanırız. Eğer kuvvet olmasaydı bu saydıklarımızı ve buna benzer hiçbir işi gerçekleştiremezdik.
+(https://www.youtube.com/watch?v=LEs9J2IQIZY Dersin sonunda izletilir.)
+
+2.KEŞFET
+KUVVETİN ETKİLERİ NELERDİR?
+Malzemeler:
+-Oyuncak araba
+-Oyun hamuru
+
+-1454132819404723765177800
+217106536195
+
+Öğretmen her bir maddeyi uygulamalı olarak gösterir. İlk 3 madde için oyuncak araba kullanılır.
+1)Cisimleri hareket ettirebilirler. (Öğretmen oyun hamurunu top haline getirip yuvarlar. Daha sonra parmağı ile şeklini bozarak tekrar yuvarlamayı dener.Böylece öğrenci tek cisim üzerinde iki farklı kuvvetin etkisini gözlemlemiş olur.)
+2)Hareket halindeki cisimleri durdurabilirler.
+3)Cismin süratını artırabilirler.
+4)Cismin yönünü değiştirebilirler.
+5)Cismin şeklini değiştirebilirler.
+Anlatım esnasında öğretmen hamura parmağı ile dokunur. Hamur hareket etmez ama şekli değişir. Sorular: 1) Hamur hareket etti mi? Hayır. 2)Oyun hamuruna kuvvet uygulanmış oldu mu?
+Sonuç: Öğrenci cismin şeklini değiştiren etkiye de kuvvet denildiğini kavrar. Böylece kuvvetin sadece hareketi değiştiren değil cismin şeklini de değiştirebilen bir etki olabileceği söylenir.
+Uyguladığımız kuvvetin büyüklüğünü bilmek, kuvvetin tanımında belirtilen etkilerin ne ölçüde gerçekleşeceğini tahmin edebilmemizi sağlar. Örneğin büyük bir cismi hareket ettirebilmek için gerekli olan kuvvet, küçük bir cismi hareket ettirebilmemiz için gerekli olan kuvvetten büyüktür.
+
+3.ÜRET
+KUVVET ÇEŞİTLERİ
+1.Esneklik Kuvveti: Lastiği gerip bıraktığımızda eski haline dönmesini sağlayan kuvvettir.
+Uygulamalı olarak gösterilebilecek malzemeler:
+-62547340005014395451257294111625125729
+-6857992230120Paket lastiği: Lastiği gerip bıraktığımızda eski haine döner.
+-685799223012016129002217420Balon: Balon şişirildikten sonra havası indirilecek olursa tekrar küçülür.
+1612900221742040894002235200Yay: Kalem içindeki yaylar esneme özelliğinden dolayı sıkıştırılabilir
+40894002235200
+
+2.Elektriksel Kuvvet: Yünlü bir kıyafeti üstümüzden çıkarırken saçlarımızın dikleşme sebebidir.
+Deney İçin Malzemeler: 363410595250
+-Şişirilmiş balon
+-Yün kumaş
+-Makas
+-Buzdolabı poşeti
+Buzdolabı poşetinden 0.5 cm kalınlığında ince bir şerit kesilir. Önce balon, daha sonra buzdolabı poşetinden kesilen parça yün kumaşa sürtülerek elektrik yüklenmesi sağlanır. Şekilde görüldüğü gibi buzdolabı poşeti balonun üstünde kalır.
+(Deney video: https://www.youtube.com/watch?v=IV8HzWDwUGA)
+
+38017450
+3.Manyetik Kuvvet: Mıknatısın metal parçaları çekerken uyguladığı kuvvettir.
+Deney için malzemeler:
+-Mıknatıs
+-Toplu iğne
+Mıknatıs havadan tutularak iğneleri herhangi bir temas gerektirmeden çekmesi gösterilir.
+
+4. İLERLET
+-Kuvveti temas gerektiren ve temas gerektirmeyen kuvvet olarak ikiye ayırırız. Öğretmen tahtaya bir tablo çizer. Öğrencilerden tahtaya kuvvetlere örnekler yazması istenir. Öğretmen farklı örnekler vererek ‘Temas gerektiren veya temas gerektirmeyen kuvvetlerden hangisine dahildir?’ öğrencilere sorar.
+
+Temas Gerektiren Kuvvet
+Temas Gerektirmeyen Kuvvet
+
+1) Temas Gerektiren Kuvvet: Cisimlere dokunarak itme ya da çekme uygulamaktır.
+-Kalemle yazı yazmak
+-Dişlerimizi fırçalamak
+-Televizyonun kumandasına basmak
+-Topa vurarak hareket ettirmek
+-Duvara çivi çakmak için çekici çiviye vurmamız
+- Meyvenin daldan düşmesi
+- Pencerenin açılması
+
+2)Temas Gerektirmeyen Kuvvet: İki cismin birbirine dokunmadan uzaktan etkileşmesidir.
+-Eşyalarımızı havadan bıraktığımızda yere düşmesi(yer çekimi)
+-Kazağımızı çıkarırken saçlarımızın hareketlenmesi (elektriksel kuvvet)
+- Mıknatısın toplu iğneyi çekmesi ( Manyetik kuvvet)
+
+5.DEĞERLENDİR (etkinlik önerisi)3961765567055
+Etkinlik: Kuvvet ile ilgili bilgiler kağıtlara yazılıp fanusa atılır. Fanusun içinde karıştırılır. Rastgele bir kağıt çeken öğrenci cümleyi sesli okur ve cümlenin doğru mu yanlış mı olduğunu söyler. Temin edilebilen malzemeler ile cümlenin doğruluğu/yanlışlığı gözlemlenir.
+-Duvara çarpan top durur. (Y)
+-Dünya dönme hareketi yapar. (D)
+-Hareket için kuvvete gerek yoktur.(Y)
+-Çekmeceyi açarken itme kuvveti uygularız.(Y)
+-Hareket eden cisimlerin durması için kuvvet gerekir.(D)
+-Kuvvet bütün cisimleri hızlandırır.(Y)
+-Topacın ipini çekerek dönme hareketi yapmasını sağlarız.(D)
+-Cansız varlıklar dışardan etki olmadıkça hareket etmez.(D)
+
+DİNAMOMETRE ATÖLYESİ DERS PLANI
+DERS ETİKETLERİ
+SINIF: 12 - 14 Yaş
+KONU: Dinamometre
+SÜRE: 60 dakika
+KAVRAMLAR: Newton, dinamometre, gösterge, ince ve kalın yay
+
+1.HAREKET GEÇ4426585111125
+Isaac Newton Kimdir?
+-Isaac Newton hayatı ile ilgili video:
+https://www.youtube.com/watch?v=6K6dQ-KdqZ4
+Duran bir cisim herhangi bir kuvvet olmadan harekete geçebilir mi?
+Ağaçta duran meyvenin harekete geçerek yere düşmesinin sebebi nedir?-Yerçekimi
+Yerçekimi de bir kuvvet midir? Böylece yerçekiminin de bir kuvvet olduğu öğrenciler tarafından öğrenilir.
+2.KEŞFET
+Öğretmen dinamometreyi ve bölümlerini gösterir, bazı ölçümler yaparak öğrencilerin ilgisini çeker.
+Kuvvetin Büyüklüğü Nasıl Ölçülür?
+Kuvvetin büyüklüğünü ölçmek için kuvvetin şekil değiştirme etkisinden yararlanılarak yapılan ve dinamometre adı verilen araçlar kullanılır.
+Dinamometreler sarmal yaylar kullanılarak yapılır. Kancaya asılan cisim, bu yayların uzamasına neden olur. Kuvvet ne kadar fazla olursa uzama miktarı da o kadar fazla olur.
+Dinamometrelerde ölçüm yapmak için eşit bölmelendirilmiş ölçüm çubuğu (gösterge) vardır. Yaydaki uzama miktarına göre dinamometre üzerindeki göstergeye bakarak kuvvetin büyüklüğü ölçülmüş olur. Öğretmen ‘Kuvvetin birimi nedir?’ diye sorar. Kuvvet birimi dünyada yerçekimi kuvvetini keşfeden bilim insanının katkılarından dolayı onun ismiyle adlandırılmıştır. Dinamometre ile ölçülen kuvvet birimi Newton olarak ifade edilir. İngiliz bilim insanı Isaac Newton’ın bilime yaptığı katkılardan dolayı kuvvet birimi bu şekilde adlandırılmıştır.
+
+Her dinamometrenin ölçebileceği büyüklük birbirinden farklıdır. Örneğin hassas ölçümler yapmak için ince yaylar kullanılmalıdır. Dinamometrelerin hassasiyetleri;
+-Yayın yapıldığı maddeye,
+-Yayın kalınlığına
+-Yayın uzunluğuna bağlıdır. -335913273050
+Dinamometrelerin üstünde ölçebilecekleri en büyük kuvvet değerleri yazılıdır. Ölçebileceğinden daha fazla kuvvet asarsak, dinamometre içerisindeki sarmal yay esneklik özelliğini kaybeder ve dinamometremiz bozulur. Örneğin üzerinde 50N yazan bir dinamometreye, en fazla 50N büyüklük asılmalıdır. Daha fazlasını asarsak yayın esnekliği bozulur ve ölçüm yapılamaz hale gelir.
+
+3276600142992
+
+3.ÜRET
+Hassas Ölçüm
+Çok hafif ve ufak şeyleri ölçmemizi sağlayarak hassas ölçüm yapmamızı sağlayan aletler vardır. Örneğin kuyumcu terazileri ile altının 1 gramlık değişimini ölçebiliriz. Hassas ölçüm küçük bir değişiklik olsa dahi o değişikliği görebilmemizi sağlar.
+
+Dinamometre Tasarlayalım40074846350
+Öğrenciler 4 farklı gruba ayrılır. Verilen malzemeler ile en hassas dinamometreyi tasarlamaları istenir. Öğrenciler malzemeleri (yay cinsi/kalınlığı) grup içinde tartışarak ortak karar ile seçerler. Her grup için aynı madde asılarak dinamometrede okunan uzama miktarı not edilir. Uzama miktarına bağlı olarak hangi yayın daha hassas ölçüm yaptığı belirlenir.
+Malzemeler:
+-Cetvel (Her gruba bir adet)
+-Tartılacak cisim (file içinde bir adet limon)
+-https://www.ofissepetim.com/kirtasiye-emin-is-egitim-340081781-emin-is-egitimi-dinamometre (Her gruba bir adet)
+-Aynı kalınlıkta iki farklı cins yay (Örneğin; kalın bakır yay, kalın çelik yay)
+-Aynı cins iki farklı kalınlıkta yay (Örneğin; ince bakır yay, kalın bakır yay)
+-Her grup için 4’er adet yay bulunması gerekir.
+Not:Yaylar aynı uzunlukta olmalıdır.
+Öğrenciler yaptıkları dinamometrede hangi yayı kullandığını ve sebebini açıklar.
+
+Hassas ölçüm yapan dinamometrenin sahip olması gereken özellikler:
+-İçindeki yay ince olmalıdır.
+-Bakır yay kullanılmalı.
+-Çok küçük aralıklardaki kuvvetleri ölçebilmelidir. Göstergeleri
+
+4.İLERLET
+
+Dinamometre Kullanım Alanları
+1-Sanayi Alanında :
+-Motorun çekiş gücünün (beygir) hesaplanmasında kullanılır.
+- Yol dinamometresi dediğimiz aletle araçların tekerleklerinin gücünü ve motorun gücünü ölçer.
+- Yük dinamometresi sayesinde araçların beygir gücü ölçülür.
+
+2- Fizik Alanında:
+- Kuvvetin büyüklüğünü ölçmek için kullanılır.
+- Ağırlığın ölçülmesinde kullanılır.
+
+Günümüzde dinamometreler çok sık kullanılmamaktadır. Dinamometrenin yerini alan dijital ölçüm araçları geliştirilmiştir. Eski zamanlarda kasaplarda, manavlarda, hurdacılarda bu tür dinamometreler kullanılırdı.
+
+5.DEĞERLENDİR
+
+ETKİNLİK
+Malzemeler:
+-İnce bakır yay
+-2 kat daha uzun ince bakır yay
+-Ölçmek için kullanılacak eşya (limon vb.)
+1-Öğrenciler iki adet limonu ince bakır yay bulunan dinamometre ile ölçer. Uzama miktarını not almaları istenir.
+2-Aynı iki limonu 2 kat uzun olan ince bakır yay bulunan dinamometre ile ölçmeleri istenir. Uzama miktarını not alırlar.
+Aşağıdaki tabloya bakarak öğrencilerden uzama miktarı ve yayın uzunluğu ile ilgili yorum yapmaları istenir.
+
+Ölçülen Cisim
+Uzama Miktarı
+İnce Bakır Yay
+
+2 Kat Uzun İnce Bakır Yay
+
+KAYNAK
+https://www.fenehli.com/5-sinif-fen-bilimleri-kuvvetin-olculmesi-konu-anlatimi/
+https://www.bilfenyayincilik.com/assets/etkinlik_cozumleri/FEN_3_FASIKUL_3_ARKA_COZUM.pdf
+https://drive.google.com/file/d/1AOyabjAeE9L_dECCtvxAiYhfT9xzI6CA/view

@@ -132,7 +132,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      Bu yüzden needsSource burada koşulsuz false'a sabitlenir.
      (Soru gövdesi yine de metne atıf içerebilir; onu İçerik Uzmanı onay
      ekranında görür ve reddedebilir — karar yine insanda, agents.md §1.) */
-  const kazanimModu = b.mode === 'kazanim';
+  /* needsSource ZORLAMASI iki modda geçerli: 'kazanim' (gösterilecek metin
+     yok) ve 'materyal' (belge var ama öğrenciye GÖSTERİLMEZ — o yalnızca
+     modelin bilgi kaynağı). İkisinde de öğrenci ekranında bir uyaran metin
+     bulunmadığı için needsSource true kalırsa "metin bulunamadı" kutusu
+     çıkardı. */
+  const materyalModu = b.mode === 'materyal';
+  const kazanimModu = b.mode === 'kazanim' || materyalModu;
 
   /* §41 Madde 5 — SORU SAYISI / METİN UZUNLUĞU DENGESİ.
      Kısa bir metinden çok soru istendiğinde model aynı şeyi tekrar sorar.
@@ -141,7 +147,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      Kazanım modunda kaynak metin YOKTUR, dolayısıyla bu sınır uygulanmaz:
      dayanak MEB kazanımıdır, uzunluğu ölçülecek bir metin yok. */
   const istenenToplam = b.mcCount + b.openCount;
-  const ustSinir = kazanimModu ? istenenToplam : makulSoruSayisi(b.sourceText.trim().length);
+  /* Metin uzunluğu / soru sayısı dengesi 'materyal' modunda da GEÇERLİ:
+     orada da gerçek bir metin var ve kısa bir belgeden çok soru istemek
+     modeli tekrara ya da belgenin dışına iter. Yalnızca saf 'kazanim'
+     modunda ölçülecek metin yoktur. */
+  const ustSinir = (kazanimModu && !materyalModu)
+    ? istenenToplam
+    : makulSoruSayisi(b.sourceText.trim().length);
   let mcSayi = b.mcCount;
   let openSayi = b.openCount;
   let kisiltmaNotu: string | null = null;
@@ -153,7 +165,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     openSayi -= dusecek - mcDusen;
     if (mcSayi + openSayi < 1) { mcSayi = 1; openSayi = 0; }
     kisiltmaNotu =
-      `Kaynak metin ${b.sourceText.trim().length} karakter. Bu uzunlukta ` +
+      (materyalModu ? 'Ders belgesi ' : 'Kaynak metin ') + `${b.sourceText.trim().length} karakter. Bu uzunlukta ` +
       `${ustSinir} soruluk özgün içerik var; ${istenenToplam} soru istendiği için ` +
       `${istenenToplam - (mcSayi + openSayi)} soru düşürüldü. Daha fazla soru için metni uzatın.`;
   }
@@ -175,6 +187,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       // §31: üretim dayanağı ve (yalnızca kazanım modunda) öğretmen yönergesi.
       mode: b.mode,
       guidance: b.guidance,
+      materialName: b.materialName,
     },
     b.sourceText
   );
@@ -190,7 +203,19 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   // halde uzun bir dedup listesinde yanıt yine ortada kesilebilirdi.
   // §41 Madde 5: token payı KISITLANMIŞ sayıya göre hesaplanır; aksi hâlde
   // düşürülen sorular için boşuna token ayrılırdı.
-  const maxTokens = clamp(600 + (mcSayi + openSayi) * 420 + (b.excludeQuestions?.length || 0) * 12, 1200, 3400);
+  /* BECERİ TEMELLİ SORU BÜTÇEYİ BÜYÜTÜR.
+     Soru gövdesi artık tek cümle değil: 2-5 cümlelik bağlam + veri + görev
+     (yaklaşık 40-110 kelime), üstüne şıklar ve her çeldirici için bir gerekçe.
+     420 tok/soru bu uzunluk için yetmez; yanıt ortada kesilir, JSON
+     ayrıştırması düşer ve istek gereksiz bir retry'a girer — 420 değeri de
+     zaten aynı sınıftan bir kesilme ölçümünden sonra 220'den yükseltilmişti.
+
+     DÜRÜSTLÜK NOTU: 420 -> 700 ve 3400 -> 5600 değerleri CANLI MODELLE
+     ÖLÇÜLMEDİ; gövde uzunluğundan çıkarılmış GEREKÇELİ TAHMİNDİR (yaklaşık
+     110 kelime gövde + 4 şık + 4 gerekçe ≈ 600-650 token, üstüne pay).
+     İlk canlı çalıştırmada Workers Logs'taki `ai_call` kayıtlarından
+     doğrulanmalı ve gerekirse düzeltilmelidir. */
+  const maxTokens = clamp(700 + (mcSayi + openSayi) * 700 + (b.excludeQuestions?.length || 0) * 12, 1600, 5600);
 
   // §44: kullanılamaz biçimde dönen (şıkkı eksik) soru sayısı — meta ile bildirilir.
   let elenenGecersiz = 0;
