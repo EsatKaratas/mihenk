@@ -132,7 +132,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      Bu yüzden needsSource burada koşulsuz false'a sabitlenir.
      (Soru gövdesi yine de metne atıf içerebilir; onu İçerik Uzmanı onay
      ekranında görür ve reddedebilir — karar yine insanda, agents.md §1.) */
-  const kazanimModu = b.mode === 'kazanim';
+  /* needsSource ZORLAMASI iki modda geçerli: 'kazanim' (gösterilecek metin
+     yok) ve 'materyal' (belge var ama öğrenciye GÖSTERİLMEZ — o yalnızca
+     modelin bilgi kaynağı). İkisinde de öğrenci ekranında bir uyaran metin
+     bulunmadığı için needsSource true kalırsa "metin bulunamadı" kutusu
+     çıkardı. */
+  const materyalModu = b.mode === 'materyal';
+  const kazanimModu = b.mode === 'kazanim' || materyalModu;
 
   /* §41 Madde 5 — SORU SAYISI / METİN UZUNLUĞU DENGESİ.
      Kısa bir metinden çok soru istendiğinde model aynı şeyi tekrar sorar.
@@ -141,7 +147,13 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      Kazanım modunda kaynak metin YOKTUR, dolayısıyla bu sınır uygulanmaz:
      dayanak MEB kazanımıdır, uzunluğu ölçülecek bir metin yok. */
   const istenenToplam = b.mcCount + b.openCount;
-  const ustSinir = kazanimModu ? istenenToplam : makulSoruSayisi(b.sourceText.trim().length);
+  /* Metin uzunluğu / soru sayısı dengesi 'materyal' modunda da GEÇERLİ:
+     orada da gerçek bir metin var ve kısa bir belgeden çok soru istemek
+     modeli tekrara ya da belgenin dışına iter. Yalnızca saf 'kazanim'
+     modunda ölçülecek metin yoktur. */
+  const ustSinir = (kazanimModu && !materyalModu)
+    ? istenenToplam
+    : makulSoruSayisi(b.sourceText.trim().length);
   let mcSayi = b.mcCount;
   let openSayi = b.openCount;
   let kisiltmaNotu: string | null = null;
@@ -153,7 +165,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     openSayi -= dusecek - mcDusen;
     if (mcSayi + openSayi < 1) { mcSayi = 1; openSayi = 0; }
     kisiltmaNotu =
-      `Kaynak metin ${b.sourceText.trim().length} karakter. Bu uzunlukta ` +
+      (materyalModu ? 'Ders belgesi ' : 'Kaynak metin ') + `${b.sourceText.trim().length} karakter. Bu uzunlukta ` +
       `${ustSinir} soruluk özgün içerik var; ${istenenToplam} soru istendiği için ` +
       `${istenenToplam - (mcSayi + openSayi)} soru düşürüldü. Daha fazla soru için metni uzatın.`;
   }
@@ -175,6 +187,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       // §31: üretim dayanağı ve (yalnızca kazanım modunda) öğretmen yönergesi.
       mode: b.mode,
       guidance: b.guidance,
+      materialName: b.materialName,
     },
     b.sourceText
   );

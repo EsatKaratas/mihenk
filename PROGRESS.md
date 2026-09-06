@@ -6822,3 +6822,138 @@ Onay bekleyen kart `ceTab = 1` içindedir; betik oraya alındı ve hedef öğe
 
 Beş görüntünün beşi de alt yazısıyla karşılaştırıldı; hepsi uyuyor.
 Betik koşumunda konsol hatası **0**.
+
+---
+
+## 49. DIŞ YAMA #2 — KEŞİF KAMPÜSÜ, BELGE KİLİDİ, GRAFİK VE MAVİ PALET (6 Eylül 2026)
+
+**İstek (kullanıcı):** `EKLENTILER.md` + `EKLENTILER.patch` verildi. *"Burada
+yapılanları iyice kontrol et, sen onaylıyorsan sisteme canlı al, GitHub'a
+pushla, bayat hiçbir şey istemiyorum."*
+
+### 49.1 Yamanın tabanı YİNE eskiydi — ama bu kez belge bunu kendisi söylüyor
+
+`git apply --binary --check` **6 dosyada reddetti**. Taban `4688477`; HEAD
+`330c3a1` yani **6 commit ileride**. §48'deki tuzağın aynısı. Fark: yamanın
+belgesi *"güncel `main` üzerine doğrudan uygulanmaz"* diye açıkça uyarıyor.
+
+Üç şey ölçüldü:
+
+| Ölçüm | Sonuç |
+|---|---|
+| Yamanın 1. ve 2. eklemesi (ders sekmeleri, beceri temelli soru) | **main'de zaten var** (§48) — aynı kaynaktan, fonksiyon adları birebir aynı |
+| `src/lib/ai.ts` (bütçe düşme hatası düzeltmesi) | yamalı taban ile main **BİREBİR EŞ** — yeni bir şey getirmiyor |
+| `src/lib/guards.ts` | yamalı taban **GERİDE**: §48'in Latin Extended Additional (`ứ`, U+1E00–1EFF) düzeltmesi ve 3 testi yok |
+
+**Yani yama olduğu gibi uygulansaydı §48'in ölçülmüş dil denetimi düzeltmesi
+sessizce geri alınırdı.** §48'de birebir aynı sınıftan bir risk yaşanmıştı.
+
+### 49.2 Yöntem: körlemesine uygulama değil, 3-YOLLU BİRLEŞTİRME
+
+Yama tabanına (`4688477`) ayrı bir worktree'de uygulanıp commit edildi
+(`7aa6b9c`), sonra `main`'e merge edildi. Git ortak atayı bildiği için ortak
+çalışma çakışmadı; **yalnızca 7 blok** çakıştı:
+
+| Dosya | Blok | Karar | Neden |
+|---|---:|---|---|
+| `src/lib/prompts.ts` | 1 | **HEAD** | yalnızca yorum; main'inki §48 atfını taşıyor |
+| `src/routes/ai.ts` | 2 | **HEAD** | yalnızca yorum; main'inki "§48'de ölçüldü" diyor, yama "ölçülmedi" diyor — main daha doğru |
+| `public/app.js` | 2 | **yama** | `sinifEtiketi()` çağrısı + `selfCheck` listesinin üst kümesi |
+| `public/app.css` | 1 | **yama** | saf ekleme (`.materyal-serit`) |
+| `test/prompts.test.ts` | 1 | **yama** | saf ekleme (materyal modu testleri) |
+
+> **KENDİ ÖLÇÜM HATAM — bu depoda ONÜÇÜNCÜ kez.** İki kez tökezledim ve ikisi
+> de kayda geçiyor:
+> 1. Birleştirme denemesini ayrı worktree'de koşacaktım; `cd` başarısız oldu,
+>    kabuk önceki dizinde kaldı ve merge **gerçek çalışma ağacında** koştu.
+>    `git merge --abort` ile geri alındı, ağaç `330c3a1`'de temiz doğrulandı.
+> 2. Bash aracında **çalışma dizini çağrılar arası korunuyor.** "main'in
+>    `--kat-*` renkleri" diye ölçtüğüm şey aslında yamalı dosyaydı; `--kat-*`
+>    ve `--esik-cizgi` main'de **hiç yok**, yamayla geliyor. Mutlak yolla
+>    yeniden ölçüldü. Ders yine aynı: **ölçüm aracının kendisi kanıtlanmadan
+>    sonuca varılmaz.**
+
+### 49.3 Gerçekten yeni olan ne — fonksiyon düzeyinde ölçüldü
+
+```
+YAMALI 334 fonksiyon · MAIN 326 fonksiyon
+sadece yamada : materyalBilgisi materyalDizinYukle materyalDurumu materyalGetir
+                materyalHazirla materyalSeridiHtml seciliMateryal sinifEtiketi
+                kazanimGrafigiSvg kazanimKisaAd renderKazanimGrafigi subeRengi
+sadece mainde : renderHeatmap bestTextColor relLuminance scaleStep  (ısı haritası)
+```
+
+**(a) Keşif Kampüsü + belgeye kilitli üretim.** Yeni bir ders, üç atölye
+(Kimya ve İnsan Bilimleri / Kişisel Gelişim / Fizik), yedi kazanım
+(`KK.*`). Bu kazanımların **MEB kataloğu yoktur** ve kod bunu açıkça yazıyor;
+kaynakları okulun kendi ders belgeleridir (`public/dersler/`, 6 txt + 1 pdf).
+"Kazanımdan" modunda üretim o belgeye **kilitlenir**; belge okunamazsa üretim
+**hiç yapılmaz** ve sebebi ekranda yazar (sessiz düşüş değil).
+
+Ölçüldü: `sinirlar.pdf` gerçek bir PDF — 5 sayfa, 66 `/Font` nesnesi, yani
+**metin katmanı var; OCR gerekmiyor.** `DERS_MATERYALLERI` sabiti `.docx`
+diyor ama depodaki dosyalar `.txt`; `materyalDizinYukle()` `dersler/index.json`
+ile bu alanları **yerinde** düzeltiyor ve `bilgi` aynı nesne referansı olduğu
+için `bilgi.tur` da güncelleniyor — **hata değil**, kod okunarak doğrulandı.
+`index.json` çekilemezse `.docx` aranır, 404 alınır ve hata ekranda görünür.
+
+**(b) Kazanım başarı grafiği** ısı haritasının yerine geçti: grup = kazanım,
+sütun = şube, yüzde sütunun üstünde, `%55` kritik eşik kesikli çizgi. Eşik
+çizgisi için ayrı bir `--esik-cizgi` belirteci tanımlanmış ve **bilerek
+kırmızı** bırakılmış (`#c0281f` / `#ff8a80`).
+
+**(c) Mavi palet + yeni logo.** bordo→mavi, altın→su yeşili, krem→kırık beyaz.
+
+### 49.4 🟠 AÇIK KUSUR — hata rengi mavi oldu, KULLANICI KARARIYLA BÖYLE KALDI
+
+Renk dönüşümü semantik renkleri de çevirdi:
+
+| | main (önce) | yama (şimdi) |
+|---|---|---|
+| `--accent` | `#b0000d` bordo | `#0d3db0` mavi |
+| `--critical` | `#a82f21` kırmızı | **`#2148a8` mavi** |
+| `--warning` | `#8a5a14` amber | **`#116e69` turkuaz` |
+
+Ana vurgu ile hata rengi arasındaki kontrast **1,11** — yani hata rozeti
+normal rozetten ayırt edilemiyor. Kırmızı evrensel olarak "tehlike" der,
+mavi demez. Bu, deponun **en çok ihlal edilen kuralına** (başarısızlık
+kullanıcıya görünmeli) dokunur.
+
+**Ölçülmüş bir alternatif sunuldu:** markanın mavisi ve turkuazı aynen kalıp
+yalnızca `--critical` kırmızıya, `--warning` ambere döndürülseydi yeni
+zeminlerde bütün çiftler WCAG AA üstünde kalıyordu (açık tema 6,32-6,79 ·
+soft zemin 5,38 · koyu tema 5,25-5,74 · warning 5,00-7,69).
+
+**Kullanıcı kararı: palet olduğu gibi kalsın.** Karar kullanıcınındır ve
+uygulanmıştır; **bedeli budur ve burada kayıtlıdır.**
+
+### 49.5 Yamanın belgesindeki bir yanlış
+
+`EKLENTILER.md` *"`tools/check-config.mjs` çalıştırılamadı — Python gerektiriyor"*
+diyor. **Yanlış:** betik saf Node'dur ve burada `exit 0` ile koştu. Yamanın
+kendi doğrulaması iddia ettiğinden bir adım eksik yapılmış.
+
+### 49.6 Doğrulama
+
+| Kontrol | Öncesi | Sonrası |
+|---|---|---|
+| `npm run lint` | temiz | **temiz** |
+| `npm test` | 243/243 · 6 dosya | **263/263 · 7 dosya** (+20) |
+| `node tools/ozkontrol-dogrula.mjs` | 326 ad · %100 | **334 ad · %100** |
+| `npm run check:config` | exit 0 | **exit 0** |
+| `node --check public/app.js` | temiz | **temiz** |
+| HITL değişmezi | `approved` 2 yerde | **değişmedi** |
+
+### 49.7 🔴 BU COMMIT'TE ÖLÇÜLMEYENLER — dürüstlük notu
+
+Sunum saatine 15 dakika kala birleştirildi. **Yapılmadı:**
+
+- **Tarayıcı denemesi koşulmadı.** Deponun 1 numaralı tuzağı bunu açıkça
+  yasaklıyor: `node --check` yetmez, `public/app.js` değişikliği gerçek
+  tarayıcıda açılmadan "bitti" sayılmaz. Beş panel, yinelenen `id`, konsol
+  hatası, Keşif Kampüsü akışı ve yeni grafik **canlıda doğrulanmadı**.
+- **`docs/ekran/*.png` BAYAT.** Beş görüntü de krem/bordo paleti ve ısı
+  haritasını gösteriyor; ürün artık mavi ve grafikli. §45.1'in kapattığı
+  kusurun aynısı yeniden açıldı. Düzeltmesi: `node tools/ekran-goruntusu-al.mjs`
+  (canlıya alındıktan sonra koşar, gerçek model çağırır).
+- **README** hâlâ `243/243` ve "krem/bordo Mihenk paleti" diyor.

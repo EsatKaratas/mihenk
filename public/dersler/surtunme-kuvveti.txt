@@ -1,0 +1,102 @@
+T3 Sürtünme Kuvveti Ders Planı
+Yaş: 5.sınıf
+Kazanım: Sürtünme kuvvetini bilir ve günlük yaşamdan örnekler verir.
+Sürtünme kuvvetinin etkisini çeşitli ortamlarda denyerek harekete etkisini keşfeder.
+Hazır Bulunuşluk: Kuvvetin tanımını bilir.
+Ders Materyalleri:
+1.deney Zımpara kağıdı, Yağlı kağıt, Mukavva,Havlu, Oyuncak araba, kronometre
+2.deney 1.deneydeki düzenek , bilye, kronometre
+2. deney(opsiyonel):Legolardan araba malzemesi, 1.deneydeki düzenek, kronometre
+3.deney: Kutu, Kitaplar
+3.deney(opsiyonel): Lego Araba, üzerine eklenebilecek parçalar,1.deneydeki düzenek,kronometre
+
+Genel Bakış:
+Harekete Geç: Hareketimizin sürekli bir kuvvet tarafından engellenmeye çalıştığı anlatılır.
+
+Keşfet: Sürtünme kuvvetinin ne olduğunu ve nelere bağlı olduğu anlatılır.
+
+Üret: Sürtünme kuvvetinin nelere bağlı olduğunu deneyimler.
+
+İlerlet: Sürtünme kuvvetine etki eden şeyler üzerine konuşabilir.
+
+Değerlendirme: Deneyin sonuçları ve nedenleri hakkında konuşulur. Kazanımlar sorgulatılır.
+
+1-Harekete Geç:
+https://www.youtube.com/watch?v=kTc4DotNwB0 (Karda kayma videosu izletilerek başlanır.
+Karlı havalarda neden zor yürürüz ve neden düşeriz? Çünkü yerler çok kaygandır.
+Belediye işçileri neden kaymıyor neden düşmüyorlar? Ayakkabıları çok pürüzlü olan kar ayakkabısı olduğu için. Biz de düşmemek için botlarımızı giyeriz. Botlarımız buna uygun yapılmıştır. Altları çok pürüzlüdür.
+Bu pürüzler ne işe yarar? Yere daha sağlam basmamızı sürtünme kuvvetini artırarak sağlar.
+
+2- Keşfet, Üret ve İlerlet:
+Öncelikle Kuvvet ile cisimleri hareket ettirir, hızlandırır veya yavaşlatırız.
+Sürtünme kuvveti nedir sizce? Cisimler ile temas ettikleri yüzey arasında oluşan, cismin hareketini zorlaştıran ya da engelleyen ve cismin hareket yönüne ters yönde etki edene kuvvete sürtünme kuvveti denir.
+
+Yani karlı havada yürümemizi kolaylaştıran, buzun bizim ayağımızı kaydırmasını engelleyen kuvvettir.
+Sürtünme kuvveti bazı etkilere göre fazla olur veya az olur. Sizce bu etkiler nelerdir?
+
+Yüzeyin cinsi:
+Girintisi çıkıntısı fazla olan yüzeylere pürüzlü yüzeyler deriz. Hareketi zorlaştırırlar çünkü adı üstünde çok pürüzlülerdir.
+Bunlara neler örnek olabilir? Halı, Toprak, Botlarımızın alt tabanı.
+Pürüzsüz yüzey var mıdır sizce? Yoktur. Aslında biz bazı yüzeyleri pürüzsüz diye adlandırırz ama her yüzeyin çok az da olsa pürüzleri vardır. Biz bu pürüzleri ancak mikroskopla görebiliriz. Bu yüzden pürüzsüz yerine bu yüzeylere az pürüzlü yüzeyler deriz. Az pürüzlü yüzeylerde sürtünme kuvveti azdır. Hareketi kolaylaştırırlar.
+Bu tip yüzeylere neler örnek verilebilir? Cam, Ahşap, Buz.
+
+1.deney:
+
+Malzemeler: Zımpara kağıdı, Yağlı kağıt, Mukavva,Havlu, Oyuncak araba, kronometre
+Hangi yüzeyde daha hızlı gider? Tahminleri alıp deneye başlanır.
+Bir zımparalı yüzey bir yağlı kağıt ve bir havlu olan 3 ayrı yüzeyde oyuncak araba bir rampadan serbest bırakılır.
+Kronometre ile her bir yüzey için süre tutulur.
+Süreler arasındaki fark gösterilir.
+Bunun nedenleri sorulur?
+Yüzeylerin pürüzlülüğü değiştiği için sürtünme kuvveti farklı olmuştur. Bu yüzden ilerlemeler farklıdır.
+
+Cismin cinsi: Yüzey pürüzlülüğü gibi cisim de aynı şekilde ne kadar pürüzlüyse sürtünme kuvveti o kadar fazla olur.
+Yuvarlak bir topu mu yerde sürümek daha zordur yoksa aynı ağırlıkta taş parçasını mı? Topu sürümek daha kolaydır çünkü yüzeyi taşa göre daha pürüzsüzdür. Engelleyecek faktörleri daha azdır.
+Yazın arabalara kış lastikleri ve zincir neden takılır? Cismin pürüzlülüğünü artırmak için. Kış lastikleri normal lastiklere göre daha girintili çıkıntılıdır. Zincir ise daha da fazla pürüz verir. Bunlar da sürtünmeyi artırır ve kışın arabalarımızın kaymamasını sağlar. Yani sürtünme kazaları önler.
+2.Deney:
+Malzemeler: 1.deneydeki düzenek,aynı ağırlıkta araba, bilye, kronometre
+Bilye mi hızlı gider araba mı?
+1.deneyde oluşturulan düzenekten bu sefer küçük bir bilye bırakılır.
+Araba da tekrar bırakılır
+Kronometre ile yine süre tutulur.
+Aradaki farklar gözlemlenir.
+Bunun nedenleri sorulur?
+Sonuç: Bilyenin arabadan çok daha hızlı gittiği fark edilir. Çünkü Bilyenin yüzeyi arabanın tekerleklerinden çok daha az pürüzlüdür.
+2. deney(opsiyonel):
+Malzemeler: Legolardan araba malzemesi, 1.deneydeki düzenek, kronometre
+1.deneydeki arabaların daha hızlı gitmesi için ne yapabiliriz? Sürtünme kuvvetini artırmak için tekerlekler inceltilebilir.
+1. Legolarla araba yapılır.
+2. 1. Deneyde kurulan düzeneğin bir yüzeyinde denenir. Kronometre ile süresi ölçülür.
+3. Yaptığımız arabanın tekerlekleri inceltilir veya kalınlaştırılır.
+4. Tekrar düzenekte denenir. Tekrar kronometre ile ölçülür.
+5. Aradaki fark görülür.
+Sonuç: İnce tekerlekli olanın daha hızlı gittiği görülür. Çünkü daha az pürüzlüdür.
+
+Cismin ağırlığı: Bir el arabasını ittiğimizi düşünün. Üstüne ilk başta 1 kg malzeme olsun sonra 3 kg daha malzeme eklediler toplam 4 kg malzeme oldu. Hangi durumda ittirmemiz daha kolay olur? İlk durumda. Çünkü ağırlık arttıkça el arabamız yere daha fazla kuvvet uyguluyor. Bu da yerin el arabasına daha fazla sürtünme kuvveti uygulamasına yol açıyor. Bundan dolayı biz el arabasını ittirirken daha çok zorlanıyoruz.
+
+3.deney:
+Malzemeler: Kutu, Kitaplar
+1. Büyükçe bir kutunun içine öncelikle birkaç kitap konur.
+2. Daha sonra bu kutu yerde süründürülür.
+3. Daha sonra içindeki kitap miktarı artırlır ve tekrar süründürülür.
+Neden gittikçe daha fazla zorlandı itmek için?
+Sonuç: Gittikçe itmesi gereken ağırlık arttı bu da kutuyu sürüdüğümüz yönün tersine daha fazla sürtünme kuvveti oluşturdu. Bundan dolayı gittikçe zorlandık.
+3.deney(opsiyonel):
+Malzemeler: Lego Araba, üzerine eklenebilecek parçalar,1.deneydeki düzenek,kronometre
+1. 2. deneyin opsiyonel kısmında yaptığımız arabanın üzerine ağırlık ekleriz.
+2. Düzenekte tekrar arabaları kronometre eşliğinde süre tutarak deneriz.
+3. Aradaki fark gözlenir.
+Sonuç: Ağırlık arttıkça sürtünme artar. O yüzden ağır araba daha yavaş geldi.
+
+İLERLET:
+Sürtünme kuvvetini nelerin etkilediğini öğrendik. Günlük hayatımızda bunları kullanarak nerelerde hayatımızı kolaylaştırbiliriz?
+Kış lastikleri ve tekerleklere zincir takılması cismin cinsine bağlı olarak kazaları önler.
+Bisikletlerimizin zincirlerini neden yağlarız? Zincirlerimizi yağlamadığımız durumda birbirine aşırı sürtünerek aşınmasına neden olur. Bunu yağlayarak pürüzlülüğünü azaltırız böylece sürtünmeyi de azaltırız.
+Buz patenlerinin altı neden sivridir? Buzda kaymak için tasarlandıkları için altını sivri ve az pürüzlü hale getirilmişlerdir.
+Halter müsabakalarını izlediniz mi? Sporcuların ellerine pudra sürmesinin nedeni nedir? Elinin kayganlığını azaltarak sürtünmeyi artırır ki elinden kaymasın.
+
+4-Değerlendir:
+Sürtünme kuvvetine neler etki eder? 3 madde
+Neden yağlı kağıtta diğer yüzeylere göre en hızlı gitti? En az pürüzlü yüzey olduğu için
+Neden bilye arabaya göre daha hızlıydı? Cisim daha az pürüzlü olduğu için
+Hayatınızda sürtünme kuvvetine yönelik örnekler verebilir misiniz? Bisiklet sürerken durmamızı sağlayan kuvvet, Kalecilerin eldivenleri,

@@ -1,0 +1,154 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // ===========================================================================
+  // DEMO / JÜRİ YAPILANDIRMASI
+  //
+  // Neden ayrı bir dosya var:
+  // Üretim yapılandırması (wrangler.jsonc) D1, R2 ve Queues bağlamaları içerir.
+  // Bunlar demo akışı için GEREKLİ DEĞİLDİR ve iki sert engel çıkarır:
+  //   1) d1_databases[].database_id doldurulmadan `wrangler deploy` başarısız olur,
+  //   2) Queues, Cloudflare ücretsiz planında kullanılamaz.
+  // Bu dosya yalnızca demo akışının ihtiyacı olanı bağlar: statik varlıklar + AI.
+  // Üretim mimarisi wrangler.jsonc'ta olduğu gibi durur, hiçbir şey silinmedi.
+  //
+  //   npm run deploy:demo     -> canlıya al
+  //   npm run dev:demo        -> yerelde çalıştır
+  // ===========================================================================
+
+  // Worker adı = adresin ilk parçası. 3 Eylül: hesap alt alan adı "bies"
+  // yapıldı ve Worker "mihenk" olarak sabitlendi -> mihenk.bies.workers.dev
+  // ===========================================================================
+  // DENEME YAPILANDIRMASI — CANLI SİTEYE DOKUNMAZ
+  //
+  // Worker adı BİLEREK farklı: "mihenk" değil "mihenk-deneme".
+  // Cloudflare'da Worker adı adresin ilk parçasıdır, yani bu yapılandırma
+  // ayrı bir adrese çıkar:
+  //     canlı  -> mihenk.bies.workers.dev
+  //     deneme -> mihenk-deneme.bies.workers.dev
+  //
+  // Aynı adı kullansaydı "wrangler deploy" canlı siteyi EZERDİ; wrangler.demo.jsonc
+  // tam da bu yüzden deneme için kullanılamıyor (o da "mihenk" adında).
+  //
+  //   npm run deploy:deneme   -> ayrı adrese çıkar
+  //   npm run dev:deneme      -> yerelde çalıştır
+  // ===========================================================================
+  "name": "mihenk-deneme",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "workers_dev": true,
+
+  "vars": {
+    "APP_NAME": "Mihenk — Ölçme ve Değerlendirme Sistemi",
+    "APP_ENV": "demo",
+
+    // Model sağlayıcısı. Workers AI'ın Türkçe kalitesi yetersiz kalırsa
+    // burayı "openai" veya "anthropic" yapıp AI_MODEL/AI_BASE_URL'i ayarlayın
+    // ve API anahtarını `wrangler secret put AI_API_KEY` ile verin.
+    // Mimari (Cloudflare Workers + Hono) değişmez, yalnızca sağlayıcı değişir.
+    "AI_PROVIDER": "workers-ai",
+    "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+    // ---------------------------------------------------------------------
+    // YEDEK SAĞLAYICI (opsiyonel ama demo günü için ŞİDDETLE ÖNERİLİR)
+    //
+    // Workers AI ücretsiz kotası günde 10.000 neuron (~$0,11). Ölçülen tam
+    // demo turu ~$0,0116 → günde yaklaşık 10 tur. Ücretsiz planda kota
+    // dolunca istekler YAVAŞLAMAZ, HATA VERİR. Yedek tanımlıysa sistem o an
+    // otomatik devreye alır ve arayüzde "Yedek model" yazar (sessiz geçiş yok).
+    //
+    // --- ETKİN: OpenAI (kredi bazlı, GÜNLÜK SERT KOTA YOK) ----------------
+    // 26 Ağustos'ta Gemini ücretsiz katmandan buraya geçildi. Sebep ölçüldü:
+    // Gemini ücretsiz katman GÜNDE 20 İSTEK veriyor; bir tam demo turu 11
+    // istek, yani günde ~1,8 tur. Gerçek bir emniyet ağı değildi (PROGRESS
+    // §14f: birincil ve yedek AYNI GÜN birlikte tükendi).
+    //
+    // Model seçimi: gpt-5-mini "Verify Organization" istiyor (HTTP 404),
+    // gpt-5.6-luna doğrulama istemeden çalışıyor ve daha yeni nesil.
+    // Ölçülen (26 Ağustos, gerçek anahtar): luna 1215 ms, nano 994 ms.
+    // Fiyat: luna $0,20/M girdi + $1,20/M çıktı → tam tur ~$0,016.
+    // --- ETKİN (§43): Workers AI, ikinci model — ANAHTAR GEREKTİRMEZ -------
+    // `fallbackConfigured()` (src/lib/ai.ts) yedek sağlayıcı "workers-ai" ise
+    // API anahtarı DEĞİL, yalnızca AI binding'i arar; binding zaten bağlı.
+    // Yani bu iki satır secret olmadan yedeği GERÇEKTEN çalışır kılar ve
+    // /api/ai/status'taki "yedek tanımlı ama çalışmaz" uyarısını kapatır.
+    //
+    // Model seçimi tahmin değil: PROGRESS §33'teki 6 modelli karşılaştırmada
+    // llama-4-scout, mevcut birincili geçen TEK adaydı (üst düzey soru 3/4'e
+    // karşı 1/4; doğru şık harfi dağılımı 3'e karşı 2).
+    //
+    // DÜRÜST SINIR: iki model de aynı Cloudflare Neuron havuzundan yer. Bu
+    // yedek, HESAP KOTASI tükenmesine karşı KORUMAZ; koruduğu şey modele özgü
+    // başarısızlıktır — model kaldırılması (§7'de bir kez yaşandı), aşırı
+    // yüklenme, zaman aşımı, ayrıştırılamayan JSON. Workers Paid'de (§19)
+    // kota aşımı zaten hata değil ücrettir, yani asıl risk buydu.
+    , "AI_FALLBACK_PROVIDER": "workers-ai"
+    , "AI_FALLBACK_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct"
+    //
+    // --- SEÇENEK A: OpenAI (hesap dışı gerçek emniyet ağı, anahtar ister) --
+    // Kota tükenmesine karşı gerçek koruma isteniyorsa bu ikisi açılır ve
+    // `npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc`
+    // çalıştırılır. UYARI: "gpt-5.6-luna" ölçümü 26 Ağustos'ta yapıldı;
+    // açmadan önce model adının HÂLÂ geçerli olduğunu doğrulayın.
+    // , "AI_FALLBACK_PROVIDER": "openai"
+    // , "AI_FALLBACK_MODEL": "gpt-5.6-luna"
+    //
+    // --- SEÇENEK B: Google Gemini (ücretsiz katman, kart istemiyor) --------
+    // Anahtar: https://aistudio.google.com/apikey
+    // UYARI: ücretsiz katman günde 20 istek — yedek olarak yetersiz.
+    // , "AI_FALLBACK_PROVIDER": "openai"
+    // , "AI_FALLBACK_MODEL": "gemini-3.7-flash"
+    // , "AI_FALLBACK_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai/"
+    //
+    // --- SEÇENEK C: OpenAI en ucuz ----------------------------------------
+    // , "AI_FALLBACK_MODEL": "gpt-5-nano"     // $0,05/$0,40 → tam tur ~$0,005
+    //
+    // Her iki seçenekte de anahtar KODA GİRMEZ:
+    //   npx wrangler secret put AI_FALLBACK_API_KEY -c wrangler.demo.jsonc
+    //
+    // Satır başındaki virgüller bilinçlidir: aktive ederken üstteki satırın
+    // sonuna virgül eklemeyi unutup JSON'u bozmayı önler.
+    // ---------------------------------------------------------------------
+  },
+
+  // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.
+  "ai": {
+    "binding": "AI"
+  },
+
+  // ===========================================================================
+  // D1 — CİHAZLAR ARASI SENKRON (§28b)
+  //
+  // Bu dosyanın başındaki not "D1 demo akışı için gerekli değildir" diyordu ve
+  // o not 3 Eylül'e kadar doğruydu: veri yalnızca localStorage'daydı, dolayısıyla
+  // ÖĞRENCİNİN ÇÖZDÜĞÜ SINAV ÖĞRETMENİN PANELİNE DÜŞEMİYORDU. Artık düşüyor.
+  //
+  // Engel neydi: `database_id` boş bırakılırsa `wrangler deploy` başarısız olur.
+  // Veritabanı 3 Eylül'de oluşturuldu ve kimlik buraya yazıldı, engel kalktı:
+  //   npx wrangler d1 create olcme-db
+  //   npm run db:migrate:remote      (schema.sql — 14 üretim tablosu + 2 senkron)
+  //
+  // R2 ve Queues hâlâ BAĞLI DEĞİL (Queues ücretsiz planda kullanılamaz);
+  // üretim mimarisi wrangler.jsonc'ta olduğu gibi duruyor.
+  // ===========================================================================
+  /* §43 — D1 BAĞLAMASI KALDIRILDI. Tek kullanıcısı /api/sync/* idi
+     (sınıf kodu köprüsü); o uçlar söküldü. Üretim mimarisi wrangler.jsonc'ta
+     D1'i korur: gerçek çok cihazlı çalışma users tablosu + Better Auth ile
+     gelecek, oda koduyla değil. */
+
+  // Statik varlıklar: public/index.html (prototip), mimari.html,
+  // privacy-policy.html, 404.html, robots.txt
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/internal/*"]
+  }
+}

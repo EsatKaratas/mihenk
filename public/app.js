@@ -9,12 +9,34 @@ const STOPWORDS = new Set(["ve","veya","ile","bir","bu","şu","o","da","de","ki"
 // (brief MVP 1: "konu, kazanım, seviye ... sisteme tanımlar").
 /* Ortaokulun üç temel dersi. Sosyal Bilgiler ve İngilizce çıkarıldı:
    kazanım katalogları yok, seçilince öğretmen boş listeyle karşılaşıyordu. */
-const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri"];
+const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri", "Keşif Kampüsü"];
 /* KAPSAM KARARI (26 Ağustos, kullanıcı): Ürün ORTAOKUL için tasarlandı.
    1-4 ve 9-12 kaldırıldı: kazanım katalogları yalnızca 5-8 için var ve
    olmayan sınıfları listelemek, öğretmene karşılığı olmayan bir seçim
    sunmak demek. Dar ama gerçek kapsam, geniş ama boş kapsamdan iyidir. */
-const GRADES = [5, 6, 7, 8];
+/* ATÖLYELER (kullanıcı isteği): "sınıf" alanı artık yalnızca sayı taşımıyor.
+   Keşif Kampüsü dersinin çalışma birimi bir sınıf düzeyi değil bir ATÖLYE;
+   kazanımlar da o atölyelerin altında tanımlı. Sayısal düzeyler (5-8) MEB
+   kataloglarına bağlı olduğu için AYNEN duruyor — atölyeler onların yanına
+   eklendi, yerlerine geçmedi. */
+const ATOLYELER = [
+  "Kimya ve İnsan Bilimleri Atölyesi",
+  "Kişisel Gelişim Atölyesi",
+  "Fizik Atölyesi",
+];
+const GRADES = [5, 6, 7, 8].concat(ATOLYELER);
+
+/**
+ * Sınıf alanının EKRANDAKİ karşılığı.
+ * Sayısal düzeyler "7. sınıf" diye okunur; atölye adları olduğu gibi yazılır —
+ * "Fizik Atölyesi. sınıf" bozuk bir etiket olurdu. Tek yerden üretiliyor ki
+ * bir ekranda düzelip diğerinde bozuk kalmasın.
+ */
+function sinifEtiketi(g) {
+  const x = String(g == null ? "" : g).trim();
+  if (!x) return "";
+  return /^\d{1,2}$/.test(x) ? x + ". sınıf" : x;
+}
 const VARSAYILAN_KAZANIMLAR = [
   // subject/grade: kazanım artık hangi ders ve sınıfa ait olduğunu taşır.
   // Eskiden bu bilgi yoktu ve "Türkçe dersi + MAT.7.3.4 kazanımı" gibi
@@ -22,7 +44,199 @@ const VARSAYILAN_KAZANIMLAR = [
   { code: "MAT.7.2.1", label: "MAT.7.2.1 — Oran ve Orantı", subject: "Matematik", grade: 7 },
   { code: "MAT.7.3.4", label: "MAT.7.3.4 — Cebirsel İfadeler", subject: "Matematik", grade: 7 },
   { code: "FEN.7.1.2", label: "FEN.7.1.2 — Kuvvet ve Hareket", subject: "Fen Bilimleri", grade: 7 },
+
+  /* ---------------- KEŞİF KAMPÜSÜ (kullanıcı isteği) ----------------------
+     Bu kazanımların MEB kataloğu YOKTUR; kaynakları okulun kendi ders
+     belgeleridir. `materyal` alanı o belgeye işaret eder (bkz.
+     DERS_MATERYALLERI). Alan DOLU olan bir kazanım "Kazanımdan" modunda
+     seçilirse üretim o belgeye KİLİTLENİR: model belgenin dışına çıkamaz.
+     Alanı olmayan kazanımlarda hiçbir şey değişmez (geriye dönük uyum). */
+  { code: "KK.KIM.1", label: "KK.KIM.1 — Maddenin Tanecikli Yapısı",
+    subject: "Keşif Kampüsü", grade: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-tanecikli-yapisi" },
+  { code: "KK.KIM.2", label: "KK.KIM.2 — Maddenin Hal Değişimi",
+    subject: "Keşif Kampüsü", grade: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-hal-degisimi" },
+
+  { code: "KK.KGA.1", label: "KK.KGA.1 — Doğa ve Saygı",
+    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    materyal: "dogaya-saygi" },
+  { code: "KK.KGA.2", label: "KK.KGA.2 — Beden Dili",
+    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    materyal: "beden-dili" },
+  { code: "KK.KGA.3", label: "KK.KGA.3 — Sınırlar",
+    subject: "Keşif Kampüsü", grade: "Kişisel Gelişim Atölyesi",
+    materyal: "sinirlar" },
+
+  { code: "KK.FIZ.1", label: "KK.FIZ.1 — Kuvvet",
+    subject: "Keşif Kampüsü", grade: "Fizik Atölyesi",
+    materyal: "kuvvet" },
+  { code: "KK.FIZ.2", label: "KK.FIZ.2 — Sürtünme Kuvveti",
+    subject: "Keşif Kampüsü", grade: "Fizik Atölyesi",
+    materyal: "surtunme-kuvveti" },
 ];
+
+/* ====================== DERS MATERYALLERİ (belge kilidi) ===================
+   Kazanıma bağlı ders belgeleri. Dosyalar `public/dersler/` altında durur ve
+   TARAYICIDA okunur — PDF için pdf.js, Word için mammoth.js; ikisi de zaten
+   dosya yükleme akışında kullanılıyor, yeni bağımlılık yok.
+
+   NEDEN AYRI BİR KAYIT: kazanım nesnesine dosya adını doğrudan yazmak,
+   dosya yeniden adlandırıldığında yedi ayrı yeri düzeltmek demekti. Kazanım
+   yalnızca bir KİMLİK taşır; dosyanın adı, türü ve okunabilir başlığı burada.
+
+   DOSYA ADLARI ASCII: özgün adlar Türkçe karakter ve boşluk içeriyor
+   ("Ders 1_Maddenin Tanecikli Yapısı.docx"). URL'de bunlar kodlanmak zorunda
+   ve sunucudan sunucuya farklı davranıyor. `dersler/aktar` betiği özgün
+   adları bulup buradaki ASCII adlara kopyalar; kullanıcı dosyayı olduğu gibi
+   bırakabilir.                                                             */
+const DERS_MATERYALLERI = {
+  "maddenin-tanecikli-yapisi": {
+    ad: "Ders 1 — Maddenin Tanecikli Yapısı", tur: "docx",
+    dosya: "maddenin-tanecikli-yapisi.docx", ozgun: "Ders 1_Maddenin Tanecikli Yapısı.docx" },
+  "maddenin-hal-degisimi": {
+    ad: "Ders 2 — Maddenin Hal Değişimi", tur: "docx",
+    dosya: "maddenin-hal-degisimi.docx", ozgun: "Ders 2_Maddenin Hal Değişimi.docx" },
+  "dogaya-saygi": {
+    ad: "Doğaya Saygı", tur: "docx",
+    dosya: "dogaya-saygi.docx", ozgun: "Doğaya Saygı.docx" },
+  "beden-dili": {
+    ad: "Beden Dili", tur: "docx",
+    dosya: "beden-dili.docx", ozgun: "Beden Dili.docx" },
+  "sinirlar": {
+    ad: "Sınırlar", tur: "pdf",
+    dosya: "sinirlar.pdf", ozgun: "Sınırlar.pdf" },
+  "kuvvet": {
+    ad: "Ders 1 ve 2 — Kuvvet", tur: "docx",
+    dosya: "kuvvet.docx", ozgun: "Ders 1 ve 2 - Kuvvet.docx" },
+  "surtunme-kuvveti": {
+    ad: "Ders 3 — Sürtünme Kuvveti", tur: "docx",
+    dosya: "surtunme-kuvveti.docx", ozgun: "Ders 3 _ Sürtünme Kuvveti.docx" },
+};
+
+/** Kazanım koduna bağlı materyal kaydı; yoksa null. */
+function materyalBilgisi(kod) {
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === kod; })[0];
+  if (!o || !o.materyal) return null;
+  const m = DERS_MATERYALLERI[o.materyal];
+  return m ? { id: o.materyal, ...m } : null;
+}
+
+/** Seçili kazanımın materyali (varsa). */
+function seciliMateryal() {
+  return materyalBilgisi(state.ceForm.outcomeCode);
+}
+
+/** Materyalin o anki yükleme durumu. */
+function materyalDurumu(id) {
+  state.materyaller = state.materyaller || {};
+  return state.materyaller[id] || { durum: "bos" };
+}
+
+/**
+ * Ders belgesini indirir ve metnini çıkarır.
+ *
+ * SESSİZ DÜŞÜŞ YOK (§6.3-5): belge bulunamazsa/okunamazsa durum "hata"ya
+ * geçer, ekranda gerekçesiyle görünür ve ÜRETİM ENGELLENİR. Sessizce genel
+ * kazanım bilgisine düşmek, kullanıcının "bu belgenin dışına çıkma" isteğini
+ * arkasından ihlal etmek olurdu.
+ *
+ * Metin bellekte tutulur, localStorage'a YAZILMAZ: yedi belge birden kotayı
+ * doldurabilir ve zaten sunucudan her açılışta yeniden okunabiliyor
+ * (kaynak metinlerin/pdf sayfalarının aynı gerekçesi).
+ */
+async function materyalGetir(id) {
+  state.materyaller = state.materyaller || {};
+  const mevcut = state.materyaller[id];
+  if (mevcut && (mevcut.durum === "hazir" || mevcut.durum === "yukleniyor")) return mevcut;
+  const bilgi = DERS_MATERYALLERI[id];
+  if (!bilgi) return null;
+
+  state.materyaller[id] = { durum: "yukleniyor" };
+  renderAll();
+  try {
+    /* Gerçek dosya adları dizinden gelir (varsa); fetch ondan SONRA. */
+    await materyalDizinYukle();
+    const r = await fetch("dersler/" + encodeURIComponent(DERS_MATERYALLERI[id].dosya));
+    if (!r.ok) throw new Error("belge sunucuda bulunamadı (HTTP " + r.status + ")");
+    const blob = await r.blob();
+    if (!blob.size) throw new Error("belge boş");
+    let metin = "";
+    if (bilgi.tur === "txt") {
+      /* Düz metin: ayrıştırıcı gerekmez. Satır sonları olduğu gibi kalır;
+         istem metni ham veri olarak taşıdığı için CRLF zararsızdır. */
+      metin = (await blob.text()).trim();
+    } else if (bilgi.tur === "pdf") {
+      const sayfalar = await extractPdf(blob);
+      metin = sayfalar.map(function (x) { return x.text; }).join("\n\n").trim();
+    } else {
+      metin = await extractDocx(blob);
+    }
+    if (!metin) {
+      throw new Error("belgede metin bulunamadı (taranmış görüntü ya da yalnızca tablo olabilir)");
+    }
+    /* Sunucu şeması kaynak metni 6000 karakterle sınırlıyor. Kırpma
+       SESSİZ OLMAZ: kaç karakterin dışarıda kaldığı ekranda yazar. */
+    const tamUzunluk = metin.length;
+    state.materyaller[id] = {
+      durum: "hazir",
+      metin: metin.slice(0, 6000),
+      uzunluk: tamUzunluk,
+      kirpildi: tamUzunluk > 6000,
+    };
+  } catch (e) {
+    state.materyaller[id] = { durum: "hata", hata: String((e && e.message) || e) };
+  }
+  renderAll();
+  return state.materyaller[id];
+}
+
+/**
+ * `dersler/index.json` — aktarma betiğinin yazdığı GERÇEK dosya adları.
+ *
+ * NEDEN: kullanıcı belgeyi ".docx" yerine ".pdf" ya da ".txt" olarak
+ * verebilir; `deneme/aktar.mjs` dosyayı olduğu gibi kopyalar ve gerçek adı
+ * bu dizine yazar. Dizin varsa BURADAKİ varsayılanları ezer — yani kod,
+ * kullanıcının elindeki dosyaya uyar, tersi değil.
+ *
+ * Dizin yoksa hiçbir şey olmaz: varsayılan adlar geçerli kalır (geriye
+ * dönük uyum ve "dosyaları elle koydum" senaryosu).
+ */
+let materyalDizinSoz = null;
+function materyalDizinYukle() {
+  if (materyalDizinSoz) return materyalDizinSoz;
+  materyalDizinSoz = fetch("dersler/index.json", { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j) return null;
+      Object.keys(j).forEach(function (id) {
+        if (!DERS_MATERYALLERI[id]) return;
+        const k = j[id] || {};
+        if (k.dosya) DERS_MATERYALLERI[id].dosya = k.dosya;
+        if (k.tur) DERS_MATERYALLERI[id].tur = k.tur;
+        if (k.ozgun) DERS_MATERYALLERI[id].ozgun = k.ozgun;
+      });
+      return j;
+    })
+    .catch(function () { return null; });
+  return materyalDizinSoz;
+}
+
+/* Hangi materyal için yükleme DENENDİ. `katalogDenendi` ile aynı gerekçe:
+   yükleme çizim noktasından tetikleniyor ve hata yolunda renderAll() var;
+   bu bayrak olmasaydı kalıcı bir hatada sonsuz döngü oluşurdu. */
+const materyalDenendi = {};
+
+/** Seçili kazanımın belgesi yüklü değilse arka planda yükler. */
+function materyalHazirla(yenidenDene) {
+  const m = seciliMateryal();
+  if (!m) return;
+  const durum = materyalDurumu(m.id);
+  if (durum.durum === "hazir" || durum.durum === "yukleniyor") return;
+  if (materyalDenendi[m.id] && !yenidenDene) return;
+  materyalDenendi[m.id] = true;
+  materyalGetir(m.id);
+}
 
 // Canlı listeler: state üzerinden okunur, kullanıcı ekleyip silebilir.
 function OUTCOMES_LIST() { return state.outcomes && state.outcomes.length ? state.outcomes : VARSAYILAN_KAZANIMLAR; }
@@ -136,6 +350,46 @@ function uretimModuSecHtml() {
 /* §31 — YÖNERGE ALANI. Yalnızca kazanım modunda görünür. Zorunlu değildir;
    boş bırakılırsa istem yalnızca kazanıma dayanır (eski davranışın kazanım
    karşılığı). Sunucuda kaynak metinle aynı enjeksiyon koruması uygulanır. */
+/**
+ * Belgeye kilitli kazanım şeridi.
+ *
+ * "Kazanımdan" modunda, seçili kazanımın bir ders belgesi varsa üretim o
+ * belgeye kilitlenir. Bu KULLANICIYA GÖRÜNÜR OLMALI: hangi belgeye
+ * dayanıldığı, belgenin yüklenip yüklenmediği ve yüklenemediyse NEDEN
+ * yüklenemediği ekranda yazar. Sessiz bir kilit, "neden bu sorular geldi?"
+ * sorusunu cevapsız bırakırdı.
+ */
+function materyalSeridiHtml() {
+  const m = seciliMateryal();
+  if (!m) return "";
+  const d = materyalDurumu(m.id);
+
+  var durumHtml;
+  if (d.durum === "hazir") {
+    durumHtml = '<span class="mat-ok">✓ belge okundu · ' + d.uzunluk.toLocaleString("tr") +
+      " karakter" +
+      (d.kirpildi
+        ? ' · <b>ilk 6.000 karakter kullanılacak</b> (sunucu sınırı; belgenin sonundaki ' +
+          (d.uzunluk - 6000).toLocaleString("tr") + " karakter bu üretime girmez)"
+        : "") + "</span>";
+  } else if (d.durum === "yukleniyor") {
+    durumHtml = '<span class="mat-bekle">belge okunuyor…</span>';
+  } else if (d.durum === "hata") {
+    durumHtml = '<span class="mat-hata">✕ belge okunamadı: ' + escapeHtml(d.hata) +
+      '</span> <button type="button" class="oc-link" id="btnMateryalTekrar">yeniden dene</button>';
+  } else {
+    durumHtml = '<span class="mat-bekle">belge henüz okunmadı</span>';
+  }
+
+  return '<div class="materyal-serit' + (d.durum === "hata" ? " hatali" : "") + '">' +
+    '<div class="mat-baslik">🔒 Bu kazanım bir ders belgesine bağlı</div>' +
+    '<div class="mat-ad">' + escapeHtml(m.ad) + ' <code>' + escapeHtml(m.dosya) + '</code></div>' +
+    '<div class="mat-durum">' + durumHtml + "</div>" +
+    '<div class="field-note">Sorular <b>yalnızca bu belgeden</b> üretilir; model belgenin ' +
+    "dışına çıkamaz. Belge okunamazsa üretim yapılmaz — dışarıdan bilgiyle soru " +
+    "üretmek, kilidi arkanızdan delmek olurdu.</div></div>";
+}
+
 function yonergeAlaniHtml() {
   const g = String(state.ceForm.guidance || "");
   return '<div class="field ce-text-field"><div class="label-row">' +
@@ -366,9 +620,14 @@ async function aiGenerateQuestions(doc) {
     const j = await apiPost(AI_API.generate, {
       // §31: kazanım modunda kaynak metin gönderilmez (sunucu şeması bu modda
       // alt sınır aramaz); dayanak kazanımın kendisidir.
-      mode: doc.mode === "kazanim" ? "kazanim" : "kaynak",
-      guidance: doc.mode === "kazanim" ? (doc.guidance || undefined) : undefined,
-      sourceText: doc.mode === "kazanim" ? "" : doc.text.slice(0, 6000),
+      /* Üç mod: "kaynak" (yüklenen metin), "kazanim" (dayanak MEB kazanımı),
+         "materyal" (kazanıma kilitli ders belgesi). */
+      mode: doc.mode === "kazanim" || doc.mode === "materyal" ? doc.mode : "kaynak",
+      guidance: (doc.mode === "kazanim" || doc.mode === "materyal") ? (doc.guidance || undefined) : undefined,
+      materialName: doc.mode === "materyal" ? doc.materyalAd : undefined,
+      sourceText: doc.mode === "materyal"
+        ? String(doc.materyalMetin || "").slice(0, 6000)
+        : (doc.mode === "kazanim" ? "" : doc.text.slice(0, 6000)),
       subject: doc.subject,
       grade: String(doc.grade),
       outcomeCode: doc.outcome,
@@ -1250,6 +1509,10 @@ const state = {
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
   outcomes: VARSAYILAN_KAZANIMLAR.slice(),
+  /* Ders belgelerinin çıkarılmış metni. KALICI_ALANLAR'a GİRMEZ: yedi belge
+     localStorage kotasını doldurabilir ve belge sunucuda duruyor, her açılışta
+     yeniden okunabilir (pdfPages ve kaynak metinlerle aynı gerekçe). */
+  materyaller: {},
   subjects: VARSAYILAN_DERSLER.slice(),
   newOutcome: { open: false, code: "", label: "", error: "" },
   /* Kullanıcının kendi dersini yazdığı satır ("+" sekmesi). `newOutcome` ile
@@ -1726,7 +1989,7 @@ function kazanimNotuHtml() {
   const secilebilir = gosterilenEklenmis + katalogSecilebilir;
 
   const dersSinif = "<b>" + escapeHtml(state.ceForm.subject) + " · " +
-    state.ceForm.grade + ". sınıf</b>";
+    escapeHtml(sinifEtiketi(state.ceForm.grade)) + "</b>";
 
   /* Sayı eki bilinçli olarak "tanesi" ile kuruldu. Türkçede ek sayının
      OKUNUŞUNA göre değişir ("39'u" ama "23'ü", "%100'ünü"); sabit bir ek her
@@ -1779,17 +2042,22 @@ function outcomeUyusmazlikHtml() {
   if (!secili) return "";
   if (outcomeUyar(secili, state.ceForm.subject, state.ceForm.grade)) return "";
   const parcalar = [];
+  /* CÜMLE EKSİZ KURULDU. Eskiden "<b>7. sınıfa</b> ait" deniyordu; sınıf alanı
+     artık atölye adı da taşıyabiliyor ve "<b>Fizik Atölyesia</b> ait" gibi
+     bozuk ekler çıkardı. Türkçe'de ek, sözcüğün OKUNUŞUNA göre değişir ve
+     sabit bir ek her değerde doğru olamaz (§6.3-14). Bu yüzden cümle,
+     hiç ek gerektirmeyen bir listeye çevrildi. */
   if (secili.subject && secili.subject !== state.ceForm.subject) {
-    parcalar.push("<b>" + escapeHtml(secili.subject) + "</b> dersine");
+    parcalar.push("<b>" + escapeHtml(secili.subject) + "</b>");
   }
   if (secili.grade && String(secili.grade) !== String(state.ceForm.grade)) {
-    parcalar.push("<b>" + secili.grade + ". sınıfa</b>");
+    parcalar.push("<b>" + escapeHtml(sinifEtiketi(secili.grade)) + "</b>");
   }
   if (!parcalar.length) return "";
-  return '<div class="oc-uyusmaz">Seçili kazanım <b>' + escapeHtml(secili.code) + "</b> " +
-    parcalar.join(" ve ") + " ait; siz <b>" + escapeHtml(state.ceForm.subject) + " · " +
-    state.ceForm.grade + ". sınıf</b> seçtiniz. Bu haliyle soru üretilirse kaynak, " +
-    "kazanım ve sınıf düzeyi birbirini tutmaz.</div>";
+  return '<div class="oc-uyusmaz">Seçili kazanım <b>' + escapeHtml(secili.code) + "</b>, " +
+    parcalar.join(" · ") + " için tanımlı; siz <b>" + escapeHtml(state.ceForm.subject) + " · " +
+    escapeHtml(sinifEtiketi(state.ceForm.grade)) + "</b> seçtiniz. Bu haliyle soru üretilirse " +
+    "kaynak, kazanım ve sınıf düzeyi birbirini tutmaz.</div>";
 }
 
 // ---- Kazanım tanımlama (brief MVP 1) --------------------------------------
@@ -2615,7 +2883,7 @@ function kitapAramaFiltrele(liste, arama) {
   var a = String(arama || "").trim().toLocaleLowerCase("tr");
   if (!a) return liste;
   return liste.filter(function (k) {
-    var metin = (k.ad + " " + (k.subject || "") + " " + (k.grade ? k.grade + ". sınıf" : ""))
+    var metin = (k.ad + " " + (k.subject || "") + " " + sinifEtiketi(k.grade))
       .toLocaleLowerCase("tr");
     return metin.indexOf(a) !== -1;
   });
@@ -2635,7 +2903,7 @@ function kitaplikSatirlarHtml(sirali) {
   }
   return filtreli.map(function (k) {
     var acik = !!(state.pdf && state.pdf.kitapId === k.id);
-    var etiket = [k.subject, k.grade ? k.grade + ". sınıf" : ""].filter(Boolean).join(" · ");
+    var etiket = [k.subject, sinifEtiketi(k.grade)].filter(Boolean).join(" · ");
 
     if (state.kitEdit === k.id) {
       return '<div class="kit-satir kit-satir-duzenle">' +
@@ -2647,7 +2915,11 @@ function kitaplikSatirlarHtml(sirali) {
         '</select>' +
         '<select id="kitDuzenSinif" class="sy-input sy-input-sm">' +
         '<option value="">Sınıf yok</option>' +
-        GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(k.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
+        GRADES.map(function (g) {
+          return '<option value="' + escapeHtml(String(g)) + '"' +
+            (String(g) === String(k.grade) ? " selected" : "") + ">" +
+            escapeHtml(sinifEtiketi(g)) + "</option>";
+        }).join("") +
         '</select>' +
         '<button class="btn btn-primary btn-sm" data-kitap-kaydet="' + k.id + '">Kaydet</button>' +
         '<button class="btn btn-secondary btn-sm" id="btnKitDuzenVazgec">Vazgeç</button>' +
@@ -3147,6 +3419,26 @@ async function onGenerateQuestions() {
     renderAll();
     return;
   }
+  /* BELGE KİLİDİ. Seçili kazanım bir ders belgesine bağlıysa üretim O BELGEYE
+     dayanmak zorunda. Belge okunamadıysa üretim YAPILMAZ — sessizce genel
+     kazanım bilgisine düşmek, "belgenin dışına çıkma" kuralını kullanıcının
+     arkasından ihlal etmek olurdu (§6.3-5 sessiz düşüş yasağı). */
+  const kilitliMateryal = kazanimModu ? seciliMateryal() : null;
+  if (kilitliMateryal) {
+    let md = materyalDurumu(kilitliMateryal.id);
+    if (md.durum !== "hazir") {
+      if (md.durum !== "yukleniyor") { md = await materyalGetir(kilitliMateryal.id); }
+      else { md = await materyalGetir(kilitliMateryal.id); }
+    }
+    if (!md || md.durum !== "hazir") {
+      state.ceForm.error = "“" + kilitliMateryal.ad + "” belgesi okunamadığı için soru " +
+        "üretilmedi: " + String((md && md.hata) || "belge yüklenemedi") + ". Bu kazanım o " +
+        "belgeye kilitli; belge olmadan üretmek belgenin dışına çıkmak olurdu. Belgeyi " +
+        "“dersler” klasörüne koyup yeniden deneyin.";
+      renderAll();
+      return;
+    }
+  }
   state.ceForm.error = "";
   const doc = {
     title: state.ceForm.title || "Adsız Kaynak", subject: state.ceForm.subject, grade: state.ceForm.grade,
@@ -3165,6 +3457,16 @@ async function onGenerateQuestions() {
      needsSource da sunucuda zaten false'a sabitlenir. */
   doc.srcId = kazanimModu ? null : kaynakEkle(doc);
   doc.mode = kazanimModu ? "kazanim" : "kaynak";
+  /* Belgeye kilitli kazanım: mod "materyal"e döner. Sunucu bu modda hem
+     kaynak sadakati (belgenin dışına çıkma) hem de kendi kendine yeterlilik
+     (öğrenci belgeyi GÖRMEYECEK, "metne göre..." yazılamaz) kurallarını
+     birlikte uygular. */
+  if (kilitliMateryal) {
+    const md = materyalDurumu(kilitliMateryal.id);
+    doc.mode = "materyal";
+    doc.materyalAd = kilitliMateryal.ad;
+    doc.materyalMetin = md.metin || "";
+  }
   doc.guidance = kazanimModu ? String(state.ceForm.guidance || "").trim() : "";
   // Yerel simülasyon da bu adetlere uymalı (§14h).
   doc.mcCount = state.ceForm.mcCount;
@@ -3189,7 +3491,7 @@ async function onGenerateQuestions() {
         model: qs[0].uretenModel || (state.ai.mode === "live" ? (state.ai.model || null) : "yerel simülasyon (model çağrılmadı)"),
         fellBack: state.ai.mode === "live" ? state.ai.usingFallback === true : undefined,
         soru: auditKisalt(qs[0].body),
-        not: (state.ceForm.subject || "") + " · " + (state.ceForm.grade || "") + ". sınıf · " +
+        not: (state.ceForm.subject || "") + " · " + sinifEtiketi(state.ceForm.grade) + " · " +
              (state.ceForm.outcomeCode || "kazanım yok") +
              (qs.some(function (q) { return q.dilUyarisi; }) ? " · DİL UYARISI var" : ""),
       });
@@ -3714,7 +4016,11 @@ function ceCreateHtml() {
     dersSecicisiHtml() +
     '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
-    GRADES.map(function (g) { return '<option value="' + g + '"' + (String(g) === String(state.ceForm.grade) ? " selected" : "") + '>' + g + '. sınıf</option>'; }).join("") +
+    GRADES.map(function (g) {
+      return '<option value="' + escapeHtml(String(g)) + '"' +
+        (String(g) === String(state.ceForm.grade) ? " selected" : "") + ">" +
+        escapeHtml(sinifEtiketi(g)) + "</option>";
+    }).join("") +
     '</select></div>' +
     /* MADDE 1: Şube (bölüm) — yalnızca ORGANİZASYON/RAPORLAMA etiketidir,
        kazanım filtrelemesini ETKİLEMEZ (MEB müfredatı şubeye göre değişmez)
@@ -3750,11 +4056,11 @@ function ceCreateHtml() {
         /* Kazanımın HANGİ ders/sınıfa yazılacağı açıkça söylenir: artık koddan
            tahmin edilmiyor, o anki seçim kullanılıyor (bkz. btnSaveOutcome). */
         '<div class="field-note">Bu kazanım <b>' + escapeHtml(state.ceForm.subject) + " · " +
-        escapeHtml(String(state.ceForm.grade)) + ". sınıf</b> altına eklenecek ve " +
+        escapeHtml(sinifEtiketi(state.ceForm.grade)) + "</b> altına eklenecek ve " +
         "panelinizde kalıcı olarak duracak.</div></div>"
       : "") + '</div>' +
     uretimModuSecHtml() +
-    (uretimModu() === "kazanim" ? yonergeAlaniHtml() :
+    (uretimModu() === "kazanim" ? (materyalSeridiHtml() + yonergeAlaniHtml()) :
     '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
     /* §28q: "öğretmen kendi ders oluşturabilsin, notlar kayıtlı dursun." Bu
        düğüm mevcut Kitaplık altyapısını (IndexedDB, kalıcı, ad+tarih+boyutla
@@ -3852,6 +4158,11 @@ function renderContentExpert() {
      `katalogHazirla()` kendi `renderAll()`'ını çağırır; katalog artık
      bellekte olduğu için ikinci çağrı anında geri döner — döngü yoktur. */
   katalogHazirla();
+  /* Katalogla AYNI gerekçe (§28n): kazanım hangi yoldan seçilirse seçilsin
+     (sekme, katalog, demo senaryosu, localStorage) belge bir sonraki çizimde
+     hazırlanır. Tek bir çağrı noktasına eklemek, bir yolun unutulmasına
+     açık kalırdı. */
+  materyalHazirla();
   const root = document.getElementById("panel-content_expert");
   root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
     (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
@@ -3914,6 +4225,8 @@ function renderContentExpert() {
   document.getElementById("ceSube").oninput = function (e) { state.ceForm.sube = e.target.value.slice(0, 20); };
 
   // Kazanım tanımlama
+  const bMat = document.getElementById("btnMateryalTekrar");
+  if (bMat) bMat.onclick = function () { materyalHazirla(true); };
   const bKat = document.getElementById("btnKatalog");
   if (bKat) bKat.onclick = function () { katalogAc(); };
   /* Eski "+" ve "−" ikon düğmeleri KALDIRILDI:
@@ -6948,7 +7261,7 @@ function teacherTab4Html() {
     // §42: sınıf görünümünde SINIFIN durumu yazar (bkz. sinifSinavDurumEtiketi).
     '<div class="stat-tile"><div class="s-label">Sınav Durumu</div><div class="s-value" style="font-size:16px;">' + sinifSinavDurumEtiketi() + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">' + bitiren + '/' + tumOgr + '</div><div class="s-sub">tamamladı</div></div></div>' +
-    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">diğer sınıflarla karşılaştırma</span></div><div id="teacherHeatmap"></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">şubeler yan yana · kritik eşik %55</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
     calibrationHtml() +
     misconceptionHtml() +
@@ -7084,7 +7397,7 @@ function renderTeacher() {
   if (state.teacherTab === 3) { content.innerHTML = teacherWhoamiHtml() + teacherTab3Html(); wireTeacherWhoami(); wireTeacherTab3(); }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && submittedStudents().length) renderHeatmap("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -7586,65 +7899,160 @@ function renderStudent() {
   if (state.studentTab === 3) { content.innerHTML = studentTab3Html(); }
 }
 
-/* ============================== Eğitim Yöneticisi & Isı Haritası ============================== */
-function relLuminance(r, g, b) {
-  const a = [r, g, b].map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
-  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+/* ===========================================================================
+   KAZANIM BAŞARI GRAFİĞİ — gruplu sütun (eski ısı haritasının yerine)
+   ===========================================================================
+   NEDEN DEĞİŞTİ (kullanıcı kararı): ısı haritası "hangi hücre daha koyu"
+   sorusuna cevap veriyordu ama iki şeyi yapamıyordu:
+     · İki şubeyi aynı kazanımda YAN YANA karşılaştırmak — renk yoğunluğundan
+       "%62 mi %68 mi" okunmuyordu.
+     · Kritik eşiği GÖRSEL olarak göstermek — 55 sınırı yalnızca renk
+       basamağına gömülüydü, ekranda bir çizgi olarak yoktu.
+
+   Yeni gösterim: her kazanım bir GRUP, her şube o grupta bir SÜTUN. Yüzde
+   sütunun tam üzerinde sayıyla yazar (renkten okumaya gerek yok) ve %55
+   kritik eşiği kesikli kırmızı yatay çizgiyle geçer.
+
+   NEDEN SVG: bağımlılık yok, ölçeklenir, yazdırmada bozulmaz ve renkleri
+   CSS değişkenlerinden aldığı için koyu tema kendiliğinden çalışır.
+
+   KIRMIZI ÇİZGİ — paletteki tek kırmızı. Ürün paleti maviye çevrildi
+   (§renk dönüşümü), ama kritik eşik çizgisinin sütunlardan AYRIŞMASI gerekiyor;
+   mavi bir eşik çizgisi mavi sütunların içinde kaybolurdu. Bu yüzden
+   `--esik-cizgi` kendi değişkeni olarak duruyor ve yalnızca burada kullanılır.
+
+   GENİŞLİK SABİT DEĞİL: sütun sayısına göre büyür ve kapsayıcı yatay kayar.
+   Sabit genişlikte 8 kazanım × 3 şube = 24 sütun sıkışır ve üstündeki yüzde
+   yazıları üst üste binerdi; kullanıcının istediği ilk şey o yazıların NET
+   okunmasıydı.
+   =========================================================================== */
+
+/** Kritik başarı eşiği (%). Grafikteki kesikli çizgi ve uyarılar bunu kullanır. */
+const KRITIK_ESIK = 55;
+
+/** Şube serisinin renk değişkeni; altı renkten sonra başa döner. */
+function subeRengi(i) { return "var(--kat-" + ((i % 6) + 1) + ")"; }
+
+/**
+ * Kazanımın eksende görünecek hâli.
+ * Etiketler "KK.KIM.1 — Maddenin Tanecikli Yapısı" biçiminde; eksende KONU
+ * ADI okunur olmalı, kod ikinci satırda küçük yazar. Tire yoksa (elle
+ * tanımlanmış kazanımlar) kodun kendisi kullanılır.
+ */
+function kazanimKisaAd(o) {
+  const etiket = String((o && o.label) || "");
+  const kod = String((o && o.code) || "");
+  const i = etiket.indexOf("—");
+  const ad = i >= 0 ? etiket.slice(i + 1).trim() : etiket.replace(kod, "").trim();
+  return { ad: ad || kod, kod: kod };
 }
-/* Isı haritası hücresinin metin rengini, hücrenin GERÇEK hesaplanmış zemin
-   parlaklığından seçer — böylece palet değişse de kendiliğinden uyar.
 
-   ÖLÇÜLEN HATA (düzeltildi): eşik 0,42 idi ve yanlış yerdeydi. `--seq-4`
-   (#6a86cf, L=0,246) eşiğin altında kalıp AÇIK metin alıyordu; kontrast
-   yalnızca 3,31:1 çıkıyordu — WCAG AA eşiği 4,5:1. Aynı hücrede KOYU metin
-   4,95:1 veriyor, yani doğru seçim koyuydu.
+/**
+ * Gruplu sütun grafiğinin SVG'si.
+ * rows: [{ name, scores: {kod: yuzde}, live?, ornek? }]  (şubeler)
+ * cols: OUTCOMES_LIST()                                   (kazanımlar)
+ */
+function kazanimGrafigiSvg(rows, cols) {
+  const SOL = 48, SAG = 16, UST = 30, ALT = 74;
+  const YUK = 210;                       // çizim alanı yüksekliği (0-100%)
+  const BAR = 26, BAR_ARA = 6, GRUP_ARA = 34;
 
-   Doğru eşik tahmin edilmedi, hesaplandı: iki metin renginin kontrastı
-   L_zemin = sqrt((L_koyu+0,05)(L_acik+0,05)) - 0,05 noktasında eşitlenir;
-   bu palet için 0,195. Bu değerde her hücre iki seçenekten YÜKSEK kontrastlı
-   olanı alır (ölçüldü: seq-3 8,29:1 · seq-4 4,95:1 · seq-5 7,78:1). */
-const METIN_ESIGI = 0.195;
-function bestTextColor(el) {
-  const bg = getComputedStyle(el).backgroundColor;
-  const m = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
-  if (!m) return;
-  const L = relLuminance(+m[1], +m[2], +m[3]);
-  el.style.color = L > METIN_ESIGI ? "#1b1915" : "#f5f7fb";
+  const grupGen = rows.length * BAR + (rows.length - 1) * BAR_ARA;
+  const cizimGen = cols.length * grupGen + (cols.length + 1) * GRUP_ARA;
+  const W = SOL + cizimGen + SAG;
+  const H = UST + YUK + ALT;
+  const y = function (v) { return UST + YUK * (1 - v / 100); };
+
+  let p = "";
+
+  /* Yatay ızgara + yüzde ekseni. */
+  [0, 25, 50, 75, 100].forEach(function (v) {
+    p += '<line x1="' + SOL + '" y1="' + y(v) + '" x2="' + (W - SAG) + '" y2="' + y(v) +
+      '" class="kg-izgara"/>' +
+      '<text x="' + (SOL - 8) + '" y="' + (y(v) + 4) + '" class="kg-eksen kg-sag">%' + v + '</text>';
+  });
+
+  /* Sütunlar. */
+  cols.forEach(function (c, ci) {
+    const gx = SOL + GRUP_ARA + ci * (grupGen + GRUP_ARA);
+    rows.forEach(function (r, ri) {
+      const v = r.scores[c.code];
+      const x = gx + ri * (BAR + BAR_ARA);
+      if (v == null) {
+        p += '<text x="' + (x + BAR / 2) + '" y="' + (y(0) - 6) + '" class="kg-yok">—</text>';
+        return;
+      }
+      const yy = y(v), h = Math.max(2, y(0) - yy);
+      p += '<rect x="' + x + '" y="' + yy + '" width="' + BAR + '" height="' + h +
+        '" rx="4" fill="' + subeRengi(ri) + '"' + (r.ornek ? ' class="kg-ornek"' : "") + '>' +
+        "<title>" + escapeHtml(r.name + " · " + c.code + " · %" + v) + "</title></rect>" +
+        /* Yüzde SÜTUNUN TAM ÜZERİNDE — kullanıcının açık isteği. */
+        '<text x="' + (x + BAR / 2) + '" y="' + (yy - 7) + '" class="kg-deger">%' + v + "</text>";
+    });
+
+    /* Eksen etiketi: konu adı + kod. */
+    const kisa = kazanimKisaAd(c);
+    const mx = gx + grupGen / 2;
+    p += '<text x="' + mx + '" y="' + (y(0) + 20) + '" class="kg-etiket">' +
+      escapeHtml(truncate(kisa.ad, 22)) + "</text>" +
+      '<text x="' + mx + '" y="' + (y(0) + 34) + '" class="kg-kod">' +
+      escapeHtml(kisa.kod) + "</text>";
+  });
+
+  /* Taban çizgisi ve KRİTİK EŞİK. Eşik en sona çizilir ki sütunların
+     üstünde kalsın; altında kalırsa okunmaz. */
+  p += '<line x1="' + SOL + '" y1="' + y(0) + '" x2="' + (W - SAG) + '" y2="' + y(0) + '" class="kg-taban"/>';
+  p += '<line x1="' + SOL + '" y1="' + y(KRITIK_ESIK) + '" x2="' + (W - SAG) + '" y2="' +
+    y(KRITIK_ESIK) + '" class="kg-esik"/>' +
+    '<text x="' + (W - SAG) + '" y="' + (y(KRITIK_ESIK) - 6) + '" class="kg-esik-yazi kg-sag">' +
+    "kritik eşik %" + KRITIK_ESIK + "</text>";
+
+  return '<div class="heatmap-wrap"><svg class="kazanim-grafik" viewBox="0 0 ' + W + " " + H +
+    '" width="' + W + '" height="' + H + '" role="img" ' +
+    'aria-label="Kazanım başarı yüzdeleri, şubelere göre gruplu sütun grafiği">' +
+    "<desc>Her kazanım için şubelerin başarı yüzdeleri. Kesikli kırmızı çizgi %" +
+    KRITIK_ESIK + " kritik eşiğini gösterir.</desc>" + p + "</svg></div>";
 }
-function scaleStep(pct) { if (pct >= 85) return 5; if (pct >= 70) return 4; if (pct >= 55) return 3; if (pct >= 40) return 2; return 1; }
 
-function renderHeatmap(targetId, rows) {
+/**
+ * Kazanım başarı grafiğini çizer ve altına aksiyon bloklarını ekler.
+ * Eski `renderHeatmap` ile AYNI veriyi alır; yalnızca gösterim değişti.
+ */
+function renderKazanimGrafigi(targetId, rows) {
   const el = document.getElementById(targetId);
   if (!el) return;
   const cols = OUTCOMES_LIST();
-  el.innerHTML = '<div class="heatmap-wrap"><table class="heatmap"><tr><th></th>' +
-    // GÜVENLİK: kazanım KODU da kullanıcı girdisidir. "+ Yeni kazanım tanımla"
-    // formundaki kod alanı serbest metindir; sabit bir kalıp (MAT.7.2.1)
-    // varsaymak yanlıştı. Etiketler kaçırılıyordu ama kodlar kaçırılmıyordu.
-    cols.map(function (c) { return "<th>" + escapeHtml(c.code) + "</th>"; }).join("") + "</tr>" +
-    rows.map(function (r) {
-      return "<tr><th class=\"outcome-col\">" + escapeHtml(r.name) + "</th>" + cols.map(function (c) {
-        const v = r.scores[c.code];
-        if (v == null) return '<td><div class="hm-cell" style="background:var(--surface-2);color:var(--text-muted);">—</div></td>';
-        const step = scaleStep(v);
-        return '<td><div class="hm-cell" data-val="' + v + '" style="background:var(--seq-' + step + ');">' + (r.live ? '<span class="hm-flag">●</span>' : "") + v + '%</div></td>';
-      }).join("") + "</tr>";
-    }).join("") + "</table></div>" +
-    '<div class="legend-scale"><span>Düşük</span>' +
-    [1, 2, 3, 4, 5].map(function (s) { return '<span class="legend-swatch" style="background:var(--seq-' + s + ');"></span>'; }).join("") +
-    '<span>Yüksek başarı</span>' +
-    '<span class="legend-live">● işaretli şubeler bu sistemde gerçekten çözülen sınavlardan hesaplanır. ' +
-    '"(örnek)" etiketli satırlar karşılaştırma amaçlı demo verileridir.</span></div>';
-  el.querySelectorAll(".hm-cell[data-val]").forEach(bestTextColor);
-  /* §37 — UYARI YALNIZCA GERÇEK SATIRLARDAN. Bu döngü eskiden "(örnek)"
-     satırlarını da tarıyordu; demo verisi bir aksiyon uyarısı doğuramaz.
-     Bugünkü demo değerlerinin hepsi ≥58 olduğu için hata GÖRÜNMÜYORDU ama
-     kod yoluna sahipti: 6-A örnek değeri 30'a çekilerek yeniden üretildi —
-     uyarı "6-A (örnek) · MAT.7.2.1" satırını gösterdi. */
+  if (!rows.length || !cols.length) {
+    el.innerHTML = '<div class="empty-state">Karşılaştırma için henüz yeterli sonuç yok.</div>';
+    return;
+  }
+
+  el.innerHTML = kazanimGrafigiSvg(rows, cols) +
+    '<div class="kg-lejant">' +
+    rows.map(function (r, i) {
+      return '<span class="kg-l-oge"><span class="kg-l-kutu" style="background:' + subeRengi(i) + '"' +
+        (r.ornek ? ' data-ornek="1"' : "") + "></span>" + escapeHtml(r.name) + "</span>";
+    }).join("") +
+    '<span class="kg-l-oge"><span class="kg-l-esik"></span>kritik eşik (%' + KRITIK_ESIK + ")</span>" +
+    '</div>' +
+    '<div class="legend-live">Soluk ve kesik çerçeveli sütunlar “(örnek)” etiketli demo ' +
+    'verilerdir; diğerleri bu sistemde gerçekten çözülen sınavlardan hesaplanır.</div>';
+
+  /* §37 — UYARI YALNIZCA GERÇEK SATIRLARDAN. Demo verisi bir aksiyon uyarısı
+     doğuramaz; bu ayrım eski ısı haritasında da vardı ve korunuyor. */
   const low = [];
   rows.filter(function (r) { return !r.ornek; })
-    .forEach(function (r) { cols.forEach(function (c) { const v = r.scores[c.code]; if (v != null && v < 55) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code)); }); });
-  if (low.length) el.insertAdjacentHTML("beforeend", '<div class="pill pill-blok pill-warning" style="margin-top:10px;">⚠ Dikkat gereken ' + low.length + " hücre: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + '</div>');
+    .forEach(function (r) {
+      cols.forEach(function (c) {
+        const v = r.scores[c.code];
+        if (v != null && v < KRITIK_ESIK) low.push(escapeHtml(r.name) + " · " + escapeHtml(c.code));
+      });
+    });
+  if (low.length) {
+    el.insertAdjacentHTML("beforeend",
+      '<div class="pill pill-blok pill-warning" style="margin-top:10px;">⚠ Kritik eşiğin altında ' +
+      low.length + " ölçüm: " + low.slice(0, 3).join(", ") + (low.length > 3 ? "…" : "") + "</div>");
+  }
 
   /* ============ KAPALI DÖNGÜ ============
      Analiz ekranı sadece sorunu göstermekle kalmaz, çözümü de başlatır:
@@ -7682,6 +8090,7 @@ function renderHeatmap(targetId, rows) {
     });
   }
 }
+
 
 function buildAdminHeatmapRows() {
   const gercek = realClassRows();
@@ -7795,21 +8204,17 @@ function renderAdmin() {
         '</div></div>'
       : "") +
 
-    '<div class="card"><div class="card-head"><h3>Kazanım Isı Haritası</h3><span class="hint">satır: sınıf, sütun: kazanım</span></div>' +
+    '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği</h3><span class="hint">grup: kazanım, sütun: şube</span></div>' +
     '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
-    /* 🔴 DÜZELTİLEN YANLIŞ BEYAN (kullanıcı bildirdi): burada
-       "Koyu renk = düşük başarı, açık renk = yüksek başarı" yazıyordu —
-       TERSİ doğru. Kanıt kodun kendisinde:
-         · scaleStep(): 85+ -> 5, <40 -> 1  (yüksek yüzde = yüksek adım)
-         · hücre zemini var(--seq-<adım>); --seq-1 en AÇIK, --seq-5 en KOYU
-         · efsane de "Düşük [açık…koyu] Yüksek başarı" diyor
-       Yani hem hücreler hem efsane doğruydu, yalnızca bu cümle ters yazılmıştı
-       ve ikisiyle de çelişiyordu. Jüri bu cümleyi okusaydı en KOYU hücreleri
-       (yani en başarılı sınıfları) en başarısız sanardı — analitik ekranının
-       tamamı ters okunurdu. */
-    'Her hücre, o sınıfın o kazanımdaki ortalama başarı yüzdesidir. ' +
-    '<b>Koyu renk = yüksek başarı</b>, açık renk = düşük başarı. ' +
-    '%55 altındaki hücreler aşağıda ayrıca uyarı olarak listelenir.</div>' +
+    /* ESKİ ISI HARİTASININ NOTU BURADAN KALDIRILDI ve NEDENİ ÖNEMLİ:
+       o not renk yoğunluğunun ne anlama geldiğini açıklıyordu ("koyu = yüksek
+       başarı") ve bir kez de TERS yazıldığı için düzeltilmişti. Gruplu sütun
+       grafiğinde böyle bir açıklamaya hiç gerek yok: yüzde zaten her sütunun
+       üzerinde SAYIYLA yazıyor. Yanlış okunabilecek bir kodlama kalmadığı için
+       yanlış açıklanabilecek bir şey de kalmadı. */
+    'Her sütun, o şubenin o kazanımdaki ortalama başarı yüzdesidir; değer ' +
+    'sütunun üzerinde yazar. Kesikli kırmızı çizgi <b>%55 kritik eşiği</b> ' +
+    'gösterir — altında kalan ölçümler aşağıda ayrıca listelenir.</div>' +
     '<div id="adminHeatmap"></div></div>' + trendHtml();
 
   // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — ısı haritasından
@@ -7819,7 +8224,7 @@ function renderAdmin() {
   wireTeacherAnalytics();
   // Yapay zeka karar gunlugu (denetim izi) — Egitim Yoneticisi gozetim rolu
   // oldugu icin buraya konuldu. Isi haritasindan SONRA eklenir cunku
-  // renderHeatmap innerHTML ile kendi kapsayicisini yaziyor.
+  // renderKazanimGrafigi innerHTML ile kendi kapsayicisini yaziyor.
   root.insertAdjacentHTML("beforeend", auditGunluguHtml());
   wireAudit();
   /* Risk listesi (§28g). Denetim izinin ÜSTÜNE değil altına konuldu ama dışa
@@ -7832,7 +8237,7 @@ function renderAdmin() {
   /* Isı haritası GERÇEK + "(örnek)" satırların ikisini birden gösterir
      (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
      ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
-  renderHeatmap("adminHeatmap", buildAdminHeatmapRows());
+  renderKazanimGrafigi("adminHeatmap", buildAdminHeatmapRows());
 }
 
 /* ===========================================================================
@@ -9299,7 +9704,7 @@ function bosDurumHtml(mesaj) {
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
-    "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderHeatmap",
+    "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderKazanimGrafigi",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
     "bloomDagilimi", "bloomBalanceHtml",
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
@@ -9388,7 +9793,7 @@ function bosDurumHtml(mesaj) {
     "ensureRubric", "mcPuani", "examTrayHtml", "filteredPool", "simProgress", "kriterPuani",
     "allOpensReviewed", "computeDemoClassScores", "gradedExamHistory", "trendOku",
     "teacherHeatmapRows", "flashAutosave", "examCardState", "examActionBtn",
-    "mcAnswerHtml", "openAnswerHtml", "relLuminance", "bestTextColor", "scaleStep",
+    "mcAnswerHtml", "openAnswerHtml", "kazanimGrafigiSvg", "subeRengi", "kazanimKisaAd",
     "buildAdminHeatmapRows", "integrityReset", "integrityNote", "integrityTotal",
     "updateIntegrityBadge", "requestExamFullscreen", "exitExamFullscreen",
     "finishExamModalHtml", "katalogFiltreDurumu", "openModal", "closeModal", "initPanels",
@@ -9400,7 +9805,10 @@ function bosDurumHtml(mesaj) {
     "removeSubject", "dersSec", "dersFormuKaydet", "dersSecicisiHtml",
     "kazanimSecicisiHtml", "wireSecimSekmeleri",
     // Beceri temelli yedek şablonu.
-    "yedekBaglam"
+    "yedekBaglam",
+    /* Keşif Kampüsü — sınıf etiketi ve kazanıma kilitli ders belgesi. */
+    "sinifEtiketi", "materyalBilgisi", "seciliMateryal", "materyalDurumu",
+    "materyalGetir", "materyalHazirla", "materyalSeridiHtml", "materyalDizinYukle"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -9408,7 +9816,7 @@ function bosDurumHtml(mesaj) {
     document.addEventListener("DOMContentLoaded", function () {
       const uyari = document.createElement("div");
       uyari.style.cssText = "position:fixed;bottom:12px;left:12px;right:12px;z-index:9999;padding:12px 16px;" +
-        "border-radius:10px;background:#ae3325;color:#fff;font:600 13px/1.5 system-ui;box-shadow:0 4px 16px rgba(0,0,0,.4)";
+        "border-radius:10px;background:#25489e;color:#fff;font:600 13px/1.5 system-ui;box-shadow:0 4px 16px rgba(0,0,0,.4)";
       uyari.textContent = "Geliştirici uyarısı — eksik fonksiyon: " + eksik.join(", ");
       document.body.appendChild(uyari);
     });

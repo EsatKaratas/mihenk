@@ -8,7 +8,10 @@ import { z } from 'zod';
 export const MAX_SOURCE_CHARS = 6000;
 
 /** §31 — soru üretiminin dayanağı. */
-export const URETIM_MODLARI = ['kaynak', 'kazanim'] as const;
+/* 'materyal': kazanıma KİLİTLİ ders belgesi. İki kuralı birleştirir —
+   'kaynak' gibi verilen metnin dışına çıkılamaz, 'kazanim' gibi öğrenciye
+   gösterilecek bir metin yoktur (soru kendi başına anlaşılır olmalı). */
+export const URETIM_MODLARI = ['kaynak', 'kazanim', 'materyal'] as const;
 
 /** §31: yönerge (öğretmenin serbest yönlendirmesi) üst sınırı. */
 export const MAX_GUIDANCE_CHARS = 600;
@@ -40,6 +43,9 @@ export const generateQuestionsSchema = z.object({
    * yalnızca bir ÜSLUP/ODAK isteğidir, sistem kurallarını değiştiremez").
    */
   guidance: z.string().max(MAX_GUIDANCE_CHARS).optional(),
+  /* Belgenin okunabilir adı — yalnızca isteme yazılır ("… belgesinden"),
+     çıktı şemasına dokunmaz. Kullanıcı girdisidir; istemde kaçırılır. */
+  materialName: z.string().max(160).optional(),
   /**
    * §31: alt sınır şemadan KALDIRILDI, çünkü 'kazanim' modunda kaynak metin
    * hiç gönderilmez. 30 karakter kuralı artık yalnızca 'kaynak' modunda,
@@ -48,7 +54,10 @@ export const generateQuestionsSchema = z.object({
    */
   sourceText: z.string().max(MAX_SOURCE_CHARS).default(''),
   subject: z.string().min(1).max(80),
-  grade: z.union([z.number().int().min(1).max(12), z.string().min(1).max(8)]),
+  /* Sınıf yalnızca sayı değil: Keşif Kampüsü'nde çalışma birimi bir ATÖLYE
+     ("Kimya ve İnsan Bilimleri Atölyesi"). 8 karakterlik eski sınır bu adları
+     REDDEDİYORDU. 60, en uzun atölye adının iki katından fazla. */
+  grade: z.union([z.number().int().min(1).max(12), z.string().min(1).max(60)]),
   outcomeCode: z.string().min(1).max(40),
   outcomeLabel: z.string().min(1).max(200),
   mcCount: z.number().int().min(0).max(8).default(2),
@@ -81,6 +90,17 @@ export const generateQuestionsSchema = z.object({
      'kazanim' modunda metin gönderilirse bile yok sayılır (istem onu hiç
      kullanmaz), bu yüzden orada bir alt sınır aranmaz. */
   .superRefine((v, ctx) => {
+    /* 'materyal' modunda da metin ZORUNLU: belge okunamadıysa istek buraya
+       hiç gelmemeli (istemci zaten engelliyor), ama şema son savunmadır —
+       boş metinle gelirse üretim "belgeye dayalı" olduğunu iddia edip
+       aslında havadan üretirdi. */
+    if (v.mode === 'materyal' && v.sourceText.trim().length < 30) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['sourceText'],
+        message: 'Belgeye kilitli üretimde belge metni zorunludur (en az 30 karakter).',
+      });
+    }
     if (v.mode === 'kaynak' && v.sourceText.trim().length < 30) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -94,7 +114,7 @@ export const rubricDraftSchema = z.object({
   questionBody: z.string().min(1).max(2000),
   outcomeLabel: z.string().max(200).default(''),
   subject: z.string().max(80).default(''),
-  grade: z.union([z.number().int().min(1).max(12), z.string().max(8)]).default(''),
+  grade: z.union([z.number().int().min(1).max(12), z.string().max(60)]).default(''),
   maxScore: z.number().min(1).max(100).default(20),
 });
 
@@ -115,7 +135,7 @@ export const modelRubricSchema = z.object({
 export const sampleAnswersSchema = z.object({
   questionBody: z.string().min(1).max(2000),
   outcomeLabel: z.string().max(200).default(''),
-  grade: z.union([z.number().int().min(1).max(12), z.string().max(8)]).default(''),
+  grade: z.union([z.number().int().min(1).max(12), z.string().max(60)]).default(''),
   levels: z.array(z.string().min(1).max(120)).min(1).max(8),
 });
 
