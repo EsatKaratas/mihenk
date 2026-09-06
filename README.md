@@ -372,14 +372,12 @@ gizlemez:
 yedeğe düşürüldü; istek yine HTTP 200 döndü, puan üretildi, rozet ve
 `meta.fellBack` geçişi doğru bildirdi.
 
-**Yedek 5 Eylül'de değişti — ve neden değiştiği önemli.** Önceki yedek harici
-bir sağlayıcıydı (`openai · gpt-5.6-luna`) ama `AI_FALLBACK_API_KEY` secret'ı
-kurulmamıştı: yani yedek **tanımlıydı, çalışmıyordu**. Kod okununca çözümün
-anahtar satın almak olmadığı görüldü — `fallbackConfigured()` yedek sağlayıcı
-`workers-ai` ise **API anahtarı değil AI binding** arıyor ve binding zaten
-bağlı. Yedek, ekibin kendi 6 modelli karşılaştırmasında birincili geçen tek
-aday olan `llama-4-scout`a alındı; `/api/ai/status` artık `fallbackSorunu: null`
-döndürüyor.
+**Yedek model tahminle seçilmedi.** Ekibin kendi 6 modelli karşılaştırmasında
+birincili geçen tek aday `llama-4-scout` oldu ve yedek ona ayarlandı. Harici bir
+sağlayıcı gerekmiyor: `fallbackConfigured()` yedek sağlayıcı `workers-ai` ise
+API anahtarı değil **AI binding** arar, o da zaten bağlıdır — yani yedek ek bir
+abonelik ya da secret olmadan çalışır. `/api/ai/status` bunu `fallbackSorunu:
+null` ile doğrular (ayrıntısı `PROGRESS.md` §43.1).
 
 > **DÜRÜST SINIR:** iki model de aynı Cloudflare Neuron havuzundan yer. Bu
 > yedek **hesap kotası tükenmesine karşı KORUMAZ**; koruduğu şey modele özgü
@@ -388,12 +386,10 @@ döndürüyor.
 > Hesap dışı gerçek bir emniyet ağı isteyen için `wrangler.demo.jsonc` içinde
 > "SEÇENEK A" yorumlu hazır durur.
 
-> **Neden yedek duruyor:** Workers AI'ın günlük ücretsiz kotası **10.000
-> neuron** ile sınırlı ve ölçülen bir tam değerlendirme turu bunun yaklaşık
-> onda birini kullanıyor. Kota bir engel olmaktan çıktıktan sonra bile yedek
-> **kaldırılmadı** — artık kota için değil, **sağlayıcı kesintisi** sigortası.
-> Jüriye anlatımı basit: *"Tek model kullanıyoruz; ama sağlayıcı çökerse
-> sistem durmuyor."*
+> **Neden yedek duruyor:** Proje **Workers Paid** üzerindedir, yani kota
+> artık bir engel değil. Yedek buna rağmen kaldırılmadı — amacı kota değil,
+> **sağlayıcı kesintisi** sigortası. Tek cümleyle: *"Tek model kullanıyoruz;
+> ama o model çekilir ya da yanıt vermezse sistem durmuyor."*
 >
 > **Ölçme tutarlılığı notu:** İki model aynı yanıta farklı puan verebilir
 > (ölçtük: ortalama ~4 puan fark, ama sıralama ikisinde de doğru). Bu yüzden

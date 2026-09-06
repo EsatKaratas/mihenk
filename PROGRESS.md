@@ -7398,3 +7398,33 @@ kendisi (`tools/ekran-goruntusu-al.mjs`) baştaki yorum bloğunda aynı şeyi
 anlatıyor ve README'nin proje yapısı bölümünde listeli duruyor.
 
 README tabloları yeniden tarandı: **bozuk tablo 0**.
+
+### 50k. §3.1 SADELEŞTİRİLDİ — kaldırılmadı, iki gerçek sorun düzeltildi (6 Eylül 2026)
+
+**Soru (kullanıcı):** *"Burası kaldırılmalı mı?"* — README §3.1, otomatik yedek
+bölümü.
+
+**Karar: KALDIRILMADI.** Bölüm README'nin en güçlü kanıtlarından biridir:
+*"birincil model kasten bozuldu (`@cf/meta/BOZUK-MODEL-TESTI`), istek yine 200
+döndü, rozet ve `meta.fellBack` geçişi bildirdi."* Teknik bir jürinin dayanıklılık
+sorusuna ölçülmüş yanıt verir. `DÜRÜST SINIR` notu da korumadır: "yedek kota
+tükenmesine karşı KORUMAZ" yazılı olduğu için jüri o soruyu sorduğunda fazla
+iddia edilmiş olmaz.
+
+**Ama iki gerçek sorun vardı:**
+
+1. **Paragraf arızayla açılıyordu.** *"Yedek tanımlıydı, çalışmıyordu"* — §50i'de
+   düzeltilen kusurun aynısı, bu kez gövde metninde. Tarihçe vitrine taşınmıştı.
+   Paragraf bugünkü durumla açılacak biçimde yeniden yazıldı; yararlı içgörü
+   (çözüm anahtar satın almak değil kod okumaktı) korundu, tam tarihçe zaten
+   `PROGRESS.md` §43.1'de duruyor.
+
+2. **🔴 BAYAT İDDİA.** Not şöyle açılıyordu: *"Workers AI'ın günlük **ücretsiz**
+   kotası 10.000 neuron ile sınırlı…"* Proje **Workers Paid** üzerindedir (§19).
+   Cümlenin devamı bunu söylüyordu ama açılış yanlış izlenim bırakıyordu — jüri
+   "bunlar ücretsiz kotada mı çalışıyor" diye düşünebilirdi. Not bugünkü
+   gerçekle açılacak şekilde yeniden yazıldı.
+
+Ayrıca artık var olmayan `openai · gpt-5.6-luna` model adına yapılan atıf
+kalktı. `grep` ile doğrulandı: `gpt-5.6-luna` ve "ücretsiz kotası" README'de
+**0 kez** geçiyor.
