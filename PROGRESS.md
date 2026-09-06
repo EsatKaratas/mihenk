@@ -7097,3 +7097,42 @@ konsol hatası         : 0
 ```
 
 Doğrulama: lint temiz · **263/263** · öz-kontrol **336 ad %100**.
+
+### 50c. TURKUAZ → TURUNCU (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Lacivertin sağladığı güveni koruyarak ikinci rengi
+turkuazdan canlı turuncuya çevir. Birinci tercih `#F2994A`."* Gerekçe: palet
+soğuk ve fazla kurumsal duruyordu; eğitim ürünü için sıcak bir ton isteniyor.
+
+**Lacivere dokunulmadı** (`--accent: #0d3db0` aynen duruyor). Çevrilen
+**52 renk değeri**: `app.css` 30 · `mimari.html` 9 · `404.html` 6 ·
+`privacy-policy.html` 6 · `index.html` 1 (giriş dalgası).
+
+#### Tonlar tahminle değil ÖLÇÜLEREK seçildi
+
+`#F2994A` beyaz üstünde **2,23:1** — metin için AA'nın çok altında. Bu yüzden
+rol ayrımı yapıldı:
+
+| Rol | Ton | Ölçüm |
+|---|---|---|
+| Metin taşıyan (`--accent2`, `--warning`) | `#9a5410` | beyazda **5,75** · soft zeminde (`#fdeadb`) **4,92** — ikisi de AA |
+| Yalnızca çizgi/vurgu (`--accent2-line`, `--gk-altin`) | `#F2994A` | lacivert üstünde **4,08** — grafik eşiği 3,0'ın üstünde |
+| Koyu tema `--accent2` | `#F2994A` | koyu yüzeyde **7,77** · koyu zeminde **8,50** |
+| Grafik serileri | `#c26a1c` · `#9a5410` · `#e08a3c` | — |
+
+Eski turkuaz `#0b7169` kendi soft zemininde 5,06 veriyordu; yeni ton 4,92.
+**Düşüş 0,14'tür ve AA eşiğinin (4,5) üstündedir** — gizlenmiyor, yazılıyor.
+
+#### Logo da çevrildi
+
+`public/mihenk-logo.png` içindeki turkuaz elmas ve yıldızlar turuncuya alındı:
+HLS uzayında **hue 150-205° ve doygunluk > 0,20** olan pikseller 28°'ye
+taşındı — 226.240 pikselin **8.041**'i. Lacivert (hue ~215-235°) ve gri/siyah
+koşulun dışında kaldığı için hiç değişmedi. Yedeği alındı.
+
+**Palet yorumlarındaki "marka su yeşili" ifadesi de düzeltildi** — kod
+yorumunun ürünü yalanlaması bu depoda §45.1 ve §48b'de iki kez kusur oldu.
+
+**Canlıda ölçüldü** (Version `71a3b907`): `--accent #0d3db0` (değişmedi) ·
+`--accent2 #9a5410` · `--accent2-line #F2994A` · `--kat-2 #c26a1c` ·
+`--gk-altin #F2994A` · konsol hatası **0** · 263/263 test.

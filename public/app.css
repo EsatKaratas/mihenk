@@ -9,7 +9,7 @@
      Bu palet giriş ekranıyla (bkz. "GİRİŞ KAPISI" bloğu) AYNI beş renkten
      türetildi; panelde ayrı bir renk dünyası kurulmadı:
        mavi    #0d3db0  → ana vurgu, aktif durumlar, birincil düğmeler
-       su yeş. #1ec9b7  → yalnızca ince vurgu çizgileri (küçük metinde ASLA:
+       su yeş. #F2994A  → yalnızca ince vurgu çizgileri (küçük metinde ASLA:
                           mavi üzerinde 4,37:1 — grafik eşiğini (3,0) geçer
                           ama metin eşiğini (4,5) geçmez)
        füme    #6B7177  → ikincil metin
@@ -89,22 +89,22 @@
     --accent: #0d3db0;          /* mavi — ana vurgu */
     --accent-strong: #0a308b;
     --accent-soft: #dfe6fa;
-    /* İkincil vurgu = KOYU su yeşili. Parlak su yeşili (#1ec9b7) burada
-       KULLANILAMAZ: .badge beyaz metin taşıyor ve #1ec9b7 üzerinde yalnızca
+    /* İkincil vurgu = KOYU su yeşili. Parlak su yeşili (#F2994A) burada
+       KULLANILAMAZ: .badge beyaz metin taşıyor ve #F2994A üzerinde yalnızca
        2,08:1 kalır (ölçüldü). Bu koyu ton beyazla 5,87:1 veriyor.
        Parlak ton yalnızca --accent2-line'da.
        Ton seçimi ÖLÇÜLEREK yapıldı: ilk deneme #0c7d74 kendi soft zemininde
-       (#d8f4f0) 4,31:1 kalıyordu — .pill-bloom gibi soft zeminli rozetlerde
+       (#fdeadb) 4,31:1 kalıyordu — .pill-bloom gibi soft zeminli rozetlerde
        AA eşiğinin (4,5) altı. Bu ton aynı zeminde 5,06:1 veriyor.
        (Eski altın palette karşılıkları 4,72:1 ve 5,38:1 idi; yani dönüşüm
        bu iki ölçümü DÜŞÜRMEDİ.) */
-    --accent2: #0b7169;
-    --accent2-soft: #d8f4f0;
-    --accent2-line: #1ec9b7;    /* marka su yeşili — YALNIZCA ince çizgi/vurgu */
+    --accent2: #9a5410;
+    --accent2-soft: #fdeadb;
+    --accent2-line: #F2994A;    /* marka turuncusu — YALNIZCA ince çizgi/vurgu */
     --success: #256b44;
     --success-soft: #deefe4;
-    --warning: #116e69;
-    --warning-soft: #d2f2ef;
+    --warning: #9a5410;
+    --warning-soft: #fdeadb;
     --critical: #2148a8;
     --critical-soft: #d9e2f8;
     /* NÖTR (gri) dolgu — kullanıcı kararı: "baloncuk kutucuklar lacivert
@@ -127,8 +127,8 @@
        arasında dönüşümlü ilerler ki yan yana duran iki sütun asla benzer
        tonda olmasın. Sütunlar büyük dolu alanlar olduğu için WCAG'ın metin
        dışı 3:1 eşiği geçerli; en açık ton (--kat-5) beyaz zeminde 3,1:1. */
-    --kat-1: #0d3db0; --kat-2: #12a094; --kat-3: #4a95d6;
-    --kat-4: #0b7169; --kat-5: #7fb3e8; --kat-6: #2fb3a4;
+    --kat-1: #0d3db0; --kat-2: #c26a1c; --kat-3: #4a95d6;
+    --kat-4: #9a5410; --kat-5: #7fb3e8; --kat-6: #e08a3c;
     /* PALETTEKİ TEK KIRMIZI. Ürün paleti maviye çevrildi, ama kritik eşik
        çizgisi mavi sütunların İÇİNDE kaybolurdu; eşiğin işi tam olarak
        ayrışmak. Yalnızca .kg-esik kullanır. */
@@ -142,13 +142,13 @@
       --bg: #0d1117; --surface: #161b22; --surface-2: #1c232c; --surface-3: #232b36;
       --text: #eef1f6; --text-muted: #a3adba; --border: #2a323d; --border-strong: #3d4753;
       --accent: #72a0f0; --accent-strong: #9fc4ff; --accent-soft: #12203d;
-      --accent2: #1ec9b7; --accent2-soft: #103a36; --accent2-line: #1ec9b7;
-      --success: #4fb488; --success-soft: #163526; --warning: #41c9bf; --warning-soft: #103a36;
+      --accent2: #F2994A; --accent2-soft: #3a2410; --accent2-line: #F2994A;
+      --success: #4fb488; --success-soft: #163526; --warning: #F2994A; --warning-soft: #3a2410;
       --critical: #5c8ce2; --critical-soft: #18243a;
       --neutral: #39414a; --neutral-strong: #45515c; --neutral-soft: #1c232c;
       --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
-      --kat-1: #72a0f0; --kat-2: #2fd3c0; --kat-3: #4a95d6;
-      --kat-4: #12a094; --kat-5: #a9c2f2; --kat-6: #9ae6dc;
+      --kat-1: #72a0f0; --kat-2: #F2994A; --kat-3: #4a95d6;
+      --kat-4: #c26a1c; --kat-5: #a9c2f2; --kat-6: #f7c39a;
       --esik-cizgi: #ff8a80;
       color-scheme: dark;
     }
@@ -159,13 +159,13 @@
     --bg: #0d1117; --surface: #161b22; --surface-2: #1c232c; --surface-3: #232b36;
     --text: #eef1f6; --text-muted: #a3adba; --border: #2a323d; --border-strong: #3d4753;
     --accent: #72a0f0; --accent-strong: #9fc4ff; --accent-soft: #12203d;
-    --accent2: #1ec9b7; --accent2-soft: #103a36; --accent2-line: #1ec9b7;
-    --success: #4fb488; --success-soft: #163526; --warning: #41c9bf; --warning-soft: #103a36;
+    --accent2: #F2994A; --accent2-soft: #3a2410; --accent2-line: #F2994A;
+    --success: #4fb488; --success-soft: #163526; --warning: #F2994A; --warning-soft: #3a2410;
     --critical: #5c8ce2; --critical-soft: #18243a;
     --neutral: #39414a; --neutral-strong: #45515c; --neutral-soft: #1c232c;
     --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
-    --kat-1: #72a0f0; --kat-2: #2fd3c0; --kat-3: #4a95d6;
-    --kat-4: #12a094; --kat-5: #a9c2f2; --kat-6: #9ae6dc;
+    --kat-1: #72a0f0; --kat-2: #F2994A; --kat-3: #4a95d6;
+    --kat-4: #c26a1c; --kat-5: #a9c2f2; --kat-6: #f7c39a;
     --esik-cizgi: #ff8a80;
     color-scheme: dark;
   }
@@ -1558,7 +1558,7 @@
      · #0d3db0 ↔ #f7f7f4 → 8,46:1 (kart başlıkları, buton zemini)
      · #6B7177 ↔ #f7f7f4 → 4,60:1 (açıklama metinleri — AA sınırının üstünde)
      · #FFFFFF ↔ #0d3db0 → 9,08:1 (mavi buton üzerindeki yazı)
-     · #1ec9b7 ↔ #0d3db0 → 4,37:1 → yalnızca İKON ÇİZGİSİ ve ince ayraç
+     · #F2994A ↔ #0d3db0 → 4,37:1 → yalnızca İKON ÇİZGİSİ ve ince ayraç
        olarak kullanılır (grafik eşiği 3,0); küçük metinde KULLANILMAZ.
 
    DEĞİŞKEN ADLARI BİLEREK KORUNDU: aşağıdaki --gk-kirmizi / --gk-altin
@@ -1569,7 +1569,7 @@
 .giris-kapisi {
   --gk-kirmizi: #0d3db0;
   --gk-kirmizi-koyu: #0a308b;
-  --gk-altin: #1ec9b7;
+  --gk-altin: #F2994A;
   --gk-fume: #6B7177;
   --gk-krem: #f7f7f4;
   --gk-beyaz: #FFFFFF;
