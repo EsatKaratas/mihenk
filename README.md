@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-243%2F243-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-263%2F263-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -61,9 +61,15 @@ kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de yazılı
 
 | | |
 |---|---|
+> ⚠️ **Aşağıdaki beş ekran görüntüsü 6 Eylül 2026 · §48b tarihlidir ve BAYATTIR.**
+> Ürün o tarihten sonra krem/bordo paletten mavi/su yeşiline geçti ve kazanım ısı
+> haritasının yerini gruplu sütun grafiği aldı (§49). Görüntüler henüz yenilenmedi;
+> yenilemek için `node tools/ekran-goruntusu-al.mjs` — canlıdan, gerçek model
+> çağrısıyla üretir.
+
 | <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — AI'ın ürettiği soru taslakları, her çeldirici için kavram yanılgısı gerekçesi ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
 | **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
-| <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım ısı haritası ve gerçek/örnek satır ayrımı" width="100%"> |
+| <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım başarı grafiği ve gerçek/örnek satır ayrımı" width="100%"> |
 | **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım ısı haritası ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
 | <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | |
 | **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | |
@@ -425,7 +431,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 243 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 263 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -665,10 +671,10 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **243 test**
-  koşar (`test/guards.test.ts` 102 · `test/schemas.test.ts` 44 ·
-  `test/ai-lib.test.ts` 24 · `test/prompts.test.ts` 23 ·
-  `test/prompts-guvenlik.test.ts` 19 · `test/sayac-ve-yedek.test.ts` 15) —
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **263 test**
+  koşar (`test/guards.test.ts` 105 · `test/prompts.test.ts` 47 · `test/schemas.test.ts` 44 ·
+  `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
+  `test/sayac-ve-yedek.test.ts` 15 · `test/atolye-ve-materyal.test.ts` 9) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
