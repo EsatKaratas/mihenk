@@ -7062,3 +7062,38 @@ Kullanıcı atölyelerin **gerçek müfredatını** gönderecek. Eklenecek yer h
 `VARSAYILAN_KAZANIMLAR` içine `subject: "Keşif Kampüsü", grade: KESIF_SINIFI,
 atolye: "<atölye adı>"` taşıyan kayıtlar eklemek yeterli; belge kilidi
 isteniyorsa `materyal` alanı `DERS_MATERYALLERI` anahtarını gösterir.
+
+### 50b. ATÖLYE KAZANIMLARI BELGELERDEN EKLENDİ (6 Eylül 2026)
+
+Kullanıcı dört ders belgesini gönderdi. Kazanımlar **uydurulmadı**: her biri
+`public/dersler/` altındaki belgenin kendi "KAZANIMLAR" bölümünden alındı.
+7 kazanım eklendi, hepsi `materyal` alanı dolu — yani üretim o belgeye kilitli.
+
+| Atölye | Eklenen |
+|---|---|
+| Kimya ve İnsan Bilimleri | `KK.KIM.1.1` atom · `KK.KIM.1.2` molekül · `KK.KIM.2.1` sıcaklık-hal ilişkisi · `KK.KIM.2.2` günlük hayatta hal değişimi |
+| Kişisel Gelişim | `KK.KGA.1.1` dikkat · `KK.KGA.1.2` estetik değerler · `KK.KGA.2.1` beden dili |
+| Fizik | eklenmedi — `kuvvet.txt` ve `surtunme-kuvveti.txt` belgelerinde "KAZANIMLAR" başlığı **yok** |
+
+#### 🔴 İKİNCİ GÖÇ — yazılmasaydı yeni kazanımlar HİÇ GÖRÜNMEZDİ
+
+`OUTCOMES_LIST()` kayıtlı liste doluysa `VARSAYILAN_KAZANIMLAR`'a hiç bakmaz.
+Sürümle gelen yeni kazanımlar bu yüzden **siteyi daha önce açmış hiçbir
+tarayıcıda görünmeyecekti** — kullanıcı "Sıfırla" demedikçe. Jüri demosunda
+tam olarak bu yaşanırdı. `loadState()`'e ekleme göçü yazıldı.
+
+**Yalnızca EKLER:** kullanıcının kendi yazdığı kazanımlara dokunmaz; sildiği
+bir kazanımı geri getirmemek için yalnızca kodu listede **hiç** bulunmayanlar
+eklenir.
+
+**Canlıda eski kayıtlı durumla ölçüldü** (Version `96e96005`):
+
+```
+Keşif kazanımı toplam : 14   (Kimya 6 · Kişisel Gelişim 6 · Fizik 2)
+yeni kodların hepsi   : geldi
+belge kilidi olan     : 14/14
+tekrar eden kod       : 0
+konsol hatası         : 0
+```
+
+Doğrulama: lint temiz · **263/263** · öz-kontrol **336 ad %100**.

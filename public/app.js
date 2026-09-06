@@ -74,6 +74,33 @@ const VARSAYILAN_KAZANIMLAR = [
     subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
     materyal: "sinirlar" },
 
+  /* Atölyelerin KENDİ ders belgelerinden çıkarılan kazanımlar (kullanıcı
+     belgeleri gönderdi, §50b). Metinleri uydurulmadı: her biri
+     `public/dersler/` altındaki ilgili belgenin "KAZANIMLAR" bölümünden
+     alındı. `materyal` alanı dolu olduğu için üretim o belgeye KİLİTLİDİR. */
+  { code: "KK.KIM.1.1", label: "KK.KIM.1.1 — Atom kavramını ifade eder",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-tanecikli-yapisi" },
+  { code: "KK.KIM.1.2", label: "KK.KIM.1.2 — Molekül kavramını modeller",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-tanecikli-yapisi" },
+  { code: "KK.KIM.2.1", label: "KK.KIM.2.1 — Sıcaklık ile maddenin halleri arasındaki ilişkiyi açıklar",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-hal-degisimi" },
+  { code: "KK.KIM.2.2", label: "KK.KIM.2.2 — Günlük hayattaki hal değişimlerini yorumlar",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kimya ve İnsan Bilimleri Atölyesi",
+    materyal: "maddenin-hal-degisimi" },
+
+  { code: "KK.KGA.1.1", label: "KK.KGA.1.1 — Nesne, durum ve olaya dikkatini verir",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
+    materyal: "dogaya-saygi" },
+  { code: "KK.KGA.1.2", label: "KK.KGA.1.2 — Estetik değerleri korur",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
+    materyal: "dogaya-saygi" },
+  { code: "KK.KGA.2.1", label: "KK.KGA.2.1 — Beden dilinden bilgi aktarımını ayırt eder",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
+    materyal: "beden-dili" },
+
   { code: "KK.FIZ.1", label: "KK.FIZ.1 — Kuvvet",
     subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
     materyal: "kuvvet" },
@@ -1082,6 +1109,22 @@ function loadState() {
     }
     /* Alan sonradan eklendi; eski kayıtta hiç yok. */
     if (state.ceForm && !state.ceForm.atolye) state.ceForm.atolye = ATOLYELER[0];
+
+    /* ---- YENİ VARSAYILAN KAZANIMLAR KAYITLI DURUMA EKLENİR (§50b) ---------
+       `OUTCOMES_LIST()` kayıtlı liste doluysa VARSAYILAN_KAZANIMLAR'a hiç
+       bakmaz. Yani sürümle gelen yeni kazanımlar, siteyi daha önce açmış
+       hiçbir tarayıcıda görünmezdi — kullanıcı "Sıfırla" demedikçe. Jüri
+       demosunda tam olarak bu yaşanırdı.
+       YALNIZCA EKLER: kullanıcının kendi yazdığı kazanımlara dokunmaz,
+       sildiği bir kazanımı da geri getirmemek için yalnızca `code`'u listede
+       HİÇ bulunmayanlar eklenir. */
+    if (Array.isArray(state.outcomes) && state.outcomes.length) {
+      const mevcut = {};
+      state.outcomes.forEach(function (o) { if (o && o.code) mevcut[o.code] = true; });
+      VARSAYILAN_KAZANIMLAR.forEach(function (o) {
+        if (!mevcut[o.code]) state.outcomes.push(Object.assign({}, o));
+      });
+    }
     // Süresi dolmuş bir sınavı yarım bırakmayalım.
     if (state.examStatus === "in_progress" && state.remainingSec <= 0) state.examStatus = "submitted";
     // PDF okuma sırasında sayfa yenilenirse buton sonsuza dek kilitli kalırdı.
