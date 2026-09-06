@@ -7205,3 +7205,56 @@ geri dönüş: "Türkçe" sekmesi -> sınıf 7 · Keşif alanı YOK   (birleşim
 ```
 
 Konsol hatası **0** · 263/263 · öz-kontrol 336 ad %100.
+
+### 50f. KEŞİF ALANI SINIFLA AYNI DESENE GETİRİLDİ + FİZİK KAZANIMLARI (6 Eylül 2026)
+
+**İstek (kullanıcı, işaretli ekran görüntüsüyle):** *"Eskiye al, bu sınıf aynı
+kalacak. İşaretlediğim kısmı da sınıf gibi yapacaksın, atölyeleri
+seçebileceğimiz gibi. Ve attığım şeyden müfredatları ekleyeceksin."*
+
+#### Önce GERİ ALINDI
+
+Ara denemede Sınıf `<select>`'i Ders gibi çip satırına çevrilmişti. Kullanıcı
+bunu istemedi. `git checkout -- public/app.js public/app.css` ile `d49b59f`'e
+dönüldü — **hiç commit edilmemişti**, geçmişte iz bırakmadı. Sınıf açılır
+liste olarak aynen duruyor.
+
+#### Keşif alanı Sınıfla aynı desende
+
+Atölye çipleri `<label> + <select id="ceAtolye">` oldu; Sınıf alanının birebir
+aynı deseni. Yeri değişmedi (Sınıf ile Şube arasında) ve yalnızca Keşif
+seçiliyken çizilir. Seçenek metnine kazanım sayısı yazıldı — kullanıcı listeyi
+açmadan hangi atölyenin dolu olduğunu göremiyordu.
+
+`onchange` bağı **koşullu**: alan yalnızca Keşif'te çizildiği için düğüm
+olmayabilir; koşulsuz `getElementById(...).onchange` diğer sınıflarda
+TypeError verirdi.
+
+#### Fizik kazanımları eklendi — kaynak ayrımı yazıldı
+
+§50b'de Fizik atölyesi boş bırakılmıştı ("belgede KAZANIMLAR başlığı yok").
+Belgeler yeniden okundu ve **bu eksik giderildi**:
+
+| Kazanım | Kaynak |
+|---|---|
+| `KK.FIZ.2.1` sürtünme kuvvetini bilir, örnek verir | `surtunme-kuvveti.txt` → **"Kazanım:" satırının kendisi** |
+| `KK.FIZ.2.2` sürtünmenin harekete etkisini deneyerek keşfeder | aynı belge, ikinci satır |
+| `KK.FIZ.1.1` kuvveti tanımlar, etkilerini örneklendirir | `kuvvet.txt` → **TÜRETİLDİ** ("KAVRAMLAR" + "KUVVETİN ETKİLERİ NELERDİR?") |
+| `KK.FIZ.1.2` temas gerektiren/gerektirmeyen kuvvetleri ayırt eder | aynı, **türetildi** |
+
+Ayrım kodun içine de yazıldı: ikisi alıntı, ikisi türetme. Birebir alıntı
+olmayanı alıntı gibi göstermek bu depoda yasak.
+
+**Canlıda ölçüldü** (Version `712f8b0c`):
+
+```
+Keşif alanı türü        : SELECT   (Sınıf da SELECT — desen aynı)
+Sınıf seçenekleri       : 5. sınıf · 6. sınıf · 7. sınıf · 8. sınıf · Keşif
+Keşif seçenekleri       : Kimya (6 kazanım) · Kişisel Gelişim (6) · Fizik (6)
+alan sırası             : Ders · Başlık · Sınıf · Keşif · Şube · Konu ve Kazanım
+Fizik'i seçince kazanım : 6 -> 2 süzüldü (ekleme öncesi ölçüm)
+toplam Keşif kazanımı   : 18 · hepsi belge kilitli · tekrar eden kod 0
+konsol hatası           : 0
+```
+
+263/263 · lint temiz · öz-kontrol 336 ad %100.

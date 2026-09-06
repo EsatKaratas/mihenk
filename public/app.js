@@ -102,6 +102,24 @@ const VARSAYILAN_KAZANIMLAR = [
     subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Kişisel Gelişim Atölyesi",
     materyal: "beden-dili" },
 
+  /* Fizik Atölyesi kazanımları (§50f). KAYNAK AYRIMI dürüstçe yazılıyor:
+     KK.FIZ.2.x ikisi `surtunme-kuvveti.txt`'deki "Kazanım:" satırlarının
+     KENDİSİDİR. KK.FIZ.1.x ikisi ise o belgede "KAZANIMLAR" başlığı
+     olmadığı için belgenin "KAVRAMLAR" satırından ve "KUVVETİN ETKİLERİ
+     NELERDİR?" bölümünden TÜRETİLDİ — birebir alıntı değildir. */
+  { code: "KK.FIZ.1.1", label: "KK.FIZ.1.1 — Kuvveti tanımlar ve etkilerini örneklendirir",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
+    materyal: "kuvvet" },
+  { code: "KK.FIZ.1.2", label: "KK.FIZ.1.2 — Temas gerektiren ve gerektirmeyen kuvvetleri ayırt eder",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
+    materyal: "kuvvet" },
+  { code: "KK.FIZ.2.1", label: "KK.FIZ.2.1 — Sürtünme kuvvetini bilir ve günlük yaşamdan örnekler verir",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
+    materyal: "surtunme-kuvveti" },
+  { code: "KK.FIZ.2.2", label: "KK.FIZ.2.2 — Sürtünme kuvvetinin harekete etkisini deneyerek keşfeder",
+    subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
+    materyal: "surtunme-kuvveti" },
+
   { code: "KK.FIZ.1", label: "KK.FIZ.1 — Kuvvet",
     subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
     materyal: "kuvvet" },
@@ -2358,27 +2376,27 @@ function dersSecicisiHtml() {
  * kullanıldıkça büyür — katalog tasarım kararının aynısı.
  */
 /**
- * ATÖLYE SEÇİCİSİ — yalnızca sınıf "Keşif" iken çizilir.
- * Atölye bir sınıf düzeyi değil, Keşif müfredatının çalışma birimidir; bu
- * yüzden sınıf açılır listesinde değil, kazanımın hemen üstünde durur.
- * Kazanım listesini süzer (bkz. outcomeUyar).
+ * KEŞİF SEÇİCİSİ — Sınıf alanıyla AYNI desen (kullanıcı isteği, §50f):
+ * <label> + <select>. Sınıf çipe çevrilmedi, olduğu gibi duruyor; bu alan da
+ * ona benzesin diye açılır liste yapıldı. Sınıf ile Şube arasında durur ve
+ * yalnızca Keşif seçiliyken çizilir. Kazanım listesini süzer (outcomeUyar).
  */
 function atolyeSecicisiHtml() {
   if (String(state.ceForm.grade) !== KESIF_SINIFI &&
       state.ceForm.subject !== KESIF_DERSI) return "";
   const secili = state.ceForm.atolye;
-  const sekmeler = ATOLYELER.map(function (a) {
+  const secenekler = ATOLYELER.map(function (a) {
+    /* Kaç kazanımı olduğu seçenek metnine yazılır: kullanıcı listeyi açmadan
+       hangi atölyenin dolu olduğunu göremiyordu. */
     const kazanimSayisi = OUTCOMES_LIST().filter(function (o) {
       return o.atolye === a;
     }).length;
-    return '<span class="chip-tab' + (a === secili ? " active" : "") + '">' +
-      '<button type="button" class="chip-ad" data-atolye="' + escapeHtml(a) + '"' +
-      (a === secili ? ' aria-current="true"' : "") +
-      ' title="' + escapeHtml(a) + ' atölyesine geç">' + escapeHtml(a) +
-      ' <span class="chip-not">' + kazanimSayisi + " kazanım</span></button></span>";
+    return '<option value="' + escapeHtml(a) + '"' +
+      (a === secili ? " selected" : "") + ">" +
+      escapeHtml(a) + " (" + kazanimSayisi + " kazanım)</option>";
   }).join("");
-  return '<div class="field field-atolye"><label>Keşif</label>' +
-    '<div class="chip-tabs" id="ceAtolyeTabs">' + sekmeler + "</div>" +
+  return '<div class="field field-atolye"><label for="ceAtolye">Keşif</label>' +
+    '<select id="ceAtolye">' + secenekler + "</select>" +
     '<div class="field-note">Keşif müfredatı atölyelere ayrılır — atölye bir ' +
     "sınıf düzeyi değildir. Seçtiğiniz atölye aşağıdaki kazanım listesini süzer." +
     "</div></div>";
@@ -2493,10 +2511,10 @@ function wireSecimSekmeleri() {
     state.newSubject = { open: false, ad: "", error: "" }; renderAll();
   };
 
-  /* ---- Atölye sekmeleri (yalnızca Keşif sınıfında çizilir) ---- */
-  kok.querySelectorAll("[data-atolye]").forEach(function (el) {
-    el.onclick = function () { atolyeSec(el.dataset.atolye); };
-  });
+  /* ---- Keşif (atölye) seçicisi — yalnızca Keşif'te çizilir, düğüm
+         olmayabilir; koşulsuz erişim TypeError verirdi. ---- */
+  const atolyeSecici = document.getElementById("ceAtolye");
+  if (atolyeSecici) atolyeSecici.onchange = function (e) { atolyeSec(e.target.value); };
 
   /* ---- Kazanım sekmeleri ---- */
   kok.querySelectorAll("[data-kazanim]").forEach(function (el) {
