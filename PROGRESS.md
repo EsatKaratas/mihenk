@@ -7384,3 +7384,17 @@ Beş belgedeki **179 markdown tablosu** ayırıcı satırlarından tarandı; ba�
 ya da satırsız **bozuk tablo 0** (§50h'deki kusurun tekrarı yok). §9'daki hız
 sınırı maddesi kaldırılmış `/api/sync/*` ucuna atıf yapıyor ama **tarihli ve
 doğru** bir tarihçe cümlesidir — bayat iddia değil, dokunulmadı.
+
+### 50j. EKRAN GÖRÜNTÜSÜ KÖKEN NOTU DA KALDIRILDI (6 Eylül 2026)
+
+**İstek (kullanıcı):** *"Buradaki uyarıyı da kaldır."*
+
+Görüntü tablosunun altındaki *"Bu görüntüler elle alınmadı…"* alıntı bloğu
+kaldırıldı. Bilgi ürünle çelişmiyordu, yalnızca vitrini kalabalıklaştırıyordu.
+
+**Kaybolan bilgi yok:** görüntülerin canlıdan ve gerçek model çağrısıyla
+üretildiği `PROGRESS.md` §45.1, §48b.4, §50g ve §50h'de kayıtlı; betiğin
+kendisi (`tools/ekran-goruntusu-al.mjs`) baştaki yorum bloğunda aynı şeyi
+anlatıyor ve README'nin proje yapısı bölümünde listeli duruyor.
+
+README tabloları yeniden tarandı: **bozuk tablo 0**.

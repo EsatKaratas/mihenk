@@ -78,12 +78,6 @@ düğmeye basıldıktan sonra gelir. Kimlik doğrulama yoktur, rol bir seçimdir
 | <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | |
 | **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | |
 
-> Bu görüntüler elle alınmadı: [`tools/ekran-goruntusu-al.mjs`](./tools/ekran-goruntusu-al.mjs)
-> **canlı sistemi** açar, sınavı yayınlar, öğrenciyi sınava sokar, **modeli
-> gerçekten çağırır**, öğretmen onayını verir ve her paneli sırayla kırpar.
-> Sahne kurgulanmıyor; bu yüzden görüntüler ürünle bir daha ayrışmaz.
-> Yeniden üretmek için: `node tools/ekran-goruntusu-al.mjs`
-
 ### İçindekiler
 
 **Hızlı erişim:** [Neden farklı](#neden-bu-proje-farklı) · [Uçtan uca akış](#uçtan-uca-akış) · [Ölçülen değerler](#canlıda-ölçülen-değerler) · [**Hemen deneyin**](#hemen-deneyin) · [Güvenlik](#111-güvenlik--prompt-injectiona-karşı-sertleştirme)
