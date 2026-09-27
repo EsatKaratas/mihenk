@@ -426,3 +426,94 @@ büyük olur.
 
 **Sayılar tutmuyorsa DUR ve Esat'a sor.** Bu projede doğrulanmamış varsayımla
 ilerlemenin bedeli defalarca ödendi.
+
+
+---
+
+## 10. Bağımlı dosya/klasörler — tam yollar
+
+> Yollar **eski PC'ye göre** (`C:\Users\pc\...`) yazıldı. Yeni PC'de kullanıcı
+> klasörü farklı olacak (muhtemelen `C:\Users\karat`); dönüşümü yeni asistan
+> yapacak.
+
+### 🟢 ASIL ÇALIŞMA KOPYASI — bunu kullan
+
+```
+C:\Users\pc\Downloads\mihenk-final
+```
+
+- Dal `main`, **HEAD `489bf81` = `origin/main`**, çalışma ağacı temiz
+- Takip edilmeyen dosya **0**, kayıp riski taşıyan yok sayılmış dosya **0**
+- Uzak: `https://github.com/EsatKaratas/mihenk.git`
+- Flash'tan kopyalamak yerine `git clone` daha temiz (flash kopyasında
+  `node_modules` yok, zaten `npm install` gerekiyor).
+
+### 🔴 ESKİ KOPYA — KULLANMA
+
+```
+C:\Users\pc\t3-olcme-degerlendirme
+```
+
+- Dal `main`, HEAD **`81c7a03`**, son commit **3 Eylül 21:18** — asıl kopyadan
+  **3,5 hafta geride**
+- **Aynı depoya bağlı** (`EsatKaratas/mihenk.git`), ama yalnızca eski bir
+  checkout. Ölçüldü: `81c7a03` origin/main geçmişinin **içinde**, benzersiz
+  commit **0**, takip edilmeyen dosya **0**, sır dosyası **yok**.
+- **Sonuç: bu klasörde GitHub'da olmayan hiçbir şey yok. Güvenle silinebilir.**
+- ⚠️ Yeni PC'ye taşınırsa tek etkisi karışıklık olur — §2'deki tuzağa bak.
+
+### Destek klasörleri ve dosyalar
+
+| Tam yol | Ne | Taşınır mı |
+|---|---|---|
+| `C:\Users\pc\Downloads\mihenk-final\node_modules` | Bağımlılıklar | **Hayır** — `npm install` ile kurulur |
+| `C:\Users\pc\Downloads\mihenk-final\.wrangler` | Yerel dev önbelleği | **Hayır** — yeniden oluşur |
+| `C:\Users\pc\Downloads\mihenk-final\docs\ekran\` | 6 ekran görüntüsü + 2 mimari diyagram | Depoda, `clone` ile gelir |
+| `C:\Users\pc\Downloads\mihenk-final\public\dersler\` | Keşif Kampüsü ders belgeleri (6 txt + 1 pdf) | Depoda, gelir |
+| `C:\Users\pc\Downloads\mihenk-final\public\mufredat\` | 606 MEB öğrenme çıktısı, 12 JSON | Depoda, gelir |
+| `C:\Users\pc\Downloads\mihenk-final\seed\turkishmmlu\` | Lisanslı veri türevleri — **`.gitignore`'da, depoda YOK** | Diskte varsa elle taşınmalı; canlı demo bunu kullanmıyor |
+| `C:\Users\pc\.wrangler` | **Cloudflare oturumu / kimliği** | **Hayır** — yeni PC'de `npx wrangler login` şart |
+| `C:\Users\pc\.claude\launch.json` | Dev sunucu girdileri | ⚠️ Aşağıya bak |
+| `C:\Users\pc\.claude\projects\C--Users-pc\memory\t3-creathon-problem2.md` | Claude hafıza notu | `_TASIMA\Claude\` ile taşınıyor |
+| `E:\_TASIMA\Projeler\Downloads\mihenk-final` | Flash yedeği (asıl kopya) | — |
+| `E:\_TASIMA\Projeler\t3-olcme-degerlendirme` | Flash yedeği (eski kopya) | — |
+
+### ⚠️ `launch.json` tuzağı — yeni PC'de mutlaka düzelt
+
+`C:\Users\pc\.claude\launch.json` içindeki **`t3-olcme-demo`** girdisi **eski
+kopyayı** `8787`'de başlatır ve **bayat dosya sunar**. Bu, projede defalarca
+yanlış ölçüme yol açtı. Doğru girdi **`mihenk-final`**, port **8788**. Yeni
+PC'de ya eski girdiyi sil ya da yolunu düzelt.
+
+### Sırlar — yalnızca nerede durdukları
+
+- Bu projede **`.dev.vars` / `.env` / `anahtar.txt` dosyası YOK.** Diskte
+  yalnızca `.dev.vars.example` var ve o bir **yer tutucudur** (depoda takipli,
+  içinde gerçek değer yok).
+- Gerçek sırlar **Cloudflare'de** durur, `wrangler secret put` ile konur.
+  **Bu raporda hiçbir anahtar, şifre veya token yoktur.**
+- Depo geçmişinin tamamı 6 Eylül'de tarandı: anahtar deseni (`sk-`, `Bearer`,
+  `ghp_`, `AKIA`, `xox*`, PRIVATE KEY) **0 eşleşme** (PROGRESS §50l).
+- `wrangler.jsonc` içindeki D1 `database_id` bir sır değildir: kullanmak için
+  Cloudflare hesap kimlik doğrulaması gerekir ve o veritabanı zaten bağlı değil.
+
+### Canlı ortam ve dağıtım
+
+| | |
+|---|---|
+| Canlı adres | `https://mihenk.bies.workers.dev` |
+| Son dağıtım | 6 Eylül 2026, Version `518cdeb7` — o tarihten sonra deploy yok |
+| Dağıtım komutu | `npm run deploy:demo` → `wrangler.demo.jsonc` |
+| ⚠️ Uyarı | **Canlı adresin üzerine yazar**, ayrı bir demo adresi açmaz. Önce izin iste. |
+| `npm run deploy` | `wrangler.jsonc` üretim hedefi — **ücretsiz planda Queues yüzünden kırılır** |
+| Hesap | Cloudflare **Workers Paid**; abonelik 26 Eylül'de yenilendi, 27 Eylül'de canlı ayakta doğrulandı |
+| Yeni PC ön koşulu | `npx wrangler login` (oturum `C:\Users\pc\.wrangler`'da, taşınmaz) |
+| Yerel dev | `npm run dev:demo` → port **8788** |
+
+### Yeni PC'de kurulum
+
+```bash
+git clone https://github.com/EsatKaratas/mihenk.git
+cd mihenk
+npm install
+```
