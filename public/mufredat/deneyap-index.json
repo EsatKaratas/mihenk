@@ -1,0 +1,177 @@
+{
+ "ders": "Deneyap Atölyeleri",
+ "sinif": "Deneyap",
+ "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+ "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
+ "toplamKazanim": 622,
+ "atolyeler": [
+  {
+   "ad": "Tasarım ve Üretim",
+   "kod": "TU",
+   "dosya": "/mufredat/deneyap-tasarim-uretim.json",
+   "kitapNo": 1,
+   "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+   "isbn": "978-605-312-437-5",
+   "kazanimSayisi": 60,
+   "uygunluk": {
+    "yazili": 16,
+    "performans": 25,
+    "surec": 19
+   }
+  },
+  {
+   "ad": "Yazılım Teknolojileri",
+   "kod": "YT",
+   "dosya": "/mufredat/deneyap-yazilim-teknolojileri.json",
+   "kitapNo": 7,
+   "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+   "isbn": "978-605-312-442-9",
+   "kazanimSayisi": 50,
+   "uygunluk": {
+    "yazili": 20,
+    "performans": 30,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Siber Güvenlik",
+   "kod": "SG",
+   "dosya": "/mufredat/deneyap-siber-guvenlik.json",
+   "kitapNo": 9,
+   "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+   "isbn": "978-605-312-481-8",
+   "kazanimSayisi": 41,
+   "uygunluk": {
+    "yazili": 22,
+    "performans": 19,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Enerji Teknolojileri",
+   "kod": "EN",
+   "dosya": "/mufredat/deneyap-enerji-teknolojileri.json",
+   "kitapNo": 11,
+   "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+   "isbn": "978-605-312-496-2",
+   "kazanimSayisi": 46,
+   "uygunluk": {
+    "yazili": 28,
+    "performans": 18,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Yapay Zekâ",
+   "kod": "YZ",
+   "dosya": "/mufredat/deneyap-yapay-zeka.json",
+   "kitapNo": 13,
+   "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+   "isbn": "978-605-312-517-4",
+   "kazanimSayisi": 66,
+   "uygunluk": {
+    "yazili": 25,
+    "performans": 41,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Mobil Uygulama",
+   "kod": "MU",
+   "dosya": "/mufredat/deneyap-mobil-uygulama.json",
+   "kitapNo": 16,
+   "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+   "isbn": "978-605-312-530-3",
+   "kazanimSayisi": 48,
+   "uygunluk": {
+    "yazili": 24,
+    "performans": 24,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Çevrim İçi Yazılım Teknolojileri",
+   "kod": "CY",
+   "dosya": "/mufredat/deneyap-cevrim-ici-yazilim.json",
+   "kitapNo": 18,
+   "kitap": "TÜBİTAK Deneyap Kitapları 18 — Çevrim İçi Yazılım Teknolojileri (Ortaokul)",
+   "isbn": "978-605-312-532-7",
+   "kazanimSayisi": 53,
+   "uygunluk": {
+    "yazili": 29,
+    "performans": 24,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Robotik ve Kodlama",
+   "kod": "RK",
+   "dosya": "/mufredat/deneyap-robotik-kodlama.json",
+   "kitapNo": 19,
+   "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+   "isbn": "978-605-312-535-8",
+   "kazanimSayisi": 55,
+   "uygunluk": {
+    "yazili": 13,
+    "performans": 42,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "kod": "EP",
+   "dosya": "/mufredat/deneyap-epni.json",
+   "kitapNo": 21,
+   "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+   "isbn": "978-605-312-537-2",
+   "kazanimSayisi": 67,
+   "uygunluk": {
+    "yazili": 13,
+    "performans": 54,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "İleri Robotik",
+   "kod": "IR",
+   "dosya": "/mufredat/deneyap-ileri-robotik.json",
+   "kitapNo": 23,
+   "kitap": "TÜBİTAK Deneyap Kitapları 23 — İleri Robotik (Ortaokul)",
+   "isbn": "978-605-312-545-7",
+   "kazanimSayisi": 27,
+   "uygunluk": {
+    "yazili": 6,
+    "performans": 21,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Havacılık ve Uzay",
+   "kod": "HU",
+   "dosya": "/mufredat/deneyap-havacilik-uzay.json",
+   "kitapNo": 25,
+   "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+   "isbn": "978-605-312-550-1",
+   "kazanimSayisi": 61,
+   "uygunluk": {
+    "yazili": 34,
+    "performans": 27,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Malzeme Bilimi ve Nanoteknoloji",
+   "kod": "MB",
+   "dosya": "/mufredat/deneyap-malzeme-nanoteknoloji.json",
+   "kitapNo": 27,
+   "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+   "isbn": "978-605-312-607-2",
+   "kazanimSayisi": 48,
+   "uygunluk": {
+    "yazili": 42,
+    "performans": 6,
+    "surec": 0
+   }
+  }
+ ]
+}

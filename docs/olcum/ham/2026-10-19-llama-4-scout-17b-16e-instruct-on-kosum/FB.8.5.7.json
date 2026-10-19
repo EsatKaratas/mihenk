@@ -1,0 +1,135 @@
+{
+  "zaman": "2026-10-19T04:35:47.124Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 29894,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir asit çözeltisi hazırlamıştır. Aynı öğrenci, pH değeri 5 olan başka bir asit çözeltisi de hazırlamıştır. pH değerleri verilen bu iki çözeltinin asitlik durumunu karşılaştırınız. Buna göre, hangi çözeltinin daha asidik olduğunu söyleyebilirsiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "pH değerleri aynıdır"
+          },
+          {
+            "key": "B",
+            "text": "pH değeri 3 olan çözelti daha asidiktir"
+          },
+          {
+            "key": "C",
+            "text": "pH değeri 5 olan çözelti daha asidiktir"
+          },
+          {
+            "key": "D",
+            "text": "Her iki çözelti de aynı derecede asidiktir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerlerinin eşit olduğunu düşünüyor",
+          "C": "PH değeri yüksek olan çözeltinin daha asidik olduğunu düşünüyor",
+          "D": "PH değerleri arasındaki farkı anlamıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik durumu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sulama kanalının pH değeri 6 olarak ölçülmüştür. Bu kanalın suyu, bitkiler için uygun bir sulama suyu mudur? Aşağıdaki pH değerleri ile ilgili yorumlardan hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hayır, pH 6 çok düşük, bitkiler için zararlıdır"
+          },
+          {
+            "key": "B",
+            "text": "Evet, pH 7 nötrdür, 6 ise hafif asidik olup bitkilere zarar vermez"
+          },
+          {
+            "key": "C",
+            "text": "Hayır, pH 6 çok yüksek, bitkiler için uygun değildir"
+          },
+          {
+            "key": "D",
+            "text": "Evet, pH 6 idealdir, tüm bitkiler için en uygunudur"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerinin düşük olduğunu düşünerek bitkiler için zararlı sonucuna varıyor",
+          "C": "PH değerinin yüksek olduğunu düşünerek bitkiler için uygun olmadığını söylüyor",
+          "D": "PH 6'nın tüm bitkiler için ideal olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "sulama suyu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir kimya öğretmeni, sınıfındaki öğrencilerden pH değerleri 4, 7 ve 9 olan üç farklı çözelti hazırlamalarını istemiştir. Öğretmen, öğrencilerden bu çözeltilerin asitlik veya bazlık durumlarını açıklamalarını ve hangi çözeltinin en asidik olduğunu belirtmelerini istemiştir. Siz bu çözeltilerin asitlik veya bazlık durumlarını nasıl açıklayabilirsiniz ve hangi çözeltinin en asidik olduğunu neden düşünüyorsunuz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik durumu",
+          "açıklama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

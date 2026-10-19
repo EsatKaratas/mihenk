@@ -1,0 +1,134 @@
+{
+  "zaman": "2026-10-19T04:33:44.277Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-FB.5.5.3"
+  },
+  "http": 200,
+  "sureMs": 24457,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, 20°C'de bir bardak ılık su (200 mL) ve 50°C'de bir bardak sıcak çay (200 mL) hazırlıyor. Daha sonra bu iki bardağı bir büyük bardağa boşaltıyor. Karışımın sıcaklığı kaç derece olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "55°C"
+          },
+          {
+            "key": "B",
+            "text": "45°C"
+          },
+          {
+            "key": "C",
+            "text": "40°C"
+          },
+          {
+            "key": "D",
+            "text": "35°C"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece sıcak çayın sıcaklığını dikkate aldı",
+          "B": "Sıcak olanın daha fazla etki ettiğini düşünerek yanlış ağırlıklı ortalama yaptı",
+          "C": "Sıcaklıkların ortalamasını aldı, fakat ısı transferini dikkate almadı"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, eşit hacimli ve farklı sıcaklıklardaki iki sıvıyı karıştırdığında, ısı alışverişi sonucu karışımın sıcaklığının değiştiğini gözlemliyor. Bu durumdan yola çıkarak hangi bilimsel çıkarımı yapabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Isı alışverişi sonucu enerji transferi olur"
+          },
+          {
+            "key": "B",
+            "text": "Sıvıların yoğunlukları farklıdır"
+          },
+          {
+            "key": "C",
+            "text": "Sıvıların sıcaklıkları farklıdır"
+          },
+          {
+            "key": "D",
+            "text": "Karışımın hacmi değişmez"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Isı alışverişi yerine yoğunluk farkı üzerinde durdu",
+          "C": "Karışımın sıcaklığının değişmesi yerine başlangıç sıcaklıklarını dikkate aldı",
+          "D": "Hacmin değişmemesi yerine ısı alışverişinin sonucunu gözardı etti"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "enerji transferi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Elif, 10°C'de bir bardak su ve 80°C'de bir bardak çay hazırlıyor. Bu iki bardağı karıştırdığında, karışımın sıcaklığı 40°C oluyor. Elif bu deneyden yola çıkarak hangi sonucu çıkarabilir ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık değişimi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

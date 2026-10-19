@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:34:46.688Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 17616,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe sulama sistemi, sulama suyu olarak pH değeri 6,5 olan bir kaynağından yararlanmaktadır. Bu suyun asitlik veya bazlık durumunu değerlendirmek için, pH değeri 7 olan suya göre nasıl bir karşılaştırma yapılır? Bu suyun pH değeri 7'den düşük olduğu için, bu su asidik midir? Bu suyun asitlik veya bazlık durumunu aşağıdaki seçeneklerden hangisi doğru olarak tanımlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu su baziktir çünkü pH değeri 7'den yüksek"
+          },
+          {
+            "key": "B",
+            "text": "Bu su asidiktir çünkü pH değeri 7'den düşüktür"
+          },
+          {
+            "key": "C",
+            "text": "Bu su nötrdür çünkü pH değeri 7'ye yakındır"
+          },
+          {
+            "key": "D",
+            "text": "Bu suyun asitlik veya bazlık durumu belirlenemez"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değeri 7'den yüksek olan suyun bazik olduğunu, 7'den düşük olan suyun asidik olduğunu karıştırıyor.",
+          "C": "PH değeri 7'ye yakın olan suyun nötr olduğunu sanıyor, oysa pH değeri 7'den düşükse asidiktir.",
+          "D": "PH değeri verilen bir suyun asitlik veya bazlık durumunu belirleyemiyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar çalışmasında, bir çözeltinin pH değeri 8,2 olarak ölçülmüştür. Bu çözelti hangi tür bir çözeltidir? Aşağıdaki seçeneklerden hangisi bu çözeltinin türünü doğru olarak tanımlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Asidik bir çözelti çünkü pH değeri 7'den düşüktür"
+          },
+          {
+            "key": "B",
+            "text": "Bazik bir çözelti çünkü pH değeri 7'den yüksektir"
+          },
+          {
+            "key": "C",
+            "text": "Çözelti tipi belirlenemez"
+          },
+          {
+            "key": "D",
+            "text": "Nötr bir çözelti çünkü pH değeri 7'ye yakındır"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değeri 7'den düşük olan çözeltinin asidik olduğunu, 7'den yüksek olanın bazik olduğunu karıştırıyor.",
+          "C": "PH değeri verilen bir çözeltinin tipini belirleyemiyor.",
+          "D": "PH değeri 7'ye yakın olan çözeltinin nötr olduğunu sanıyor, oysa pH değeri 7'den yüksekse baziktir."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asidik",
+          "bazik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, evindeki bitkilerin sulanması için kullandığı suyun pH değerini ölçmek ister. Ölçüm sonuçları suyun pH değerinin 6,8 olduğunu gösterir. Bu bilgi ışığında, öğrenci suyun asitlik veya bazlık durumunu nasıl değerlendirebilir? Bu suyun pH değeri 7'ye göre nasıl bir karşılaştırma yapılır? Lütfen öğrencinin bu suyun asitlik veya bazlık durumunu değerlendirmesini ve nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

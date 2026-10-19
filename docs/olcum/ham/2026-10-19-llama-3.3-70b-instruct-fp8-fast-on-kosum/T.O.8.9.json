@@ -1,0 +1,135 @@
+{
+  "zaman": "2026-10-19T04:36:37.762Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-T.O.8.9"
+  },
+  "http": 200,
+  "sureMs": 14670,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, okuduğu iki kitabın içeriğini karşılaştırmak istiyor. İlk kitap 200 sayfa, ikinci kitap 250 sayfa. Ayşe, ilk kitabı 4 günde, ikinci kitabı 5 günde bitirdi. Ayşe'nin günde ortalama kaç sayfa okuduğunu hesaplayarak iki kitabın okuma hızını karşılaştırın. Bu verilere göre Ayşe'nin okuma hızının daha yüksek olduğu kitap hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yeterli veri yoktur"
+          },
+          {
+            "key": "B",
+            "text": "İkinci kitap"
+          },
+          {
+            "key": "C",
+            "text": "İki kitap da aynı hızda okunmuştur"
+          },
+          {
+            "key": "D",
+            "text": "İlk kitap"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Verilen verilerin okuma hızının hesaplanmasına yeteceğini anlamıyor.",
+          "B": "Sayfa sayısının okuma hızını doğrudan etkilediğini sanıyor.",
+          "C": "Okuma hızının hesaplanmasında gün sayısının önemini göz ardı ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, iki farklı metnin anlaşılırlığını değerlendirmek istiyor. İlk metinde 100 kelime, ikinci metinde 120 kelime var. İlk metni 2 dakika, ikinci metni 3 dakika sürede okumuştur. Bu verilere göre hangi metnin anlaşılırlığı daha yüksektir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkinci metin"
+          },
+          {
+            "key": "B",
+            "text": "İlk metin"
+          },
+          {
+            "key": "C",
+            "text": "Yeterli veri yoktur"
+          },
+          {
+            "key": "D",
+            "text": "İki metin de aynı anlaşılırlığa sahiptir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kelime sayısının anlaşılırlığı direkt olarak etkilediğini düşünüyor.",
+          "C": "Verilen verilerin anlaşılırlığın değerlendirilmesine yeteceğini anlamıyor.",
+          "D": "Okuma süresinin anlaşılırlık değerlendirmesindeki önemini göz ardı ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "anlaşılırlık",
+          "değerlendirme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Okul kütüphanesinde iki farklı kitap serisi bulunuyor. İlk seri 5 kitap, ikinci seri 7 kitap içeriyor. İlk seriyi 10 gün, ikinci seriyi 14 gün sürede okuyan bir öğrenci, bu iki seri arasındaki okuma hızını ve anlaşılırlığını karşılaştırmak istiyor. Öğrenci hangi seri için daha fazla zaman harcadığını ve nedenini açıklamak istiyor. Bu karşılaştırma için öğrencinin hangi adımları izlemesi gerekir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "anlaşılırlık",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

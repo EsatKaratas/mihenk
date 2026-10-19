@@ -1,0 +1,205 @@
+{
+  "surum": "set-v1.1",
+  "olusturma": "2026-10-19",
+  "aciklama": "set-v1 (12 MEB kazanımı, değiştirilmeden) + MAT.8.3.5 (W2 fc1750c ile kazanım metni sınırı 400 olunca geri alındı) + 5 Deneyap kazanımı (her atölyeden 1). Kazanım modu, kazanım başına 2 ÇSS + 1 açık uçlu. set-v1 ile karşılaştırma için ilk 12 madde birebir aynıdır.",
+  "secimGerekcesi": [
+    "Kazanım modu seçildi çünkü PROGRESS §46.2'de olgusal cevap anahtarı hatası yalnızca bu modda (kaynak metin yokken, model bilgiyi kendinden üretirken) yeniden üretilebildi; en zorlu ve hata açısından en bilgilendirici koşul budur.",
+    "Her ders için 5, 6, 7 ve 8. sınıftan birer kazanım alındı. Yalnızca katalogda uygunluk='yazili' olan kazanımlar kullanıldı (sınavla ölçülebilir).",
+    "Matematik ve Fen'de hesap ya da birim gerektiren kazanımlar kasten seçildi (çevre/alan, birim dönüşümü, doğru orantı, üslü ifade, sürat/hız, pH): canlıda görülen yanlış anahtarların üçü de bu sınıftandı (§46.2 santilitre, §48.5 bisiklet, §48b.2 sürtünme).",
+    "Türkçe'de üç yazma kazanımı metinsiz sorulabilir. T.O.8.9 (Okuduklarını karşılaştırabilme) ise kasten konuldu: metin gerektiren bir okuma kazanımının kazanım modunda nasıl davrandığını görmek için (zor vaka).",
+    "MAT.8.3.5 (Pisagor) ilk seçimdi ama ÇIKARILDI: kazanım metni 213 karakter, sunucu şeması outcomeLabel için en çok 200 kabul ediyor. 19.10'da gerçek istekle doğrulandı: HTTP 400 validation_failed, model çağrılmadı. Yerine yine hesap gerektiren MAT.8.1.1 (üslü ifadeler) konuldu. Bulgu Mihenk Orchestrator üzerinden W2'ye P0 olarak iletildi.",
+    "set-v1.1: MAT.8.3.5 geri eklendi; fc1750c sonrası 213 karakterlik metin şemadan geçiyor (19.10, 8788 ve 8789, model çağrısız 0 soruluk istekle doğrulandı).",
+    "Deneyap kazanımları (W3, commit 9f7e304, public/mufredat/deneyap-*.json, kitaptan alıntı): her atölyeden uygunluk=\"yazili\" olan 1 kazanım. Performans ve süreç kazanımları yazılı soruyla ölçülemediği için seçilmedi (ilk taslakta performans seçilmişti, koşulmadan önce Orchestrator düzeltmesiyle değiştirildi). Mümkün olduğunca cevap anahtarı elle doğrulanabilen, hesap ya da çıkarım içeren kazanım seçildi: YZ.3.5 Bayes, RK.4.7 grafik yorumu, EP.1.3 akım-direnç ilişkisi, YT.4.5 operatör sonucu; TU.4.3 (2B/3B çizim farkı) kavramsaldır."
+  ],
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": []
+  },
+  "maddeler": [
+    {
+      "kod": "MAT.5.4.4",
+      "ders": "Matematik",
+      "sinif": 5,
+      "metin": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "grup": "4. Ünite · GEOMETRİK NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-5.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "MAT.6.4.1",
+      "ders": "Matematik",
+      "sinif": 6,
+      "metin": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "grup": "4. Ünite · GEOMETRİK NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-6.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "MAT.7.1.7",
+      "ders": "Matematik",
+      "sinif": 7,
+      "metin": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "grup": "1. Ünite · SAYILAR VE NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-7.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "MAT.8.1.1",
+      "ders": "Matematik",
+      "sinif": 8,
+      "metin": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "grup": "1. Ünite · SAYILAR VE NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-8.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "FB.5.5.3",
+      "ders": "Fen Bilimleri",
+      "sinif": 5,
+      "metin": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "grup": "5. Ünite · MADDENİN DOĞASI",
+      "kaynakDosya": "public/mufredat/fen-5.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": 6,
+      "metin": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "grup": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+      "kaynakDosya": "public/mufredat/fen-6.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "FB.7.5.8",
+      "ders": "Fen Bilimleri",
+      "sinif": 7,
+      "metin": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "grup": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+      "kaynakDosya": "public/mufredat/fen-7.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "FB.8.5.7",
+      "ders": "Fen Bilimleri",
+      "sinif": 8,
+      "metin": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+      "kaynakDosya": "public/mufredat/fen-8.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "T.Y.5.15",
+      "ders": "Türkçe",
+      "sinif": 5,
+      "metin": "Uygun bağlantı ifadelerini kullanabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-5.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "T.Y.6.18",
+      "ders": "Türkçe",
+      "sinif": 6,
+      "metin": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-6.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "T.Y.7.17",
+      "ders": "Türkçe",
+      "sinif": 7,
+      "metin": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-7.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "T.O.8.9",
+      "ders": "Türkçe",
+      "sinif": 8,
+      "metin": "Okuduklarını karşılaştırabilme",
+      "grup": "Okuma",
+      "kaynakDosya": "public/mufredat/turkce-8.json",
+      "uygunluk": "yazili",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "MAT.8.3.5",
+      "ders": "Matematik",
+      "sinif": 8,
+      "metin": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "grup": "3. Ünite · GEOMETRİK ŞEKİLLER",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/matematik-8.json",
+      "mufredat": "MEB"
+    },
+    {
+      "kod": "DNY.YZ.3.5",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "metin": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/deneyap-yapay-zeka.json",
+      "mufredat": "Deneyap"
+    },
+    {
+      "kod": "DNY.RK.4.7",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "metin": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "grup": "4. Hafta · Kuvvet Sensörü",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/deneyap-robotik-kodlama.json",
+      "mufredat": "Deneyap"
+    },
+    {
+      "kod": "DNY.TU.4.3",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "metin": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "grup": "Uygulama: Oyuncak Araba",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/deneyap-tasarim-uretim.json",
+      "mufredat": "Deneyap"
+    },
+    {
+      "kod": "DNY.EP.1.3",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "metin": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/deneyap-epni.json",
+      "mufredat": "Deneyap"
+    },
+    {
+      "kod": "DNY.YT.4.5",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "metin": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+      "uygunluk": "yazili",
+      "kaynakDosya": "public/mufredat/deneyap-yazilim-teknolojileri.json",
+      "mufredat": "Deneyap"
+    }
+  ],
+  "istekNotu": "Deneyap maddelerine, W2 kaynakTuru alanını ekledikten sonra koşulursa istek gövdesine kaynakTuru:\"deneyap\" eklenir (olc.mjs --kaynak-turu). Bu alan olmadan koşulan Deneyap satırları \"istem MEB etiketli\" ön koşumudur."
+}

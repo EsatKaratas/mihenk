@@ -1,0 +1,135 @@
+{
+  "zaman": "2026-10-19T04:35:16.055Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-T.Y.5.15"
+  },
+  "http": 200,
+  "sureMs": 16359,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıllık kültürler arası festivali için bir broşür hazırlamak istiyor. Broşürde, festivalin amacını, katılacak ülkelerin kültürel aktivitelerini ve festivalin tarihini anlatmak istiyor. Öğrenci, broşürün giriş bölümünde uygun bir bağlantı ifadesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi en uygun bağlantı ifadesidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Ancak"
+          },
+          {
+            "key": "B",
+            "text": "Bununla birlikte"
+          },
+          {
+            "key": "C",
+            "text": "Örneğin"
+          },
+          {
+            "key": "D",
+            "text": "Dolayısıyla"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karşıtlık yapmak yerine neden-sonuç ilişkisi kurmaya çalışıyor.",
+          "B": "Karşılaştırma yapmak yerine neden-sonuç ilişkisi kurmaya çalışıyor.",
+          "C": "Örnek vermek yerine neden-sonuç ilişkisi kurmaya çalışıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, bir makalede, okurlarını belirli bir konuya dikkat çekmek istiyor. Yazar, aşağıdaki seçeneklerden hangisini kullanarak okurlarının dikkatini çekebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Dikkat çekmek için"
+          },
+          {
+            "key": "B",
+            "text": "Sonuç olarak"
+          },
+          {
+            "key": "C",
+            "text": "Özetle"
+          },
+          {
+            "key": "D",
+            "text": "Bu nedenle"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sonuç çıkarmak yerine dikkat çekmeye çalışıyor.",
+          "C": "Özetlemek yerine dikkat çekmeye çalışıyor.",
+          "D": "Neden-sonuç ilişkisi kurmak yerine dikkat çekmeye çalışıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dikkat çekme",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun yıllık dergisinde, bir arkadaşının başarılarını anlatan bir yazı yazmak istiyor. Öğrenci, yazının giriş bölümünde, arkadaşının başarılarını anlatırken uygun bir bağlantı ifadesi kullanmak istiyor. Öğrenci, hangi bağlantı ifadesini kullanmalı ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazma",
+          "giriş bölümü"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

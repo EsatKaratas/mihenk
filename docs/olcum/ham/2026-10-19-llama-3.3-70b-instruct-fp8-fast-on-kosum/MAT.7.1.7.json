@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:39:36.163Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "fa3aa64+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 14733,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'ye, 1 litre süt 6 TL'ye satılmaktadır. 4 litre süt almak isteyen bir müşteri, aynı miktarda sütü daha ucuza almak için hangi seçeneği tercih etmelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1 litrelik paketi 2 adet ve 2 litrelik paketi 1 adet"
+          },
+          {
+            "key": "B",
+            "text": "1 litrelik paketi 4 adet"
+          },
+          {
+            "key": "C",
+            "text": "2 litrelik paketi 1 adet ve 1 litrelik paketi 2 adet"
+          },
+          {
+            "key": "D",
+            "text": "2 litrelik paketi 2 adet"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Farklı paketlerin kombinasyonunun daha ucuz olacağını düşünüyor.",
+          "B": "Küçük paketlerin toplamının büyük paketlerden daha ucuz olduğunu sanıyor.",
+          "C": "Büyük ve küçük paketlerin kombinasyonunun daha ucuz olacağını sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, 20 km'lik bir mesafeyi 1 saatte kat etti. Aynı bisikletçi, 30 km'lik bir mesafeyi ne kadar zamanda kat edecektir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 saat"
+          },
+          {
+            "key": "B",
+            "text": "1,5 saat"
+          },
+          {
+            "key": "C",
+            "text": "1,2 saat"
+          },
+          {
+            "key": "D",
+            "text": "1,8 saat"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hızın sabit kaldığını ve mesafenin direkt orantılı olarak zamanı artırdığını, ancak oranlamayı yanlış yapıyor.",
+          "C": "Hızın değişmediğini ve mesafenin direkt orantılı olarak zamanı artırdığını sanmıyor.",
+          "D": "Hızın değiştiğini ve mesafenin ters orantılı olarak zamanı etkilediğini düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 5 TL'ye 200 ml'lik bir içecek sunmaktadır. Aynı içeceği 1 litrelik paket olarak satan bir market, 5 TL'ye 1 litrelik paketi satmaktadır. Okul kantininin sunduğu içeceği 1 litre olarak satın almak isteyen bir öğrenci, hangisini tercih etmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "orantı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:40:06.474Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "fa3aa64+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-MAT.6.4.1"
+  },
+  "http": 200,
+  "sureMs": 44997,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey, bahçesinin çevresine 18 metre uzunluğunda çit çekmek istiyor. Çitin metre fiyatı 5 liradır. Ahmet Bey, çit için kaç lira ödeyecektir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "110"
+          },
+          {
+            "key": "B",
+            "text": "100"
+          },
+          {
+            "key": "C",
+            "text": "90"
+          },
+          {
+            "key": "D",
+            "text": "80"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çit uzunluğunu 22 metre sanıp 22*5=110 hesaplıyor",
+          "B": "Çit uzunluğunu 20 metre sanıp 20*5=100 hesaplıyor",
+          "D": "Çit uzunluğunu 16 metre sanıp 16*5=80 hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "uzunluk",
+          "çevre"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir dikdörtgenin uzunluğu 8 cm, genişliği 5 cm'dir. Bu dikdörtgenin alanı kaç cm² dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "50"
+          },
+          {
+            "key": "B",
+            "text": "30"
+          },
+          {
+            "key": "C",
+            "text": "40"
+          },
+          {
+            "key": "D",
+            "text": "60"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Uzunluğu genişlik sanıp 5*8=40, sonra 40/8=5, 5*10=50 hesaplıyor",
+          "B": "Genişliği uzunluk sanıp 5*8=40, sonra 40/4=10, 10*3=30 hesaplıyor",
+          "D": "Uzunluk ve genişliği toplayıp 8+5=13, 13*5=65, 65-5=60 hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "dikdörtgen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir atletizm pisti 400 metre uzunluğundadır. Bu pistte 5 tur atan bir sporcu kaç metre koşmuş olur? Koşulan mesafeyi kilometreye çeviriniz ve sonucunu yorumlayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "uzunluk",
+          "dönüşüm"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

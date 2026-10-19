@@ -1,0 +1,134 @@
+{
+  "zaman": "2026-10-19T04:34:16.060Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-FB.7.5.8"
+  },
+  "http": 200,
+  "sureMs": 31731,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette satılan meyve suları arasında %100 elma suyu, %100 portakal suyu ve elma-portakal karışımı meyve suyu vardır. Hangi meyve suyu homojen bir karışımdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "%100 elma suyu"
+          },
+          {
+            "key": "B",
+            "text": "Hiçbiri"
+          },
+          {
+            "key": "C",
+            "text": "elma-portakal karışımı meyve suyu"
+          },
+          {
+            "key": "D",
+            "text": "%100 portakal suyu"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Saf madde ile homojen karışımı karıştırmaktadır",
+          "B": "Karışımı tanımlamakta zorluk çekmektedir",
+          "D": "Saf madde ile homojen karışımı karıştırmaktadır"
+        },
+        "gerekceTekrari": true,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen karışımlar",
+          "meyve suları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir laboratuvarda su ve şeker karışımı hazırlanmaktadır. Şeker tamamen eridiğinde oluşan karışıma ne ad verilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Koloidler"
+          },
+          {
+            "key": "B",
+            "text": "Homojen karışımlar"
+          },
+          {
+            "key": "C",
+            "text": "Heterojen karışımlar"
+          },
+          {
+            "key": "D",
+            "text": "Süspansiyonlar"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Koloid ile homojen karışımı karıştırıyor",
+          "C": "Homojen ve heterojen karışımları karıştırıyor",
+          "D": "Süspansiyon ile homojen karışımı karıştırıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen karışımlar",
+          "şeker ve su"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, su ve yağ karışımını hazırlamaktadır. Karışımın homojen veya heterojen olduğunu belirlemek için hangi testleri yapabilir? Neden bu testler sonuç için önemlidir?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen ve heterojen karışımlar",
+          "karışım testleri"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

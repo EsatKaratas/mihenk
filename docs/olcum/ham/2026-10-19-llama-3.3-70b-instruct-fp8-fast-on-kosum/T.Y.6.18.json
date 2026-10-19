@@ -1,0 +1,121 @@
+{
+  "zaman": "2026-10-19T04:35:44.297Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-T.Y.6.18"
+  },
+  "http": 200,
+  "sureMs": 15227,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun duvar gazetesinde bir makale yazmak istiyor. Makalede, okulun son basketbol maçındaki galibiyetini anlatmak istiyor. Öğrenci, makaleyi yazarken noktalama işaretlerini doğru kullanmak istiyor. Aşağıdaki cümlelerin hangisinde noktalama işaretleri doğru kullanılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okulun basketbol takımı, son maçı 80-70 kazandı ve herkes çok sevindi."
+          },
+          {
+            "key": "B",
+            "text": "Okulun basketbol takımı, son maçı 80-70 kazandı, ve herkes çok sevindi"
+          },
+          {
+            "key": "C",
+            "text": "Okulun basketbol takımı son maçı 80-70 kazandı: ve herkes çok sevindi"
+          },
+          {
+            "key": "D",
+            "text": "Okulun basketbol takımı, son maçı 80-70 kazandı... ve herkes çok sevindi"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Cümle içinde virgül kullanma gereksizliğini düşünüyor.",
+          "C": "İki nokta üst üste (:), cümle içinde doğru kullanımını bilmiyor.",
+          "D": "Üç nokta (...) ile cümle bitimini karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama",
+          "cümle"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, kitabında karakterlerin konuşmalarını yazmak istiyor. Karakterlerden birinin konuşması, 'Ben çok mutluyum!' şeklinde olsun. Aşağıdaki seçeneklerin hangisi, bu konuşmanın yazımında doğru virgül kullanımını gösterir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Ben, çok mutluyum,"
+          },
+          {
+            "key": "B",
+            "text": "Ben, çok mutluyum!"
+          },
+          {
+            "key": "C",
+            "text": "Ben, çok, mutluyum!"
+          },
+          {
+            "key": "D",
+            "text": "Ben çok mutluyum!"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Cümle sonundaki noktalama işaretini virgülle karıştırıyor.",
+          "B": "Cümle içinde gereksiz virgül kullanımını bilmiyor.",
+          "C": "Virgül kullanımını sıralama işareti sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "virgül",
+          "konuşma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

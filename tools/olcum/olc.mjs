@@ -25,6 +25,8 @@
 //   --sadece  virgülle ayrılmış kazanım kodları (yalnızca bunlar koşulur)
 //   --bekle   iki çağrı arası saniye (varsayılan 13 → dakikada en çok ~4-5)
 //   --kuru    model ÇAĞIRMAZ; yalnızca istek gövdelerini yazdırır
+//   --kaynak-turu  Deneyap maddelerine kaynakTuru:"deneyap" ekler (W2'nin alanı
+//             sunucuya girdikten sonra kullanılır; yoksa istem kazanımı "MEB" diye sunar)
 //
 // Hız sınırı: sunucu `gen:<docKey>` başına dakikada 5 istek kabul eder
 // (src/lib/guards.ts RATE_LIMIT_PER_MIN). Her kazanıma ayrı docKey verilir;
@@ -36,6 +38,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 // Sunucunun KENDİ denetim fonksiyonları — ikiz koşul yazmamak için
 // kopyalanmaz, doğrudan içe aktarılır (Node 22.18+ tür soyma ile .ts okur).
@@ -48,6 +51,7 @@ function argumanlar(argv) {
   for (let i = 2; i < argv.length; i++) {
     const k = argv[i];
     if (k === '--kuru') { a.kuru = true; continue; }
+    if (k === '--kaynak-turu') { a.kaynakTuru = true; continue; }
     const v = argv[i + 1];
     if (k === '--url') a.url = v;
     else if (k === '--set') a.set = v;
@@ -84,6 +88,22 @@ function betikSurumu() {
   }
 }
 
+/* Sunucu kodunun o anki hâli. wrangler dev dosya değişince kendini yeniden
+   yükler; başka bir çalışma src/'yi düzenlerse koşumun ortasında istem
+   değişebilir. Her çağrıya istem/denetim dosyalarının özeti ve src/'ye
+   dokunan son commit yazılır ki hangi satırın hangi kodla üretildiği bilinsin. */
+const SRC_DOSYALARI = ['src/lib/prompts.ts', 'src/lib/guards.ts', 'src/lib/ai.ts', 'src/routes/ai.ts', 'src/schemas/ai.ts'];
+function srcDurumu() {
+  const h = createHash('sha256');
+  for (const f of SRC_DOSYALARI) h.update(fs.readFileSync(path.join(KOK, f)));
+  let commit = 'bilinmiyor';
+  try {
+    commit = execSync('git log -1 --format=%h -- src', { cwd: KOK }).toString().trim();
+    if (execSync('git status --porcelain -- src', { cwd: KOK }).toString().trim()) commit += '+kaydedilmemis';
+  } catch { /* git yoksa bilinmiyor kalır */ }
+  return { src_commit: commit, src_ozet: h.digest('hex').slice(0, 12) };
+}
+
 const kelimeSay = (s) => String(s || '').trim().split(/\s+/).filter(Boolean).length;
 const cumleSay = (s) => String(s || '').split(/[.!?…]+/).map((x) => x.trim()).filter(Boolean).length;
 const modelKisaAd = (m) => String(m || 'bilinmiyor').split('/').pop().replace(/[^a-zA-Z0-9.\-]/g, '_');
@@ -98,7 +118,7 @@ const csvSatir = (dizi) => dizi.map(csvAlan).join(',');
 
 const SORU_SUTUNLARI = [
   'tarih', 'kosum', 'etiket', 'set_surum', 'betik_surum', 'model_sunucu', 'model_yanit', 'fellBack', 'attempts',
-  'kazanim', 'ders', 'sinif', 'tur', 'sira', 'govde_kelime', 'govde_cumle', 'govde_40_ustu',
+  'src_commit', 'src_ozet', 'kazanim', 'mufredat', 'kaynak_turu', 'ders', 'sinif', 'tur', 'sira', 'govde_kelime', 'govde_cumle', 'govde_40_ustu',
   'sik_sayisi', 'dogru_sik', 'gerekce_sayisi', 'eksik_gerekce', 'kalip_gerekce',
   'anahtarBelirsiz', 'gerekceTekrari', 'dilUyarisi', 'needsSource', 'kaynak_atif_govde',
   'bloom', 'zorluk', 'aiTime', 'govde', 'siklar', 'gerekceler',
@@ -106,16 +126,21 @@ const SORU_SUTUNLARI = [
 
 const CAGRI_SUTUNLARI = [
   'tarih', 'kosum', 'etiket', 'set_surum', 'betik_surum', 'model_sunucu', 'model_yanit', 'fellBack', 'attempts',
-  'kazanim', 'http', 'hata_kodu', 'hata_mesaji', 'sure_ms', 'denemeler_429',
+  'src_commit', 'src_ozet', 'kazanim', 'mufredat', 'kaynak_turu', 'http', 'hata_sinifi', 'hata_kodu', 'hata_mesaji', 'sure_ms', 'denemeler_429', 'denemeler_503',
   'istenen', 'istenen_mc', 'istenen_open', 'uretilen', 'donen_mc', 'donen_open',
   'elenenTekrar', 'elenenAyniSik', 'elenenGecersiz', 'eksik_uretim', 'kisiltmaNotu',
 ];
+
+// wrangler dev yeniden yüklenirken uçuştaki istek bu metinlerle düşer.
+// Bunlar MODEL hatası değil, ORTAM hatasıdır; ayrı sınıflanır.
+const ORTAM_HATASI = /restarted mid-request|Network connection lost/i;
 
 // §47 kalıbı. Sunucu bunu keser; betik kesilmeyen kaldı mı diye bakar.
 const KALIP_GEREKCE = /^\s*bu\s+(ş[ıi]kk[ıi]|seçene[ğg]i|cevab[ıi])\s/i;
 
 async function istekGonder(url, govde) {
   let denemeler429 = 0;
+  let denemeler503 = 0;
   for (;;) {
     const t0 = Date.now();
     let http = 0;
@@ -140,7 +165,15 @@ async function istekGonder(url, govde) {
       await uyu(65000);
       continue;
     }
-    return { http, yanit, sureMs, denemeler429, agHatasi };
+    // wrangler dev'in "Your worker restarted mid-request" yanıtı: model hatası
+    // değil, sunucu kodunun yeniden yüklenmesi. Bir kez yeniden denenir ve sayılır.
+    if (http === 503 && denemeler503 < 1 && ORTAM_HATASI.test(JSON.stringify(yanit || ''))) {
+      denemeler503++;
+      console.log('  503 (sunucu yeniden yüklendi) — 15 sn sonra 1 kez yeniden deneniyor');
+      await uyu(15000);
+      continue;
+    }
+    return { http, yanit, sureMs, denemeler429, denemeler503, agHatasi };
   }
 }
 
@@ -165,8 +198,13 @@ async function main() {
     fs.mkdirSync(hamDizin, { recursive: true });
     // BOM: Excel'in Türkçe karakterleri UTF-8 okuması için. Dosya yoksa başlık yazılır;
     // varsa sona eklenir (aynı koşum --sadece ile parça parça tamamlanabilir).
-    if (!fs.existsSync(soruCsv)) fs.writeFileSync(soruCsv, '﻿' + csvSatir(SORU_SUTUNLARI) + '\n', 'utf8');
-    if (!fs.existsSync(cagriCsv)) fs.writeFileSync(cagriCsv, '﻿' + csvSatir(CAGRI_SUTUNLARI) + '\n', 'utf8');
+    for (const [dosya, sutunlar] of [[soruCsv, SORU_SUTUNLARI], [cagriCsv, CAGRI_SUTUNLARI]]) {
+      const baslik = csvSatir(sutunlar);
+      if (!fs.existsSync(dosya)) { fs.writeFileSync(dosya, '﻿' + baslik + '\n', 'utf8'); continue; }
+      // Sütunlar değiştiyse eski dosyaya eklemek satırları kaydırır — sessizce yapılmaz.
+      const mevcut = fs.readFileSync(dosya, 'utf8').replace(/^﻿/, '').split(/\r?\n/)[0];
+      if (mevcut !== baslik) throw new Error(`${path.basename(dosya)} başlığı betiğin sütunlarıyla uyuşmuyor; eklenmedi.`);
+    }
   }
 
   const ortak = { tarih, kosum, etiket: a.etiket, set_surum: set.surum, betik_surum: betik, model_sunucu: modelSunucu };
@@ -181,17 +219,19 @@ async function main() {
       outcomeLabel: m.metin,
       topicArea: m.grup,
       docKey: `olcum-${set.surum}-${kosum}-${m.kod}`,
+      ...(a.kaynakTuru && m.mufredat === 'Deneyap' ? { kaynakTuru: 'deneyap' } : {}),
     };
     if (a.kuru) { console.log(JSON.stringify(govde)); continue; }
 
     console.log(`[${i + 1}/${maddeler.length}] ${m.kod} …`);
-    const { http, yanit, sureMs, denemeler429, agHatasi } = await istekGonder(a.url, govde);
+    const src = srcDurumu();
+    const { http, yanit, sureMs, denemeler429, denemeler503, agHatasi } = await istekGonder(a.url, govde);
     const meta = (yanit && yanit.meta) || {};
     const sorular = (yanit && Array.isArray(yanit.questions)) ? yanit.questions : [];
 
     fs.writeFileSync(
       path.join(hamDizin, `${m.kod}.json`),
-      JSON.stringify({ zaman: zamanDamgasi(), ...ortak, istek: govde, http, sureMs, denemeler429, agHatasi, yanit }, null, 2) + '\n',
+      JSON.stringify({ zaman: zamanDamgasi(), ...ortak, ...src, istek: govde, http, sureMs, denemeler429, denemeler503, agHatasi, yanit }, null, 2) + '\n',
       'utf8'
     );
 
@@ -203,9 +243,11 @@ async function main() {
     const eksikUretim = http === 200 ? (meta.istenen ?? govde.mcCount + govde.openCount) - sorular.length - elenenToplam : '';
 
     const cagri = {
-      ...ortak, model_yanit: meta.model || '', fellBack: meta.fellBack, attempts: meta.attempts,
-      kazanim: m.kod, http, hata_kodu: (yanit && yanit.error) || (agHatasi ? 'ag_hatasi' : ''),
-      hata_mesaji: (yanit && yanit.message) || agHatasi || '', sure_ms: sureMs, denemeler_429: denemeler429,
+      ...ortak, ...src, model_yanit: meta.model || '', fellBack: meta.fellBack, attempts: meta.attempts,
+      kazanim: m.kod, mufredat: m.mufredat || 'MEB', kaynak_turu: govde.kaynakTuru || '(yok)', http,
+      hata_sinifi: http === 200 ? '' : (agHatasi || ORTAM_HATASI.test(JSON.stringify(yanit || '')) ? 'ortam' : 'sunucu_model'),
+      hata_kodu: (yanit && yanit.error) || (agHatasi ? 'ag_hatasi' : ''),
+      hata_mesaji: (yanit && yanit.message) || agHatasi || '', sure_ms: sureMs, denemeler_429: denemeler429, denemeler_503: denemeler503,
       istenen: meta.istenen ?? '', istenen_mc: govde.mcCount, istenen_open: govde.openCount,
       uretilen: meta.uretilen ?? '', donen_mc: donenMc, donen_open: donenOpen,
       elenenTekrar: meta.elenenTekrar ?? '', elenenAyniSik: meta.elenenAyniSik ?? '',

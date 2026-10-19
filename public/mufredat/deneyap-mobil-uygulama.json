@@ -1,0 +1,691 @@
+{
+ "ders": "Deneyap · Mobil Uygulama",
+ "sinif": "Ortaokul",
+ "atolye": "Mobil Uygulama",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-530-3",
+ "kunye": {
+  "isbn": "978-605-312-530-3",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2023",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf",
+  "sha256": "514e8cf78f9f6617d7d031ece3c02266aaccae02d915aaf80925c1bc52a84614"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok yerde geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.MU.1.1",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil cihazı tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.2",
+   "alan": "Mobil Uygulama",
+   "metin": "Hangi cihazın mobil cihaz olarak isimlendirileceğini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.3",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil işletim sistemini tanımlar ve örnekler verebilir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.4",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil uygulama marketini tanımlar ve örnekler verebilir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.5",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil uygulama örnekleri verebilir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.6",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil uygulama geliştirme süreci hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.7",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.8",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ara yüzü hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.9",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor’da AI Companion ile uygulama test eder.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.10",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor’da Android Emülatör ile uygulama test eder.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.1.11",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor’da USB bağlantısı ile uygulama test etme hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Mobil Uygulama Geliştirme ve App Inventor",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 5,
+    "pdfSayfa": 8,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.1",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor arayüz nesnelerini tanır.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.2",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile uygulama ara yüzü geliştirebilir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.3",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor kod bloklarını tanır ve kullanımlarını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.4",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile uygulama kodlayabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.5",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile veri giriş-çıkış nesnelerini kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.6",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile değişken tanımlayabilir.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.7",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor operatörlerini kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.2.8",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor proje geliştirme sürecini kavrar ve proje geliştirme sürecine başlar.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · App Inventor Arayüzü ve Uygulama Geliştirme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.1",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor medya ekleme ve yönetme nesnelerini tanır.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.2",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile geliştirilen uygulamalara görüntü ve video dosyaları ekleyebilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.3",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile geliştirilen uygulamalara ses dosyaları ekleyebilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.4",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile geliştirilen uygulamalarda koşul yapılarını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.5",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile geliştirilen uygulamalarda döngü komutlarını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.6",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile geliştirilen uygulamalarda iç içe döngüleri kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.7",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor metin okuma (TextToSpeech) modülünü kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.3.8",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor Yandex Translate (çeviri) modülünü kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · App Inventor Medya, Döngü, Koşul ve Hazır Modüller Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 30,
+    "pdfSayfa": 33,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.1",
+   "alan": "Mobil Uygulama",
+   "metin": "Sensör kavramını tanır.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.2",
+   "alan": "Mobil Uygulama",
+   "metin": "Sensör çeşitlerini tanır.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.3",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil cihazlardaki sensörleri tanır.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.4",
+   "alan": "Mobil Uygulama",
+   "metin": "Sensör kullanım amacını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.5",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile kullanılabilecek sensörleri öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.6",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile sensör kullanımını yapılandırabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.7",
+   "alan": "Mobil Uygulama",
+   "metin": "Mobil cihazların birbirleri ile haberleşmesini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.8",
+   "alan": "Mobil Uygulama",
+   "metin": "Bluetooth haberleşme kavramını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.9",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile mobil cihazların bluetooth ile haberleşmesini yapılandırabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.4.10",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor ile mobil cihazların elektronik devre kartları ile kablosuz iletişim kurmasını sağlar.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Sensörler ve Haberleşme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 49,
+    "pdfSayfa": 52,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.1",
+   "alan": "Mobil Uygulama",
+   "metin": "Tamamlanan uygulamayı test eder.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.2",
+   "alan": "Mobil Uygulama",
+   "metin": "Derleme terimini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.3",
+   "alan": "Mobil Uygulama",
+   "metin": "APK(Android Package Kit) dosyalarını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.4",
+   "alan": "Mobil Uygulama",
+   "metin": "AAB(Android App Bundle) dosyalarını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.5",
+   "alan": "Mobil Uygulama",
+   "metin": "Google Play uygulama mağazasını tanır.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.5.6",
+   "alan": "Mobil Uygulama",
+   "metin": "Google Play Console hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Projenin Derlenmesi ve Google Play’de Yayınlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.6.1",
+   "alan": "Mobil Uygulama",
+   "metin": "Hazırlanan kod bloklarını kaydeder.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Kod Bloklarını Tekrar Kullanma ve Yayınlama - Proje Sunumları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 78,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.6.2",
+   "alan": "Mobil Uygulama",
+   "metin": "Kaydedilen kod bloklarını tekrar kullanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Kod Bloklarını Tekrar Kullanma ve Yayınlama - Proje Sunumları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 78,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.6.3",
+   "alan": "Mobil Uygulama",
+   "metin": "Hazırladığı projeyi App Inventor proje galerisine kaydeder.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Kod Bloklarını Tekrar Kullanma ve Yayınlama - Proje Sunumları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 78,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.6.4",
+   "alan": "Mobil Uygulama",
+   "metin": "App Inventor proje galerisini kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Kod Bloklarını Tekrar Kullanma ve Yayınlama - Proje Sunumları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 78,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MU.6.5",
+   "alan": "Mobil Uygulama",
+   "metin": "Proje sunumu gerçekleştirir.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Kod Bloklarını Tekrar Kullanma ve Yayınlama - Proje Sunumları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 16 — Mobil Uygulama (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 78,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/16_mobil_uygulama_ortaokul_16022024.pdf"
+   }
+  }
+ ]
+}

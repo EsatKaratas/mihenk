@@ -1,0 +1,121 @@
+{
+  "zaman": "2026-10-19T04:36:10.084Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 12784,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okula gitmek için her gün 30 dakika yürüyor. Arkadaşlarından biri, okula bisikletle gitmenin daha hızlı olduğunu söylüyor. Öğrenci, bisikletle gitmek için gereken süreyi hesaplamak istiyor. Bisikletle gitmek için gereken süreyi hesaplamak için hangi ifadeyi kullanmalıdır? Bisikletle gitmek için gereken süre, yürüme süresinin yarısıdır.",
+        "options": [
+          {
+            "key": "A",
+            "text": "30 dakika - 2"
+          },
+          {
+            "key": "B",
+            "text": "30 dakika / 2"
+          },
+          {
+            "key": "C",
+            "text": "30 dakika x 2"
+          },
+          {
+            "key": "D",
+            "text": "30 dakika + 2"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bisikletle gitmek için gereken süreyi hesaplamak için yürüme süresinden 2 dakika çıkarıyor.",
+          "C": "Bisikletle gitmek için gereken süreyi hesaplamak için yürüme süresini ikiye katlıyor.",
+          "D": "Bisikletle gitmek için gereken süreyi hesaplamak için yürüme süresine 2 dakika ekliyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, bir metinde açık ve örtük ifadeleri kullanmak istiyor. Açık ifadeleri kullanmak için hangi yöntemi seçmelidir? Yazar, okuyucunun kolayca anlayabilmesi için açık ve net bir dil kullanmalıdır.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okuyucunun kolayca anlayabilmesi için açık ve net bir dil kullanmak"
+          },
+          {
+            "key": "B",
+            "text": "Okuyucunun ilgisini çekmek için karmaşık cümleler kullanmak"
+          },
+          {
+            "key": "C",
+            "text": "Okuyucunun düşünmesini sağlamak için soyut kavramlar kullanmak"
+          },
+          {
+            "key": "D",
+            "text": "Okuyucunun zihninde soru işareti bırakmak için belirsiz ifadeler kullanmak"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Açık ifadeleri kullanmak yerine karmaşık cümleler kullanmayı tercih ediyor.",
+          "C": "Açık ifadeleri kullanmak yerine soyut kavramlar kullanmayı tercih ediyor.",
+          "D": "Açık ifadeleri kullanmak yerine belirsiz ifadeleri kullanmayı tercih ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

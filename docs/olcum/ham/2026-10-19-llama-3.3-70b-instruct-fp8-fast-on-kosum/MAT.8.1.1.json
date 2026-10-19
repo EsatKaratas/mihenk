@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:32:41.193Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-MAT.8.1.1"
+  },
+  "http": 200,
+  "sureMs": 25919,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg'lık ve 5 kg'lık şeker paketleri satılmaktadır. 10 kg şeker almak isteyen bir müşteri, 2 kg'lık paketlerden kaç tane ve 5 kg'lık paketlerden kaç tane alması gerektiğini hesaplamak ister. Müşteri, 2 kg'lık paketlerden 3 tane ve 5 kg'lık paketlerden 1 tane alırsa, toplam ne kadar şeker alacaktır? Bu verilere göre, müşterinin alacağı şeker miktarı kaç kg olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "11 kg"
+          },
+          {
+            "key": "B",
+            "text": "15 kg"
+          },
+          {
+            "key": "C",
+            "text": "13 kg"
+          },
+          {
+            "key": "D",
+            "text": "17 kg"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Müşterinin 2 kg'lık paketlerden 3 tane alması 6 kg, 5 kg'lık paketlerden 1 tane alması 5 kg eder; toplam 11 kg olur, ancak bu seçenekte 2 kg'lık paketlerin sayısı yanlış hesaplanmıştır.",
+          "B": "Müşterinin 2 kg'lık paketlerden 3 tane alması 6 kg, 5 kg'lık paketlerden 2 tane alması 10 kg eder; toplam 16 kg olur, ancak bu seçenekte 5 kg'lık paketlerin sayısı yanlış hesaplanmıştır.",
+          "D": "Müşterinin 2 kg'lık paketlerden 4 tane alması 8 kg, 5 kg'lık paketlerden 2 tane alması 10 kg eder; toplam 18 kg olur, ancak bu seçenekte hem 2 kg'lık hem de 5 kg'lık paketlerin sayısı yanlış hesaplanmıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "şeker",
+          "paket",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 15 dakika süren bir dersin, her bir dakika için 2^x büyüklüğünde bir not almayı hedeflemektedir. Eğer öğrenci, 15 dakikalık derste toplam 2^15 not almak istiyorsa, her bir dakika için kaç not alması gerekir? Bu verilere göre, öğrencinin her dakika için alması gereken not miktarı kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2^1"
+          },
+          {
+            "key": "B",
+            "text": "2^10"
+          },
+          {
+            "key": "C",
+            "text": "2^3"
+          },
+          {
+            "key": "D",
+            "text": "2^5"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Notu dakika sayısına göre değil de, ders süresinin üssü olarak hesaplamaktadır.",
+          "C": "Toplam notu dakika sayısına göre dağıtmak yerine, her dakika için notu artırarak hesaplamaktadır.",
+          "D": "Notu dakika sayısına göre değil de, ders süresinin karesi olarak hesaplamaktadır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "not",
+          "ders",
+          "büyüme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 0,5 litre ve 1 litrelik su şişeleri satmaktadır. Kantin yöneticisi, 10 litre su satmak ister ve 0,5 litrelik şişelerden 5 tane, 1 litrelik şişelerden de 5 tane satmıştır. Yönetici, satışlardan elde ettiği geliri hesaplamak için, her bir şişe için 0,5 litrelik şişelere 2 TL, 1 litrelik şişelere 3 TL fiyat biçmiştir. Kantin yöneticisinin elde ettiği toplam gelir kaç TL'dir? Yöneticinin bu satış stratejisinin avantajları ve dezavantajları nelerdir?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "su",
+          "şişe",
+          "gelir",
+          "strateji"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

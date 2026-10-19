@@ -1,0 +1,135 @@
+{
+  "zaman": "2026-10-19T04:37:59.145Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 53656,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, arkadaşıyla birlikte bir hikaye yazmaya karar verir. Hikayenin başlığını 'Macera' olarak belirlerler. Öğrenci, hikayenin giriş bölümünü yazarken, okuyucuların dikkatini çekmek için ilginç bir ifade kullanır. Bu ifade, hikayenin ilerleyen bölümlerinde neler olacağının ipucunu verir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Örtük bir ifade kullanarak okuyucuların tahmin yapmasını sağlar"
+          },
+          {
+            "key": "B",
+            "text": "Açık bir ifade kullanarak okuyucuların merakını uyandırır"
+          },
+          {
+            "key": "C",
+            "text": "Doğrudan konuya girerek okuyucuları bilgilendirir"
+          },
+          {
+            "key": "D",
+            "text": "Hikayenin sonunu baştan okuyuculara söyler"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Açık ifade, okuyucuların merakını uyandırır ancak ipucu vermez",
+          "C": "Doğrudan konuya girerek okuyucuları bilgilendirir, bu durumda ipucu verilmez",
+          "D": "Hikayenin sonunu baştan okuyuculara söylemek, okuyucuların ilgisini kaybetmesine neden olur"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazma",
+          "ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir gazeteci, bir röportaj sırasında sanatçıya, 'Senin en sevdiğin renk mavi mi?' diye sorar. Sanatçı, 'Hayır, benim en sevdiğim renk yeşle mavinin tonları arasındaki bir renk.' cevabını verir. Gazeteci, bu cevabı nasıl yorumlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sanatçının cevabı belirsizdir ve başka bir soru sormak gerekir"
+          },
+          {
+            "key": "B",
+            "text": "Sanatçının cevabı örtüktür ve yorum gerektirir"
+          },
+          {
+            "key": "C",
+            "text": "Sanatçının cevabı net ve açıktır"
+          },
+          {
+            "key": "D",
+            "text": "Sanatçının cevabı mantıksızdır"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sanatçının cevabı belirsiz değildir, sadece detaylıdır",
+          "C": "Sanatçının cevabı net değildir, tonları belirtmiştir",
+          "D": "Sanatçının cevabı mantıksız değildir, sadece farklı bir bakış açısı sunar"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yorumlama",
+          "ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir yazar, okuyucuların bir konu hakkında daha fazla bilgi edinmelerini sağlamak için yazısında açık ve örtük ifadeler kullanır. Bu stratejinin yazarın amacına ulaşmasındaki önemini değerlendiriniz ve bir örnek veriniz.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "yazma",
+          "ifade",
+          "strateji"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

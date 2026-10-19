@@ -1,0 +1,664 @@
+{
+ "ders": "Deneyap · Enerji Teknolojileri",
+ "sinif": "Ortaokul",
+ "atolye": "Enerji Teknolojileri",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-496-2",
+ "kunye": {
+  "isbn": "978-605-312-496-2",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2022",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf",
+  "sha256": "1bb290b8117e39e65e31b113a57caa2593a53ff3c234b2065ebfe61314f48761"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok yerde geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.EN.1.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci “enerji” kavramını farklı tanımlamaları ile açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Enerji Kavramı ve Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 1,
+    "pdfSayfa": 15,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.1.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci enerji türlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Enerji Kavramı ve Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 1,
+    "pdfSayfa": 15,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.1.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci enerji dönüşümü görür ve kavrar.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Enerji Kavramı ve Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 1,
+    "pdfSayfa": 15,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.1.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci el becerilerini ve bilgileri kullanarak, bir sistem tasarlar ve uygular.",
+   "uygunluk": "performans",
+   "grup": "1. Bölüm · Enerji Kavramı ve Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 1,
+    "pdfSayfa": 15,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.2.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci “güç” ve “enerji” kavramları arasındaki farkı açıklar.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Enerji Birimleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 27,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.2.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci enerji ve güç birimlerini görür ve kavrar.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Enerji Birimleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 27,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.2.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci elektriksel büyüklükler üzerinden güç ve enerji kavramını görür, ölçer ve hesaplar.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Enerji Birimleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 27,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.2.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci kazandığı bilgiler ışığında günlük yaşamdaki elektrikli cihazları güç ve enerji tüketimi ile değerlendirir.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Enerji Birimleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 27,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.3.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci küresel iklim değişikliğinin kavramını öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "3. Bölüm · Küresel İklim Değişikliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 22,
+    "pdfSayfa": 36,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.3.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci küresel iklim değişikliğinin geniş kapsamlı etkileri görür.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Küresel İklim Değişikliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 22,
+    "pdfSayfa": 36,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.3.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci buzulların erimesinde etkili olan faktörleri belirler.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Küresel İklim Değişikliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 22,
+    "pdfSayfa": 36,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.3.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci sürdürülebilir yaşama, enerji kaynaklarının etkisini öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "3. Bölüm · Küresel İklim Değişikliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 22,
+    "pdfSayfa": 36,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.4.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci madde ve ısı arasındaki ilişkiyi ele alır.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Geleneksel Enerji Kaynakları: Termik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 43,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.4.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci ısı ve sıcaklık arasındaki ilişkiyi görür.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Geleneksel Enerji Kaynakları: Termik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 43,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.4.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci farklı sıcaklıklardaki nesneler arasında meydana gelen ısı transferinin görür.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Geleneksel Enerji Kaynakları: Termik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 43,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.EN.4.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci buhar basıncı ve elektrik enerjisi üretimi arasındaki ilişkiyi keşfeder.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Geleneksel Enerji Kaynakları: Termik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 43,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.5.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci suyun potansiyel enerjisinin kinetik enerjiye dönüşümünü görür.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Yenilenebilir Enerji-Hidroelektrik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 35,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.5.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci suyun düştüğü yüksekliğin değişmesinin su çarkına etkisini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Bölüm · Yenilenebilir Enerji-Hidroelektrik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 35,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.5.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci su çarkının devir hızı ve jeneratörün üretimi ile olan ilişkisini keşfeder.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Yenilenebilir Enerji-Hidroelektrik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 35,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.5.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci düşen suyun nasıl elektriğe dönüştürüldüğünü açıklar.",
+   "uygunluk": "yazili",
+   "grup": "5. Bölüm · Yenilenebilir Enerji-Hidroelektrik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 35,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.5.5",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci hidroelektrik enerjiyi temiz bir enerji kaynağı olarak tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "5. Bölüm · Yenilenebilir Enerji-Hidroelektrik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 35,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.6.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş enerjisini radyan enerji ve yenilenebilir enerji kaynağı olarak tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "6. Bölüm · Yenilenebilir Enerji-Güneş Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 42,
+    "pdfSayfa": 56,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.6.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş enerjisinin zamana ve yere göre değişimini açıklar, güneş ışınları açısının sıcaklığı etkileyebileceğini görür.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · Yenilenebilir Enerji-Güneş Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 42,
+    "pdfSayfa": 56,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.6.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş enerjisinden hangi yollar ile enerji üretimi yapılabileceğini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "6. Bölüm · Yenilenebilir Enerji-Güneş Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 42,
+    "pdfSayfa": 56,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.6.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneşten gelen ışık enerjisinin ısı enerjisine dönüştürülmesini görür.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · Yenilenebilir Enerji-Güneş Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 42,
+    "pdfSayfa": 56,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.7.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş pillerinin nasıl çalıştığını ve elektrik üretildiğini öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "7. Bölüm · Yenilenebilir Enerji-Güneş Pilleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 50,
+    "pdfSayfa": 64,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.7.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş pilleri kullanımı ile akım, gerilim ve güç kavramları arasındaki ilişkiyi açıklar.",
+   "uygunluk": "yazili",
+   "grup": "7. Bölüm · Yenilenebilir Enerji-Güneş Pilleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 50,
+    "pdfSayfa": 64,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.7.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş pillerinin seri ve paralel bağlamayı öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "7. Bölüm · Yenilenebilir Enerji-Güneş Pilleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 50,
+    "pdfSayfa": 64,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.7.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş pillerinin günlük yaşamda kullanımını hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "7. Bölüm · Yenilenebilir Enerji-Güneş Pilleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 50,
+    "pdfSayfa": 64,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.7.5",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci güneş pillerini kullanarak elektriksel bir yükün ihtiyacını karşılar.",
+   "uygunluk": "performans",
+   "grup": "7. Bölüm · Yenilenebilir Enerji-Güneş Pilleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 50,
+    "pdfSayfa": 64,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.8.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr enerjisini yenilenebilir bir enerji kaynağı olarak tanımlar ve rüzgâr enerjisi ile ilgili kavramları öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "8. Bölüm · Yenilenebilir Enerji-Rüzgâr Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 73,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.8.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr türbininin çalışmasını ve rüzgâr enerjisinin elektrik enerjisine dönüşümünü açıklar.",
+   "uygunluk": "yazili",
+   "grup": "8. Bölüm · Yenilenebilir Enerji-Rüzgâr Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 73,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.8.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr hareketi ve hızı ile rüzgâr türbini ve enerji üretimi arasındaki ilişkileri tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "8. Bölüm · Yenilenebilir Enerji-Rüzgâr Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 73,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.8.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgârdan gelen enerjiyi kullanan teknolojiler neler olduğunu görür.",
+   "uygunluk": "performans",
+   "grup": "8. Bölüm · Yenilenebilir Enerji-Rüzgâr Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 73,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.9.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr türbinlerinin nasıl çalıştığını ve elektrik enerjisini üretildiğini öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "9. Bölüm · Yenilenebilir Enerji-Rüzgâr Türbinleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 82,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.9.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr türbinlerinin farklı kanat tipleri, konumu ile elektrik enerjisi üretimi arasındaki ilişkiyi görür.",
+   "uygunluk": "performans",
+   "grup": "9. Bölüm · Yenilenebilir Enerji-Rüzgâr Türbinleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 82,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.9.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci rüzgâr türbinlerinin günlük yaşamda kullanımını hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "9. Bölüm · Yenilenebilir Enerji-Rüzgâr Türbinleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 68,
+    "pdfSayfa": 82,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.10.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci sürdürülebilir yaşamı destekleyen güneş ve rüzgâr dışındaki yenilenebilir enerji kaynakların neler olduğunu öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "10. Bölüm · Diğer Yenilenebilir Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 74,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.10.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci biyokütle ve biyogazın kavramlarını tanımlar ve yenilenebilir bir enerji kaynağı olarak kabul edildiğini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "10. Bölüm · Diğer Yenilenebilir Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 74,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.10.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci biyogazı ile elektrik enerjisi üretimi hakkında bilgi sahibi olur.",
+   "uygunluk": "yazili",
+   "grup": "10. Bölüm · Diğer Yenilenebilir Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 74,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.10.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci biyogazı jeneratörü yapmak için gereken adımları açıklar.",
+   "uygunluk": "yazili",
+   "grup": "10. Bölüm · Diğer Yenilenebilir Enerji Kaynakları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 74,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.11.1",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci “enerjinin depolaması” kavramını tanımlar ve gerekliliğini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "11. Bölüm · Enerji Depolama Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 81,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.11.2",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci farklı batarya türlerinin yapılarını öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "11. Bölüm · Enerji Depolama Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 81,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.11.3",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci batarya teknolojisini gelişim sürecini görür.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Enerji Depolama Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 81,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.11.4",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci hidrojen enerjisi ve yakıt pilleri üzerine enerji kullanımı görür.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Enerji Depolama Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 81,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EN.11.5",
+   "alan": "Enerji Teknolojileri",
+   "metin": "Öğrenci hidrojen enerjisi dönüşüm ve depolama işlemlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "11. Bölüm · Enerji Depolama Teknolojileri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 11 — Enerji Teknolojileri (Ortaokul)",
+    "sayfa": 81,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/11_enerji_teknolojileri_ortaokul_16022024.pdf"
+   }
+  }
+ ]
+}

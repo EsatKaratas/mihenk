@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:40:52.378Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "fa3aa64+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-MAT.8.1.1"
+  },
+  "http": 200,
+  "sureMs": 32841,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bakteri türü her 20 dakikada ikiye katlanarak çoğalıyor. Başlangıçta 5 bakteri varsa 1 saat sonra kaç bakteri olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "40"
+          },
+          {
+            "key": "B",
+            "text": "160"
+          },
+          {
+            "key": "C",
+            "text": "80"
+          },
+          {
+            "key": "D",
+            "text": "320"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece bir kez katlanıyormuş gibi hesaplıyor.",
+          "C": "Üç katlanır sanıyor, oysa iki katlanır.",
+          "D": "İki saat sonrasını hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "üslü ifade",
+          "katlanma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir küpün hacmi 27 cm³ ise küpün bir kenarının uzunluğu kaç cm'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "6"
+          },
+          {
+            "key": "B",
+            "text": "5"
+          },
+          {
+            "key": "C",
+            "text": "3"
+          },
+          {
+            "key": "D",
+            "text": "4"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hacmi 216 cm³ olan küpün kenarını veriyor.",
+          "B": "Hacmi 64 cm³ olan küpün kenarını veriyor.",
+          "D": "Küpün yüzey alanını hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "küp"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okuldaki öğrencilerin sayısı her yıl %10 artıyor. Okulda şu anda 500 öğrenci varsa 2 yıl sonra öğrenci sayısı kaç olur? Bu sonucu nasıl buldunuz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "artış",
+          "yüzdelik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

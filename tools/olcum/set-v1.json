@@ -2,6 +2,13 @@
   "surum": "set-v1",
   "olusturma": "2026-10-19",
   "aciklama": "Mihenk ölçüm seti v1 — 12 MEB kazanımı (3 ders × 4 sınıf), kazanım modu (kaynak metin YOK), her kazanım için 2 çoktan seçmeli + 1 açık uçlu soru istenir. Sabittir: değiştirilirse sürüm numarası artırılır (set-v2), eski koşumlar eski sürümle kıyaslanır.",
+  "secimGerekcesi": [
+    "Kazanım modu seçildi çünkü PROGRESS §46.2'de olgusal cevap anahtarı hatası yalnızca bu modda (kaynak metin yokken, model bilgiyi kendinden üretirken) yeniden üretilebildi; en zorlu ve hata açısından en bilgilendirici koşul budur.",
+    "Her ders için 5, 6, 7 ve 8. sınıftan birer kazanım alındı. Yalnızca katalogda uygunluk='yazili' olan kazanımlar kullanıldı (sınavla ölçülebilir).",
+    "Matematik ve Fen'de hesap ya da birim gerektiren kazanımlar kasten seçildi (çevre/alan, birim dönüşümü, doğru orantı, üslü ifade, sürat/hız, pH): canlıda görülen yanlış anahtarların üçü de bu sınıftandı (§46.2 santilitre, §48.5 bisiklet, §48b.2 sürtünme).",
+    "Türkçe'de üç yazma kazanımı metinsiz sorulabilir. T.O.8.9 (Okuduklarını karşılaştırabilme) ise kasten konuldu: metin gerektiren bir okuma kazanımının kazanım modunda nasıl davrandığını görmek için (zor vaka).",
+    "MAT.8.3.5 (Pisagor) ilk seçimdi ama ÇIKARILDI: kazanım metni 213 karakter, sunucu şeması outcomeLabel için en çok 200 kabul ediyor. 19.10'da gerçek istekle doğrulandı: HTTP 400 validation_failed, model çağrılmadı. Yerine yine hesap gerektiren MAT.8.1.1 (üslü ifadeler) konuldu. Bulgu Mihenk Orchestrator üzerinden W2'ye P0 olarak iletildi."
+  ],
   "istek": {
     "mode": "kazanim",
     "mcCount": 2,

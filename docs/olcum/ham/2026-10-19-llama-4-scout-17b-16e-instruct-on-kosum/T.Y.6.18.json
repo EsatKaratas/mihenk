@@ -1,0 +1,134 @@
+{
+  "zaman": "2026-10-19T04:36:52.477Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-T.Y.6.18"
+  },
+  "http": 200,
+  "sureMs": 23930,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul gazetesine yazacağı bir makale için başlık seçmek istiyor. Aşağıdaki başlıklardan hangisi doğru yazılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "okul Sporları"
+          },
+          {
+            "key": "B",
+            "text": "Okul sporlari"
+          },
+          {
+            "key": "C",
+            "text": "Okul Sporları"
+          },
+          {
+            "key": "D",
+            "text": "okul sporları"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece ilk kelimenin ilk harfi büyük olmalı, ikinci kelimenin ilk harfi de büyük olmalı",
+          "B": "İsim durum ekleri ve iyelik ekiyle yapılan ikilemeler de ayrı yazılır, noktalama işaretleri eksik",
+          "D": "İlk harf büyük olmalı"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kitap fuarısına katılan Ayşe, bir kitabı 15 TL'ye satın almak istiyor. Kitabın fiyatı 15₺ olarak etiketlenmiştir. Ayşe'nin 10 TL'lik ve 5 TL'lik iki banknotu vardır. Aşağıdaki ifadelerden hangisi Ayşe'nin 15 TL ödeyebilmesi için kullanabileceği banknotları gösterir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 TL + 5 TL + 5 TL"
+          },
+          {
+            "key": "B",
+            "text": "10 TL + 10 TL"
+          },
+          {
+            "key": "C",
+            "text": "15 TL"
+          },
+          {
+            "key": "D",
+            "text": "10 TL + 5 TL"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Üç banknotla ödeme yapabilir, ama soru en az banknotu soruyor",
+          "B": "Ödeme miktarı 20 TL oluyor",
+          "C": "Tek banknotla ödeme yapamaz"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "para",
+          "ödeme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğretmen, öğrencilerine yazım kuralları ile ilgili bir çalışma yapıyor. Öğretmen, 'arkadaşımın en sevdiği renk mavi' cümlesini yazdırıyor ve öğrencilerden cümlede hangi yazım kurallarının uygulandığını açıklamasını istiyor. Öğrencilerden biri, 'cümlede küçük harf kullanımı ve noktalama işaretlerinin kullanımı' olduğunu söylüyor. Bu öğrencinin cevabı doğru mudur? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

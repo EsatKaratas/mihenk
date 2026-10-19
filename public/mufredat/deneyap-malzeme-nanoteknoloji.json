@@ -1,0 +1,699 @@
+{
+ "ders": "Deneyap · Malzeme Bilimi ve Nanoteknoloji",
+ "sinif": "Ortaokul",
+ "atolye": "Malzeme Bilimi ve Nanoteknoloji",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-607-2",
+ "kunye": {
+  "isbn": "978-605-312-607-2",
+  "yayimTarihi": "2024",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2021",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf",
+  "sha256": "1a44a7a6d419ca9da4d142a07757e1de4db189e497120412529a76c6b8504401"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok yerde geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.MB.1.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "İnsanlık tarihi ve malzeme biliminin birbirleri ile nasıl paralel geliştiği ve birbirlerini nasıl etkilediği öğrenilecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.1 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 8,
+    "pdfSayfa": 10,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.1.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Malzeme bilimi ve malzeme mühendisliğinin önemi kavranacaktır.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.1 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 8,
+    "pdfSayfa": 10,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Temel malzeme sınıflarını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.2 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 15,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.2.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Çevrelerinde gördükleri malzemeleri gruplandırırlar.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 1.2 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 15,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.2.3",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Kompozit malzemelerin kullanım alanlarını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.2 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 15,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Yarı İletkenler, Biyomalzemeler, Akıllı Malzemeler, Nanomalzemeler gibi ileri malzemeleri ve kullanım yerlerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.3 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 27,
+    "pdfSayfa": 29,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Malzemelerin üretim yöntemlerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.4 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 36,
+    "pdfSayfa": 38,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.5.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Geri dönüşüm konusunda farkındalık kazanırlar.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 1.5 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.1.5.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Malzeme gruplarının geri dönüşüm özelliklerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 1.5 · Malzeme Bilimi Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.2.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler günlük hayatta kullanılan malzemeleri özellikleri açısından karşılaştırırlar.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 2.1 · Malzemelerin Yapısı Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 57,
+    "pdfSayfa": 59,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.2.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler kristal malzemelerde atomların dizilişini ve birim hücre kavramını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 2.2 · Kristal Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.2.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler kristal yapı değişimlerini ve örnek olarak şekil bellekli alaşımları öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 2.3 · Kristal Yapı Değişimleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 70,
+    "pdfSayfa": 72,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf",
+    "tekrarSayfalari": [
+     82
+    ]
+   }
+  },
+  {
+   "kod": "DNY.MB.3.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mühendislik uygulamalarında kullanılan malzemelerin mekanik özelliklerini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.1 · Mekanik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 94,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.1.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mikroyapının malzemenin mekanik özelliklerine nasıl etki ettiğini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.1 · Mekanik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 94,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.1.3",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Gözlemlenebilen mekanik özelliklerin mikroskobik düzeyde kaynağına inerek nasıl oluştukları kavranacaktır.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.1 · Mekanik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 94,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.1.4",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Gündelik hayatta ve projelerde potansiyel uygulamalara uygun mekanik özelliklere sahip malzemelerin doğru tespit edilmesi beklenmektedir.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 3.1 · Mekanik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 94,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler önemli mekanik özellikleri ve nasıl ölçüldüklerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.2 · Temel kavramlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 100,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler temel malzeme gruplarında elastik ve plastik deformasyonu öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.3 · Elastik ve Plastik Deformasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 104,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.3.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler çekme testi ve gerilim – gerinim grafiklerini irdelemeyi öğrenirler .",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 3.4 · Mekanik özellikler nasıl ölçülür?",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.MB.4.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mühendislik uygulamalarında kullanılan malzemelerin kimyasal özelliklerini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 4.1 · Kimyasal Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 123,
+    "pdfSayfa": 125,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.4.1.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Farklı malzemelerde görünen korozyon davranışları incelenecektir.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 4.1 · Kimyasal Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 123,
+    "pdfSayfa": 125,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.4.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler korozyon ve patina kavramlarını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 4.2 · Korozyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 129,
+    "pdfSayfa": 131,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.4.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler malzemelerin korozyondan korunma yöntemlerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 4.3 · Korozyondan Korunma Yolları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 139,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.5.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mühendislik uygulamalarında kullanılan malzemelerin elektriksel özelliklerini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 5.1 · Malzemelerin Elektriksel Özellikleri Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 156,
+    "pdfSayfa": 158,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.5.1.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler doplama, transistor, piezoelektrik malzemeleri öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 5.1 · Malzemelerin Elektriksel Özellikleri Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 156,
+    "pdfSayfa": 158,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.5.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler metal, seramik ve polimerlerdeki temel elektriksel özellikleri öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 5.2 · Malzemelerin Temel Elektriksel Özellikleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 160,
+    "pdfSayfa": 162,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.5.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler piezoelektrik malzemelerin özelliklerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 5.3 · Piezoelektrik Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 168,
+    "pdfSayfa": 170,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.6.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mühendislik uygulamalarında kullanılan malzemelerin termal özelliklerini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 6.1 · Malzemelerin Termal Özellikleri Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 179,
+    "pdfSayfa": 181,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.6.1.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Aerojellerin termal özellikleri deneyle irdilenecektir.",
+   "uygunluk": "performans",
+   "grup": "Etkinlik 6.1 · Malzemelerin Termal Özellikleri Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 179,
+    "pdfSayfa": 181,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.MB.6.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler ısı ve sıcaklık kavramlarını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 6.2 · Isı ve Sıcaklık Kavramları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 182,
+    "pdfSayfa": 184,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.6.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler farklı malzemelerdeki ısı iletimi kavramını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 6.3 · Isı İletimi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 186,
+    "pdfSayfa": 188,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.6.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler aerojel malzemelerin termal özelliklerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 6.4 · Aerojel Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 194,
+    "pdfSayfa": 196,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.7.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler mühendislik uygulamalarında kullanılan malzemelerin manyetik özelliklerini öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 7.1 · Manyetik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 206,
+    "pdfSayfa": 208,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.7.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler manyetik özelliklere ait temel kavramları öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 7.2 · Manyetik Özelliklere Ait Kavramlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 214,
+    "pdfSayfa": 216,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.7.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler manyetik özelliklerin sıcaklıkla nasıl değiştiğini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 7.3 · Sıcaklık ve Manyetik Özellikler İlişkisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 220,
+    "pdfSayfa": 222,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.7.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler sert ve yumuşak mıknatıs çeşitlerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 7.4 · Mıknatıs Çeşitleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 224,
+    "pdfSayfa": 226,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.7.4.2",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler süperiletkenleri ve mühendislikteki kullanımlarını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 7.4 · Mıknatıs Çeşitleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 224,
+    "pdfSayfa": 226,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler temel optik özellikleri, ışığın malzemeyle olan etkileşimini ve optik özellikleri sebebiyle mühendislik uygulamalarında kullanılan çeşitli malzemeleri öğrenecektir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.1 · Optik Özellikler Derse Başlamadan Önce Etkinliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 236,
+    "pdfSayfa": 238,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.2.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler malzemelerin ışık geçirgenliğini öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.2 · Malzemelerin Işık Geçirgenliği",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 240,
+    "pdfSayfa": 242,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler ışık yayan diyot (LED) kavramını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.3 · Aydınlatma Malzemeleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 241,
+    "pdfSayfa": 243,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler floresan lambaların çalışma prensibini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.4 · Floresan Lambalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 245,
+    "pdfSayfa": 247,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.5.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler ışığın malzeme içerisinde kırılma prensibini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.5 · Işığın Malzeme İçerisinde Kırılması",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 251,
+    "pdfSayfa": 253,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.6.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler ışığın malzeme içerisinde saçılmasını öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.6 · Işığın Saçılması",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 256,
+    "pdfSayfa": 258,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.8.7.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler metamalzemeleri öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 8.7 · Metamalzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 260,
+    "pdfSayfa": 262,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.9.1.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler nanometre uzun ölçü birimini diğer boyutlarda canlı ile cansız varlıklarla karşılaştırmalı olarak öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 9.1 · Nanometre",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 266,
+    "pdfSayfa": 268,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf",
+    "tekrarSayfalari": [
+     273
+    ]
+   }
+  },
+  {
+   "kod": "DNY.MB.9.3.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler nanomalzemelerin katalizör etkisini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 9.3 · Nanomalzemelerin Katalizör Etkisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 278,
+    "pdfSayfa": 280,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.9.4.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler nanokaplamaları ve hidrofobik yüzeylerin çalışma prensiplerini öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 9.4 · Nanokaplamalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 283,
+    "pdfSayfa": 285,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  },
+  {
+   "kod": "DNY.MB.9.5.1",
+   "alan": "Malzeme Bilimi ve Nanoteknoloji",
+   "metin": "Öğrenciler Namib çölünde yaşayan bir böcekten esinlenerek üretilen nanomalzemeler yardımıyla havadan su toplamaya yarayan tekniği öğrenirler.",
+   "uygunluk": "yazili",
+   "grup": "Etkinlik 9.5 · Nanoteknoloji Yardımıyla Çölde Havadan Su Toplamak",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+    "sayfa": 299,
+    "pdfSayfa": 301,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/27_malzeme_bilimi_ve_nanoteknoloji_ortaokul.pdf"
+   }
+  }
+ ]
+}
