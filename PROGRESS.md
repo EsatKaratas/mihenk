@@ -8461,3 +8461,42 @@ kartının durum satırı) görüntüleri değişti; yayından sonra yeniden çe
 
 **Doğrulama:** 338/338 · öz-kontrol 370 ad %100 · U+FFFD 0 · konsol JS
 hatası 0 · model çağrısı 0.
+
+
+---
+
+## 59. YAZDIRMA — SINAV KÂĞIDI + AYRI CEVAP ANAHTARI (20 Ekim 2026, W1)
+
+Esat onayladı: "Yazdırma özelliğini ekleyin (sınav kâğıdı + ayrı cevap
+anahtarı)". Commit `f85056b` (app.js + app.css; iki çıktı aynı eklemede
+olduğu için tek commit). Push yok.
+
+**Nerede:** Öğretmen › Sınav Taslağı kartının altında "🖨 Sınav kâğıdı" ve
+"🖨 Cevap anahtarı" düğmeleri.
+
+| Karar | Gerekçe |
+|---|---|
+| İki AYRI çıktı | Kâğıt öğrenciye anahtarla birlikte gitmemeli; kâğıtta cevap, gerekçe, kazanım kodu yok |
+| Yalnız onaylı sorular | agents.md §1. Onaysız soru sınavdaysa düğmenin yanında "N soru onaylı olmadığı için yazdırılmaz" yazar (sessiz düşüş yok) |
+| "TASLAK — yayınlanmadı" ibaresi | Yayınlanmamış sınavın kâğıdı nihai sanılmasın |
+| Ders etiketi | MEB "Fen Bilimleri · 7. sınıf"; Deneyap/Keşif atölye adıyla ("Deneyap Atölyeleri · Yapay Zekâ", "Keşif Kampüsü · Fizik Atölyesi"); karışık sınavda "Karma (… / …)" |
+| Anahtarda rubrik | Açık uçluda ölçüt / % / puan / beklenen tablosu; YZ taslağı rubrik "henüz kabul edilmedi" uyarısıyla |
+| Aynı sayfada gizli kap + `window.print()` | Yeni pencere açılır pencere engelleyicisine takılabilir; CSP inline script'e izin vermiyor. Tarayıcının kendi Ctrl+P'si eskisi gibi uygulamayı basar |
+| Baskı CSS'i | A4, 15 mm kenar; soru ve kaynak metin sayfa arasında bölünmez; renkler sabit — koyu temada da beyaz kâğıt (`html.yazdiriliyor` + `color-scheme: light`) |
+
+**Ölçüm (Chrome, playwright `page.pdf`, A4):**
+- Demo kâğıt: 1 sayfa, cevap yok, Türkçe karakterler doğru, TASLAK ibaresi var.
+- Demo anahtar: "A — …", açık uçlu rubrik (40/8, 30/6, 30/6), 20 puan.
+- 16 soruluk test sınavı (kaynak metinli 2 soru + 12 kopya, **yalnız geçici
+  profilde**, demo tohumuna eklenmedi — tuzak 11): 4 sayfa, bölünen soru yok,
+  kaynak metin sorusuyla aynı sayfada, toplam 95 puan.
+- Koyu tema: ilk denemede kenarlar siyahtı (`html` arka planı); düzeltildi,
+  yeniden ölçüldü — beyaz.
+- Tarayıcıda: düğmeler kartta; `print` bir kez çağrılıyor, sonra kap
+  boşalıyor ve sınıf kalkıyor. Onaysız soru eklenince kâğıtta yok, uyarı var.
+
+**Kadraj:** Öğretmen › Sınav Taslağı kartına bir satır eklendi; o ekran
+görüntüsü varsa yayından sonra yeniden çekilmeli.
+
+**Doğrulama:** 338/338 · öz-kontrol 380 ad %100 · U+FFFD 0 · servis = disk
+(app.js `5719dc956c31…`, app.css `4db61d40ea04…`) · model çağrısı 0.
