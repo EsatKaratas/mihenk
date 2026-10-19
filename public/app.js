@@ -6454,15 +6454,19 @@ function sinifVerisiKutusuHtml(gonderenSayisi) {
   return '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
     '<h3>Sınıf Verisi</h3><span class="hint">' + gonderenSayisi + ' öğrenci sınavı gönderdi</span></div>' +
     '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">' +
-    'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf ' +
-    'oluşturabilirsiniz: yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
+    /* §51: bu cümle sabitti ve 4 öğrenci gönderdiğinde de "tek öğrenciyle
+       hesaplanamaz" diyordu (ölçüldü, demo adım 4). Artık sayıya bakıyor. */
+    (gonderenSayisi > 1
+      ? 'Sınıf ortalaması bu ' + gonderenSayisi + ' gönderimden hesaplanır. Daha kalabalık bir sınıfla denemek isterseniz buradan simüle edilmiş öğrenciler ekleyebilirsiniz: '
+      : 'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf oluşturabilirsiniz: ') +
+    'yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
     '<b>değerlendirme gerçek modelle ve sizin tanımladığınız rubrikle</b> yapılır. ' +
     'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
     '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
     (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
     '<div class="cache-row">Değerlendirme önbelleği: <b>' + evalCacheCount() + '</b> kayıt' +
     (evalCacheCount() ? ' <button class="btn btn-secondary btn-sm" id="btnClearCache">Temizle</button>' : "") +
-    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; ücretsiz model kotasını korur.</span></div>' +
+    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; gereksiz model çağrısı ve maliyeti önlenir.</span></div>' +
     '<div id="simProgress" class="sim-progress">' +
     (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
     '</div></div>';
@@ -6633,7 +6637,12 @@ function wireTeacherTab3() {
     b.onclick = function () {
       const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
       const ev = (readSession(sid).aiEvals || {})[qid] || {};
-      finalizeReview(qid, ev.aiScore, "", "approved_as_is", sid);
+      /* §51 — SESSİZ DÜŞÜŞ KAPATILDI: bu düğme not alanını hiç okumuyor, ""
+         yazıyordu. Ölçüldü: "Nota Aktar" ile alınan geri bildirim + "Tek
+         Tıkla Onayla" → reviews.comment "" ve karnede not yok. Puan AI
+         önerisiyle aynı kalır; not, öğretmenin yazdığı/aldığı metindir. */
+      const notEl = document.querySelector('.teacher-comment[data-qid="' + qid + '"][data-sid="' + sid + '"]');
+      finalizeReview(qid, ev.aiScore, notEl ? notEl.value : "", "approved_as_is", sid);
     };
   });
   document.querySelectorAll(".revise-approve").forEach(function (b) {
@@ -7976,9 +7985,9 @@ function studentTab3Html() {
       if (!res) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
-          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtın kaydedilmemiş — ' +
-          'soru sen sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanına eklenmedi; ' +
-          'öğretmenine söyle.</div></div>';
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtınız kaydedilmemiş — ' +
+          'soru siz sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanınıza eklenmedi; ' +
+          'öğretmeninize bildirin.</div></div>';
       }
       /* PUAN GÖRÜNÜR OLMALI (ekip denemesi geri bildirimi): burada eskiden
          yalnızca "✓ Doğru" rozeti vardı; soru puanlanıyordu ama öğrenci o
@@ -8019,8 +8028,8 @@ function studentTab3Html() {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
           '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru ' +
-          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmenin tarafından onaylanmamış") +
-          '. Toplam puanına eklenmedi — öğretmenine söyle.</div></div>';
+          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmeniniz tarafından onaylanmamış") +
+          '. Toplam puanınıza eklenmedi — öğretmeninize bildirin.</div></div>';
       }
       totalScore += rv.finalScore; totalMax += rub.maxScore;
       /* "Değiştirildi mi" sorusu ETİKETTEN DEĞİL, PUANDAN türetilir.
@@ -8050,18 +8059,25 @@ function studentTab3Html() {
            söyle. HITL tezinin gereği: öğrenci puanın nasıl oluştuğunu doğru
            bilmeli. */
         (aiOneri == null
-          ? 'Bu puanı öğretmenin kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
+          ? 'Bu puanı öğretmeniniz kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
           : revize
-            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmenin okuyup ' + rv.finalScore + ' puana çevirdi.'
-            : 'Yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı.') + '</div>' +
+            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmeniniz yanıtınızı okuyup puanı ' + rv.finalScore + ' olarak belirledi.'
+            : 'Yapay zekâ bu puanı önerdi; öğretmeniniz yanıtınızı okuyup onayladı.') + '</div>' +
         ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
+        /* §51 — ÖĞRENCİYE YALNIZCA ÖĞRETMENİN ONAYLADIĞI METİN GİDER.
+           Eskiden karne `ev.justification` ile ölçüt `reason`larını da
+           gösteriyordu: modelin ÖĞRETMENE 3. şahısla yazdığı gerekçe
+           ("Öğrenci … kullanmış") doğrudan öğrenciye ulaşıyordu. Öğretmen
+           paneli ise "geri bildirim taslağı · siz aktarmadan öğrenciye
+           gitmez" diyor (feedbackDraftHtml) — karne bu sözü çiğniyordu.
+           `studentFeedback` de otomatik gösterilmez (aynı söz); öğretmen
+           "Nota Aktar" ile alırsa `rv.comment` olarak gelir. Ölçüt PUANLARI
+           kalır: puanın nereden geldiği öğrencinin hakkıdır. */
         (ev.breakdown || []).map(function (b) {
-          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
-            (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
+          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>';
         }).join("") +
-        ((ev.justification || rv.comment)
-          ? '<div class="justification" style="margin-top:8px;">' + escapeHtml(ev.justification || "") +
-            (rv.comment ? (ev.justification ? "<br>" : "") + "<b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div>'
+        (rv.comment
+          ? '<div class="justification" style="margin-top:8px;"><b>Öğretmeninizin notu:</b> ' + escapeHtml(rv.comment) + '</div>'
           : "") + '</div>';
     }
   }).join("");
@@ -8083,8 +8099,8 @@ function studentTab3Html() {
       '<div class="kt-sayi"><span class="kt-puan tabular">' + puan + '</span>' +
       '<span class="kt-tavan tabular">/ ' + totalMax + '</span></div>' +
       (yuzde == null ? "" : '<div class="kt-yuzde tabular">%' + yuzde + '</div>') +
-      '<div class="kt-not">Bu senin bu sınavdan aldığın <b>nihai puan</b>. ' +
-      'Aşağıda her soruda ne yazdığını, kaç puan aldığını ve neden o puanı aldığını görebilirsin.</div>' +
+      '<div class="kt-not">Bu, sınavdan aldığınız <b>nihai puan</b>. ' +
+      'Aşağıda her soruda ne yazdığınızı, kaç puan aldığınızı ve puanın hangi ölçütlerden geldiğini görebilirsiniz.</div>' +
     '</div>' + rows + '</div>';
 }
 
