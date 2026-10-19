@@ -1267,8 +1267,12 @@ function loadState() {
        Bayrak eski kayıtta yoktur (undefined) → bir kez eklenir, bayrak
        kalıcı yazılır; kullanıcı sonra dersi silerse geri gelmez. Kazanımlar
        için ayrı göç gerekmez: yukarıdaki ekleme göçü 10 varsayılan Deneyap
-       kazanımını da taşır. */
-    if (!state.gocDeneyapDersi) {
+       kazanımını da taşır.
+       ⚠️ Koşul KAYDA (`d`) bakar, state'e DEĞİL: state'in başlangıç değeri
+       yeni kurulum için `true`dur ve eski kayıtta alan olmadığından üstüne
+       yazılmaz — ilk sürüm state'e bakıyordu ve göç hiç çalışmadı (bayat
+       kayıtla ölçüldü, §52). */
+    if (!d.gocDeneyapDersi) {
       if (Array.isArray(state.subjects) && state.subjects.length &&
           state.subjects.indexOf(DENEYAP_DERSI) < 0) {
         state.subjects = state.subjects.concat([DENEYAP_DERSI]);
@@ -2259,6 +2263,13 @@ function kazanimNotuHtml() {
   // yazısıyla baş başa kalır ve ne yapacağını bilemez.
   if (!secilebilir) {
     const katalogVar = !!MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()];
+    /* §52: Deneyap'ta katalog yoksa sebebi büyük olasılıkla indeksin
+       yüklenememesidir; "hazır katalog yok" demek yanlış beyan olurdu. */
+    if (state.ceForm.subject === DENEYAP_DERSI && !deneyapIndeksi) {
+      return '<span class="field-note">0 kazanım · ' + dersSinif + " · <b>Deneyap atölye listesi " +
+        (deneyapIndeksHata ? "yüklenemediği" : "henüz yüklenmediği") +
+        " için katalog açılamadı</b> (yukarıdaki Deneyap alanına bakın)." + tumunuGoster + "</span>";
+    }
     return '<span class="field-note">0 kazanım · ' + dersSinif +
       " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
       (katalogVar
@@ -2453,6 +2464,13 @@ function removeSubject(ad) {
 
 /** Ders sekmesine tıklandığında: seçimi taşı, kazanımı ve kataloğu tazele. */
 function dersSec(ad) {
+  /* §52: Deneyap indeksi yüklenemediyse ekran "ders sekmesine yeniden
+     tıklayın" der; aynı derse tıklama bu yüzden YENİDEN DENEMEDİR. Bu satır
+     olmasaydı aşağıdaki erken dönüş o sözü boşa çıkarırdı (ölçüldü). */
+  if (ad && ad === DENEYAP_DERSI && state.ceForm.subject === ad && !deneyapIndeksi) {
+    deneyapIndeksYukle(true);
+    return;
+  }
   if (!ad || state.ceForm.subject === ad) return;
   state.ceForm.subject = ad;
   /* KEŞİF DERSİ İLE KEŞİF SINIFI BİRLİKTE ANLAMLIDIR (§50e).
