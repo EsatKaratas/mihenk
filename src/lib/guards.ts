@@ -448,6 +448,27 @@ export function gerekceTekrariVarMi(harita?: Record<string, string> | null): boo
   return false;
 }
 
+/**
+ * §51b — KAÇ GEREKÇEDE KALIP AÇILIŞ KESİLDİ?
+ *
+ * API yalnızca temizlenmiş gerekçeyi döndürdüğü için, modelin "Bu şıkkı seçen
+ * öğrenci..." kalıbını ne sıklıkla yazdığı dışarıdan ÖLÇÜLEMİYORDU. Bu sayı,
+ * otomatik denetimin ne kadar yakaladığının doğrudan ölçüsüdür (docs/ARASTIRMA).
+ *
+ * Yalnızca KALIP AÇILIŞIN gerçekten kesildiği gerekçe sayılır. İlk harf
+ * büyütme tek başına sayılmaz (o bir kalıp değil), temizlik cümleyi yok
+ * edeceği için orijinalin korunduğu durum da sayılmaz (değişiklik olmadı).
+ * Davranışı değiştirmez; `gerekceyiSadelestir` ile aynı ifadeyi kullanır.
+ */
+export function kalipliGerekceSayisi(harita?: Record<string, string> | null): number {
+  let n = 0;
+  for (const v of Object.values(harita || {})) {
+    const ham = String(v || '').trim();
+    if (ham && GEREKCE_KALIP_ACILIS.test(ham) && ham.replace(GEREKCE_KALIP_ACILIS, '').trim()) n++;
+  }
+  return n;
+}
+
 /** Bir çeldirici gerekçesi haritasının tamamını sadeleştirir. */
 export function gerekceleriSadelestir(
   harita?: Record<string, string> | null

@@ -38,6 +38,7 @@ import {
   sikImzasi,
   gerekceleriSadelestir,
   gerekceTekrariVarMi,
+  kalipliGerekceSayisi,
   makulSoruSayisi,
 } from '../lib/guards';
 import {
@@ -223,6 +224,12 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
 
   // §44: kullanılamaz biçimde dönen (şıkkı eksik) soru sayısı — meta ile bildirilir.
   let elenenGecersiz = 0;
+  /* §51b — ölçüm sayaçları (davranışı değiştirmez, istemci görmezden gelir).
+     Modelin döndürdüğü KULLANILABİLİR tüm ÇSS'ler üzerinden, tekrar
+     elemesinden ÖNCE sayılır: ölçülen şey modelin ham davranışı ve otomatik
+     denetimin onu ne sıklıkla yakaladığıdır, kullanıcıya kalan soru değil. */
+  let sadelestirilenGerekce = 0;
+  let toplamGerekce = 0;
 
   try {
     const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
@@ -245,6 +252,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
              5 soru isteyip 3 alıyor ve hiçbir açıklama görmüyordu (§6.3-5).
              Sayaç aşağıda meta.elenenGecersiz olarak döner. */
           if (opts.length < 3) { elenenGecersiz++; return null; }
+          toplamGerekce += Object.values(q.distractorRationale || {}).filter((v) => String(v || '').trim()).length;
+          sadelestirilenGerekce += kalipliGerekceSayisi(q.distractorRationale);
           /* §32 (Burak Modül 4): şıklar burada hem A,B,C,... olarak
              normalleştirilir HEM DE rastgele karıştırılır. Eskiden yalnızca
              normalleştirme vardı; modelin kendi seçtiği KONUM korunuyordu ve
@@ -380,6 +389,10 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         // §44: modelin kullanılamaz döndürdüğü (şıkkı eksik) soru sayısı.
         elenenGecersiz,
         kisiltmaNotu,
+        // §51b: kalıp açılışı ("Bu şıkkı seçen öğrenci...") sunucuda kesilen
+        // gerekçe sayısı / boş olmayan toplam gerekçe sayısı (tekrar elemesinden önce).
+        sadelestirilenGerekce,
+        toplamGerekce,
       },
     });
   } catch (e) {
