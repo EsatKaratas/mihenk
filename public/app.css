@@ -297,7 +297,11 @@
 
   .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
   .field label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
-  .field input, .field select, .field textarea {
+  /* §52: katalog modalının filtreleri (.kat-filtre) .field içinde değil ve
+     tarayıcının varsayılan yazı tipiyle görünüyordu; yeni stil yerine aynı
+     form kuralı paylaşılır. */
+  .field input, .field select, .field textarea,
+  .kat-filtre select, .kat-filtre input {
     font-family: "Source Sans 3", sans-serif; font-size: 13.5px; padding: 9px 10px; border-radius: 8px;
     border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); width: 100%;
   }
