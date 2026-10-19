@@ -1,0 +1,883 @@
+{
+ "ders": "Deneyap · Havacılık ve Uzay",
+ "sinif": "Ortaokul",
+ "atolye": "Havacılık ve Uzay",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-550-1",
+ "kunye": {
+  "isbn": "978-605-312-550-1",
+  "yayimTarihi": "2024",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2021",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf",
+  "sha256": "089f9042c399b5c3fdea3b2a0a558fd90746992e07a8cb6b31ece7a12c133ffa"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok yerde geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.HU.1.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler temel düzeyde hava aracını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Hava Araçları ve Uçuşun Esasları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 16,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.1.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava aracı türlerini sınıflar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Hava Araçları ve Uçuşun Esasları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 16,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.1.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava araçaların uçuş esaslarını yorumlar.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Hava Araçları ve Uçuşun Esasları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 16,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.HU.1.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Bernoulli ilkesini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Hava Araçları ve Uçuşun Esasları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 16,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.1.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Kanat yapıları ve kanatların özelliklerini ilişkilendirir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Hava Araçları ve Uçuşun Esasları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 16,
+    "pdfSayfa": 17,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler malzemeyi tanımlar ve malzemeleri sınıflandırır.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Günümüzde kullanılan havacılık malzemelerini tahmin etmeleri istenir. Bu malzemeleri sınıflandırmaları beklenir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Kompozit malzemelerin yapı ve özelliklerini keşfeder.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Matris ve takviye malzemelerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Sandviç yapılı kompozit ve bu yapının elemanlarını modeller.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.6",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler el becerileri ile kendi karbon kanat tasarımlarını oluşturarak gelişmiş karbon tasarımları ortaya koyarlar. Aynı zamanda kendi çekirdek ve kalıp malzeme tasarımlarını oluşturulmaları beklenir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.2.7",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Deneyler sonucunda malzemelere hafif ama sağlam özelliklerin nasıl kazandırıldığı keşfeder.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Havacılıkta Kullanılan Malzemeler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 29,
+    "pdfSayfa": 30,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.3.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler temel hava araçlarının manevra becerilerini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Hava Araçlarında Kontrol Yüzeyleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 44,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.3.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Sabit kanat hava araçlarının kanat bileşenlerini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Hava Araçlarında Kontrol Yüzeyleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 44,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.3.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava aracının dengeli uçuşunu sağlayan unsurları bilir.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Hava Araçlarında Kontrol Yüzeyleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 44,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.3.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Sabit kanat bir İHA’yı model uçak seviyesinde birleştirir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Hava Araçlarında Kontrol Yüzeyleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 44,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.3.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Kontrol yüzeylerinin kumanda ile ilişkisini yorumlar.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Hava Araçlarında Kontrol Yüzeyleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 44,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.4.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "İtkinin temel türlerini tanımlayıp ayırt edebilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · İtki Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 60,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.4.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uçak motorlarını tanır ve sınıflandırma esaslarını açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · İtki Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 60,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.4.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Jet motorlar ile nasıl itki oluşturduğunu anlar ve jet motoru bileşenlerini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · İtki Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 60,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.4.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Elektrik motoru ve pervane seçimi yapar.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · İtki Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 60,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.4.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uçuş için gerekli itkiyi hesaplar.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · İtki Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 60,
+    "pdfSayfa": 61,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava araçlarının elektrik bileşenlerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava aracı güç gerekliliklerini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava araçlarının elektronik bileşenlerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Sensör verilerini yorumlar.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Hava araçlarının kendi arasında ve yer istasyonları ile iletişimini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.6",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uçuş kumandaları ve kontrol yüzeylerinin çalışma prensiplerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.7",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Temel uçuş manevraları için gerekli kumanda ve kontrol ara yüzlerini donanım olarak üretir",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.8",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Temel uçuş manevraları için yazılım geliştirir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.5.9",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Yazılım ve donanım arasında entegrasyon kurar.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Aviyonik Sistemler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 84,
+    "pdfSayfa": 85,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler temel düzeyde bir ROS paketi oluşturur.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler ROS düğümlerini (node) ve konuları (topic) açıklar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler ROS mesajlarını açıklar ve bir örnek oluşturur.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler ROS servislerini ve eylem kütüphanelerini tanır.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler ROS başlatma (launch) dosyalarını oluşturur.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.6.6",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler ROS paketlerini yayınlar.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Temel ROS Bilgisi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 109,
+    "pdfSayfa": 110,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.7.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler bir robotun tanımlanması için gerekli temel kavramları bilir.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Robot Tanımlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 146,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.7.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler eklem ve uzuv, görünüm, çarpışma, kinematik ve dinamik tanımlamaları bilir.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Robot Tanımlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 146,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.7.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler eklemlerin farklı özelliklerde hareketlendirilmesini bilir ve uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Robot Tanımlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 146,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf",
+    "tekrarSayfalari": [
+     167
+    ]
+   }
+  },
+  {
+   "kod": "DNY.HU.7.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler uzuvlar ile eklemler arasındaki dönüşüm mantığını anlar ve uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Robot Tanımlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 146,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf",
+    "tekrarSayfalari": [
+     167
+    ]
+   }
+  },
+  {
+   "kod": "DNY.HU.7.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler bir robotu tanımlarken gerekli uzuv eklem döngü mantığını kurup uygulayabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Robot Tanımlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 146,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.8.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler bir döner kanat İHA tasarımı ve tanımlanması için gerekli temel kavramları bilir.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Robot Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 167,
+    "pdfSayfa": 168,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.8.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler eklem, uzuv, görünüm, çarpışma, atalet, kinematik ve dinamik tanımlamalarını bilir.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Robot Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 167,
+    "pdfSayfa": 168,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.8.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler bir robotun görselleştirilmesini ve simülasyon yapabilir.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Robot Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 167,
+    "pdfSayfa": 168,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, atmosferin katmalarını ve özelliklerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.HU.9.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, roketçilik tarihini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, roketçilik ile ilgili önemli kişileri bilir.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, roketlerin kullanım amacını bilir.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, roketle ilgili temel tanımları bilir.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.6",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, roketlerin parçalarını ve kullanım gerekçelerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.7",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, rokete uçuşları esnasında etki eden kuvvetleri bilir.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.9.8",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Öğrenciler, uzay mekiğini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Roket Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 173,
+    "pdfSayfa": 174,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.1",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uydu sistemlerini tanır",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.2",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uyduların uzayda yerleşimi ve çalımasını prensiplerini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.HU.10.3",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uydu geliştirme malzemelerini ilişkilendirir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.4",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uydu çeşitlerini sınıflar.",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.5",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Uydu haberleşme usulleri kavrar.",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.HU.10.6",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Model yapay uydu oluşturur.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.7",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Model uydu için temel yazılım üretir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  },
+  {
+   "kod": "DNY.HU.10.8",
+   "alan": "Havacılık ve Uzay",
+   "metin": "Yenilenebilir enerji kaynakları ile uyduların enerji sistemlerini ilişkilendirir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Uydu Sistemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 202,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/25_havacilik_ve_uzay_ortaokul_tam.pdf"
+   }
+  }
+ ]
+}

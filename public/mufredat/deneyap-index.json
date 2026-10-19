@@ -3,7 +3,7 @@
  "sinif": "Deneyap",
  "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
  "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
- "toplamKazanim": 513,
+ "toplamKazanim": 574,
  "atolyeler": [
   {
    "ad": "Tasarım ve Üretim",
@@ -142,6 +142,20 @@
    "uygunluk": {
     "yazili": 6,
     "performans": 21,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Havacılık ve Uzay",
+   "kod": "HU",
+   "dosya": "/mufredat/deneyap-havacilik-uzay.json",
+   "kitapNo": 25,
+   "kitap": "TÜBİTAK Deneyap Kitapları 25 — Havacılık ve Uzay (Ortaokul)",
+   "isbn": "978-605-312-550-1",
+   "kazanimSayisi": 61,
+   "uygunluk": {
+    "yazili": 34,
+    "performans": 27,
     "surec": 0
    }
   }
