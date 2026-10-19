@@ -31,7 +31,8 @@ Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
 | Test | **334/334** (12 dosya) — 20 Ekim |
 | Cevap denetimleri (20 Ekim) | A1 bağımsız çözüm · A2 sayısal hesap · A3 uzun şık (yalnız ölçüm) · A4 tür içi tekrar — **yazıldı, ölçülmedi** (ARASTIRMA §4.5) |
 | Lint (`tsc --noEmit`) | temiz — 19 Ekim |
-| Öz-kontrol | **355 ad · eksik 0 · kapsama %100** — 19 Ekim |
+| Öz-kontrol | **370 ad · eksik 0 · kapsama %100** — 20 Ekim |
+| Şüphe rozetleri + uyum raporu (20 Ekim) | B1 onay kartında "neden şüpheli?" rozetleri ve "Bağımsız çöz"; A7 YZ önerisi ↔ nihai puan raporu (soru bazında). Onayı engellemez. A7 kriter bazında farkı **ölçemez** (öğretmen yalnız toplam puan verir). PROGRESS §56 |
 | `check:config` · `node --check public/app.js` | exit 0 · temiz — 19 Ekim |
 | Konsol hatası | 0 (son ölçüm 6 Eylül, §49.7 / §50) |
 | AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` (19 Ekim, `/api/ai/status`) |
@@ -49,7 +50,7 @@ git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
 npm test                            # 334/334
-node tools/ozkontrol-dogrula.mjs    # 355 ad · kapsama %100
+node tools/ozkontrol-dogrula.mjs    # 370 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
 ```

@@ -42,7 +42,7 @@ npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
 npm test                            # 334/334, 12 dosya
-node tools/ozkontrol-dogrula.mjs    # 355 ad · kapsama %100
+node tools/ozkontrol-dogrula.mjs    # 370 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -255,7 +255,8 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | Test | **334/334** (12 dosya) — 20 Ekim |
 | Cevap denetimleri | A1–A4 yazıldı (20 Ekim), **ölçülmedi** — ARASTIRMA §4.5 |
 | Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
-| Öz-kontrol | **355 ad · kapsama %100** — 19 Ekim |
+| Öz-kontrol | **370 ad · kapsama %100** — 20 Ekim |
+| B1 · A7 (20 Ekim) | Şüphe rozetleri + "Bağımsız çöz"; YZ ↔ nihai puan raporu. A7 kriter bazında farkı ölçemez. PROGRESS §56 |
 | Canlı ↔ disk | `app.js` · `app.css` · `/` **SHA-256 eş** — 19 Ekim (CRLF'li disk dosyasıyla; CR'ler atılınca HEAD ile eş) |
 | `/api/health` · `/api/ai/status` | `ok:true` · `ready:true`, `fallbackSorunu: null` — 19 Ekim |
 | Son canlı yayın | 6 Eylül (§50 turları) |
