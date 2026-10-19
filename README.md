@@ -839,10 +839,18 @@ Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 
 ---
 
-## Haklar ve kullanım
+## Lisans ve içerik hakları
 
-Bu depoda **lisans dosyası bilinçli olarak yoktur.** Sebebi bir ihmal değil,
-bir doğruluk tercihi:
+Depoda üç tür içerik var ve her birinin durumu farklı:
+
+| İçerik | Durum |
+|---|---|
+| **Kod** (`src/`, `public/`, `tools/`, `test/`) | Lisansı **henüz belirlenmedi** (`package.json`: `UNLICENSED`, lisans dosyası yok). Kod bir takım ürünüdür; lisans, takımın dört üyesinin onayıyla belirlenecek. Aday: MIT |
+| **MEB öğrenme çıktıları** (`public/mufredat/` MEB katalogları) | Resmî Maarif Modeli öğretim programlarındaki metinlerdir; kaynak programdan birebir alınmıştır |
+| **Deneyap kazanımları** (`public/mufredat/deneyap-*.json`) | TÜBİTAK Deneyap kitaplarından **kısa alıntılardır**; her kayıt kitap ve sayfa atfı taşır. Hakları TÜBİTAK'a aittir. Kitapların PDF'leri depoda **yoktur** ([kaynak belgesi](./docs/DENEYAP_KAYNAK.md)) |
+| **Ölçüm verileri ve etiketler** (`docs/olcum/`) | Bizim ürettiğimiz model çıktıları ve elle etiketler. Burs süresince açık lisansla yayımlanmaları planlanıyor (aday: CC BY 4.0). Yayımdan önce içlerindeki üçüncü taraf metinler (kazanım metinleri, kitap alıntıları) ayrıştırılacak |
+
+Lisans dosyası bugüne kadar bilinçli olarak eklenmedi:
 
 - Kod, **T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026** kapsamında Takım BİES
   tarafından üretilmiştir.

@@ -607,7 +607,8 @@ insan onayının hâlâ tek tam savunma olduğunu gösterir (`agents.md` §1).
 | 2 | Model çeşitliliği | En az **3 model ailesi**: Meta Llama + Mistral, Qwen ya da Gemma'dan en az biri + erişim olursa T3 AI |
 | 3 | Kontrollü deney | "Harf önce / gerekçe önce" etkisi birden çok soru, model ve şablonla, ön kayıtlı planla |
 | 4 | Pilot | Öğretmenlerle pilot öncesi kurumun **etik kurul onayı**; öğrenci verisi kullanılmaz |
-| 6 | Yayın | Hedef mekân: **BEA** (ACL atölyesi), **AIED** ya da **EDM**; açık set + **datasheet** (veri setinin kaynağı, etiketleme süreci ve sınırları) |
+| 1 | Lisans | Kod lisansı takımın onayıyla belirlenir (aday MIT); veri setindeki üçüncü taraf metinler (MEB kazanım metinleri, TÜBİTAK Deneyap alıntıları) ayrıştırılır |
+| 6 | Yayın | Hedef mekân: **BEA** (ACL atölyesi), **AIED** ya da **EDM**; açık set + **datasheet** (veri setinin kaynağı, etiketleme süreci ve sınırları). Açık set yalnız bizim ürettiğimiz çıktıları ve etiketleri kapsar (aday lisans CC BY 4.0); üçüncü taraf metinler kaynak ve kodla atıflanır |
 
 **6. aydan sonra:** çalışma lisans bitirme projesi olarak sürdürülür.
 Kapsam şunlardır: pilotun büyütülmesi, Deneyap atölyeleriyle ikinci bir
@@ -883,7 +884,7 @@ Türk eğitim sınavlarından 280.000 soruluk bir havuzdan seçilen 6.200
 çoktan seçmeli soruyla Türkçe LLM'leri değerlendirir. Belirteçleme ve ince
 ayar stratejilerini başlıca güçlükler olarak gösterir.
 **Mihenk'in farkı / boşluk:** bu set de çözme yönündedir. Mihenk'in
-yayımlamayı planladığı açık set (6. ay), *üretilen* maddeleri ve hata
+yayımlamayı planladığı açık set (6. ay; yalnız bizim ürettiğimiz çıktılar ve etiketler, üçüncü taraf metinler ayrıştırılarak), *üretilen* maddeleri ve hata
 etiketlerini içerecek; bu yönüyle iki seti tamamlar.
 
 ### 9.5 Cevap doğrulama yöntemleri (önerilen A1 ve A2 denetimleri için)
