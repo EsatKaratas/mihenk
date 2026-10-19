@@ -3,7 +3,7 @@
  "sinif": "Deneyap",
  "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
  "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
- "toplamKazanim": 486,
+ "toplamKazanim": 513,
  "atolyeler": [
   {
    "ad": "Tasarım ve Üretim",
@@ -128,6 +128,20 @@
    "uygunluk": {
     "yazili": 13,
     "performans": 54,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "İleri Robotik",
+   "kod": "IR",
+   "dosya": "/mufredat/deneyap-ileri-robotik.json",
+   "kitapNo": 23,
+   "kitap": "TÜBİTAK Deneyap Kitapları 23 — İleri Robotik (Ortaokul)",
+   "isbn": "978-605-312-545-7",
+   "kazanimSayisi": 27,
+   "uygunluk": {
+    "yazili": 6,
+    "performans": 21,
     "surec": 0
    }
   }
