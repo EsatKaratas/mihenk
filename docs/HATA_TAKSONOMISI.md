@@ -1,4 +1,8 @@
-# Hata Taksonomisi — sürüm 0.1 (19 Ekim 2026)
+# Hata Taksonomisi — sürüm 0.2 (19 Ekim 2026)
+
+> **v0.2:** ilk gerçek ölçümden sonra iki kod eklendi, üç satıra ölçülmüş
+> sınır yazıldı. Ayrıntı en altta, "v0.1 → v0.2 değişiklikleri". İlk ölçüm
+> v0.1 ile yapıldı.
 
 > Bu liste, Mihenk geliştirilirken modelin (aksi yazılmadıkça Workers AI
 > `llama-3.3-70b-instruct-fp8-fast`) ürettiği ölçme-değerlendirme içeriğinde
@@ -30,6 +34,7 @@
 |---|---|---|---|---|---|
 | `ANH-OLGU` | Anahtar şıklar arasında var ama **yanlış şıkkı** gösteriyor (olgusal ya da işlem hatası) | "2 saatte 40 km → 5 saatte?" doğrusu 100 km, işaretli 120 km (§48.5) · F = μ·m·g doğrusu 3000 N, işaretli 300 N (§48b.2) | — | — (insan onayı yakalar) | elle |
 | `ANH-BIRIM` | `ANH-OLGU`'nun alt türü: **birim dönüşümü** hatası | "1 kg su kaç cL?" işaretli 1000 cL, doğrusu 100 cL; eski istemle 0/2 doğru, yeni istemle 4/4 (§46.2) | — (yalnızca istem kuralı) | — | elle |
+| `ANH-YOK` *(v0.2)* | Anahtar bir şıkkı gösteriyor ama **doğru cevap hiçbir şıkta yok**; hangi şık seçilirse seçilsin soru yanlıştır | İlk ölçümde yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ü, B'de 5'inin 3'ü (OZET §2, PROGRESS §54) | — | — | elle |
 | `ANH-GECERSIZ` | Anahtar şıklardan hiçbirini göstermiyor (`'E'`, `''`, `'AB'`…) | Kod okunarak bulundu: beş geçersiz değerin beşi de sessizce "A" oluyordu (§41) | `cevapAnahtariGecerliMi` → `anahtarBelirsiz` | bayrak | oto |
 
 ## B. Çeldirici ve gerekçe
@@ -42,13 +47,13 @@
 | `GRK-TUTARSIZ` | Gerekçe şıkla çelişiyor ya da doğru şıkkı yanlış diye niteliyor | 1 kg su sorusunda doğru olan 100 cL şıkkı için "çok düşük" gerekçesi (§46.2) · "gerekçeler tutarsız" (§48b.2 aday 4) | — | — | elle |
 | `SIK-SACMA` | Hiçbir öğrencinin seçmeyeceği çeldirici | Model karşılaştırmasında "saçma çeldirici" sütunu (§27i). Tarama önerildi, **uygulanmadı** (§27) | — | — | elle |
 | `SIK-SAYI` | Çoktan seçmeli soruda 3'ten az şık | Kod okunarak; `elenenGecersiz > 0` yolu uçtan uca **gözlenemedi** (§44.2) | `routes/ai.ts`: `opts.length < 3` → `meta.elenenGecersiz` | ele | oto |
-| `SIK-ESANLAM` | İki şık aynı anlama geliyor, birbirinin üst/alt kavramı, ya da birden fazla şık savunulabilir | İlk gözlem 19 Ekim, Deneyap DNY.YZ.1.1: iki sorunun şıkları birbirinin üst/alt kavramıydı (makine öğrenimi / derin öğrenme / yapay sinir ağları), tek doğru cevap tartışmalı (§51b.9; **tek vaka**) | — | — | elle |
+| `SIK-ESANLAM` | İki şık aynı anlama geliyor, birbirinin üst/alt kavramı, ya da birden fazla şık savunulabilir | İlk gözlem 19 Ekim, Deneyap DNY.YZ.1.1: iki sorunun şıkları birbirinin üst/alt kavramıydı (makine öğrenimi / derin öğrenme / yapay sinir ağları), tek doğru cevap tartışmalı (§51b.9) · ilk ölçümde MEB'de A 2/25, B 0/26; ör. 3-4-5, 5-12-13 ve 6-8-10 üçgenlerinin üçü de dik (OZET §2) | — | — | elle |
 
 ## C. Tekrar
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `TKR-GOVDE` | Gövde başka bir soruyla anlamca aynı (yeniden yazılmış) | "27 soruda 15 benzer çift" (§41) | `benzerlik` ≥ `BENZERLIK_ESIGI` (0,30; 11 çiftle kalibre) → `meta.elenenTekrar` | ele | oto (eşiğin doğruluğu: yarı) |
+| `TKR-GOVDE` | Gövde başka bir soruyla anlamca aynı (yeniden yazılmış) | "27 soruda 15 benzer çift" (§41) | `benzerlik` ≥ `BENZERLIK_ESIGI` (0,30; 11 çiftle kalibre) → `meta.elenenTekrar`. **Yan etki (v0.2):** türe bakmaz; açık uçlu soruyu bir ÇSS'nin tekrarı sayıp eleyebilir. İlk ölçümde "açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı (OZET §5.1) | ele | oto (eşiğin doğruluğu: yarı) |
 | `TKR-SIK` | Gövdeler farklı, **şık kümesi birebir aynı** | FB.8.1.2'de 1. ve 3. soru (§46.1) | `sikImzasi` → `meta.elenenAyniSik` (yalnızca aynı tur içinde) | ele | oto |
 
 ## D. Dil
@@ -67,6 +72,7 @@
 | `GVD-TEKADIM` | Tek adımlı, akıl yürütme gerektirmeyen soru | §48b.2 aday 2 | — | — | elle |
 | `GVD-YINELEME` | Soru cümlesi gövde içinde iki kez tekrarlanıyor | §48b.2 aday 2 | — | — | yarı |
 | `GVD-VERIFAZLA` | Görevle ilgisiz, gereksiz veri | §48b.2 aday 4 | — | — | elle |
+| `GVD-KOKYOK` *(v0.2)* | Soru kökü yok: yalnız bağlam ve şıklar var, öğrenciden ne istendiği yazmıyor | İlk ölçümde "belirsiz" anahtarın dört durumundan biri; ayrı sayılmadı (OZET §2) | — | — | elle |
 
 ## F. Müfredat hizalaması
 
@@ -79,7 +85,7 @@
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `KYN-ATIF` | Gövde metne atıf yapıyor ("metinde", "yukarıdaki"…) ama `needsSource` false geliyor; öğrenci metni görmeden cevaplayamaz | Tasarım gereği: model alanı unutabiliyor (`guards.ts` notu). Demo tohumunda kaçınıldı (§48b.2) | `kaynakGerektirirMi` (`KAYNAK_ATIF` deseni); kazanım modunda `needsSource` false'a sabitlenir | zorla | oto |
+| `KYN-ATIF` | Gövde metne atıf yapıyor ("metinde", "yukarıdaki"…) ama `needsSource` false geliyor; öğrenci metni görmeden cevaplayamaz | Tasarım gereği: model alanı unutabiliyor (`guards.ts` notu). Demo tohumunda kaçınıldı (§48b.2) | `kaynakGerektirirMi` (`KAYNAK_ATIF` deseni); kazanım modunda `needsSource` false'a sabitlenir. **Kapsam sınırı (v0.2):** grafik/tablo atfı desende yok, gösterilmeyen grafiğe atıf (B, DNY.RK.4.7) kaçtı; kazanım modunda öğrencinin kendi yazacağı metne atıf 5/5 yanlış pozitif verdi (OZET §5.2) | zorla | oto |
 
 ## H. Açık uçlu değerlendirme (rubrik puanı)
 
@@ -98,9 +104,9 @@
 `TKR-GOVDE`, `TKR-SIK`, `DIL-ALFABE`, `KYN-ATIF`, `GVD-KISA` (yalnızca
 kelime sayısı; eşik raporlanır, eleme yapılmaz), `DEG-INJ`.
 
-**Elle etiketlenecek kodlar:** `ANH-OLGU`, `ANH-BIRIM`, `GRK-GENEL`,
+**Elle etiketlenecek kodlar:** `ANH-OLGU`, `ANH-YOK`, `ANH-BIRIM`, `GRK-GENEL`,
 `GRK-TUTARSIZ`, `SIK-SACMA`, `SIK-ESANLAM`, `DIL-LATIN`, `GVD-TEKADIM`,
-`GVD-VERIFAZLA`, `KZN-DISI`, `SNF-DISI`, `DEG-BOSGEREKCE`. Bunlar için
+`GVD-VERIFAZLA`, `GVD-KOKYOK`, `KZN-DISI`, `SNF-DISI`, `DEG-BOSGEREKCE`. Bunlar için
 otomatik bir oran **yazılmaz**.
 
 **Yarı otomatik kodlar** (betik aday işaretler, karar elle verilir):
@@ -109,7 +115,7 @@ otomatik bir oran **yazılmaz**.
 **Pilotta ölçülecek kod:** `DEG-FARK` (Karar Günlüğü'nden, öğretmen kararı
 gerektirir).
 
-Toplam: 10 otomatik + 12 elle + 2 yarı otomatik + 1 pilot = **25 kod**.
+Toplam: 10 otomatik + 14 elle + 2 yarı otomatik + 1 pilot = **27 kod** (v0.1'de 25).
 
 Bu ayrım araştırma sorusunun ikinci yarısına doğrudan cevap verir. Elle
 etiketlenen türlerin hiçbirinde bugün deterministik denetim yok. Bu
@@ -117,17 +123,21 @@ türleri yakalayan tek katman insan onayıdır (`agents.md` §1).
 
 ---
 
-## v0.2 için öneriler (ilk gerçek ölçümden, 19 Ekim 2026)
+## v0.1 → v0.2 değişiklikleri (19 Ekim 2026)
 
-İlk ölçüm v0.1 kodlarıyla **aynen** yapıldı ([ARASTIRMA §6](./ARASTIRMA.md),
-[`docs/olcum/OZET.md`](./olcum/OZET.md)). Aşağıdakiler ölçümde görülen
-eksikliklerdir; v0.1'i değiştirmezler, set ikinci kez etiketlenirken
-değerlendirilecekler.
+İlk gerçek ölçüm v0.1 kodlarıyla **aynen** yapıldı ([ARASTIRMA §6](./ARASTIRMA.md),
+[`docs/olcum/OZET.md`](./olcum/OZET.md), PROGRESS §54). v0.2, o ölçümde
+görülen eksiklikleri işler. v0.1 ile etiketlenmiş veri geçersiz olmaz:
+`ANH-YOK` vakaları v0.1'de `ANH-OLGU`, `GVD-KOKYOK` vakaları "belirsiz
+anahtar" içinde sayılmıştı.
 
-| Öneri | Gerekçe (ölçülen) |
-|---|---|
-| `ANH-YOK` — doğru cevap hiçbir şıkta yok (`ANH-OLGU`'dan ayrı) | Yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ünde, B'de 5'inin 3'ünde doğru cevap şıklarda yoktu |
-| `GVD-KOKYOK` — soru kökü yok (yalnız bağlam + şıklar) | "Belirsiz" anahtarın dört durumundan biri olarak görüldü |
-| `TKR-GOVDE` yan etkisi: açık uçlu soru ÇSS tekrarı sayılıp elenebiliyor | "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı. Denetim türe bakmıyor. Kod değiştirilmedi |
-| `KYN-ATIF` kapsamı: grafik/tablo atfı desende yok; kazanım modunda öğrencinin kendi metnine atıf yanlış pozitif | Gösterilmeyen grafiğe atıf (B, DNY.RK.4.7) kaçtı; 5/5 eşleşme yanlış pozitifti |
-| `GVD-KALIP` ve `GVD-YINELEME` aday işaretleyicisi zayıf | Elle 9 yineleme bulundu, betiğin aday işaretleyicisi 0 buldu; elle sayılar esas alındı |
+| Değişiklik | Gerekçe (ölçülen) | Kaynak |
+|---|---|---|
+| **Yeni kod `ANH-YOK`:** doğru cevap hiçbir şıkta yok (`ANH-OLGU`'dan ayrıldı) | Yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ünde, B'de 5'inin 3'ünde doğru cevap şıklarda yoktu | OZET §2 · PROGRESS §54 |
+| **Yeni kod `GVD-KOKYOK`:** soru kökü yok (yalnız bağlam + şıklar) | "Belirsiz" anahtarın dört durumundan biri olarak görüldü; ayrı sayılmadı | OZET §2 ("Belirsiz"in tanımı) |
+| `TKR-GOVDE` satırına **yan etki** eklendi: türe bakmadığı için açık uçlu soruyu bir ÇSS'nin tekrarı sayıp eleyebiliyor | "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı. Kod değiştirilmedi | OZET §5.1 |
+| `KYN-ATIF` satırına **kapsam sınırı** eklendi: grafik/tablo atfı desende yok; kazanım modunda öğrencinin kendi yazacağı metne atıf yanlış pozitif | Gösterilmeyen grafiğe atıf (B, DNY.RK.4.7) kaçtı; 5/5 eşleşme yanlış pozitifti | OZET §5.2 |
+| `SIK-ESANLAM` satırına ölçüm eklendi | MEB'de A 2/25, B 0/26 | OZET §2 |
+| Not: `GVD-KALIP` ve `GVD-YINELEME` için betiğin aday işaretleyicisi zayıf | Elle 9 yineleme bulundu, aday işaretleyici 0 buldu; elle sayılar esas alındı | OZET §7 |
+
+Kod sayısı 25 → **27**. Sütun tanımları ve diğer 23 kod değişmedi.

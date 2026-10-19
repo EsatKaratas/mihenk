@@ -330,7 +330,7 @@ yapılacak ve bu sınırlama raporda açıkça yazılacak.
 | Model B | `@cf/meta/llama-4-scout-17b-16e-instruct` (yedek kapalı; sonuç saf B) |
 | Sunucu kodu | MEB: `fc1750c` · Deneyap ve ham gerekçe sayacı: `e35628f` |
 | Çağrı | 42 başarılı çağrı, model hatası 0 (8 ortam hatası yeniden koşuldu ve sayılmadı) |
-| Kodlar | [HATA_TAKSONOMISI.md](./HATA_TAKSONOMISI.md) v0.1, aynen |
+| Kodlar | [HATA_TAKSONOMISI.md](./HATA_TAKSONOMISI.md) v0.1 (25 kod), aynen. Bu ölçümden sonra v0.2'ye (27 kod) geçildi |
 
 ### 6.2 Ana tablo — MEB, 13 kazanım
 

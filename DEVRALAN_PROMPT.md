@@ -304,7 +304,7 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 - **19 Ekim — T3 AI araştırma bursu çalışması (sürüyor):**
   [`docs/ARASTIRMA.md`](./docs/ARASTIRMA.md) (araştırma sorusu, doğrulanmış
   5 ön bulgu, 6 aylık plan, etik/KVKK) · [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md)
-  (25 kod) · sabit set + ölçüm betiği (`tools/olcum/`) · kazanım metni sınırı
+  (v0.2, 27 kod) · sabit set + ölçüm betiği (`tools/olcum/`) · kazanım metni sınırı
   200 → 400 (`fc1750c`, MAT.8.3.5) · T3 AI'ya dışarıdan erişim **bulunamadı**
   (denenmedi, ölçülmedi). **İlk ölçüm** (ön bulgu): ARASTIRMA §6,
   PROGRESS §54, `docs/olcum/OZET.md`. **Deneyap:** 12 atölye, 622 kazanım
