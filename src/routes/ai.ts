@@ -17,6 +17,7 @@ import {
   buildMisconceptionPrompt,
   buildAlignmentPrompt,
   buildSolvePrompt,
+  ISTEM_SURUMU,
 } from '../lib/prompts';
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
@@ -44,6 +45,8 @@ import {
   makulSoruSayisi,
   uzunSikIpucu,
   olcumAyarlari,
+  hesapDenetimi,
+  hesapla,
 } from '../lib/guards';
 import {
   generateQuestionsSchema,
@@ -285,6 +288,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      denetimin onu ne sıklıkla yakaladığıdır, kullanıcıya kalan soru değil. */
   let sadelestirilenGerekce = 0;
   let toplamGerekce = 0;
+  // §55 A2: hesap ifadesi verilmiş ama güvenli ayrıştırıcının kabul etmediği ÇSS sayısı.
+  let hesapOkunamadi = 0;
   /* §55 A5: elenen maddeler — YALNIZ ölçüm sunucusunda (OLCUM_HAM=1) yanıta
      eklenir; aksi hâlde toplanır ama dönmez (davranış aynı). */
   const elenenler: Array<{ neden: 'tekrar' | 'ayniSik' | 'gecersiz'; type: string; body: string; benzedigi?: 'onceki' | 'ayniTur' }> = [];
@@ -368,6 +373,17 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
                değil; bkz. guards.ts UZUN_SIK_ORANI). Anahtar belirsizse
                "doğru şık" bilinmediği için false. */
             uzunSikIpucu: anahtarGecerli ? uzunSikIpucu(karisik.options, karisik.correctKey) : false,
+            /* §55 A2: modelin hesabı sunucuda güvenli ayrıştırıcıyla hesaplanıp
+               doğru şıkla karşılaştırılır. Karşılaştırma yapılamazsa null
+               ("denetlenmedi", "temiz" değil). Anahtar belirsizse yapılmaz. */
+            ...(() => {
+              const hesap = typeof q.hesap === 'string' ? q.hesap.trim() : '';
+              const d = anahtarGecerli
+                ? hesapDenetimi(hesap, karisik.options, karisik.correctKey)
+                : { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: !!hesap && hesapla(hesap) === null };
+              if (d.okunamadi) hesapOkunamadi++;
+              return { ...(hesap ? { hesap } : {}), hesapUyusmazligi: d.hesapUyusmazligi, hesapBaskaSik: d.hesapBaskaSik };
+            })(),
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),
@@ -487,6 +503,11 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         toplamGerekce,
         // §55 A3: kabul edilen ÇSS'lerde uzunSikIpucu taşıyan sayısı (yalnız ölçüm).
         uzunSikIpucu: kabul.filter((q) => (q as any).uzunSikIpucu === true).length,
+        // §55 A2: kabul edilen ÇSS'lerde hesabı doğru şıkla tutmayan sayısı; okunamayan hesap sayısı (tekrar elemesinden önce).
+        hesapUyusmazligi: kabul.filter((q) => (q as any).hesapUyusmazligi === true).length,
+        hesapOkunamadi,
+        // §55: soru üretim isteminin sürümü (1: §51b'ye kadar, 2: A2 "hesap" alanı). Ölçümler buna göre ayrılmalı.
+        istemSurumu: ISTEM_SURUMU,
         // §55 A5: kullanılan sıcaklık — ölçüm betiği sunucunun gerçekten bunu kullandığını doğrular.
         sicaklik,
         // §55 A5: elenen maddeler YALNIZ ölçüm sunucusunda (APP_ENV=olcum + OLCUM_HAM=1).

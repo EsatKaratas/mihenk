@@ -629,3 +629,118 @@ export function olcumAyarlari(env: { APP_ENV?: string; OLCUM_SICAKLIK?: string; 
   const sicaklik = Number.isFinite(n) && n >= 0 && n <= 2 ? n : null;
   return { sicaklik, ham };
 }
+
+/* ===========================================================================
+   §55 — A2: SAYISAL HESAP DENETİMİ
+   ===========================================================================
+   W5 ham verisinde 75 ÇSS'nin 30'u sayısal (gövdede ve tüm şıklarda rakam).
+   Yanlış cevap anahtarının en sık görülen kökü hesap hatası (§46, §48b.2).
+   Model, ÇSS için isteğe bağlı bir "hesap" ifadesi yazar; sunucu onu kendisi
+   hesaplar ve doğru şıktaki sayıyla karşılaştırır. Tutmazsa İŞARETLER,
+   düzeltmez (agents.md §1).
+
+   GÜVENLİK: eval / Function / new Function YOKTUR. Elle yazılmış bir
+   özyinelemeli iniş ayrıştırıcısı yalnız şunları kabul eder: sayı (nokta ya
+   da virgül ondalık), + − × ÷ * / ve parantez, tekli eksi. Başka HER karakter
+   (harf, $, =, ^, %) ifadeyi geçersiz kılar → hesaplanmaz (null). Uzunluk ve
+   iç içe derinlik sınırlıdır; sıfıra bölme ve sonlu olmayan sonuç null. */
+export const HESAP_UZUNLUK_SINIRI = 120;
+const HESAP_DERINLIK_SINIRI = 20;
+
+/** Aritmetik ifadeyi GÜVENLİ biçimde hesaplar; geçersizse null. */
+export function hesapla(ifade: string | null | undefined): number | null {
+  const s = String(ifade ?? '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/\s+/g, '');
+  if (!s || s.length > HESAP_UZUNLUK_SINIRI || !/^[0-9.,+\-*/()]+$/.test(s)) return null;
+  let i = 0;
+  let derinlik = 0;
+  const hata = () => { throw new Error('hesap'); };
+  const sayi = (): number => {
+    const m = /^\d+(?:[.,]\d+)?/.exec(s.slice(i));
+    if (!m) hata();
+    i += m![0].length;
+    return Number(m![0].replace(',', '.'));
+  };
+  const etken = (): number => {
+    if (s[i] === '-') { i++; return -etken(); }
+    if (s[i] === '+') { i++; return etken(); }
+    if (s[i] === '(') {
+      if (++derinlik > HESAP_DERINLIK_SINIRI) hata();
+      i++;
+      const v = toplam();
+      if (s[i] !== ')') hata();
+      i++; derinlik--;
+      return v;
+    }
+    return sayi();
+  };
+  const carpim = (): number => {
+    let v = etken();
+    while (s[i] === '*' || s[i] === '/') {
+      const op = s[i++];
+      const w = etken();
+      if (op === '/') { if (w === 0) hata(); v /= w; } else v *= w;
+    }
+    return v;
+  };
+  const toplam = (): number => {
+    let v = carpim();
+    while (s[i] === '+' || s[i] === '-') { const op = s[i++]; const w = carpim(); v = op === '+' ? v + w : v - w; }
+    return v;
+  };
+  try {
+    const v = toplam();
+    return i === s.length && Number.isFinite(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Şık metnindeki İLK sayıyı ve o yazımın kendi hassasiyetinden türetilen
+ * toleransı döner. Tolerans kalibre edilmiş bir sabit DEĞİLDİR: şıktaki son
+ * basamağın yarısıdır ("3,33" → ±0,005; "20" → ±0,5) — şık kaç basamakla
+ * yazıldıysa o kadar kesinlik iddia eder. Yazım kuralları (tahmin yok):
+ *   virgül varsa → virgül ondalık, noktalar binlik ("1.250,5" = 1250,5)
+ *   birden çok nokta → binlik ("1.250.000")
+ *   tek nokta + tam 3 basamak ("1.250") → BELİRSİZ (binlik mi ondalık mı?)
+ *     → null, yani bu şık denetlenmez
+ *   tek nokta, başka basamak sayısı ("2.5") → ondalık
+ * Sayı yoksa null.
+ */
+export function sikSayisi(metin: string | null | undefined): { deger: number; tolerans: number } | null {
+  const m = /-?\d+(?:[.,]\d+)*/.exec(String(metin ?? '').replace(/−/g, '-'));
+  if (!m) return null;
+  let t = m[0];
+  const noktalar = (t.match(/\./g) || []).length;
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if (noktalar > 1) t = t.replace(/\./g, '');
+  else if (noktalar === 1 && /\.\d{3}$/.test(t)) return null;
+  const deger = Number(t);
+  if (!Number.isFinite(deger)) return null;
+  const ondalik = t.includes('.') ? t.split('.')[1].length : 0;
+  return { deger, tolerans: 0.5 * Math.pow(10, -ondalik) };
+}
+
+export type HesapSonucu = { hesapUyusmazligi: boolean | null; hesapBaskaSik: string | null; okunamadi: boolean };
+
+/**
+ * Modelin hesabını doğru şıkla karşılaştırır. Karşılaştırma yapılamıyorsa
+ * (hesap yok, şıkta sayı yok) hesapUyusmazligi null — "temiz" değil,
+ * "denetlenmedi". Hesap başka bir şıkla tutuyorsa o harf döner: anahtar
+ * büyük olasılıkla yanlış demektir — yine de karar İçerik Uzmanının.
+ */
+export function hesapDenetimi(
+  hesap: string | null | undefined,
+  options: Array<{ key: string; text: string }>,
+  correctKey: string | null | undefined
+): HesapSonucu {
+  if (!hesap || !String(hesap).trim()) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: false };
+  const v = hesapla(hesap);
+  if (v === null) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: true };
+  const tutar = (o: { text: string }) => { const n = sikSayisi(o.text); return n !== null && Math.abs(v - n.deger) <= n.tolerans + 1e-9; };
+  const dogru = options.find((o) => o.key === correctKey);
+  if (!dogru || sikSayisi(dogru.text) === null) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: false };
+  if (tutar(dogru)) return { hesapUyusmazligi: false, hesapBaskaSik: null, okunamadi: false };
+  const baska = options.find((o) => o.key !== correctKey && tutar(o));
+  return { hesapUyusmazligi: true, hesapBaskaSik: baska ? baska.key : null, okunamadi: false };
+}

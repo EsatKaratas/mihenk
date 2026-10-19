@@ -271,6 +271,10 @@ export const modelQuestionSchema = z.object({
      unutabilir; sunucu ayrıca soru gövdesinden deterministik kontrol yapar. */
   needsSource: z.boolean().catch(false).default(false),
   refKeywords: z.array(z.string()).default([]),
+  /* §55 A2: ÇSS için isteğe bağlı sayısal işlem ("(30 - 10) * 2"). Güvenilmez:
+     sunucuda yalnız aritmetik kabul eden bir ayrıştırıcıyla hesaplanır;
+     bozuk/uzun değer soruyu düşürmez, yalnız yok sayılır. */
+  hesap: z.string().max(200).optional().catch(undefined),
 });
 
 export const modelQuestionsSchema = z.object({

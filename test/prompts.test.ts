@@ -431,25 +431,43 @@ describe("buildQuestionPrompt — 'materyal' modu (belgeye kilitli kazanım)", (
 });
 
 // §51b — kaynakTuru: MEB / Deneyap. MEB dalının istemi DEĞİŞMEMELİ.
-// Parmak izi, değişiklikten ÖNCE (main 4e40c76) aynı spec ile alındı:
-// 10.147 karakter, aşağıdaki SHA-256. Kazanım modunda (yönerge ve önceki soru
-// yokken) istemde rastgele sınır belirteci olmadığı için çıktı deterministiktir.
-describe('buildQuestionPrompt — kaynakTuru (§51b)', () => {
+// Kazanım modunda (yönerge ve önceki soru yokken) istemde rastgele sınır
+// belirteci olmadığı için çıktı deterministiktir; SHA-256 ile sabitlenir.
+//
+// §55 — BİLİNÇLİ SÜRÜM GEÇİŞİ (istem sürümü 1 → 2, ISTEM_SURUMU).
+// A2 ("hesap" alanı: Kural 10 + JSON örneğinde bir satır) MEB istemini
+// değiştirdi. Sürüm 1 parmak izi (main 4e40c76, 10.147 karakter):
+//   f9f636a45ecf3a669921540d71c4ec7e5ffc690d1d1fc44d03c7c5cfafdef631
+// Sürüm 2 (10.553 karakter): aşağıdaki MEB_ISTEMI_V2_SHA256.
+// Sürüm 2'den A2 eklerini ÇIKARINCA sürüm 1 hash'i BİREBİR geri gelir —
+// yani istemde A2 dışında hiçbir şey değişmedi (aşağıdaki test).
+// Bedel: §54 (sürüm 1) ile A5 (sürüm 2) anahtar doğruluğu karşılaştırması
+// istem değişikliğiyle karışıktır; meta.istemSurumu ölçümde ayırmak içindir.
+describe('buildQuestionPrompt — kaynakTuru (§51b) + istem sürümü 2 (§55)', () => {
   const kazanimSpec: QuestionSpec = {
     subject: 'Matematik', grade: 8, outcomeCode: 'MAT.8.3.5', outcomeLabel: 'Dik üçgen',
     mcCount: 2, openCount: 1, optionCount: 4, mode: 'kazanim',
   };
-  const ONCEKI_MEB_ISTEMI_SHA256 = 'f9f636a45ecf3a669921540d71c4ec7e5ffc690d1d1fc44d03c7c5cfafdef631';
+  const MEB_ISTEMI_V1_SHA256 = 'f9f636a45ecf3a669921540d71c4ec7e5ffc690d1d1fc44d03c7c5cfafdef631';
+  const MEB_ISTEMI_V2_SHA256 = '6659c1e8c4d295cadb1103037c8c80f2f5b73fc62617030e871685a87467e62f';
   const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+  const a2EkleriniCikar = (p: string) =>
+    p.replace(/\n10\. HESAP ALANI[\s\S]*?bu alanı yazma\./, '').replace('\n      "hesap": "(30 - 10) * 2",', '');
 
-  it('alan verilmezse istem değişiklikten önceki MEB istemiyle BİREBİR aynıdır', () => {
+  it('alan verilmezse istem sürüm 2 MEB istemiyle BİREBİR aynıdır', () => {
     const p = buildQuestionPrompt(kazanimSpec, '');
-    expect(p.length).toBe(10147);
-    expect(sha(p)).toBe(ONCEKI_MEB_ISTEMI_SHA256);
+    expect(p.length).toBe(10553);
+    expect(sha(p)).toBe(MEB_ISTEMI_V2_SHA256);
+  });
+
+  it('sürüm 2\'den A2 ekleri çıkarılınca sürüm 1 hash\'i birebir geri gelir (başka değişiklik yok)', () => {
+    const p = buildQuestionPrompt(kazanimSpec, '');
+    expect(p).toContain('10. HESAP ALANI');
+    expect(sha(a2EkleriniCikar(p))).toBe(MEB_ISTEMI_V1_SHA256);
   });
 
   it("kaynakTuru 'meb' de aynı istemi üretir", () => {
-    expect(sha(buildQuestionPrompt({ ...kazanimSpec, kaynakTuru: 'meb' }, ''))).toBe(ONCEKI_MEB_ISTEMI_SHA256);
+    expect(sha(buildQuestionPrompt({ ...kazanimSpec, kaynakTuru: 'meb' }, ''))).toBe(MEB_ISTEMI_V2_SHA256);
   });
 
   it("kaynakTuru 'deneyap' MEB varsayımını kaldırır ve Deneyap kaynağını söyler", () => {
