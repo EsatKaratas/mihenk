@@ -28,7 +28,8 @@ Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
 |---|---|
 | Dal | `main`. 19 Ekim'de iş doğrudan `main`'de yürüyor; `origin/main` hâlâ `e4a4024` (bugünkü commit'ler pushlanmadı) |
 | Canlı | `mihenk.bies.workers.dev`. 19 Ekim'de ölçüldü: canlıdaki `app.js`, `app.css` ve `/` diskle **SHA-256 eş**. Fark yalnızca satır sonundan geliyor; CR'ler atılınca HEAD ile de eş. Son yayın 6 Eylül (§50 turları) |
-| Test | **302/302** (9 dosya) — 19 Ekim |
+| Test | **334/334** (12 dosya) — 20 Ekim |
+| Cevap denetimleri (20 Ekim) | A1 bağımsız çözüm · A2 sayısal hesap · A3 uzun şık (yalnız ölçüm) · A4 tür içi tekrar — **yazıldı, ölçülmedi** (ARASTIRMA §4.5) |
 | Lint (`tsc --noEmit`) | temiz — 19 Ekim |
 | Öz-kontrol | **355 ad · eksik 0 · kapsama %100** — 19 Ekim |
 | `check:config` · `node --check public/app.js` | exit 0 · temiz — 19 Ekim |
@@ -47,7 +48,7 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 302/302
+npm test                            # 334/334
 node tools/ozkontrol-dogrula.mjs    # 355 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -578,7 +579,7 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   302 test, 9 dosya
+test/                   334 test, 12 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)

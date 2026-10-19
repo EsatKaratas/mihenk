@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-302%2F302-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-334%2F334-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -440,7 +440,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 302 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 334 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -680,10 +680,11 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **302 test**
-  koşar (`test/guards.test.ts` 110 · `test/prompts.test.ts` 51 · `test/schemas.test.ts` 49 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **334 test**
+  koşar (`test/guards.test.ts` 110 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
   `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/mufredat.test.ts` 11 ·
+  `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 · `test/cozucu.test.ts` 10 ·
   `test/atolye-ve-materyal.test.ts` 9) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.

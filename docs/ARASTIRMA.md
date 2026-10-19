@@ -268,6 +268,37 @@ içermeyen dışa aktarım gerekir (§8).
 
 ---
 
+### 4.5 Yazılan denetimler (A1–A4) — yazıldı, henüz ÖLÇÜLMEDİ
+
+İlk ölçümde yanlış ya da belirsiz anahtarlı 31 sorunun yalnız 1'i bir
+otomatik uyarı aldı (§6.5). Bu boşluğa yönelik dört denetim 20 Ekim'de koda
+girdi (W2 Paket-1 `002e9bc`, Paket-2 `c68e9cb`; arayüz rozetleri `3010949`).
+**Hiçbirinin yakalama ya da yanlış alarm oranı henüz ölçülmedi;** ölçüm
+büyük koşumdadır (A5). Hiçbiri soruyu onaylamaz, anahtarı değiştirmez ya da
+onayı engellemez; yalnızca öğretmene gösterir (`agents.md` §1).
+
+| # | Denetim | Nasıl çalışır | Kod | Arayüz | Dayanak |
+|---|---|---|---|---|---|
+| A1 | **Bağımsız çözüm** | Üretilen ÇSS ayrı bir çağrıyla, cevap anahtarı isteme hiç girmeden çözdürülür. Varsayılan çözücü yedek modeldir (çapraz model). Seçilen şık anahtarla uyuşmazsa işaretlenir; şıklarda olmayan harf tahminle düzeltilmez | `POST /api/ai/solve`, `buildSolvePrompt` → `anahtarUyusmazligi` | "Bağımsız çöz" düğmesi ve "Bağımsız çözüm farklı" rozeti | [11] self-consistency, [14] doğrulayıcılar |
+| A2 | **Sayısal hesap denetimi** | Model ÇSS için isteğe bağlı bir "hesap" ifadesi yazar (ör. `(30 - 10) * 2`). Sunucu bunu `eval` kullanmadan, yalnız sayı, dört işlem ve parantez kabul eden kendi ayrıştırıcısıyla hesaplar ve doğru şıktaki sayıyla karşılaştırır. Tolerans sabit değil, şıkkın yazımından türetilir; belirsiz yazım denetlenmez | `hesapla`, `sikSayisi`, `hesapDenetimi` → `hesapUyusmazligi`, `hesapBaskaSik` | "Hesap tutmuyor" ve "Anahtar muhtemelen X" rozetleri | [12] PAL, [13] Program of Thoughts |
+| A3 | **"Doğru şık en uzun" ipucu** | Doğru şık, diğer şıklardan belirgin biçimde uzunsa işaretlenir. Eşik 1,5, yalnız N=11'lik bir örneklemden; **kalibre değil.** W5 verisinde doğru şık 75 ÇSS'nin yalnız %14,7'sinde tek başına en uzundu (rastgele beklenti %25) | `uzunSikIpucu` (`UZUN_SIK_ORANI = 1.5`) | **Rozet yok** — yalnız ölçüm alanı (zayıf sinyal) | — |
+| A4 | **Tür içi tekrar** | Aynı turdaki gövde benzerliği yalnız aynı soru türü içinde aranır; bir ÇSS ile aynı kavramı soran açık uçlu soru artık elenmez. W5 ham verisinde 42 açık uçlu istenmiş, 32'si gelmişti. Sınır: önceki turlarla karşılaştırma tür bilgisi taşımadığı için değişmedi | `routes/ai.ts` tekrar elemesi (`benzedigi: 'ayniTur'`) | — | — (§6.6 bulgusu) |
+
+**İstem sürümü 1 → 2 (bedeli kayıtlı).** A2 için soru üretim istemine bir
+kural ve JSON örneğine bir satır eklendi (`ISTEM_SURUMU = 2`). Bu yüzden
+MEB istem parmak izi bilinçli olarak değişti (v1 `f9f636a4…` → v2
+`6659c1e8…`). Test, v2'den A2 ekleri çıkarılınca v1'in birebir geri
+geldiğini doğruluyor; başka bir değişiklik yok. **Bedeli:** ilk ölçüm (§6)
+sürüm 1 ile, büyük ölçüm (A5) sürüm 2 ile yapılacak. İki ölçümün anahtar
+doğruluğu karşılaştırması istem değişikliğiyle karışıktır ve öyle raporlanacak.
+
+**Ölçüm ayarları (A5).** Sıcaklık (`OLCUM_SICAKLIK`) ve elenen maddelerin
+döndürülmesi (`OLCUM_HAM=1`) yalnız `APP_ENV` "olcum" iken okunur; canlıda
+kapalıdır ve bu testlidir.
+
+Test: 302 → **334/334** (12 dosya; yeni `denetimler`, `cozucu`, `hesap`
+test dosyaları).
+
 ## 5. Model karşılaştırması
 
 ### 5.1 Daha önce yapılan (ön ölçüm)
@@ -413,7 +444,8 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 
 1. **`TKR-GOVDE` türe bakmıyor.** Açık uçlu soruyu bir ÇSS'nin tekrarı
    sayıp eleyebiliyor. "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13
-   çağrı; Deneyap 3/5 ve 3/5. Kod değiştirilmedi, yan etki olarak kayıtlı.
+   çağrı; Deneyap 3/5 ve 3/5. Bu ölçümde kod değiştirilmedi. **20 Ekim:** tür
+   içi tekrar (A4) yazıldı, henüz ölçülmedi (§4.5).
 2. **`KYN-ATIF` deseni kazanım modunda 5/5 yanlış pozitif verdi** (sorular
    öğrencinin *kendi yazacağı* metinden söz ediyordu; kazanım modunda
    `needsSource` zaten false'a sabit olduğu için zararsız). Tersine,
@@ -480,8 +512,8 @@ uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
   pahalı hata olur. Bu yüzden mod, elle doğrulanmış bir Türkçe set ve
   fotoğraflarla bir "emin olma" ölçümü (doğruluk ve "emin değilim" deme
   isabeti) yapılmadan **öğrenciye açılmaz**.
-- **İlk adım:** öğretmen aracı olarak *cevap anahtarı çapraz çözümü*. Aynı
-  model, ürettiği soruyu anahtarı görmeden ayrı bir çağrıyla çözer;
+- **İlk adım:** öğretmen aracı olarak *cevap anahtarı çapraz çözümü*
+  (A1; 20 Ekim'de yazıldı, ölçülmedi, §4.5). Bir model, üretilen soruyu anahtarı görmeden ayrı bir çağrıyla çözer;
   uyuşmazlık öğretmene işaretlenir. Bu hem öğretmenin işine yarar hem de
   öğrenci modunun dayanacağı çözme doğruluğunu ölçer.
 - **Veri ve izin:** LGS örnek soruları yalnız iç ölçümde kullanılır.
@@ -694,7 +726,7 @@ etiketlerini içerecek; bu yönüyle iki seti tamamlar.
 otomatik uyarı aldı (§6.5). Bu kaynaklar, anahtar hatasını yakalamaya
 yönelik önerilen iki denetimin (cevap anahtarı çapraz çözümü ve sayısal
 sorularda deterministik hesap; yol haritası A1, A2) dayanağıdır. Bu
-denetimler henüz yazılmadı ve ölçülmedi.
+denetimler 20 Ekim'de **yazıldı, henüz ölçülmedi** (§4.5).
 
 **[11] Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S.,
 Chowdhery, A., Zhou, D. (2023).** *Self-Consistency Improves Chain of
@@ -726,8 +758,10 @@ modelden alıp yorumlayıcıya verir. Mihenk'te bu, sayısal sorularda bir
 denetime dönüşür (A2): sorudaki işlem deterministik olarak hesaplanır ve
 işaretli anahtarla karşılaştırılır. İlk ölçümde yanlış anahtarların bir
 kısmı sayısal hesap hatasıydı (ör. "doğru cevap hiçbir şıkta yok"
-vakaları, `ANH-YOK`). Hesabın sorudan güvenli biçimde nasıl çıkarılacağı
-henüz tasarlanmadı.
+vakaları, `ANH-YOK`). Uygulamada hesabı sorudan sunucu çıkarmaz: model
+isteğe bağlı bir "hesap" ifadesi yazar, sunucu onu `eval` kullanmadan
+hesaplar (§4.5). Model ifadeyi yazmazsa ya da yanlış yazarsa denetim
+çalışmaz; bu kapsam da ölçülecek.
 
 **[14] Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H., Kaiser,
 Ł., Plappert, M., Tworek, J., Hilton, J., Nakano, R., Hesse, C.,

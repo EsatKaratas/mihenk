@@ -41,7 +41,7 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 302/302, 9 dosya
+npm test                            # 334/334, 12 dosya
 node tools/ozkontrol-dogrula.mjs    # 355 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
@@ -53,16 +53,19 @@ Beklenen test dökümü:
 
 ```
 test/guards.test.ts          110
-test/prompts.test.ts          51
+test/prompts.test.ts          52
 test/schemas.test.ts          49
 test/ai-lib.test.ts           24
 test/prompts-guvenlik.test.ts 19
 test/sayac-ve-yedek.test.ts   15
 test/rota.test.ts             14
 test/mufredat.test.ts         11
+test/hesap.test.ts            11
+test/denetimler.test.ts       10
+test/cozucu.test.ts           10
 test/atolye-ve-materyal.test.ts 9
                              ---
-                             302
+                             334
 ```
 
 Beklenen canlı çıktı:
@@ -249,7 +252,8 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | | |
 |---|---|
 | Depo | dal `main`. `origin/main` = `e4a4024`; 19 Ekim commit'leri **pushlanmadı** |
-| Test | **302/302** (9 dosya) — 19 Ekim |
+| Test | **334/334** (12 dosya) — 20 Ekim |
+| Cevap denetimleri | A1–A4 yazıldı (20 Ekim), **ölçülmedi** — ARASTIRMA §4.5 |
 | Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
 | Öz-kontrol | **355 ad · kapsama %100** — 19 Ekim |
 | Canlı ↔ disk | `app.js` · `app.css` · `/` **SHA-256 eş** — 19 Ekim (CRLF'li disk dosyasıyla; CR'ler atılınca HEAD ile eş) |

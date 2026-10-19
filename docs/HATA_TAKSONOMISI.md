@@ -32,9 +32,9 @@
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `ANH-OLGU` | Anahtar şıklar arasında var ama **yanlış şıkkı** gösteriyor (olgusal ya da işlem hatası) | "2 saatte 40 km → 5 saatte?" doğrusu 100 km, işaretli 120 km (§48.5) · F = μ·m·g doğrusu 3000 N, işaretli 300 N (§48b.2) | — | — (insan onayı yakalar) | elle |
-| `ANH-BIRIM` | `ANH-OLGU`'nun alt türü: **birim dönüşümü** hatası | "1 kg su kaç cL?" işaretli 1000 cL, doğrusu 100 cL; eski istemle 0/2 doğru, yeni istemle 4/4 (§46.2) | — (yalnızca istem kuralı) | — | elle |
-| `ANH-YOK` *(v0.2)* | Anahtar bir şıkkı gösteriyor ama **doğru cevap hiçbir şıkta yok**; hangi şık seçilirse seçilsin soru yanlıştır | İlk ölçümde yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ü, B'de 5'inin 3'ü (OZET §2, PROGRESS §54) | — | — | elle |
+| `ANH-OLGU` | Anahtar şıklar arasında var ama **yanlış şıkkı** gösteriyor (olgusal ya da işlem hatası) | "2 saatte 40 km → 5 saatte?" doğrusu 100 km, işaretli 120 km (§48.5) · F = μ·m·g doğrusu 3000 N, işaretli 300 N (§48b.2) | *(20 Ekim, ölçülmedi)* A1 `POST /api/ai/solve` → `anahtarUyusmazligi`; sayısal ÇSS'de A2 `hesapDenetimi` → `hesapUyusmazligi`, `hesapBaskaSik` | bayrak (öğretmen rozeti) | elle (denetimin isabeti A5'te ölçülecek) |
+| `ANH-BIRIM` | `ANH-OLGU`'nun alt türü: **birim dönüşümü** hatası | "1 kg su kaç cL?" işaretli 1000 cL, doğrusu 100 cL; eski istemle 0/2 doğru, yeni istemle 4/4 (§46.2) | İstem kuralı; *(20 Ekim, ölçülmedi)* A2 `hesapDenetimi` modelin yazdığı "hesap" ifadesiyle (birim dönüşümünü ancak ifadeye yazılırsa görür) | bayrak | elle |
+| `ANH-YOK` *(v0.2)* | Anahtar bir şıkkı gösteriyor ama **doğru cevap hiçbir şıkta yok**; hangi şık seçilirse seçilsin soru yanlıştır | İlk ölçümde yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ü, B'de 5'inin 3'ü (OZET §2, PROGRESS §54) | *(20 Ekim, ölçülmedi)* A1 `anahtarUyusmazligi`; sayısal sorularda A2 `hesapBaskaSik` boş kalır, `hesapUyusmazligi` kalkar | bayrak | elle |
 | `ANH-GECERSIZ` | Anahtar şıklardan hiçbirini göstermiyor (`'E'`, `''`, `'AB'`…) | Kod okunarak bulundu: beş geçersiz değerin beşi de sessizce "A" oluyordu (§41) | `cevapAnahtariGecerliMi` → `anahtarBelirsiz` | bayrak | oto |
 
 ## B. Çeldirici ve gerekçe
@@ -53,7 +53,7 @@
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `TKR-GOVDE` | Gövde başka bir soruyla anlamca aynı (yeniden yazılmış) | "27 soruda 15 benzer çift" (§41) | `benzerlik` ≥ `BENZERLIK_ESIGI` (0,30; 11 çiftle kalibre) → `meta.elenenTekrar`. **Yan etki (v0.2):** türe bakmaz; açık uçlu soruyu bir ÇSS'nin tekrarı sayıp eleyebilir. İlk ölçümde "açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı (OZET §5.1) | ele | oto (eşiğin doğruluğu: yarı) |
+| `TKR-GOVDE` | Gövde başka bir soruyla anlamca aynı (yeniden yazılmış) | "27 soruda 15 benzer çift" (§41) | `benzerlik` ≥ `BENZERLIK_ESIGI` (0,30; 11 çiftle kalibre) → `meta.elenenTekrar`. **Yan etki (v0.2):** türe bakmaz; açık uçlu soruyu bir ÇSS'nin tekrarı sayıp eleyebilir. İlk ölçümde "açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı (OZET §5.1). **20 Ekim (A4, ölçülmedi):** aynı turda benzerlik yalnız aynı tür içinde aranıyor; önceki turlarla kıyas değişmedi | ele | oto (eşiğin doğruluğu: yarı) |
 | `TKR-SIK` | Gövdeler farklı, **şık kümesi birebir aynı** | FB.8.1.2'de 1. ve 3. soru (§46.1) | `sikImzasi` → `meta.elenenAyniSik` (yalnızca aynı tur içinde) | ele | oto |
 
 ## D. Dil
@@ -141,3 +141,20 @@ anahtar" içinde sayılmıştı.
 | Not: `GVD-KALIP` ve `GVD-YINELEME` için betiğin aday işaretleyicisi zayıf | Elle 9 yineleme bulundu, aday işaretleyici 0 buldu; elle sayılar esas alındı | OZET §7 |
 
 Kod sayısı 25 → **27**. Sütun tanımları ve diğer 23 kod değişmedi.
+
+---
+
+## Denetim güncellemesi (20 Ekim 2026) — yazıldı, henüz ölçülmedi
+
+Kod sayısı değişmedi (27). Yukarıdaki satırlara yeni denetimler işlendi;
+ayrıntı ve bedeller [ARASTIRMA §4.5](./ARASTIRMA.md).
+
+- **A1 bağımsız çözüm** (`POST /api/ai/solve`) → `ANH-OLGU`, `ANH-YOK`.
+- **A2 sayısal hesap** (`hesapDenetimi`) → `ANH-OLGU`, `ANH-BIRIM`, `ANH-YOK`;
+  yalnız modelin "hesap" ifadesi yazdığı sayısal ÇSS'lerde.
+- **A3 uzun şık** (`uzunSikIpucu`): taksonomide karşılık gelen kod yok; yalnız
+  ölçüm alanı, rozet yok, eşik 1,5 kalibre değil (N=11).
+- **A4 tür içi tekrar** → `TKR-GOVDE` yan etkisi.
+
+Bu denetimler "elle" sütununu değiştirmez: yakalama ve yanlış alarm oranları
+ölçülene kadar bu kodlar elle etiketlenmeye devam eder.
