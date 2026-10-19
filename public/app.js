@@ -720,7 +720,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions", alignment: "/api/ai/outcome-alignment" };
+const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions", alignment: "/api/ai/outcome-alignment", solve: "/api/ai/solve" };
 
 async function probeAiMode() {
   try {
@@ -886,6 +886,12 @@ async function aiGenerateQuestions(doc) {
         /* §47b: iki çeldiriciye birebir aynı gerekçe yazılmış. Otomatik
            düzeltilmez; İçerik Uzmanı görür ve karar verir. */
         gerekceTekrari: !!q.gerekceTekrari,
+        /* §56 (W2 A2/A3): hesap denetimi. `!!` YOK — alan gelmediyse undefined
+           kalır ve arayüz bunu "temiz" değil "denetlenmedi" diye okur. */
+        hesap: q.hesap,
+        hesapUyusmazligi: q.hesapUyusmazligi,
+        hesapBaskaSik: q.hesapBaskaSik,
+        uzunSikIpucu: q.uzunSikIpucu,   // yalnız ölçüm; rozet YOK (zayıf sinyal)
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
@@ -3501,6 +3507,7 @@ var AUDIT_ETIKET = {
   soru_reddedildi:      { ad: "Soru reddedildi",          sinif: "pill-critical",aktor: "içerik uzmanı" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
+  bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
   degerlendirme_onerildi:{ad: "Puan önerildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
@@ -3537,7 +3544,7 @@ function auditOzet() {
      Denetim izi ekranında bir sayının ne saydığı belirsiz olamaz (§21d:
      "yalancı bir denetim izi hiç olmamasından kötüdür"). Artık yalnızca
      MODELİN ÜRETTİĞİ olaylar sayılıyor; insan kararları sayılmıyor. */
-  var MODEL_URETIMI = { soru_uretildi: 1, rubrik_onerildi: 1, degerlendirme_onerildi: 1 };
+  var MODEL_URETIMI = { soru_uretildi: 1, rubrik_onerildi: 1, degerlendirme_onerildi: 1, bagimsiz_cozum: 1 };
   var modeller = {};
   g.forEach(function (k) {
     if (k.model && MODEL_URETIMI[k.tur]) modeller[k.model] = (modeller[k.model] || 0) + 1;
@@ -4105,6 +4112,24 @@ function wireAlignment() {
    Kökenler: anahtarBelirsiz §41.2 · dilUyarisi §20/§45 (Kiril "açıklaйте",
    ~10 soruda 1) · gerekceTekrari §47b · kazanım denetimi §31 · kaynak §15. */
 const SUPHE_TURLERI = [
+  /* §56 (W2 A2): soruda yazılı hesap BAŞKA bir şıkla eşleşiyor. */
+  { anahtar: "hesapBaskaSik", etiket: function (q) { return "Anahtar muhtemelen " + q.hesapBaskaSik; }, ciddiyet: "yuksek",
+    var: function (q) { return q.type === "mc" && !!q.hesapBaskaSik && q.hesapBaskaSik !== q.correctKey; },
+    aciklama: function (q) { return "Sorudaki hesap" + (q.hesap ? " (" + q.hesap + ")" : "") +
+      " işaretli " + q.correctKey + " şıkkıyla değil " + q.hesapBaskaSik + " şıkkıyla eşleşiyor. " +
+      "Cevap anahtarını kendiniz hesaplayıp doğrulayın; değişiklik otomatik yapılmaz."; } },
+  /* §56 (W2 A2): hesap hiçbir şıkla eşleşmiyor. */
+  { anahtar: "hesapUyusmazligi", etiket: "Hesap tutmuyor", ciddiyet: "yuksek",
+    var: function (q) { return q.hesapUyusmazligi === true && !(q.hesapBaskaSik && q.hesapBaskaSik !== q.correctKey); },
+    aciklama: function (q) { return "Sorudaki hesap" + (q.hesap ? " (" + q.hesap + ")" : "") +
+      " işaretli anahtarla uyuşmuyor. Soruyu ve şıkları kendiniz hesaplayın."; } },
+  /* §56 (W2 A1): ayrı bir çağrı soruyu çözdü ve anahtardan farklı şık seçti. */
+  { anahtar: "cozumUyusmazligi", etiket: "Bağımsız çözüm farklı", ciddiyet: "yuksek",
+    var: function (q) { const c = bagimsizCozumGecerli(q); return !!(c && c.anahtarUyusmazligi === true); },
+    aciklama: function (q) { const c = bagimsizCozumGecerli(q);
+      return "Ayrı bir model çağrısı soruyu anahtarı görmeden çözdü ve " + c.secilenSik + " şıkkını seçti" +
+        (c.guven != null ? " (güven %" + Math.round(c.guven * 100) + ")" : "") + "; işaretli anahtar " + q.correctKey + ". " +
+        (c.gerekce ? "Gerekçesi: " + c.gerekce + " " : "") + "Karar sizin; çözüm yalnız bir ikinci görüştür."; } },
   { anahtar: "anahtarBelirsiz", etiket: "Cevap anahtarı yok", ciddiyet: "yuksek",
     var: function (q) { return !!q.anahtarBelirsiz; },
     aciklama: "Model geçerli bir cevap anahtarı vermedi. İşaretli görünen şık YALNIZCA bir yer tutucudur — " +
@@ -4127,6 +4152,113 @@ const SUPHE_TURLERI = [
       "Gerekçelerden birini yeniden yazın ya da o şıkkı değiştirin." },
 ];
 
+/** Tablo alanı düz metin ya da (q) => metin olabilir. */
+function supheMetni(alan, q) { return typeof alan === "function" ? alan(q) : alan; }
+
+/* §56 (A1): bağımsız çözüm, soru O ANKİ hâliyle çözüldüyse geçerlidir.
+   Uzman gövdeyi, şıkları ya da anahtarı sonradan değiştirirse eski sonuç
+   bayattır ve rozet üretmez; durum satırı "soru değişti" der. */
+function cozumImzasi(q) {
+  return JSON.stringify([q.body, (q.options || []).map(function (o) { return o.key + ":" + o.text; }), q.correctKey]);
+}
+function bagimsizCozumGecerli(q) {
+  const c = q && q.bagimsizCozum;
+  return c && !c.hata && c.imza === cozumImzasi(q) ? c : null;
+}
+
+/* §56 — "denetlenmedi" ≠ "temiz". Alan hiç gelmediyse (demo tohumu, eski
+   sorular, uç yokken üretilenler) bunu açıkça söyler; şüphe sayılmaz. */
+function denetimDurumHtml(q) {
+  if (!q || q.type !== "mc") return "";
+  const p = [];
+  if (q.hesapUyusmazligi === undefined) p.push("hesap denetimi: <b>denetlenmedi</b>");
+  const c = q.bagimsizCozum;
+  const yuk = !!((state.cozuluyor || {})[q.id]);
+  if (yuk) p.push("bağımsız çözüm: <b>çözülüyor…</b>");
+  else if (!c) p.push("bağımsız çözüm: <b>yapılmadı</b>");
+  else if (c.hata) p.push("bağımsız çözüm: <b>yapılamadı</b> — " + escapeHtml(c.hata));
+  else if (c.imza !== cozumImzasi(q)) p.push("bağımsız çözüm: <b>soru sonradan değişti, yeniden çözün</b>");
+  else if (c.cozulemedi) p.push("bağımsız çözüm: <b>model çözemedi</b> (şüphe değil, bilgi)");
+  else if (c.anahtarUyusmazligi === false) p.push("bağımsız çözüm: <b>anahtarla aynı (" + escapeHtml(c.secilenSik) + ")</b>");
+  return '<div class="denetim-durum">' + p.join(" · ") +
+    ' <button type="button" class="btn btn-secondary btn-sm js-coz" data-qid="' + q.id + '"' + (yuk ? " disabled" : "") + ">" +
+    (c && !c.hata ? "🔍 Yeniden çöz" : "🔍 Bağımsız çöz") + "</button></div>";
+}
+
+/* §56 (A1) — Bağımsız çözüm: DÜĞMEYLE tetiklenir (otomatik değil). Sonuç
+   soruya yazılır; anahtarı DEĞİŞTİRMEZ, onayı engellemez (agents.md §1).
+   Hata sessiz değildir: kartta "yapılamadı — <sebep>" yazar. */
+async function bagimsizCoz(q) {
+  if (!q || q.type !== "mc") return;
+  state.cozuluyor = state.cozuluyor || {};
+  state.cozuluyor[q.id] = true; renderAll();
+  const imza = cozumImzasi(q);
+  try {
+    const j = await apiPost(AI_API.solve, {
+      questionBody: q.body,
+      options: (q.options || []).map(function (o) { return { key: o.key, text: o.text }; }),
+      // W2 sözleşmesi (§55 A1): anahtar yalnız uyuşmazlık için; çözüm istemine GİRMEZ.
+      anahtar: q.correctKey,
+      outcomeLabel: outcomeLabel(q.outcome),
+    });
+    q.bagimsizCozum = { imza: imza, secilenSik: j.secilenSik, gerekce: j.gerekce || "", guven: j.guven,
+      cozulemedi: !!j.cozulemedi, anahtarUyusmazligi: j.anahtarUyusmazligi, dilUyarisi: !!j.dilUyarisi,
+      capraz: (j.meta && j.meta.capraz) || null, model: (j.meta && j.meta.model) || null, at: Date.now() };
+    auditKaydet("bagimsiz_cozum", { qid: q.id, soru: auditKisalt(q.body), model: q.bagimsizCozum.model,
+      not: j.cozulemedi ? "model çözemedi" : ("seçilen " + j.secilenSik + " · anahtar " + q.correctKey +
+        (j.anahtarUyusmazligi === true ? " · UYUŞMAZLIK" : "")) });
+  } catch (e) {
+    q.bagimsizCozum = { imza: imza, hata: String((e && e.message) || e), durumKodu: (e && e.status) || null, at: Date.now() };
+  } finally {
+    delete state.cozuluyor[q.id];
+    saveSoon(); renderAll();
+  }
+}
+
+/* §56 — Bekleyenlerin hepsini SIRAYLA çözer (eşzamanlı değil: hız sınırı
+   ve maliyet). İlerleme ekranda; bir hata diğerlerini durdurmaz, her
+   kartta ayrı yazar. */
+async function bekleyenleriCoz() {
+  if (state.topluCoz) return;
+  const liste = state.questions.filter(function (q) { return q.status === "ai_generated" && q.type === "mc"; });
+  state.topluCoz = { bitti: 0, toplam: liste.length, hata: 0 };
+  renderAll();
+  for (let i = 0; i < liste.length; i++) {
+    /* §56: hız sınırı (429: soru başına 5/dk, IP başına 60/dk) gelirse
+       SESSİZCE düşülmez: ekranda geri sayımla beklenir ve aynı soru en
+       fazla 3 kez yeniden denenir. Başka hatalar kartta yazar, sıra sürer. */
+    for (let deneme = 0; deneme < 3; deneme++) {
+      await bagimsizCoz(liste[i]);
+      const c = liste[i].bagimsizCozum;
+      if (!(c && c.hata && c.durumKodu === 429) || deneme === 2) break;
+      for (let sn = 60; sn > 0; sn--) {
+        state.topluCoz.bekleme = sn; renderAll();
+        await new Promise(function (r) { setTimeout(r, 1000); });
+      }
+      state.topluCoz.bekleme = 0;
+    }
+    if (liste[i].bagimsizCozum && liste[i].bagimsizCozum.hata) state.topluCoz.hata++;
+    state.topluCoz.bitti = i + 1; renderAll();
+  }
+  const s = state.topluCoz; state.topluCoz = null;
+  state.topluCozSonuc = s.toplam + " sorudan " + (s.toplam - s.hata) + " tanesi çözüldü" + (s.hata ? ", " + s.hata + " tanesinde hata (kartlarda yazıyor)" : "") + ".";
+  renderAll();
+}
+
+/** Bekleyen listesinin başındaki toplu çözme çubuğu (yalnız ÇSS varsa). */
+function topluCozBarHtml(bekleyen) {
+  const n = bekleyen.filter(function (q) { return q.type === "mc"; }).length;
+  if (!n) return "";
+  const t = state.topluCoz;
+  return '<div class="al-bar coz-bar"><button class="btn btn-secondary btn-sm" id="btnTopluCoz"' + (t ? " disabled" : "") + ">" +
+    (t ? (t.bekleme ? "Hız sınırı — " + t.bekleme + " sn bekleniyor (" + t.bitti + "/" + t.toplam + ")"
+                    : "Çözülüyor… " + t.bitti + "/" + t.toplam)
+       : "🔍 Bekleyenlerin hepsini çöz (" + n + ")") + "</button>" +
+    (state.topluCozSonuc && !t ? '<span class="al-ozet">' + escapeHtml(state.topluCozSonuc) + "</span>" : "") +
+    '<span class="al-aciklama">Her soru ayrı bir çağrıyla, cevap anahtarı modele gösterilmeden çözülür; ' +
+    "sonuç yalnız ikinci görüştür, anahtarı değiştirmez.</span></div>";
+}
+
 /** Bir soruda var olan şüphe türleri (tablo sırasıyla). */
 function soruSupheleri(q) {
   if (!q) return [];
@@ -4142,19 +4274,20 @@ function supheAcikMi(q, t) {
 /** Onay kartındaki rozet şeridi. Şüphe yoksa hiçbir şey çizilmez. */
 function supheSeridiHtml(q) {
   const liste = soruSupheleri(q);
-  if (!liste.length) return "";
+  const durum = denetimDurumHtml(q);
+  if (!liste.length) return durum;
   const sinif = { yuksek: "pill-critical", orta: "pill-warning", dusuk: "pill-neutral" };
   return '<div class="supheli-serit" role="group" aria-label="Neden şüpheli?">' +
     '<span class="supheli-bas">Neden şüpheli?</span>' +
     liste.map(function (t) {
       const acik = supheAcikMi(q, t);
       return '<button type="button" class="pill ' + sinif[t.ciddiyet] + ' suphe-rozet" data-qid="' + q.id +
-        '" data-suphe="' + t.anahtar + '" aria-expanded="' + acik + '">⚠ ' + escapeHtml(t.etiket) + "</button>";
+        '" data-suphe="' + t.anahtar + '" aria-expanded="' + acik + '">⚠ ' + escapeHtml(supheMetni(t.etiket, q)) + "</button>";
     }).join("") +
     liste.filter(function (t) { return supheAcikMi(q, t); }).map(function (t) {
-      return '<div class="suphe-aciklama suphe-' + t.ciddiyet + '"><b>' + escapeHtml(t.etiket) + ":</b> " +
-        escapeHtml(t.aciklama) + "</div>";
-    }).join("") + "</div>";
+      return '<div class="suphe-aciklama suphe-' + t.ciddiyet + '"><b>' + escapeHtml(supheMetni(t.etiket, q)) + ":</b> " +
+        escapeHtml(supheMetni(t.aciklama, q)) + "</div>";
+    }).join("") + "</div>" + durum;
 }
 
 /* §41 Madde 7 — kelime/karakter sayacı metni. Saf fonksiyon; sınır koymaz. */
@@ -4411,6 +4544,11 @@ function wirePendingCards() {
       dragFromIndex = null;
     };
   });
+  document.querySelectorAll(".js-coz").forEach(function (el) {
+    el.onclick = function () { bagimsizCoz(findQuestion(el.dataset.qid)); };
+  });
+  const tc = document.getElementById("btnTopluCoz");
+  if (tc) tc.onclick = bekleyenleriCoz;
   /* §56: rozet aç/kapa. Yalnız görünüm durumu; soruya dokunmaz. */
   document.querySelectorAll(".suphe-rozet").forEach(function (el) {
     el.onclick = function () {
@@ -4616,6 +4754,7 @@ function ceCreateHtml() {
     '</div></div></div>' +
     '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
     alignmentBarHtml(pending) +
+    topluCozBarHtml(pending) +
     '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
     (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Yukarıya bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
 }
@@ -10446,7 +10585,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",

@@ -1439,6 +1439,9 @@
   .suphe-aciklama.suphe-yuksek { background: var(--critical-soft); border-left-color: var(--critical); }
   .suphe-aciklama.suphe-orta { background: var(--warning-soft); border-left-color: var(--warning); }
   .suphe-sayac { align-self: center; font-size: 11.5px; color: var(--text-muted); }
+  /* "denetlenmedi" ≠ "temiz": denetim durumu nötr bilgi satırı, şüphe değil. */
+  .denetim-durum { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0 8px;
+    font-size: 11.5px; color: var(--text-muted); }
 
   /* --- Yapay Zekâ Karar Günlüğü (denetim izi) -----------------------------
      Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
