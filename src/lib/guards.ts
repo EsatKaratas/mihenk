@@ -192,12 +192,18 @@ export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
  * Ölçüldü: depodaki 32 metin dosyasında (12 MEB müfredatı, 13 Deneyap
  * dosyası, ders belgeleri, app.js — 1.049.353 karakter) bu bloktan Türkçe
  * dışı karakter 0; yanlış pozitif 0 (test/guards.test.ts).
+ * §56 — LATIN EXTENDED-B (U+0180–024F) DA VAR. A5'te W4 Vietnamca sızıntı
+ * buldu ("ngược"); yakalanması "ư" (U+01B0) sayesinde DEĞİL, aynı kelimedeki
+ * "ợ" (U+1EE3) sayesindeydi. "ư" ve "ơ" (U+01A1) Ext-B'dedir ve kapsanmıyordu:
+ * "thư", "sư" uyarısız geçerdi. Türkçede bu blokta harf YOKTUR; bloğun tamamı
+ * eklendi (Vietnamca ơ/ư, Rumence ș/ț, pinyin ǎ… hepsi Türkçe dışı).
+ * Yanlış pozitif yeniden ölçüldü (test/guards.test.ts): 0.
  * BİLİNÇLİ SINIR: Latin-1 içindeki é, ñ, ã, ß gibi harfler hâlâ
  * yakalanmaz — Türkçenin ç ö ü â î û harfleriyle aynı blokta yaşarlar ve
  * tek tek ayıklamak sözlük gerektirir (§48b.3'teki "necessary" sınıfı).
  */
 export const YABANCI_ALFABE =
-  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF\u0100-\u011D\u0120-\u012F\u0132-\u015D\u0160-\u017F]/;
+  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF\u0100-\u011D\u0120-\u012F\u0132-\u015D\u0160-\u017F\u0180-\u024F]/;
 
 /** Metinde Türkçe dışı alfabe geçiyorsa true. */
 export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));
