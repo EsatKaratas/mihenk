@@ -245,3 +245,89 @@ kontrolde de görünmez. İnsan alan uzmanı kontrolü 6 aylık planda.
 **Üst sınırdır:** pencere başka oturumların çağrılarını da içerebilir (bu
 bölümün dışında W2 canlı doğrulaması 2 çağrı yaptı). Tahminim 35–50 bin idi;
 gerçek değer daha yüksek çıktı.
+
+## 9. A5 etiketli sonuçlar — denetimlerin yakalama ve yanlış alarmı (19 Ekim 2026, W2)
+
+**Etiketler.**
+- Birincil: W4 tek K, 113 madde (`etiket-W4.json`, `6c83bcf`) + W1 çift K, 112 madde
+  (`etiket-W1.json`, `0387114`). Toplam 225 tekil ÇSS, iki aşamalı kör.
+- Kör ikinci kontrol: W3, 45 madde (`ikinci-kontrol-w3.json`, `efa9277`).
+- Birleştirme ve hesap: `tools/olcum/a5-birlestir.mjs` → `a5/a5-etiketli.csv`,
+  `a5/a5-basarim.txt`.
+- **Kusurlu = yanlış ya da belirsiz** (müdür tanımı); sağlam = doğru.
+
+**Ağırlıklandırma.**
+- Bayraklı (A1 ∪ A2 ∪ doğru şıkta işlem ifadesi) 144 ÇSS'nin **hepsi** etiketli
+  (tam sayım, ağırlık 1).
+- Bayraksızlar, aynı model × sıcaklık tabakasındaki etiketli bayraksızlarla temsil
+  edilir. Etiketli bayraksızlar (a) ∩ bayraksız + (c) kümelerinden gelir.
+
+| Tabaka | Bayraksız ÇSS | Etiketli bayraksız | Ağırlık |
+|---|---|---|---|
+| A s0,5 | 52 | 28 | 1,86 |
+| A s0,2 | 59 | 10 | 5,90 |
+| B s0,5 | 69 | 33 | 2,09 |
+| B s0,2 | 68 | 10 | 6,80 |
+
+- **s0,2 hücreleri yalnız 10'ar etiketli bayraksız maddeye dayanır → gürültülü.**
+- (a) ile (c)'nin birleşimini rastgele örneklem saymak bir VARSAYIMDIR.
+
+**(1) Anahtar doğruluğu — (a) kümesi (tekrar 1 · s0,5, tüm ÇSS):**
+
+| Model | n | doğru | yanlış | belirsiz | ANH-YOK |
+|---|---|---|---|---|---|
+| A (70b) | 32 | 22 (%68,8) | 3 | 7 | 2 |
+| B (Scout) | 36 | 22 (%61,1) | 5 | 9 | 1 |
+
+İstem sürümü 2 ile ölçüldü; §2'deki sürüm 1 sonuçları (A %48, B %62; N≈25) ile
+karşılaştırma istem değişikliğiyle **karışıktır**. Örneklem küçük.
+
+**(2) Yakalama ve yanlış alarm** — ağırlıklı, 392 birincil ÇSS'ye genellenmiş:
+
+| | Kusurlu ≈ | Sağlam ≈ | A1 yak. / y.a. | A2 yak. / y.a. | **A1 ∪ A2 yak. / y.a.** | A3 yak. / y.a. |
+|---|---|---|---|---|---|---|
+| **Toplam** | 146,0 | 246,0 | %43,1 / %13,4 | %30,8 / %2,4 | **%56,2 / %15,4** | %1,4 / %10,6 |
+| A s0,5 | 39,7 | 52,3 | %42,8 / %19,1 | %32,7 / %5,7 | %55,4 / %24,9 | %2,5 / %3,6 |
+| A s0,2 | 33,8 | 60,2 | %53,3 / %8,3 | %41,4 / %3,3 | %65,1 / %11,6 | %0,0 / %19,6 |
+| B s0,5 | 37,9 | 63,1 | %39,6 / %12,7 | %13,2 / %1,6 | %44,8 / %12,7 | %2,6 / %16,6 |
+| B s0,2 | 34,6 | 70,4 | %37,6 / %14,2 | %37,6 / %0,0 | %60,7 / %14,2 | %0,0 / %2,8 |
+
+**Okuma notları.**
+- Ağırlıklı tahminle 392 birincil ÇSS'nin ≈146'sı (**≈%37**) kusurlu (yanlış ya
+  da belirsiz).
+- A1 ∪ A2 bunların ≈%56'sını yakalıyor. **≈64 kusurlu ÇSS'yi kaçırıyor** —
+  insan onayı hâlâ zorunlu (agents.md §1).
+- **A2'nin yanlış alarmı çok düşük (%2,4).** A2 bayraklı 51 ÇSS'nin 6'sında
+  doğru şıkta işlem ifadesi var; bunların 4'ü "doğru" etiketli, yani A2'nin
+  yanlış alarmlarının 4'ü bu bilinen türden.
+- A1 daha çok yakalıyor (%43) ama yanlış alarmı daha yüksek (%13).
+- **A3 işe yaramıyor:** yakalaması %1,4, yanlış alarmı %10,6 — rozet yapmama
+  kararı (§55.2) doğrulandı.
+
+**(3) Tekrarlar arası tutarlılık.**
+- Aynı kazanım × model × sıcaklık × sıra, FARKLI tekrarda üretilmiş sorular:
+  etiketli 121 çiftin 86'sında (%71,1) kusurlu/sağlam kararı aynı.
+- (b) bayraklı seçildiği için örneklem yanlı; yalnız gösterge.
+
+**(4) Kör ikinci kontrol — W3 ↔ birincil (n = 45):**
+
+| birincil \ W3 | doğru | yanlış | belirsiz |
+|---|---|---|---|
+| doğru | 23 | 0 | 1 |
+| yanlış | 0 | 14 | 0 |
+| belirsiz | 2 | 2 | 3 |
+
+- Üç sınıf: uyuşma **%88,9**, **κ = 0,81**. İkili ("kusurlu mu?"): uyuşma
+  %93,3, **κ = 0,87**.
+- Doğru ↔ yanlış karşıtlığı **hiç yok**; uyuşmazlıkların 4'ü "belirsiz" sınırında.
+- W3, kökü soru cümlesi değil niyet cümlesi olan maddeleri "kök var" saydığını
+  bildirdi; uyuşmazlık nedenlerinden biri bu olabilir.
+
+**(5) Özel kontrol — Vietnamca sızıntı (W4: K159 "ngược", K205 "đúngudur").**
+- İkisinde de `dilUyarisi = true`.
+- K205: "đ" (U+0111, Latin Extended-A — §55 eki) yakaladı.
+- K159: yakalanma "ư" sayesinde DEĞİL, aynı kelimedeki "ợ" (U+1EE3, Latin
+  Extended Additional) sayesinde.
+- **Kapsam açığı (ürün kodu değiştirilmedi):** "ư" (U+01B0) ve "ơ" (U+01A1)
+  Latin Extended-B'de; `YABANCI_ALFABE` bu bloğu kapsamıyor. Yalnız bu harfleri
+  içeren bir kelime ("thư", "sư") yakalanmaz. Ayrı karar konusu.

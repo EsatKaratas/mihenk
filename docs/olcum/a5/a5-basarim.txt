@@ -1,0 +1,28 @@
+Birincil ÇSS 392 · etiketli 225 (W1 112, W4 113) · bayraklı 144 (hepsi etiketli)
+Ağırlıklar (bayraksız): A|0.5 U=52 L=28 w=1.86 · A|0.2 U=59 L=10 w=5.90 · B|0.5 U=69 L=33 w=2.09 · B|0.2 U=68 L=10 w=6.80
+
+[1] (a) kümesi — anahtar (tekrar 1 · s0,5):
+  A: n=32 · doğru 22 (68.8%) · yanlış 3 · belirsiz 7 · ANH-YOK 2
+  B: n=36 · doğru 22 (61.1%) · yanlış 5 · belirsiz 9 · ANH-YOK 1
+
+[2] Yakalama (kusurlulardan işaretlenen) / yanlış alarm (sağlamlardan işaretlenen) — ağırlıklı:
+  Toplam kusurlu≈146.0 sağlam≈246.0 | A1 yak 43.1% / y.a. 13.4% · A2 yak 30.8% / y.a. 2.4% · A1∪A2 yak 56.2% / y.a. 15.4% · A3 yak 1.4% / y.a. 10.6%
+  A|0.5  kusurlu≈39.7 sağlam≈52.3 | A1 yak 42.8% / y.a. 19.1% · A2 yak 32.7% / y.a. 5.7% · A1∪A2 yak 55.4% / y.a. 24.9% · A3 yak 2.5% / y.a. 3.6%
+  A|0.2  kusurlu≈33.8 sağlam≈60.2 | A1 yak 53.3% / y.a. 8.3% · A2 yak 41.4% / y.a. 3.3% · A1∪A2 yak 65.1% / y.a. 11.6% · A3 yak 0.0% / y.a. 19.6%
+  B|0.5  kusurlu≈37.9 sağlam≈63.1 | A1 yak 39.6% / y.a. 12.7% · A2 yak 13.2% / y.a. 1.6% · A1∪A2 yak 44.8% / y.a. 12.7% · A3 yak 2.6% / y.a. 16.6%
+  B|0.2  kusurlu≈34.6 sağlam≈70.4 | A1 yak 37.6% / y.a. 14.2% · A2 yak 37.6% / y.a. 0.0% · A1∪A2 yak 60.7% / y.a. 14.2% · A3 yak 0.0% / y.a. 2.8%
+  Kaçırılan kusurlu (A1∪A2 işaretlemedi), ağırlıklı tahmin: ≈64.0 / ≈146.0 ÇSS (392 içinde)
+
+  A2 bayraklı 51 ÇSS: doğru şıkta işlem ifadesi (SIKIFADE) 6 · bunlardan etiketi "doğru" (yanlış alarm) 4
+
+[3] Tekrarlar arası tutarlılık (aynı kazanım×model×sıcaklık×sıra; FARKLI üretilmiş sorular):
+  etiketli çift 121 · kusurlu/sağlam kararı aynı 86 (71.1%) — (b) bayraklı seçildiği için örneklem yanlı; yalnız gösterge
+
+[4] W3 ↔ birincil, n=45: satır = birincil, sütun = W3
+                dogru   yanlis belirsiz
+  dogru            23        0        1
+  yanlis            0       14        0
+  belirsiz          2        2        3
+  üç sınıf: uyuşma 88.9% · κ = 0.81
+  ikili (kusurlu mu?): uyuşma 93.3% · κ = 0.87
+  uyuşmazlıklar: I005/K213(W4) belirsiz→W3 dogru · I006/K180(W1) belirsiz→W3 dogru · I007/K166(W1) belirsiz→W3 yanlis · I010/K184(W1) belirsiz→W3 yanlis · I037/K115(W4) dogru→W3 belirsiz
