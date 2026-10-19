@@ -7547,3 +7547,162 @@ yapılandırmaları depoda hazır durur, tek bir komutla açılır."*
 
 **Kazanılan:** aynı satır artık "yapmadık" değil, "yaptık, ölçtük, bilerek
 kapattık" diyor — ve her cümlesi depodan doğrulanabiliyor.
+
+---
+
+## 51b. UÇTAN UCA DENETİM + SUNUCU DÜZELTMELERİ (19 Ekim 2026, W2)
+
+**Bağlam:** T3 AI Lisans Araştırmacı bursu teslimi (19 Ekim akşam). Çalışma
+ekip düzeninde yürüdü: müdür oturum + W1–W5. Bu bölüm W2'nin işidir
+(sunucu `src/**`, `test/**`, `tools/` — `tools/olcum` hariç). Sunucu
+düzenlemeleri, ortak yerel sunucuyu (8788/8789) yeniden yükleyip uçuştaki
+model çağrılarını düşürmemek için ayrı worktree'de (`mihenk-w2`, dal
+`w2-duzeltme`) yapıldı ve tek seferde alındı.
+
+### 51b.1 Cloudflare — salt okuma (hiçbir ayar değiştirilmedi)
+
+| Ölçüm | Sonuç |
+|---|---|
+| Panel (yerleşik tarayıcı) | oturum yok — Workers planı / iptal tarihi **ölçülemedi**; `/subscriptions` API'si wrangler belirteciyle yetki hatası verdi |
+| `wrangler whoami` · canlı sürüm | girişli · `518cdeb7` (6 Eylül 09:53Z), sonrasında dağıtım yok |
+| Workers Logs (`script-settings`) | **açık**: `logs.persist=true`, `invocation_logs=true`, örnekleme 1,0; traces kapalı |
+| `mihenk` son 24 sa / 7 gün | 4 istek 0 hata / 7 istek 0 hata |
+| Workers AI, 1–19 Ekim | **0 çağrı**. Son 30 günde tek kayıt: 27 Eylül, llama-3.3-70b, 3 çağrı, ~674 Neuron |
+| Canlı smoke | `/api/health` ok · `/api/ai/status` ready, `fallbackSorunu:null` · `/`, `/privacy-policy`, `/robots.txt` 200 |
+
+### 51b.2 Uçtan uca denetim (yerel, `127.0.0.1:8788`, gerçek model)
+
+İçerik (kaynak metin, FEN.7.1.2) → 2 üretim → 3 soru **insan onayıyla**
+havuza → sınav + AI rubrik taslağı → yayın → öğrenci yanıtı → AI 15/20
+önerisi → 5 kişilik simüle sınıf → 6 öneri (biri elle 8→10, beşi tek tık) →
+sonuç yayını → karne **20/30** (5+0+15, elle doğrulandı) → veli (yalnız onaylı
+sonuç) → yönetici (onay bekleyen 0, tamamlanma 6/9) → kavram yanılgısı analizi.
+
+- **HITL:** öğretmen onayından önce öğrencinin Karne ve Sınavlarım
+  sekmelerinde puan **görünmüyor** (ölçüldü).
+- Konsol hatası **0** (`error` + `unhandledrejection` dinlendi), yinelenen id **0**.
+- Model çağrısı: 12 uç isteği (üretim 3, rubrik 1, değerlendirme 6, örnek yanıt 1, yanılgı 1), hepsi 200.
+- Arayüz bulguları (U1–U6) W1'e iletildi; bu bölümde değil.
+
+### 51b.3 P0 — kazanım metni sınırı 200 → 400 (`fc1750c`)
+
+W5 gerçek istekle buldu: MAT.8.3.5 kazanım metni 213 karakter, şemada
+`outcomeLabel` en çok 200 → HTTP 400, model çağrılmıyor, bu kazanımla soru
+**üretilemiyordu**. İstemcide kırpılmadı (modele eksik kazanım giderdi);
+sunucuda tek sabit `MAX_OUTCOME_LABEL_CHARS = 400`, altı şemanın hepsinde ve
+kazanım denetimi aday metninde (eskiden 220).
+
+En uzun kazanım metinleri (12 MEB dosyası, 606 kazanım, ölçüldü):
+
+| Karakter | Kod |
+|---:|---|
+| 213 | MAT.8.3.5 (tek aşan) |
+| 200 | MAT.5.3.7 |
+| 199 | MAT.8.5.2 |
+| 165 | MAT.7.4.8 |
+| 163 | MAT.8.7.1 |
+
+Bedeli: istem kazanım başına en çok ~200 karakter uzayabilir; kazanım
+denetiminde 60 adayla en kötü durum ~13.200 → ~24.000 karakter (gerçek aday
+metinleri ortalama ~100 karakter, pratikte değişmez). Kanıt: 8788'de MAT.8.3.5
+ile gerçek üretim HTTP 200.
+
+### 51b.4 `kaynakTuru: "meb" | "deneyap"` (`7f6cbd5`)
+
+Kazanım modunda istem "MEB KAZANIMINDAN" ve "MEB öğretim programında yer alan
+bilgiyle sınırlı" diyordu; TÜBİTAK Deneyap kitabı kazanımları için ikisi de
+yanlıştı. İsteğe bağlı alan, varsayılan `meb`. **MEB istemi değişmedi:**
+değişiklikten önce aynı spec ile alınan SHA-256 parmak izi (10.147 karakter)
+testte sabit; alan yokken ve `meb` iken birebir eşit. "SORU TARZI" bloğundaki
+"MEB ÖGM / LGS / PISA" satırı bilerek değiştirilmedi (kaynak değil, soru
+geleneği).
+
+### 51b.5 Kalıplı gerekçe sayacı (`5014c20`)
+
+`meta.sadelestirilenGerekce` / `meta.toplamGerekce`: sunucuda "Bu şıkkı seçen
+öğrenci…" açılışı kesilen gerekçe sayısı ve toplam gerekçe sayısı.
+Kullanılabilir tüm ÇSS'ler üzerinden, tekrar elemesinden **önce** sayılır —
+ölçülen şey modelin ham davranışı, araştırmanın "otomatik denetim ne kadar
+yakalıyor" sorusunun doğrudan ölçüsü. Davranış değişmedi.
+
+### 51b.6 Sunucu düzeltmeleri (`29cd4c6`, `81847da`, `bbe8205`)
+
+| # | Kusur (ölçüldü) | Düzeltme |
+|---|---|---|
+| P1-1 | Bozuk/boş JSON gövdesi **HTTP 500** `internal_error` + Logs'a `unhandled_error` (zValidator'ın HTTPException(400)'ı `onError`'da 500'e çevriliyordu) | 400 `invalid_json` |
+| P1-2 | Uç başına sınırların anahtarı istemcinin verdiği değer (docKey, soru gövdesi); anahtarı değiştiren döngü sınırsız model çağırır | IP (`CF-Connecting-IP`) başına tüm POST AI uçlarında ortak tavan **60/dk** |
+| P2-1 | `ai_call_failed` istemciye ham hata veriyordu (sağlayıcı URL'si, model adı, sağlayıcı/model gövdesinden parça) | iki kısa Türkçe mesaj; ayrıntı `ev:"ai_failed"` ile log'a |
+| P2-2 | `ai_call` kaydı yalnız başarılı denemede; JSON'u ayrıştırılamayan deneme token harcadığı hâlde görünmüyordu | her deneme `ok:true/false` + `asama` |
+| P2-3 | Her hatada aynı model yeniden deneniyordu (kota/429 dahil) | yeniden deneme yalnız ayrıştırma hatasında; model hatasında **hemen yedeğe** |
+| P2-4 | "en az bir soru" denetimi hız sayacından sonraydı; geçersiz istek belgenin 5 hakkından birini yiyordu | sıra düzeltildi |
+| P2-7 | `src/lib/ai.ts` s.52-59 yorumu `\u` kaçışlarıyla yazılmıştı | okunur UTF-8 Türkçe |
+| 9 | KK.FIZ.2.1 üretiminde "tăngdı" (ă U+0103) — `dilUyarisi:false` | Latin Extended-A eklendi, Türkçe harfler hariç |
+
+**P1-2 değerinin gerekçesi (sabit tahminle konmadı, §5 tuzak 9):** amaç
+**maliyet güvenliği, kalite eşiği değil** — 26 Ekim'den sonra hesap ücretsiz
+Workers AI planına dönüyor ve günlük Neuron kotası tek bir döngüyle tükenir.
+Değer mevcut sınırlardan türetildi: sınıf değerlendirme (`RATE_LIMIT_EVAL_PER_MIN`
+= 45) + üretim/rubrik/denetim için 3 × 5 = **60**. Başlık yoksa (yerel geliştirme,
+testler) tüm istekler tek "yerel" kovada sayılır. Ölçüm betiği (13 sn arayla,
+~5/dk) etkilenmez. Bellek içi ve isolate başına — dağıtık garanti değil, sigorta.
+
+**P1-2 bilinen sınırı:** sayaç IP başınadır. Okul ağı NAT arkasındaysa aynı
+dış adresi paylaşan birçok öğretmen 60/dk'yı **birlikte** tüketir. Bugün ürün
+tek cihazda çalıştığı için (kimlik doğrulama yok, §43) etkisizdir; çok
+kullanıcıya geçişte (agents.md §2 hedefi, Better Auth) sayaç **kullanıcı
+başına** anahtara dönülmelidir.
+
+**P2-3 yedeğin korunduğunun gerçek kanıtı:** worktree'den ayrı bir sunucu
+(8790), `AI_MODEL=@cf/meta/bu-model-yok-w2`. `POST /evaluate` → **HTTP 200**,
+yanıt yedek modelden. Log sırası: `ai_call` bozuk model `attempt 1 ok:false
+asama:model "5007: No such model"` → `ai_fallback` → `ai_call` scout `ok:true`.
+Birincil **bir kez** çağrıldı (eskiden iki).
+
+**9. maddenin ölçümü:** Latin Extended-A'da Türkçe harfler yalnız Ğ ğ İ ı Ş ş
+(ç ö ü â î û Latin-1'dedir). Depodaki 32 metin dosyasında (12 MEB müfredatı,
+13 Deneyap dosyası, ders belgeleri, `app.js`; 1.049.353 karakter) bu bloktan
+Türkçe dışı karakter **0**. 1.228 kazanımda (606 MEB — 365'i Türkçe — + 622
+Deneyap) ve demo sorularında yanlış alarm **0** (`test/guards.test.ts`).
+
+**Bilinçli sınır:** Latin-1 içindeki é, ñ, ã, ß hâlâ yakalanmaz — Türkçenin
+ç ö ü â î û harfleriyle aynı blokta yaşarlar, ayıklamak sözlük ister (§48b.3).
+
+### 51b.7 Bilinen, bırakıldı (müdür kararı: risk/getiri düşük)
+
+- **P2-5:** POST uçlarına GET → 404 (405 değil).
+- **P2-6:** `content-type` başlığı yoksa gövde `{}` sayılıyor, yanıltıcı
+  "Required" mesajları dönüyor (yine 400, yine JSON).
+
+### 51b.8 Doğrulama
+
+| Kontrol | Önce | Sonra |
+|---|---|---|
+| `npm test` | 263/263 · 7 dosya | **291/291 · 8 dosya** (`test/rota.test.ts` yeni: uygulamayı `app.request` ile uçtan çağırır, sahte AI bağlamasıyla — gerçek çağrı yok) |
+| `npm run lint` | temiz | **temiz** |
+| `node tools/ozkontrol-dogrula.mjs` | %100 | **%100** |
+| `npm run check:config` | exit 0 | **exit 0** |
+
+### 51b.9 Birleştirme ve canlı-öncesi kanıt
+
+- Merge **`e35628f`** (main, `--no-ff`, çakışma yok). Yalnız `src/` + `test/`
+  değişti (10 dosya, +600/−26); `public/app.js`'e dokunmadığı
+  `git diff HEAD^1 HEAD` ile doğrulandı.
+- Ana ağaçta: `npm test` **291/291** · lint temiz · öz-kontrol %100 ·
+  `check:config` exit 0.
+- **Gerçek Deneyap üretimi** (yerel 8788, llama-3.3): `kaynakTuru:"deneyap"`,
+  DNY.YZ.1.1 ("Öğrenciler 'yapay zekâ' kavramını temel düzeyde açıklar."),
+  2 ÇSS → HTTP 200, 11,6 sn, `attempts 1`, `fellBack false`, `dilUyarisi`
+  false ×2, **`sadelestirilenGerekce 6 / toplamGerekce 6`** — altı gerekçenin
+  altısı da kalıplıydı ve sunucuda kesildi.
+- **İçerik gözlemi (kod değil):** iki sorunun şıkları da birbirinin üst/alt
+  kavramıydı (makine öğrenimi / derin öğrenme / yapay sinir ağları) — tek doğru
+  cevap tartışmalı. Korumaların yakalamadığı sınıf (§DEVIR 1: olgusal/anahtar
+  hatası); İçerik Uzmanı onayı yakalamalı.
+- **Kendi ölçüm hatam:** yedek kanıtı için açtığım 8790 sunucusu (bozuk model
+  adıyla) kapatıldı sanıldı, ama arka plan görevini durdurmak yalnız `npx`'i
+  kapatmış, `wrangler`/`workerd` alt süreçleri yaşamaya devam etmişti. Sonraki
+  bir deneme bu eski sunucuya gitti ve yedekten (scout) döndü. Süreçler port
+  üzerinden bulunup kapatıldı (14 süreç); sonuç ölçüme katılmadı. Ders: Windows'ta
+  arka plan `wrangler dev`'i durdurduktan sonra portun boşaldığı ölçülmeden
+  yeni sunucuya güvenilmez.
+
