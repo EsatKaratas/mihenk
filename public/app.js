@@ -4173,7 +4173,19 @@ function bagimsizCozumGecerli(q) {
 function denetimDurumHtml(q) {
   if (!q || q.type !== "mc") return "";
   const p = [];
-  if (q.hesapUyusmazligi === undefined) p.push("hesap denetimi: <b>denetlenmedi</b>");
+  const ip = function (metin, aciklama) {   // §58: her etiketin üzerine gelince açıklaması
+    return '<span title="' + escapeHtml(aciklama) + '">' + metin + "</span>";
+  };
+  /* §58: demo tohumu sorusu ELLE yazıldı ve sunucudan geçmedi (tuzak 11).
+     "denetlenmedi" jüriye "sistem denetlemiyor" gibi okunuyordu; demo
+     sorusunda nedeni söylenir. Gerçek sorularda davranış aynı. */
+  if (q.demo && q.hesapUyusmazligi === undefined) {
+    p.push(ip("<b>demo sorusu</b> — elle yazıldı, sunucu denetiminden geçmedi",
+      "Demo soruları gösterim için elle yazıldı; yapay zekâ üretmediği için sunucudaki hesap denetimi bu soruya uygulanmadı. " +
+      "Gerçek üretimde her ÇSS sunucu denetiminden geçer."));
+  }
+  else if (q.hesapUyusmazligi === undefined) p.push(ip("hesap denetimi: <b>denetlenmedi</b>",
+    "Bu soru, hesap denetimi eklenmeden önce üretildi ya da sunucu bu alanı döndürmedi. 'Temiz' anlamına gelmez."));
   /* null = denetim çalıştı ama uygulanamadı (W2: hesap ifadesi yok ya da
      çözümlenemedi). Sessiz bırakmak "temiz" gibi okunurdu (ölçüldü: gerçek
      üretimde 2/2 ÇSS null geldi). */
@@ -4181,7 +4193,9 @@ function denetimDurumHtml(q) {
   const c = q.bagimsizCozum;
   const yuk = !!((state.cozuluyor || {})[q.id]);
   if (yuk) p.push("bağımsız çözüm: <b>çözülüyor…</b>");
-  else if (!c) p.push("bağımsız çözüm: <b>yapılmadı</b>");
+  else if (!c) p.push(q.demo
+    ? ip("'Bağımsız çöz' ile deneyebilirsiniz", "Ayrı bir model çağrısı soruyu cevap anahtarını görmeden çözer; sonuç yalnız ikinci görüştür.")
+    : ip("bağımsız çözüm: <b>yapılmadı</b>", "Ayrı bir model çağrısı soruyu cevap anahtarını görmeden çözer. Düğmeyle başlatılır; otomatik değildir."));
   else if (c.hata) p.push("bağımsız çözüm: <b>yapılamadı</b> — " + escapeHtml(c.hata));
   else if (c.imza !== cozumImzasi(q)) p.push("bağımsız çözüm: <b>soru sonradan değişti, yeniden çözün</b>");
   else if (c.cozulemedi) p.push("bağımsız çözüm: <b>model çözemedi</b> (şüphe değil, bilgi)");
