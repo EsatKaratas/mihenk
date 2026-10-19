@@ -8295,7 +8295,12 @@ Tasarım önce W5'in ham verisinden ölçülerek yapıldı (6 gerçek koşum, 42
 - Formül doğrulandı: Scout'un bugünkü 182.851 girdi + 38.540 çıktı token'ı CF
   fiyatlarıyla (0,27 $ / 0,85 $ / M) 7.466 Neuron eder, ölçülenle eş. Bir `/solve`
   çağrısı ≈ ~19 Neuron **TAHMİN** (token sayısı ölçülmedi).
-- **A5 koşumu** (216 üretim + 216 çözüm) kabaca 35–50 bin Neuron ≈ 0,4–0,55 $.
+- **A5 koşumu** — tahmin (koşumdan önce): 216 üretim + 216 çözüm, kabaca 35–50 bin
+  Neuron ≈ 0,4–0,55 $. **GERÇEK (ölçüldü, Cloudflare analitiği 09:39 → 10:38 UTC,
+  `51728b4`):** 216 üretim + **392** çözüm (çözüm sayısı ÇSS sayısına eşittir,
+  tahminde üretim sayısı alınmıştı). Scout +329 çağrı +21.848 Neuron, 70b +335
+  çağrı +38.584 Neuron → **≈ 60.430 Neuron ≈ 0,66 $**. Tahminin ÜSTÜNDE kaldı.
+  Üst sınırdır: pencerede başka oturumların çağrıları da olabilir.
   **26 Ekim'den sonra Free planda günlük kotayı aşar ve yarıda hata verir —
   A5 26 Ekim'den önce koşulmalı.**
 
