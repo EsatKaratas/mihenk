@@ -305,7 +305,9 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
   (25 kod) · sabit set + ölçüm betiği (`tools/olcum/`) · kazanım metni sınırı
   200 → 400 (`fc1750c`, MAT.8.3.5) · T3 AI'ya dışarıdan erişim **bulunamadı**
   (denenmedi, ölçülmedi). **Yer tutucular:** ölçüm sonuçları (`docs/olcum/`,
-  ARASTIRMA §6) ve Deneyap müfredatı henüz işlenmedi — işlenmeden sayı verme.
+  ARASTIRMA §6) henüz işlenmedi — işlenmeden sayı verme. Deneyap kataloğu
+  eklendi (`9f7e304`: 5 atölye, 298 kazanım, `docs/DENEYAP_KAYNAK.md`) ama
+  **arayüze bağlı değil**.
 
 ### ⚠️ Sunumda SÖYLENMEMESİ gerekenler
 

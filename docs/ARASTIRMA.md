@@ -77,11 +77,37 @@ bulunuyor ve metinleri birebir eşleşiyor (PROGRESS §12, §22). Her kazanım
 *yazılı sınavla ölçülebilir · performans gerektirir · süreç kazanımı* diye
 ayrılmıştır. Bu ayrım ürünün kendi katkısıdır, müfredatın parçası değildir.
 
-**Deneyap:** *müfredat ekleniyor.* TÜBİTAK'ın resmî ortaokul Deneyap
-kitaplarından çıkarılan atölye kazanımları ayrı bir çalışma hattında ekleniyor.
-Kaynağa karşı doğrulanıp belgelendiğinde bu bölüme ders/atölye adı, kazanım
-sayısı ve kaynak bağlantısıyla yazılacak. O zamana kadar Deneyap için hiçbir
-sayı verilmez.
+**Deneyap — 5 atölye, 298 kazanım** (19 Ekim 2026, katalog dosyaları
+`public/mufredat/deneyap-*.json`; kaynak, yöntem ve sınırlar:
+[DENEYAP_KAYNAK.md](./DENEYAP_KAYNAK.md)):
+
+| Atölye | Kazanım | Yazılı sınavla ölçülebilir | Performans/gözlem | Süreç (duyuşsal) |
+|---|---:|---:|---:|---:|
+| Tasarım ve Üretim | 60 | 16 | 25 | 19 |
+| Robotik ve Kodlama | 55 | 13 | 42 | 0 |
+| Elektronik Programlama ve Nesnelerin İnterneti (EPNİ) | 67 | 13 | 54 | 0 |
+| Yapay Zekâ | 66 | 25 | 41 | 0 |
+| Yazılım Teknolojileri | 50 | 20 | 30 | 0 |
+| **Toplam** | **298** | **87** | **192** | **19** |
+
+- **Kaynak:** TÜBİTAK Yayınları, Deneyap Kitapları, ortaokul sürümleri
+  (<https://yayinlar.tubitak.gov.tr/deneyap-atolyesi>). Her kitap künyeli
+  (ISBN, yayım 2023; bir kısmı Ocak 2025'te güncellenmiş). deneyap.org
+  kopyalarıyla çapraz kontrol edildi.
+- **Uydurma ve türetme yok:** kazanımların tamamı kitabın kendi kazanım
+  bölümünden birebir alındı (türetme 0). İkinci, bağımsız bir PDF okuyucuyla
+  298/298 eşleşme sağlandı. PDF'ler telif nedeniyle depoda değil; SHA-256
+  özetleri kayıtlı.
+- **Ölçme açısından bulgu:** 298 kazanımın yalnızca **87'si** yazılı sınavla
+  ölçülebilir. Uygulamalı atölye müfredatı, yazılı soru üretimine ancak kısmen
+  uygun. Sınıflandırma ürünün kendi kuralıdır, müfredatın parçası değildir.
+- **Sınırlar:** kitaplar sınıf düzeyi (5-8) ayırmaz. Bunlar resmî bir öğretim
+  programı değil, eğitmen kitaplarındaki haftalık kazanımlardır. 9 atölye
+  daha **eklenmedi**. Katalog bugün **arayüze bağlı değil**; Deneyap
+  kazanımlarıyla soru üretimi henüz denenmedi ve ölçülmedi.
+
+Sayılar 19 Ekim'de katalog dosyalarındaki kayıtlar sayılarak yeniden
+doğrulandı.
 
 > Not: Üründe bugün bulunan 18 "Keşif" atölye kazanımı (PROGRESS §50b'de 14, §50f'de Fizik eklenince 18)
 > kullanıcının verdiği dört ders belgesinden alındı. Bunlar resmî Deneyap
@@ -183,7 +209,8 @@ kısmını ikinci bir etiketleyicinin işaretlemesi planlanıyor.
 
 - **Set:** kazanım × soru türü (çoktan seçmeli / açık uçlu) × üretim modu
   (kaynak metinli / yalnızca kazanım). Kazanımlar MEB kataloğundan ve,
-  eklendiğinde, Deneyap kataloğundan seçilir. Set sürümlenir ve depoda tutulur.
+  arayüze bağlandığında, Deneyap kataloğunun yazılı sınavla ölçülebilir
+  87 kazanımından seçilir. Set sürümlenir ve depoda tutulur.
 - **Betik:** set üzerinde model başına N üretim yapar. Mevcut otomatik
   denetimleri (`guards.ts`) çıktılara uygular ve hata kodlarını sayar.
   Çıktıyı CSV ve özet olarak verir. Her satırda tarih, model adı ve istem
