@@ -9593,16 +9593,27 @@ function katalogKaynakAdi() {
   return state.ceForm.subject === DENEYAP_DERSI ? "TÜBİTAK Deneyap kitabı" : "MEB öğretim programı";
 }
 
-async function katalogYukle(anahtar) {
+/* §58 — UÇUŞTAKİ İSTEK PAYLAŞILIR. Ölçüldü: Deneyap'a ilk geçişte atölye
+   dosyası İKİ kez indiriliyordu. Kök neden: deneyapIndeksYukle önce
+   renderAll() (→ katalogHazirla() ilk isteği başlatır), hemen ardından
+   katalogHazirla(true) çağırıyor; "yeniden dene" bayrağı katalogDenendi
+   korumasını atlıyor ve ilk istek henüz bitmediği için ikincisi başlıyordu.
+   Bitince (başarı ya da hata) kayıt silinir: yeniden deneme bozulmaz. */
+var katalogUcusta = {};
+function katalogYukle(anahtar) {
   const yol = MUFREDAT_KATALOGLARI[anahtar];
-  if (!yol) return null;
+  if (!yol) return Promise.resolve(null);
   state.katalog = state.katalog || {};
-  if (state.katalog[anahtar]) return state.katalog[anahtar];
-  const r = await fetch(yol, { headers: { accept: "application/json" } });
-  if (!r.ok) throw new Error("Katalog yüklenemedi (HTTP " + r.status + ")");
-  const j = await r.json();
-  state.katalog[anahtar] = j;
-  return j;
+  if (state.katalog[anahtar]) return Promise.resolve(state.katalog[anahtar]);
+  if (katalogUcusta[anahtar]) return katalogUcusta[anahtar];
+  katalogUcusta[anahtar] = fetch(yol, { headers: { accept: "application/json" } })
+    .then(function (r) {
+      if (!r.ok) throw new Error("Katalog yüklenemedi (HTTP " + r.status + ")");
+      return r.json();
+    })
+    .then(function (j) { state.katalog[anahtar] = j; return j; })
+    .finally(function () { delete katalogUcusta[anahtar]; });
+  return katalogUcusta[anahtar];
 }
 
 /** Hangi ders/sınıf çiftleri için katalog var? (hata mesajında listelenir) */
