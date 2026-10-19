@@ -1,0 +1,593 @@
+{
+ "ders": "Deneyap · Siber Güvenlik",
+ "sinif": "Ortaokul",
+ "atolye": "Siber Güvenlik",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-481-8",
+ "kunye": {
+  "isbn": "978-605-312-481-8",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2022",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf",
+  "sha256": "e6b21d8161dd87bc17fc45cba06dacd09977c9ac1d111d26b2e450b0d7d30835"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok yerde geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.SG.1.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Bilgiyi ve bilgi güvenliğini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Siber Güvenliğin Temelleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 9,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.1.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Bilgi güvenliğinin bileşenlerini örneklerle açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Siber Güvenliğin Temelleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 9,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.1.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Siber tehdit ve siber saldırı kavramlarını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Siber Güvenliğin Temelleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 9,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.1.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Siber saldırıların hedeflerini ve etkilerini analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Siber Güvenliğin Temelleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 9,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.2.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Kali Linux’taki Terminal uygulamasını kullanır.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Kali Linux",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 21,
+    "pdfSayfa": 28,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.2.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Linux’taki dizin yapısıyla ilintili temel komutları çeşitli şekillerde çalıştırır.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Kali Linux",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 21,
+    "pdfSayfa": 28,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.2.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Linux’taki dosya erişim izinlerini görüntüler, açıklar ve değiştirir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Kali Linux",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 21,
+    "pdfSayfa": 28,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.2.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Terminalden dosya içeriği görüntüleme ve çıktı yönlendirme işlemlerini yapar.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Kali Linux",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 21,
+    "pdfSayfa": 28,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.2.5",
+   "alan": "Siber Güvenlik",
+   "metin": "Linux’ta dosyaları bir dizinden başka bir dizine kopyalar.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Kali Linux",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 21,
+    "pdfSayfa": 28,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Parola kavramını tanımlar,",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Parolaların gücünü analiz eder,",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Parola kırma saldırısı örneklerini açıklar,",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Parola seçimi kurallarını ve yöntemlerini açıklar,",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.5",
+   "alan": "Siber Güvenlik",
+   "metin": "Parola kırma saldırısı uygular,",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.3.6",
+   "alan": "Siber Güvenlik",
+   "metin": "Rastgele parola üretecek program tasarlar ve kodlar.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Parolalar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 38,
+    "pdfSayfa": 45,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.4.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Kriptografinin temel kavramlarını tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Kriptografi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 54,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.4.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Şifrelemenin genel mantığını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Kriptografi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 54,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.4.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Basit bir şifreleme algoritmasını uygular.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kriptografi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 54,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.4.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Sezar algoritmasını kullanarak şifreleme ve şifre çözme yapar.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kriptografi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 54,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Kötü amaçlı yazılımların tarihini özetler ve örnekler verir,",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Kötü amaçlı yazılımların türlerini ve zararlarını açıklar,",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Kötü amaçlı yazılımlardan korunmak için kullanılan teknikleri açıklar,",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Antivirüs yazılımı kullanır,",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.5",
+   "alan": "Siber Güvenlik",
+   "metin": "Kötü amaçlı yazılımları temel statik analiz yöntemleriyle analiz eder,",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.5.6",
+   "alan": "Siber Güvenlik",
+   "metin": "Oltalama mesajı tasarlar ve üretir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Kötü Amaçlı Yazılımlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 59,
+    "pdfSayfa": 66,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Güvenlik açıklarının sebeplerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Yazılım güvenlik açıklarının sebeplerini sıralar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.3",
+   "alan": "Siber Güvenlik",
+   "metin": "Donanım güvenlik açıklarının sebeplerini sıralar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.4",
+   "alan": "Siber Güvenlik",
+   "metin": "Son yıllarda yaşanan güvenlik ihlallerine örnekler verir.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.5",
+   "alan": "Siber Güvenlik",
+   "metin": "Güvenlik açıklarını kategorize eder.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.6",
+   "alan": "Siber Güvenlik",
+   "metin": "Sızma yöntemlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.7",
+   "alan": "Siber Güvenlik",
+   "metin": "WHOIS aracını uygular.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.8",
+   "alan": "Siber Güvenlik",
+   "metin": "NMAP port taramasını uygular.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.9",
+   "alan": "Siber Güvenlik",
+   "metin": "DoS saldırı türlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.6.10",
+   "alan": "Siber Güvenlik",
+   "metin": "DDoS saldırı türlerini sayar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Siber Saldırı Analizi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 80,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.1",
+   "alan": "Siber Güvenlik",
+   "metin": "Web saldırıları çeşitlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.2",
+   "alan": "Siber Güvenlik",
+   "metin": "Bir web sitesindeki açıklıkları tespit edecek işlem adımlarını uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.3",
+   "alan": "Siber Güvenlik",
+   "metin": "SQL enjeksiyonu saldırısı işlem basamaklarını analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.4",
+   "alan": "Siber Güvenlik",
+   "metin": "SQL enjeksiyonu saldırısı uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.5",
+   "alan": "Siber Güvenlik",
+   "metin": "SQL enjeksiyonu saldırısı korunma yollarını sayar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.SG.7.6",
+   "alan": "Siber Güvenlik",
+   "metin": "Güvenlik açıklarını tespit ederek savunma mekanizmalarını uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Web Saldırıları ve Savunma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 9 — Siber Güvenlik (Ortaokul)",
+    "sayfa": 88,
+    "pdfSayfa": 95,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/9_siber_guvenlik__ortaokul_teksutun_16022024.pdf"
+   }
+  }
+ ]
+}
