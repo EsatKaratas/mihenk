@@ -471,9 +471,13 @@ Türk lise müfredatının 9 dersinden 10.000'den fazla çoktan seçmeli soru
 içerir. Çeviri setlerin hataya ve kültürel yanlılığa açık olduğunu
 vurgular; 20'den fazla modeli dener ve matematik gibi akıl yürütme isteyen
 derslerde modellerin zorlandığını bulur.
-**Mihenk'in farkı / boşluk:** TurkishMMLU modelin *soruyu çözmesini* ölçer.
-Mihenk ise modelin *soru, anahtar, çeldirici ve puan üretmesini* ölçüyor; bu
-taramada üretim yönü için açık bir Türkçe set bulunamadı. (Depoda
+Makaleye göre sorular MEB'in EBA (Eğitim Bilişim Ağı) platformundan
+alınmıştır; özette ise "müfredat uzmanlarınca yazılmış" diye geçer.
+**Mihenk'in farkı / boşluk:** iki çalışma da MEB içeriğine dayanır, ama yönleri
+terstir. TurkishMMLU modelin MEB sorularını *çözme becerisini* ölçer. Mihenk
+ise MEB öğrenme çıktılarından soru, anahtar, çeldirici ve puan *üretirken*
+yaptığı hataları ölçüyor. Bu taramada üretim yönü için açık bir Türkçe set
+bulunamadı. (Depoda
 `seed/turkishmmlu/` altında bu setten bir dönüştürme katmanı var, ama canlı
 demoda kullanılmıyor.)
 
