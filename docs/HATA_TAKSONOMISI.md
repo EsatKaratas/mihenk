@@ -1,4 +1,6 @@
-# Hata Taksonomisi — sürüm 0.2 (19 Ekim 2026)
+# Hata Taksonomisi — sürüm 0.2.1 (20 Ekim 2026)
+
+> **v0.2.1:** denetim hatalarını sayan ilk ölçüm kodu (`DEN-YP-SIKIFADE`) eklendi; ayrıntı en altta.
 
 > **v0.2:** ilk gerçek ölçümden sonra iki kod eklendi, üç satıra ölçülmüş
 > sınır yazıldı. Ayrıntı en altta, "v0.1 → v0.2 değişiklikleri". İlk ölçüm
@@ -158,3 +160,18 @@ ayrıntı ve bedeller [ARASTIRMA §4.5](./ARASTIRMA.md).
 
 Bu denetimler "elle" sütununu değiştirmez: yakalama ve yanlış alarm oranları
 ölçülene kadar bu kodlar elle etiketlenmeye devam eder.
+
+---
+
+## v0.2.1 — denetim yanlış pozitifi kodu (20 Ekim 2026)
+
+Bu bölümdeki kodlar **modelin değil denetimin** hatasını sayar. Model hata
+kodlarıyla (27) karıştırılmaz; denetimin kesinliğini ölçmek için kullanılır.
+
+| Kod | Tanım | Gerçek örnek | Denetim | Ölçüm |
+|---|---|---|---|---|
+| `DEN-YP-SIKIFADE` | A2 sayısal hesap denetimi, **doğru** anahtarlı bir soruda "hesap tutmuyor" der, çünkü şık metni kendisi bir işlem ifadesidir ve ayrıştırıcı şıktaki ilk sayıyı alır | A5, W4 yarısı: K113 `40 km * 5 saat / 2 saat`, K175 `2 * (30 + 10)`. Şık metni işlem ifadesi olan 16 doğru maddeden 2'si ([ASAMA2-W4](./olcum/a5/ASAMA2-W4.md) §3) | A2 `hesapDenetimi` | elle (eşleme açıldıktan sonra) |
+
+Aynı ölçümde tek vakayla görülen ve **koda alınmayan** bir yanlış pozitif
+daha var: yaklaşık değer (hesap 1515, şık 1500; K069). Bir vaka daha
+görülürse ayrı kod olarak değerlendirilir.
