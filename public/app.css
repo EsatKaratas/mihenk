@@ -1868,6 +1868,20 @@
 
 @media print {
   @page { size: A4; margin: 15mm; }
+  /* Sayfa numarası ve sonraki sayfalarda kısa ad satırı: CSS sayfa kenar
+     kutuları (named page). Yalnız yazdırma kabına bağlı; uygulamanın kendi
+     Ctrl+P baskısı etkilenmez. Ad satırı ilk sayfada yok (orada tam blok var). */
+  body.yazdiriliyor #yazdirKabi[data-tur="kagit"] { page: yzKagit; }
+  body.yazdiriliyor #yazdirKabi[data-tur="anahtar"] { page: yzAnahtar; }
+  @page yzKagit {
+    @top-left { content: "Ad Soyad: ______________________   Numara: ________"; font: 9pt Arial, sans-serif; color: #000; }
+    @bottom-right { content: "Sayfa " counter(page) " / " counter(pages); font: 9pt Arial, sans-serif; color: #000; }
+  }
+  @page yzKagit:first { @top-left { content: none; } }
+  @page yzAnahtar {
+    @bottom-left { content: "Cevap anahtarı — öğretmene özeldir"; font: 9pt Arial, sans-serif; color: #000; }
+    @bottom-right { content: "Sayfa " counter(page) " / " counter(pages); font: 9pt Arial, sans-serif; color: #000; }
+  }
   body.yazdiriliyor > *:not(#yazdirKabi) { display: none !important; }
   body.yazdiriliyor { background: #fff !important; overflow: visible !important; }
   /* Kenar boşlukları kök (html) zemininden basılır; koyu temada siyah

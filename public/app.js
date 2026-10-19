@@ -6414,6 +6414,7 @@ function sinavYazdir(tur) {
   let kap = document.getElementById("yazdirKabi");
   if (!kap) { kap = document.createElement("div"); kap.id = "yazdirKabi"; document.body.appendChild(kap); }
   kap.innerHTML = tur === "anahtar" ? cevapAnahtariHtml(y.sorular) : sinavKagidiHtml(y.sorular);
+  kap.dataset.tur = tur === "anahtar" ? "anahtar" : "kagit";   // app.css: sayfa kenar kutuları
   document.body.classList.add("yazdiriliyor");
   document.documentElement.classList.add("yazdiriliyor");   // kenar boşluğu zemini (koyu tema)
   const temizle = function () {
