@@ -7831,3 +7831,120 @@ rubriği olan tarayıcıda, ilgili sınav "rubrik bekliyor" rozetini gösterir;
 | Servis ↔ disk SHA-256 | her düzeltme sonrası eş |
 | Türkçe karakter (U+FFFD) | 0 |
 | HITL değişmezi | `"approved"` atayan satır sayısı `e4a4024` ile aynı (2); yeni otomatik kabul yok |
+
+## 52. DENEYAP ATÖLYELERİ — 12 atölye, 622 kazanım, arayüze bağlandı (19 Ekim 2026, W3)
+
+**İstek (Orchestrator, Rehber §3 madde 2):** Deneyap atölye müfredatını Mihenk'e
+ekle; uydurma yok, resmî kaynak + doğrulama + kaynak belgesi.
+
+### 52.1 Veri (main'de: 9f7e304 … 83b6c25)
+
+- Kaynak: TÜBİTAK Deneyap Kitapları, **ortaokul** sürümleri
+  (yayinlar.tubitak.gov.tr/deneyap-atolyesi). 14 ortaokul kitabının **12'si**;
+  eklenmeyen 2 kitap aynı atölyelerin ikinci sürümü (Orchestrator kararı).
+- **622 kazanım, hepsi alıntı, türetme 0** — 12 kitabın hepsinde haftalık /
+  bölüm / etkinlik başında açık kazanım listesi var. Her kayıtta kitap, basılı
+  ve PDF sayfa, URL; künyede ISBN ve SHA-256. PDF'ler depoda **değil** (telif).
+- Doğrulama: pypdf ile ikinci okuma 622/622 (boşluktan bağımsız), 29 sayfa
+  görüntüyle gözden geçirildi, 17 kaynak yazım hatası aynen korundu (`not`).
+  Orchestrator bağımsız kontrolü: 10/10 ve 24/24 rastgele kazanım PDF'te.
+- `public/mufredat/deneyap-index.json`: atölye → dosya, kitap no, ISBN, sayılar.
+- Ayrıntı: `docs/DENEYAP_KAYNAK.md` (kaynak seçimi, künyeler, yöntem, sınırlar).
+
+### 52.2 Arayüz (dal w3-deneyap)
+
+| Konu | Karar |
+|---|---|
+| Ders / sınıf | "Deneyap Atölyeleri" + sınıf ekseni **"Deneyap"** (Keşif kalıbı). Kitaplar 5–8'i ayırmaz; bir sayıya bağlamak uydurma olurdu |
+| Atölye | Keşif'in seçicisi genelleşti; Deneyap listesi **indeksten** okunur — yeni atölye = JSON + indeks, app.js değişmez |
+| Süzgeç | `outcomeUyar` tek fonksiyon kaldı (`atolyeliSinifMi`); ders↔sınıf eşleşmesi `dersinSinifi`/`sinifinDersi` (TUZAK 7) |
+| Katalog | Anahtar `ders|sınıf|atölye`, **tek** fonksiyondan (`seciliKatalogAnahtari`); MEB anahtarları değişmedi |
+| Görünürlük | Modalda kitap + ISBN + "MEB öğretim programı değildir", satırda basılı sayfa ve "kaynakta böyle yazılmış"; formda seçili kazanımın kaynağı |
+| MEB metinleri | `mebYerine()` — MEB'de **birebir** eski metin. `UYGUNLUK_ETIKET`'e dokunulmadı; Deneyap'a ayrı performans notu |
+| İstek | `grade` "Deneyap" → "Ortaokul (5–8. sınıf)" (generate, rubric, sample-answers); kazanım modunda `kaynakTuru: "deneyap"` (W2 §51b) |
+| Varsayılan | 5 öncelikli atölyeden 2'şer yazılı kazanım (10); geri kalanı katalogdan |
+
+### 52.3 🔴 Göç — İLK SÜRÜMDE HİÇ ÇALIŞMADI (bayat kayıtla ölçüldü)
+
+Ders listesi göçü (`gocDeneyapDersi`) koşulu **state**'e bakıyordu. state'in
+başlangıç değeri yeni kurulum için `true`; eski kayıtta alan olmadığından
+`loadState` üstüne yazmıyor → göç atlanıyor, Deneyap sekmesi bayat tarayıcıda
+**hiç** görünmüyordu. TUZAK 13'ün ders karşılığı. Koşul kaydın kendisine (`d`)
+bağlandı; yeniden ölçüldü: ders eklendi, kullanıcının seçimi (Fen · 7) korundu,
+**silinen ders geri gelmiyor**. 10 varsayılan kazanım §50b ekleme göçüyle
+taşındı (tekrar kod 0).
+
+### 52.4 İki yanlış beyan (indeks 404 senaryosu)
+
+Ekran "ders sekmesine yeniden tıklayın" diyordu ama `dersSec` aynı derse
+tıklamada erken dönüyordu; kazanım notu "hazır katalog yok" diyordu, gerçek
+sebep indeks. İkisi düzeltildi; gerçek tıklamayla yeniden deneme 12 atölyeyi
+getirdi.
+
+### 52.5 main birleştirmesi (W1 §51 korunarak)
+
+Tek görünür çakışma: `kazanimSecenekleriHtml()` yer tutucusu — W1'in
+yükleniyor/yüklenemedi ayrımı aynen, anahtar `seciliKatalogAnahtari()`.
+**Çakışma sayılmadan birleşen** iki yer (deneme birleştirmesinde önceden
+görüldü) elle düzeltildi:
+1. `kazanimNotuHtml()` — W1'in eklediği `katalogYukleniyor` hesabı
+   `katalogAnahtari(subject, grade)` kullanıyordu; Deneyap'ta yanlış anahtara
+   bakıp katalog yüklüyken "yükleniyor" diyecekti → `seciliKatalogAnahtari()`.
+   Aynı fonksiyonda iki "MEB kataloğu yükleniyor…" metni → `mebYerine`.
+2. `uretimModuSecHtml()` — "Dayanak MEB kazanımı" Deneyap'ta yanlıştı →
+   "Dayanak TÜBİTAK Deneyap kitabındaki kazanım".
+W1'in soru düzenleme ders süzgeci (`poolEditHtml`) ve
+`tekrarFormunuKazanimaAyarla` genel — Deneyap sorusunda yalnız DNY kazanımları
+listelendi (ölçüldü, 11/11).
+
+### 52.6 Ek düzeltmeler
+
+- **"Bağlantınızı kontrol edin" eki** (W1 bulgusu): yalnız sunucu açıklaması
+  yokken eklenir. `apiPost` hataya `sunucuMesaji`/`status` ekler (yalnız ek
+  özellik). Sahte yanıtlarla ölçüldü: 429/502 mesajlı → ek yok; 500 gövdesiz
+  ve ağ hatası → ek var; "Hiçbir soru üretilmedi." her durumda.
+- **Katalog modalı filtreleri** (W2 P2) tarayıcı varsayılan yazı tipindeydi;
+  `.field` form kuralı paylaşıldı, yeni stil yok. Hesaplanan stil ölçüldü.
+
+### 52.7 Gerçek üretim (Workers AI, llama-3.3-70b, 8791)
+
+| Kazanım | İstenen | Üretilen | Elenen | `sadelestirilenGerekce / toplamGerekce` | Yedek |
+|---|---:|---:|---:|---:|---|
+| DNY.YZ.1.1 (varsayılan) | 2 ÇS + 1 açık | 3 | 0 | **6 / 6** | hayır |
+| DNY.SG.1.3 (katalogdan) | 1 ÇS | 1 | 0 | **3 / 3** | hayır |
+
+İstek gövdesi ölçüldü: `kaynakTuru: "deneyap"`, `grade: "Ortaokul (5–8. sınıf)"`.
+**İçerik — öğretmen onayının yakalaması gerekenler:** YZ.1.1'in iki ÇS sorusu
+kazanımı ("kavramı temel düzeyde açıklar") değil kavram eşleştirmeyi ölçüyor;
+1. soruda "Veri madenciliği" de savunulabilir (anahtar tartışmalı). SG.1.3'te
+gövde iki soruyu birleştiriyor ve doğru şık en uzun şık. Model çıktısı
+güvenilmez kabulünün (§1) Deneyap'ta da geçerli olduğunu gösteriyor.
+Ayrıca sayfa yenilemelerinde uygulamanın demo akışı **2 gerçek
+`/api/ai/evaluate`** çağrısı yaptı (günlükte görüldü; bu iş için gerekmiyordu).
+
+### 52.8 Ortam (ürün hatası DEĞİL)
+
+- Yerel wrangler 13 dk sonra kendi içinde çöktü (3× "internal error");
+  ilk üretim isteği sunucuya ulaşmadı ("Failed to fetch"). Yeniden başlatıldı.
+  Konsoldaki tek `ERR_CONNECTION_REFUSED` o dakikaya ait.
+- Tıklamaları üç kez başka katman yuttu (giriş katmanı, "Katalogdan eklendi"
+  penceresi, gizli pencerede kalkmayan rol kartı — TUZAK 2). Her seferinde
+  `elementFromPoint` ile ayırt edildi; kod suçlanmadan.
+
+### 52.9 Bilinen — bırakılanlar
+
+- Soru düzenlemedeki kazanım süzgeci **ders** düzeyinde: bir Siber sorusuna
+  başka Deneyap atölyesinin kazanımı atanabilir. Atölye süzgeci ayrı karar.
+- `ceForm.atolye` Keşif ile Deneyap arasında ortak; dersler arası geçişte
+  önceki atölye seçimi hatırlanmaz (ilk atölyeye döner).
+- `uygunluk` fiil kuralıyla — 622 kaydın pedagojik incelemesi yapılmadı.
+
+### 52.10 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `node tools/ozkontrol-dogrula.mjs` | **355 ad · %100** (+15 Deneyap) |
+| `npm test` · `npm run lint` | **302/302** · temiz |
+| Servis ↔ disk SHA-256 | her değişiklik sonrası eş |
+| Konsol (Deneyap/Keşif/Türkçe geçişleri, katalog, göç) | 0 hata |
+| HITL değişmezi | yeni `approved` ataması yok; üretilen sorular `ai_generated` |
