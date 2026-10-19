@@ -7906,8 +7906,11 @@ Cloudflare'de yeni hiçbir şey açılmadı.
 
 ### 54.5 Açık kalan
 
-- **Kör ikinci kontrol** (`docs/olcum/anahtar-kor-kontrol.json`, 37 madde,
-  W1) bekleniyor. Sayılar uyuşmazlığa göre güncellenecek.
+- **Kör ikinci kontrol yapıldı** (W1, `a06dde2`; uyuşmayı Orchestrator
+  hesapladı): 37 maddede tam uyuşma 32/37 (%86), κ = 0,79. W5'in "yanlış"
+  kararları 14/14 doğrulandı, 5 uyuşmazlığın 5'i de "belirsiz" sınırında.
+  B-MEB yanlış anahtar aralığı 5–7. İkinci kontrolcü de YZ; insan uzman
+  kontrolü açık (OZET.md §6).
 - Açık uçlu soruların cevap anahtarı/rubrik kontrolü yapılmadı.
 - Tek koşum, tek sıcaklık. Model farkı için tekrar ve daha büyük N gerekir.
 - Kaynak metinli mod ölçülmedi.

@@ -2,10 +2,9 @@
 
 > **Bu bir ön bulgudur.** Model başına yalnızca 18 kazanım ve tek bir koşum var
 > (sıcaklık 0,5). Cevap anahtarı kontrolünü **bir YZ asistanı (Claude) yaptı,
-> insan alan uzmanı değil**. Kontrolün kendisi de yanılabilir. Bağımsız ikinci
-> kontrol (kör) sürüyor: [`anahtar-kor-kontrol.json`](./anahtar-kor-kontrol.json).
-> Sonuç gelince bu sayılar güncellenecek. Eşik, otomatik onay ya da kalibre
-> edilmemiş sabit **eklenmedi**.
+> insan alan uzmanı değil**. Kontrolün kendisi de yanılabilir. Kör yapılan ikinci
+> kontrol de bir YZ'ye ait; uyuşma 32/37, κ = 0,79 (§6). Eşik, otomatik onay ya
+> da kalibre edilmemiş sabit **eklenmedi**.
 
 Araştırma sorusu: *Türkçe LLM'ler MEB/Deneyap öğrenme çıktılarına göre
 ölçme-değerlendirme içeriği üretirken hangi hataları ne sıklıkla yapıyor;
@@ -124,13 +123,49 @@ tutarlı: o katman insan onayıdır (agents.md §1). Bu sayı "insan onayı hata
    40 kelimeye ulaştı. §48'deki gözlem tekrarlandı: istem kuralı tek başına
    tutmuyor.
 
-## 6. Sınırlar — okurken akılda tutulacaklar
+## 6. İkinci bağımsız kontrol (kör)
+
+**Yöntem.** Birinci kontrolün (W5) "yanlış" ve "belirsiz" dediği 31 ÇSS'ye
+rastgele seçilmiş 6 "doğru" ÇSS eklendi (tohum 20261019). 37 madde karışık
+sırayla, K01–K37 kimlikleriyle verildi. Dosyada yalnız gövde, şıklar ve modelin
+işaretlediği harf vardı: [`anahtar-kor-kontrol.json`](./anahtar-kor-kontrol.json).
+Birinci kontrolün kararları dosyada yoktu. İkinci kontrolcü (Mihenk Worker 1)
+birinci kararları görmeden çözdü ve elle-kontrol dosyasını açmadığını beyan
+etti: [`anahtar-ikinci-kontrol.json`](./anahtar-ikinci-kontrol.json) (`a06dde2`).
+Eşleme [`anahtar-kor-esleme.json`](./anahtar-kor-esleme.json) (`2c71203`),
+kör kontrol bittikten sonra commit'lendi. Uyuşmayı Orchestrator hesapladı.
+**İkinci kontrolcü de bir YZ'dir (Claude), insan değil.**
+
+| Ölçü | Sonuç |
+|---|---|
+| Tam uyuşma (3 sınıf) | **32 / 37 (%86)** · Cohen κ = **0,79** |
+| "Anahtar yanlış mı?" ikili uyuşma | 35 / 37 |
+| W5 yanlış → W1 yanlış | **14 / 14** |
+| W5 doğru → W1 doğru (rastgele 6) | 6 / 6 |
+| W5 belirsiz → W1 belirsiz | 12 / 17 |
+| W5 belirsiz → W1 doğru | 3: A·FB.7.5.8·2, A·MAT.6.4.1·1, B·T.Y.5.15·1 |
+| W5 belirsiz → W1 yanlış | 2: B·T.Y.7.17·2, B·MAT.7.1.7·1 |
+
+Uyuşmazlıkların **5'i de "belirsiz" sınırında**. Birinci kontrolün "yanlış"
+kararlarının hiçbiri itiraz görmedi. Birincil etiket W5'inkidir; §2 ve §3'teki
+sayılar değiştirilmedi. İki kontrolcüye göre aralık:
+
+| | Yanlış anahtar | Belirsiz | Doğru (W1 yalnız 6'sına baktı) |
+|---|---|---|---|
+| A · MEB (N=25) | **8** (iki kontrolcü hemfikir) | 5 (W1: 3) | 12 (W1'e göre en az 14) |
+| B · MEB (N=26) | **5** (W1: 7) → aralık **5–7** | 5 (W1: 2) | 16 (W1'e göre en az 17) |
+| Deneyap A · B | 0 · 1 (uyuşmazlık yok) | 2 · 5 | 4 · 3 |
+
+Sınır: iki kontrolcü de aynı model ailesinden. Ortak bir yanılgı her iki
+kontrolde de görünmez. İnsan alan uzmanı kontrolü 6 aylık planda.
+
+## 7. Sınırlar — okurken akılda tutulacaklar
 
 - **N küçük, tek koşum, tek sıcaklık.** Model başına 25-26 MEB ÇSS. Model
   farkları (A %32 / B %19 yanlış anahtar) bu N'de güven aralığı geniş bir
   gözlemdir, "B daha iyi" sonucu **çıkarılmaz**.
-- **Kontrolü bir YZ yaptı.** Kör ikinci kontrol 37 maddede sürüyor (31
-  sorunlu + 6 rastgele "doğru"). Uyuşmazlıklar ayrıca raporlanacak.
+- **İki kontrolü de YZ yaptı** (§6). Kör ikinci kontrol yalnız 37 maddeye
+  bakıldı. Birincinin "doğru" dediği 35 ÇSS'nin 29'u ikinci kez kontrol edilmedi.
 - **Kazanım modu en zor koşul.** Kaynak metinli üretimde oranlar farklı
   olabilir (§46.2'de metin dönüşümü açıkça verince hata kaybolmuştu).
 - **Açık uçlu sorular** için cevap anahtarı/rubrik kontrolü yapılmadı.
