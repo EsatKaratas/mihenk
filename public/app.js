@@ -4115,13 +4115,15 @@ function wirePendingCards() {
 function remedialBannerHtml() {
   const r = state.remedial;
   if (!r) return "";
-  const hazir = state.ceForm.text.trim().length >= 30;
+  const kazanimModu = uretimModu() === "kazanim";
+  const hazir = kazanimModu || state.ceForm.text.trim().length >= 30;
   return '<div class="remedial-banner" id="remedialBanner">' +
     '<div class="rbn-head">Analizden gelen talep</div>' +
     '<div class="rbn-body"><b>' + escapeHtml(r.sinif) + '</b> sınıfı, <b>' + escapeHtml(outcomeLabel(r.outcomeCode)) +
     '</b> kazanımında <b class="tabular">%' + r.deger + '</b> başarı gösterdi. ' +
     'Bu kazanıma yönelik tekrar sorusu üretmek için ' +
-    (hazir ? 'aşağıdaki kaynak metin kullanılacak.' : 'sağdaki alana kaynak metni yapıştırın.') + '</div>' +
+    (kazanimModu ? 'dayanak olarak kazanımın kendisi (ya da bağlı ders belgesi) kullanılacak.'
+      : hazir ? 'aşağıdaki kaynak metin kullanılacak.' : 'sağdaki alana kaynak metni yapıştırın.') + '</div>' +
     '<div class="rbn-actions">' +
     (hazir ? '<button class="btn btn-primary btn-sm" id="btnRemedialGen"' + (state.ai.busy ? " disabled" : "") + '>Bu kazanıma soru üret</button>' : "") +
     '<button class="btn btn-secondary btn-sm" id="btnRemedialDismiss">Kapat</button></div></div>';
@@ -8227,7 +8229,15 @@ function kazanimGrafigiSvg(rows, cols) {
 function renderKazanimGrafigi(targetId, rows) {
   const el = document.getElementById(targetId);
   if (!el) return;
-  const cols = OUTCOMES_LIST();
+  /* §51 — Yalnızca EN AZ BİR şubede verisi olan kazanımlar çizilir. Ölçüldü:
+     bir Fen sınavında 22 grup çiziliyor, ~18'i (Keşif KK.* + verisiz MAT)
+     baştan sona "—" idi; grafik yatayda uzuyor, asıl veri kayboluyordu.
+     Hiç verisi olmayan bir kazanım için çizilecek bir şey yoktur — bu bir
+     süzme değil, boş sütun göstermemektir; verisi gelince kendiliğinden
+     görünür. */
+  const cols = OUTCOMES_LIST().filter(function (c) {
+    return rows.some(function (r) { return r.scores && r.scores[c.code] != null; });
+  });
   if (!rows.length || !cols.length) {
     el.innerHTML = '<div class="empty-state">Karşılaştırma için henüz yeterli sonuç yok.</div>';
     return;
@@ -8286,7 +8296,7 @@ function renderKazanimGrafigi(targetId, rows) {
     el.querySelectorAll(".remedial-btn").forEach(function (b) {
       b.onclick = function () {
         state.remedial = { outcomeCode: b.dataset.kod, sinif: b.dataset.sinif, deger: Number(b.dataset.deger) };
-        state.ceForm.outcomeCode = b.dataset.kod;
+        tekrarFormunuKazanimaAyarla(b.dataset.kod);
         state.role = "content_expert";
         state.ceTab = 1;
         renderAll();
@@ -8297,6 +8307,26 @@ function renderKazanimGrafigi(targetId, rows) {
   }
 }
 
+
+/* §51 — "→ tekrar sorusu üret" YALNIZCA kazanım kodunu yazıyordu. Ölçüldü:
+   Analitik'ten MAT.7.3.4 seçilince form "Fen Bilimleri · 7. sınıf" kaldı,
+   kazanım "başka ders/sınıf" etiketiyle göründü ve kaynak metin Fen demo
+   metniydi — üretim yanlış ders bağlamıyla gidecekti. Ders, sınıf ve
+   (Keşif'te) atölye kazanım kaydından türetilir (soruDersSinif ile aynı
+   kaynak); dayanak "Kazanımdan" moduna alınır ki önceki dersin metni bu
+   kazanıma uygulanmasın. Metin SİLİNMEZ — uzman kaynak moduna dönerse
+   kendi notu yerinde durur. outcomeSeciminiTazele çağrılmaz: o, kodu
+   listenin ilkine sıfırlayabilir. */
+function tekrarFormunuKazanimaAyarla(kod) {
+  const o = OUTCOMES_LIST().concat(katalogKazanimlari()).filter(function (x) { return x.code === kod; })[0];
+  const ders = (o && o.subject) || kodDanDers(kod);
+  const sinif = (o && o.grade) || kodDanSinif(kod);
+  if (ders && SUBJECTS_LIST().indexOf(ders) >= 0) state.ceForm.subject = ders;
+  if (sinif) state.ceForm.grade = sinif;
+  state.ceForm.atolye = (o && o.atolye) || state.ceForm.atolye;
+  state.ceForm.outcomeCode = kod;
+  state.ceForm.mode = "kazanim";
+}
 
 function buildAdminHeatmapRows() {
   const gercek = realClassRows();
@@ -9928,7 +9958,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
