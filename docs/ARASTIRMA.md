@@ -228,9 +228,8 @@ kısmını ikinci bir etiketleyicinin işaretlemesi planlanıyor.
 - **Elle kontrol:** cevap anahtarı, kazanım hizalama ve sınıf düzeyi gibi
   olgusal türleri hiçbir otomatik denetim yakalayamaz. Bunlar için küçük bir
   örneklem elle etiketlenir.
-- **İlk koşumun sonuçları** (çalışma hattı paralel yürüyor) geldiğinde
-  §6'ya tarih, model ve N ile işlenecek. Gelmeden önce burada hiçbir oran
-  yazılmaz.
+- **İlk koşumun sonuçları** (19 Ekim 2026, iki model, set-v1.1) §6'dadır.
+  Ön bulgudur; tek koşum ve küçük N.
 
 ### 4.3 Kesinlik ve duyarlılık planı
 
@@ -274,6 +273,9 @@ istemle **tek tur** soru üretimi yaptırıldı.
 JSON üretti. Tek turluk bir ölçümdür, kesin sonuç değildir. Soru sayısı
 sınırı ve tekrar denetimi eklenmeden önce yapıldığı için **tekrarlanmalıdır**.
 
+**19 Ekim 2026:** iki model (Llama 3.3 70B ve Llama 4 Scout) aynı sabit
+setle (set-v1.1) ilk kez karşılaştırıldı; sonuçlar ve sınırları §6'dadır.
+
 ### 5.2 T3 AI — erişim durumu (19 Ekim 2026'da web'de araştırıldı)
 
 **Sonuç: dışarıdan programatik erişim bulunamadı. Hiçbir şey denenmedi, T3
@@ -302,10 +304,129 @@ yapılacak ve bu sınırlama raporda açıkça yazılacak.
 
 ---
 
-## 6. Ölçüm sonuçları
+## 6. Ölçüm sonuçları — ilk gerçek koşum (19 Ekim 2026) · ÖN BULGU
 
-*Sabit setle yapılan ilk ölçüm koşumu henüz işlenmedi.* Tarih, model, N ve
-tablo burada yer alacak.
+> **Bu bir ön bulgudur.** Tek koşum, tek sıcaklık (0,5) ve küçük N var.
+> Cevap anahtarını **bir yapay zekâ asistanı (Claude) kontrol etti, insan alan
+> uzmanı değil.** Kör yapılan ikinci kontrol de bir yapay zekâya ait. Tam
+> rapor ve ham veri: [`docs/olcum/OZET.md`](./olcum/OZET.md). Bu bölümdeki
+> sayılar 19 Ekim'de `docs/olcum/elle-kontrol.json`'dan yeniden sayılarak
+> doğrulandı.
+
+### 6.1 Kurulum
+
+| | |
+|---|---|
+| Set | [`tools/olcum/set-v1.1.json`](../tools/olcum/set-v1.1.json): 13 MEB kazanımı (Mat/Fen/Türkçe, 5-8. sınıf) + 5 Deneyap kazanımı (5 atölyeden birer tane, yazılı türden) |
+| Koşul | Kazanım modu (kaynak metin yok; en zor koşul, bkz. B1). Kazanım başına 2 ÇSS + 1 açık uçlu istendi |
+| Model A | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (ürünün canlıdaki birincil modeli; hiçbir çağrı yedeğe düşmedi) |
+| Model B | `@cf/meta/llama-4-scout-17b-16e-instruct` (yedek kapalı; sonuç saf B) |
+| Sunucu kodu | MEB: `fc1750c` · Deneyap ve ham gerekçe sayacı: `e35628f` |
+| Çağrı | 42 başarılı çağrı, model hatası 0 (8 ortam hatası yeniden koşuldu ve sayılmadı) |
+| Kodlar | [HATA_TAKSONOMISI.md](./HATA_TAKSONOMISI.md) v0.1, aynen |
+
+### 6.2 Ana tablo — MEB, 13 kazanım
+
+| Kod | Ölçüm | A · llama-3.3-70b | B · llama-4-scout |
+|---|---|---:|---:|
+| ÇSS sayısı (N) | — | 25 | 26 |
+| **Cevap anahtarı doğru** | elle | **12 (%48)** | **16 (%62)** |
+| **Cevap anahtarı yanlış** (`ANH-OLGU`) | elle | **8 (%32)** | **5 (%19)** |
+| Cevap anahtarı belirsiz | elle | 5 (%20) | 5 (%19) |
+| `GRK-TUTARSIZ` | elle | 7 | 3 |
+| `KZN-DISI` | elle | 6 | 6 |
+| `GVD-YINELEME` | elle | 7 | 0 |
+| `GVD-TEKADIM` | elle | 4 | 6 |
+| `GVD-KALIP` | elle | 0 | 4 |
+| `SIK-ESANLAM` | elle | 2 | 0 |
+| `DIL-LATIN` | elle | 1 ("aspectsini") | 0 |
+| `GVD-VERIFAZLA` · `GRK-GENEL` · `SNF-DISI` | elle | 1 · 1 · 1 | 1 · 0 · 0 |
+| `TKR-GOVDE` (elendi) | oto | 2 / 39 | 2 / 39 |
+| `TKR-SIK` · `SIK-SAYI` · `ANH-GECERSIZ` | oto | 0 · 0 · 0 | 0 · 0 · 0 |
+| `GRK-TEKRAR` (bayrak) | oto | 2 / 25 | 1 / 26 |
+| `DIL-ALFABE` (bayrak) | oto | 0 / 37 | 1 / 37 (`整理`) |
+| `GRK-KALIP` (ham, sunucu sayacı) | oto, 3 kazanım | 12 / 18 | 6 / 18 |
+| `GVD-KISA` (< 40 kelime) | oto | 24 / 37 | 34 / 37 |
+| `KYN-ATIF` deseni eşleşti | oto | 3 / 37, elle bakınca **3'ü de yanlış pozitif** | 2 / 37, **2'si de yanlış pozitif** |
+
+"Belirsiz": işaretli şık savunulamıyor ama tek bir doğru da belirlenemiyor
+(birden çok şık savunulabilir, veri eksik, soru kökü yok ya da kurgu kendi
+içinde tutarsız). "Yanlış" durumların bir kısmında doğru cevap **hiçbir
+şıkta yoktu**: A'da 8'in 4'ünde, B'de 5'in 3'ünde.
+
+### 6.3 Kör ikinci kontrol
+
+Birinci kontrolün "yanlış" ve "belirsiz" dediği 31 ÇSS'ye rastgele 6 "doğru"
+ÇSS eklendi. 37 madde, birinci kararlar gizlenerek ikinci bir kontrolcüye
+(yine bir yapay zekâ) verildi.
+
+| Ölçü | Sonuç |
+|---|---|
+| Tam uyuşma (3 sınıf) | **32 / 37 (%86)**, Cohen κ = **0,79** |
+| Birincinin "yanlış" kararları | **14 / 14** doğrulandı |
+| Uyuşmazlıklar | 5'inin tamamı "belirsiz" sınırında |
+| Aralık | A yanlış anahtar **8** (hemfikir) · B yanlış anahtar **5-7** |
+
+İki kontrolcü aynı model ailesindendir. Ortak bir yanılgı iki kontrolde de
+görünmez. İnsan alan uzmanı kontrolü planın 1. ve 4. aylarındadır.
+
+### 6.4 Deneyap (5 kazanım) — oran iddia edilmez
+
+N çok küçük (A 6, B 9 ÇSS). Anahtar doğru · yanlış · belirsiz: A 4 · 0 · 2,
+B 3 · 1 · 5. Görülen iki şey kayda geçer, ama genellenmez:
+
+- Tekrar elemesi (`TKR-GOVDE`) MEB'den çok daha sık tetiklendi: A 7/15,
+  B 4/15. 10 çağrının 6'sında istenen açık uçlu soru hiç dönmedi (§6.6).
+- İki model kalıplı gerekçede tam zıt davrandı: ham `GRK-KALIP` A **30/30**,
+  B **0/30**. 19 Ekim'deki tek Deneyap üretiminde görülen 6/6 (PROGRESS
+  §51b.9) A'nın bu davranışıyla tutarlı, ama yine aynı model ve aynı gün.
+
+### 6.5 Araştırma sorusunun ikinci yarısı: otomatik denetim ne yakaladı?
+
+| | Sayı |
+|---|---:|
+| Elle bakılan ÇSS (MEB + Deneyap, iki model) | 66 |
+| Cevap anahtarı yanlış ya da belirsiz | **31** (14 yanlış + 17 belirsiz) |
+| Bunlardan herhangi bir sunucu bayrağı taşıyan | **1** (bayrak yabancı alfabe içindi, anahtar için değil) |
+| En az bir elle kod alan ÇSS | 55 / 66 |
+
+**Okuma:** sunucu denetimleri tasarlandıkları şeyi yakalıyor: tekrar ve aynı
+şık kümesi eleniyor, gerekçe tekrarı ve yabancı alfabe işaretleniyor, kalıp
+gerekçe temizleniyor. **Ama bu koşumda en pahalı hatayı, yanlış ya da
+belirsiz cevap anahtarını, 31 vakanın hiçbirinde anahtar sorunu olarak
+yakalamadılar.** Bu, taksonominin "elle" sütunuyla ve ürünün tasarımıyla
+tutarlıdır: o katman insan onayıdır (`agents.md` §1). Bu sayı "insan onayı
+hataları şu kadar azaltıyor" **demez**. Öğretmenle pilot yapılmadı (plan, 4. ay).
+
+Model farkı (yanlış anahtar A %32, B %19) bu N'de güven aralığı geniş bir
+gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
+
+### 6.6 Ölçümde bulunan denetim açıkları (taksonomi v0.2'ye girdi)
+
+1. **`TKR-GOVDE` türe bakmıyor.** Açık uçlu soruyu bir ÇSS'nin tekrarı
+   sayıp eleyebiliyor. "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13
+   çağrı; Deneyap 3/5 ve 3/5. Kod değiştirilmedi, yan etki olarak kayıtlı.
+2. **`KYN-ATIF` deseni kazanım modunda 5/5 yanlış pozitif verdi** (sorular
+   öğrencinin *kendi yazacağı* metinden söz ediyordu; kazanım modunda
+   `needsSource` zaten false'a sabit olduğu için zararsız). Tersine,
+   gösterilmeyen bir **grafiğe** atıf ("Grafikte … görülüyor") desende
+   olmadığı için kaçtı.
+3. **"Doğru cevap hiçbir şıkta yok"** ve **"soru kökü yok"** v0.1'de
+   ayrı kod değil. Yanlış anahtarların yarısına yakınında görüldükleri için
+   ayrı kod olarak önerildi.
+4. Gövde kelime hedefi (40-110): A'da ÇSS'lerin 8/25'i, B'de 0/26'sı
+   40 kelimeye ulaştı. §3 B5'teki gözlem tekrarlandı: istem kuralı tek başına
+   tutmuyor.
+
+### 6.7 Sınırlar
+
+- Tek koşum, tek sıcaklık, model başına 25-26 MEB ÇSS.
+- İki kontrolü de yapay zekâ yaptı. Birincinin "doğru" dediği 35 ÇSS'nin 29'u
+  ikinci kez kontrol edilmedi.
+- Kazanım modu en zor koşuldur; kaynak metinli üretimde oranlar farklı olabilir.
+- Açık uçlu soruların anahtarı ve rubriği kontrol edilmedi.
+- Ölçüm yerel `wrangler dev` ile, Workers AI'a uzak çağrıyla yapıldı; canlı
+  adres ölçülmedi.
 
 ---
 

@@ -114,3 +114,20 @@ Toplam: 10 otomatik + 12 elle + 2 yarı otomatik + 1 pilot = **25 kod**.
 Bu ayrım araştırma sorusunun ikinci yarısına doğrudan cevap verir. Elle
 etiketlenen türlerin hiçbirinde bugün deterministik denetim yok. Bu
 türleri yakalayan tek katman insan onayıdır (`agents.md` §1).
+
+---
+
+## v0.2 için öneriler (ilk gerçek ölçümden, 19 Ekim 2026)
+
+İlk ölçüm v0.1 kodlarıyla **aynen** yapıldı ([ARASTIRMA §6](./ARASTIRMA.md),
+[`docs/olcum/OZET.md`](./olcum/OZET.md)). Aşağıdakiler ölçümde görülen
+eksikliklerdir; v0.1'i değiştirmezler, set ikinci kez etiketlenirken
+değerlendirilecekler.
+
+| Öneri | Gerekçe (ölçülen) |
+|---|---|
+| `ANH-YOK` — doğru cevap hiçbir şıkta yok (`ANH-OLGU`'dan ayrı) | Yanlış anahtarlı ÇSS'lerin A'da 8'inin 4'ünde, B'de 5'inin 3'ünde doğru cevap şıklarda yoktu |
+| `GVD-KOKYOK` — soru kökü yok (yalnız bağlam + şıklar) | "Belirsiz" anahtarın dört durumundan biri olarak görüldü |
+| `TKR-GOVDE` yan etkisi: açık uçlu soru ÇSS tekrarı sayılıp elenebiliyor | "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13; Deneyap 3/5 ve 3/5 çağrı. Denetim türe bakmıyor. Kod değiştirilmedi |
+| `KYN-ATIF` kapsamı: grafik/tablo atfı desende yok; kazanım modunda öğrencinin kendi metnine atıf yanlış pozitif | Gösterilmeyen grafiğe atıf (B, DNY.RK.4.7) kaçtı; 5/5 eşleşme yanlış pozitifti |
+| `GVD-KALIP` ve `GVD-YINELEME` aday işaretleyicisi zayıf | Elle 9 yineleme bulundu, betiğin aday işaretleyicisi 0 buldu; elle sayılar esas alındı |
