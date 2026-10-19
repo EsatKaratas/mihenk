@@ -1689,7 +1689,9 @@
 .giris-kapisi .gk-asama1 {
   min-height: 100%;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  gap: 4px; padding: calc(42vh + 152px) 24px 170px; text-align: center;
+  /* §58: alt dolgu 170 → 100 px; tez + not eklenince kapı 720 px pencerede 65 px
+     taşıyordu. Dalganın boyası içeriğin altında kalıyor (ölçüldü). */
+  gap: 4px; padding: calc(42vh + 152px) 24px 100px; text-align: center;
   transition: opacity .35s ease;
 }
 /* `visibility` de kapanir: yalnizca opacity:0 birakilsaydi 1. asamanin
@@ -1706,6 +1708,12 @@
 
 /* NOT: Ayrı bir "gk-slogan" satırı YOK — "Yapay Zeka Destekli Eğitim
    Sistemi" ibaresi logo görselinin içinde geliyor (bkz. index.html). */
+
+/* §58: tez cümlesi ve demo notu (aşama 1). */
+.giris-kapisi .gk-tez { margin: 0 0 10px; font-family: "Archivo", sans-serif; font-weight: 700;
+  font-size: 19px; color: var(--gk-kirmizi); position: relative; z-index: 1; }
+.giris-kapisi .gk-not { margin: 12px 0 0; max-width: 460px; font-size: 12.5px; line-height: 1.5;
+  color: var(--gk-fume); position: relative; z-index: 1; }
 
 .giris-kapisi .gk-giris-btn {
   position: relative; z-index: 1;
@@ -1828,7 +1836,7 @@
   .giris-kapisi .gk-gorsel { height: 152px; }
   .giris-kapisi[data-asama="2"] .gk-logo { left: 12px; top: 34px; transform: translate(0, -50%) scale(.26); }
   .giris-kapisi .gk-serit { height: 68px; }
-  .giris-kapisi .gk-asama1 { padding: calc(42vh + 108px) 18px 140px; }
+  .giris-kapisi .gk-asama1 { padding: calc(42vh + 108px) 18px 90px; }   /* §58: 140 → 90 */
   .giris-kapisi .gk-asama2 { padding: 100px 18px 56px; }
   .giris-kapisi .gk-giris-btn { font-size: 15px; padding: 15px 20px; width: 100%; justify-content: center; }
   .giris-kapisi .gk-kart { padding: 20px 18px 14px; }
