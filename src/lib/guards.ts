@@ -574,3 +574,58 @@ export const KARAKTER_BASINA_SORU = 180;
 export function makulSoruSayisi(metinUzunlugu: number): number {
   return Math.max(2, Math.floor(metinUzunlugu / KARAKTER_BASINA_SORU));
 }
+
+/* ===========================================================================
+   §55 — A3: EN UZUN ŞIK İPUCU (YALNIZ ÖLÇÜM, ROZET YOK)
+   ===========================================================================
+   Soru yazımında bilinen bir kusur: doğru şık diğerlerinden belirgin biçimde
+   uzunsa öğrenci bilmeden doğruyu bulur. ÖLÇÜLDÜ (W5 ham verisi, 6 gerçek
+   koşum, 75 ÇSS): doğru şık yalnız 11'inde (%14,7) TEK BAŞINA en uzun —
+   rastgele beklenti %25'in ALTINDA, yani bu modellerde genel bir kusur yok.
+   En uzun / ikinci en uzun ≥ 1,5 olan 11 soruda en uzun şık 5'inde (%45)
+   doğruydu; rastgele beklentinin yaklaşık iki katı.
+
+   KALİBRE EDİLMEMİŞ EŞİK (tuzak 9 — açıkça yazılıyor): 1,5 değeri N=11'lik
+   bir örneklemden seçildi. Bu yüzden alan YALNIZ ÖLÇÜM içindir: arayüzde
+   rozet olarak gösterilmez, hiçbir kararı etkilemez; A5 koşumunda
+   (docs/ARASTIRMA) daha büyük örneklemle yeniden bakılacak. */
+export const UZUN_SIK_ORANI = 1.5;
+
+/** Doğru şık TEK BAŞINA en uzunsa ve ikinci en uzundan en az UZUN_SIK_ORANI kat uzunsa true. */
+export function uzunSikIpucu(
+  options: Array<{ key: string; text: string }> | null | undefined,
+  correctKey: string | null | undefined
+): boolean {
+  const siklar = (options || []).map((o) => ({ k: String(o.key), n: String(o.text || '').trim().length }));
+  if (siklar.length < 2 || !correctKey) return false;
+  const sirali = [...siklar].sort((a, b) => b.n - a.n);
+  if (sirali[0].k !== correctKey || sirali[0].n === sirali[1].n) return false;
+  return sirali[0].n >= UZUN_SIK_ORANI * Math.max(1, sirali[1].n);
+}
+
+/* ===========================================================================
+   §55 — A5: ÖLÇÜM ORTAMI AYARLARI (canlıda KAPALI)
+   ===========================================================================
+   İki ayar yalnız yerel ölçüm koşumu içindir (tools/olcum):
+     OLCUM_SICAKLIK — soru üretiminin sıcaklığı (varsayılan 0,5, ürün davranışı)
+     OLCUM_HAM=1    — tekrar/aynı-şık/geçersiz diye elenen maddeler yanıtın
+                      meta.elenenler alanında döner (A4'ün öncesi/sonrası ölçümü)
+
+   GÜVENCE — İZİN LİSTESİ, DIŞLAMA LİSTESİ DEĞİL. İkisi yalnızca
+   APP_ENV === "olcum" iken okunur. "demo/üretim değilse açık" kuralı
+   YETMEZDİ: ölçüldü, üretim yapılandırması wrangler.jsonc APP_ENV'i
+   "development" tanımlıyor; `npm run deploy` ile yayımlanırsa dışlama listesi
+   ayarları canlıda açardı. Canlı (wrangler.demo.jsonc) "demo"dur; ölçüm
+   sunucusu `--var APP_ENV:olcum` ile başlatılır. test/rota.test.ts üç
+   yapılandırmanın üçünde de kapalı olduğunu doğrular. */
+export type OlcumAyarlari = { sicaklik: number | null; ham: boolean };
+
+export function olcumAyarlari(env: { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string } | null | undefined): OlcumAyarlari {
+  if (!env || String(env.APP_ENV || '').trim() !== 'olcum') return { sicaklik: null, ham: false };
+  const ham = String(env.OLCUM_HAM || '').trim() === '1';
+  const s = String(env.OLCUM_SICAKLIK ?? '').trim().replace(',', '.');
+  const n = s === '' ? NaN : Number(s);
+  // Ölçüm planı 0–2 aralığında sıcaklık kullanıyor; dışı (ya da sayı olmayan) yok sayılır, varsayılan kalır.
+  const sicaklik = Number.isFinite(n) && n >= 0 && n <= 2 ? n : null;
+  return { sicaklik, ham };
+}
