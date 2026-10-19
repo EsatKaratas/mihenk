@@ -1,0 +1,574 @@
+{
+  "etiketleyen": "Mihenk Worker 1 (Claude Opus 5.5) — KÖR, çift numaralı K'lar",
+  "tarih": "2026-10-19",
+  "kaynak": "docs/olcum/a5/etiket-kor.json (225 madde; burada çift numaralı 112). etiket-esleme.json, a5-birlesik.csv, OZET*.md ve ham/ AÇILMADI.",
+  "karar_kurali": "dogru = işaretli şık savunulabilir tek doğru. yanlis = işaretli şık her makul yorumda yanlış (soru kusurlu olsa bile işaretli şık savunulamıyorsa). belirsiz = veri eksik, kök yok/tutarsız ya da birden çok savunulabilir doğru ve işaretli şık bunlardan biri ya da hiçbir şık veriden çıkmıyor. dogruCevap: harf / 'Hiçbiri' / 'Birden fazla' ya da birden çok harf.",
+  "ozet": {
+    "n": 112,
+    "dogru": 60,
+    "yanlis": 27,
+    "belirsiz": 25
+  },
+  "kararlar": {
+    "K002": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Ohm yasası: gerilim sabitken direnç artınca akım azalır."
+    },
+    "K004": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "pH 3,5 < 12,5; düşük pH daha fazla H⁺ demektir, asit çözeltisi."
+    },
+    "K006": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Okuyucunun zihninde sahne canlandırmak dikkat çekme yöntemi. Not: A şıkkında İngilizce 'already' kelimesi var (dil sızıntısı)."
+    },
+    "K008": {
+      "karar": "yanlis",
+      "dogruCevap": "D",
+      "gerekce": "15 × 8 = 120 m²; 120 × 2 = 240 L (D). İşaretli 2400 L on kat fazla."
+    },
+    "K010": {
+      "karar": "yanlis",
+      "dogruCevap": "D",
+      "gerekce": "2×8 + 2×5 = 26 cm; öğrencinin yaptığı şey hata değil, doğru formül. İşaretli 22 cm hiçbir yorumda çıkmaz; kurgu da tutarsız."
+    },
+    "K012": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "150 ÷ 15 = 10 m."
+    },
+    "K014": {
+      "karar": "belirsiz",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "P(+) için yanlış pozitif oranı gerekir, verilmemiş; '%10 negatif' P(−|hasta) olarak okunursa da P(+|sağlıklı) yok. 0,02×0,9 = 0,018 şıklarda yok."
+    },
+    "K016": {
+      "karar": "belirsiz",
+      "dogruCevap": "A veya D",
+      "gerekce": "'20 kilometre saatte 10 kilometre hızla' tutarsız: hız 10 ise 10+15 = 25 (A), 20 ise 35 (D)."
+    },
+    "K018": {
+      "karar": "belirsiz",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Grafik verisi verilmemiş; şıklardan hiçbiri veriden doğrulanamaz."
+    },
+    "K020": {
+      "karar": "yanlis",
+      "dogruCevap": "B",
+      "gerekce": "5 sa = 300 dk; 120 × 2 = 240 dk < 300 → süreyi aşmaz (B). İşaretli '20 dk aşar' yanlış."
+    },
+    "K022": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "10 m/s > 5 m/s; mesafeler de tutarlı (200 m). Ahmet daha hızlı."
+    },
+    "K024": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "(500×20 + 200×80) / 700 = 26000/700 ≈ 37,1 °C; şıklarda yok."
+    },
+    "K026": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "12 ÷ 4 = 3 A."
+    },
+    "K028": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "15 × 5 = 75 TL."
+    },
+    "K030": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Taş yol çevre kabulüyle 2(6 + g) = 20 → g = 4 m."
+    },
+    "K032": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "8² + 15² = 64 + 225 = 289 = 17²."
+    },
+    "K034": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "2B: iki boyut, 3B: üçüncü boyut (derinlik); diğerleri anlamsız."
+    },
+    "K036": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Alan = uzunluk × genişlik = 12 × 8 = 96 m² (sayısal sonuç şıklarda yok, formül doğru)."
+    },
+    "K038": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "(50×20 + 150×40) / 200 = 7000/200 = 35 °C; şıklarda yok."
+    },
+    "K040": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Başlıkta iki nokta ve kelime başı büyük harf uygun; C küçük harf, D noktalı virgül yanlış. B'deki kısa çizgi yazım kuralı değil."
+    },
+    "K042": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "20 ÷ 5 = 4 TL/kg; 4 × 2 = 8 TL."
+    },
+    "K044": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "120 ÷ 5 = 24 TL/kg; 24 × 2 = 48 TL."
+    },
+    "K046": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "72 ÷ 3,6 = 20 m/s."
+    },
+    "K048": {
+      "karar": "belirsiz",
+      "dogruCevap": "Birden fazla",
+      "gerekce": "Bayes için önsel + iki olabilirlik gerekir; A ve C ikişer parça veriyor, hiçbiri tam değil; kök '%20 yanlış' ifadesiyle belirsiz."
+    },
+    "K050": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "2 L paket 10 TL < 2 × 1 L (12 TL). A ve C'deki fiyatlar kökte yok."
+    },
+    "K052": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "20 ÷ 5 = 4 TL/kişi; 4 × 3 = 12 TL."
+    },
+    "K054": {
+      "karar": "belirsiz",
+      "dogruCevap": "C veya D",
+      "gerekce": "Zaman bilgisi yok; ayrık ölçümler için çubuk da çizgi de savunulabilir."
+    },
+    "K056": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Sıra sayısında nokta sayının SONUNA konur, başına konmaz. Kök yanlış soruyor ama A savunulabilir."
+    },
+    "K058": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Çevre 2(10+5) = 30 cm; 18 cm şerit çerçeveyi bir kez bile saramaz. Kurgu tutarsız; işaretli 24 cm hiçbir yorumda çıkmaz."
+    },
+    "K060": {
+      "karar": "belirsiz",
+      "dogruCevap": "A ve C",
+      "gerekce": "Eşit hacim → (50+10)/2 = 30 °C (A); C ('arasında') de doğru. İki doğru şık."
+    },
+    "K062": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "40 ÷ 2 = 20 km/sa; 20 × 5 = 100 km."
+    },
+    "K064": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Elma 5 TL/kg × 4 = 20; armut 5 TL/kg × 2 = 10; toplam 30 TL."
+    },
+    "K066": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "10 tamsayı → int x = 10;"
+    },
+    "K068": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "0,3 = 0,5p + 0,1(1−p) → p = 0,5; P(spam|kelime) = 0,5×0,5/0,3 ≈ %83; şıklarda yok."
+    },
+    "K070": {
+      "karar": "belirsiz",
+      "dogruCevap": "B ve D",
+      "gerekce": "'Gözlerindeki ışık' örtük ifade (B); 'dolaylı ifade' (D) de aynı anlamda savunulabilir."
+    },
+    "K072": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "Bayes: P(H|S) = P(S|H)·P(H) / P(S)."
+    },
+    "K074": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "I = V/R = 10/5 = 2 A."
+    },
+    "K076": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "0,1×0,9 / (0,09 + 0,9×0,2) = 0,09/0,27 ≈ %33; şıklarda yok (en yakın %30)."
+    },
+    "K078": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "V = I·R = 2 × 5 = 10 V."
+    },
+    "K080": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "20/250 = 0,080 TL/sayfa < 25/300 ≈ 0,083 TL/sayfa."
+    },
+    "K082": {
+      "karar": "yanlis",
+      "dogruCevap": "A",
+      "gerekce": "1 sa = 3 katlanma; 5 × 2³ = 40 (A). İşaretli 160 = 5 × 2⁵."
+    },
+    "K084": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "5 > 3 doğru → true (C++ çıktısı 1 ama mantıksal değer true)."
+    },
+    "K086": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "int deger = 10;"
+    },
+    "K088": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "V = I·R; R sabit, I iki katı → V iki katı."
+    },
+    "K090": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Pisagor: a² + b² = c²."
+    },
+    "K092": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "∛8 = 2 cm."
+    },
+    "K094": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Her yerde aynı oran → homojen."
+    },
+    "K096": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "3 katlanma: 1000 × 8 = 8000."
+    },
+    "K098": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Kök 'tamamen karışmış, eşit dağılmış' diyor → homojen."
+    },
+    "K100": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "5 × 2³ = 40."
+    },
+    "K102": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "(500×20 + 200×50) / 700 = 20000/700 ≈ 28,6 °C; şıklarda yok."
+    },
+    "K104": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "√(36 + 64) = 10 m."
+    },
+    "K106": {
+      "karar": "yanlis",
+      "dogruCevap": "B",
+      "gerekce": "Türkiye ve Ankara özel ad; ikisi de büyük harfle (B)."
+    },
+    "K108": {
+      "karar": "belirsiz",
+      "dogruCevap": "Birden fazla",
+      "gerekce": "Gözlemin nedeni veriden çıkmaz; D fiziksel olarak makul ama A/C de veriyle çürütülemez."
+    },
+    "K110": {
+      "karar": "belirsiz",
+      "dogruCevap": "C ve D",
+      "gerekce": "Salata da kumlu su da heterojendir; iki doğru şık. Ayrıca kökte yoğurt 'homojen' diye verilmiş, tartışmalı."
+    },
+    "K112": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Doğru yazım 'öğrenci'. Kök hatalı ('ögretmen' yazmış) ama cevap tek."
+    },
+    "K114": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Kurgu tutarsız (perde için boya). 4 duvar × 5 m = 20 m × 0,5 = 10 L ya da çevre 20 m × 0,5 = 10 L; 18 L hiçbir okumada çıkmaz."
+    },
+    "K116": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Doğanın güzelliğini vurgulayan tek cümle C. Not: soru T.Y.5.15 (bağlantı ifadesi) kazanımını ölçmüyor."
+    },
+    "K118": {
+      "karar": "yanlis",
+      "dogruCevap": "D",
+      "gerekce": "Elma 5 TL/kg × 1 = 5; armut 5 TL/kg × 2 = 10; toplam 15 TL (D)."
+    },
+    "K120": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Toplam = a + b."
+    },
+    "K122": {
+      "karar": "yanlis",
+      "dogruCevap": "B",
+      "gerekce": "Çevre 2(15+20) = 70 m; 2 sıra = 140 m × 5 TL = 700 TL (B)."
+    },
+    "K124": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Yolun dış çevresi 2(12+7) = 38 m (orta hattı 2(11+6) = 34 m); 36 hiçbir okumada çıkmaz."
+    },
+    "K126": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Saf su karışım değildir, öğrencinin örneği yanlış; D de 'su ve yağ heterojen değildir' dediği için yanlış. Doğru şık yok."
+    },
+    "K128": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "c² = 5² + 12²."
+    },
+    "K130": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Sürat birim zamanda alınan yol (skaler), hız yönlü büyüklük; dört şık da tanımı yanlış veriyor."
+    },
+    "K132": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "10 ÷ 2 = 5 TL/L × 1,5 = 7,5 TL."
+    },
+    "K134": {
+      "karar": "yanlis",
+      "dogruCevap": "B",
+      "gerekce": "I = 12/4 = 3 A (B)."
+    },
+    "K136": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "Hangisinin daha doğru olduğu gerçek değere yakınlıkla belirlenir."
+    },
+    "K138": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Karışım iki sıcaklık arasında; (200×90 + 300×20)/500 = 48 °C, B (50) yanlış."
+    },
+    "K140": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "pH 3 < 7 → asit."
+    },
+    "K142": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "B tersini söylüyor (sürat skaler, hız vektörel). A kendi içinde çelişkili, C ve D yanlış."
+    },
+    "K144": {
+      "karar": "belirsiz",
+      "dogruCevap": "A ve C",
+      "gerekce": "Konuşmadaki bağlantı ifadeleri hem 'önce' hem 'sonra'; kök hangisini istediğini belirtmiyor."
+    },
+    "K146": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Yol 10 × 2 = 20 km; 20 ÷ 15 ≈ 1,33 sa."
+    },
+    "K148": {
+      "karar": "yanlis",
+      "dogruCevap": "A",
+      "gerekce": "Şeker 1000 g + süt 500 mL × 1,03 = 515 g (A). Şekerin yoğunluğu kütleyi değiştirmez; işaretli D (800 g) yanlış."
+    },
+    "K150": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "a² + b² = c²."
+    },
+    "K152": {
+      "karar": "belirsiz",
+      "dogruCevap": "B veya C",
+      "gerekce": "'5 saat içinde' tamiri kapsıyorsa 4 × 25 = 100 km (C); tamirden sonra 5 saat ise 125 km (B)."
+    },
+    "K154": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "'Önce …, sonra …' doğal sıra B."
+    },
+    "K156": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Duyguyu sahneyle aktaran tek seçenek A (açık + örtük)."
+    },
+    "K158": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "(300×10 + 100×80)/400 = 11000/400 = 27,5 °C; şıklarda yok."
+    },
+    "K160": {
+      "karar": "yanlis",
+      "dogruCevap": "C",
+      "gerekce": "V = π r² h = 3,14 × 0,5² × 2 = 1,57 m³ (C; = 1570 L, kök litre soruyor). İşaretli 6,28 yarıçap yerine çap kullanılmış."
+    },
+    "K162": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Bayes: P(H|S) = P(S|H)·P(H) / P(S)."
+    },
+    "K164": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Sıcaklık 20–90 °C arasında olur; C (55) eşit kütle varsayar, kütleler eşit değil."
+    },
+    "K166": {
+      "karar": "belirsiz",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Kök tutarsız: tırnağın yerine geçen standart işaret yok; 'ayrıca işareti', 'vurgu işareti' gibi işaretler mevcut değil."
+    },
+    "K168": {
+      "karar": "belirsiz",
+      "dogruCevap": "Birden fazla",
+      "gerekce": "Tek koşul ilk = 1,5 × ikinci; x ≤ 80 ve 1,5x ≤ 120 olan her değer geçerli; dört şık da sağlar."
+    },
+    "K170": {
+      "karar": "belirsiz",
+      "dogruCevap": "B ve C",
+      "gerekce": "Eser adı büyük harfle; TDK eser adlarının tırnak içinde yazılabileceğini kabul eder → B ve C savunulabilir."
+    },
+    "K172": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "Yön aynı kalsa da büyüklük 20'den 10'a iner; ikisi de değişir."
+    },
+    "K174": {
+      "karar": "belirsiz",
+      "dogruCevap": "C",
+      "gerekce": "Kavram tutarsız ('ısı kapasitesi santilitre dakika'); oran olarak 100 ÷ 2 = 50 cL/dk C, ama soru anlamsız."
+    },
+    "K176": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "12 × 4 = 48 m²."
+    },
+    "K178": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Değer atama: = operatörü."
+    },
+    "K180": {
+      "karar": "belirsiz",
+      "dogruCevap": "D veya A",
+      "gerekce": "Kök 3B'yi ima ediyor; tasarım pratiğinde 2B + 3B birlikte de savunulabilir."
+    },
+    "K182": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "24 × 2 = 48."
+    },
+    "K184": {
+      "karar": "belirsiz",
+      "dogruCevap": "Birden fazla",
+      "gerekce": "K168 ile aynı kurgu: 1,5 kat koşulu tek değer belirlemez; şıkların hepsi (≤80) geçerli."
+    },
+    "K186": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "Alan 15 × 8 = 120 m² (kurgu tuhaf ama hesap tek)."
+    },
+    "K188": {
+      "karar": "yanlis",
+      "dogruCevap": "D",
+      "gerekce": "İkinci mesaj 80 karakter; 90/100/120 imkânsız. 80 alınırsa ilki 120 = 1,5 × 80 tutarlı → yalnız D mümkün."
+    },
+    "K190": {
+      "karar": "dogru",
+      "dogruCevap": "D",
+      "gerekce": "Çoğu bitki için uygun aralık 6,0–7,0; 6,5 bu aralıkta."
+    },
+    "K192": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "25 − 10 = 15; 18 − 15 = 3 TL. Not: soru T.Y.5.15 kazanımını ölçmüyor."
+    },
+    "K194": {
+      "karar": "belirsiz",
+      "dogruCevap": "C ve A",
+      "gerekce": "C doğrudan doğru; A ('ilki daha dar') da doğru bir önerme ve aynı bilgiyi veriyor."
+    },
+    "K196": {
+      "karar": "belirsiz",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "Etkili olma önseli yok; iyileşme oranlarından Bayes ile 'etkili olma olasılığı' hesaplanamaz."
+    },
+    "K198": {
+      "karar": "belirsiz",
+      "dogruCevap": "B veya C",
+      "gerekce": "Geçmek için hız 50 km/sa'ten büyük olmalı; B ve C ikisi de; değer belirlenemez."
+    },
+    "K200": {
+      "karar": "yanlis",
+      "dogruCevap": "D",
+      "gerekce": "24/3 = 8, 24/4 = 6 → 14 katılır (örtüşme yok kabulü), 10 katılmaz (D). İşaretli 12 yanlış."
+    },
+    "K202": {
+      "karar": "dogru",
+      "dogruCevap": "C",
+      "gerekce": "Su ve yağ karışmaz → heterojen sıvı karışımı."
+    },
+    "K204": {
+      "karar": "belirsiz",
+      "dogruCevap": "C veya D",
+      "gerekce": "Kuvvet zamanla değişiyor; son anda a = 10/2 = 5 (D), ortalama a = 5/2 = 2,5 (C). Kök hangisini istediğini belirtmiyor."
+    },
+    "K206": {
+      "karar": "yanlis",
+      "dogruCevap": "Hiçbiri",
+      "gerekce": "1000 + 500 × 1,03 = 1515 g; şıklarda yok (A 1500 yaklaşık, 'yaklaşık' denmemiş)."
+    },
+    "K208": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "400 × 5 = 2000 m = 2 km."
+    },
+    "K210": {
+      "karar": "belirsiz",
+      "dogruCevap": "Birden fazla",
+      "gerekce": "'Düşünmeye sevk etmek' belirli bir bağlantı ilişkisi tanımlamıyor; dört ifade de bağlama göre kullanılabilir."
+    },
+    "K212": {
+      "karar": "yanlis",
+      "dogruCevap": "C",
+      "gerekce": "I = 12/4 = 3 A (C)."
+    },
+    "K214": {
+      "karar": "dogru",
+      "dogruCevap": "A",
+      "gerekce": "48 ÷ 8 = 6 m."
+    },
+    "K216": {
+      "karar": "belirsiz",
+      "dogruCevap": "A, B ve C",
+      "gerekce": "Görüş 'temel fikir vs. gerçekçi/detaylı'; A, B ve C'nin üçü de bu görüşle uyumlu."
+    },
+    "K218": {
+      "karar": "dogru",
+      "dogruCevap": "B",
+      "gerekce": "İki metin farklı konuları işliyor; karşılaştırma konu/içerik üzerinden (B)."
+    },
+    "K220": {
+      "karar": "belirsiz",
+      "dogruCevap": "B ve D",
+      "gerekce": "Cümlede hem virgül hem soru işareti var; 'kullanılan noktalama işareti' tekil sorulmuş."
+    },
+    "K222": {
+      "karar": "yanlis",
+      "dogruCevap": "C",
+      "gerekce": "72 ÷ 3,6 = 20 m/s (C)."
+    },
+    "K224": {
+      "karar": "belirsiz",
+      "dogruCevap": "A, B ve D",
+      "gerekce": "3-4-5, 6-8-10 ve 5-12-13'ün üçü de dik üçgen; yalnız 2-3-4 değil."
+    }
+  }
+}
