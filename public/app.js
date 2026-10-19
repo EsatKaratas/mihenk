@@ -9,7 +9,7 @@ const STOPWORDS = new Set(["ve","veya","ile","bir","bu","şu","o","da","de","ki"
 // (brief MVP 1: "konu, kazanım, seviye ... sisteme tanımlar").
 /* Ortaokulun üç temel dersi. Sosyal Bilgiler ve İngilizce çıkarıldı:
    kazanım katalogları yok, seçilince öğretmen boş listeyle karşılaşıyordu. */
-const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri", "Keşif Kampüsü"];
+const VARSAYILAN_DERSLER = ["Türkçe", "Matematik", "Fen Bilimleri", "Keşif Kampüsü", "Deneyap Atölyeleri"];
 /* KAPSAM KARARI (26 Ağustos, kullanıcı): Ürün ORTAOKUL için tasarlandı.
    1-4 ve 9-12 kaldırıldı: kazanım katalogları yalnızca 5-8 için var ve
    olmayan sınıfları listelemek, öğretmene karşılığı olmayan bir seçim
@@ -31,7 +31,65 @@ const ATOLYELER = [
   "Kişisel Gelişim Atölyesi",
   "Fizik Atölyesi",
 ];
-const GRADES = [5, 6, 7, 8, KESIF_SINIFI];
+/* DENEYAP (§52): TÜBİTAK Deneyap Teknoloji Atölyeleri ortaokul kitaplarından
+   alınan kazanımlar. Keşif'in AYNI kalıbı: sınıf ekseninde tek bir "Deneyap"
+   girdisi (kitaplar 5-8'i ayırmaz; bir sayıya bağlamak uydurma olurdu),
+   atölye ayrı seçici. Fark: atölye listesi koda gömülü DEĞİL, indeks
+   dosyasından okunur — yeni atölye = yeni katalog JSON'u, app.js değişmez.
+   Ayrıca belge kilidi yoktur (kitaplar depoda değil, telif). */
+const DENEYAP_SINIFI = "Deneyap";
+const DENEYAP_DERSI = "Deneyap Atölyeleri";
+const DENEYAP_INDEKS = "/mufredat/deneyap-index.json";
+/* Model "Sınıf düzeyi: Deneyap" görürse düzeyi bilemez. İstekte bu metin
+   gider (sunucu şeması en çok 60 karakter); arayüz ekseni "Deneyap" kalır. */
+const DENEYAP_ISTEK_SINIFI = "Ortaokul (5–8. sınıf)";
+const GRADES = [5, 6, 7, 8, KESIF_SINIFI, DENEYAP_SINIFI];
+/* Deneyap indeksi oturumluktur (kalıcı değil): her açılışta sunucudan okunur,
+   böylece yeni eklenen atölye bayat tarayıcıda da hemen görünür. */
+let deneyapIndeksi = null;
+let deneyapIndeksHata = "";
+let deneyapIndeksYukleniyor = false;
+
+/** Atölyeli sınıf mı (Keşif / Deneyap)? Atölye süzgeci yalnız bunlarda çalışır. */
+function atolyeliSinifMi(sinif) {
+  const s = String(sinif == null ? "" : sinif);
+  return s === KESIF_SINIFI || s === DENEYAP_SINIFI;
+}
+
+/** Ders ↔ atölyeli sınıf eşleşmesi TEK YERDEN (§50e kuralının genellemesi). */
+function dersinSinifi(ders) {
+  if (ders === KESIF_DERSI) return KESIF_SINIFI;
+  if (ders === DENEYAP_DERSI) return DENEYAP_SINIFI;
+  return null;
+}
+function sinifinDersi(sinif) {
+  const s = String(sinif == null ? "" : sinif);
+  if (s === KESIF_SINIFI) return KESIF_DERSI;
+  if (s === DENEYAP_SINIFI) return DENEYAP_DERSI;
+  return null;
+}
+
+/** Dersin atölye adları. Deneyap'ınki indeksten gelir; yüklenmediyse boştur. */
+function atolyeListesi(ders) {
+  if (ders === DENEYAP_DERSI) {
+    return ((deneyapIndeksi && deneyapIndeksi.atolyeler) || []).map(function (a) { return a.ad; });
+  }
+  if (ders === KESIF_DERSI) return ATOLYELER;
+  return [];
+}
+
+/** Seçili atölye seçili dersin listesinde değilse listenin ilkine çekilir.
+ *  (`ceForm.atolye` iki ders arasında ortaktır; Keşif'ten Deneyap'a geçince
+ *  "Fizik Atölyesi" kalırsa Deneyap listesi hiçbir şey göstermezdi.) */
+function atolyeGecerliKil() {
+  const liste = atolyeListesi(state.ceForm.subject);
+  if (liste.length && liste.indexOf(state.ceForm.atolye) < 0) state.ceForm.atolye = liste[0];
+}
+
+/** API isteğine giden sınıf metni. Modelin istemine aynen yazılır. */
+function istekSinifi(sinif) {
+  return String(sinif) === DENEYAP_SINIFI ? DENEYAP_ISTEK_SINIFI : String(sinif == null ? "" : sinif);
+}
 
 /**
  * Sınıf alanının EKRANDAKİ karşılığı.
@@ -126,6 +184,43 @@ const VARSAYILAN_KAZANIMLAR = [
   { code: "KK.FIZ.2", label: "KK.FIZ.2 — Sürtünme Kuvveti",
     subject: "Keşif Kampüsü", grade: KESIF_SINIFI, atolye: "Fizik Atölyesi",
     materyal: "surtunme-kuvveti" },
+
+  /* ---------------- DENEYAP (§52) -----------------------------------------
+     Öncelikli 5 atölyenin her birinden 2 "yazılı" kazanım, metin katalog
+     JSON'undan BİREBİR (public/mufredat/deneyap-*.json). Amaç: ilk açılışta
+     liste boş görünmesin. Kalan 612 kazanım katalogdan eklenir; hepsini
+     buraya gömmek seçiciyi ve ısı haritasını 622 satırla doldururdu.
+     Bayat tarayıcılara §50b ekleme göçüyle ulaşır (koda yeni göç gerekmez). */
+  { code: "DNY.TU.1.1", label: "DNY.TU.1.1 — Malzeme çeşitlerini ve prototip yöntemlerinin tanımlarını söyler.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Tasarım ve Üretim", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)", sayfa: 43 } },
+  { code: "DNY.TU.1.2", label: "DNY.TU.1.2 — Malzeme ve prototip yöntemleri arasındaki ilişkiyi kavrar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Tasarım ve Üretim", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)", sayfa: 43 } },
+  { code: "DNY.RK.1.1", label: "DNY.RK.1.1 — Öğrenciler robot kavramını temel düzeyde açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Robotik ve Kodlama", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)", sayfa: 6 } },
+  { code: "DNY.RK.1.2", label: "DNY.RK.1.2 — Öğrenciler algoritma kavramını açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Robotik ve Kodlama", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)", sayfa: 6 } },
+  { code: "DNY.EP.1.1", label: "DNY.EP.1.1 — Öğrenciler gerilim, akım ve direnç tanımını yapabilir.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Elektronik Programlama ve Nesnelerin İnterneti", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri", sayfa: 10 } },
+  { code: "DNY.EP.1.2", label: "DNY.EP.1.2 — Öğrenciler direncin çalışma prensiplerini bilir.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Elektronik Programlama ve Nesnelerin İnterneti", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri", sayfa: 10 } },
+  { code: "DNY.YZ.1.1", label: "DNY.YZ.1.1 — Öğrenciler “yapay zekâ” kavramını temel düzeyde açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Yapay Zekâ", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)", sayfa: 13 } },
+  { code: "DNY.YZ.1.2", label: "DNY.YZ.1.2 — Öğrenciler algoritma kavramını açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Yapay Zekâ", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)", sayfa: 13 } },
+  { code: "DNY.YT.1.1", label: "DNY.YT.1.1 — Temel programlama terimlerini açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Yazılım Teknolojileri", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)", sayfa: 18 } },
+  { code: "DNY.YT.1.2", label: "DNY.YT.1.2 — Bilgisayarın temel birimlerini açıklar.",
+    subject: DENEYAP_DERSI, grade: DENEYAP_SINIFI, atolye: "Yazılım Teknolojileri", uygunluk: "yazili",
+    kaynak: { kitap: "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)", sayfa: 18 } },
 ];
 
 /* ====================== DERS MATERYALLERİ (belge kilidi) ===================
@@ -661,6 +756,19 @@ function previouslyGeneratedQuestionBodies(doc) {
     .slice(-30);
 }
 
+/**
+ * §52 — istemin kaynak türü. Yalnız kazanım modunda anlamlıdır (sunucu öyle
+ * tanımlıyor); Deneyap kazanımında "deneyap", aksi hâlde alan HİÇ gönderilmez
+ * (sunucu varsayılanı "meb"). Karar kazanım kaydından verilir, ekrandaki
+ * dersten değil: seçili kazanım Deneyap'a aitse o kazanımın türü Deneyap'tır.
+ */
+function uretimKaynakTuru(doc) {
+  if (doc.mode !== "kazanim") return undefined;
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === doc.outcome; })[0];
+  const dny = (o && o.subject === DENEYAP_DERSI) || doc.subject === DENEYAP_DERSI;
+  return dny ? "deneyap" : undefined;
+}
+
 async function aiGenerateQuestions(doc) {
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır
   // ve arayüzdeki rozet zaten "Yerel simülasyon" yazar.
@@ -681,7 +789,12 @@ async function aiGenerateQuestions(doc) {
         ? String(doc.materyalMetin || "").slice(0, 6000)
         : (doc.mode === "kazanim" ? "" : doc.text.slice(0, 6000)),
       subject: doc.subject,
-      grade: String(doc.grade),
+      /* §52: "Deneyap" sınıf ekseni modele anlamlı bir düzey olarak gider
+         (istekSinifi). Ayrıca Deneyap kazanımı kazanım modunda MEB kazanımı
+         gibi sunulmasın diye kaynakTuru gönderilir; sunucu alanı tanımıyorsa
+         (Zod varsayılanı) alan sessizce atılır, istek bozulmaz. */
+      grade: istekSinifi(doc.grade),
+      kaynakTuru: uretimKaynakTuru(doc),
       outcomeCode: doc.outcome,
       outcomeLabel: doc.outcomeLabel,
       mcCount: state.ceForm.mcCount,
@@ -1069,6 +1182,9 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
      tek işi, kullanıcının boşalttığı listeyi açılışta yeniden tohumlamayı
      engellemek (bkz. ensureStudents). Oturumluk olsaydı hata geri gelirdi. */
   "sinifKuruldu",
+  /* §52: Deneyap dersi kayıtlı ders listesine eklendi mi? Kalıcı olmak
+     zorunda — kullanıcı dersi silerse göç onu her açılışta geri getirmesin. */
+  "gocDeneyapDersi",
   // §29: "kim olarak değerlendiriyorum" — sayfa yenilenince kaybolmamalı.
   "activeTeacherName",
   "parentStudentId",
@@ -1143,6 +1259,21 @@ function loadState() {
       VARSAYILAN_KAZANIMLAR.forEach(function (o) {
         if (!mevcut[o.code]) state.outcomes.push(Object.assign({}, o));
       });
+    }
+    /* ---- GÖÇ (§52): DENEYAP DERSİ KAYITLI DERS LİSTESİNE BİR KEZ EKLENİR ----
+       `SUBJECTS_LIST()` kayıtlı liste doluysa VARSAYILAN_DERSLER'e bakmaz —
+       §50b'deki kazanım tuzağının ders karşılığı (TUZAK 13). Göç yapılmazsa
+       siteyi daha önce açmış tarayıcıda Deneyap sekmesi HİÇ görünmez.
+       Bayrak eski kayıtta yoktur (undefined) → bir kez eklenir, bayrak
+       kalıcı yazılır; kullanıcı sonra dersi silerse geri gelmez. Kazanımlar
+       için ayrı göç gerekmez: yukarıdaki ekleme göçü 10 varsayılan Deneyap
+       kazanımını da taşır. */
+    if (!state.gocDeneyapDersi) {
+      if (Array.isArray(state.subjects) && state.subjects.length &&
+          state.subjects.indexOf(DENEYAP_DERSI) < 0) {
+        state.subjects = state.subjects.concat([DENEYAP_DERSI]);
+      }
+      state.gocDeneyapDersi = true;
     }
     // Süresi dolmuş bir sınavı yarım bırakmayalım.
     if (state.examStatus === "in_progress" && state.remainingSec <= 0) state.examStatus = "submitted";
@@ -1652,6 +1783,8 @@ const state = {
      açılış), true = kuruldu; kullanıcı boşaltsa bile bir daha tohumlanmaz.
      Bkz. ensureStudents() başındaki not. */
   sinifKuruldu: false,
+  /* Yeni kurulumda Deneyap zaten VARSAYILAN_DERSLER'de; göç gerekmez. */
+  gocDeneyapDersi: true,
   activeStudentId: null,
   exams: [],          // kaydedilmiş sınavlar
   activeExamId: null, // düzenlenen / çözülen sınav
@@ -1869,7 +2002,7 @@ function outcomeUyar(o, ders, sinif, atolye) {
      geçer, atölye argümanı verilmezse o anki seçim okunur. Böylece
      `kazanimSecicisiHtml()` ile `kazanimNotuHtml()` bir daha ayrışamaz. */
   const a = atolye === undefined ? (state.ceForm && state.ceForm.atolye) : atolye;
-  if (String(sinif) === KESIF_SINIFI && a && o.atolye && o.atolye !== a) return false;
+  if (atolyeliSinifMi(sinif) && a && o.atolye && o.atolye !== a) return false;
   return true;
 }
 
@@ -1921,13 +2054,25 @@ function outcomeSeciminiTazele() {
 
 /** Seçili ders/sınıfın kataloğu bellekte varsa kazanımlarını döndürür. */
 function katalogKazanimlari() {
-  const anahtar = katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
+  const anahtar = seciliKatalogAnahtari();
   const k = (state.katalog || {})[anahtar];
   if (!k || !k.kazanimlar) return [];
+  /* §52: Deneyap kataloğunda ders "Deneyap · <atölye>", sınıf "Ortaokul"
+     yazar; kayıt arayüzün eksenine (DENEYAP_DERSI / DENEYAP_SINIFI / atölye)
+     çevrilir, yoksa outcomeUyar onu hiçbir seçimde göstermezdi. Kaynak
+     (kitap + basılı sayfa) kayda taşınır ki ekranda görünsün. */
+  const dny = deneyapKatalogMu(k);
   return k.kazanimlar.map(function (x) {
-    return { code: x.kod, label: x.kod + " — " + x.metin, subject: k.ders,
-             grade: k.sinif, uygunluk: x.uygunluk, alan: x.alan,
+    const o = { code: x.kod, label: x.kod + " — " + x.metin,
+             subject: dny ? DENEYAP_DERSI : k.ders, grade: dny ? DENEYAP_SINIFI : k.sinif,
+             uygunluk: x.uygunluk, alan: x.alan,
              grup: x.grup || x.alan || "", katalogdan: true };
+    if (dny) {
+      o.atolye = k.atolye;
+      o.kaynak = { kitap: x.kaynak.kitap, sayfa: x.kaynak.sayfa };
+      if (x.not) o.kaynakNotu = x.not;
+    }
+    return o;
   });
 }
 
@@ -1944,14 +2089,20 @@ function katalogKazanimlari() {
 const katalogDenendi = {};
 
 async function katalogHazirla(yenidenDene) {
-  const anahtar = katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
+  /* §52: Deneyap'ın katalog adresleri indeksten gelir; indeks yoksa önce o.
+     deneyapIndeksYukle kendi hatasını ekrana yazar, burada sessiz dönülür. */
+  if (state.ceForm.subject === DENEYAP_DERSI && !deneyapIndeksi) {
+    deneyapIndeksYukle(yenidenDene);
+    return;
+  }
+  const anahtar = seciliKatalogAnahtari();
   if (!MUFREDAT_KATALOGLARI[anahtar]) { state.katalogHata = ""; return; }
   if ((state.katalog || {})[anahtar]) return;
   if (katalogDenendi[anahtar] && !yenidenDene) return;
   katalogDenendi[anahtar] = true;
   try {
     state.katalogHata = "";
-    await katalogYukle(state.ceForm.subject, state.ceForm.grade);
+    await katalogYukle(anahtar);
     outcomeSeciminiTazele();
     renderAll();
   } catch (e) {
@@ -1968,10 +2119,15 @@ function kazanimSecildi(kod) {
   const k = katalogKazanimlari().filter(function (o) { return o.code === kod; })[0];
   if (!k) return;
   // Katalogdan seçilen kazanım artık okulun çalıştığı kazanımlardan biridir.
-  state.outcomes = OUTCOMES_LIST().concat([{
+  const kayit = {
     code: k.code, label: k.label, subject: k.subject, grade: k.grade,
     uygunluk: k.uygunluk, alan: k.alan,
-  }]);
+  };
+  // §52: Deneyap kaydı atölyesini ve kaynağını da taşır.
+  if (k.atolye) kayit.atolye = k.atolye;
+  if (k.kaynak) kayit.kaynak = k.kaynak;
+  if (k.kaynakNotu) kayit.kaynakNotu = k.kaynakNotu;
+  state.outcomes = OUTCOMES_LIST().concat([kayit]);
   saveSoon();
 }
 
@@ -2028,13 +2184,13 @@ function kazanimSecenekleriHtml() {
   /* Yer tutucu HER ZAMAN seçilidir: burası bir "seçim" alanı değil bir "ekle"
      alanıdır. Seçilen kazanım sekmeye taşındığı için seçici yeniden boşa
      döner ve aynı kazanım ikinci kez eklenemez. */
-  const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
+  const katalogVar = !!MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()];
   const yerTutucu = '<option value="" selected>' +
     (katalog.length
-      ? "MEB öğretim programından kazanım ekleyin… (" + katalog.length + " kazanım)"
+      ? mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + " kazanım ekleyin… (" + katalog.length + " kazanım)"
       : katalogVar
         ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
-        : "— bu ders/sınıf için hazır MEB kataloğu yok; “+” ile kendiniz yazın —") +
+        : "— bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; “+” ile kendiniz yazın —") +
     "</option>";
 
   return yerTutucu + konuSirasi.map(function (g) { return grupla(g, konuGruplari[g]); }).join("");
@@ -2102,11 +2258,11 @@ function kazanimNotuHtml() {
   // GERÇEKTEN hiç seçenek yok: öğretmeni yönlendir, yoksa "0 kazanım"
   // yazısıyla baş başa kalır ve ne yapacağını bilemez.
   if (!secilebilir) {
-    const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
+    const katalogVar = !!MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()];
     return '<span class="field-note">0 kazanım · ' + dersSinif +
       " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
       (katalogVar
-        ? "<b>Katalog</b> düğmesiyle MEB müfredatından ekleyin."
+        ? "<b>Katalog</b> düğmesiyle " + mebYerine("MEB müfredatından", "TÜBİTAK Deneyap kitabından") + " ekleyin."
         : "<b>+</b> sekmesiyle elle tanımlayın (bu ders/sınıf için hazır katalog yok).") +
       tumunuGoster + "</span>";
   }
@@ -2114,22 +2270,35 @@ function kazanimNotuHtml() {
   var satir = '<span class="field-note">' + secilebilir + " kazanım seçilebilir · " + dersSinif;
   if (katalogSecilebilir === secilebilir) {
     // Hepsi katalogdan geliyor: sayıyı iki kez yazmayalım.
-    satir += " · <b>tümü MEB öğretim programından</b>; seçtiğiniz kazanım " +
+    satir += " · <b>tümü " + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + "</b>; seçtiğiniz kazanım " +
       "okulun listesine eklenir";
   } else if (katalogSecilebilir) {
-    satir += " · <b>" + katalogSecilebilir + " tanesi</b> MEB öğretim programından; " +
+    satir += " · <b>" + katalogSecilebilir + " tanesi</b> " + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + "; " +
       "seçtiğiniz kazanım okulun listesine eklenir";
   } else {
     /* Katalog GERÇEKTEN var mı? Kullanıcının kendi eklediği bir ders için
        (Müzik, Görsel Sanatlar…) hazır katalog olmayabilir; "Katalog ile
        ekleyin" demek o durumda karşılığı olmayan bir yönlendirme olurdu —
        bu satırın daha önce düştüğü "ekranı yalanlama" hatasının aynı sınıfı. */
-    satir += MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)]
-      ? " · <b>Katalog</b> ile MEB müfredatından ekleyin, <b>+</b> sekmesiyle elle tanımlayın"
-      : " · bu ders/sınıf için hazır MEB kataloğu yok; <b>+</b> sekmesiyle elle tanımlayın";
+    satir += MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()]
+      ? " · <b>Katalog</b> ile " + mebYerine("MEB müfredatından", "TÜBİTAK Deneyap kitabından") + " ekleyin, <b>+</b> sekmesiyle elle tanımlayın"
+      : " · bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; <b>+</b> sekmesiyle elle tanımlayın";
     satir += "; her sekmenin “×”i o kazanımı kalıcı olarak siler";
   }
   return satir + tumunuGoster + "</span>";
+}
+
+/**
+ * §52 — SEÇİLİ KAZANIMIN KAYNAĞI. Deneyap kazanımı MEB kazanımı değildir;
+ * öğretmen hangi kitabın hangi sayfasından geldiğini görmeli. Kaynağı olmayan
+ * (MEB ya da elle yazılmış) kazanımda hiçbir şey çizilmez.
+ */
+function kazanimKaynakHtml() {
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === state.ceForm.outcomeCode; })[0];
+  if (!o || !o.kaynak) return "";
+  return '<span class="field-note kazanim-kaynak">Kaynak: <b>' + escapeHtml(o.kaynak.kitap) +
+    "</b>, s." + escapeHtml(String(o.kaynak.sayfa)) + " · kitabın kazanım bölümünden birebir" +
+    (o.kaynakNotu ? " · " + escapeHtml(o.kaynakNotu) : "") + "</span>";
 }
 
 /** Seçili kazanım ile ders/sınıf uyuşmazlığı varsa açıklama üretir. */
@@ -2157,7 +2326,9 @@ function outcomeUyusmazlikHtml() {
 }
 
 // ---- Kazanım tanımlama (brief MVP 1) --------------------------------------
-function addOutcome(code, label, subject, grade) {
+/* `ek` (isteğe bağlı): katalogdan gelen ek alanlar — §52'de Deneyap kaydının
+   atölyesi ve kaynağı (kitap, sayfa). Elle eklenen kazanımda yoktur. */
+function addOutcome(code, label, subject, grade, ek) {
   code = (code || "").trim().toUpperCase();
   const ad = (label || "").trim();
   if (!code) return "Kazanım kodu boş olamaz (örn. FEN.7.3.1).";
@@ -2170,6 +2341,7 @@ function addOutcome(code, label, subject, grade) {
   const kayit = { code: code, label: code + " — " + ad };
   if (ders) kayit.subject = ders;
   if (sinif) kayit.grade = sinif;
+  if (ek) Object.keys(ek).forEach(function (a) { if (ek[a] !== undefined) kayit[a] = ek[a]; });
   state.outcomes = OUTCOMES_LIST().concat([kayit]);
   state.ceForm.outcomeCode = code;
   return "";
@@ -2291,8 +2463,10 @@ function dersSec(ad) {
      bekleniyordu. Artık ders seçimi sınıfı da getiriyor; Keşif'ten çıkılınca
      sınıf sayısal düzeye geri döner, yoksa Türkçe + Keşif gibi boş bir
      birleşim kalırdı. */
-  if (ad === KESIF_DERSI) state.ceForm.grade = KESIF_SINIFI;
-  else if (String(state.ceForm.grade) === KESIF_SINIFI) state.ceForm.grade = 7;
+  /* §52: aynı kural Deneyap için de geçerli; eşleşme dersinSinifi()'nde. */
+  if (dersinSinifi(ad)) state.ceForm.grade = dersinSinifi(ad);
+  else if (atolyeliSinifMi(state.ceForm.grade)) state.ceForm.grade = 7;
+  atolyeGecerliKil();
   // Ders değişince seçili kazanım artık başka bir derse ait olabilir.
   outcomeSeciminiTazele();
   saveSoon();
@@ -2382,24 +2556,43 @@ function dersSecicisiHtml() {
  * yalnızca Keşif seçiliyken çizilir. Kazanım listesini süzer (outcomeUyar).
  */
 function atolyeSecicisiHtml() {
-  if (String(state.ceForm.grade) !== KESIF_SINIFI &&
-      state.ceForm.subject !== KESIF_DERSI) return "";
+  /* §52: hangi atölye listesi? Ders ya da sınıf hangisi atölyeliyse o
+     (Keşif'te §50e'deki "henüz göçmemiş kayıt" durumu korunuyor). */
+  const ders = dersinSinifi(state.ceForm.subject) ? state.ceForm.subject : sinifinDersi(state.ceForm.grade);
+  if (!ders) return "";
+  const deneyap = ders === DENEYAP_DERSI;
+  const etiket = deneyap ? "Deneyap" : "Keşif";
+  if (deneyap && !deneyapIndeksi) {
+    /* Sessiz düşüş yok: liste neden boş, ekranda yazar. */
+    const durum = deneyapIndeksHata
+      ? '<div class="field-note kat-hata">' + escapeHtml(deneyapIndeksHata) +
+        " Ders sekmesine yeniden tıklayarak tekrar deneyebilirsiniz.</div>"
+      : '<div class="field-note">Atölye listesi yükleniyor…</div>';
+    return '<div class="field field-atolye"><label for="ceAtolye">' + etiket + "</label>" +
+      '<select id="ceAtolye" disabled><option>—</option></select>' + durum + "</div>";
+  }
   const secili = state.ceForm.atolye;
-  const secenekler = ATOLYELER.map(function (a) {
+  const indeksSayisi = {};
+  if (deneyap) deneyapIndeksi.atolyeler.forEach(function (a) { indeksSayisi[a.ad] = a; });
+  const secenekler = atolyeListesi(ders).map(function (a) {
     /* Kaç kazanımı olduğu seçenek metnine yazılır: kullanıcı listeyi açmadan
-       hangi atölyenin dolu olduğunu göremiyordu. */
-    const kazanimSayisi = OUTCOMES_LIST().filter(function (o) {
-      return o.atolye === a;
-    }).length;
+       hangi atölyenin dolu olduğunu göremiyordu. Deneyap'ta sayı kataloğun
+       kendisidir (indeks), Keşif'te okula eklenmiş kazanımlardır. */
+    const metin = deneyap
+      ? a + " (" + indeksSayisi[a].kazanimSayisi + " kazanım · " +
+        indeksSayisi[a].uygunluk.yazili + " yazılı)"
+      : a + " (" + OUTCOMES_LIST().filter(function (o) { return o.atolye === a; }).length + " kazanım)";
     return '<option value="' + escapeHtml(a) + '"' +
-      (a === secili ? " selected" : "") + ">" +
-      escapeHtml(a) + " (" + kazanimSayisi + " kazanım)</option>";
+      (a === secili ? " selected" : "") + ">" + escapeHtml(metin) + "</option>";
   }).join("");
-  return '<div class="field field-atolye"><label for="ceAtolye">Keşif</label>' +
+  const not = deneyap
+    ? "Deneyap atölyeleri TÜBİTAK Deneyap ortaokul kitaplarından alınmıştır; kitaplar " +
+      "5–8. sınıfı ayırmaz. Seçtiğiniz atölye aşağıdaki kazanım listesini ve kataloğu belirler."
+    : "Keşif müfredatı atölyelere ayrılır — atölye bir sınıf düzeyi değildir. " +
+      "Seçtiğiniz atölye aşağıdaki kazanım listesini süzer.";
+  return '<div class="field field-atolye"><label for="ceAtolye">' + etiket + "</label>" +
     '<select id="ceAtolye">' + secenekler + "</select>" +
-    '<div class="field-note">Keşif müfredatı atölyelere ayrılır — atölye bir ' +
-    "sınıf düzeyi değildir. Seçtiğiniz atölye aşağıdaki kazanım listesini süzer." +
-    "</div></div>";
+    '<div class="field-note">' + not + "</div></div>";
 }
 
 /** Atölye değişince seçili kazanım başka bir atölyeye ait kalabilir. */
@@ -2409,6 +2602,8 @@ function atolyeSec(ad) {
   outcomeSeciminiTazele();
   saveSoon();
   renderAll();
+  // §52: Deneyap'ta katalog atölyeye bağlıdır — atölye değişince o atölyenin kataloğu.
+  katalogHazirla(true);
 }
 
 function kazanimSecicisiHtml() {
@@ -3676,7 +3871,7 @@ function alignAdaylari(ders) {
     const p = o.label.split(" — ");
     return { kod: o.code, metin: p.length > 1 ? p.slice(1).join(" — ") : o.label };
   });
-  const k = (state.katalog || {})[katalogAnahtari(ders, state.ceForm.grade)];
+  const k = (state.katalog || {})[ders === state.ceForm.subject ? seciliKatalogAnahtari() : katalogAnahtari(ders, state.ceForm.grade)];
   if (k) {
     const mevcut = {};
     liste.forEach(function (x) { mevcut[x.kod] = true; });
@@ -4191,12 +4386,12 @@ function ceCreateHtml() {
     '<div class="field field-outcome"><label>Konu ve Kazanım</label>' +
     kazanimSecicisiHtml() +
     '<div class="input-with-actions kazanim-ekle-satiri">' +
-    '<select id="ceOutcome" aria-label="MEB öğretim programından kazanım ekle"' +
+    '<select id="ceOutcome" aria-label="' + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + ' kazanım ekle"' +
     (katalogKazanimlari().length ? "" : " disabled") + ">" +
     kazanimSecenekleriHtml() +
     '</select>' +
-    '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="MEB öğretim programından kazanım seç">Katalog</button></div>' +
-    kazanimNotuHtml() + '</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="' + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + ' kazanım seç">Katalog</button></div>' +
+    kazanimNotuHtml() + kazanimKaynakHtml() + '</div>' +
     outcomeUyusmazlikHtml() +
     '<!--meta-grid-end-->' +
     (state.newOutcome.open
@@ -4339,11 +4534,12 @@ function renderContentExpert() {
     /* Simetri: sınıf listesinden "Keşif" seçilirse ders de Keşif Kampüsü
        olur. Aksi hâlde "Türkçe · Keşif" gibi karşılığı olmayan bir birleşim
        kalır ve kazanım listesi boş görünür (bkz. dersSec). */
-    if (String(state.ceForm.grade) === KESIF_SINIFI &&
-        state.ceForm.subject !== KESIF_DERSI &&
-        SUBJECTS_LIST().indexOf(KESIF_DERSI) >= 0) {
-      state.ceForm.subject = KESIF_DERSI;
+    const eslesenDers = sinifinDersi(state.ceForm.grade);
+    if (eslesenDers && state.ceForm.subject !== eslesenDers &&
+        SUBJECTS_LIST().indexOf(eslesenDers) >= 0) {
+      state.ceForm.subject = eslesenDers;
     }
+    atolyeGecerliKil();
     outcomeSeciminiTazele(); saveSoon(); renderAll();
     katalogHazirla(true);   // elle değişim: başarısız denemeyi yeniden dene
   };
@@ -5260,7 +5456,7 @@ async function aiSuggestRubric(qid) {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
       subject: bag.subject,
-      grade: bag.grade,
+      grade: istekSinifi(bag.grade),   // §52
       maxScore: state.rubrics[qid].maxScore,
     });
     state.rubrics[qid].criteria = (j.criteria || []).map(function (c) {
@@ -5960,7 +6156,7 @@ async function simulateClass(adet) {
           questionBody: q.body,
           outcomeLabel: outcomeLabel(q.outcome),
           // §42: sınıf düzeyi sorunun kazanımından gelir (bkz. soruDersSinif).
-          grade: soruDersSinif(q).grade,
+          grade: istekSinifi(soruDersSinif(q).grade),   // §52
           levels: seviyeler
         });
         yanitlar[q.id] = j.answers || [];
@@ -8743,8 +8939,67 @@ const MUFREDAT_KATALOGLARI = {
 
 function katalogAnahtari(ders, sinif) { return String(ders) + "|" + String(sinif); }
 
-async function katalogYukle(ders, sinif) {
-  const anahtar = katalogAnahtari(ders, sinif);
+/* §52 — DENEYAP KATALOGLARI ATÖLYEYE BAĞLIDIR. Anahtar ders|sınıf|atölye.
+   MEB anahtarları DEĞİŞMEDİ. Ekrandaki seçimin anahtarı tek yerden üretilir
+   (seciliKatalogAnahtari); eskiden 6 çağıran katalogAnahtari(subject, grade)
+   yazıyordu ve atölye eklenince ikiz koşul olurdu (TUZAK 7). */
+function deneyapKatalogAnahtari(atolye) {
+  return katalogAnahtari(DENEYAP_DERSI, DENEYAP_SINIFI) + "|" + String(atolye);
+}
+function seciliKatalogAnahtari() {
+  if (state.ceForm.subject === DENEYAP_DERSI && String(state.ceForm.grade) === DENEYAP_SINIFI) {
+    return deneyapKatalogAnahtari(state.ceForm.atolye);
+  }
+  return katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
+}
+/** Katalog Deneyap kataloğu mu? (MEB kataloglarında atolye/kunye alanı yok.) */
+function deneyapKatalogMu(k) { return !!(k && k.atolye && k.kunye); }
+
+/**
+ * Deneyap indeksini okur ve her atölyenin kataloğunu MUFREDAT_KATALOGLARI'na
+ * kaydeder. Atölye listesi KODDA DEĞİL bu dosyadadır. Başarısızlık ekranda
+ * yazar (atolyeSecicisiHtml). Yalnızca gerçekten bir istek yaptıysa yeniden
+ * çizer — her çizimde çağrıldığı için aksi hâlde sonsuz döngü olurdu (§28n'deki
+ * katalogDenendi ile aynı ders).
+ */
+async function deneyapIndeksYukle(yenidenDene) {
+  if (deneyapIndeksi) return deneyapIndeksi;
+  if (deneyapIndeksYukleniyor) return null;
+  if (deneyapIndeksHata && !yenidenDene) return null;
+  deneyapIndeksYukleniyor = true;
+  try {
+    const r = await fetch(DENEYAP_INDEKS, { headers: { accept: "application/json" } });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if (!j || !Array.isArray(j.atolyeler) || !j.atolyeler.length) throw new Error("indeks boş ya da bozuk");
+    j.atolyeler.forEach(function (a) { MUFREDAT_KATALOGLARI[deneyapKatalogAnahtari(a.ad)] = a.dosya; });
+    deneyapIndeksi = j;
+    deneyapIndeksHata = "";
+    atolyeGecerliKil();
+  } catch (e) {
+    deneyapIndeksHata = "Deneyap atölye listesi yüklenemedi (" + String((e && e.message) || e) + ").";
+  } finally {
+    deneyapIndeksYukleniyor = false;
+  }
+  renderAll();
+  if (deneyapIndeksi) katalogHazirla(true);
+  return deneyapIndeksi;
+}
+
+/** Ekrandaki "MEB …" ifadesinin seçili derse göre karşılığı. MEB metni
+ *  BİREBİR döner (§52: MEB tarafındaki anlam değişmesin); Deneyap'ta yalnız
+ *  çağıranın verdiği Deneyap metni. Türkçe ek tuzağı yüzünden (§6.3-14) ek
+ *  türetilmez, iki metin de çağıranda tam yazılır. */
+function mebYerine(meb, deneyap) {
+  return state.ceForm.subject === DENEYAP_DERSI ? deneyap : meb;
+}
+
+/** Katalog modalında ve satır notlarında kaynağın adı. */
+function katalogKaynakAdi() {
+  return state.ceForm.subject === DENEYAP_DERSI ? "TÜBİTAK Deneyap kitabı" : "MEB öğretim programı";
+}
+
+async function katalogYukle(anahtar) {
   const yol = MUFREDAT_KATALOGLARI[anahtar];
   if (!yol) return null;
   state.katalog = state.katalog || {};
@@ -8760,6 +9015,8 @@ async function katalogYukle(ders, sinif) {
 function mevcutKataloglar() {
   return Object.keys(MUFREDAT_KATALOGLARI).map(function (a) {
     const p = a.split("|");
+    // §52: Deneyap anahtarı üç parçalı (ders|sınıf|atölye); "Deneyap. sınıf" olmasın.
+    if (p.length > 2) return p[0] + " · " + p[2];
     return p[0] + " " + p[1] + ". sınıf";
   });
 }
@@ -8790,6 +9047,18 @@ const UYGUNLUK_ETIKET = {
     not: "Bu bir öğrenme süreci kazanımıdır; doğrudan sınav sorusu haline getirilmesi önerilmez." }
 };
 
+/* §52: "performans" notu MEB için "dinleme ya da konuşma becerisi" diyor —
+   Türkçe kataloğu için yazılmış; Deneyap'ta performans kazanımı bir devre
+   kurmak, robot programlamak gibi UYGULAMA becerisidir. MEB metni AYNEN
+   korunur (anlamı değişmesin); Deneyap'a kendi notu verilir. */
+function uygunlukNotu(uygunluk, deneyap) {
+  if (deneyap && uygunluk === "performans") {
+    return "Bu kazanım bir uygulama/üretim becerisidir (devre kurma, programlama, " +
+      "tasarım); yazılı sınavla değil gözlem ya da ürün değerlendirmesiyle ölçülür.";
+  }
+  return (UYGUNLUK_ETIKET[uygunluk] || {}).not || "";
+}
+
 function katalogModalHtml(k, hata) {
   const f = katalogFiltreDurumu();
   const satirlar = katalogSatirlari(k);
@@ -8797,6 +9066,7 @@ function katalogModalHtml(k, hata) {
     .filter(function (v, i, a) { return a.indexOf(v) === i; });
   const sayim = { yazili: 0, performans: 0, surec: 0 };
   k.kazanimlar.forEach(function (x) { sayim[x.uygunluk]++; });
+  const dny = deneyapKatalogMu(k);
 
   const liste = satirlar.length
     ? satirlar.map(function (x) {
@@ -8810,13 +9080,27 @@ function katalogModalHtml(k, hata) {
           '<span class="kat-metin">' + escapeHtml(x.metin) + "</span>" +
           '<span class="kat-etiketler"><span class="pill pill-neutral">' + escapeHtml(x.alan) + "</span>" +
           '<span class="pill ' + u.sinif + '">' + u.ad + "</span>" +
+          /* §52: Deneyap'ta her satır kitabın basılı sayfasını gösterir;
+             kaynakta yazım hatası olan satır "kaynakta böyle" der. */
+          (dny && x.kaynak ? '<span class="pill pill-neutral" title="' + escapeHtml(x.kaynak.kitap) +
+            '">s.' + escapeHtml(String(x.kaynak.sayfa)) + "</span>" : "") +
+          (dny && x.not ? '<span class="pill pill-neutral" title="' + escapeHtml(x.not) +
+            '">kaynakta böyle yazılmış</span>' : "") +
           (x.ekli ? '<span class="pill pill-neutral">zaten ekli</span>' : "") + "</span></span></label>";
       }).join("")
     : '<div class="kat-bos">Bu filtreyle eşleşen kazanım yok.</div>';
 
-  return '<h3>MEB Kazanım Kataloğu — ' + escapeHtml(k.ders) + " " + k.sinif + ". sınıf</h3>" +
-    '<div class="kat-kaynak">' + escapeHtml(k.kaynak) + " · <b>" + k.kazanimlar.length +
-    " kazanım</b>. Bu kazanımlar uydurulmadı, öğretim programından alındı.</div>" +
+  const baslik = dny
+    ? '<h3>Deneyap Kazanım Kataloğu — ' + escapeHtml(k.atolye) + "</h3>" +
+      '<div class="kat-kaynak">' + escapeHtml(k.kaynak) + " · <b>" + k.kazanimlar.length +
+      " kazanım</b>. Bu kazanımlar uydurulmadı: kitabın kendi kazanım bölümlerinden " +
+      "birebir alındı; her satırda kitabın basılı sayfası yazar. Kitap 5–8. sınıfı " +
+      "ayırmaz (ortaokul). Bu bir MEB öğretim programı değildir.</div>"
+    : '<h3>MEB Kazanım Kataloğu — ' + escapeHtml(k.ders) + " " + k.sinif + ". sınıf</h3>" +
+      '<div class="kat-kaynak">' + escapeHtml(k.kaynak) + " · <b>" + k.kazanimlar.length +
+      " kazanım</b>. Bu kazanımlar uydurulmadı, öğretim programından alındı.</div>";
+  const uyari = f.uygunluk ? uygunlukNotu(f.uygunluk, dny) : "";
+  return baslik +
     (hata ? '<div class="kat-hata">' + escapeHtml(hata) + "</div>" : "") +
     '<div class="kat-filtre">' +
       '<select id="katUygunluk">' +
@@ -8832,8 +9116,7 @@ function katalogModalHtml(k, hata) {
       "</select>" +
       '<input id="katAra" placeholder="kazanım ara…" value="' + escapeHtml(f.ara) + '">' +
     "</div>" +
-    (f.uygunluk && UYGUNLUK_ETIKET[f.uygunluk].not
-      ? '<div class="kat-uyari">' + UYGUNLUK_ETIKET[f.uygunluk].not + "</div>" : "") +
+    (uyari ? '<div class="kat-uyari">' + escapeHtml(uyari) + "</div>" : "") +
     '<div class="kat-liste">' + liste + "</div>" +
     '<div class="kat-not">"Uygunluk" ayrımı bu ürünün değerlendirmesidir, müfredatın parçası değildir.</div>' +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button>' +
@@ -8844,10 +9127,11 @@ async function katalogAc() {
   const ders = state.ceForm.subject;
   const sinif = state.ceForm.grade;
   try {
-    const k = await katalogYukle(ders, sinif);
+    const k = await katalogYukle(seciliKatalogAnahtari());
     if (!k) {
-      openModal('<h3>Katalog bulunamadı</h3><p><b>' + escapeHtml(ders) + " · " + escapeHtml(String(sinif)) +
-        '. sınıf</b> için müfredat kataloğu yok.</p>' +
+      openModal('<h3>Katalog bulunamadı</h3><p><b>' + escapeHtml(ders) + " · " + escapeHtml(sinifEtiketi(sinif)) +
+        '</b> için müfredat kataloğu yok.</p>' +
+        (ders === DENEYAP_DERSI && deneyapIndeksHata ? "<p>" + escapeHtml(deneyapIndeksHata) + "</p>" : "") +
         "<p>Şu an katalog bulunan ders/sınıflar: <b>" + mevcutKataloglar().join(", ") + "</b>. " +
         "Kazanımlar sınıfa özeldir; bu yüzden başka bir sınıfın kataloğu açılmaz. " +
         "Diğer ders ve sınıflar için kazanımları <b>+</b> sekmesiyle elle ekleyebilirsiniz.</p>" +
@@ -8888,7 +9172,13 @@ function katalogModalGoster(k, hata) {
       // addOutcome kodu büyük harfe çevirir ve kod+" — "+ad biçiminde etiketler.
       // Ders ve sınıf katalogdan gelir; böylece kazanım hangi ders/sınıfa ait
       // olduğunu taşır ve seçici filtresi doğru çalışır.
-      const h = addOutcome(kz.kod, kz.metin, k.ders, k.sinif);
+      // §52: Deneyap kataloğu arayüz eksenine çevrilir ve kaynağını taşır.
+      const dny = deneyapKatalogMu(k);
+      const h = dny
+        ? addOutcome(kz.kod, kz.metin, DENEYAP_DERSI, DENEYAP_SINIFI, {
+            atolye: k.atolye, uygunluk: kz.uygunluk, alan: kz.alan,
+            kaynak: { kitap: kz.kaynak.kitap, sayfa: kz.kaynak.sayfa }, kaynakNotu: kz.not })
+        : addOutcome(kz.kod, kz.metin, k.ders, k.sinif);
       if (h) atlanan++; else eklenen++;
     });
     closeModal();
@@ -9970,6 +10260,12 @@ function bosDurumHtml(mesaj) {
     /* Keşif Kampüsü — sınıf etiketi ve kazanıma kilitli ders belgesi. */
     /* Keşif: atölye artık sınıf değil, müfredat birimi (§50). */
     "atolyeSecicisiHtml", "atolyeSec",
+    /* §52 — Deneyap: indeksten gelen atölyeler, atölyeli katalog anahtarı,
+       kaynak görünürlüğü ve istekte kaynak türü / sınıf eşlemesi. */
+    "atolyeliSinifMi", "dersinSinifi", "sinifinDersi", "atolyeListesi", "atolyeGecerliKil",
+    "istekSinifi", "deneyapKatalogAnahtari", "seciliKatalogAnahtari", "deneyapKatalogMu",
+    "deneyapIndeksYukle", "mebYerine", "katalogKaynakAdi", "uygunlukNotu", "kazanimKaynakHtml",
+    "uretimKaynakTuru",
     "sinifEtiketi", "materyalBilgisi", "seciliMateryal", "materyalDurumu",
     "materyalGetir", "materyalHazirla", "materyalSeridiHtml", "materyalDizinYukle"
   ];
