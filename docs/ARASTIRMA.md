@@ -110,11 +110,18 @@ ayrılmıştır. Bu ayrım ürünün kendi katkısıdır, müfredatın parçası
   ölçülebilir. Uygulamalı atölye müfredatı, yazılı soru üretimine ancak kısmen
   uygun. Sınıflandırma ürünün kendi kuralıdır, müfredatın parçası değildir.
 - **Sınırlar:** kitaplar sınıf düzeyi (5-8) ayırmaz. Bunlar resmî bir öğretim
-  programı değil, eğitmen kitaplarındaki haftalık kazanımlardır. Katalog bugün
-  **arayüze bağlı değil.** Sunucu `kaynakTuru: "deneyap"` ile Deneyap
-  kazanımından üretimi destekliyor (PROGRESS §51b.4). Şimdiye kadar **tek bir**
-  gerçek üretim denendi: DNY.YZ.1.1, 2 soru (§51b.9). Deneyap üretimi için
-  bundan bir oran çıkarılmaz.
+  programı değil, eğitmen kitaplarındaki haftalık kazanımlardır. Bu yüzden istekte sınıf
+  "Ortaokul (5–8. sınıf)" diye gönderilir.
+- **Arayüz (PROGRESS §52):** İçerik Uzmanı panelinde ayrı bir ders
+  ("Deneyap Atölyeleri") ve 12 atölyelik seçici var. Atölye listesi
+  `deneyap-index.json`'dan okunur. Katalog penceresi kitabı, ISBN'i ve her
+  satırda kitabın basılı sayfasını gösterir; "bu bir MEB öğretim programı
+  değildir" der. Kazanım modunda istek `kaynakTuru: "deneyap"` taşır
+  (PROGRESS §51b.4), böylece istem Deneyap kazanımını MEB kazanımı diye
+  sunmaz.
+- **Üretim:** Deneyap ile gerçek üretim üç yerde denendi: tek deneme
+  (§51b.9), arayüzden iki çağrı (§52.7) ve ölçüm setindeki 5 kazanım (§6.4).
+  N çok küçük olduğu için Deneyap üretimi için **oran verilmez.**
 
 Sayılar 19 Ekim'de katalog dosyalarındaki kayıtlar sayılarak ve
 `docs/DENEYAP_KAYNAK.md` §1 ile karşılaştırılarak yeniden doğrulandı.
@@ -346,6 +353,7 @@ yapılacak ve bu sınırlama raporda açıkça yazılacak.
 | `GRK-TEKRAR` (bayrak) | oto | 2 / 25 | 1 / 26 |
 | `DIL-ALFABE` (bayrak) | oto | 0 / 37 | 1 / 37 (`整理`) |
 | `GRK-KALIP` (ham, sunucu sayacı) | oto, 3 kazanım | 12 / 18 | 6 / 18 |
+| `GRK-KALIP` sunucu temizliğinden **sonra** | oto | 0 | 0 |
 | `GVD-KISA` (< 40 kelime) | oto | 24 / 37 | 34 / 37 |
 | `KYN-ATIF` deseni eşleşti | oto | 3 / 37, elle bakınca **3'ü de yanlış pozitif** | 2 / 37, **2'si de yanlış pozitif** |
 

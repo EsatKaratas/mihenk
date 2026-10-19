@@ -7959,6 +7959,81 @@ denenmedi. `retryEvaluation` ve `simulateClass` yalnız tıklamayla çalışır.
 
 ---
 
+## 53. ARAŞTIRMA BELGELERİ — T3 AI bursu için (19 Ekim 2026, W4)
+
+**İstek (Mihenk Orchestrator; Esat "başla" dedi):** Mihenk'i T3 Vakfı "2027 T3
+AI Lisans Araştırmacı" bursu için bir araştırma projesine dönüştürecek
+belgeleri yazmak. Kod yazılmadı. Rehber: `Masaüstü\2027 T3 Vakfı
+Bursiyerlik\Mihenk - T3 AI Bursu Geliştirme Rehberi.pdf`.
+
+### 53.1 Yazılan ve güncellenen belgeler
+
+| Commit | Belge | Ne |
+|---|---|---|
+| `fce8e17` | `docs/ARASTIRMA.md` | Araştırma sorusu, Creathon bağlamı (finalist, derece yok), PROGRESS'ten doğrulanmış 5 ön bulgu, yöntem, 6 aylık plan, etik/KVKK. README'den bağlantı |
+| `111b33b` · `5f031d5` | `docs/HATA_TAKSONOMISI.md` v0.1 | **25 kod** (commit mesajında "24" yazıyor, doğrusu 25): 10 otomatik · 12 elle · 2 yarı otomatik · 1 pilot. Her kodda tanım, PROGRESS örneği ve `guards.ts` fonksiyonu (kod okunarak doğrulandı). Kodlar W5'e ölçüm betiği için gönderildi |
+| `5f031d5` | ARASTIRMA §5.2 | **T3 AI erişimi:** dışarıdan API ya da açık ağırlık bulunamadı; denenmedi, ölçülmedi. NSosyal beta tekrarlanabilir ölçüme uygun değil. Hugging Face'te yalnız 2024 hackathon takım depoları var. Workers AI'da yok |
+| `f7007e5` | `DEVIR.md` v4 · `DEVRALAN_PROMPT.md` v3 | §48b'den §50n'e ve 19 Ekim'e taşındı; eski PC yolları düzeltildi |
+| `fa3aa64` | agents.md bandı, README, DEVIR, AKTARIM | Bayat sayı/iddia taraması (Python, UTF-8). Tarihsel kayıtlar (PROGRESS, DEVIR_MUDUR, "o gün" sayıları) bilerek korundu |
+| `4e40c76` · `6497c05` | ARASTIRMA §2.3 | Deneyap: W3'ün iki turu (önce 298, sonra **622 kazanım**, 12 atölye). Her iki kez dosyalardan yeniden sayıldı |
+| `ef0911c` · `49f8852` | ARASTIRMA §9 | **İlgili çalışmalar:** 10 kaynak; her künye birincil kayıttan (Crossref/DOI, ACL Anthology, arXiv, EDM) açılarak doğrulandı. Her birinde "Mihenk'in farkı / boşluk" |
+| `6497c05` | ARASTIRMA §8.2 · taksonomi | IP başına 60/dk tavanı ve NAT sınırı; dil denetiminin kapsamı ve bilerek açık kalan Latin-1. `SIK-ESANLAM` ilk vaka (§51b.9) |
+| `3a8bd59` | ARASTIRMA §6 · taksonomi v0.2 önerileri | W5'in ilk gerçek ölçümü (§54) işlendi |
+| *(bu bölümle)* | ARASTIRMA §2.3, DEVIR, DEVRALAN, README, agents | Deneyap arayüzü (§52), test 302, öz-kontrol 355, README'de 06-deneyap satırı |
+
+### 53.2 Doğrulanan ve DÜZELTİLEN
+
+- **Rehberdeki "1 kg su → 100 (doğrusu 1000)" TERS yazılmıştı.** §46.2'ye
+  göre model **1000 cL** işaretledi, doğrusu **100 cL**. README'deki ve
+  DEVIR'deki iki türlü okunabilen "(1000 yerine 100)" ifadesi tek anlamlı
+  yazıldı. Müdür, burs oturumuna bildirdi.
+- 606 MEB kazanımı (Türkçe 365 · Fen 141 · Matematik 100) katalog
+  dosyalarındaki kodlar sayılarak doğrulandı.
+- Keşif kazanımı 14 değil **18** (§50f).
+- Rehber §2'deki diğer 4 bulgu PROGRESS'le birebir tuttu.
+- TurkishMMLU'nun soru kaynağı (MEB EBA platformu) makalenin kendi metninden
+  doğrulandı; özetteki "müfredat uzmanlarınca yazılmış" ifadesi de not edildi.
+
+### 53.3 Ölçüm aracı yine yanılttı
+
+Canlıdaki `app.js` SHA-256'sı HEAD'den farklı çıktı. Sebep yalnızca satır
+sonuydu: çalışma ağacı `autocrlf` ile CRLF, canlı da bu diskten yüklenmiş.
+CR'ler atılınca HEAD ile eş; kod farkı yok. Ayrıca `/index.html` yolu boş
+gövde döndürdü. Sayfa `/` ile ölçülmeli.
+
+### 53.4 Ölçüm sonuçları
+
+W5'in koşumu §54'te, ayrıntısı `docs/olcum/OZET.md`'de. ARASTIRMA §6'ya
+işlenmeden önce `docs/olcum/elle-kontrol.json` içindeki 66 etiket bağımsız
+olarak yeniden sayıldı. Anahtar ve kod sayıları özetle birebir tuttu.
+Araştırma sorusunun ikinci yarısı için ilk veri: **yanlış ya da belirsiz
+anahtarlı 31 ÇSS'nin yalnız 1'i bir otomatik bayrak taşıdı, o da dil
+uyarısıydı.** Bu bir ölçümdür. "İnsan onayı hatayı şu kadar azaltır" sayısı
+yoktur; pilotta ölçülecek.
+
+### 53.5 Açık kalan
+
+- `06-deneyap.png` README'de yer alıyor, ama görselin kendisi yayından sonra
+  W2'nin commit'iyle gelecek. Alt yazı `katalogModalHtml()` okunarak
+  yazıldı (varsayılan süzgeç "yazılı").
+- T3 AI erişimi vakıf ve mentor aracılığıyla talep edilecek (plan).
+- Taksonomi v0.2 önerileri (`ANH-YOK`, `GVD-KOKYOK`, `TKR-GOVDE` yan etkisi,
+  `KYN-ATIF` kapsamı) ikinci etiketlemede değerlendirilecek.
+- Push ve canlıya alma W2'de, müdür denetiminde.
+
+### 53.6 Doğrulama
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **302/302 · 9 dosya** |
+| `node tools/ozkontrol-dogrula.mjs` | **355 ad · %100** |
+| `npm run lint` | temiz |
+| Bozuk markdown tablosu (git'teki tüm `.md`) | **0** |
+| UTF-8 (U+FFFD) — düzenlenen tüm dosyalar | yok |
+| Kod dosyalarına dokunuldu mu | **hayır** (yalnız `*.md`) |
+
+---
+
 ## 54. İLK GERÇEK ÖLÇÜM — iki model, sabit set, cevap anahtarı elle (19 Ekim 2026, W5) · ÖN BULGU
 
 **İstek (Orchestrator, T3 AI bursu araştırma sorusu):** Türkçe LLM'lerin

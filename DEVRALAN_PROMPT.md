@@ -41,8 +41,8 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 265/265, 7 dosya
-node tools/ozkontrol-dogrula.mjs    # 336 ad · kapsama %100
+npm test                            # 302/302, 9 dosya
+node tools/ozkontrol-dogrula.mjs    # 355 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -52,15 +52,17 @@ curl -s https://mihenk.bies.workers.dev/api/ai/status
 Beklenen test dökümü:
 
 ```
-test/guards.test.ts          105
-test/prompts.test.ts          47
-test/schemas.test.ts          46
+test/guards.test.ts          110
+test/prompts.test.ts          51
+test/schemas.test.ts          49
 test/ai-lib.test.ts           24
 test/prompts-guvenlik.test.ts 19
 test/sayac-ve-yedek.test.ts   15
+test/rota.test.ts             14
+test/mufredat.test.ts         11
 test/atolye-ve-materyal.test.ts 9
                              ---
-                             265
+                             302
 ```
 
 Beklenen canlı çıktı:
@@ -247,9 +249,9 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | | |
 |---|---|
 | Depo | dal `main`. `origin/main` = `e4a4024`; 19 Ekim commit'leri **pushlanmadı** |
-| Test | **265/265** (7 dosya) — 19 Ekim |
+| Test | **302/302** (9 dosya) — 19 Ekim |
 | Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
-| Öz-kontrol | **336 ad · kapsama %100** — 19 Ekim |
+| Öz-kontrol | **355 ad · kapsama %100** — 19 Ekim |
 | Canlı ↔ disk | `app.js` · `app.css` · `/` **SHA-256 eş** — 19 Ekim (CRLF'li disk dosyasıyla; CR'ler atılınca HEAD ile eş) |
 | `/api/health` · `/api/ai/status` | `ok:true` · `ready:true`, `fallbackSorunu: null` — 19 Ekim |
 | Son canlı yayın | 6 Eylül (§50 turları) |
@@ -304,10 +306,10 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
   5 ön bulgu, 6 aylık plan, etik/KVKK) · [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md)
   (25 kod) · sabit set + ölçüm betiği (`tools/olcum/`) · kazanım metni sınırı
   200 → 400 (`fc1750c`, MAT.8.3.5) · T3 AI'ya dışarıdan erişim **bulunamadı**
-  (denenmedi, ölçülmedi). **Yer tutucular:** ölçüm sonuçları (`docs/olcum/`,
-  ARASTIRMA §6) henüz işlenmedi — işlenmeden sayı verme. Deneyap kataloğu
-  eklendi (12 atölye, 622 kazanım, `docs/DENEYAP_KAYNAK.md`) ama
-  **arayüze bağlı değil**.
+  (denenmedi, ölçülmedi). **İlk ölçüm** (ön bulgu): ARASTIRMA §6,
+  PROGRESS §54, `docs/olcum/OZET.md`. **Deneyap:** 12 atölye, 622 kazanım
+  (`docs/DENEYAP_KAYNAK.md`), arayüze bağlandı (PROGRESS §52): ders
+  "Deneyap Atölyeleri", katalog penceresi, `kaynakTuru: "deneyap"`.
 
 ### ⚠️ Sunumda SÖYLENMEMESİ gerekenler
 

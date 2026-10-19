@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-265%2F265-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-302%2F302-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -48,7 +48,7 @@ rubrik **önerir**. Onaylayan her zaman insandır.
 
 ### Son değişiklikler — 6 Eylül 2026
 
-Proje günlüğü `PROGRESS.md`'dir ve **50 bölümdür**; her madde kök nedeni ve
+Proje günlüğü `PROGRESS.md`'dir ve **§54'e kadar** uzanır; her madde kök nedeni ve
 ölçüm sonucuyla yazılır. Son turlar:
 
 | | |
@@ -83,8 +83,8 @@ düğmeye basıldıktan sonra gelir. Kimlik doğrulama yoktur, rol bir seçimdir
 | **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
 | <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım başarı grafiği ve gerçek/örnek satır ayrımı" width="100%"> |
 | **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım başarı grafiği ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
-| <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | |
-| **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | |
+| <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | <img src="docs/ekran/06-deneyap.png" alt="Deneyap kazanım kataloğu — Yapay Zekâ atölyesi: kitap adı ve ISBN, her kazanım satırında kitabın basılı sayfası" width="100%"> |
+| **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | **Deneyap kataloğu** — İçerik Uzmanı, *Deneyap Atölyeleri* dersinde Yapay Zekâ atölyesinin kataloğunu açmış. Başlıkta TÜBİTAK Deneyap kitabı ve ISBN'i, *"Bu bir MEB öğretim programı değildir"* notu var. Her satırda kazanım kodu, kitaptaki metni, uygunluk etiketi ve kitabın basılı sayfası (*s.13* gibi) yazar. Liste varsayılan olarak yalnız **yazılı sınavla ölçülebilir** kazanımları gösterir. |
 
 ### İçindekiler
 
@@ -440,7 +440,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 265 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 302 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -680,10 +680,11 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **265 test**
-  koşar (`test/guards.test.ts` 105 · `test/prompts.test.ts` 47 · `test/schemas.test.ts` 46 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **302 test**
+  koşar (`test/guards.test.ts` 110 · `test/prompts.test.ts` 51 · `test/schemas.test.ts` 49 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
-  `test/sayac-ve-yedek.test.ts` 15 · `test/atolye-ve-materyal.test.ts` 9) —
+  `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/mufredat.test.ts` 11 ·
+  `test/atolye-ve-materyal.test.ts` 9) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
