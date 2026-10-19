@@ -7919,8 +7919,16 @@ kazanımı ("kavramı temel düzeyde açıklar") değil kavram eşleştirmeyi ö
 1. soruda "Veri madenciliği" de savunulabilir (anahtar tartışmalı). SG.1.3'te
 gövde iki soruyu birleştiriyor ve doğru şık en uzun şık. Model çıktısı
 güvenilmez kabulünün (§1) Deneyap'ta da geçerli olduğunu gösteriyor.
-Ayrıca sayfa yenilemelerinde uygulamanın demo akışı **2 gerçek
-`/api/ai/evaluate`** çağrısı yaptı (günlükte görüldü; bu iş için gerekmiyordu).
+**Gözlem — kaynağı doğrulanmadı, düzeltme yok:** test sırasında 8791
+günlüğünde, sayfa yüklemelerinin ardından **2 gerçek `/api/ai/evaluate`**
+çağrısı görüldü (bu iş için gerekmiyordu; ücretli). Kodda `evaluate`'i
+tıklamasız tetikleyen tek yol, süresi dolmuş "devam eden" sınavın saniyelik
+zamanlayıcıyla otomatik bitirilmesidir (`finishExam`, "Süre dolunca sınav
+otomatik biter" — tasarım gereği); yeni kurulumda `examStatus` "not_started"
+olduğundan bu yol ancak kayıtlı bir oturumda çalışır. Bu oturumda sınav
+başlatılmadı ve sunucu günlüğü 8791'e başka bir istemcinin bağlanıp
+bağlanmadığını ayırt etmiyor; yeniden üretmek ücret doğuracağı için
+denenmedi. `retryEvaluation` ve `simulateClass` yalnız tıklamayla çalışır.
 
 ### 52.8 Ortam (ürün hatası DEĞİL)
 
@@ -7948,3 +7956,93 @@ Ayrıca sayfa yenilemelerinde uygulamanın demo akışı **2 gerçek
 | Servis ↔ disk SHA-256 | her değişiklik sonrası eş |
 | Konsol (Deneyap/Keşif/Türkçe geçişleri, katalog, göç) | 0 hata |
 | HITL değişmezi | yeni `approved` ataması yok; üretilen sorular `ai_generated` |
+
+---
+
+## 54. İLK GERÇEK ÖLÇÜM — iki model, sabit set, cevap anahtarı elle (19 Ekim 2026, W5) · ÖN BULGU
+
+**İstek (Orchestrator, T3 AI bursu araştırma sorusu):** Türkçe LLM'lerin
+MEB/Deneyap kazanımlarına göre içerik üretirken yaptığı hataların ilk gerçek
+ölçümü. Tam rapor: [`docs/olcum/OZET.md`](docs/olcum/OZET.md). Bu bölüm özettir.
+
+### 54.1 Yöntem
+
+- **Set:** `tools/olcum/set-v1.json` (12 MEB) → `set-v1.1.json` (+MAT.8.3.5,
+  +5 Deneyap `yazili` kazanımı). Kazanım modu, kazanım başına 2 ÇSS + 1 açık
+  uçlu. Seçim gerekçesi set dosyalarının içinde.
+- **Modeller:** A `llama-3.3-70b-instruct-fp8-fast` (ürün ayarı, yedek açık,
+  yedeğe düşen 0), B `llama-4-scout-17b-16e-instruct` (ayrı `wrangler dev`,
+  `--var AI_MODEL:… --var AI_FALLBACK_PROVIDER:`, yedek kapalı).
+- **Betik:** `tools/olcum/olc.mjs` sunucunun `guards.ts`'ini doğrudan içe
+  aktarır, ikiz koşul yazılmadı. Her çağrıya src özeti + son src commit'i
+  yazılır. `ozet.mjs` CSV + `elle-kontrol.json` → `HATA_TAKSONOMISI` v0.1
+  kodlarıyla tablo.
+- **Sunucu kodu:** MEB satırları fc1750c, Deneyap + MEB sayaç satırları
+  e35628f. Bunlar `git worktree` ile ana ağaçtan yalıtılmış kopyada koşuldu.
+- **Cevap anahtarı:** 66 ÇSS'nin hepsi tek tek çözüldü. **Claude ile elle
+  kontrol, insan uzman değil.**
+
+### 54.2 Ölçüm sonucu (MEB, 13 kazanım; ayrıntı OZET.md §2)
+
+| | A llama-3.3-70b | B llama-4-scout |
+|---|---:|---:|
+| Anahtar doğru / yanlış / belirsiz (ÇSS) | 12 / 8 / 5 (N=25) | 16 / 5 / 5 (N=26) |
+| Sunucunun eleme oranı (`TKR-GOVDE`) | 2 / 39 | 2 / 39 |
+| `GRK-TEKRAR` · `DIL-ALFABE` bayrağı | 2 · 0 | 1 · 1 |
+| Gövde < 40 kelime | 24 / 37 | 34 / 37 |
+| Ham kalıp gerekçe (`GRK-KALIP`, 3 kazanım, e35628f sayacı) | 12 / 18 | 6 / 18 |
+
+**Deneyap (5 kazanım, N=6 ve 9 ÇSS, oran iddia edilmez):** tekrar elemesi
+A 7/15, B 4/15. Ham kalıp gerekçe A **30/30**, B **0/30**.
+
+**Araştırma sorusunun ikinci yarısı:** cevap anahtarı yanlış ya da belirsiz
+**31 ÇSS'den 1'i** herhangi bir sunucu bayrağı taşıdı, o da anahtar için değil
+yabancı alfabe için kalktı. Sunucu denetimleri tasarlandıkları şeyi (tekrar,
+alfabe, kalıp) yakalıyor. Yanlış anahtar bu koşumda yalnızca insan onayına
+kalıyor (agents.md §1). "İnsan onayı hatayı şu kadar azaltır" sayısı YOK; o
+pilotla ölçülecek.
+
+### 54.3 Kök nedenler ve bulunan açıklar
+
+1. **Kazanım metni 200 karakter sınırı** (MAT.8.3.5 = 213). Şema 400
+   döndürüyordu, arayüzde üretim yapılamıyordu. W2 düzeltti (fc1750c).
+2. **`TKR-GOVDE` türden bağımsız:** açık uçlu soruyu ÇSS'nin tekrarı diye
+   eliyor ("açık uçlu istendi, hiç dönmedi": Deneyap'ta 6/10 çağrı). Kod
+   değiştirilmedi.
+3. **`KAYNAK_ATIF` kazanım modunda 5/5 yanlış pozitif** (öğrencinin kendi
+   metni). Gösterilmeyen grafiğe atıf ise desende yok, kaçtı.
+4. **`GRK-KALIP` fc1750c'de ölçülemiyordu:** API yalnız temizlenmiş
+   gerekçeyi döndürüyordu. W2 e35628f'te `meta.sadelestirilenGerekce` /
+   `toplamGerekce` ekledi.
+5. **Ölçüm aracı yine yanılttı (bu proje için 14. kez):** `wrangler dev`
+   başka ekiplerin `public/`/`src/` düzenlemesiyle yeniden yüklendi ve uçuştaki
+   istekler 503 ile düştü (13 kez). Bunlar `hata_sinifi: ortam` olarak ayrı
+   sayıldı ve hepsi yeniden koşuldu. Çözüm: ölçüm sunucusunu sabit commit'teki
+   worktree'den çalıştırmak.
+6. Heredoc ile yapılan bir düzenleme `\r\n` regex'ini bozdu. `node --check`
+   yakaladı, Edit ile düzeltildi.
+
+### 54.4 Çağrı ve bedel
+
+Gerçek koşum 42 başarılı çağrı (+8 ortam 503), ön koşum 29 (+1 model hatası:
+B, T.Y.5.15, geçersiz JSON). Model çağrısız doğrulamalar (0 soruluk istek)
+sayılmadı. Workers AI ücretli: çağrılar Orchestrator onayıyla yapıldı,
+Cloudflare'de yeni hiçbir şey açılmadı.
+
+### 54.5 Açık kalan
+
+- **Kör ikinci kontrol yapıldı** (W1, `a06dde2`; uyuşmayı Orchestrator
+  hesapladı): 37 maddede tam uyuşma 32/37 (%86), κ = 0,79. W5'in "yanlış"
+  kararları 14/14 doğrulandı, 5 uyuşmazlığın 5'i de "belirsiz" sınırında.
+  B-MEB yanlış anahtar aralığı 5–7. İkinci kontrolcü de YZ; insan uzman
+  kontrolü açık (OZET.md §6).
+- Açık uçlu soruların cevap anahtarı/rubrik kontrolü yapılmadı.
+- Tek koşum, tek sıcaklık. Model farkı için tekrar ve daha büyük N gerekir.
+- Kaynak metinli mod ölçülmedi.
+
+| Kontrol | Sonuç |
+|---|---|
+| Ölçüm commit'leri | `f52f838` · `f61a628` · `549efad` · `7da4398` (+ bu bölüm) |
+| `docs/olcum` boyutu · sır taraması | 712 KB · temiz |
+| CSV Türkçe karakter | UTF-8 (BOM'lu) okundu, bozulma yok |
+| `src/`, `test/`, `public/` değişikliği (W5) | **yok** |
