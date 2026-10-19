@@ -747,7 +747,16 @@ async function probeAiMode() {
 async function apiPost(url, body) {
   const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const j = await r.json().catch(function () { return null; });
-  if (!r.ok) throw new Error((j && j.message) || ("HTTP " + r.status));
+  if (!r.ok) {
+    /* §52b: hata sunucunun KENDİ açıklamasını mı taşıyor ("bir dakika
+       bekleyin", "farklı kazanım seçin"), yoksa yalın "HTTP nnn" mi? Çağıran
+       bu ayrımla kendi genel önerisini ekleyip eklemeyeceğine karar verir.
+       Yalnızca bir özellik eklenir; diğer çağıranların davranışı değişmez. */
+    const hata = new Error((j && j.message) || ("HTTP " + r.status));
+    hata.sunucuMesaji = !!(j && j.message);
+    hata.status = r.status;
+    throw hata;
+  }
   return j;
 }
 
@@ -903,8 +912,14 @@ async function aiGenerateQuestions(doc) {
        durumunda ekranda kalıyordu — kullanıcı, başarısız olan istekle ilgili
        sanıyordu. Hata yolunda not temizlenir. */
     state.ceForm.uretimNotu = "";
+    /* §52b (W1 bulgusu): "Bağlantınızı kontrol edin" her hatanın sonuna
+       ekleniyordu ve sunucunun kendi önerisiyle çelişiyordu (429: "bir
+       dakika bekleyin"; 502: "farklı kazanım seçin"). Artık yalnız sunucudan
+       açıklama GELMEDİĞİNDE (ağ hatası ya da yalın "HTTP nnn") eklenir.
+       "Hiçbir soru üretilmedi." her durumda kalır. */
+    const sunucudan = !!(e && e.sunucuMesaji);
     state.ceForm.error = "Soru üretilemedi: " + state.ai.error +
-      " — Bağlantınızı kontrol edip tekrar deneyin. Hiçbir soru üretilmedi.";
+      (sunucudan ? "" : " — Bağlantınızı kontrol edip tekrar deneyin.") + " Hiçbir soru üretilmedi.";
     return [];
   }
 }
