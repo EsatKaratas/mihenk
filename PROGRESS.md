@@ -7806,8 +7806,18 @@ rubriği olan tarayıcıda, ilgili sınav "rubrik bekliyor" rozetini gösterir;
 - **Yayından sonra sınav başlığı düzenlenebiliyor**; süre/puan/soru kilitli.
   Başlık ölçmeyi etkilemediği için bırakıldı.
 - **Denenmedi:** "5 öğrencilik sınıf simüle et" (5+ gerçek çağrı; yalnız
-  kapı ve ad mantığı ölçüldü), PDF/dosya yükleme ve OCR, "Kazanım Denetimi
-  Yap", "Örnek listeyi temizle", "+ Öğrenci ekle".
+  kapı ve ad mantığı ölçüldü), PDF/dosya yükleme ve OCR, "Örnek listeyi
+  temizle", "+ Öğrenci ekle".
+- **Sonradan denendi — "Kazanım Denetimi Yap"** (gerçek tıklama, 1 çağrı,
+  `POST /api/ai/outcome-alignment` → 200): demo tohumunda onay bekleyen tek
+  soru (FEN.7.1.2) için "kazanımı ölçüyor · içerik geçerliği denetimi ·
+  bağımsız çağrı" + gerekçe çizildi, düğme "Kazanım Denetimini Yenile" oldu.
+  Sorunun durumu `ai_generated` KALDI — denetim onay vermiyor (HITL sağlam).
+  Yalnız onay bekleyen sorular denetlenir; havuzdakiler kapsam dışı.
+- **Düzeltme (51.4 dışı, kayıt):** 51b'deki IP tavanı **60/dk**'dır
+  (`RATE_LIMIT_IP_PER_MIN = 45 + 3×5`); arayüz ölçümünde sahte gövdeye
+  yanlışlıkla 45 yazılmıştı, ekranda sabit 60 görünür.
+- Model çağrısı toplamı bu eklemeyle **11 deneme, 8 başarılı**.
 - Keşif kazanım listesinde üst başlık (KK.KIM.1) ile alt kazanım (KK.KIM.1.1)
   aynı düzeyde listeleniyor — W3'ün Deneyap/Keşif yapısıyla birlikte
   ele alınmalı.
