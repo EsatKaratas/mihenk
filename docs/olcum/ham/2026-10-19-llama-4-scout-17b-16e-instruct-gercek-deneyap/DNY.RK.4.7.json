@@ -1,0 +1,89 @@
+{
+  "zaman": "2026-10-19T05:02:59.574Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap-DNY.RK.4.7",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 37935,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Deneyap robotumuzun kuvvet sensöründen aldığı değerleri bir grafik üzerinde izliyoruz. Grafikte, robotun uyguladığı kuvvetin zamanla nasıl değiştiği görülüyor. Kuvvetin maksimum değerine ulaştığı anda grafikteki diğer bir değişken olan hızın ne olduğu soruluyor. Grafikte kuvvetin maksimum değerine ulaştığı anda hızın 5 m/s olduğu görülüyor. Buna göre, kuvvetin maksimum değerine ulaştığı anda hızın değerini yorumlayınız. Hangi şık doğru?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hız maksimum değerine ulaşmıştır"
+          },
+          {
+            "key": "B",
+            "text": "Hız sabit kalmıştır"
+          },
+          {
+            "key": "C",
+            "text": "Hız azalmaktadır"
+          },
+          {
+            "key": "D",
+            "text": "Hız 0 m/s dir"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Kuvvetin maksimum değerine ulaştığı anda hızın sabit kaldığını düşünüyor; oysa hız maksimum değerine ulaşmıştır",
+          "C": "Kuvvetin maksimum değerine ulaştığı anda hızın azaldığını düşünüyor; oysa hız maksimum değerine ulaşmıştır",
+          "D": "Kuvvetin maksimum değerine ulaştığı anda hızın 0 m/s olduğunu düşünüyor; oysa hız maksimum değerine ulaşmıştır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet",
+          "hız",
+          "grafik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 1,
+      "elenenTekrar": 2,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

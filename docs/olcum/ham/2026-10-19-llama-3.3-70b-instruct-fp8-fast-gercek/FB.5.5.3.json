@@ -1,0 +1,99 @@
+{
+  "zaman": "2026-10-19T04:53:00.080Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-FB.5.5.3"
+  },
+  "http": 200,
+  "sureMs": 14973,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 20°C sıcaklığa sahip 500 mL su ve 80°C sıcaklığa sahip 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre, karışımın sıcaklığını hesaplayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "50°C"
+          },
+          {
+            "key": "B",
+            "text": "40°C"
+          },
+          {
+            "key": "C",
+            "text": "60°C"
+          },
+          {
+            "key": "D",
+            "text": "30°C"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Suyun yoğunluğunu ve ısı kapasitesini göz ardı ederek direkt bir ortalama almaya çalışıyor.",
+          "C": "Daha sıcak suyun hacminin daha büyük olduğunu varsayarak yanlış bir ısı alışverişi hesaplaması yapıyor.",
+          "D": "Isı alışverişi hesabında suyun miktarını ve sıcaklık farkını yanlış hesaplayarak düşük bir sıcaklık değerine ulaşıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık hesaplaması"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, 20°C sıcaklığa sahip 500 mL su ve 80°C sıcaklığa sahip 200 mL su karıştırarak bir deneysel çalışma yapmaktadır. Öğrenci, karışımın sıcaklığını hesapladıktan sonra, neden bu sonucu elde ettiğini ve ısı alışverişi sırasında neler olduğunu açıklamalıdır. Öğrencinin bu çalışmada ulaştığı sonucu ve ısı alışverişi hakkında neler düşündüğünü açıklamasını isteyiniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık hesaplaması",
+          "deneysel çalışma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

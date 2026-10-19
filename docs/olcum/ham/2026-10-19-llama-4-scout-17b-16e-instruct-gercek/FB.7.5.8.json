@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:47:49.601Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-FB.7.5.8"
+  },
+  "http": 200,
+  "sureMs": 22904,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, evindeki mutfak malzemelerini整理 etmeye karar vermiştir. Mutfakta bulunan şeker, un, tuz ve baharatları karıştırmadan ayrı ayrı poşetlere koyacaktır. Karışımları homojen ve heterojen olarak sınıflandırabilme becerisini kullanarak, şeker ve un karışımını nasıl sınıflandırabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Homojen karışım"
+          },
+          {
+            "key": "B",
+            "text": "Heterojen karışım"
+          },
+          {
+            "key": "C",
+            "text": "Sadece un"
+          },
+          {
+            "key": "D",
+            "text": "Sadece şeker"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karışımın bileşenlerinin eşit dağılmadığını düşünüyor",
+          "C": "Sadece diğer maddeyi seçiyor",
+          "D": "Sadece bir maddeyi seçiyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": true
+      },
+      {
+        "type": "mc",
+        "body": "Bir süpermarkette, farklı markalarda homojen ve heterojen karışımlar satılmaktadır. Ali, hangi karışımın homojen olduğunu belirlemek istiyor. Aşağıdaki karışımlardan hangisi homojen bir karışım örneğidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kum ve çakıl karışımı"
+          },
+          {
+            "key": "B",
+            "text": "Su ve yağ karışımı"
+          },
+          {
+            "key": "C",
+            "text": "Şeker ve su karışımı"
+          },
+          {
+            "key": "D",
+            "text": "Demir tozu ve talaş karışımı"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kum ve çakılın homojen olduğunu düşünüyor",
+          "B": "Su ve yağın karışmadığını düşünüyor",
+          "D": "Demir tozu ve talaşın homojen olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir kimya öğretmeni, öğrencilerine homojen ve heterojen karışımlar hakkında bilgi vermektedir. Öğretmen, bir kavanozda bulunan renkli boncukları ve suyu karıştırmasını istiyor. Bu karışım homojen midir yoksa heterojen midir? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

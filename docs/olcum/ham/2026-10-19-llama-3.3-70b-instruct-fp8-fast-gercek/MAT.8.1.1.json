@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:44:45.294Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-MAT.8.1.1"
+  },
+  "http": 200,
+  "sureMs": 13642,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg'lık ve 5 kg'lık iki farklı paket meyve suyu satılmaktadır. 2 kg'lık paket 30 TL, 5 kg'lık paket 65 TL'dir. Hangi paket daha ucuzdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Fiyata göre değil, paket ağırlığına göre karar verilir"
+          },
+          {
+            "key": "B",
+            "text": "İkisi de aynı fiyata gelmektedir"
+          },
+          {
+            "key": "C",
+            "text": "5 kg'lık paket"
+          },
+          {
+            "key": "D",
+            "text": "2 kg'lık paket"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Fiyat karşılaştırmasını yapmamakta ve paket ağırlığına odaklanmaktadır",
+          "B": "Her iki paketin aynı miktarda meyve suyuna karşılık geldiğini düşünmektedir",
+          "D": "Toplam fiyatı değil, paket ağırlığını karşılaştırmaktadır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 15 dakika süren bir sınavda 20 sorudan 12'sini doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Her yanlış cevap ise 0,5 puan düşürmüştür. Öğrencinin sınavdan aldığı toplam puan nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "26 puan"
+          },
+          {
+            "key": "B",
+            "text": "20 puan"
+          },
+          {
+            "key": "C",
+            "text": "24 puan"
+          },
+          {
+            "key": "D",
+            "text": "22 puan"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yanlış cevapların puanı artırdığını düşünmektedir",
+          "B": "Yanlış cevapların puanı düşürmediğini düşünmektedir",
+          "C": "Doğru cevap puanını yanlış hesaplamaktadır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "puan",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere satmak üzere her gün 50 adet tost ve 30 adet sandviç hazırlamaktadır. Tostların her biri 5 TL, sandviçlerin her biri 4 TL'dir. Kantin, bir gün içinde tüm tost ve sandviçleri satmayı hedeflemektedir. Kantinin bir gün içinde elde edeceği toplam gelir kaç TL'dir? Neden bu sonucu seçtin?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "toplam",
+          "gelir",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:54:36.631Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-T.Y.6.18"
+  },
+  "http": 200,
+  "sureMs": 23703,
+  "denemeler429": 0,
+  "denemeler503": 1,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir hikaye yazmak istiyor. Yazacağı hikayenin başlığını 'Bir Günlük Macera' olarak belirledi. Başlığı yazarken büyük harf kullanımı ve noktalama işaretleri hakkında kuralları hatırlıyor. Aşağıdaki başlıklardan hangisi doğru yazılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "bir Günlük macera"
+          },
+          {
+            "key": "B",
+            "text": "bir günlük macera"
+          },
+          {
+            "key": "C",
+            "text": "bir günlük Macera"
+          },
+          {
+            "key": "D",
+            "text": "Bir Günlük Macera"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Günlük kelimesi küçük harfle başlamıştır.",
+          "B": "Başlık küçük harflerle başlamıştır.",
+          "C": "Macera kelimesi büyük harfle yazılmıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, bir mektup yazıyor. Mektubunun sonunda tarih ve imza bilgilerini ekleyecek. Doğru yazım şekli aşağıdakilerden hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "10.02.2024 Ayşe"
+          },
+          {
+            "key": "B",
+            "text": "10/02/2024 Ayşe"
+          },
+          {
+            "key": "C",
+            "text": "10 Şubat 2024, Ayşe"
+          },
+          {
+            "key": "D",
+            "text": "10 Şubat 2024 Ayşe"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Tarih ve imza aynı satırda yazılmıştır, noktalama eksik.",
+          "B": "Tarih formatı yanlış kullanılmıştır.",
+          "C": "Tarihten sonra virgül kullanılmıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Eğitim Bakanlığı'nın düzenlediği 'Dilimiz Güzel' yarışması için bir duyuru metni hazırlıyorsunuz. Duyuruda, yarışmanın tarihini ve saatini belirtmeniz gerekiyor. Doğru yazım şekli nasıl olmalıdır? Gerekçenizi yazınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

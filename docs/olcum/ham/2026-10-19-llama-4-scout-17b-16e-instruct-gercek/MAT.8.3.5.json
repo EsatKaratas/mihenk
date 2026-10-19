@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:56:50.142Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "35cbd58+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-MAT.8.3.5"
+  },
+  "http": 200,
+  "sureMs": 25434,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık yaptığı işte köşelerden birinin dik açı olduğundan emin olmak istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "8² + 10² = 6² olduğundan köşelerden biri diktir"
+          },
+          {
+            "key": "B",
+            "text": "6² + 10² = 8² olduğundan köşelerden biri diktir"
+          },
+          {
+            "key": "C",
+            "text": "6² + 8² = 10² olduğundan köşelerden biri diktir"
+          },
+          {
+            "key": "D",
+            "text": "6² + 8² = 12² olduğundan köşelerden biri diktir"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenarları karıştırarak yanlış eşitlik kuruyor",
+          "B": "Dik kenarları karıştırarak yanlış eşitlik kuruyor",
+          "D": "Farklı bir eşitlik kullanarak doğru sonuca varmıyor"
+        },
+        "gerekceTekrari": true,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları",
+          "Pitagor teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüs uzunluğunun karesini bulmalarını istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5² × 12² = 3600"
+          },
+          {
+            "key": "B",
+            "text": "5² + 12² = 169"
+          },
+          {
+            "key": "C",
+            "text": "5² - 12² = 119"
+          },
+          {
+            "key": "D",
+            "text": "5² ÷ 12² = 0,25"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çarpma işlemi kullanarak yanlış sonuca varıyor",
+          "C": "Çıkarma işlemi kullanarak yanlış sonuca varıyor",
+          "D": "Bölme işlemi kullanarak yanlış sonuca varıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "Pitagor teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir marangoz, dik üçgen şeklindeki bir tahta parçasının kenar uzunluklarını ölçüyor. Kenar uzunlukları 9 metre ve 12 metre olarak ölçülüyor. Marangoz, bu tahta parçasının gerçekten dik üçgen şekinde olup olmadığını kontrol etmek istiyor. Bu tahta parçasının dik üçgen şekinde olduğunu kanıtlamak için marangozun hipotenüs uzunluğunu nasıl hesaplaması gerekir? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları",
+          "Pitagor teoremi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

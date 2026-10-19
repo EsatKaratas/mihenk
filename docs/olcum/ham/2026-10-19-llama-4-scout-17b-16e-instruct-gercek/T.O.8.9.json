@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:51:30.747Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-T.O.8.9"
+  },
+  "http": 200,
+  "sureMs": 26116,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Türkçe dersinde okuduğu iki kitabın içerik özetini karşılaştırmaya karar verdi. İlk kitap 150 sayfa ve 5 bölümden oluşuyor. İkinci kitap 200 sayfa ve 8 bölümden oluşuyor. Ayşe, hangi kitabın daha fazla sayfa içerdiğini bölüm sayısıyla ilişkilendirerek karşılaştırmak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karşılaştırma yapılamaz"
+          },
+          {
+            "key": "B",
+            "text": "Her ikisi de eşit sayfa içerir"
+          },
+          {
+            "key": "C",
+            "text": "İkinci kitap"
+          },
+          {
+            "key": "D",
+            "text": "İlk kitap"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Verilerin karşılaştırma için yeterli olmadığını düşünüyor",
+          "B": "Sayfa ve bölüm sayılarını dikkate almadan eşit olduğunu varsayıyor",
+          "D": "Bölüm sayısına bakmadan sadece sayfa sayısına odaklanıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "kitap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, okuduğu bir hikaye kitabının 3/5'ini hafta sonu okumuştur. Kitap 300 sayfadan oluşmaktadır. Emre'nin okumak için haftaiçi planladığı sayfa sayısı kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "150 sayfa"
+          },
+          {
+            "key": "B",
+            "text": "180 sayfa"
+          },
+          {
+            "key": "C",
+            "text": "120 sayfa"
+          },
+          {
+            "key": "D",
+            "text": "210 sayfa"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Tüm kitabı okumuş gibi düşünüyor",
+          "B": "Hafta sonu okunan kısmı yanlış hesaplıyor",
+          "D": "Kitabın tamamını hafta sonu okumuş gibi düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "okuma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, iki farklı kaynak metinden okuduklarını karşılaştırmak istiyor. Metinlerden birisi şiir, diğeri ise bir hikaye. Şiirin 5 kıtalı ve her kıtasında 4 dize olduğu, hikayenin ise 10 sayfa ve her sayfasında yaklaşık 20 satır olduğu verilmektedir. Öğrenci, okuduklarını karşılaştırırken nelere dikkat etmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "metin"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

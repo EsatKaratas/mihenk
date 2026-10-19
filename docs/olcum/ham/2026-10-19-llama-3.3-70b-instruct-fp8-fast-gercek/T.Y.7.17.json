@@ -1,0 +1,126 @@
+{
+  "zaman": "2026-10-19T04:50:37.976Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 15819,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir metin yazmak istiyor. Metinde, okulun güzel aspectsini ve öğrencilerin birbirleriyle olan ilişkilerini anlatmak istiyor. Ancak, metinde açık ve örtük ifadeleri kullanmak konusunda kararsız. Açık ifadeleri kullanarak metni daha net ve anlaşılır hale getirebilir, ancak örtük ifadeleri kullanarak metni daha ilgi çekici ve düşündürücü hale getirebilir. Öğrenci, metinde açık ve örtük ifadeleri nasıl kullanabileceğini düşünüyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Örtük ifadeleri kullanarak metni daha ilgi çekici ve düşündürücü hale getirebilir, ancak açık ifadeleri kullanamaz."
+          },
+          {
+            "key": "B",
+            "text": "Açık ifadeleri kullanarak metni daha net ve anlaşılır hale getirebilir, ancak örtük ifadeleri kullanamaz."
+          },
+          {
+            "key": "C",
+            "text": "Hem açık hem de örtük ifadeleri kullanarak metni daha net, anlaşılır, ilgi çekici ve düşündürücü hale getirebilir."
+          },
+          {
+            "key": "D",
+            "text": "Metinde açık ve örtük ifadeleri kullanmak gerekli değildir."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Açık ve örtük ifadelerin metinde birlikte kullanılabileceğini göz ardı ediyor.",
+          "B": "Açık ve örtük ifadelerin metinde birlikte kullanılabileceğini göz ardı ediyor.",
+          "D": "Metinde açık ve örtük ifadelerin önemini anlamıyor."
+        },
+        "gerekceTekrari": true,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifadeler",
+          "örtük ifadeler",
+          "metin yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, bir hikaye yazıyor ve karakterlerin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Yazar, karakterlerin iç dünyalarını açık ve örtük ifadelerle nasıl anlatabileceğini düşünüyor. Yazarın amacı, okuyucunun karakterlerle derin bir bağ kurmasını sağlamaktır.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yazar, karakterlerin duygularını ve düşüncelerini hem açık hem de örtük ifadelerle anlatabilir."
+          },
+          {
+            "key": "B",
+            "text": "Yazar, karakterlerin duygularını ve düşüncelerini sadece açık ifadelerle anlatabilir."
+          },
+          {
+            "key": "C",
+            "text": "Yazar, karakterlerin duygularını ve düşüncelerini metinde hiç anlatabilmez."
+          },
+          {
+            "key": "D",
+            "text": "Yazar, karakterlerin duygularını ve düşüncelerini sadece örtük ifadelerle anlatabilir."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Örtük ifadelerin karakterlerin iç dünyalarını anlatabilme gücünü göz ardı ediyor.",
+          "C": "Karakterlerin duygularını ve düşüncelerini metinde anlatabilmenin önemini anlamıyor.",
+          "D": "Açık ifadelerin karakterlerin iç dünyalarını anlatabilme gücünü göz ardı ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karakter geliştirme",
+          "açık ifadeler",
+          "örtük ifadeler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

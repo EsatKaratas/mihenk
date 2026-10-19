@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:53:10.355Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 25185,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 5 kilogramlık bir paket un alarak fiyatı 120 TL olan 3 kilogramlık paket unu geri iade ediyor. Eğer 1 kilogram un 15 TL ise, Ayşe Hanım kaç TL geri alacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "45 TL"
+          },
+          {
+            "key": "B",
+            "text": "30 TL"
+          },
+          {
+            "key": "C",
+            "text": "15 TL"
+          },
+          {
+            "key": "D",
+            "text": "60 TL"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "3 kilogram unun fiyatını geri alacağını düşünmüş",
+          "C": "1 kilogram unun fiyatını doğru hesaplamış, ancak 2 kilogram fark için hesap yapmamış",
+          "D": "İade edilen unun tamamının fiyatını geri alacağını düşünmüş"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir otobüs 250 kilometre yolculuk için 15 litre benzin tüketiyor. Eğer 1 litre benzin 25 TL ise, 500 kilometre yolculuk için otobüsün benzin masrafı kaç TL olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "300 TL"
+          },
+          {
+            "key": "B",
+            "text": "500 TL"
+          },
+          {
+            "key": "C",
+            "text": "450 TL"
+          },
+          {
+            "key": "D",
+            "text": "375 TL"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "500 kilometrede 30 litre benzin tüketileceğini, ancak 1 litre benzinin 10 TL olduğunu varsaymış",
+          "B": "1 kilometreye düşen benzin tüketimini yanlış hesaplamış",
+          "C": "250 kilometrede 15 litre benzin tüketimini 500 kilometreye orantısız şekilde uyarlamış"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir market 100 kilogramlık bir paket şeker satmaktadır. 1 kilogram şekerin fiyatı 20 TL'dir. Eğer bir müşteri 3 paket şeker almak istiyorsa ancak market sadece 50 kilogramlık paketler halinde satıyorsa, müşteri hangi seçeneği tercih etmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

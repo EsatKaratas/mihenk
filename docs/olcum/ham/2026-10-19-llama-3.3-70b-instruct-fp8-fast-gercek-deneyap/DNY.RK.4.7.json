@@ -1,0 +1,89 @@
+{
+  "zaman": "2026-10-19T05:02:22.288Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap-DNY.RK.4.7",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 15515,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir robotik sistemde kuvvetsensörünün grafiklerini yorumlamak önemlidir. Bir öğrenci, kuvvetsensörünün grafiklerini analiz ederken, grafikteki değerlerin artması veya azalmasıyla ilgili olarak hangi bilgiyi çıkarabilir? Grafikteki değerler artarsa, kuvvetsensörüne uygulanan kuvvetin arttığını gösterir. Buna göre, kuvvetsensörünün grafiklerini yorumlarken hangi bilgiye dikkat edilmelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kuvvetsensörünün hassasiyeti"
+          },
+          {
+            "key": "B",
+            "text": "Kuvvetsensörüne uygulanan kuvvetin büyüklüğü"
+          },
+          {
+            "key": "C",
+            "text": "Kuvvetsensörünün kalibrasyonu"
+          },
+          {
+            "key": "D",
+            "text": "Kuvvetsensörüne uygulanan kuvvetin yönü"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kuvvetsensörünün grafiklerini yorumlarken kuvvetsensörünün hassasiyetine dikkat etmesi gerektiğini düşünüyor.",
+          "C": "Kuvvetsensörünün grafiklerini yorumlarken kuvvetsensörünün kalibrasyonuna dikkat etmesi gerektiğini sanıyor.",
+          "D": "Kuvvetsensörünün grafiklerini yorumlarken kuvvetsensörüne uygulanan kuvvetin yönüne dikkat etmesi gerektiğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvetsensörü",
+          "grafik",
+          "kuvvet"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 1,
+      "elenenTekrar": 2,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

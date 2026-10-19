@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T05:07:03.412Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "82fc014+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 36661,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir asit çözeltisi hazırlamıştır. Aynı öğrenci, pH değeri 5 olan başka bir asit çözeltisi de hazırlamıştır. pH değerleri verilen bu iki çözeltinin asitlik durumlarını karşılaştırınız. Aşağıdaki ifadelerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki çözelti de aynı derecede asitiktir"
+          },
+          {
+            "key": "B",
+            "text": "pH değeri 3 olan çözelti daha fazla asitiktir"
+          },
+          {
+            "key": "C",
+            "text": "pH değeri 3 olan çözelti daha az asitiktir"
+          },
+          {
+            "key": "D",
+            "text": "pH değeri 5 olan çözelti daha az asitiktir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki çözeltinin de aynı derecede asitik olduğunu düşünüyor; pH değerleri farklıysa asitlik düzeyleri de farklıdır",
+          "C": "PH değeri 3 olan çözeltinin daha az asitik olduğunu düşünüyor; oysa düşük pH daha fazla asitlik gösterir",
+          "D": "PH değeri 5 olan çözeltinin daha az asitik olduğunu düşünüyor; bu doğru ama soru hangisinin daha fazla asitik olduğunu soruyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik durumu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sulama kanalının pH değeri 8 olarak ölçülmüştür. Kanalın yanındaki bir toprak örneğinin pH değeri ise 6'dır. Aşağıdaki ifadelerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sulama kanalı bazik, toprak örneği asitiktir"
+          },
+          {
+            "key": "B",
+            "text": "Sulama kanalı asitiktir, toprak örneği baziktir"
+          },
+          {
+            "key": "C",
+            "text": "Sulama kanalı ve toprak örneği nötraldir"
+          },
+          {
+            "key": "D",
+            "text": "Sulama kanalı ve toprak örneği asitiktir"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sulama kanalının asitik, toprak örneğinin bazik olduğunu düşünüyor; tersi doğrudur",
+          "C": "Her ikisinin de nötral olduğunu düşünüyor; oysa pH 7 nötraldir",
+          "D": "Her ikisinin de asitik olduğunu düşünüyor; sulama kanalı baziktir"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik bazlık durumu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, bahçesinde yetiştirdiği bitkilerin sağlıklı büyümesi için toprağın pH değerini takip etmektedir. Toprağın pH değerinin 6-7 arasında olması gerektiğini öğrenmiştir. Ancak bahçesindeki toprağın pH değeri 5 olarak ölçülmüştür. Ece, toprağın pH değerini yükseltmek için hangi yöntemleri uygulayabilir? Önerilerinizi verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "toprak",
+          "bitki büyümesi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

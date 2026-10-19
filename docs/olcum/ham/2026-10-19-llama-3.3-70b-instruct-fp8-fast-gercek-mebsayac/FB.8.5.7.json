@@ -1,0 +1,128 @@
+{
+  "zaman": "2026-10-19T05:04:44.624Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "cd91a6d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 13833,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar çalışmasında, öğrenciler farklı maddelerin pH değerlerini ölçmektedir. Bir öğrenci, bir maddenin pH değerini 9 olarak ölçer. Bu madde asit midir, baz mıdır? Maddenin pH değerinin 9 olması, bu maddenin bir baz olduğunu gösterir. Aşağıdakilerden hangisi bu maddenin özelliklerini doğru olarak tanımlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Maddenin pH değeri 9, bu nedenle nötrdür."
+          },
+          {
+            "key": "B",
+            "text": "Maddenin pH değeri 9, bu nedenle asit veya baz olamaz."
+          },
+          {
+            "key": "C",
+            "text": "Maddenin pH değeri 9, bu nedenle bazdır."
+          },
+          {
+            "key": "D",
+            "text": "Maddenin pH değeri 9, bu nedenle asittir."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerinin 9 olmasının nötr bir madde olduğunu gösterdiğini düşünüyor.",
+          "B": "PH değerinin 9 olmasının asit veya baz olamayacağına dair yanlış bir ilişkilendirme yapıyor.",
+          "D": "PH değerinin yüksek olmasının asitlik anlamına geldiğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asit",
+          "baz"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, bir maddenin pH değerini 4 olarak ölçer. Bu maddenin asitlik veya bazlık durumunu değerlendirmek için, pH değerinin ne anlama geldiğini bilmelidir. Aşağıdakilerden hangisi bu maddenin pH değerinin anlamını doğru olarak açıklar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "pH değeri 4, bu nedenle madde zayıf bir asittir."
+          },
+          {
+            "key": "B",
+            "text": "pH değeri 4, bu nedenle madde bir bazdır."
+          },
+          {
+            "key": "C",
+            "text": "pH değeri 4, bu nedenle madde nötrdür."
+          },
+          {
+            "key": "D",
+            "text": "pH değeri 4, bu nedenle madde çok güçlü bir asittir."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "PH değerinin 4 olmasının baz olduğunu gösterdiğini düşünüyor.",
+          "C": "PH değerinin 4 olmasının nötr bir madde olduğunu gösterdiğini düşünüyor.",
+          "D": "PH değerinin düşük olmasının çok güçlü bir asit anlamına geldiğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

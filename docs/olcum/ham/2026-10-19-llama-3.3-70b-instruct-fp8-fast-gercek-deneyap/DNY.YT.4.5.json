@@ -1,0 +1,89 @@
+{
+  "zaman": "2026-10-19T05:03:52.267Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap-DNY.YT.4.5",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 13304,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, C++ dilinde bir program yazıyor. Değişken 'x' için 'int x = 5;' ifadesini kullanıyor. Daha sonra 'x' değişkenine 3 eklemesini istiyor. Operatörü kullanarak bunu nasıl yapabilir? Verilen seçenekler arasından doğru olanını seçiniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "x = x * 3;"
+          },
+          {
+            "key": "B",
+            "text": "x = x + 3;"
+          },
+          {
+            "key": "C",
+            "text": "x = x - 3;"
+          },
+          {
+            "key": "D",
+            "text": "x = x / 3;"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Operatörün işlevini yanlış anlamış ve çarpma işlemi yapıyor.",
+          "C": "Operatörün işlevini yanlış anlamış ve çıkarma işlemi yapıyor.",
+          "D": "Operatörün işlevini yanlış anlamış ve bölme işlemi yapıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 1,
+      "elenenTekrar": 2,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

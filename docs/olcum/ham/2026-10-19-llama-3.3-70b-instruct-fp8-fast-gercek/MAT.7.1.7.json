@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T04:44:18.593Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 13376,
+  "denemeler429": 0,
+  "denemeler503": 1,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL, 1 litre süt 6 TL'ye satılmaktadır. 4 litre süt almak isteyen bir müşteri, aynı miktarda sütü daha ucuza almak için hangi seçeneği tercih etmelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1 litrelik paketi 4 adet"
+          },
+          {
+            "key": "B",
+            "text": "1 litrelik paketi 2 adet ve 2 litrelik paketi 1 adet"
+          },
+          {
+            "key": "C",
+            "text": "2 litrelik paketi 2 adet"
+          },
+          {
+            "key": "D",
+            "text": "2 litrelik paketi 1 adet ve 1 litrelik paketi 2 adet"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Küçük paketlerin toplam fiyatını hesaplamayı unutuyor.",
+          "B": "Paketlerin miktarlarını yanlış hesaplıyor.",
+          "D": "Farklı paketlerin fiyatlarını karşılaştırmayı karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, 20 km'lik bir mesafeyi 1 saatte kat etmek istiyor. Bisikletçi saatte kaç km'ye ulaşmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "15 km"
+          },
+          {
+            "key": "B",
+            "text": "20 km"
+          },
+          {
+            "key": "C",
+            "text": "25 km"
+          },
+          {
+            "key": "D",
+            "text": "30 km"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bisikletçinin hızını düşük tahmin ediyor.",
+          "C": "Bisikletçinin hızını yüksek tahmin ediyor.",
+          "D": "Bisikletçinin hızını çok yüksek tahmin ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 5 TL'ye 200 ml'lik bir içecek sunmaktadır. Aynı içeceği 1 litrelik paket olarak satan bir markette, 1 litrelik paket 15 TL'ye satılmaktadır. Okul kantinine göre marketin 1 litrelik paketinin maliyeti daha mı uygundur? Neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma",
+          "maliyet"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

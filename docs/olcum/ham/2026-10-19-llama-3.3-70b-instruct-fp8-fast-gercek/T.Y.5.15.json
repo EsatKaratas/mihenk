@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:49:31.379Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-T.Y.5.15"
+  },
+  "http": 200,
+  "sureMs": 12679,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, okula gitmek için her gün aynı yolu kullanıyor. Bir gün, okuluna gitmek için farklı bir yol deniyor ve bu yolun daha kısa olduğunu fark ediyor. Ayşe, arkadaşlarına bu yeni yolu anlatmak istiyor. Ayşe'nin arkadaşlarına bu yeni yolu anlatırken kullanabileceği uygun bağlantı ifadelerinden hangisi doğru olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "çünkü"
+          },
+          {
+            "key": "B",
+            "text": "fakat"
+          },
+          {
+            "key": "C",
+            "text": "ancak"
+          },
+          {
+            "key": "D",
+            "text": "sonra"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Neden gösteren bir bağlantı ifadesini, sıralama yapan bir ifade sanıyor.",
+          "B": "Karşıt gösteren bir bağlantı ifadesini, sıralama yapan bir ifade sanıyor.",
+          "C": "Karşılaştırma yapan bir bağlantı ifadesini, sıralama yapan bir ifade sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun bahçesindeki çiçekleri tanıtmak için bir metin yazıyor. Metinde, çiçeklerin renklerini ve kokularını anlatmak istiyor. Öğrencinin metninde kullanabileceği uygun bağlantı ifadelerinden hangisi doğru olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "ve"
+          },
+          {
+            "key": "B",
+            "text": "çünkü"
+          },
+          {
+            "key": "C",
+            "text": "sonra"
+          },
+          {
+            "key": "D",
+            "text": "ama"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Neden gösteren bir bağlantı ifadesini, eklemeyi gösteren bir ifade sanıyor.",
+          "C": "Sıralama yapan bir bağlantı ifadesini, eklemeyi gösteren bir ifade sanıyor.",
+          "D": "Karşılaştırma yapan bir bağlantı ifadesini, eklemeyi gösteren bir ifade sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun yıllık etkinliklerini tanıtmak için bir broşür hazırlıyor. Broşürde, öğrencilerin katılabileceği farklı faaliyetleri anlatmak istiyor. Öğrencinin broşürde kullanabileceği uygun bağlantı ifadelerini seçerek, neden bu ifadelerin seçildiğini açıklansın.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazma",
+          "etkinlik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

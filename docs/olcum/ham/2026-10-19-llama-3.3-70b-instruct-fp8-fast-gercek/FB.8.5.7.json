@@ -1,0 +1,141 @@
+{
+  "zaman": "2026-10-19T04:49:05.648Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 18288,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe için sulama suyunda pH değerinin 6,5 olduğunu varsayalım. Bu pH değeri asitlik mi yoksa bazlık mı olduğunu gösterir? Bahçenin sulama suyunda pH değeri 6,5 ise bu su asitlik mi yoksa bazlık mı olarak sınıflandırılır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Asitlik"
+          },
+          {
+            "key": "B",
+            "text": "Nötr"
+          },
+          {
+            "key": "C",
+            "text": "Bazlık"
+          },
+          {
+            "key": "D",
+            "text": "pH değeri 6,5 için bir sınıflandırma yapılamaz"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "PH değerinin nötr olması için 7 olması gerektiğini unutuyor.",
+          "C": "PH değerinin bazlık için yüksek olduğunu sanıyor.",
+          "D": "PH değerinin asitlik veya bazlık için bir ölçüt olduğunu bilmiyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar deneyinde bir çözeltinin pH değerini ölçmek için bir pH metre kullanılıyorsa ve ölçüm 8,2 olarak bulunmuşsa, bu çözelti hangi tür bir çözeltidir? pH değeri 8,2 olan bir çözelti asit midir, baz mıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Baz"
+          },
+          {
+            "key": "B",
+            "text": "Nötr"
+          },
+          {
+            "key": "C",
+            "text": "Asit"
+          },
+          {
+            "key": "D",
+            "text": "pH değeri 8,2 için bir sınıflandırma yapılamaz"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "PH değerinin nötr olması için 7 olması gerektiğini unutuyor.",
+          "C": "PH değerinin asitlik için yüksek olduğunu sanıyor.",
+          "D": "PH değerinin bazlık için bir ölçüt olduğunu bilmiyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asit",
+          "baz"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, evde yaptığı bir deneyde bir asidin pH değerini ölçtü ve bu değer 3,5 olarak bulundu. Daha sonra aynı asidi bir baz ile karıştırarak pH değerini 7,5'e çıkardı. Bu işlem sırasında asidin ve bazın pH değerleri nasıl değişti? Bu değişimi açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asit",
+          "baz",
+          "nötrleme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

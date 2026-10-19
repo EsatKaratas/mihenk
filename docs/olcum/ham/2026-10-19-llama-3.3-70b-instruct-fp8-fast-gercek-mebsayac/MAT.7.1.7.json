@@ -1,0 +1,100 @@
+{
+  "zaman": "2026-10-19T05:04:17.734Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "cd91a6d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 25255,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette satılan bir litre sütün fiyatı 5 TL'dir. Aynı markette 250 mL'lik bir süt paketinin fiyatı 1,25 TL'dir. Hangi süt paketinin fiyatı litreye göre daha uygundur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "250 mL'lik paket"
+          },
+          {
+            "key": "B",
+            "text": "1 litrelik paket"
+          },
+          {
+            "key": "C",
+            "text": "Fiyata göre karar verilemez"
+          },
+          {
+            "key": "D",
+            "text": "İkisi de aynı oranda uygundur"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "250 mL'lik paketin fiyatını litreye çevirmeden direkt karşılaştırma yapıyor",
+          "C": "Verilen fiyatları değerlendirmeye almıyor, kararsız kalıyor",
+          "D": "İki farklı hacmin fiyatlarını direkt karşılaştırıyor, orantı hesabı yapmıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "fiyat karşılaştırması"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 200 mL'lik ve 500 mL'lik su şişeleri satmaktadır. 200 mL'lik su şişesinin fiyatı 0,50 TL, 500 mL'lik su şişesinin fiyatı 1,25 TL'dir. Okul yönetimi, öğrencilerin su tüketimini artırmak için 1 litrelik su şişeleri satmaya karar vermiştir. 1 litrelik su şişesinin fiyatını, orantılı olarak belirlemek istiyorsanız, bu şişelerin fiyatı ne olmalıdır? Neden böyle bir fiyat belirlediniz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "fiyat belirleme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

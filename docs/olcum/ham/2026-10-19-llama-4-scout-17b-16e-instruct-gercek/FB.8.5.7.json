@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:48:24.679Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-FB.8.5.7"
+  },
+  "http": 200,
+  "sureMs": 22023,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir çözelti hazırlıyor. Bu çözelti hakkında ne söylenebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Çözelti asidik özellik gösterir"
+          },
+          {
+            "key": "B",
+            "text": "Çözelti nötrdür"
+          },
+          {
+            "key": "C",
+            "text": "pH değeri 7'dir"
+          },
+          {
+            "key": "D",
+            "text": "Çözelti bazik özellik gösterir"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "PH değeri 7 olan çözelti nötrdür; oysa pH 3 asidik bir çözeltidir",
+          "C": "PH değeri 3 olan çözelti asidik özellik gösterir; oysa pH 7 nötrdür",
+          "D": "PH değeri 7'nin üzerinde olan çözelti bazik özellik gösterir; oysa pH 3 asidik bir çözeltidir"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "pH",
+          "asit",
+          "baz"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Aşağıdaki maddelerden hangisinin pH değeri en yüksektir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Limon suyu (pH 2)"
+          },
+          {
+            "key": "B",
+            "text": "Kafeinli su (pH 5)"
+          },
+          {
+            "key": "C",
+            "text": "Süt (pH 6)"
+          },
+          {
+            "key": "D",
+            "text": "Soda (pH 8)"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Limon suyu asidik özellik gösterir; pH 2 düşük bir değerdir",
+          "B": "Kafeinli su hafif asidik özellik gösterir; pH 5, 8'den küçük bir değerdir",
+          "C": "Süt nötre yakın pH değerine sahiptir; ancak 6, 8'den küçük bir değerdir"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "pH",
+          "asit",
+          "baz"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir bahçe toprağının pH değerinin 5 olduğu tespit edilmiştir. Bu toprak için hangi tür gübre önerirsiniz ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "pH",
+          "gübre",
+          "toprak"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

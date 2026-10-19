@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:46:38.611Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-FB.5.5.3"
+  },
+  "http": 200,
+  "sureMs": 29439,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak su ve sıcaklığı 20°C olan 200 mL ılık su ile karıştırarak yeni bir karışım elde ediyor. Bu karıştırma işlemi sırasında ısı alışverişi olur. Karışımın son sıcaklığı hangi seçenekte doğru verilmiştir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "60°C"
+          },
+          {
+            "key": "B",
+            "text": "70°C"
+          },
+          {
+            "key": "C",
+            "text": "45°C"
+          },
+          {
+            "key": "D",
+            "text": "80°C"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sıcak suyun sıcaklığını ılık suyun sıcaklığına ekleyerek ortalama alıyor.",
+          "C": "Karışımın sıcaklığını yarıya düşürdü sanıyor.",
+          "D": "Sıcak suyun sıcaklığını doğru kabul edip, ılık suyun etkisini göz ardı ediyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sıcaklık",
+          "karışım",
+          "ısı alışverişi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, eşit hacimli ve farklı sıcaklıklardaki iki sıvıyı karıştırdığında, sıvıların sıcaklığının değiştiğini gözlemliyor. Bu olayın bilimsel açıklamasını yapabilmek için hangi kavramdan yararlanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sıvıların yoğunluğu"
+          },
+          {
+            "key": "B",
+            "text": "Gazların genleşmesi"
+          },
+          {
+            "key": "C",
+            "text": "Isı transferi"
+          },
+          {
+            "key": "D",
+            "text": "Elektrik akımı"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sıvıların fiziksel özelliklerini hatırlıyor, ancak olayla ilişkilendiremiyor.",
+          "B": "Gazların özelliklerini sıvılara uyguluyor.",
+          "D": "Elektrik akımını ısı alışverişi ile karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıvı",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sıcaklığı 80°C olan bir bardak çay ve sıcaklığı 20°C olan bir bardak su karıştırılıyor. Karışımın son sıcaklığı 50°C oluyor. Bu durumdan yola çıkarak, ısı alışverişi hakkında ne söylenebilir? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

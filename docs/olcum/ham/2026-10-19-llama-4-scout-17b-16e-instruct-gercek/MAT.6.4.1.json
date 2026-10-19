@@ -1,0 +1,126 @@
+{
+  "zaman": "2026-10-19T04:44:35.823Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-MAT.6.4.1"
+  },
+  "http": 200,
+  "sureMs": 30606,
+  "denemeler429": 0,
+  "denemeler503": 1,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat projesinde, 15 metre uzunluğundaki bir duvarın çevresi için 120 metre uzunluğunda çit kullanılmıştır. Duvarın genişliği 5 metre olduğuna göre, çitin uzunluğu doğru ölçülmüş müdür?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hayır, 10 metre eksik ölçülmüştür"
+          },
+          {
+            "key": "B",
+            "text": "Evet, doğru ölçülmüştür"
+          },
+          {
+            "key": "C",
+            "text": "Hayır, 5 metre eksik ölçülmüştür"
+          },
+          {
+            "key": "D",
+            "text": "Hayır, 10 metre fazla ölçülmüştür"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Duvarın çevresini hesaplamadan önce duvarın uzunluğu ve genişliği toplanarak yanlış bir ölçüm yapılmıştır",
+          "B": "Duvarın genişliği dikkate alınmadan, sadece uzunluğu ile çevresi hesaplanmıştır",
+          "C": "Sadece duvarın uzunluğu dikkate alınarak, çevrenin yarısı hesaplanmıştır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "çevre",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe, 20 metreye 15 metre boyutlarında dikdörtgen şeklindedir. Bahçenin alanı metrekare cinsinden kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "250"
+          },
+          {
+            "key": "B",
+            "text": "350"
+          },
+          {
+            "key": "C",
+            "text": "200"
+          },
+          {
+            "key": "D",
+            "text": "300"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bahçenin uzun ve kısa kenarlarını toplayarak alanı hesaplamıştır",
+          "B": "Bahçenin uzun kenarını ikiyle çarpıp, kısa kenarını ekleyerek alanı hesaplamıştır",
+          "C": "Bahçenin sadece kısa kenarını kullanarak alanı hesaplamıştır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

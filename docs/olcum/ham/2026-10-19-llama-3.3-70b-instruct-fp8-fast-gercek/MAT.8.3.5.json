@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:51:42.101Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-MAT.8.3.5"
+  },
+  "http": 200,
+  "sureMs": 13256,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat firması, yeni bir bina için 3 metre, 4 metre ve 5 metre uzunluklarında üçgenler kullanmak istiyor. Bu üçgenlerin hangisinin dik üçgen olacağını tespit etmek istiyorlar. 3² + 4² = 9 + 16 = 25 ve 5² = 25 olduğuna göre, bu üçgenler hangisi dik üçgendir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3-4-5 üçgeni"
+          },
+          {
+            "key": "B",
+            "text": "2-3-4 üçgeni"
+          },
+          {
+            "key": "C",
+            "text": "5-12-13 üçgeni"
+          },
+          {
+            "key": "D",
+            "text": "6-8-10 üçgeni"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "3-4-5 üçgeninin kenar uzunluklarını yanlış hesaplıyor.",
+          "C": "5-12-13 üçgeninin kenar uzunluklarını yanlış hesaplıyor.",
+          "D": "6-8-10 üçgeninin kenar uzunluklarını yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları",
+          "Pisagor teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 8 metre ve 15 metre kenar uzunluklarına sahip bir dik üçgen çizmek istiyor. Bu üçgenin hipotenüsünün uzunluğunu hesaplamak için hangi formülü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "a² - b² = c²"
+          },
+          {
+            "key": "B",
+            "text": "a² + b² = c"
+          },
+          {
+            "key": "C",
+            "text": "a² + b² = c²"
+          },
+          {
+            "key": "D",
+            "text": "a² - b² = c"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik üçgenin hipotenüsünü hesaplamak için yanlış formülü kullanıyor.",
+          "B": "Dik üçgenin hipotenüsünü hesaplamak için yanlış formülü kullanıyor.",
+          "D": "Dik üçgenin hipotenüsünü hesaplamak için yanlış formülü kullanıyor."
+        },
+        "gerekceTekrari": true,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "Pisagor teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mimar, bir binanın çatısını tasarlamak için 5 metre, 12 metre ve 13 metre kenar uzunluklarına sahip bir dik üçgen kullanmak istiyor. Bu üçgenin gerçekten dik üçgen olup olmadığını ve nedenini açıklayarak gerekçelendirebilir misiniz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları",
+          "Pisagor teoremi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:51:15.792Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-T.O.8.9"
+  },
+  "http": 200,
+  "sureMs": 24748,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe ve Mehmet aynı kitapları okumaktadır. Ayşe, ilk kitabın 50 sayfasını okumuştur. İkinci kitabın 200 sayfası vardır ve Ayşe bunun 3/4'ünü okumuştur. Mehmet ise ilk kitabın 2/5'ini ve ikinci kitabın 1/2'sini okumuştur. Ayşe ve Mehmet'in okudukları sayfa sayılarını karşılaştırdığımızda, hangisi daha fazla sayfa okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkisi de aynı sayıda sayfa okumuştur"
+          },
+          {
+            "key": "B",
+            "text": "Karşılaştırmaya yetecek bilgi yoktur"
+          },
+          {
+            "key": "C",
+            "text": "Mehmet daha fazla sayfa okumuştur"
+          },
+          {
+            "key": "D",
+            "text": "Ayşe daha fazla sayfa okumuştur"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Okunan sayfa sayılarını hesaplamamış, sadece oranlara bakmıştır.",
+          "B": "Verilen bilgilerden hareketle karşılaştırma yapmayı başaramamıştır.",
+          "C": "Ayşe'nin okudukları sayfa sayısını hesaplamayı atlamış, Mehmet'in okuduklarını direkt karşılaştırmıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma",
+          "karşılaştırma",
+          "oran"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kütüphanede bulunan iki kitaptan ilkinin 150 sayfası, ikincisinin 250 sayfası vardır. Bir öğrenci ilk kitabın 2/3'ünü, ikinci kitabın 3/5'ini okumuştur. Bu öğrenci kaç sayfa okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "200 sayfa"
+          },
+          {
+            "key": "B",
+            "text": "210 sayfa"
+          },
+          {
+            "key": "C",
+            "text": "190 sayfa"
+          },
+          {
+            "key": "D",
+            "text": "220 sayfa"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Oranları doğru hesaplamış ama toplam sayfa sayısını yanlış eklemiştir.",
+          "C": "İlk kitabın sayfa sayısını yanlış hesaplamış, ikinci kitaba geçmeden yanlış yola girmiştir.",
+          "D": "İkinci kitabın okunan sayfa sayısını yanlış hesaplamış, bu da toplamda hata yaratmıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma",
+          "sayfa",
+          "oran"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir sınıf, okuma alışkanlıkları hakkında bir anket yapmıştır. Ankete katılan öğrencilerin 2/5'i en çok romanları, 1/3'ü en çok bilim kurgu romanları okumayı sevdiklerini belirtmiştir. Kalan öğrenciler ise diğer türleri okumayı tercih ettiklerini söylemiştir. Bu sonuçlar ışığında, sınıfın okuma alışkanlıklarını değerlendiren bir öğretmen, hangi tür romanları daha çok önermelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma",
+          "tercih",
+          "değerlendirme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

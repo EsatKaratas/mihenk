@@ -1,0 +1,101 @@
+{
+  "zaman": "2026-10-19T05:05:20.030Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "cd91a6d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-mebsayac-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 22337,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıllık kültürler arası festivalinde bir sunum yapacak. Sunumunda farklı kültürlerin yemeklerini tanıtacak. Öğrenci, sunumunda açık ve örtük ifadeleri kullanarak dinleyicilere yemeklerin lezzetini ve kültürel önemini aktarmak istiyor. Öğrencinin sunumunda 'Bu yemek, bizim kültürümüzde çok önemli bir role sahip.' ifadesini kullanması, hangi tür ifadeye örnek teşkil eder?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yazılı ifade"
+          },
+          {
+            "key": "B",
+            "text": "Sözlü ifade"
+          },
+          {
+            "key": "C",
+            "text": "Örtük ifade"
+          },
+          {
+            "key": "D",
+            "text": "Açık ifade"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İfade türünü iletim şekliyle karıştırıyor.",
+          "B": "İfade türünü iletim şekliyle karıştırıyor.",
+          "C": "Açık ifadenin örtük ifade olduğunu sanıyor."
+        },
+        "gerekceTekrari": true,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun edebiyat kulübünde bir tartışma toplantısına katılıyor. Tartışmanın konusu, açık ve örtük ifadelerin edebi metinlerdeki kullanımı. Öğrenci, kendi görüşünü açıklayacak ve diğer öğrencilerin görüşlerine cevap verecek. Açık ve örtük ifadelerin edebi metinlerdeki kullanımını örneklerle açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "edebi metin"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 1,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

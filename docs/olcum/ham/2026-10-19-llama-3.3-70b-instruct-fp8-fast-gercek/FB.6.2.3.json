@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:53:29.321Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-FB.6.2.3"
+  },
+  "http": 200,
+  "sureMs": 24177,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, düzlükte 10 metre/saat süratle pedal çevirerek ilerlerken, ani bir frenleme ile 5 metre/saat hıza düşer. Bu durumda bisikletçinin sürati ve hızı nasıl değişir? Bisikletçinin sürati ve hızı arasındaki ilişkiyi değerlendirebilir misiniz? Bisikletçinin hızı 5 metre/saat olduğunda, süratinin ne olacağını düşünürsünüz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürati ve hızı aynı yönde ve aynı büyüklükte azalır"
+          },
+          {
+            "key": "B",
+            "text": "Sürati aynı kalır ancak hızı azalır"
+          },
+          {
+            "key": "C",
+            "text": "Sürati artar ancak hızı azalır"
+          },
+          {
+            "key": "D",
+            "text": "Sürati ve hızı farklı yönlere doğru değişir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder",
+          "C": "Süratin artmasının için bir dış kuvvet olması gerektiğini göz ardı ediyor",
+          "D": "Hızın yön değiştirmesi için bir kuvvet olması gerektiğini düşünmüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "frenleme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araba, ilk 10 saniyede 20 metre ilerler, sonraki 10 saniyede 30 metre ilerler. Arabanın bu süre zarfında ortalama hızı ve sürati nasıl hesaplanır? Arabanın süratini ve hızını karşılaştırabilir misiniz? Hangi durumda sürati ve hızı aynı yönde ve aynı büyüklükte olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürati her iki durumda da aynı kalır ancak hızı değişir"
+          },
+          {
+            "key": "B",
+            "text": "Sürati ve hızı ilk 10 saniyede aynı yönde ve aynı büyüklükte, sonraki 10 saniyede farklı yönde olur"
+          },
+          {
+            "key": "C",
+            "text": "Sürati ve hızı her iki durumda da aynı yönde ve aynı büyüklükte olur"
+          },
+          {
+            "key": "D",
+            "text": "Sürati ve hızı her iki durumda da farklı yönde olur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Süratin artmasının için bir dış kuvvet olması gerektiğini göz ardı ediyor",
+          "C": "Hızın yön değiştirmesi için bir kuvvet olması gerektiğini düşünmüyor",
+          "D": "Hızın hesaplanmasında ortalama hız kavramını karıştırıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "ortalama hız"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okula gitmek için bisikletini 15 km/saat hızda sürer. Okuluna 10 kilometre uzaklıkta olduğunu varsayarsak, öğrencinin okula gitmesi için gereken süreyi hesaplayabilir misiniz? Ayrıca, öğrencinin sürati ve hızı arasındaki ilişkiyi değerlendirebilir misiniz? Öğrenci bisikletini daha hızlı sürerse, sürati ve hızı nasıl değişir? Neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "zaman hesaplaması"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}
