@@ -2,7 +2,7 @@
 
 > ## 🔴 BU BELGE ESKİDİR — ÖNCE `DEVIR.md`'İ OKUYUN
 >
-> Son güncel devir belgesi `DEVIR.md`'dir (v2, 5 Eylül 2026). Aşağıdaki metin
+> Son güncel devir belgesi `DEVIR.md`'dir (v4, son durum 19 Ekim 2026). Aşağıdaki metin
 > 3-4 Eylül'de kalmıştır ve **artık doğru olmayan iddialar içerir**; en
 > önemlisi `app.js` boyutu ve **sınıf kodu / cihazlar arası senkron**
 > bölümleridir. Sınıf kodu 5 Eylül'de (PROGRESS §43) **tamamen kaldırıldı**:

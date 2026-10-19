@@ -8,7 +8,7 @@ setidir. Bir değişiklik önerirken önce burayı okuyun; burada yazan bir kura
 Bu proje **T3 Vakfı Creathon — Problem 2: Yapay Zekâ Destekli Ölçme ve
 Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 
-> ## ⚠️ GÜNCELLİK NOTU — 6 Eylül 2026 (PROGRESS §50f)
+> ## ⚠️ GÜNCELLİK NOTU — son durum 19 Ekim 2026 (ilk yazım 6 Eylül, PROGRESS §50f)
 >
 > **Bu dosyanın bir kısmı HEDEF mimariyi anlatır, KURULU olanı değil.** Kural
 > setinin kendisi geçerlidir; ama §2, §4 ve §5'teki bazı teknik ayrıntılar
@@ -22,7 +22,7 @@ Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 > | §5 dosya ağacı (`routes/auth.ts`, `documents.ts`, `lib/rubric.ts`, `migrations/`) | Gerçek ağaç: `src/index.ts`, `src/routes/ai.ts`, `src/lib/{ai,guards,prompts}.ts`, `src/schemas/ai.ts`. `migrations/` yok |
 > | §4 `AI_TASKS_QUEUE` ile asenkron işleme | Queue **kullanılmıyor**; çağrılar senkron. (Ücretsiz planda Queues yüzünden `npm run deploy` kırılır — `deploy:demo` kullanılır) |
 > | §4 `max_tokens` **yaklaşık 600–800** | Bu sayı tek soru içindi. Bugün istek başına hesaplanır: `700 + soru×700`, tavan **5600** (§48). Sınır hâlâ AÇIKÇA verilir — "sınırsız üretim" yasağı aynen geçerlidir |
-> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/guards.test.ts` ve `test/schemas.test.ts` (263 test) ile `tools/ozkontrol-dogrula.mjs` koşar |
+> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/` altındaki 7 dosyada **265 test** (`guards`, `schemas` ve diğerleri; 19 Ekim'de ölçüldü) ile `tools/ozkontrol-dogrula.mjs` koşar |
 > | §8 demo kontrol listesi (`d1 execute --remote`, test hesapları) | D1 ve hesap yok; demo tohumu istemcide (`loadDemoScenario`). §8.5'teki `/privacy-policy` ve `/robots.txt` maddeleri geçerlidir ve canlıda doğrulanmıştır |
 >
 > **Değişmeyen ve tam bağlayıcı olanlar:** §1 (Human-in-the-Loop), §7
@@ -34,10 +34,17 @@ Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 > `approxPromptChars` + `maxTokens` ile Workers Logs'a yazılıyor.
 >
 > **§3'te fiilen UYGULANMAYAN madde:** "PR zorunlu · `main`'e doğrudan push
-> yasaktır". 150 commit'in yalnızca 4'ü birleştirmedir; §43'ten beri iş
-> doğrudan `main` üzerinde yürüyor (tek kişilik bakım + yarışma takvimi).
+> yasaktır". 180 commit'in yalnızca 5'i birleştirmedir (19 Ekim'de sayıldı); §43'ten beri iş
+> doğrudan `main` üzerinde yürüyor (tek kişilik bakım + yarışma ve burs takvimi).
 > Kural yazılı bırakıldı çünkü ekip çalışmasına dönüldüğünde geçerli olmalı;
 > ama **bugün böyle çalışılmadığı burada kayıtlıdır** — okuyan yanılmasın.
+>
+> **19 Ekim 2026'dan itibaren** proje T3 AI Lisans Araştırmacı bursu için bir
+> araştırma çalışmasına da temel oluyor: [`docs/ARASTIRMA.md`](./docs/ARASTIRMA.md)
+> (araştırma sorusu, ön bulgular, 6 aylık plan) ve
+> [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md) (gözlenen hata
+> türleri, kodlu). Ölçüm seti ve betiği `tools/olcum/` altında. Bu çalışma da
+> §1'e bağlıdır: hiçbir otomatik denetim "otomatik kabul" için kullanılmaz.
 >
 > Tek doğruluk kaynağı `PROGRESS.md`'dir.
 

@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-263%2F263-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-265%2F265-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -423,6 +423,8 @@ bağlantısına bakın.
 ├── schema.sql             # D1 şeması — 14 üretim tablosu (canlıda hiçbiri aktif değil)
 ├── routes.ts              # tam rota iskeleti (referans; handler'lar TODO)
 ├── agents.md              # geliştirici/AI asistan kuralları
+├── docs/ARASTIRMA.md      # araştırma planı (T3 AI bursu, 19 Ekim 2026)
+├── docs/HATA_TAKSONOMISI.md # gözlenen hata türleri, kodlu
 ├── README.md              # bu dosya
 ├── src/
 │   ├── index.ts           # Worker giriş noktası (Hono)
@@ -438,7 +440,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 263 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 265 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -678,8 +680,8 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **263 test**
-  koşar (`test/guards.test.ts` 105 · `test/prompts.test.ts` 47 · `test/schemas.test.ts` 44 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **265 test**
+  koşar (`test/guards.test.ts` 105 · `test/prompts.test.ts` 47 · `test/schemas.test.ts` 46 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
   `test/sayac-ve-yedek.test.ts` 15 · `test/atolye-ve-materyal.test.ts` 9) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
@@ -823,7 +825,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 6 Eylül 2026
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 19 Ekim 2026 (test, öz-kontrol, canlı sağlık)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)

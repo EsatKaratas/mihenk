@@ -289,7 +289,7 @@ Betiği koştururken iki gerçek kusur çıktı: **(1)** yabancı alfabe denetim
 
 Kullanıcı bildirdi. **(1)** Gövdesi farklı ama **şıkları aynı** iki soru tekrar
 denetiminden kaçıyordu → `sikImzasi()`. **(2)** *"1 kilogram su kaç
-santilitre?"* sorusunda anahtar yanlıştı (1000 yerine 100). Olgusal hatayı
+santilitre?"* sorusunda anahtar yanlıştı: model 1000 cL işaretledi, doğrusu 100 cL. Olgusal hatayı
 hiçbir şema yakalayamaz — **onay ekranı yakaladı**. Yine de istem
 sertleştirildi ve A/B ölçüldü: kazanım modunda eski istem **0/2**, yeni istem
 **4/4** doğru.
@@ -510,7 +510,7 @@ yüzdesini basıyor; listeye eklenmeyen bir fonksiyon CI'ı kırar.
    - Test yardımcısı `split(...)[1]` ile yanlış bloğu ayıklıyordu; kod doğruydu.
    - `wrangler dev` bayat `app.js` sunuyordu (403 KB / diskte 514 KB).
    - **`~/.claude/launch.json` içindeki "t3-olcme-demo" girdisi ESKİ bir depo
-     kopyasını** (`C:\Users\pc\t3-olcme-degerlendirme`, main `81c7a03`)
+     kopyasını** (eski PC'de `C:\Users\pc\t3-olcme-degerlendirme`, main `81c7a03`; yeni PC'de `C:\Users\ASUS\t3-olcme-degerlendirme`)
      başlatıyordu. Doğru girdi **"mihenk-final"** (port **8788**).
      👉 **Yerel doğrulamadan önce servis edilen dosyanın diskteki dosyayla aynı
      olduğunu kanıtlayın:**
