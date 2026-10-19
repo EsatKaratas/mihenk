@@ -6,7 +6,7 @@
 // bir AI bağlaması verilir. Gerçek model çağrısı YAPILMAZ, maliyeti sıfırdır.
 // ============================================================================
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import app from '../src/index';
 import { kalipliGerekceSayisi } from '../src/lib/guards';
 
@@ -30,6 +30,36 @@ const uretimGovdesi = () => ({
 
 const post = (yol: string, govde: unknown, env: object) =>
   app.request(yol, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(govde) }, env);
+
+describe('hata biçimi — bozuk/boş JSON (§51b P1-1)', () => {
+  const ham = (yol: string, body?: string) =>
+    app.request(yol, { method: 'POST', headers: { 'content-type': 'application/json' }, body }, sahteAi({}));
+
+  it('bozuk JSON 500 değil 400 invalid_json döner', async () => {
+    for (const yol of ['/api/ai/generate-questions', '/api/ai/evaluate', '/api/ai/rubric']) {
+      const r = await ham(yol, '{bozuk');
+      expect(r.status).toBe(400);
+      const j: any = await r.json();
+      expect(j.error).toBe('invalid_json');
+      expect(typeof j.message).toBe('string');
+    }
+  });
+
+  it('boş gövde de 400 invalid_json döner', async () => {
+    const r = await ham('/api/ai/evaluate');
+    expect(r.status).toBe(400);
+    expect(((await r.json()) as any).error).toBe('invalid_json');
+  });
+
+  it('şema hatası eskisi gibi 400 validation_failed, olmayan uç 404 not_found', async () => {
+    const r = await ham('/api/ai/evaluate', '{"questionBody":""}');
+    expect(r.status).toBe(400);
+    expect(((await r.json()) as any).error).toBe('validation_failed');
+    const y = await app.request('/api/ai/yok');
+    expect(y.status).toBe(404);
+    expect(((await y.json()) as any).error).toBe('not_found');
+  });
+});
 
 describe('kalipliGerekceSayisi (§51b)', () => {
   it('yalnızca kalıp açılışın kesildiği gerekçeleri sayar', () => {
@@ -108,5 +138,89 @@ describe('POST /api/ai/generate-questions — meta.sadelestirilenGerekce (§51b)
     const j: any = await r.json();
     expect(j.meta.sadelestirilenGerekce).toBe(0);
     expect(j.meta.toplamGerekce).toBe(6);
+  });
+});
+
+// §51b P2-2 / P2-3 — yeniden deneme, yedeğe geçiş ve deneme kaydı.
+describe('model çağrısı: yeniden deneme yalnız ayrıştırma hatasında, yedek korunur', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  const DEGERLENDIRME = {
+    breakdown: [{ label: 'Kavram', points: 7, reason: 'Kavramı doğru kullanmış.' }],
+    justification: 'Yeterli.', studentFeedback: 'Güzel.', confidence: 0.8,
+  };
+  let soruNo = 0;
+  const degerlendirmeGovdesi = () => ({
+    // Her testte farklı soru gövdesi: hız sayacı anahtarı soru gövdesinden türetiliyor.
+    questionBody: 'Yedek testi sorusu ' + ++soruNo,
+    maxScore: 10,
+    criteria: [{ label: 'Kavram', weight: 100 }],
+    studentAnswer: 'Bileşke kuvvet 20 N ileri.',
+  });
+
+  /** Model adına göre davranan sahte AI; çağrıları sayar. */
+  function sayanAi(davranis: Record<string, Array<() => unknown>>) {
+    const cagri: Record<string, number> = {};
+    const AI = {
+      run: async (model: string) => {
+        const i = (cagri[model] = (cagri[model] || 0) + 1) - 1;
+        const adimlar = davranis[model] || [];
+        const adim = adimlar[Math.min(i, adimlar.length - 1)];
+        return { response: adim() };
+      },
+    } as unknown as Ai;
+    return { AI, cagri };
+  }
+  const coker = () => { throw new Error('Workers AI 429: daily neuron quota exceeded @ https://ic.adres/v1 [model=x]'); };
+
+  it('birincil model ÇÖKERSE aynı modeli yeniden denemez, yedeğe geçer ve 200 döner (README §3.1)', async () => {
+    const { AI, cagri } = sayanAi({ bozuk: [coker], yedek: [() => DEGERLENDIRME] });
+    const r = await post('/api/ai/evaluate', degerlendirmeGovdesi(), {
+      AI, AI_MODEL: 'bozuk', AI_FALLBACK_PROVIDER: 'workers-ai', AI_FALLBACK_MODEL: 'yedek',
+    });
+    expect(r.status).toBe(200);
+    const j: any = await r.json();
+    expect(j.meta.fellBack).toBe(true);
+    expect(j.meta.model).toBe('yedek');
+    expect(j.aiScore).toBe(7);
+    expect(cagri.bozuk).toBe(1); // eskiden 2'ydi: kota hatası boşa yeniden deneniyordu
+    expect(cagri.yedek).toBe(1);
+  });
+
+  it('yanıt JSON değilse BİR kez yeniden dener ve ikinci denemede başarır', async () => {
+    const { AI, cagri } = sayanAi({ m: [() => 'Üzgünüm, JSON veremem.', () => DEGERLENDIRME] });
+    const r = await post('/api/ai/evaluate', degerlendirmeGovdesi(), { AI, AI_MODEL: 'm' });
+    expect(r.status).toBe(200);
+    const j: any = await r.json();
+    expect(j.meta.attempts).toBe(2);
+    expect(cagri.m).toBe(2);
+  });
+
+  it('her deneme ai_call olarak kaydedilir, başarısız olan da (ok:false + aşama)', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const { AI } = sayanAi({ m: [() => 'JSON yok', () => DEGERLENDIRME] });
+    await post('/api/ai/evaluate', degerlendirmeGovdesi(), { AI, AI_MODEL: 'm' });
+    const kayitlar = log.mock.calls
+      .map((a) => { try { return JSON.parse(String(a[0])); } catch { return null; } })
+      .filter((k) => k && k.ev === 'ai_call');
+    expect(kayitlar).toHaveLength(2);
+    expect(kayitlar[0]).toMatchObject({ ok: false, asama: 'ayristirma', attempt: 1 });
+    expect(kayitlar[1]).toMatchObject({ ok: true, attempt: 2 });
+    expect(typeof kayitlar[0].maxTokens).toBe('number');
+  });
+
+  it('yedek yoksa 502 ai_call_failed; istemciye ham hata (URL, model) GİTMEZ, ayrıntı log\'da', async () => {
+    const hata = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const { AI, cagri } = sayanAi({ bozuk: [coker] });
+    const r = await post('/api/ai/evaluate', degerlendirmeGovdesi(), { AI, AI_MODEL: 'bozuk' });
+    expect(r.status).toBe(502);
+    const j: any = await r.json();
+    expect(j.error).toBe('ai_call_failed');
+    expect(j.message).not.toMatch(/https?:|model=|quota/i);
+    expect(j.message).toMatch(/ulaşılamıyor/);
+    expect(cagri.bozuk).toBe(1);
+    const ayrinti = hata.mock.calls.map((a) => String(a[0])).find((x) => x.includes('ai_failed'));
+    expect(ayrinti).toContain('quota');
   });
 });

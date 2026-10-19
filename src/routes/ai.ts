@@ -83,6 +83,27 @@ const onInvalid = (result: { success: boolean; error?: { issues?: Array<{ path: 
   );
 };
 
+/**
+ * §51b — MODEL HATASI İSTEMCİYE HAM GİTMİYOR.
+ * Eskiden `e.message` olduğu gibi dönüyordu: sağlayıcı URL'si, model adı,
+ * sağlayıcı yanıt gövdesinden 400 karakter ya da modelin ham çıktısından 200
+ * karakter (anahtar sızmıyordu, ama iç ayrıntı kullanıcı ekranına çıkıyordu).
+ * Artık ayrıntı yalnızca Workers Logs'a yazılır (`ev: "ai_failed"`); istemciye
+ * iki kısa Türkçe mesajdan biri gider. Hata yine SESSİZ DEĞİL: kod aynı
+ * (`ai_call_failed`, 502) ve arayüz mesajı gösterir.
+ */
+function modelHatasiGovdesi(e: unknown, uc: string) {
+  const ayrinti = e instanceof Error ? e.message : String(e);
+  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: ayrinti.slice(0, 500) }));
+  const ayristirma = /JSON|kapanm|kesil/i.test(ayrinti);
+  return {
+    error: 'ai_call_failed',
+    message: ayristirma
+      ? 'Yapay zekâ geçerli bir yanıt üretemedi. Lütfen tekrar deneyin.'
+      : 'Yapay zekâ servisine şu an ulaşılamıyor (kota, kesinti ya da yapılandırma). Biraz sonra tekrar deneyin.',
+  };
+}
+
 const ai = new Hono<{ Bindings: Bindings }>();
 
 /** Sağlayıcı/model bilgisi — arayüzdeki "AI modu" rozeti bunu okur. */
@@ -397,7 +418,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -509,7 +530,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -569,7 +590,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -620,7 +641,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -723,7 +744,7 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -813,7 +834,7 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
