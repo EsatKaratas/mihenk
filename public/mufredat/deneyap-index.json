@@ -3,7 +3,7 @@
  "sinif": "Deneyap",
  "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
  "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
- "toplamKazanim": 433,
+ "toplamKazanim": 486,
  "atolyeler": [
   {
    "ad": "Tasarım ve Üretim",
@@ -85,6 +85,20 @@
    "kazanimSayisi": 48,
    "uygunluk": {
     "yazili": 24,
+    "performans": 24,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Çevrim İçi Yazılım Teknolojileri",
+   "kod": "CY",
+   "dosya": "/mufredat/deneyap-cevrim-ici-yazilim.json",
+   "kitapNo": 18,
+   "kitap": "TÜBİTAK Deneyap Kitapları 18 — Çevrim İçi Yazılım Teknolojileri (Ortaokul)",
+   "isbn": "978-605-312-532-7",
+   "kazanimSayisi": 53,
+   "uygunluk": {
+    "yazili": 29,
     "performans": 24,
     "surec": 0
    }
