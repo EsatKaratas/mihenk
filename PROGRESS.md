@@ -8395,3 +8395,46 @@ denenmedi.
 334/334 · öz-kontrol 370 ad %100 (356 → 370, +14) · servis = disk SHA-256 her adımda ·
 U+FFFD 0 · konsol JS hatası 0 · yinelenen `id` 0. Bu bölümdeki gerçek model
 çağrısı 3 (2 `/solve`, 1 üretim), üçü de başarılı. Push/deploy yok.
+
+---
+
+## 57. A1 ÇÖZÜCÜ İSTEMİ "HARF ÖNCE" HATASI + DİL DENETİMİNE LATIN EXTENDED-B (19 Ekim 2026, W2)
+
+**Bulgu (W4, A5 Aşama 2).** A1 (`/api/ai/solve`, §55) yanlış alarmlarının 15'te 9'unda
+çözücünün gerekçesi doğru değeri bulup BAŞKA harf seçti (K001: gerekçe "40",
+seçilen B = 60). Canlıdaki "Bağımsız çöz" rozeti bu hatayı taşıyordu.
+
+**Kök neden — kod değil, istem tasarımı (§55'te W2 yazdı).**
+- Şık sırası, harfler ve ayrıştırma doğruydu (ham kayıt + yeniden kurulan istem).
+- Çıktı şablonu `{"secilenSik", "gerekce", …}` modeli harfi hesaptan ÖNCE
+  yazmaya zorluyordu.
+- Kontrollü deney (K001, 70b, 6 çağrı): harf önce 3/3 yanlış (B), gerekçe önce
+  3/3 doğru (A).
+
+**Düzeltme** (`1b8f611`, merge `3af821b`):
+- Kural 1 "önce gerekçede çöz, sonra harfi seç"; şablon gerekce → secilenSik →
+  guven → cozulemedi.
+- `meta.cozucuIstemSurumu = 2`.
+- Üretim istemi ve MEB parmak izi değişmedi.
+- Aynı pakette `YABANCI_ALFABE`'ye **Latin Extended-B** (U+0180–024F) eklendi:
+  - A5'te "ngược" yalnız "ợ" sayesinde yakalanmıştı; "ư"/"ơ" kapsam dışıydı.
+  - Türkçede bu blokta harf yok; yanlış alarm 0 (1.228 kazanım + demo; `public/`
+    altında 41 metin dosyasında Ext-B karakteri 0).
+- 334 → 338 test.
+
+**Yeniden ölçüm** (aynı 225 etiketli ÇSS, yalnız `/solve`, ağırlıklar aynı;
+OZET §9.6):
+
+| | Yakalama | Yanlış alarm |
+|---|---|---|
+| A1 v1 | %43,1 | %13,4 |
+| A1 v2 | **%52,2** | **%2,9** |
+| A1 ∪ A2 v1 | %56,2 | %15,4 |
+| A1 ∪ A2 v2 | **%61,1** | **%5,3** |
+
+- 9 harf kayması maddesinin 8'i düzeldi.
+- Kaçırılan kusurlu ≈64 → ≈57 / ≈146.
+
+**Ders.** Yapılandırılmış çıktıda karar alanı akıl yürütme alanından önce
+gelirse karar hesaptan kopabiliyor. **Açık aday (ölçülmedi):** değerlendirme
+isteminde `"points"` `"reason"`dan önce.

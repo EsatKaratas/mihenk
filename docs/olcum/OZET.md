@@ -248,7 +248,7 @@ gerçek değer daha yüksek çıktı.
 
 ## 9. A5 etiketli sonuçlar — denetimlerin yakalama ve yanlış alarmı (19 Ekim 2026, W2)
 
-> **§56 güncellemesi:** aşağıdaki (2) tablosundaki **A1** ve **A1 ∪ A2** sayıları
+> **§57 güncellemesi:** aşağıdaki (2) tablosundaki **A1** ve **A1 ∪ A2** sayıları
 > ÇÖZÜCÜ İSTEMİ SÜRÜM 1'e aittir (harf önce, gerekçe sonra). Sürüm 1'in bir
 > istem tasarım hatası vardı; düzeltilmiş sürüm 2'nin sonuçları **§9.6**'da.
 > Ürünün bugünkü çözücüsü sürüm 2'dir. A2, A3, (1), (3), (4) değişmedi.
@@ -337,7 +337,7 @@ karşılaştırma istem değişikliğiyle **karışıktır**. Örneklem küçük
   Latin Extended-B'de; `YABANCI_ALFABE` bu bloğu kapsamıyor. Yalnız bu harfleri
   içeren bir kelime ("thư", "sư") yakalanmaz. Ayrı karar konusu.
 
-### 9.6 A1 çözücü istemi sürüm 2 — "harf önce, akıl yürütme sonra" etkisi (§56)
+### 9.6 A1 çözücü istemi sürüm 2 — "harf önce, akıl yürütme sonra" etkisi (§57)
 
 **Bulgu (W4, Aşama 2).** A1 v1'in 15 yanlış alarmının 9'unda çözücünün
 gerekçesi doğru değeri buldu, ama BAŞKA bir harf seçti. Örnek K001: gerekçe

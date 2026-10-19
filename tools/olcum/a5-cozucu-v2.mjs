@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================================
-// §56 — A1 yeniden ölçümü: çözücü istemi sürüm 2 (gerekçe önce).
+// §57 — A1 yeniden ölçümü: çözücü istemi sürüm 2 (gerekçe önce).
 // A5'te etiketlenen 225 ÇSS'yi ham kayıttan okur (gövde, şıklar, anahtar —
 // üretim YENİDEN YAPILMAZ) ve /api/ai/solve'a gönderir. Çapraz model korunur:
 // A'nın (70b) ürettiğini Scout, B'nin (Scout) ürettiğini 70b çözer → iki sunucu.

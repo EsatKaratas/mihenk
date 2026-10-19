@@ -97,7 +97,7 @@ for (const m of ['A', 'B']) {
 }
 
 // (2) yakalama / yanlış alarm (ağırlıklı), model × sıcaklık ve toplam
-/* §56: çözücü istemi v2 (gerekçe önce) sonuçları varsa A1 v2 ve A1v2∪A2 de hesaplanır.
+/* §57: çözücü istemi v2 (gerekçe önce) sonuçları varsa A1 v2 ve A1v2∪A2 de hesaplanır.
    Örneklem tasarımı ve ağırlıklar v1 bayraklarıyla kuruldu; tasarım ağırlıklarıyla
    tahmin, v2 bayrağını yalnız ETİKETLİ maddelerde bilmeyi gerektirir. */
 const v2Dosya = path.join(D, 'cozucu-v2.json');
