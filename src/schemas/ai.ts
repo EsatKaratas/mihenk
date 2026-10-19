@@ -299,5 +299,29 @@ export const modelEvaluationSchema = z.object({
   injectionAttempt: z.boolean().catch(false).default(false),
 });
 
+/**
+ * §55 A1 — BAĞIMSIZ ÇÖZÜM (POST /api/ai/solve).
+ * `anahtar` İSTEĞE BAĞLIDIR ve yalnız sunucuda karşılaştırma için kullanılır;
+ * modele giden isteme HİÇBİR koşulda yazılmaz (test/cozucu.test.ts kanıtlar).
+ * Çözüm bir ÖNERİ/sinyaldir: soruyu onaylamaz, anahtarı değiştirmez (agents.md §1).
+ */
+export const solveSchema = z.object({
+  questionBody: z.string().min(1).max(2000),
+  options: z
+    .array(z.object({ key: z.string().min(1).max(3), text: z.string().min(1).max(300) }))
+    .min(3)
+    .max(5),
+  anahtar: z.string().min(1).max(3).optional(),
+  outcomeLabel: z.string().max(MAX_OUTCOME_LABEL_CHARS).default(''),
+});
+
+/** Model çıktısı — güvenilmez, sunucuda normalleştirilir. */
+export const modelSolveSchema = z.object({
+  secilenSik: z.string().default(''),
+  gerekce: z.string().default(''),
+  guven: z.number().min(0).max(1).catch(0.5),
+  cozulemedi: z.boolean().catch(false).default(false),
+});
+
 export type ModelQuestion = z.infer<typeof modelQuestionSchema>;
 export type ModelEvaluation = z.infer<typeof modelEvaluationSchema>;

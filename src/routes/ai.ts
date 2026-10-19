@@ -16,6 +16,7 @@ import {
   buildSampleAnswerPrompt,
   buildMisconceptionPrompt,
   buildAlignmentPrompt,
+  buildSolvePrompt,
 } from '../lib/prompts';
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
@@ -58,6 +59,8 @@ import {
   alignmentSchema,
   modelAlignmentSchema,
   MAX_SOURCE_CHARS,
+  solveSchema,
+  modelSolveSchema,
 } from '../schemas/ai';
 
 /* §55: APP_ENV ve iki ölçüm ayarı yalnız `olcumAyarlari()` üzerinden okunur
@@ -911,6 +914,78 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
       modelHatasiGovdesi(e, c.req.path),
       502
     );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/solve — §55 A1 BAĞIMSIZ ÇÖZÜM
+//
+// Üretilen ÇSS'yi cevap anahtarını GÖRMEDEN çözdürür ve (anahtar verildiyse)
+// uyuşmazlığı İŞARETLER. Soruyu onaylamaz, anahtarı değiştirmez; karar İçerik
+// Uzmanındadır (agents.md §1). İstemci yalnız DÜĞMEYLE çağırır (kota).
+//
+// ÇAPRAZ MODEL: varsayılan olarak YEDEK model çözer. Aynı modelin kendi
+// yanlışını tekrarlama olasılığını azaltır; ölçümde yedek (Scout) anahtarı
+// daha sık doğru koydu (B %62 / A %48, docs/olcum/OZET.md). Yedek yoksa ya da
+// çağrısı düşerse birincil çözer ve meta.capraz=false döner — sessiz değil.
+// ---------------------------------------------------------------------------
+function caprazEnv(env: AiEnv): { env: AiEnv; capraz: boolean } {
+  const yedek = fallbackEnv(env);
+  if (!yedek || !fallbackConfigured(env)) return { env, capraz: false };
+  return {
+    env: {
+      ...yedek,
+      // Yedek düşerse birincile dön: rolleri yer değiştirmiş bir env.
+      AI_FALLBACK_PROVIDER: env.AI_PROVIDER || 'workers-ai',
+      AI_FALLBACK_MODEL: env.AI_MODEL,
+      AI_FALLBACK_BASE_URL: env.AI_BASE_URL,
+      AI_FALLBACK_API_KEY: env.AI_API_KEY,
+    },
+    capraz: true,
+  };
+}
+
+ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+
+  if (rateLimited(`solve:${anahtarla(b.questionBody)}`)) {
+    return c.json(
+      { error: 'rate_limited', message: `Aynı soru için dakikada en fazla ${RATE_LIMIT_PER_MIN} bağımsız çözüm istenebilir.` },
+      429
+    );
+  }
+
+  const options = b.options.map((o) => ({ key: o.key.trim().toUpperCase(), text: o.text.trim() }));
+  // Anahtar BURAYA GİRMEZ: buildSolvePrompt onu parametre olarak bile almaz.
+  const prompt = buildSolvePrompt({ questionBody: b.questionBody, options, outcomeLabel: b.outcomeLabel });
+  const { env: cozucuEnv, capraz } = caprazEnv(c.env);
+
+  try {
+    // max_tokens açık (agents.md §4): ~2 cümle gerekçe + kısa JSON. Düşük sıcaklık: çözüm, yaratıcılık değil.
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 });
+    const parsed = modelSolveSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json({ error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' }, 502);
+    }
+    const harf = parsed.data.secilenSik.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 1);
+    const gecerli = options.some((o) => o.key === harf);
+    // Şıklarda olmayan bir harf "çözüldü" sayılmaz; tahminle düzeltilmez.
+    const cozulemedi = parsed.data.cozulemedi || !gecerli;
+    const anahtar = b.anahtar ? b.anahtar.trim().toUpperCase() : '';
+    const gerekce = parsed.data.gerekce.trim();
+    return c.json({
+      secilenSik: gecerli ? harf : null,
+      gerekce,
+      guven: parsed.data.guven,
+      cozulemedi,
+      /* true: çözücü anahtardan farklı şık seçti · false: aynı · null: anahtar
+         verilmedi ya da çözücü bir şık belirleyemedi (karşılaştırma yok). */
+      anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
+      dilUyarisi: metinDilUyarisi(gerekce),
+      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack },
+    });
+  } catch (e) {
+    return c.json(modelHatasiGovdesi(e, c.req.path), 502);
   }
 });
 
