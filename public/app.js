@@ -490,7 +490,9 @@ function uretimModuSecHtml() {
   const m = uretimModu();
   const kart = function (deger, baslik, aciklama) {
     return '<button type="button" class="mod-kart' + (m === deger ? " secili" : "") + '" ' +
-      'data-uretim-modu="' + deger + '" aria-pressed="' + (m === deger ? "true" : "false") + '">' +
+      'data-uretim-modu="' + deger + '" aria-pressed="' + (m === deger ? "true" : "false") + '" ' +
+      // §56: giriş kartlarıyla aynı — ad açıkça (erişilebilirlik ağacında boş çıkıyordu)
+      'aria-label="' + escapeHtml(baslik.replace(/^\S+\s/, "") + " — " + aciklama) + '">' +
       '<span class="mod-ad">' + baslik + '</span>' +
       '<span class="mod-not">' + aciklama + '</span></button>';
   };
@@ -9902,7 +9904,10 @@ function girisKapisiKartlariHtml() {
     parent:         '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16.5" cy="9" r="2.2"/><path d="M3 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M15 19c0-2.2 1.3-3.7 3-3.7s3 1.5 3 3.7"/>'
   };
   return ROLES.map(function (r) {
-    return '<button class="gk-kart" type="button" data-role="' + r.id + '">' +
+    /* §56: erişilebilir ad AÇIKÇA verilir. Ölçüldü: içerikten türetilmesi
+       beklenen ad erişilebilirlik ağacında BOŞ çıkıyordu (5 kartın 5'i). */
+    return '<button class="gk-kart" type="button" data-role="' + r.id + '" aria-label="' +
+      escapeHtml(r.label + " — " + r.hint) + '">' +
       '<span class="gk-ikon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
       (ikonlar[r.id] || "") + '</svg></span>' +
       '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span>' +
