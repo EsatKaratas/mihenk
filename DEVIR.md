@@ -1,12 +1,19 @@
-# MİHENK — DEVİR BELGESİ v3
+# MİHENK — DEVİR BELGESİ v4
 
-**Tarih:** 5 Eylül 2026, 20:00 · **Commit:** `a1afcce` · **Canlı:** https://mihenk.bies.workers.dev
+**Son durum: 19 Ekim 2026** · **Canlı:** https://mihenk.bies.workers.dev
+· (v3: 5 Eylül 2026, `a1afcce`)
 **Takım:** BİES — Esat Talha Karataş, İrem Yazıcı, Zeynep Sude Demir, Burak Özçelik
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026 · Problem 2 (Ölçme ve Değerlendirme)
 
 Bu belge v2'nin (ve ondan önceki `MIHENK_DEVIR.pdf`'in) yerini alır.
-v2'den bu yana **altı tur iş** yapıldı — §43'ten §48'e. Hepsi §5'te özetli,
-tamamı `PROGRESS.md`'de.
+v2'den bu yana yapılan iş §43'ten §50n'e uzanıyor (5-6 Eylül). Ardından
+19 Ekim'de T3 AI Lisans Araştırmacı bursu için araştırma çalışması başladı.
+Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
+
+> **v4'te ne değişti (19 Ekim):** v3 §48b'de kalmıştı. §49-§50n (Keşif
+> Kampüsü, belge kilidi, kazanım başarı grafiği, turuncu palet, iki veri
+> göçü) §5.0h'ye, 19 Ekim çalışması §5.0i'ye eklendi. §0'daki sayılar
+> 19 Ekim'de yeniden ölçüldü.
 
 > **v2'de yanlış olan neydi:** v2, sınıf kodunu çalışan bir özellik olarak
 > anlatıyordu ve yedek modelin "tanımlı ama kurulu değil" olduğunu söylüyordu.
@@ -19,18 +26,20 @@ tamamı `PROGRESS.md`'de.
 
 | | |
 |---|---|
-| Dal | `main` = `final-birlestirme` = `a1afcce` (ikisi aynı, ayrışma yok) |
-| Canlı | `mihenk.bies.workers.dev` — deploy edilen `app.js`, `app.css` ve `index.html` diskle **SHA-256 eş** |
-| Test | **263/263** (7 dosya) |
-| Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **336 ad · eksik 0 · kapsama %100** |
-| `check:config` | exit 0 |
-| Konsol hatası | 0 |
-| AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` |
-| Yedek model | ✅ Workers AI · `@cf/meta/llama-4-scout-17b-16e-instruct` · `fallbackSorunu: null` — bkz. §6.1 |
+| Dal | `main`. 19 Ekim'de iş doğrudan `main`'de yürüyor; `origin/main` hâlâ `e4a4024` (bugünkü commit'ler pushlanmadı) |
+| Canlı | `mihenk.bies.workers.dev`. 19 Ekim'de ölçüldü: canlıdaki `app.js`, `app.css` ve `/` diskle **SHA-256 eş**. Fark yalnızca satır sonundan geliyor; CR'ler atılınca HEAD ile de eş. Son yayın 6 Eylül (§50 turları) |
+| Test | **265/265** (7 dosya) — 19 Ekim |
+| Lint (`tsc --noEmit`) | temiz — 19 Ekim |
+| Öz-kontrol | **336 ad · eksik 0 · kapsama %100** — 19 Ekim |
+| `check:config` · `node --check public/app.js` | exit 0 · temiz — 19 Ekim |
+| Konsol hatası | 0 (son ölçüm 6 Eylül, §49.7 / §50) |
+| AI | Workers AI · `@cf/meta/llama-3.3-70b-instruct-fp8-fast` · `ready:true` (19 Ekim, `/api/ai/status`) |
+| Yedek model | ✅ Workers AI · `@cf/meta/llama-4-scout-17b-16e-instruct` · `fallbackSorunu: null` (19 Ekim) — bkz. §6.1 |
 | Sınıf kodu | ❌ **KALDIRILDI (§43)** — sınav/yanıt verisi sunucuya hiç gitmez |
 | Favicon | ✅ eklendi (§45) — canlıda 404 üretiyordu |
-| Cloudflare | Workers **Paid**, abonelik `Active`, **26 Eylül'de yenilenir** |
+| Cloudflare | Workers **Paid**. Rehbere göre (18.10) **26 Ekim'de bitecek şekilde iptal kurulu**: panelde "Cancel downgrade"a basılmaz, yeni ücretli özellik açılmaz |
+| Keşif kazanımı | **18** (Kimya 6 · Kişisel Gelişim 6 · Fizik 6; §50f) |
+| Araştırma belgeleri (19 Ekim) | [`docs/ARASTIRMA.md`](./docs/ARASTIRMA.md) · [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md) — §5.0i |
 
 Doğrulama komutları:
 
@@ -38,7 +47,7 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 263/263
+npm test                            # 265/265
 node tools/ozkontrol-dogrula.mjs    # 336 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -332,6 +341,48 @@ Gerekçeler hep aynı kalıpla başlıyordu; kaynağı istemin **kendi JSON
 temizlik sunucuya alındı: **24/24 → 0/24**. Hemen ardından canlıda iki
 çeldiriciye **birebir aynı** gerekçe yazıldığı görüldü; o da işaretleniyor.
 
+### 5.0h §49 → §50n — Keşif Kampüsü, belge kilidi, grafik, palet, iki göç (6 Eylül)
+
+| § | Ne | Ölçülen |
+|---|---|---|
+| §49 | Dış yama #2 (tabanı yine eskiydi; 3 yollu birleştirmeyle alındı). **Keşif Kampüsü** dersi, üç atölye (Kimya ve İnsan Bilimleri · Kişisel Gelişim · Fizik), kazanımlar okulun kendi ders belgelerinden (`public/dersler/`). MEB kataloğu **yok** ve kod bunu yazıyor | 263/263 · 334 ad · canlı ↔ disk 6 dosya SHA-256 eş (Version `77fc4f01`) |
+| §49 | **Belgeye kilitli üretim:** "Kazanımdan" modunda üretim o belgeye kilitlenir. Belge okunamazsa üretim yapılmaz ve sebebi yazılır; 6.000 karakter kırpması da sessiz değildir (kaç karakter dışarıda kaldığı yazılır) | Şerit uçtan uca çalıştı. **Açık:** gerçek model çağrısıyla üretilen soruların gerçekten belgeden çıktığı ölçülmedi (§49.8) |
+| §49 | **Kazanım başarı grafiği** ısı haritasının yerine geçti: grup = kazanım, sütun = şube, %55 kritik eşik kesikli çizgi ve bilerek **kırmızı** | 9 sütun çizildi, `aria-label` var |
+| §49.4 | Mavi palet: hata rengi de maviye döndü (vurguyla kontrast **1,11**). Ölçülmüş bir alternatif sunuldu; **kullanıcı kararıyla böyle kaldı**, bedeli kayıtlı | — |
+| §50 | Atölye *sınıf* olmaktan çıktı: Sınıf = 5 · 6 · 7 · 8 · **Keşif**; atölye ayrı seçici. Süzgeç `outcomeUyar()` içinde (ikiz koşul yok) | 336 ad (Version `006a360e`) |
+| §50 · §50b | **İki veri göçü** (`loadState()`): (1) eski `grade: "Fizik Atölyesi"` kayıtlarını `Keşif` + `atolye`'ye taşır; (2) sürümle gelen yeni kazanımları **yalnızca ekler**, kullanıcının sildiğini geri getirmez. Yazılmasalardı sessiz veri kaybı olurdu | İkisi de canlıda gerçek bayat kayıtla ölçüldü |
+| §50b · §50f | Atölye kazanımları belgelerden: §50b'de 14, §50f'de Fizik eklenince **18** (Kimya 6 · Kişisel Gelişim 6 · Fizik 6). Fizikte 2 kazanım "KAVRAMLAR"dan türetildi ve kodda işaretli | Belge kilidi 18/18, tekrar eden kod 0 |
+| §50c | Turkuaz → **turuncu** (`#F2994A`), lacivert (`#0d3db0`) aynen. Metin taşıyan rollerde `#9a5410` (beyazda 5,75 · soft zeminde 4,92, WCAG AA) | 52 renk değeri çevrildi |
+| §50d · §50e | Keşif alanı Sınıf ile Şube arasına alındı. "Keşif Kampüsü" seçilince ekran boş kalıyordu (aynı karar iki yerden isteniyordu); ders ile sınıf eşleştirildi | Canlıda alan sırası ölçüldü |
+| §50g → §50n | Depo eksiksizlik ve vitrin turları: bayat sayılar, üründe kalan "ısı haritası" metinleri, giriş ekranı görüntüsü, README'de bozuk tablo, başlıkların çerçevesi, sır denetimi (§50l), "dürüstlük notu"nun yeni çerçevesi (§50m), D1 satırı: **"kurulu, demoda kapalı"** (§50n) | Bozuk tablo 0, sır yok |
+
+### 5.0i 19 Ekim 2026 — T3 AI araştırma bursu çalışması (sürüyor)
+
+Hedef: Mihenk'i T3 Vakfı "2027 T3 AI Lisans Araştırmacı" bursu için bir
+araştırma projesine dönüştürmek. Rehber:
+`Masaüstü\2027 T3 Vakfı Bursiyerlik\Mihenk - T3 AI Bursu Geliştirme Rehberi.pdf`.
+Ekip: Mihenk Orchestrator (müdür) + Mihenk Worker'lar.
+
+| Commit | Ne |
+|---|---|
+| `fce8e17` | [`docs/ARASTIRMA.md`](./docs/ARASTIRMA.md): araştırma sorusu, Creathon bağlamı (finalist, derece yok), PROGRESS'ten doğrulanmış 5 ön bulgu, yöntem, 6 aylık plan, etik/KVKK; README'den bağlantı |
+| `111b33b` | [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md) v0.1: 25 hata kodu (commit mesajında "24" yazıyor, doğrusu 25) |
+| `f52f838` | Sabit değerlendirme seti (`tools/olcum/set-v1.json`) ve ölçüm betiği (`tools/olcum/olc.mjs`) |
+| `fc1750c` | Kazanım metni sınırı 200 → 400. MAT.8.3.5 (213 karakter) ile üretim HTTP 400 dönüyordu; 606 kazanımdan bunu aşan tek kazanım buydu. **Canlıya alınıp alınmadığı bu belgede ölçülmedi** |
+| `5f031d5` | T3 AI erişim araştırması (ARASTIRMA §5.2): dışarıdan API ya da açık ağırlık **bulunamadı**, denenmedi, ölçülmedi |
+
+**Doğrulanan / düzeltilen:** rehberdeki "1 kg su → 100 (doğrusu 1000)"
+ifadesi **terstir**. PROGRESS §46.2'ye göre model 1000 cL işaretledi, doğrusu
+100 cL. README'deki belirsiz ifade de düzeltildi.
+
+**Sürüyor (sonra güncellenecek yer tutucular):**
+- **Ölçüm sonuçları:** set-v1 ile ilk koşum yapılıyor (`docs/olcum/`).
+  Özet ARASTIRMA §6'ya ve PROGRESS §53'e işlenecek. *Bu belgede henüz oran
+  yok.*
+- **Deneyap müfredatı:** TÜBİTAK resmî ortaokul Deneyap kitaplarından
+  ekleniyor. *Bu belgede henüz Deneyap sayısı yok;* ARASTIRMA §2.3
+  "müfredat ekleniyor" diyor.
+
 ### 5.1 §42 — Dış inceleme
 
 Bağımsız bir kod incelemesi yapıldı; 8 gerçek kusur bulundu ve kapatıldı.
@@ -521,7 +572,7 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   263 test, 7 dosya
+test/                   265 test, 7 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)
@@ -538,7 +589,7 @@ agents.md               Proje anayasası
 
 ## 11. YENİ BAŞLAYANA İLK ÜÇ ADIM
 
-1. `PROGRESS.md`'yi **sondan başa** okuyun: §47b → §47 → §46 → §45 → §44 → §43.
+1. `PROGRESS.md`'yi **sondan başa** okuyun: en yeni bölümden (19 Ekim çalışması §51 ve sonrasına yazılır) başlayıp §50n → §49 → §48b → … → §43'e inin. Ardından `docs/ARASTIRMA.md`.
 2. `agents.md`'yi okuyun — öneri değil, anayasa.
 3. Depoyu klonlayıp §0'daki altı komutu **çalıştırıp çıktılarını gösterin.**
    Tutmuyorsa durun.

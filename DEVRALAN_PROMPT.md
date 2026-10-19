@@ -1,11 +1,12 @@
-# DEVRALAN ASİSTAN PROMPT'U — MİHENK (v2)
+# DEVRALAN ASİSTAN PROMPT'U — MİHENK (v3)
 
 > **Bu dosya nasıl kullanılır:** Aşağıdaki çizginin altındaki her şeyi kopyalayıp
 > yeni Claude oturumuna **olduğu gibi yapıştırın**. Kendi başına yeterlidir;
 > devralan asistan depoyu hiç görmeden de ne yapacağını bilir.
 >
-> Güncelleme: 6 Eylül 2026 · içerik `ac606cb` durumunu anlatır (bu belgenin
-> kendi commit'i bir sonrakidir) · canlı Version `fff8f306`
+> **Son durum: 19 Ekim 2026.** v2 (6 Eylül, `ac606cb`) §48b'de kalmıştı;
+> v3'te §49-§50n ve 19 Ekim'de başlayan araştırma çalışması eklendi, sayılar
+> 19 Ekim'de yeniden ölçüldü.
 
 ---
 
@@ -20,10 +21,10 @@ tarafından yazıldı.
 
 - **Depo:** https://github.com/EsatKaratas/mihenk (public)
 - **Canlı:** https://mihenk.bies.workers.dev
-- **Yerel çalışma kopyası:** `C:\Users\pc\Downloads\mihenk-final`
-  (dal `main`, `final-birlestirme` ile aynı)
+- **Yerel çalışma kopyası:** `C:\Users\ASUS\Downloads\mihenk-final`
+  (dal `main`; 27 Eylül'de yeni PC'ye taşındı, bkz. `DEVIR_MUDUR_2026-09-27.md`)
 
-⚠️ `C:\Users\pc\t3-olcme-degerlendirme` **ESKİ bir kopyadır** (Eylül başında
+⚠️ `C:\Users\ASUS\t3-olcme-degerlendirme` **ESKİ bir kopyadır** (Eylül başında
 kalmış). Orada iş yapma. `~/.claude/launch.json` içindeki **"t3-olcme-demo"**
 girdisi de o eski kopyayı 8787'de başlatır ve bayat dosya sunar; doğru girdi
 **"mihenk-final"**, port **8788**.
@@ -38,9 +39,9 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 
 ```bash
 npm install
-git rev-parse --short HEAD          # ac606cb ya da daha yenisi
+git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 263/263, 7 dosya
+npm test                            # 265/265, 7 dosya
 node tools/ozkontrol-dogrula.mjs    # 336 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
@@ -53,13 +54,13 @@ Beklenen test dökümü:
 ```
 test/guards.test.ts          105
 test/prompts.test.ts          47
-test/schemas.test.ts          44
+test/schemas.test.ts          46
 test/ai-lib.test.ts           24
 test/prompts-guvenlik.test.ts 19
 test/sayac-ve-yedek.test.ts   15
 test/atolye-ve-materyal.test.ts 9
                              ---
-                             263
+                             265
 ```
 
 Beklenen canlı çıktı:
@@ -90,7 +91,7 @@ doğrulanmamış varsayımla ilerlemenin bedeli defalarca ödendi.
    ve düzeltildi.
 4. **`PROGRESS.md`'yi her adımda güncelle** — yaptığın işi, **kök nedeni** ve
    **ölçüm sonucunu** yaz. Bu dosya projenin hafızası ve **tek doğruluk
-   kaynağıdır**; şu an **§48b**'ye kadar dolu.
+   kaynağıdır**; §50n'e kadar dolu, 19 Ekim çalışması §51 ve sonrasına yazılır.
 5. **Sessiz düşüş yasak.** Bir şey başarısız olduysa, elendiyse, kısıldıysa
    kullanıcıya **söylenmeli**. Projede en çok ihlal edilen ve en çok
    düzeltilen kural budur.
@@ -116,7 +117,7 @@ doğrulanmamış varsayımla ilerlemenin bedeli defalarca ödendi.
   `outcome-alignment`). Başka hiçbir uç yok.
 - **Gerçek dosya ağacı:** `src/index.ts`, `src/routes/ai.ts`,
   `src/lib/{ai,guards,prompts}.ts`, `src/schemas/ai.ts`. Hepsi bu.
-- **Ürünün tamamı `public/app.js` içindedir** (~9.450 satır, tarayıcıda
+- **Ürünün tamamı `public/app.js` içindedir** (~10.000 satır, tarayıcıda
   çalışır). Beş rol paneli **aynı anda DOM'dadır**; yalnızca aktif olan CSS ile
   görünür.
 - **Sunucuda ürün verisi YOKTUR.** Sınav, yanıt, öğrenci adı, puan hiçbir
@@ -241,24 +242,23 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 - **Genel geçer çeldirici gerekçesi** ("yanlış bir oranlama yapıyor").
 - **Birbirinin eşanlamlısı iki şık** (ikisi de savunulabilir olur).
 
-## 7. Şu anki durum (6 Eylül 2026)
+## 7. Şu anki durum (son durum: 19 Ekim 2026)
 
 | | |
 |---|---|
-| Depo | dal `main`, `origin/main` ile eş, çalışma ağacı temiz |
-| Canlı Version | `712f8b0c` |
-| Test | **263/263** (7 dosya) |
-| Lint (`tsc --noEmit`) | temiz |
-| Öz-kontrol | **336 ad · kapsama %100** |
-| Konsol hatası (5 rol, canlı) | **0** |
-| Yinelenen `id` | **0** |
-| Canlı ↔ disk | `app.js` · `app.css` · `index.html` · logo **SHA-256 eş** |
-| Yapay zekâ uçları | **7 uç + `/api/health` çalışıyor** |
-| Yedek model | çalışıyor (`fallbackSorunu: null`) |
+| Depo | dal `main`. `origin/main` = `e4a4024`; 19 Ekim commit'leri **pushlanmadı** |
+| Test | **265/265** (7 dosya) — 19 Ekim |
+| Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
+| Öz-kontrol | **336 ad · kapsama %100** — 19 Ekim |
+| Canlı ↔ disk | `app.js` · `app.css` · `/` **SHA-256 eş** — 19 Ekim (CRLF'li disk dosyasıyla; CR'ler atılınca HEAD ile eş) |
+| `/api/health` · `/api/ai/status` | `ok:true` · `ready:true`, `fallbackSorunu: null` — 19 Ekim |
+| Son canlı yayın | 6 Eylül (§50 turları) |
+| Konsol hatası · yinelenen `id` | 0 · 0 (son ölçüm 6 Eylül) |
+| Keşif kazanımı | **18** (§50f) |
 | Üretim süresi | **15-25 sn** (§48'de beceri temelli soruyla arttı) |
-| Cloudflare | Workers Paid, `Active`, **26 Eylül'de yenilenir** |
+| Cloudflare | Workers Paid; rehbere göre (18.10) **26 Ekim'de bitecek şekilde iptal kurulu** — "Cancel downgrade"a basma, ücretli özellik açma |
 
-## 8. §43'ten §48b'ye ne oldu (özet — ayrıntı `PROGRESS.md`'de)
+## 8. §43'ten bugüne ne oldu (özet — ayrıntı `PROGRESS.md`'de)
 
 - **§43** Sınıf kodu / cihazlar arası senkron **tamamen kaldırıldı**; yedek
   model gerçekten çalışır hâle geldi.
@@ -283,6 +283,29 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 - **§48b** Tam denetim. **Demo tohumu ürünü yalanlıyordu** (klasik sorular +
   §47'nin temizlediği kalıp) → düzeltildi. Ekran görüntüleri yenilendi ve
   betiğin yanlış sekmeyi çektiği bulundu. `agents.md`'ye güncellik bandı.
+- **§49** **Keşif Kampüsü** + **belgeye kilitli üretim**: üç atölye, kazanımlar
+  okulun kendi ders belgelerinden (`public/dersler/`, MEB kataloğu yok). Belge
+  okunamazsa üretim yapılmaz, sebebi yazılır; kırpma sessiz değildir.
+  **Kazanım başarı grafiği** ısı haritasının yerini aldı (%55 eşik çizgisi
+  kırmızı). Mavi palette hata rengi de maviye döndü; ölçülmüş alternatif
+  sunuldu, **kullanıcı kararıyla böyle kaldı** (§49.4). Açık: belgeden
+  gerçekten üretildiği gerçek model çağrısıyla ölçülmedi (§49.8).
+- **§50 · §50b** Atölye *sınıf* olmaktan çıktı (Sınıf: 5-8 · **Keşif**).
+  **İki veri göçü** `loadState()` içinde: eski atölye-sınıfı kayıtlarını taşır;
+  yeni varsayılan kazanımları **yalnızca ekler**. Yazılmasalardı sessiz veri
+  kaybı olurdu; ikisi de canlıda bayat kayıtla ölçüldü.
+- **§50c-§50f** Turkuaz → **turuncu** `#F2994A` (metinde `#9a5410`, WCAG AA);
+  Keşif alanı Sınıf ile Şube arasına; Keşif seçilince boş ekran kusuru
+  düzeltildi; Fizik kazanımları eklendi → toplam **18** Keşif kazanımı.
+- **§50g-§50n** Depo ve vitrin turları: bayat sayılar, README tabloları, sır
+  denetimi, "dürüstlük notu"nun çerçevesi, D1: **"kurulu, demoda kapalı"**.
+- **19 Ekim — T3 AI araştırma bursu çalışması (sürüyor):**
+  [`docs/ARASTIRMA.md`](./docs/ARASTIRMA.md) (araştırma sorusu, doğrulanmış
+  5 ön bulgu, 6 aylık plan, etik/KVKK) · [`docs/HATA_TAKSONOMISI.md`](./docs/HATA_TAKSONOMISI.md)
+  (25 kod) · sabit set + ölçüm betiği (`tools/olcum/`) · kazanım metni sınırı
+  200 → 400 (`fc1750c`, MAT.8.3.5) · T3 AI'ya dışarıdan erişim **bulunamadı**
+  (denenmedi, ölçülmedi). **Yer tutucular:** ölçüm sonuçları (`docs/olcum/`,
+  ARASTIRMA §6) ve Deneyap müfredatı henüz işlenmedi — işlenmeden sayı verme.
 
 ### ⚠️ Sunumda SÖYLENMEMESİ gerekenler
 
@@ -295,6 +318,10 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
    veri içeren soru %55 → %100, yasak klasik kalıp 1 → 0. Ama istemin kendi
    koyduğu **40+ kelime hedefine yerelde hiçbir soru ulaşmadı** (canlıda 5'te
    2). "Ölçtük, şu kadar iyileşti" de; "başardık" deme.
+4. **"Creathon'u kazandık."** Finalist olundu, derece yok.
+5. **"T3 AI ile entegre."** Erişim yok, denenmedi; doğrusu "planlanıyor".
+6. **"1 kg su sorusunda model 100 dedi."** Ters: model **1000 cL** işaretledi,
+   doğrusu **100 cL** (§46.2).
 
 ## 9. Açık kalan işler
 
@@ -345,8 +372,8 @@ mertebesindedir ama **önce söyle**, sonra çağır.
 ## 12. İlk üç adım
 
 1. §2'deki komutları **çalıştır ve çıktılarını göster.**
-2. `PROGRESS.md`'yi **sondan başa** oku: §48b → §48 → §47b → §47 → §46 → §45
-   → §44 → §43.
+2. `PROGRESS.md`'yi **sondan başa** oku: en yeni bölümden (19 Ekim, §51 ve
+   sonrası) §50n → §49 → §48b → … → §43'e in. Ardından `docs/ARASTIRMA.md`.
 3. `agents.md`'yi oku — **önce üstündeki güncellik bandını**, sonra kuralları.
    Ayrıca `DEVIR.md` (uzun devir belgesi) elinin altında dursun.
 
