@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:47:43.946Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.1.1-r1"
+  },
+  "http": 200,
+  "sureMs": 28921,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg elma 10 TL, 3 kg armut 15 TL. Bir müşteri 4 kg elma ve 2 kg armut almak istiyor. Müşterinin toplam ne kadar ödeyeceğini hesaplayınız. Bu verilere göre müşterinin ödeyeceği toplam tutar kaç TL olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30 TL"
+          },
+          {
+            "key": "B",
+            "text": "40 TL"
+          },
+          {
+            "key": "C",
+            "text": "35 TL"
+          },
+          {
+            "key": "D",
+            "text": "25 TL"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hem elma hem armut kilogram fiyatını yanlış hesaplıyor.",
+          "C": "Elma kilogram fiyatını doğru hesaplıyor, armut fiyatını yanlış hesaplıyor.",
+          "D": "Elma kilogram fiyatını yanlış hesaplıyor, armut fiyatını doğru hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(4 * 5) + (2 * 7.5)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "elma",
+          "armut",
+          "kilogram fiyatı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 5 kg şekerin 20 TL olduğunu biliyor. Aynı markette 2 kg şekerin fiyatı kaç TL olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "15 TL"
+          },
+          {
+            "key": "B",
+            "text": "12 TL"
+          },
+          {
+            "key": "C",
+            "text": "10 TL"
+          },
+          {
+            "key": "D",
+            "text": "8 TL"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "5 kg şekerin fiyatını 2 ile çarpıyor.",
+          "B": "5 kg şekerin fiyatını 2 ile çarpıyor, sonra 5'e bölüyor.",
+          "C": "5 kg şekerin fiyatını 2'ye bölerek yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(2 / 5) * 20",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "şeker",
+          "kilogram fiyatı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 0.5 kg ve 1 kg'lık ekmek satıyor. 0.5 kg'lık ekmek 2 TL, 1 kg'lık ekmek 3.5 TL. Okul yönetimi, öğrencilere daha uygun fiyatlı ekmek sunmak istiyor. Hangi boy ekmek daha uygun fiyatlıdır ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ekmek",
+          "fiyat",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 kg elma 10 TL, 3 kg armut 15 TL. Bir müşteri 4 kg elma ve 2 kg armut almak istiyor. Müşterinin toplam ne kadar ödeyeceğini hesaplayınız. Bu verilere göre müşterinin ödeyeceği toplam tutar kaç TL olacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Doğru fiyat hesaplaması",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 5 kg şekerin 20 TL olduğunu biliyor. Aynı markette 2 kg şekerin fiyatı kaç TL olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "5 kg şeker 20 TL ise 1 kg şeker 4 TL'dir. 2 kg şeker 8 TL olur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

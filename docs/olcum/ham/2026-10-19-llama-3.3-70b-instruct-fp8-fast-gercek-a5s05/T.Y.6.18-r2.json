@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T10:00:14.442Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.6.18-r2"
+  },
+  "http": 200,
+  "sureMs": 23951,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul projesi için bir metin yazıyor. Metinde 'Türkiye'nin başkenti Ankara'dır.' cümlesi var. Öğrenci, bu cümlede büyük harf kullanma kuralını uygulamalıdır. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Cümledeki 'Ankara' kelimesi büyük harfle yazılmalıdır, 'Türkiye' kelimesi küçük harfle yazılmalıdır."
+          },
+          {
+            "key": "B",
+            "text": "Cümledeki 'Türkiye' ve 'Ankara' kelimeleri büyük harfle yazılmalıdır."
+          },
+          {
+            "key": "C",
+            "text": "Cümledeki 'Türkiye' ve 'Ankara' kelimeleri küçük harfle yazılmalıdır."
+          },
+          {
+            "key": "D",
+            "text": "Cümledeki 'Türkiye' kelimesi büyük harfle yazılmalıdır, 'Ankara' kelimesi küçük harfle yazılmalıdır."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Başkent isimlerini büyük harfle yazma kuralını yanlış uygulamaktadır.",
+          "B": "Cümledeki tüm özel isimleri büyük harfle yazma kuralını yanlış uygulamaktadır.",
+          "C": "Özel isimleri küçük harfle yazma kuralını yanlış uygulamaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "büyük harf",
+          "küçük harf",
+          "özel isim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okul gazetesi için bir yazı yazıyor. Yazıda 'Okulumuzun spor takımı, şehrimizin en iyi takımıdır.' cümlesi var. Öğrenci, bu cümlede yazım ve noktalama işaretleri kullanma kurallarını uygulamalıdır. Aşağıdaki seçeneklerden hangisi doğrudur? Öğrenci, neden bu seçeneği tercih ettiğini açıklasın.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım",
+          "noktalama",
+          "cümle"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir yazar, kitabında 'Okulun bahçesinde bir çam ağacı vardır.' cümlesi yazıyor. Yazar, bu cümlede noktalama işaretleri kullanma kuralını uygulamalıdır. Aşağıdaki seçeneklerden hangisi doğrudur?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okul projesi için bir metin yazıyor. Metinde 'Türkiye'nin başkenti Ankara'dır.' cümlesi var. Öğrenci, bu cümlede büyük harf kullanma kuralını uygulamalıdır. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Özel isimler büyük harfle yazılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

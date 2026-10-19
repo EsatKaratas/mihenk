@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:31:57.069Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.TU.4.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 93313,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Programı kullanarak çizim yaptığında, arabanın sadece genişlik ve uzunluğunu belirleyebiliyor. Daha sonra, üç boyutlu çizim programına geçerek arabanın yüksekliğini de ekliyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkı anlamasına yardımcı olun.",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki boyutlu çizimde sadece genişlik ve uzunluk, üç boyutlu çizimde ise genişlik, uzunluk ve yükseklik vardır."
+          },
+          {
+            "key": "B",
+            "text": "Üç boyutlu çizimde sadece yükseklik belirlenebilir."
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizimde çizimler daha hızlı yapılır."
+          },
+          {
+            "key": "D",
+            "text": "İki boyutlu çizimde renk seçenekleri daha fazladır."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Üç boyutlu çizimin sadece yükseklik belirleyebileceğini düşünüyor; eksik bilgi.",
+          "C": "İki boyutlu çizimin hızı ile ilgili gereksiz bilgi veriyor.",
+          "D": "İki boyutlu çizimin renk seçeneklerini üç boyutlu çizimle karşılaştırıyor; oysa soru farklılıklar üzerine odaklanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizim tekniklerini öğreniyorlar. İki boyutlu çizimde, arabanın sadece plan görünümü varken, üç boyutlu çizimde arabanın hem plan hem de 3D görünümü vardır. Aşağıdaki ifadelerden hangisi bu farkı doğru tanımlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki boyutlu çizimde sadece 2 açıdan görünüm, üç boyutlu çizimde ise 3 açıdan görünüm vardır."
+          },
+          {
+            "key": "B",
+            "text": "İki boyutlu çizimde renk paleti sınırlı, üç boyutlu çizimde sınırsızdır."
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizimde yükseklik bilgisi yoktur."
+          },
+          {
+            "key": "D",
+            "text": "Üç boyutlu çizimde sadece perspektif görünüm vardır."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki boyutlu ve üç boyutlu çizimdeki açı sayısını karıştırıyor.",
+          "B": "Renk paleti farkı üzerine gereksiz bilgi veriyor.",
+          "D": "Üç boyutlu çizimin sadece perspektif görünümüne odaklanıyor; eksik bilgi."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "tasarım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Oyuncak araba tasarımı yaparken, iki boyutlu çizim programı ve üç boyutlu çizim programı arasındaki farklar nelerdir? Bir tasarımcı olarak, hangi programı ne zaman kullanırdınız ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "tasarım"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 1,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Programı kullanarak çizim yaptığında, arabanın sadece genişlik ve uzunluğunu belirleyebiliyor. Daha sonra, üç boyutlu çizim programına geçerek arabanın yüksekliğini de ekliyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkı anlamasına yardımcı olun.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "İki boyutlu çizim genişlik ve uzunluk, üç boyutlu çizim genişlik, uzunluk ve yükseklik içerir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizim tekniklerini öğreniyorlar. İki boyutlu çizimde, arabanın sadece plan görünümü varken, üç boyutlu çizimde arabanın hem plan hem de 3D görünümü vardır. Aşağıdaki ifadelerden hangisi bu farkı doğru tanımlar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "İki boyutlu çizimde yükseklik bilgisi yoktur, üç boyutlu çizimde ise vardır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

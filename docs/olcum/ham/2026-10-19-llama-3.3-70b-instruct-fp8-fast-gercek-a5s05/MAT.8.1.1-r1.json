@@ -1,0 +1,200 @@
+{
+  "zaman": "2026-10-19T09:49:50.559Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.8.1.1-r1"
+  },
+  "http": 200,
+  "sureMs": 13702,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg portakal 10 TL'ye, 1 kg elma 5 TL'ye satılmaktadır. Müşteri 3 kg portakal ve 2 kg elma almak istemektedir. Müşterinin toplam ne kadar ödemek zorunda kalacağına ilişkin aşağıdaki ifadelerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "45 TL"
+          },
+          {
+            "key": "B",
+            "text": "50 TL"
+          },
+          {
+            "key": "C",
+            "text": "35 TL"
+          },
+          {
+            "key": "D",
+            "text": "40 TL"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Elmanın kilogram fiyatını 7.5 TL olarak yanlış hesaplamış",
+          "B": "Portakal ve elmanın kilogram fiyatlarını karıştırarak yanlış hesaplamış",
+          "D": "Portakalın kilogram fiyatını 5 TL olarak yanlış hesaplamış"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(3 * 5) + (2 * 5)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "portakal",
+          "elma",
+          "kilogram",
+          "fiyat"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 15 dakika süren bir sınavda 30 sorudan 24'ünü doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Öğrencinin sınavdan aldığı toplam puanı aşağıdaki ifadelerden hangisi doğru olarak vermektedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "56 puan"
+          },
+          {
+            "key": "B",
+            "text": "64 puan"
+          },
+          {
+            "key": "C",
+            "text": "40 puan"
+          },
+          {
+            "key": "D",
+            "text": "48 puan"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Her doğru cevap 2.5 puan getirmiş gibi yanlış hesaplamış",
+          "B": "Her doğru cevap 3 puan getirmiş gibi yanlış hesaplamış",
+          "C": "Her doğru cevap 1.5 puan getirmiş gibi yanlış hesaplamış"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "24 * 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sınav",
+          "soru",
+          "puan",
+          "doğru cevap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 1.5 TL'ye 250 ml, 2.5 TL'ye 500 ml ve 4 TL'ye 1 litre su satmaktadır. Kantinde 1 litre su satmakla 250 ml su satmak arasındaki fiyat farkının nedenini açıklar mısınız? Hangi ölçekte su satın almak daha ekonomiktir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "su",
+          "fiyat",
+          "ekonomi",
+          "ölçek"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 kg portakal 10 TL'ye, 1 kg elma 5 TL'ye satılmaktadır. Müşteri 3 kg portakal ve 2 kg elma almak istemektedir. Müşterinin toplam ne kadar ödemek zorunda kalacağına ilişkin aşağıdaki ifadelerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "3 kg portakal 15 TL, 2 kg elma 10 TL, toplam 25 TL değil, 2 kg portakal 10 TL ise 1 kg 5 TL, 3 kg 15 TL, 2 kg elma 10 TL, toplam 25 TL.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 15 dakika süren bir sınavda 30 sorudan 24'ünü doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Öğrencinin sınavdan aldığı toplam puanı aşağıdaki ifadelerden hangisi doğru olarak vermektedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Öğrenci 24 soruyu doğru cevapladı, her doğru cevap 2 puan getirdi. 24 * 2 = 48 puan.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:02:11.877Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.Y.5.15-r1"
+  },
+  "http": 200,
+  "sureMs": 79840,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ece, arkadaşları için bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ece, okuyucuların dikkatini çekmek için uygun bir giriş cümlesi yazmak istiyor. Aşağıdaki giriş cümlelerinden hangisi Ece'nin amacına uygundur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kış mevsimi sonunda hava çok soğuktu."
+          },
+          {
+            "key": "B",
+            "text": "Günün en önemli olayı, kışın başlamasıydı."
+          },
+          {
+            "key": "C",
+            "text": "Hikayemiz, kışın ilk gününde başlıyor."
+          },
+          {
+            "key": "D",
+            "text": "Eve oturan çocuk, dışarıdaki kardan çok sevindi."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hava durumu ile ilgili bir cümle yazmış, ancak dikkat çekici bir giriş cümlesi oluşturamamıştır.",
+          "B": "Günün en önemli olayını belirtmiş, ancak kışın ilk gününe özel bir vurgu yapamamıştır.",
+          "D": "Eve oturan çocuk ile ilgili bir cümle yazmış, ancak kışın ilk gününe özel bir vurgu yapamamıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "giriş cümlesi",
+          "dikkat çekme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ahmet, bir şiir yazmak istiyor. Şiirin teması 'doğa' olacak. Ahmet, şiirinde doğanın güzelliklerini vurgulamak istiyor. Aşağıdaki cümlelerden hangisi Ahmet'in şiirine uygun bir örnek cümle olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Doğa, bizimle iletişim kurmaya çalışır."
+          },
+          {
+            "key": "B",
+            "text": "Şehir hayatı çok stresli."
+          },
+          {
+            "key": "C",
+            "text": "Doğanın güzellikleri her zaman bizi çevreler."
+          },
+          {
+            "key": "D",
+            "text": "Hava kirliliği çok ciddi bir problem."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Doğanın bizimle iletişim kurmaya çalıştığını belirtmiş, ancak doğanın güzelliklerini doğrudan vurgulamamıştır.",
+          "B": "Şehir hayatı ile ilgili bir cümle yazmış, ancak doğanın güzelliklerini vurgulamamıştır.",
+          "D": "Hava kirliliği ile ilgili bir cümle yazmış, ancak doğanın güzelliklerini vurgulamamıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "doğa",
+          "güzellikler"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, sınıf arkadaşlarına bir hikaye anlatmak istiyor. Hikayenin başlığı 'Unutamadığım Bir Gün'. Öğrenci, hikayenin girişini nasıl yapmalı ki dinleyicilerin dikkatini çeksin? Önerinizi verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "hikaye",
+          "giriş",
+          "dikkat çekme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ece, arkadaşları için bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ece, okuyucuların dikkatini çekmek için uygun bir giriş cümlesi yazmak istiyor. Aşağıdaki giriş cümlelerinden hangisi Ece'nin amacına uygundur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Hikayenin başlangıcını belirtir, okuyucuların dikkatini çeker.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Ahmet, bir şiir yazmak istiyor. Şiirin teması 'doğa' olacak. Ahmet, şiirinde doğanın güzelliklerini vurgulamak istiyor. Aşağıdaki cümlelerden hangisi Ahmet'in şiirine uygun bir örnek cümle olabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Doğanın güzelliklerini vurgulamak istiyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:49:03.535Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.7.1.7-r3"
+  },
+  "http": 200,
+  "sureMs": 12195,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette satılan bir litre süt 5 TL'dir. Aynı markette 250 mL'lik süt paketleri de 1,25 TL'dir. Hangi paket daha ucuzdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkisi de aynı fiyata gelmektedir"
+          },
+          {
+            "key": "B",
+            "text": "250 mL'lik paket"
+          },
+          {
+            "key": "C",
+            "text": "1 litrelik paket"
+          },
+          {
+            "key": "D",
+            "text": "Fiyat karşılaştırılamaz"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki paketin fiyatlarını litre cinsinden karşılaştırmamıştır",
+          "B": "250 mL'lik paketin fiyatını litre cinsinden hesaplamamıştır",
+          "D": "Fiyat karşılaştırmasını yapmamıştır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(1000 mL / 250 mL) * 1,25 TL > 5 TL",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bisiklet 2 saatte 40 km yol alır. Bisikletin 5 saatte alacağı mesafe kaç km'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "80 km"
+          },
+          {
+            "key": "B",
+            "text": "100 km"
+          },
+          {
+            "key": "C",
+            "text": "120 km"
+          },
+          {
+            "key": "D",
+            "text": "60 km"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece bisikletin 2 saatte aldığı mesafeyi ikiye katlamıştır",
+          "C": "Bisikletin hızı arttığını varsaymıştır",
+          "D": "Bisikletin 5 saatte alacağı mesafeyi hesaplamamıştır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "40 km / 2 saat * 5 saat",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "doğru orantı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 500 mL'lik ve 1 litrelik su şişeleri satmaktadır. 500 mL'lik su şişesi 1,50 TL, 1 litrelik su şişesi 2,50 TL'dir. Hangi su şişesi daha ucuzdur ve neden? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma",
+          "ucuzluk"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette satılan bir litre süt 5 TL'dir. Aynı markette 250 mL'lik süt paketleri de 1,25 TL'dir. Hangi paket daha ucuzdur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "1 litrelik paket daha ucuzdur çünkü 1 litre süt 5 TL iken 250 mL'lik paketlerin 4 tanesi 5 TL eder.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bisiklet 2 saatte 40 km yol alır. Bisikletin 5 saatte alacağı mesafe kaç km'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bisiklet 2 saatte 40 km yol alırsa, 1 saatte 20 km yol alır. 5 saatte 5 x 20 = 100 km yol alır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

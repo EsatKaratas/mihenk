@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:52:42.636Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.5.5.3-r3"
+  },
+  "http": 200,
+  "sureMs": 16258,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bardak sıcak çay ve bir bardak soğuk süt karıştırıldığında, ortaya çıkan karışımın sıcaklığı neye bağlıdır? Bardakların kapasitesi 200 mL'dir. Sıcak çay 80°C, soğuk süt 5°C'dir. Karışımın sıcaklığını belirleyen faktör nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sıcak çay ve soğuk sütün hacimleri"
+          },
+          {
+            "key": "B",
+            "text": "Çay ve sütün renkleri"
+          },
+          {
+            "key": "C",
+            "text": "Bardakların malzemeleri"
+          },
+          {
+            "key": "D",
+            "text": "Sıcak çay ve soğuk sütün ısıl kapasiteleri"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Renklerin sıcaklıkla bir ilişkisi olduğunu düşünüyor; oysa renkler bu bağlamda hiçbir role sahip değildir.",
+          "C": "Bardak malzemelerinin karışımın sıcaklığını etkileyebileceğini sanıyor; oysa bu durumda esas olan sıcak ve soğuk sıvıların hacimleridir.",
+          "D": "Isıl kapasite kavramını karıştırıyor; oysa karışımın sıcaklığını belirlemede esas olan hacim ve sıcaklık farkıdır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısıl kapasite",
+          "hacim",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 20°C sıcaklıkta 500 mL su ile 10°C sıcaklıkta 200 mL su karıştırmak istiyor. Karışımın final sıcaklığını tahmin etmek için hangi bilgilere ihtiyaç duyar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Her iki suyun sıcaklıkları ve hacimleri"
+          },
+          {
+            "key": "B",
+            "text": "Her iki suyun viskoziteleri"
+          },
+          {
+            "key": "C",
+            "text": "Her iki suyun renkleri ve kokuları"
+          },
+          {
+            "key": "D",
+            "text": "Her iki suyun tuzluluk oranları"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Viskozitenin sıcaklık hesabında önemli olduğunu düşünüyor; oysa viskozite bu bağlamda dikkate alınmaz.",
+          "C": "Suyun renk ve kokusunun sıcaklıkla bir ilişkisi olduğunu sanıyor; oysa bu özellikler sıcaklık hesabında rol oynamaz.",
+          "D": "Tuzluluk oranının sıcaklığı etkileyebileceğini düşünüyor; ancak bu durumda esas olan sıcaklık ve hacimdir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "sıcaklık",
+          "hacim",
+          "ısıl kapasite"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mutfakta, 40°C sıcaklıkta 1 L su ve 20°C sıcaklıkta 0.5 L su karıştırıldığında oluşacak karışımın sıcaklığını hesaplayınız. Bu hesapta hangi faktörlerin önemli olduğunu ve nedenini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısıl denge",
+          "hacim",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bardak sıcak çay ve bir bardak soğuk süt karıştırıldığında, ortaya çıkan karışımın sıcaklığı neye bağlıdır? Bardakların kapasitesi 200 mL'dir. Sıcak çay 80°C, soğuk süt 5°C'dir. Karışımın sıcaklığını belirleyen faktör nedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Karışımın sıcaklığı, sıvıların ısıl kapasitelerine bağlıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 20°C sıcaklıkta 500 mL su ile 10°C sıcaklıkta 200 mL su karıştırmak istiyor. Karışımın final sıcaklığını tahmin etmek için hangi bilgilere ihtiyaç duyar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi hesaplamaları için sıcaklık ve kütle (ya da hacim) bilgilerine ihtiyaç duyulur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

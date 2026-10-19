@@ -1,0 +1,142 @@
+{
+  "zaman": "2026-10-19T09:42:09.907Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.5.4.4-r1"
+  },
+  "http": 200,
+  "sureMs": 21143,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir dikdörtgenin uzun kenarı 8 cm, kısa kenarı 5 cm'dir. Dikdörtgenin çevre uzunluğunu hesaplayan bir öğrenci, uzun kenarın iki katına kısa kenarın iki katını eklemiştir. Bu öğrencinin yaptığı hatanın sonucu ne olur? Buna göre...",
+        "options": [
+          {
+            "key": "A",
+            "text": "Dikdörtgenin çevre uzunluğu 30 cm olur"
+          },
+          {
+            "key": "B",
+            "text": "Dikdörtgenin çevre uzunluğu 22 cm olur"
+          },
+          {
+            "key": "C",
+            "text": "Dikdörtgenin çevre uzunluğu 18 cm olur"
+          },
+          {
+            "key": "D",
+            "text": "Dikdörtgenin çevre uzunluğu 26 cm olur"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dikdörtgenin uzun kenarının iki katına kısa kenarın iki katını eklemiş, sonra da uzun kenarın iki katını tekrar eklemiştir.",
+          "C": "Dikdörtgenin kısa kenarına uzun kenarın iki katını eklemiş, sonra da kısa kenarın iki katını eklemiştir.",
+          "D": "Dikdörtgenin uzun kenarına kısa kenarın iki katını eklemiş, sonra da uzun kenarın iki katını eklemiştir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(8 * 2) + (5 * 2)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "D",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre uzunluğu",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgenin uzun kenarı 10 cm, kısa kenarı 5 cm'dir. Dikdörtgenin alanını ve çevre uzunluğunu hesaplayınız. Hangi ölçüyü hesaplamak daha kolaydır ve neden? Buna göre...",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "çevre uzunluğu",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir dikdörtgenin alanı 48 cm^2'dir. Dikdörtgenin uzun kenarı 8 cm'dir. Dikdörtgenin kısa kenarını hesaplayan bir öğrenci, alanın uzun kenara bölünmesi gerektiğini düşünmüştür. Bu öğrencinin yaptığı hatanın sonucu ne olur? Buna göre...",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir dikdörtgenin uzun kenarı 8 cm, kısa kenarı 5 cm'dir. Dikdörtgenin çevre uzunluğunu hesaplayan bir öğrenci, uzun kenarın iki katına kısa kenarın iki katını eklemiştir. Bu öğrencinin yaptığı hatanın sonucu ne olur? Buna göre...",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Öğrenci uzun kenarın iki katına kısa kenarın iki katını eklemiş, bu da 8*2 + 5*2 = 16 + 10 = 26 cm.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

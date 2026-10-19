@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:57:21.969Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.6.18-r2"
+  },
+  "http": 200,
+  "sureMs": 19392,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'Okulumuzun bahçesi çok güzeldir.' cümlesi yer alacak. Öğrenci, cümledeki 'Okulumuzun' sözcüğünün doğru yazımını merak ediyor. Hangi seçenekte 'Okulumuzun' sözcüğünün doğru yazımı verilmiştir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okulumuzda"
+          },
+          {
+            "key": "B",
+            "text": "Okulumuzun"
+          },
+          {
+            "key": "C",
+            "text": "Okulumuzun"
+          },
+          {
+            "key": "D",
+            "text": "Okulumuzda"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "'da' ekinin doğru kullanımını bilmiyor ve 'muz' ekinin yanlış kullanımını yapıyor.",
+          "C": "'muz' ekinin doğru kullanımını bilmiyor.",
+          "D": "'da' ekinin doğru kullanımını bilmiyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "ek usage"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğretmen, öğrencilerine bir metin okutuyor ve metinde 'kitapların' sözcüğünün doğru yazımını sordu. Hangi seçenekte 'kitapların' sözcüğünün doğru yazımı verilmiştir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kitapllarin"
+          },
+          {
+            "key": "B",
+            "text": "Kitaplarin"
+          },
+          {
+            "key": "C",
+            "text": "Kitaplarn"
+          },
+          {
+            "key": "D",
+            "text": "Kitapların"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "'l' harfinin doğru kullanımını bilmiyor.",
+          "B": "'i' harfinin doğru kullanımını bilmiyor.",
+          "C": "'n' harfinin doğru kullanımını bilmiyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "sözcük kullanımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir yazı yazarken 'okul' sözcüğünü kullanmak istiyor. Ancak, 'okul' sözcüğünün doğru yazımını bilmiyor. Öğrenci, 'okul' sözcüğünün doğru yazımını nasıl bulabilir? Öğrencinin bu sorunu çözme sürecini ve nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "sözcük kullanımı",
+          "sorun çözme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'Okulumuzun bahçesi çok güzeldir.' cümlesi yer alacak. Öğrenci, cümledeki 'Okulumuzun' sözcüğünün doğru yazımını merak ediyor. Hangi seçenekte 'Okulumuzun' sözcüğünün doğru yazımı verilmiştir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Okulumuzun sözcüğü, 'okul' köküne '-umuz' iyelik eki ve '-un' genitif eki katılarak oluşturulmuştur. Bu nedenle doğru yazımı 'Okulumuzun' şeklindedir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğretmen, öğrencilerine bir metin okutuyor ve metinde 'kitapların' sözcüğünün doğru yazımını sordu. Hangi seçenekte 'kitapların' sözcüğünün doğru yazımı verilmiştir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Türkçede 'kitapların' sözcüğünün doğru yazımı 'kitapların' şeklindedir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

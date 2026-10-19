@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:55:44.032Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.6.2.3-r2"
+  },
+  "http": 200,
+  "sureMs": 25831,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte alır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1,33 saat"
+          },
+          {
+            "key": "B",
+            "text": "1,5 saat"
+          },
+          {
+            "key": "C",
+            "text": "2 saat"
+          },
+          {
+            "key": "D",
+            "text": "3 saat"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sürat arttıkça zaman azalır, fakat ters orantıdan emin değil",
+          "C": "Sürat değişmedi sanıyor",
+          "D": "Sürat oranıyla doğru orantılı sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 * 2 / 15",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Ela'yı 100 metre ileriden görüyor. Ayşe, Ela'yı kaç saniyede yakalar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 saniye"
+          },
+          {
+            "key": "B",
+            "text": "100 saniye"
+          },
+          {
+            "key": "C",
+            "text": "50 saniye"
+          },
+          {
+            "key": "D",
+            "text": "25 saniye"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hız farkını 2 m/s sanıyor",
+          "B": "Hızla mesafeyi çarpıyor",
+          "C": "Zamana hızı ekliyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "100 / (5 - 3)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir aracın hızı 60 km/h, bir diğer aracın hızı ise 40 km/h'dir. İki araç aynı anda ve aynı yönde hareket ediyorlar. 2 saat sonra aralarındaki mesafe kaç kilometre olur? Neden?",
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 180,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte alır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ahmet'in 10 km/h süratle 2 saatte aldığı mesafeyi 15 km/h süratle kaç saatte alacağını hesapladım. Mesafe = sürat * zaman formülünü kullandım.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Ela'yı 100 metre ileriden görüyor. Ayşe, Ela'yı kaç saniyede yakalar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ayşe'nin hızı Ela'ya göre 2 m/s daha fazladır. 100 metrelik mesafeyi kapatmak için 100/2 = 50 saniye gerekir, ancak Ayşe'nin kendi hızı da hesaba katılmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "zaman": "2026-10-19T09:51:37.017Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.6.2.3-r1"
+  },
+  "http": 200,
+  "sureMs": 27827,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuşa girdiğinde hızını saatte 15 kilometre'ye düşürüyor. Bisikletçinin sürati ve hızı arasındaki farkı açıklayabilir misiniz? Buna göre, bisikletçinin sürati ve hızı aynı mıdır, farklı mıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürat, hızın bir parçasıdır, bu nedenle sürat hızı içerir."
+          },
+          {
+            "key": "B",
+            "text": "Sürat ve hız farklı kavramlardır, sürat vektörel bir büyüklüktür, hız skaler bir büyüklüktür."
+          },
+          {
+            "key": "C",
+            "text": "Sürat ve hız aynı şeydir, bu nedenle aynıdır."
+          },
+          {
+            "key": "D",
+            "text": "Sürat, cismin aldığı yolun büyüklüğüdür, hız ise cismin aldığı zamanın büyüklüğüdür."
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hızı, süratin bir bileşeni olarak görüyor, oysa sürat ve hız farklı kavramlardır",
+          "C": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder",
+          "D": "Sürati ve hızı, cismin aldığı yol ve zamanla ilgili skaler büyüklükler olarak karıştırıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "vektörel",
+          "skaler"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir bisikletçi, saatte 25 kilometre hızla düz bir yolda gidiyor. Biraz sonra yokuşa girdiğinde hızını saatte 20 kilometre'ye düşürüyor. Bisikletçinin sürati ve hızı arasındaki farkı açıklayabilir misiniz? Buna göre, bisikletçinin sürati ve hızı aynı mıdır, farklı mıdır? Neden böyle düşünüyorsunuz?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "vektörel",
+          "skaler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir araba, saatte 50 kilometre hızla giden bir kamyonun önüne geçmek istiyor. Araba, kamyonun önüne geçmek için 10 saniye süreyle saatte 60 kilometre hızla gidebilir. Arabanın sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Buna göre, arabanın sürati ve hızı aynı mıdır, farklı mıdır?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuşa girdiğinde hızını saatte 15 kilometre'ye düşürüyor. Bisikletçinin sürati ve hızı arasındaki farkı açıklayabilir misiniz? Buna göre, bisikletçinin sürati ve hızı aynı mıdır, farklı mıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Sürat ve hız kavramları genellikle birbirinin yerine kullanılır, ancak teknik olarak sürat, bir cismin birim zamanda aldığı yolun büyüklüğüdür (skaler), hız ise bir cismin birim zamanda aldığı yolun büyüklüğü ve yönüdür (vektörel). Ancak burada soru, sürat ve hızın aynı mı farklı mı olduğunu sormaktadır ve sürat ile hız arasındaki farkın teknik tanımlarından ziyade, günlük kullanımda aynı anlama geldiğini belirtmektedir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

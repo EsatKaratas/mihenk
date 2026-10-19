@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:43:11.815Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.5.4.4-r3"
+  },
+  "http": 200,
+  "sureMs": 15643,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir odanın uzunluğu 8 metre, genişliği 5 metredir. Odanın çevre uzunluğu kaç metredir? Odanın çevre uzunluğunu hesaplayabilmek için necessary olan verilerin neler olduğunu düşünün.",
+        "options": [
+          {
+            "key": "A",
+            "text": "26 metre"
+          },
+          {
+            "key": "B",
+            "text": "34 metre"
+          },
+          {
+            "key": "C",
+            "text": "18 metre"
+          },
+          {
+            "key": "D",
+            "text": "30 metre"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hesapta hata yapıyor, yanlış sonuç çıkıyor.",
+          "C": "Yalnızca uzunluğu ve genişliği toplayarak hesaplıyor, oysa çevre uzunluğu için bu değerlerin iki katına ihtiyaç var.",
+          "D": "Uzunluğu ve genişliği ayrı ayrı iki katına çıkarmadan direkt olarak topluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "2 * (8 + 5)",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "çevre uzunluğu",
+          "dikdörtgen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacak ve bu yolun genişliği 2 metredir. Bahçenin ve yolun birlikte oluşan yeni dikdörtgenin alanı kaç metrekaredir? Bu alanı hesaplayabilmek için hangi adımları takip etmeniz gerekir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "272 metrekare"
+          },
+          {
+            "key": "B",
+            "text": "238 metrekare"
+          },
+          {
+            "key": "C",
+            "text": "306 metrekare"
+          },
+          {
+            "key": "D",
+            "text": "204 metrekare"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Yolun genişliğini yalnızca bir tarafına ekliyor.",
+          "C": "Yolun genişliğini iki katına çıkarmıyor, yanlış hesap yapıyor.",
+          "D": "Yolun genişliğini hesaba katmıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 + 2 + 2) * (8 + 2 + 2)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "dikdörtgen",
+          "yol genişliği"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgenin uzunluğu 10 cm, genişliği 5 cm'dir. Bu dikdörtgenin alanını ve çevre uzunluğunu hesaplayınız. Hangi ölçümün (alan mı, çevre uzunluğu mu) daha büyük olduğunu gerekçelendirerek açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "çevre uzunluğu",
+          "dikdörtgen",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir odanın uzunluğu 8 metre, genişliği 5 metredir. Odanın çevre uzunluğu kaç metredir? Odanın çevre uzunluğunu hesaplayabilmek için necessary olan verilerin neler olduğunu düşünün.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Dikdörtgenin çevre uzunluğu 2*(uzunluk + genişlik) ile hesaplanır. Verilen değerlerle 2*(8+5) = 2*13 = 26 metre.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacak ve bu yolun genişliği 2 metredir. Bahçenin ve yolun birlikte oluşan yeni dikdörtgenin alanı kaç metrekaredir? Bu alanı hesaplayabilmek için hangi adımları takip etmeniz gerekir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Yeni dikdörtgenin boyutları hesaplandı",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

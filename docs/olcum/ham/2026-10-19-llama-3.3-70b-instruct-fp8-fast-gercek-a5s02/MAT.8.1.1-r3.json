@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:49:03.590Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.1.1-r3"
+  },
+  "http": 200,
+  "sureMs": 26077,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 5 kg elma kaç TL'ye satılmalıdır? Elma fiyatı kg başına sabittir. Buna göre 5 kg elma kaç TL'ye satılmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "25 TL"
+          },
+          {
+            "key": "B",
+            "text": "12,5 TL"
+          },
+          {
+            "key": "C",
+            "text": "15 TL"
+          },
+          {
+            "key": "D",
+            "text": "20 TL"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "2 kg elmanın fiyatını 5 ile çarpıyor, sonra 2 ile bölüyor.",
+          "C": "Elma fiyatının toplam ağırlıkla orantılı olmadığını düşünüyor.",
+          "D": "Elma fiyatının kg başına değişken olduğunu sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 / 2) * 5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "elma fiyatı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 15 dakika süren bir sınavda 20 sorudan 12'sini doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Her yanlış cevap ise 0,5 puan düşürmüştür. Öğrenci sınavdan kaç puan almıştır? Her soru için doğru veya yanlış cevap verilmiştir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "22 puan"
+          },
+          {
+            "key": "B",
+            "text": "24 puan"
+          },
+          {
+            "key": "C",
+            "text": "20 puan"
+          },
+          {
+            "key": "D",
+            "text": "21 puan"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yanlış cevapların puanı düşürmediğini sanıyor.",
+          "B": "Doğru cevapların puanını yanlış hesaplıyor.",
+          "D": "Yanlış cevapların puanını doğru hesaplıyor ama toplam puanı yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(12 * 2) - (8 * 0.5)",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "puan hesaplama",
+          "sınav puanı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 0,5 litre ve 1 litre su şişeleri satmaktadır. 0,5 litre su şişeleri 1,5 TL'ye, 1 litre su şişeleri 2,5 TL'ye satılmaktadır. Okulun kantini, 1 günde 50 adet 0,5 litre ve 30 adet 1 litre su şişesi satmıştır. Kantin, su şişeleri satışından bir günde kaç TL kazanmıştır? Kantinin kazancını hesaplayınız ve bu satış stratejisinin avantajlarını açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "su şişesi satışları",
+          "kantin kazancı",
+          "satış stratejisi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 5 kg elma kaç TL'ye satılmalıdır? Elma fiyatı kg başına sabittir. Buna göre 5 kg elma kaç TL'ye satılmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "2 kg elma 10 TL ise, 1 kg 5 TL. 5 kg elma 25 TL.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 15 dakika süren bir sınavda 20 sorudan 12'sini doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Her yanlış cevap ise 0,5 puan düşürmüştür. Öğrenci sınavdan kaç puan almıştır? Her soru için doğru veya yanlış cevap verilmiştir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "12 doğru cevap * 2 puan = 24 puan, 8 yanlış cevap * 0,5 puan = 4 puan düşürür, 24 - 4 = 20",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

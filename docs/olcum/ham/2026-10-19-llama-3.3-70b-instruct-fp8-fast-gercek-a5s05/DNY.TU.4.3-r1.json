@@ -1,0 +1,141 @@
+{
+  "zaman": "2026-10-19T10:12:17.293Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.TU.4.3-r1",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 23474,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi gösterebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hem iki boyutlu hem de üç boyutlu çizim"
+          },
+          {
+            "key": "B",
+            "text": "İki boyutlu çizim"
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizim ve fotoğrafçılık"
+          },
+          {
+            "key": "D",
+            "text": "Üç boyutlu çizim"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki boyutlu ve üç boyutlu çizimlerin aynı anda gerekli olduğunu düşünüyor.",
+          "B": "Üç boyutlu nesnelerin sadece iki boyutlu çizimle gösterilebileceğini sanıyor.",
+          "C": "Fotoğrafçılığın çizim türleri ile ilgili olduğunu sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir oyuncak araba tasarımı için iki boyutlu çizim ve üç boyutlu çizim arasındaki farkları açıklar mısınız? Hangi çizim türünü kullanarak daha iyi bir tasarım yapabilirsiniz? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Deniz, bir oyuncak araba tasarlıyor ve iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Deniz, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi anlatabilir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi gösterebilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Üç boyutlu çizim, nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

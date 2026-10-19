@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:52:17.729Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.8.1.1-r3"
+  },
+  "http": 200,
+  "sureMs": 27386,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bakteri türü her saat 2 katına artmaktadır. Başlangıçta 5 bakteri varsa 3 saat sonra kaç bakteri olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30"
+          },
+          {
+            "key": "B",
+            "text": "50"
+          },
+          {
+            "key": "C",
+            "text": "40"
+          },
+          {
+            "key": "D",
+            "text": "45"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Üslü artış yerine lineer artış uyguluyor",
+          "B": "Başlangıçtaki sayıyı 3 ile çarpıyor",
+          "D": "İlk saatteki artışla son sayıyı topluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 * 2 * 2 * 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "üslü ifade",
+          "büyüme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir küpün hacmi (V) V = a^3 formülü ile hesaplanır, burada a küpün bir kenarının uzunluğudur. Eğer küpün bir kenarının uzunluğu 4 cm ise, hacmi kaç cm^3 tür?",
+        "options": [
+          {
+            "key": "A",
+            "text": "48"
+          },
+          {
+            "key": "B",
+            "text": "16"
+          },
+          {
+            "key": "C",
+            "text": "64"
+          },
+          {
+            "key": "D",
+            "text": "32"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kenar uzunluğunu 3 ile çarpıyor",
+          "B": "Kenar uzunluğunun karesini alıyor",
+          "D": "Kenar uzunluğunu 4 ile çarpıp 2'ye bölüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "4 * 4 * 4",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "üslü ifade",
+          "hacim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir su tankı 2^5 litre su alabilmektedir. Eğer tankın 2/5'i doluysa, kaç litre su vardır? Lütfen cevabınızı ve gerekçenizi yazınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "üslü ifade",
+          "oran"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bakteri türü her saat 2 katına artmaktadır. Başlangıçta 5 bakteri varsa 3 saat sonra kaç bakteri olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bakteri sayısı her saat 2 katına çıkıyor. Başlangıçta 5 bakteri varsa, 1 saat sonra 10, 2 saat sonra 20, 3 saat sonra 40 bakteri olur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir küpün hacmi (V) V = a^3 formülü ile hesaplanır, burada a küpün bir kenarının uzunluğudur. Eğer küpün bir kenarının uzunluğu 4 cm ise, hacmi kaç cm^3 tür?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Küpün hacmi V = a^3 formülü ile hesaplanır, a = 4 cm ise V = 4^3 = 64 cm^3",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

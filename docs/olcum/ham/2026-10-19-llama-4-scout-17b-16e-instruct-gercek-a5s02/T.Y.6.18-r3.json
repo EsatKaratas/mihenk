@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:08:36.759Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.6.18-r3"
+  },
+  "http": 200,
+  "sureMs": 43982,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul gazetesi için yazdığı bir makalede 'öğrenci' kelimesini yanlışlıkla 'ögretmen' olarak yazmıştır. Bu yazım hatasını fark eden öğrenci, kelimeyi doğru şekilde yazmak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "ögretmen"
+          },
+          {
+            "key": "B",
+            "text": "öğrtenci"
+          },
+          {
+            "key": "C",
+            "text": "öğretmen"
+          },
+          {
+            "key": "D",
+            "text": "öğrenci"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kelimenin anlamını değiştirerek yazıyor.",
+          "B": "Kelimenin doğru yazılışını bilmiyor ve benzer bir kelime türetiyor.",
+          "C": "Kelimenin doğru yazılışını biliyor ama noktalama işaretini ekliyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım",
+          "noktalama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir arkadaşınla mesajlaşırken, ona 'Saat kaçta görüşelim?' diye sordun. Arkadaşın '8'e çeyrek kala' diye cevap verdi. Bu zamanı doğru şekilde yazmak istiyorsun.",
+        "options": [
+          {
+            "key": "A",
+            "text": "07.15"
+          },
+          {
+            "key": "B",
+            "text": "08.45"
+          },
+          {
+            "key": "C",
+            "text": "08.15"
+          },
+          {
+            "key": "D",
+            "text": "07.45"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Saat 7'yi 15 dakika geçe anlamında yanlış yorumluyor.",
+          "B": "Saat 8'i 45 dakika geçe anlamında yanlış yorumluyor.",
+          "C": "Saat 8'i 15 dakika geçe anlamında yanlış yorumluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "zaman",
+          "noktalama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğretmenin ders saatlerini planlarken, teneffüs saatlerini doğru şekilde planlaması gerekiyor. Ders saatleri 08.00-11.00 arası, 11.00-12.00 arası teneffüs, 12.00-14.00 arası ders, 14.00-14.30 arası teneffüs, 14.30-16.00 arası ders olarak planlanmıştır. Öğretmen, bu planı bir takvime yazarken noktalama işaretlerini doğru kullanması gerektiğini fark ediyor. Öğretmenin bu planı doğru şekilde yazması için nasıl bir yol izlemesi gerekir?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "zaman",
+          "planlama",
+          "noktalama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okul gazetesi için yazdığı bir makalede 'öğrenci' kelimesini yanlışlıkla 'ögretmen' olarak yazmıştır. Bu yazım hatasını fark eden öğrenci, kelimeyi doğru şekilde yazmak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Doğru yazım 'öğrenci'dir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir arkadaşınla mesajlaşırken, ona 'Saat kaçta görüşelim?' diye sordun. Arkadaşın '8'e çeyrek kala' diye cevap verdi. Bu zamanı doğru şekilde yazmak istiyorsun.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "8'e çeyrek kala 8:45'e denk gelir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

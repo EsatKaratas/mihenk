@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:50:14.853Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.7.1.7-r3"
+  },
+  "http": 200,
+  "sureMs": 35134,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 5 kilogramlık zeytin için 250 TL ödüyor. Ayşe Hanım'ın 1 kilogram zeytin için ne kadar ödediğini bulunuz. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "45 TL"
+          },
+          {
+            "key": "B",
+            "text": "60 TL"
+          },
+          {
+            "key": "C",
+            "text": "50 TL"
+          },
+          {
+            "key": "D",
+            "text": "40 TL"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Ayşe Hanım 5 kilogram için 250 TL ödüyor; 250 / 5 = 50 TL/kg, fakat D şıkkı 45 TL diyor; yakın fakat yanlış değer",
+          "B": "Ayşe Hanım 5 kilogram için 250 TL ödüyor; 250 / 5 = 50 TL/kg, fakat B şıkkı 60 TL diyor; yanlış hesaplama",
+          "D": "Ayşe Hanım 5 kilogram için 250 TL ödüyor; 250 / 5 = 50 TL/kg, fakat C şıkkı 40 TL diyor; düşük değer"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "250 / 5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kamyon, 12 ton yük taşıma kapasitesi ile 8 saatte 96 ton yük taşıyor. Kamyonun saatte taşıdığı yük miktarı kaç tondur? Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "14 ton"
+          },
+          {
+            "key": "B",
+            "text": "12 ton"
+          },
+          {
+            "key": "C",
+            "text": "10 ton"
+          },
+          {
+            "key": "D",
+            "text": "16 ton"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kamyon 8 saatte 96 ton taşıyor; 96 / 8 = 12 ton/saat, fakat C şıkkı 14 ton diyor; yüksek değer",
+          "C": "Kamyon 8 saatte 96 ton taşıyor; 96 / 8 = 12 ton/saat, fakat B şıkkı 10 ton diyor; düşük değer",
+          "D": "Kamyon 8 saatte 96 ton taşıyor; 96 / 8 = 12 ton/saat, fakat D şıkkı 16 ton diyor; yanlış hesaplama"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "96 / 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir market, 3 kilogram domates için 24 TL alıyor. Market, 1 kilogram domates için ne kadar ödeyecek? Kararı ve gerekçenizi yazınız.",
+        "difficulty": "easy",
+        "bloom": "analiz",
+        "aiTime": 150,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe Hanım, 5 kilogramlık zeytin için 250 TL ödüyor. Ayşe Hanım'ın 1 kilogram zeytin için ne kadar ödediğini bulunuz. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ayşe Hanım 5 kilogram zeytin için 250 TL ödüyorsa, 1 kilogram zeytin için ödenen miktar 250 / 5 = 50 TL'dir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir kamyon, 12 ton yük taşıma kapasitesi ile 8 saatte 96 ton yük taşıyor. Kamyonun saatte taşıdığı yük miktarı kaç tondur? Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Kamyonun saatte taşıdığı yük miktarı, toplam taşıdığı yük miktarının toplam süreye bölünmesiyle bulunur. 96 ton / 8 saat = 12 ton",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

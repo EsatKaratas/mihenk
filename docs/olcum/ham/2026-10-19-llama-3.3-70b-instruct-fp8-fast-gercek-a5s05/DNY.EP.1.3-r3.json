@@ -1,0 +1,199 @@
+{
+  "zaman": "2026-10-19T10:14:42.225Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.EP.1.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 16966,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile çalıştırılmaktadır. Lambanın çektiği akım ne kadardır? Buna göre lambanın direnci ve pilin voltajı arasındaki ilişkiyi açıklayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "0.5 amper"
+          },
+          {
+            "key": "B",
+            "text": "12 amper"
+          },
+          {
+            "key": "C",
+            "text": "2 amper"
+          },
+          {
+            "key": "D",
+            "text": "1.2 amper"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Lambanın direncini pilin voltajına bölmemekte, tersini hesaplamaktadır.",
+          "B": "Lambanın direncini pilin voltajına çarpmakta, doğru ilişkiyi kurmamaktadır.",
+          "C": "Lambanın direncini pilin voltajına eklemekte, doğru ilişkiyi kurmamaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(12 / 10)",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araba farının direnci 4 ohm, arabanın aküsü 12 voltluk bir pil ile çalışmaktadır. Araba farının çektiği akım ne kadardır? Buna göre direncin ve voltajın akım üzerindeki etkisini açıklayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "4 amper"
+          },
+          {
+            "key": "B",
+            "text": "3 amper"
+          },
+          {
+            "key": "C",
+            "text": "2 amper"
+          },
+          {
+            "key": "D",
+            "text": "1 amper"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Direnci ve voltajı toplamakta, doğru ilişkiyi kurmamaktadır.",
+          "B": "Direnci ve voltajı çarparak, doğru ilişkiyi kurmamaktadır.",
+          "D": "Direnci ve voltajı birbirine karıştırarak, doğru ilişkiyi kurmamaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(12 / 4)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "B",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrik devresinde, 20 ohm dirençli bir lamba 15 voltluk bir pil ile çalıştırılmaktadır. Lambanın çektiği akımı hesaplayınız ve direncin ve voltajın akım üzerindeki etkisini açıklayınız. Ayrıca, lambanın direncini 10 ohm'a düşürmeniz halinde, akımın nasıl değişeceğini gerekçelendiriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj",
+          "etki"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile çalıştırılmaktadır. Lambanın çektiği akım ne kadardır? Buna göre lambanın direnci ve pilin voltajı arasındaki ilişkiyi açıklayabilir misiniz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ohm kanunu kullanılarak I = V/R = 12/10 = 1.2 A bulunur, ancak 1.2 A seçeneği yok, en yakın seçenek 0.5 değil, fakat 1.2 olması lazım.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araba farının direnci 4 ohm, arabanın aküsü 12 voltluk bir pil ile çalışmaktadır. Araba farının çektiği akım ne kadardır? Buna göre direncin ve voltajın akım üzerindeki etkisini açıklayabilir misiniz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ohm Kanunu kullanılarak hesaplandı",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

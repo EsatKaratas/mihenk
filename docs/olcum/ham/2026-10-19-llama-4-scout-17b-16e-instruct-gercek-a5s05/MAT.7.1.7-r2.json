@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:49:31.162Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.7.1.7-r2"
+  },
+  "http": 200,
+  "sureMs": 39349,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 5 kg'lık bir paket unu 250 TL'ye alıyor. Aynı gün, 2 kg'lık paket unu 100 TL'ye satan bir başka markete de gidiyor. Ayşe Hanım, 15 kg un almak istiyor. Hangisini daha ekonomik buluyor? 15 kg un için hangi marketi seçmelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkinci marketi seçmelidir, çünkü 15 kg un 750 TL'ye gelir"
+          },
+          {
+            "key": "B",
+            "text": "İkinci marketi seçmelidir, çünkü 15 kg un 600 TL'ye gelir"
+          },
+          {
+            "key": "C",
+            "text": "İlk marketi seçmelidir, çünkü 15 kg un 750 TL'ye gelir"
+          },
+          {
+            "key": "D",
+            "text": "İlk marketi seçmelidir, çünkü 15 kg un 900 TL'ye gelir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İkinci marketin 2 kg'lık paketini 15 kg'a oranlıyor; oysa 15 kg için 7.5 paket 2 kg'lık un almak gerekir",
+          "C": "15 kg için ilk marketin fiyatını 5 kg paketle çarpıyor; oysa 15 kg için 3 paket 5 kg'lık un almak gerekir",
+          "D": "15 kg için ilk marketin fiyatını yanlış hesaplıyor; 5 kg 250 TL ise 15 kg 3*250=750 TL"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "orantı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir otobüs 4 saatte 240 km yol alıyor. Aynı hızla 6 saatte kaç km yol alır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "320 km"
+          },
+          {
+            "key": "B",
+            "text": "360 km"
+          },
+          {
+            "key": "C",
+            "text": "300 km"
+          },
+          {
+            "key": "D",
+            "text": "400 km"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Otobüsün 4 saatteki yolunu 6/4 oranında artırıyor; oysa hız sabit",
+          "C": "Otobüsün hızını yanlış hesaplıyor; 240 km'yi 5'e bölüyor",
+          "D": "Otobüsün hızını 4 saat için 100 km/sa sanıyor; 6 saat için 600/1.5=400 km"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(240/4)*6",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "orantı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir fırıncı, 250 gram un ile 10 adet ekmek yapabiliyor. 50 adet ekmek yapmak istiyorsa kaç kilogram un kullanmalıdır? Kararınızı verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "orantı",
+          "dönüşüm"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe Hanım, 5 kg'lık bir paket unu 250 TL'ye alıyor. Aynı gün, 2 kg'lık paket unu 100 TL'ye satan bir başka markete de gidiyor. Ayşe Hanım, 15 kg un almak istiyor. Hangisini daha ekonomik buluyor? 15 kg un için hangi marketi seçmelidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "İlk marketten 15 kg un 750 TL'ye gelir, ikinci marketten 15 kg un 750 TL'ye gelir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir otobüs 4 saatte 240 km yol alıyor. Aynı hızla 6 saatte kaç km yol alır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Otobüs 4 saatte 240 km yol alıyor, aynı hızla 6 saatte 360 km yol alacaktır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

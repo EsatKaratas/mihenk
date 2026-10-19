@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:17:32.127Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.8.3.5-r2"
+  },
+  "http": 200,
+  "sureMs": 48407,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık yaptığı işte köşelerden birinin dik açı olduğundan emin olmak istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "6² + 10² = 8²"
+          },
+          {
+            "key": "B",
+            "text": "6² + 8² + 10² = 0"
+          },
+          {
+            "key": "C",
+            "text": "6² + 8² = 10²"
+          },
+          {
+            "key": "D",
+            "text": "8² + 10² = 6²"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenarları karıştırarak hipotenüsle bir dik kenarı ilişkilendiriyor",
+          "B": "Tüm kenarların karelerini topluyor ve sıfıra eşitliyor",
+          "D": "Dik kenarları karıştırarak diğer dik kenarla hipotenüsü ilişkilendiriyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "13 cm"
+          },
+          {
+            "key": "B",
+            "text": "17 cm"
+          },
+          {
+            "key": "C",
+            "text": "15 cm"
+          },
+          {
+            "key": "D",
+            "text": "20 cm"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Pisagor teoremini uygularken hata yaparak 5² + 12² = 17² sanıyor",
+          "C": "Pisagor teoremini uygularken hata yaparak 5² + 12² = 15² sanıyor",
+          "D": "Dik kenarları toplayarak hipotenüsü bulmaya çalışıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "sqrt(5² + 12²)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir marangoz, dik üçgen şeklindeki bir ahşap parçasının kenar uzunluklarını ölçüyor. Kenar uzunlukları 9 metre ve 12 metre olarak ölçülüyor. Marangoz, bu ahşap parçasının gerçekten dik üçgen şekinde olup olmadığını kontrol etmek istiyor. Bu ahşap parçasının dik üçgen şeklinde olduğunu kanıtlamak için marangozun hipotenüs uzunluğunu nasıl hesaplaması gerekir? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "Pisagor teoremi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 1,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık yaptığı işte köşelerden birinin dik açı olduğundan emin olmak istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Kenar uzunlukları 6, 8 ve 10 metre olan bir dik üçgen için 6² + 8² = 10² eşitliği geçerlidir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Pisagor teoremine göre 5² + 12² = c², yani 25 + 144 = c², c² = 169, c = 13",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

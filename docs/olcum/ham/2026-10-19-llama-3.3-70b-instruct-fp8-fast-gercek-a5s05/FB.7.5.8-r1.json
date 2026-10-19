@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:54:36.471Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.7.5.8-r1"
+  },
+  "http": 200,
+  "sureMs": 14110,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir içecek fabrikasında, 500 mL'lik şişeler için hazırlanan bir karışım, 200 mL su ve 300 mL meyve suyundan oluşmaktadır. Bu karışım homojen bir karışım mıdır, yoksa heterojen bir karışım mıdır? Karışımın bileşenleri birbirine tamamen karışmış ve eşit oranda dağılmışsa, bu karışım hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Her ikisi de"
+          },
+          {
+            "key": "B",
+            "text": "Homojen"
+          },
+          {
+            "key": "C",
+            "text": "Hiçbiri"
+          },
+          {
+            "key": "D",
+            "text": "Heterojen"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Homojen ve heterojen kavramlarını birbirine karıştırmaktadır.",
+          "C": "Verilen tanıma uyan bir karışım olduğunu görememektedir.",
+          "D": "Bileşenlerin tamamen karışmasını heterojenlik olarak yorumlamaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir laboratuvarda, bir kimyager 100 mL'lik bir su örneğini 50 mL'lik bir tuz çözeltisiyle karıştırır. Elde edilen karışımın türünü belirlemek için hangi özelliği dikkate almalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bileşenlerin dağılımı"
+          },
+          {
+            "key": "B",
+            "text": "Karışımın kokusu"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın kıvamı"
+          },
+          {
+            "key": "D",
+            "text": "Karışımın rengi"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karışımın kokusunun bileşenlerin dağılımıyla ilgili olmadığını düşünmektedir.",
+          "C": "Karışımın kıvamının homojenlik veya heterojenlik belirlemede ana faktör olduğunu sanmaktadır.",
+          "D": "Karışımın renginin bileşenlerin dağılımıyla direkt ilişkili olmadığını düşünmektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "dağılım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mutfakta, şef bir salata sosu hazırlamak için 200 mL zeytinyağı, 100 mL limon suyu ve 50 mL sirkeyi karıştırır. Şef, bu karışımın homojen veya heterojen olduğunu belirlemek ister. Şefin karışımın türünü belirlerken hangi özelliklere dikkat etmesi gerekir ve neden? Lütfen şefin kararını ve gerekçesini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışım",
+          "bileşen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir içecek fabrikasında, 500 mL'lik şişeler için hazırlanan bir karışım, 200 mL su ve 300 mL meyve suyundan oluşmaktadır. Bu karışım homojen bir karışım mıdır, yoksa heterojen bir karışım mıdır? Karışımın bileşenleri birbirine tamamen karışmış ve eşit oranda dağılmışsa, bu karışım hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Karışımın bileşenleri birbirine tamamen karışmış ve eşit oranda dağılmış.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir laboratuvarda, bir kimyager 100 mL'lik bir su örneğini 50 mL'lik bir tuz çözeltisiyle karıştırır. Elde edilen karışımın türünü belirlemek için hangi özelliği dikkate almalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Karışımın homojen veya heterojen olup olmadığını belirlemek için bileşenlerin dağılımı dikkate alınmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:59:06.617Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.7.17-r3"
+  },
+  "http": 200,
+  "sureMs": 14014,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını anlatmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümleler hangisinde açık bir ifade kullanılıyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakter çok mutsuzdu."
+          },
+          {
+            "key": "B",
+            "text": "Karakterün gözleri yere bakıyordu ve yüzü sapsarıydı."
+          },
+          {
+            "key": "C",
+            "text": "Karakterün kalbi hızlı hızlı atıyordu."
+          },
+          {
+            "key": "D",
+            "text": "Karakterün yüz ifadesi değişmiyordu."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karakterin duygularını anlatmak için örtük ifadeleri kullanıyor; yüz ifadesi ve davranışlarından duygularını anlamaya çalışıyor.",
+          "C": "Karakterin fiziksel tepkilerini anlatarak duygularını örtük bir şekilde ifade ediyor.",
+          "D": "Karakterin duygularını açık bir şekilde anlatmak yerine, duygusuzluğunu vurguluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "duygular"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, okuyucuların bir karakterin duygularını anlamalarına yardımcı olmak için örtük ifadeleri kullanıyor. Aşağıdaki cümleler hangisinde örtük bir ifade kullanılıyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterün gözleri yere bakıyordu ve yüzü solgunlaşmıştı."
+          },
+          {
+            "key": "B",
+            "text": "Karakterün yüz ifadesi değişmiyordu."
+          },
+          {
+            "key": "C",
+            "text": "Karakterün kalbi hızlı hızlı atıyordu."
+          },
+          {
+            "key": "D",
+            "text": "Karakter çok üzgündü."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karakterin duygularını açık bir şekilde anlatmak yerine, duygusuzluğunu vurguluyor.",
+          "C": "Karakterin fiziksel tepkilerini anlatarak duygularını örtük bir şekilde ifade ediyor, ancak bu daha çok bir içsel tepkiyi gösteriyor.",
+          "D": "Karakterin duygularını açık bir şekilde anlatıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "duygular",
+          "yazarın amacı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öykü yazıyorsunuz ve karakterinizin duygularını okuyuculara anlatmak istiyorsunuz. Açık ve örtük ifadeleri kullanarak karakterinizin bir duygusunu anlatan bir cümle yazınız ve neden bu yöntemi seçtiğinizi açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "duygular",
+          "yazarın amacı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 1,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını anlatmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümleler hangisinde açık bir ifade kullanılıyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "A şıkkında 'çok mutsuzdu' açık bir ifade kullanmıştır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, okuyucuların bir karakterin duygularını anlamalarına yardımcı olmak için örtük ifadeleri kullanıyor. Aşağıdaki cümleler hangisinde örtük bir ifade kullanılıyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Karakterin gözleri yere bakması ve yüzünün solgunlaşması, onun üzgün veya utanmış olabileceğine dair örtük bir ifade kullanıyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

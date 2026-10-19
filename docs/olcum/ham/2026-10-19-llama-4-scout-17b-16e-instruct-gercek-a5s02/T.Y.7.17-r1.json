@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T10:09:38.334Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.7.17-r1"
+  },
+  "http": 200,
+  "sureMs": 53710,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Türkçe dersinde yazdığı bir kompozisyon hakkında öğretmenin verdiği geri bildirimlere dayanarak metnini gözden geçirmeye karar verdi. Öğretmeni, Ayşe'den metnindeki açık ve örtük mesajları belirginleştirmesini ve okuyucunun metinden daha fazla anlam çıkarabilmesini sağlamasını istedi. Ayşe, metnindeki hangi unsurları değiştirmeye odaklanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hem açık hem de örtük ifadeleri kullanarak okuyucunun çıkarım yapmasını kolaylaştırmaya"
+          },
+          {
+            "key": "B",
+            "text": "Yalnızca olay örgüsünü genişletmeye ve daha fazla aksiyon eklemeye"
+          },
+          {
+            "key": "C",
+            "text": "Sadece karakterlerin fiziksel özelliklerini detaylandırmaya"
+          },
+          {
+            "key": "D",
+            "text": "Sadece metnin sonunu değiştirerek farklı bir final yaratmaya"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Olay örgüsünü genişleterek mesajları belirginleştirmek yerine okuyucuyu detaylarla boğuyor",
+          "C": "Fiziksel detaylara odaklanarak okuyucunun hayal gücünü sınırlıyor",
+          "D": "Sadece finali değiştirerek metnin genel mesajını değiştirmeden bırakıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "metin gözden geçirme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, bir hikaye yazarken karakterinin motivasyonunu ve çatışmalarını okuyucunun açıkça anlamasını istiyor. Ancak karakterinin bir diyaloğunda, okuyucunun çıkarımlar yapması gereken bir ipucu bıraktı. Emre, bu diyaloğu nasıl ayarlamalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Diyaloğu olduğu gibi bırakarak okuyucunun çıkarımlarını teşvik ederek"
+          },
+          {
+            "key": "B",
+            "text": "Diyaloğu tamamen kaldırarak okuyucunun hayal gücüne bırakarak"
+          },
+          {
+            "key": "C",
+            "text": "Diyaloğu daha belirgin ve açık hale getirerek"
+          },
+          {
+            "key": "D",
+            "text": "Diyaloğu değiştirerek karakterin motivasyonunu açıkça belirtmeye"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Diyaloğu kaldırarak okuyucunun önemli bilgileri kaçırmasına neden oluyor",
+          "C": "Diyaloğu çok açık hale getirerek okuyucunun çıkarımlarını sınırlıyor",
+          "D": "Diyaloğu değiştirerek metnin doğal akışını bozuyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karakter motivasyonu",
+          "okuyucu çıkarımları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir kompozisyonunda açık ve örtük ifadeleri kullanarak okuyucunun metinden daha fazla anlam çıkarabilmesini sağlamak istiyor. Bu öğrencinin kompozisyonunda nelere dikkat etmelidir ve neden? Öğrencinin kararını ve gerekçesini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "kompozisyon yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, Türkçe dersinde yazdığı bir kompozisyon hakkında öğretmenin verdiği geri bildirimlere dayanarak metnini gözden geçirmeye karar verdi. Öğretmeni, Ayşe'den metnindeki açık ve örtük mesajları belirginleştirmesini ve okuyucunun metinden daha fazla anlam çıkarabilmesini sağlamasını istedi. Ayşe, metnindeki hangi unsurları değiştirmeye odaklanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ayşe'nin öğretmeni açık ve örtük mesajları belirginleştirmesini istedi.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Emre, bir hikaye yazarken karakterinin motivasyonunu ve çatışmalarını okuyucunun açıkça anlamasını istiyor. Ancak karakterinin bir diyaloğunda, okuyucunun çıkarımlar yapması gereken bir ipucu bıraktı. Emre, bu diyaloğu nasıl ayarlamalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Okuyucunun çıkarımlar yapmasını teşvik etmek için ipucu bırakılması gerekir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

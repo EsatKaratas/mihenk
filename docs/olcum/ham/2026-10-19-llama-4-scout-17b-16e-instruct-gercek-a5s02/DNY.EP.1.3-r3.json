@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:35:18.994Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.EP.1.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 50330,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, devredeki akım şiddetini hesaplamak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 A"
+          },
+          {
+            "key": "B",
+            "text": "6 A"
+          },
+          {
+            "key": "C",
+            "text": "2 A"
+          },
+          {
+            "key": "D",
+            "text": "4 A"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Voltajı dirence bölmek yerine çarpmıştır",
+          "B": "Voltajı 2 ile çarpmıştır",
+          "D": "Direnci 3 ohm sanıp 12/3 işlemini yapmıştır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 / 4",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "A",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir elektrik devresinde akım şiddetini 2 katına çıkarmak istiyorlar. Direnç sabit ise voltajı nasıl değiştirmeliler?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yarıya düşürmeli"
+          },
+          {
+            "key": "B",
+            "text": "1/4 katına düşürmeli"
+          },
+          {
+            "key": "C",
+            "text": "2 katına çıkarmalı"
+          },
+          {
+            "key": "D",
+            "text": "4 katına çıkarmalı"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Akım ile voltaj ters orantılı sanıyor",
+          "B": "Voltajı akımın karesine eşitliyor",
+          "D": "Direnci de 2 katına çıkarmayı düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 75,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrik devresinde 6V'luk bir pil ve 3 ohm'luk bir direnç kullanılıyor. Bu devredeki akım şiddetini hesaplayınız ve sonucunu yorumlayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 210,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "voltaj"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, devredeki akım şiddetini hesaplamak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ohm kanunu kullanılarak hesaplanır, I = V/R",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir elektrik devresinde akım şiddetini 2 katına çıkarmak istiyorlar. Direnç sabit ise voltajı nasıl değiştirmeliler?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ohm Kanunu'na göre, V = I * R'dir. Direnç sabit ise akım şiddetini 2 katına çıkarmak için voltajı da 2 katına çıkarmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

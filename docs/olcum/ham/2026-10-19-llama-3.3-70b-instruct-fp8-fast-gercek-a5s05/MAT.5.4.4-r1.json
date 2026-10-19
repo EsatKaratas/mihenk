@@ -1,0 +1,201 @@
+{
+  "zaman": "2026-10-19T09:42:27.825Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.5.4.4-r1"
+  },
+  "http": 200,
+  "sureMs": 23519,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe bir dikdörtgen bahçe duvarı için 30 metre uzunluğunda ve 10 metre genişliğinde bir bahçe duvarı yapmak istiyor. Dikdörtgenin çevre uzunluğunu hesaplamak için hangi formülü kullanmalıdır? Bahçe duvarının uzun kenarları 2 adet, kısa kenarları 2 adet vardır. Dikdörtgenin çevre uzunluğu kaç metredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 * (30 - 10)"
+          },
+          {
+            "key": "B",
+            "text": "30 - 10"
+          },
+          {
+            "key": "C",
+            "text": "30 + 10"
+          },
+          {
+            "key": "D",
+            "text": "2 * (30 + 10)"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dikdörtgenin çevre uzunluğunu hesaplamak için yanlış formülü kullanıyor; dikdörtgenin çevre uzunluğunu hesaplamak için uzun ve kısa kenarların toplamını 2 ile çarpmak gerekir.",
+          "B": "Dikdörtgenin çevre uzunluğunu hesaplamak için uzun kenardan kısa kenarı çıkarıyor; oysa çevre uzunluğu için uzun ve kısa kenarların toplamını 2 ile çarpılması gerekir.",
+          "C": "Dikdörtgenin çevre uzunluğunu hesaplamak için sadece uzun ve kısa kenarların toplamını kullanıyor; oysa çevre uzunluğu için bu değerlerin 2 ile çarpılması gerekir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "2 * (30 + 10)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre uzunluğu",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir dikdörtgen odanın uzunluğu 12 metre, genişliği 8 metredir. Odanın alanını hesaplamak için hangi formülü kullanmalıdır? Odanın alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "12 * 8"
+          },
+          {
+            "key": "B",
+            "text": "12 + 8"
+          },
+          {
+            "key": "C",
+            "text": "12 - 8"
+          },
+          {
+            "key": "D",
+            "text": "12 / 8"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Odanın alanını hesaplamak için uzunluk ve genişliği toplayarak yanlış formülü kullanıyor; oysa alan hesaplamak için uzunluk ve genişliğin çarpılması gerekir.",
+          "C": "Odanın alanını hesaplamak için uzunluktan genişliği çıkararak yanlış formülü kullanıyor; oysa alan hesaplamak için uzunluk ve genişliğin çarpılması gerekir.",
+          "D": "Odanın alanını hesaplamak için uzunluğu genişlikle bölerek yanlış formülü kullanıyor; oysa alan hesaplamak için uzunluk ve genişliğin çarpılması gerekir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 * 8",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgen bahçe için 20 metre uzunluğunda ve 15 metre genişliğinde bir bahçe duvarı yapmak istiyorsunuz. Bahçe duvarının çevre uzunluğu ve alanı için hangi değerleri kullanmalısınız? Bu değerleri kullanarak bahçe duvarının çevre uzunluğunu ve alanını hesaplayınız ve sonuçları karşılaştırınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre uzunluğu",
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 2,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe bir dikdörtgen bahçe duvarı için 30 metre uzunluğunda ve 10 metre genişliğinde bir bahçe duvarı yapmak istiyor. Dikdörtgenin çevre uzunluğunu hesaplamak için hangi formülü kullanmalıdır? Bahçe duvarının uzun kenarları 2 adet, kısa kenarları 2 adet vardır. Dikdörtgenin çevre uzunluğu kaç metredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Dikdörtgenin çevre formülü doğru uygulandı",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir dikdörtgen odanın uzunluğu 12 metre, genişliği 8 metredir. Odanın alanını hesaplamak için hangi formülü kullanmalıdır? Odanın alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpımı ile hesaplanır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

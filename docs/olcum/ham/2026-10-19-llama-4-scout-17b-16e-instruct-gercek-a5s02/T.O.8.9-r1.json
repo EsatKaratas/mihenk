@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:13:38.607Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.O.8.9-r1"
+  },
+  "http": 200,
+  "sureMs": 83590,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, hafta sonu iki farklı kitabevi ziyaret etti. İlk kitabevinde 5 TL'ye bir hikaye kitabı ve 10 TL'ye bir roman satın aldı. İkinci kitabevinde ise 8 TL'ye bir şiir kitabı aldı. Ayşe toplam kaç TL harcadı?",
+        "options": [
+          {
+            "key": "A",
+            "text": "35 TL"
+          },
+          {
+            "key": "B",
+            "text": "30 TL"
+          },
+          {
+            "key": "C",
+            "text": "23 TL"
+          },
+          {
+            "key": "D",
+            "text": "25 TL"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Tüm kitapların fiyatını 5 TL olarak hesaplıyor",
+          "B": "Romanın fiyatını 15 TL olarak hesaplıyor",
+          "D": "Hikaye kitabının fiyatını 7 TL olarak hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 + 10 + 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "fiyat",
+          "toplam"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sınıfta 24 öğrenci vardır. Bu öğrencilerin 1/3'i matematik kulübüne, 1/4'i edebiyat kulübüne katılıyor. Kaç öğrenci hiçbir kulübe katılmıyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "14"
+          },
+          {
+            "key": "B",
+            "text": "12"
+          },
+          {
+            "key": "C",
+            "text": "16"
+          },
+          {
+            "key": "D",
+            "text": "10"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Edebiyat kulübüne katılan öğrenci sayısını yanlış hesaplıyor",
+          "C": "Her iki kulübe katılan öğrenci sayısını topluyor",
+          "D": "Matematik kulübüne katılan öğrenci sayısını yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "24 - (24/3 + 24/4)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "D",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sınıf",
+          "kulüp",
+          "katılım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okuduğu iki kitap hakkında karşılaştırma yapıyor. İlk kitap 200 sayfa, ikinci kitap 300 sayfadır. Öğrenci, ikinci kitabın daha ilgi çekici olduğunu düşünüyor, çünkü sayfa sayısı daha fazla. Bu karşılaştırma hakkında ne düşünüyorsunuz? Neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "karşılaştırma",
+          "sayfa sayısı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, hafta sonu iki farklı kitabevi ziyaret etti. İlk kitabevinde 5 TL'ye bir hikaye kitabı ve 10 TL'ye bir roman satın aldı. İkinci kitabevinde ise 8 TL'ye bir şiir kitabı aldı. Ayşe toplam kaç TL harcadı?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ayşe ilk kitabevinde 5 TL + 10 TL = 15 TL, ikinci kitabevinde 8 TL harcadı. Toplam 15 + 8 = 23 TL.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir sınıfta 24 öğrenci vardır. Bu öğrencilerin 1/3'i matematik kulübüne, 1/4'i edebiyat kulübüne katılıyor. Kaç öğrenci hiçbir kulübe katılmıyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Öğrencilerin 1/3'ü matematik kulübüne, 1/4'ü edebiyat kulübüne katılıyor. 24 öğrenciden 1/3'ü 8, 1/4'ü 6 öğrenci ediyor. 8 + 6 = 14 öğrenci kulüplere katılıyor. 24 - 14 = 10 öğrenci hiçbir kulübe katılmıyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

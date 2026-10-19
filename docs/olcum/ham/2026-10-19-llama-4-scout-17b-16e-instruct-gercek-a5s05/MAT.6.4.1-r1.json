@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:45:13.862Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.6.4.1-r1"
+  },
+  "http": 200,
+  "sureMs": 45026,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey'in bahçesi 15 metreye 20 metre boyutlarında dikdörtgen şeklindedir. Bahçenin etrafına 2 sıra tel örgü çekmek istiyor. 1 metre tel örgünün maliyeti 5 TL ise, Ahmet Bey'in bahçesi için kaç TL harcayacağını hesaplayınız. Buna göre, Ahmet Bey 1000 TL ile yetinebilir mi?",
+        "options": [
+          {
+            "key": "A",
+            "text": "600 TL"
+          },
+          {
+            "key": "B",
+            "text": "700 TL"
+          },
+          {
+            "key": "C",
+            "text": "800 TL"
+          },
+          {
+            "key": "D",
+            "text": "900 TL"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece bir sıra tel örgü maliyetini hesaplıyor",
+          "B": "İç çevreyi hesaplıyor; oysa dış çevre dikkate alınmalı",
+          "D": "Tel örgü uzunluğunu doğru hesaplıyor ancak maliyetini yanlış belirliyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(2 * (15 + 20) * 2) * 5",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "B",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "çevre",
+          "maliyet"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir atletizm pisti 400 metre uzunluğundadır. Bu pistte 5 tur atan bir sporcu kaç kilometre koşmuş olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 km"
+          },
+          {
+            "key": "B",
+            "text": "3 km"
+          },
+          {
+            "key": "C",
+            "text": "5 km"
+          },
+          {
+            "key": "D",
+            "text": "1 km"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Tur sayısını yanlış belirliyor",
+          "C": "Metre cinsinden sonucu kilometreye çevirmiyor",
+          "D": "400 metreyi kilometreye çevirmeyi unutuyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 * 400 / 1000",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "uzunluk",
+          "dönüşüm"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaat firması, dikdörtgen şeklindeki arsasının üzerine 2 katlı bir bina inşa ediyor. Arsanın boyutları 30 metreye 50 metredir. İnşaat firması, arsanın üzerine 2 katlı bir bina inşa etmek istiyor. Her katın yüksekliği 3 metre olacak. Binanın toplam yüksekliği kaç metre olacaktır? Kararınızı verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "yükseklik",
+          "kat"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet Bey'in bahçesi 15 metreye 20 metre boyutlarında dikdörtgen şeklindedir. Bahçenin etrafına 2 sıra tel örgü çekmek istiyor. 1 metre tel örgünün maliyeti 5 TL ise, Ahmet Bey'in bahçesi için kaç TL harcayacağını hesaplayınız. Buna göre, Ahmet Bey 1000 TL ile yetinebilir mi?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bahçenin etrafına 2 sıra tel örgü çekileceği için, tel örgü uzunluğu bahçenin çevre uzunluğunun 2 katıdır. Bahçenin çevre uzunluğu 2*(15+20) = 70 metredir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir atletizm pisti 400 metre uzunluğundadır. Bu pistte 5 tur atan bir sporcu kaç kilometre koşmuş olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "5 tur atan sporcu 5 * 400 = 2000 metre koşar, 2000 metre 2 kilometre eder.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

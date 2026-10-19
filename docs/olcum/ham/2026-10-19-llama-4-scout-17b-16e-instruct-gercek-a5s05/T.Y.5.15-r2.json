@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T10:03:36.231Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.Y.5.15-r2"
+  },
+  "http": 200,
+  "sureMs": 76032,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ayşe, okuyucuların dikkatini çekmek için uygun bir başlangıç cümlesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, hikayenin konusu ile ilgili bir başlangıç cümlesi olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kışın ilk günü, doğanın uyanışıyla başlıyordu."
+          },
+          {
+            "key": "B",
+            "text": "Ayşe'nin en sevdiği mevsim, yazdı."
+          },
+          {
+            "key": "C",
+            "text": "Kışın ilk günü, çocuklar için tatil anlamına geliyordu."
+          },
+          {
+            "key": "D",
+            "text": "Hava soğuk ve rüzgarlıydı."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Doğanın uyanışıyla başlamak yerine, kışın ilk gününe odaklanmalıdır.",
+          "B": "Hikaye ile ilgisi olmayan bir mevsim bilgisi vermektedir.",
+          "C": "Hikaye ile ilgili olmayan bir bilgi vermektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "hikaye",
+          "başlangıç cümlesi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, bir kompozisyon yazmak istiyor. Kompozisyonunun başlığı 'İlkbaharın Gelişi' olacak. Ece, okuyucuların dikkatini çekmek için uygun bir başlangıç cümlesi ve bağlantı ifadelerini kullanmak istiyor. Aşağıdaki soruyu cevaplayınız: İlkbaharın gelişi hakkında bir kompozisyon yazmak için hangi bağlantı ifadelerini kullanabilirsiniz? Neden bu ifadeleri seçtiniz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "kompozisyon",
+          "bağlantı ifadesi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Mehmet, bir makale yazmak istiyor. Makalesinin başlığı 'Çevre Kirliliği' olacak. Mehmet, okuyucuların dikkatini çekmek için uygun bir bağlantı ifadesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, makalenin konusu ile ilgili bir bağlantı ifadesi olabilir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ayşe, okuyucuların dikkatini çekmek için uygun bir başlangıç cümlesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, hikayenin konusu ile ilgili bir başlangıç cümlesi olabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Hikayenin başlığı 'Kışın İlk Günü' ve okuyucuların dikkatini çekmek için uygun bir başlangıç cümlesi gerekiyor. Seçenek C, kışın ilk gününün çocuklar için tatil anlamına geldiğini söylüyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

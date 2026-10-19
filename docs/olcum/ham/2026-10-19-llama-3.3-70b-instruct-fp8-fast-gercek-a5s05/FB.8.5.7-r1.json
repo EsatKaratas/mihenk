@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:56:32.172Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.8.5.7-r1"
+  },
+  "http": 200,
+  "sureMs": 33258,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerinin 2,5 olduğu ölçüldü. Aynı laboratuvarın bir başka deneyinde, 250 mL'lik bir baz çözeltisinin pH değerinin 12,8 olduğu belirlendi. Hangi çözeltinin asitlik veya bazlık durumu daha şiddetlidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Baz çözeltisi daha şiddetli bazdır"
+          },
+          {
+            "key": "B",
+            "text": "pH değerlerinden asitlik veya bazlık durumları hakkında bir yorum yapılamaz"
+          },
+          {
+            "key": "C",
+            "text": "Asit çözeltisi daha şiddetli asittir"
+          },
+          {
+            "key": "D",
+            "text": "İki çözelti de aynı düzeyde asit veya bazdır"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "PH değerlerinin asitlik veya bazlık durumları hakkında bilgi vermediğini sanıyor; oysa pH değerleri bu durumu ölçmek için kullanılır.",
+          "C": "PH değerinin düşük olmasının her zaman daha şiddetli asit anlamına geldiğini sanıyor; oysa bazlık durumunu da değerlendirmelidir.",
+          "D": "PH değerlerinin birbirinden uzak olmasının her iki çözeltinin de aynı düzeyde asit veya baz olduğu anlamına geldiğini düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "asitlik",
+          "bazlık",
+          "pH değeri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 1 litre limon suyu için pH değerinin 2,0 olduğu biliniyor. Aynı mutfakta, 500 mL'lik bir portakal suyu için pH değerinin 3,5 olduğu ölçüldü. Hangi meyve suyunun asitlik durumu daha şiddetlidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki meyve suyu da aynı düzeyde asittir"
+          },
+          {
+            "key": "B",
+            "text": "Limon suyu daha şiddetli asittir"
+          },
+          {
+            "key": "C",
+            "text": "pH değerlerinden asitlik durumları hakkında bir yorum yapılamaz"
+          },
+          {
+            "key": "D",
+            "text": "Portakal suyu daha şiddetli asittir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerlerinin birbirine yakın olmasının her iki meyve suyunun da aynı düzeyde asit olduğu anlamına geldiğini düşünüyor.",
+          "C": "PH değerlerinin asitlik durumları hakkında bilgi vermediğini sanıyor.",
+          "D": "Portakal suyunun pH değerinin daha yüksek olmasının daha şiddetli asit olduğu anlamına geldiğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "asitlik",
+          "pH değeri",
+          "meyve suyu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir laboratuvar deneyinde, farklı konsantrasyonlarda asit ve baz çözeltilerinin pH değerleri ölçüldü. Deney sonuçlarına göre, asitlik ve bazlık durumlarının pH değerleri ile nasıl bir ilişkiye sahip olduğunu açıklayarak, bu ilişkiyi kullanarak bir çözeltinin asitlik veya bazlık durumunu tahmin etmenin önemini tartışın.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "asitlik",
+          "bazlık",
+          "pH değeri",
+          "tahmin"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerinin 2,5 olduğu ölçüldü. Aynı laboratuvarın bir başka deneyinde, 250 mL'lik bir baz çözeltisinin pH değerinin 12,8 olduğu belirlendi. Hangi çözeltinin asitlik veya bazlık durumu daha şiddetlidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Asit çözeltisinin pH değeri 2,5, baz çözeltisinin pH değeri 12,8'dir. pH değeri 7'den ne kadar uzaklaşılırsa, asitlik veya bazlık durumu o kadar şiddetlidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir mutfakta, 1 litre limon suyu için pH değerinin 2,0 olduğu biliniyor. Aynı mutfakta, 500 mL'lik bir portakal suyu için pH değerinin 3,5 olduğu ölçüldü. Hangi meyve suyunun asitlik durumu daha şiddetlidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "pH değeri 2,0 olan limon suyu daha düşük pH değerine sahip olduğundan daha şiddetli asittir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

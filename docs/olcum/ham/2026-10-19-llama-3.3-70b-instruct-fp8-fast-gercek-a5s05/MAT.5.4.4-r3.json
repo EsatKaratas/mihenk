@@ -1,0 +1,200 @@
+{
+  "zaman": "2026-10-19T09:46:07.713Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.5.4.4-r3"
+  },
+  "http": 200,
+  "sureMs": 15532,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bahçesinde dikdörtgen şeklinde bir havuz yapacak. Havuzun uzun kenarı 10 metre, kısa kenarı 5 metre olacak. Ayşe, havuzun etrafına bir yol yapacak ve bu yolun genişliği 1 metre olacak. Ayşe, yolun çevre uzunluğunu hesaplamak istiyor. Buna göre, yolun çevre uzunluğu kaç metre olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "32 metre"
+          },
+          {
+            "key": "B",
+            "text": "36 metre"
+          },
+          {
+            "key": "C",
+            "text": "44 metre"
+          },
+          {
+            "key": "D",
+            "text": "40 metre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yolun genişliğini hesaba katmıyor",
+          "C": "Havuzun kenarlarını yanlış hesaplıyor",
+          "D": "Yolun genişliğini iki kez ekliyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10+2)*(2+5)*2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre uzunluğu",
+          "yol genişliği"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir dikdörtgenin uzun kenarı 8 cm, kısa kenarı 3 cm olduğuna göre, dikdörtgenin alanı kaç cm² olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "24 cm²"
+          },
+          {
+            "key": "B",
+            "text": "26 cm²"
+          },
+          {
+            "key": "C",
+            "text": "22 cm²"
+          },
+          {
+            "key": "D",
+            "text": "20 cm²"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Uzun kenar ile kısa kenarı çarpıyor, ancak sonuçta 2 fazlasını ekliyor",
+          "C": "Uzun kenar ile kısa kenarı çarpıyor, ancak sonuçta 2 ekliyor",
+          "D": "Uzun kenar ile kısa kenarı topluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "8*3",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "uzun kenar",
+          "kısa kenar"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgenin çevre uzunluğu 20 cm, uzun kenarı 7 cm olduğuna göre, dikdörtgenin kısa kenarını ve alanını hesaplayınız. Hesaplarınızı açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre uzunluğu",
+          "uzun kenar",
+          "kısa kenar",
+          "alan"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, bahçesinde dikdörtgen şeklinde bir havuz yapacak. Havuzun uzun kenarı 10 metre, kısa kenarı 5 metre olacak. Ayşe, havuzun etrafına bir yol yapacak ve bu yolun genişliği 1 metre olacak. Ayşe, yolun çevre uzunluğunu hesaplamak istiyor. Buna göre, yolun çevre uzunluğu kaç metre olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Havuzun etrafındaki yolun genişliği dahil edildiğinde yeni uzun kenar 12 metre, yeni kısa kenar 7 metre olur. Çevre uzunluğu 2*(12+7) = 38 metre.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir dikdörtgenin uzun kenarı 8 cm, kısa kenarı 3 cm olduğuna göre, dikdörtgenin alanı kaç cm² olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Dikdörtgenin alanı uzun kenar ve kısa kenarın çarpımıdır",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:45:41.513Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.5.4.4-r2"
+  },
+  "http": 200,
+  "sureMs": 159090,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3"
+          },
+          {
+            "key": "B",
+            "text": "2"
+          },
+          {
+            "key": "C",
+            "text": "4"
+          },
+          {
+            "key": "D",
+            "text": "5"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Havuzun çevresini hesaplamadan doğrudan uzunluğu seçiyor",
+          "B": "Havuzun uzunluğunu genişliği ile bölüyor",
+          "D": "Havuzun uzunluğunu genişliği ile toplarken yanlışlıkla 2 ile çarpıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "24"
+          },
+          {
+            "key": "B",
+            "text": "60"
+          },
+          {
+            "key": "C",
+            "text": "48"
+          },
+          {
+            "key": "D",
+            "text": "36"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Tahtanın uzunluğunu genişliği ile yanlışlıkla bölüyor",
+          "B": "Tahtanın uzunluğunu genişliği ile çarpıp 2 ile bölüyor",
+          "D": "Tahtanın uzunluğunu genişliği ile topluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 * 4",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaatçı, dikdörtgen şeklindeki bir arsanın üzerine evler inşa etmek istiyor. Arsanın uzunluğu 30 metre, genişliği 20 metredir. İnşaatçı, arsanın çevresine 5 metre genişliğinde bir yol yapmak istiyor. Yolun alanı kaç metrekaredir? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "alan"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": true,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Dikdörtgenin çevresi 2*(uzunluk + genişlik) ile hesaplanır. 20 = 2*(6 + genişlik), 10 = 6 + genişlik, genişlik = 4.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpımı ile bulunur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

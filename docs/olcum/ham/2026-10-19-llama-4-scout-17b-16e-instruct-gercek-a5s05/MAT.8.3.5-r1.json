@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:14:19.074Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.8.3.5-r1"
+  },
+  "http": 200,
+  "sureMs": 45126,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat ustası, bir üçgenin iki kenarının uzunluğunu 6 cm ve 8 cm olarak ölçmüştür. Üçüncü kenarın uzunluğunu 10 cm olarak ölçtüğünde, bu üçgenin dik üçgen olduğunu düşünmektedir. Bu düşüncesi doğru mudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hayır, çünkü 6² + 8² ≠ 10²"
+          },
+          {
+            "key": "B",
+            "text": "Hayır, çünkü 6 + 8 < 10"
+          },
+          {
+            "key": "C",
+            "text": "Evet, çünkü 6 + 8 > 10"
+          },
+          {
+            "key": "D",
+            "text": "Evet, çünkü 6² + 8² = 10²"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Denklemin doğru kurulmadığını düşünüyor",
+          "B": "Üçgen eşitsizliği kuralını yanlış uyguluyor",
+          "C": "Üçgen eşitsizliği kuralını uyguluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunluğu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini anlatırken, bir dik üçgenin dik kenarlarının uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu söylemektedir. Buna göre, bir dik üçgenin dik kenarları 5 cm ve 12 cm ise, hipotenüsün uzunluğu kaç cm'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "14"
+          },
+          {
+            "key": "B",
+            "text": "16"
+          },
+          {
+            "key": "C",
+            "text": "15"
+          },
+          {
+            "key": "D",
+            "text": "13"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Pisagor teoremini yanlış uyguluyor",
+          "B": "Dik kenarların uzunluklarını çarpıyor",
+          "C": "Dik kenarların uzunluklarını topluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(5² + 12²) = 13²",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaat projesi için, bir üçgen şeklindeki çatı tasarlanmaktadır. Çatının iki kenarının uzunluğu 15 metre ve 20 metre olarak planlanmıştır. Çatının dik üçgen şeklinde olması gerektiği ve dik kenarlarının uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğu bilindiği için, üçüncü kenarın uzunluğunu hesaplayınız ve sonucunuzu nedenleriyle açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunluğu",
+          "inşaat"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 1,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat ustası, bir üçgenin iki kenarının uzunluğunu 6 cm ve 8 cm olarak ölçmüştür. Üçüncü kenarın uzunluğunu 10 cm olarak ölçtüğünde, bu üçgenin dik üçgen olduğunu düşünmektedir. Bu düşüncesi doğru mudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "6² + 8² = 36 + 64 = 100 ve 10² = 100",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini anlatırken, bir dik üçgenin dik kenarlarının uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu söylemektedir. Buna göre, bir dik üçgenin dik kenarları 5 cm ve 12 cm ise, hipotenüsün uzunluğu kaç cm'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Dik üçgenin kenar uzunlukları a² + b² = c² eşitliğini sağlar. 5² + 12² = 25 + 144 = 169, 13² = 169.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:07:44.854Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.6.18-r2"
+  },
+  "http": 200,
+  "sureMs": 35351,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul gazetesi için yazdığı bir makalede 'öğrenci' kelimesini yanlışlıkla 'ögretmen' olarak yazmıştır. Bu yazım hatasını fark eden öğrenci, kelimeyi doğru şekilde yazmak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "öğretmen"
+          },
+          {
+            "key": "B",
+            "text": "öğrtenci"
+          },
+          {
+            "key": "C",
+            "text": "öğrenci"
+          },
+          {
+            "key": "D",
+            "text": "ögretmen"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kelimenin doğru yazılışını biliyor ama noktalama işaretini ekliyor.",
+          "B": "Kelimenin doğru yazılışını bilmiyor ve benzer bir kelime türetiyor.",
+          "D": "Kelimenin anlamını değiştirecek şekilde yazıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım",
+          "noktalama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir arkadaşınla mesajlaşırken, ona 'Merhaba, nasılsın?' yazmak istiyorum. Ancak telefonumun klavyesi bozuk ve bazı noktalama işaretlerini yanlış yazıyor. Doğru yazılışı 'Merhaba, nasılsın?' olan cümleyi, bozuk klavye nedeniyle 'Merhaba nasilsin' şeklinde yazıyorum.",
+        "options": [
+          {
+            "key": "A",
+            "text": "nokta"
+          },
+          {
+            "key": "B",
+            "text": "noktalı virgül"
+          },
+          {
+            "key": "C",
+            "text": "soru işareti"
+          },
+          {
+            "key": "D",
+            "text": "virgül"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Noktanın cümlenin sonunda kullanıldığını düşünüyor.",
+          "B": "İki cümleyi ayırmak için noktalı virgül kullanıldığını sanıyor.",
+          "C": "Cümlenin soru cümlesi olduğunu düşünerek soru işaretini ekliyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama",
+          "yazım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğretmenin ders saatinde öğrencilere 'Arkadaşlar, lütfen defterlerinizi açıp sayfa 23'e gelin.' dediğini varsayalım. Ancak öğretmenin bu cümlesinde yazım ve noktalama işaretleriyle ilgili bir hata olduğunu fark ediyorsunuz. Öğretmenin cümlesini nasıl düzeltirsiniz ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım",
+          "noktalama",
+          "düzeltme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okul gazetesi için yazdığı bir makalede 'öğrenci' kelimesini yanlışlıkla 'ögretmen' olarak yazmıştır. Bu yazım hatasını fark eden öğrenci, kelimeyi doğru şekilde yazmak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Doğru yazım 'öğrenci'dir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir arkadaşınla mesajlaşırken, ona 'Merhaba, nasılsın?' yazmak istiyorum. Ancak telefonumun klavyesi bozuk ve bazı noktalama işaretlerini yanlış yazıyor. Doğru yazılışı 'Merhaba, nasılsın?' olan cümleyi, bozuk klavye nedeniyle 'Merhaba nasilsin' şeklinde yazıyorum.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Cümlede virgül eksik, soru işareti var.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

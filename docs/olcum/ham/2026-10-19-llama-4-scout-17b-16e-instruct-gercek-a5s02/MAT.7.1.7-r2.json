@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:48:48.263Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.7.1.7-r2"
+  },
+  "http": 200,
+  "sureMs": 34478,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 5 kg'lık bir paket un ile 15 adet kek yapmayı planlıyor. Her kek için eşit miktarda un kullanacağına göre, 1 kek için kaç gram un kullanacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "500 g"
+          },
+          {
+            "key": "B",
+            "text": "100 g"
+          },
+          {
+            "key": "C",
+            "text": "333 g"
+          },
+          {
+            "key": "D",
+            "text": "300 g"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Paket unu kek sayısına bölmüyor; 1 kek için 5 kg'ı direkt veriyor",
+          "B": "Yanlış bölme işlemi yaparak 1 kg'ı 10'a bölüyor",
+          "D": "5 kg'ı 10'a bölerek 1 kek için 500 g sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5000 / 15",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araç 250 km'lik bir yolu 5 saatte alıyor. Aynı hızla 500 km'lik bir yolu kaç saatte alacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "6 saat"
+          },
+          {
+            "key": "B",
+            "text": "8 saat"
+          },
+          {
+            "key": "C",
+            "text": "12 saat"
+          },
+          {
+            "key": "D",
+            "text": "10 saat"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "5 saatin yarısını alıyor; oran-orantıyı anlamıyor",
+          "B": "İki kat daha uzun yolu 2,5 saatte alır sanıyor",
+          "C": "Sabit hızı göz ardı edip 250 km için harcanan süreyi 500 km'ye uyguluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "500 / 250 * 5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir market 3 kg'lık bir paket pirinci 90 TL'den satıyor. Aynı market 1 kg pirinci kaç TL'den satmaktadır? Kararınızı verilerle savun.",
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 180,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe Hanım, 5 kg'lık bir paket un ile 15 adet kek yapmayı planlıyor. Her kek için eşit miktarda un kullanacağına göre, 1 kek için kaç gram un kullanacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "5 kg un 5000 gramdır, 15 keke bölünür. Her kek için 5000/15 = 333 gram un kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araç 250 km'lik bir yolu 5 saatte alıyor. Aynı hızla 500 km'lik bir yolu kaç saatte alacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Araç 250 km'lik yolu 5 saatte alıyor, aynı hızla 500 km'lik yolu 10 saatte alacaktır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:08:53.727Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.YZ.3.5-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 20624,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen toplam hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremi'ni kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, doktorun kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (1 - Hastalık olasılığı)"
+          },
+          {
+            "key": "B",
+            "text": "Olasılık = (Semptom olasılığı + Hastalık olasılığı) / (1 - Semptom olasılığı)"
+          },
+          {
+            "key": "C",
+            "text": "Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (1 - Semptom olasılığı)"
+          },
+          {
+            "key": "D",
+            "text": "Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (Semptom olasılığı + Hastalık olasılığı)"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; pay ve payda yanlış.",
+          "C": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; payda yanlış.",
+          "D": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; payda ve pay yanlış."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(0.8 * 0.1) / (1 - 0.1)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesaplaması"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araştırma ekibi, bir yeni ilaçın etkili olma olasılığını hesaplamak istiyor. İlacın etkili olma olasılığı %60, ilacın etkisiz olma olasılığı %40 olarak biliniyor. Ayrıca, ilacın etkili olduğu durumlarda, belirli bir yan etkinin görülme olasılığı %30, ilacın etkisiz olduğu durumlarda ise bu yan etkinin görülme olasılığı %10 olarak biliniyor. Araştırma ekibi, bir hasta bu yan etkiyi gösterdiğinde, ilacın etkili olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, araştırma ekibinin kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (Yan etki olasılığı + İlaç etkisiz olasılığı)"
+          },
+          {
+            "key": "B",
+            "text": "Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (1 - Yan etki olasılığı)"
+          },
+          {
+            "key": "C",
+            "text": "Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (Yan etki olasılığı x İlaç etkili olasılığı + Yan etki olasılığı x İlaç etkisiz olasılığı)"
+          },
+          {
+            "key": "D",
+            "text": "Olasılık = (Yan etki olasılığı + İlaç etkili olasılığı) / (1 - Yan etki olasılığı)"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; payda ve pay yanlış.",
+          "B": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; payda yanlış.",
+          "D": "Bayes Teoremi'ndeki olasılık hesaplamasını yanlış yapıyor; pay ve payda yanlış."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(0.3 * 0.6) / ((0.3 * 0.6) + (0.1 * 0.4))",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesaplaması",
+          "yan etki"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir şirket, müşteri memnuniyetini artırmak için bir anket düzenlemek istiyor. Anketin sonuçlarına göre, müşterilerin %70'i şirketin ürünlerinden memnun, %30'u memnun değil. Ayrıca, memnun olan müşterilerin %80'i şirketin ürünlerini tekrar satın alacak, memnun olmayan müşterilerin ise %20'si tekrar satın alacak. Şirket, anket sonuçlarına göre, bir müşterinin memnun olma olasılığını ve bu müşterinin tekrar satın alma olasılığını hesaplamak istiyor. Bu durumda, şirketin kullanacağı Bayes Teoremi formülünü açıklar mısınız? Müşterinin memnun olma olasılığını ve tekrar satın alma olasılığını hesaplayarak, şirketin bu sonuçları nasıl kullanabileceğini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "müşteri memnuniyeti",
+          "satın alma olasılığı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen toplam hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremi'ni kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, doktorun kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bayes Teoremi formülü P(H|S) = P(S|H) * P(H) / P(S) şeklinde uygulanır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araştırma ekibi, bir yeni ilaçın etkili olma olasılığını hesaplamak istiyor. İlacın etkili olma olasılığı %60, ilacın etkisiz olma olasılığı %40 olarak biliniyor. Ayrıca, ilacın etkili olduğu durumlarda, belirli bir yan etkinin görülme olasılığı %30, ilacın etkisiz olduğu durumlarda ise bu yan etkinin görülme olasılığı %10 olarak biliniyor. Araştırma ekibi, bir hasta bu yan etkiyi gösterdiğinde, ilacın etkili olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, araştırma ekibinin kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bayes Teoremi formülü P(E|Y) = P(Y|E) * P(E) / P(Y) şeklindedir. Burada P(Y) = P(Y|E)*P(E) + P(Y|E')*P(E') dir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

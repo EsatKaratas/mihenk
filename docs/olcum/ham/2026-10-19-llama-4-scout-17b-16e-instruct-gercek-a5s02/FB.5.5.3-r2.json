@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T09:53:46.529Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.5.5.3-r2"
+  },
+  "http": 200,
+  "sureMs": 33238,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak çay ile sıcaklığı 20°C olan 300 mL ılık su karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karışımın sıcaklığı 90°C'den düşük, 20°C'den yüksek olur"
+          },
+          {
+            "key": "B",
+            "text": "Karışımın sıcaklığı 90°C ile 20°C arasında sabit kalır"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın sıcaklığı 90°C'den yüksek olur"
+          },
+          {
+            "key": "D",
+            "text": "Karışımın sıcaklığı 20°C'den düşük olur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sıcaklık alışverişi olmadığını düşünüyor",
+          "C": "Sıcak çay sıcaklığı artırır, ılık su sıcaklığı azaltır sanıyor",
+          "D": "Sadece ılık suyun sıcaklığını dikkate alıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, eşit hacimli iki kaptan birine 50°C sıcaklığında su, diğerine 10°C sıcaklığında su koyuyor. Daha sonra iki kabı karıştırıyor. Karışımın sıcaklığı hakkında ne söylenebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karışımın sıcaklığı 50°C ile 10°C arasında bir değer olur"
+          },
+          {
+            "key": "B",
+            "text": "Karışımın sıcaklığı iki kaptaki suyun sıcaklığının toplamına eşit olur"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın sıcaklığı 10°C'den düşük olur"
+          },
+          {
+            "key": "D",
+            "text": "Karışımın sıcaklığı 50°C'den yüksek olur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sıcaklıkların ortalamasını almayı bilmiyor",
+          "C": "Daha soğuk suyun sıcaklığı azaltıcı etkisi olduğunu düşünüyor",
+          "D": "Daha sıcak suyun sıcaklığı artırıcı etkisi olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sıcaklığı 80°C olan bir miktar su ile sıcaklığı 15°C olan başka bir miktar su karıştırılıyor. Karışımın sıcaklığı 40°C oluyor. Bu durumdan yola çıkarak, ısı alışverişi hakkında ne söylenebilir? Gerekçelendiriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak çay ile sıcaklığı 20°C olan 300 mL ılık su karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Sıcak çay ve ılık su karıştırıldığında, sıcak çay ısısını ılık suya aktarır. Böylece karışımın sıcaklığı 90°C'den düşük, 20°C'den yüksek olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, eşit hacimli iki kaptan birine 50°C sıcaklığında su, diğerine 10°C sıcaklığında su koyuyor. Daha sonra iki kabı karıştırıyor. Karışımın sıcaklığı hakkında ne söylenebilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi sonucu sıcaklık dengelenir, karışımın sıcaklığı iki sıcaklığın arasında olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

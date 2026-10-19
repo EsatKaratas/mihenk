@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:51:55.955Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.5.5.3-r1"
+  },
+  "http": 200,
+  "sureMs": 34430,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir kahve makinasi 50 santilitre su ile çalışır. Kahve makinasi 2 dakika içinde 100 santilitre su isiatabilir. Kahve makinasinin isi isi kapasitesi kaç santilitre dakika?",
+        "options": [
+          {
+            "key": "A",
+            "text": "200"
+          },
+          {
+            "key": "B",
+            "text": "25"
+          },
+          {
+            "key": "C",
+            "text": "50"
+          },
+          {
+            "key": "D",
+            "text": "100"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Isi isi kapasitesini iki katına çıkarıyor",
+          "B": "Süreyi dakika yerine saniye olarak alıyor",
+          "D": "Kahve makinasinin toplam kapasitesini isi isi kapasitesi sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "100 / 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "isi isi kapasitesi",
+          "kahve makinasi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bardak 200 mililitre su ile doldurulur. 50 mililitre su 20 derece santigrat sıcaklıkta, 150 mililitre su 40 derece santigrat sıcaklıkta iken karıştırılır. Karışımın sıcaklığı kaç derece santigrat?",
+        "options": [
+          {
+            "key": "A",
+            "text": "40"
+          },
+          {
+            "key": "B",
+            "text": "50"
+          },
+          {
+            "key": "C",
+            "text": "30"
+          },
+          {
+            "key": "D",
+            "text": "20"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Büyük suyun sıcaklığını karışımın sıcaklığı sanıyor",
+          "B": "Karışımın sıcaklığını iki suyun sıcaklığının ortalaması sanıyor",
+          "D": "Küçük suyun sıcaklığını karışımın sıcaklığı sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(50 * 20 + 150 * 40) / 200",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışımın sıcaklığı",
+          "ısı alışverişi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir evde ısıtılmış su ile soğuk su karıştırılarak duş suyu hazırlanır. Soğuk suyun sıcaklığı 10 derece santigrat, ısıtılmış suyun sıcaklığı 50 derece santigrat. Duş suyunun sıcaklığı 30 derece santigrat olmasını istiyorsunuz. Soğuk su ve ısıtılmış suyun oranını belirleyerek duş suyunun sıcaklığını nasıl ayarlayabilirsiniz? Gerekçenizi veriniz.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "duş suyu",
+          "ısı alışverişi",
+          "oran"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir kahve makinasi 50 santilitre su ile çalışır. Kahve makinasi 2 dakika içinde 100 santilitre su isiatabilir. Kahve makinasinin isi isi kapasitesi kaç santilitre dakika?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Kahve makinası 2 dakika içinde 100 santilitre su ısıtabilir. Isıtma kapasitesi 100/2 = 50 santilitre/dakika.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bardak 200 mililitre su ile doldurulur. 50 mililitre su 20 derece santigrat sıcaklıkta, 150 mililitre su 40 derece santigrat sıcaklıkta iken karıştırılır. Karışımın sıcaklığı kaç derece santigrat?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Isı alışverişi sonucu sıcaklık ortalamaya yaklaşır",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

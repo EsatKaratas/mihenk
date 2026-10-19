@@ -1,0 +1,199 @@
+{
+  "zaman": "2026-10-19T09:54:14.827Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.8.5.7-r1"
+  },
+  "http": 200,
+  "sureMs": 13189,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerini ölçmek için bir pH metre kullanılır. Çözeltinin pH değeri 3,5 olarak ölçülür. Aynı miktarda bir baz çözeltisinin pH değeri 12,5 olarak ölçülür. Hangi çözelti daha fazla hidrojen iyonu içerir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "pH değeri ile hidrojen iyonu miktarı arasında doğrudan bir ilişki yoktur"
+          },
+          {
+            "key": "B",
+            "text": "Asit çözeltisi"
+          },
+          {
+            "key": "C",
+            "text": "İkisi de aynı miktarda hidrojen iyonu içerir"
+          },
+          {
+            "key": "D",
+            "text": "Baz çözeltisi"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değeri hidrojen iyonu konsantrasyonunu ölçmek için kullanılır",
+          "C": "Asit ve baz çözeltilerinin pH değerleri farklı olduğu için hidrojen iyonu miktarları da farklıdır",
+          "D": "Baz çözeltisinin pH değeri yüksek olduğu için daha az hidrojen iyonu içerir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "asit",
+          "baz",
+          "pH",
+          "hidrojen iyonu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 2 litre limon suyu hazırlanmaktadır. Limon suyunun pH değeri 2,0 olarak ölçülür. Aynı miktarda bir sirke çözeltisinin pH değeri 2,5 olarak ölçülür. Hangi çözelti daha asidiktir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Limon suyu"
+          },
+          {
+            "key": "B",
+            "text": "Sirke çözeltisi"
+          },
+          {
+            "key": "C",
+            "text": "İkisi de aynı asidite düzeyine sahiptir"
+          },
+          {
+            "key": "D",
+            "text": "pH değeri ile asidite arasında doğrudan bir ilişki yoktur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sirke çözeltisinin pH değeri daha yüksek olduğu için daha az asidiktir",
+          "C": "Limon suyu ve sirke çözeltisinin pH değerleri farklı olduğu için asidite düzeyleri de farklıdır",
+          "D": "PH değeri asiditeyi ölçmek için kullanılır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "asidite",
+          "pH",
+          "limon suyu",
+          "sirke"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir laboratuvar deneyinde, farklı pH değerlerine sahip çeşitli asit ve baz çözeltileri hazırlanmaktadır. 500 mL'lik bir asit çözeltisinin pH değeri 4,0 olarak ölçülür. Aynı miktarda bir baz çözeltisinin pH değeri 10,0 olarak ölçülür. Bu çözeltilerin pH değerlerini kullanarak, hangisinin daha fazla hidrojen iyonu içerdiğini ve nedenini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "asit",
+          "baz",
+          "pH",
+          "hidrojen iyonu",
+          "analiz"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerini ölçmek için bir pH metre kullanılır. Çözeltinin pH değeri 3,5 olarak ölçülür. Aynı miktarda bir baz çözeltisinin pH değeri 12,5 olarak ölçülür. Hangi çözelti daha fazla hidrojen iyonu içerir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "pH değeri 3,5 olan asit çözeltisi daha fazla hidrojen iyonu içerir çünkü pH değeri düşük olduğunda hidrojen iyonu konsantrasyonu yüksektir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir mutfakta, 2 litre limon suyu hazırlanmaktadır. Limon suyunun pH değeri 2,0 olarak ölçülür. Aynı miktarda bir sirke çözeltisinin pH değeri 2,5 olarak ölçülür. Hangi çözelti daha asidiktir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "pH değeri 2,0 olan limon suyu, pH değeri 2,5 olan sirke çözeltisinden daha asidiktir çünkü pH değeri ne kadar düşükse, çözelti o kadar asidiktir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

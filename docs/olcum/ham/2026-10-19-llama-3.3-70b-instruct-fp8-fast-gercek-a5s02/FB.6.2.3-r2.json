@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T09:51:59.612Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.6.2.3-r2"
+  },
+  "http": 200,
+  "sureMs": 13881,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuş yukarı çıkıyor ve hızını saatte 10 kilometreye düşürüyor. Bisikletçi, yokuş yukarı çıkarken hızının değişip değişmediğini merak ediyor. Sürat ve hız kavramlarını karşılaştırdığımızda, bisikletçinin yokuş yukarı çıkarken hangi kavramda bir değişiklik olduğu söylenebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hızda değişiklik olmaz, ancak süratte değişiklik olur"
+          },
+          {
+            "key": "B",
+            "text": "Hem süratte hem de hızda değişiklik olur"
+          },
+          {
+            "key": "C",
+            "text": "Süratte değişiklik olmaz, ancak hızda değişiklik olur"
+          },
+          {
+            "key": "D",
+            "text": "Hem süratte hem de hızda değişiklik olmaz"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yokuş yukarı çıkarken hızın değişmediğini düşünüyor",
+          "C": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder",
+          "D": "Sürat ve hızın aynı anlama geldiğini sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "yokuş"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun bahçesinde bir tekerlekli sandalye ile saatte 5 kilometre hızla gidiyor. Sonra, yokuş yukarı çıkıyor ve hızını saatte 3 kilometreye düşürüyor. Öğrenci, yokuş yukarı çıkarken sürat ve hız kavramlarını karşılaştırarak, hangi kavramda bir değişiklik olduğu hakkında bir karar vermelidir. Bu kararı ve gerekçesini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "yokuş"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir araba, düz bir yolda saatte 50 kilometre hızla gidiyor. Sonra, trafik ışıklarında beklemek zorunda kalıyor ve 2 dakika bekliyor. Trafik ışıklarından sonra, araba saatte 60 kilometre hızla devam ediyor. Arabanın bu hareketi sırasında sürat ve hız kavramlarını karşılaştırdığımızda, hangi kavramda bir değişiklik olduğu söylenebilir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuş yukarı çıkıyor ve hızını saatte 10 kilometreye düşürüyor. Bisikletçi, yokuş yukarı çıkarken hızının değişip değişmediğini merak ediyor. Sürat ve hız kavramlarını karşılaştırdığımızda, bisikletçinin yokuş yukarı çıkarken hangi kavramda bir değişiklik olduğu söylenebilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Hız vektörel bir niceliktir ve yönü değiştiğinde hız değişir. Yokuş yukarı çıkarken bisikletçinin yönü değişmedi, sadece hızı azaldı.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

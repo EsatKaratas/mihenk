@@ -1,0 +1,143 @@
+{
+  "zaman": "2026-10-19T10:11:49.985Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.EP.1.3-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 14287,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir evde kullanılan elektrik devresinde, 10 ohm direnç ve 5 amper akım vardır. Direncin akıma olan etkisi nedir? Direncin akıma olan etkisi hangi ilişkiye göre değişir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Direnç arttıkça akım azalır"
+          },
+          {
+            "key": "B",
+            "text": "Direnç arttıkça akım artar"
+          },
+          {
+            "key": "C",
+            "text": "Direnç ve akım arasında ters orantı yoktur"
+          },
+          {
+            "key": "D",
+            "text": "Direnç ve akım arasında doğrudan bir ilişki yoktur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Direnç ve akım arasında doğru orantı olduğunu sanıyor",
+          "C": "Direnç ve akım arasında ters orantı olmadığını düşünüyor",
+          "D": "Direnç ve akım arasında bir ilişki olmadığını düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "direnç",
+          "akım",
+          "ohm",
+          "amper"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrik devresinde, 15 ohm direnç ve 3 amper akım vardır. Direncin değeri %20 azalrsa, akım ne kadar değişir? Bu durumda akımın değişme nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "direnç",
+          "akım",
+          "ohm",
+          "amper"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir elektrik devresinde, 20 ohm direnç ve 2 amper akım vardır. Direncin değeri %50 artarsa, akım ne kadar değişir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm direnç ve 5 amper akım vardır. Direncin akıma olan etkisi nedir? Direncin akıma olan etkisi hangi ilişkiye göre değişir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Direnç arttıkça akım azalır çünkü Ohm yasasına göre I = V/R.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

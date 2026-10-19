@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:47:57.625Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.6.4.1-r3"
+  },
+  "http": 200,
+  "sureMs": 30062,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe uzun kenarı 15 metre, kısa kenarı 8 metre olan dikdörtgen şeklindedir. Bahçenin alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "120"
+          },
+          {
+            "key": "B",
+            "text": "100"
+          },
+          {
+            "key": "C",
+            "text": "130"
+          },
+          {
+            "key": "D",
+            "text": "110"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Kısa kenarı uzun kenar sanıyor",
+          "C": "Uzun kenarı 15, kısa kenarı 10 metre sanıyor",
+          "D": "Uzun kenarı 11 metre sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 * 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "dikdörtgen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir odanın tabanı 5 metreye 4 metre boyutlarında halı ile kaplanacaktır. Eğer 1 metrekare halı 20 TL ise, odanın tabanını kaplamak için kaç TL'ye ihtiyaç vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "350"
+          },
+          {
+            "key": "B",
+            "text": "400"
+          },
+          {
+            "key": "C",
+            "text": "450"
+          },
+          {
+            "key": "D",
+            "text": "500"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Halı fiyatını 15 TL sanıyor",
+          "C": "Oda boyutlarından birini 0.5 metre fazla sanıyor",
+          "D": "Oda boyutlarını 1 metre fazla sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 * 4 * 20",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "maliyet"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaatçı 100 metrekarelik bir alanı 20 cm x 20 cm boyutundaki fayanslarla kaplamak istiyor. Fayansların sayısı ve toplam maliyeti nasıl hesaplanır? Lütfen açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "fayans",
+          "maliyet"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçe uzun kenarı 15 metre, kısa kenarı 8 metre olan dikdörtgen şeklindedir. Bahçenin alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Dikdörtgenin alanı uzun kenarı ile kısa kenarının çarpımına eşittir. 15 * 8 = 120",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir odanın tabanı 5 metreye 4 metre boyutlarında halı ile kaplanacaktır. Eğer 1 metrekare halı 20 TL ise, odanın tabanını kaplamak için kaç TL'ye ihtiyaç vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Odaların taban alanı 5x4=20 metrekaredir, 20x20=400 TL gerekir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T10:04:28.513Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.YZ.3.5-r1",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 34816,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir doktor, yeni bir ilacın etkili olup olmadığını belirlemek için bir çalışma yapıyor. Doktor, 100 hasta üzerinde bir deney yapıyor ve hastaların %80'inin ilacı kullandıktan sonra iyileştiğini gözlemliyor. Ancak, doktor aynı zamanda %10'luk bir placebo etkisinin de olduğunu biliyor. Bayes Teoremi'ni kullanarak, doktor ilacın gerçekten etkili olduğu olasılığı hakkında bir çıkarım yapabilir. Doktorun ilacın etkili olduğu olasılığını hesaplamak için hangi bilgiye ihtiyacı vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İlacın etkili olmadığı olasılık ve hasta sayısının toplamı"
+          },
+          {
+            "key": "B",
+            "text": "İlacın etkili olduğu olasılık ve placebo etkisinin olasılığı"
+          },
+          {
+            "key": "C",
+            "text": "İlacın etkili olmadığı olasılık ve placebo etkisinin olasılığı"
+          },
+          {
+            "key": "D",
+            "text": "İlacın etkili olduğu olasılık ve hasta sayısının oranı"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İlacın etkili olmadığı olasılıkla hasta sayısının toplamını karıştırıyor.",
+          "C": "İlacın etkili olmadığı olasılıkla placebo etkisinin olasılığını karıştırıyor.",
+          "D": "İlacın etkili olduğu olasılıkla hasta sayısının oranını karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık",
+          "placebo etkisi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, bir sınavda belirli bir sorunun doğru cevaplanma olasılığını hesaplamak istiyor. Öğrenci, sorunun doğru cevaplanma olasılığının %60 olduğunu ve yanlış cevaplanma olasılığının %40 olduğunu biliyor. Ancak, öğrenci aynı zamanda %20'luk bir şans faktörünün de olduğunu biliyor. Bayes Teoremi'ni kullanarak, öğrenci sorunun doğru cevaplanma olasılığını hesaplayabilir. Öğrencinin sorunun doğru cevaplanma olasılığını hesaplamak için hangi bilgiye ihtiyacı vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sorunun doğru cevaplanma olasılığı ve yanlış cevaplanma olasılığının oranı"
+          },
+          {
+            "key": "B",
+            "text": "Sorunun yanlış cevaplanma olasılığı ve şans faktörünün olasılığı"
+          },
+          {
+            "key": "C",
+            "text": "Sorunun yanlış cevaplanma olasılığı ve doğru cevaplanma olasılığının oranı"
+          },
+          {
+            "key": "D",
+            "text": "Sorunun doğru cevaplanma olasılığı ve şans faktörünün olasılığı"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sorunun doğru cevaplanma olasılığıyla yanlış cevaplanma olasılığının oranını karıştırıyor.",
+          "B": "Sorunun yanlış cevaplanma olasılığıyla şans faktörünün olasılığını karıştırıyor.",
+          "C": "Sorunun yanlış cevaplanma olasılığıyla doğru cevaplanma olasılığının oranını karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık",
+          "şans faktörü"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir araştırma ekibi, yeni bir tedavi yönteminin etkili olup olmadığını belirlemek için bir çalışma yapıyor. Ekibin verileri, tedavi yönteminin %80 oranında başarılı olduğunu gösteriyor. Ancak, ekibin aynı zamanda %15'luk bir yan etki olasılığı da olduğunu biliyor. Bayes Teoremi'ni kullanarak, ekibin tedavi yönteminin gerçekten etkili olduğu olasılığını hesaplayabilir. Ekibin tedavi yönteminin etkili olduğu olasılığını hesaplamak için hangi adımları takip etmesi gerekir? Ekibin bu adımları takip ederek hangi sonucu elde edeceğini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık",
+          "yan etki"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir doktor, yeni bir ilacın etkili olup olmadığını belirlemek için bir çalışma yapıyor. Doktor, 100 hasta üzerinde bir deney yapıyor ve hastaların %80'inin ilacı kullandıktan sonra iyileştiğini gözlemliyor. Ancak, doktor aynı zamanda %10'luk bir placebo etkisinin de olduğunu biliyor. Bayes Teoremi'ni kullanarak, doktor ilacın gerçekten etkili olduğu olasılığı hakkında bir çıkarım yapabilir. Doktorun ilacın etkili olduğu olasılığını hesaplamak için hangi bilgiye ihtiyacı vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bayes Teoremi, bir olayın olasılığını hesaplamak için önceki olasılık, yeni bilgi ve olasılık dağılımı gerektirir. İlacın etkili olduğu olasılığı ve placebo etkisinin olasılığı bilinmelidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, bir sınavda belirli bir sorunun doğru cevaplanma olasılığını hesaplamak istiyor. Öğrenci, sorunun doğru cevaplanma olasılığının %60 olduğunu ve yanlış cevaplanma olasılığının %40 olduğunu biliyor. Ancak, öğrenci aynı zamanda %20'luk bir şans faktörünün de olduğunu biliyor. Bayes Teoremi'ni kullanarak, öğrenci sorunun doğru cevaplanma olasılığını hesaplayabilir. Öğrencinin sorunun doğru cevaplanma olasılığını hesaplamak için hangi bilgiye ihtiyacı vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Bayes Teoremi için önceki olasılık ve şans faktörüne ihtiyaç vardır",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

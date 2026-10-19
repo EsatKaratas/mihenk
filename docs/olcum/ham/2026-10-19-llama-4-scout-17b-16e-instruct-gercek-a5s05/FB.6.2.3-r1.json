@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:54:57.419Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.6.2.3-r1"
+  },
+  "http": 200,
+  "sureMs": 24374,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi koşarak 5 m/s süratle kat ediyor. Ahmet'in bisikletiyle ve koşarak kat ettiği mesafeler eşit olduğuna göre, koşarak kat ettiği süre kaç saniyedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30"
+          },
+          {
+            "key": "B",
+            "text": "40"
+          },
+          {
+            "key": "C",
+            "text": "20"
+          },
+          {
+            "key": "D",
+            "text": "50"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Mesafeyi yarıya düşürüyor; oysa mesafe sabittir",
+          "C": "Sürat farkını göz ardı ediyor",
+          "D": "Sürati ikiye katlıyor; oysa süre ve sürat ters orantılıdır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "20 * 10 / 5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "10 m/s"
+          },
+          {
+            "key": "B",
+            "text": "15 m/s"
+          },
+          {
+            "key": "C",
+            "text": "25 m/s"
+          },
+          {
+            "key": "D",
+            "text": "20 m/s"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Km/h'yi m/s'ye çevirirken 3.6 yerine 7.2 kullanıyor",
+          "B": "Hızı 4'e bölüyor; oysa 3.6'ya bölünür",
+          "C": "Hızı 3'e bölüyor; oysa 3.6'ya bölünür"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "72 / 3.6",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "birim dönüşümü"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sürat ve hız kavramları arasındaki farkı açıklayınız ve birer örnek veriniz.",
+        "difficulty": "hard",
+        "bloom": "anlama",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "kavram",
+          "fark"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi koşarak 5 m/s süratle kat ediyor. Ahmet'in bisikletiyle ve koşarak kat ettiği mesafeler eşit olduğuna göre, koşarak kat ettiği süre kaç saniyedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bisikletle kat edilen mesafe 10 m/s * 20 s = 200 m, koşarak kat edilen mesafe 5 m/s * t = 200 m, t = 40 s.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "1 km = 1000 m, 1 saat = 3600 s, hızı m/s'ye çevirmek için km/h'den 1000/3600 çıkar. 72 km/h = 72 * (1000/3600) m/s = 20 m/s",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

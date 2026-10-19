@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T09:54:17.328Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.5.5.3-r3"
+  },
+  "http": 200,
+  "sureMs": 28051,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak çay ile sıcaklığı 20°C olan 100 mL soğuk süt karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karışımın sıcaklığı 20°C ile 90°C arasında bir değer olur"
+          },
+          {
+            "key": "B",
+            "text": "Karışımın sıcaklığı 90°C olur"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın sıcaklığı 55°C olur"
+          },
+          {
+            "key": "D",
+            "text": "Karışımın sıcaklığı 20°C olur"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sıcak çay sıcaklığını korur",
+          "C": "Ortalama sıcaklık hesaplıyor",
+          "D": "Soğuk süt sıcaklığını korur"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sıcaklığı farklı olan iki sıvı karıştırıldığında ne olur? Bu durumu açıklayınız ve bir örnek veriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 1,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir öğrenci, eşit hacimli sıcak ve soğuk su karışımının sıcaklığını ölçüyor. Sıcak su 80°C, soğuk su 10°C ise, karışımın sıcaklığı ne olur?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak çay ile sıcaklığı 20°C olan 100 mL soğuk süt karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi nedeniyle karışımın sıcaklığı sıcak çay ve soğuk sütün sıcaklığı arasında bir değer alır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

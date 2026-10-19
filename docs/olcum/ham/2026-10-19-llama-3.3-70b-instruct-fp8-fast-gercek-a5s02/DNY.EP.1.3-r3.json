@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:12:45.001Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.EP.1.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 21755,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile bağlantılıdır. Lambanın akımını hesaplamak için hangi formülü kullanmalıyız? Buna göre, lambanın akımını hesaplamak için hangi ilişkiyi kullanmalıyız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Akım = Direnç / Gerilim"
+          },
+          {
+            "key": "B",
+            "text": "Akım = Gerilim * Direnç"
+          },
+          {
+            "key": "C",
+            "text": "Akım = Direnç - Gerilim"
+          },
+          {
+            "key": "D",
+            "text": "Akım = Gerilim / Direnç"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Akım ve direnç arasındaki ilişkiyi tersine çevirmektedir.",
+          "B": "Akım ve gerilim arasındaki ilişkiyi çarpma olarak düşünmektedir.",
+          "C": "Akım ve direnç arasındaki ilişkiyi çıkarma olarak düşünmektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 / 10",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir elektrik devresinde, 5 ohm dirençli bir eleman 10 voltluk bir pil ile bağlantılıdır. Direnç ve gerilim aynı kalmak kaydıyla, akımı iki katına çıkarmak için ne yapılmalıdır? Buna göre, akımı iki katına çıkarmak için hangi değişikliği yapmalıyız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Gerilim yarıya indirilmelidir"
+          },
+          {
+            "key": "B",
+            "text": "Gerilim iki katına çıkarılmalıdır"
+          },
+          {
+            "key": "C",
+            "text": "Direnç yarıya indirilmelidir"
+          },
+          {
+            "key": "D",
+            "text": "Direnç iki katına çıkarılmalıdır"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Gerilim ve akım arasındaki ilişkiyi tersine çevirmektedir.",
+          "C": "Direnç ve akım arasındaki ilişkiyi doğru olarak anlamakta ancak uygulamada hata yapmaktadır.",
+          "D": "Direnç ve akım arasındaki ilişkiyi tersine çevirmektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrik devresinde, 8 ohm dirençli bir eleman 16 voltluk bir pil ile bağlantılıdır. Akımı hesaplayınız ve bu değerden yola çıkarak, direnç ve gerilim arasındaki ilişkiyi açıklayınız. Direnç ve gerilim aynı kalmak kaydıyla, akımı üç katına çıkarmak için ne yapılmalıdır? Bu durumda, akım ve direnç arasındaki ilişkiyi nasıl yorumlarsınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim",
+          "ilişki"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile bağlantılıdır. Lambanın akımını hesaplamak için hangi formülü kullanmalıyız? Buna göre, lambanın akımını hesaplamak için hangi ilişkiyi kullanmalıyız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Ohm Kanunu'na göre akım gerilim bölü dirençtir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir elektrik devresinde, 5 ohm dirençli bir eleman 10 voltluk bir pil ile bağlantılıdır. Direnç ve gerilim aynı kalmak kaydıyla, akımı iki katına çıkarmak için ne yapılmalıdır? Buna göre, akımı iki katına çıkarmak için hangi değişikliği yapmalıyız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ohm yasasına göre, I = V/R. Akımı iki katına çıkarmak için gerilimi iki katına çıkarmak gerekir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

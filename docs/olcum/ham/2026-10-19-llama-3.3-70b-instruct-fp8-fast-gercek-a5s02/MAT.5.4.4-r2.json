@@ -1,0 +1,200 @@
+{
+  "zaman": "2026-10-19T09:42:42.989Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.5.4.4-r2"
+  },
+  "http": 200,
+  "sureMs": 16732,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, 10 cm uzunluğunda ve 5 cm genişliğinde bir dikdörtgen şekilli resim çerçevesi satın aldı. Çerçeveyi süslemek için çerçevenin çevresine bir şerit koyacak. Ayşe'nin şerit için kaç cm şerit alması gerekir? Çerçeveyi süslemek için 18 cm şerit aldığını varsayarsak, bu şeridin çerçevenin çevresini tam olarak kaç kere sarabileceğini hesaplayabiliriz. Buna göre, Ayşe'nin çerçevenin çevresini tam olarak sarabileceği şerit uzunluğu kaç cm'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 cm"
+          },
+          {
+            "key": "B",
+            "text": "24 cm"
+          },
+          {
+            "key": "C",
+            "text": "18 cm"
+          },
+          {
+            "key": "D",
+            "text": "12 cm"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çerçeveyi sadece bir tarafının genişliğine göre hesaplıyor.",
+          "C": "Çerçeveyi süslemek için aldığını varsaydığı şeridin uzunluğunu, çerçevenin çevresine sarılması gereken uzunlukla karıştırıyor.",
+          "D": "Çerçeveyi sadece bir tarafının uzunluğuna göre hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "2 * (10 + 5)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına, bahçeyi güneşten korumak için bir gölge bezi sermek istiyorsunuz. Gölge bezinin kaç metre kare olması gerekir? Buna göre, gölge bezinin boyutlarını hesaplayabiliriz. Gölge bezinin boyutu kaç metre kare olmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "120 metre kare"
+          },
+          {
+            "key": "B",
+            "text": "140 metre kare"
+          },
+          {
+            "key": "C",
+            "text": "100 metre kare"
+          },
+          {
+            "key": "D",
+            "text": "160 metre kare"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Bahçenin uzunluğunu ve genişliğini çarparken, birini diğerinin iki katına çıkarmaya çalışıyor.",
+          "C": "Bahçenin uzunluğunu ve genişliğini toplayarak, alanını hesaplamaya çalışıyor.",
+          "D": "Bahçenin çevresini hesaplayarak, alanını bulmaya çalışıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 * 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgen şekilli oda 12 metre uzunluğunda ve 9 metre genişliğindedir. Odanın boyanması için kaç metre kare boyaya ihtiyaç vardır? Buna göre, odanın boyanması için gereken boyanın metre kare cinsinden miktarını hesaplayabilir ve bu hesaplamayı neden bu şekilde yaptığınızı açıklayabilirsiniz.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "boyama",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, 10 cm uzunluğunda ve 5 cm genişliğinde bir dikdörtgen şekilli resim çerçevesi satın aldı. Çerçeveyi süslemek için çerçevenin çevresine bir şerit koyacak. Ayşe'nin şerit için kaç cm şerit alması gerekir? Çerçeveyi süslemek için 18 cm şerit aldığını varsayarsak, bu şeridin çerçevenin çevresini tam olarak kaç kere sarabileceğini hesaplayabiliriz. Buna göre, Ayşe'nin çerçevenin çevresini tam olarak sarabileceği şerit uzunluğu kaç cm'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Dikdörtgenin çevresi 2*(10+5) = 30 cm. 18 cm şerit 30 cm çevreyi 0,6 kere sarabilir. Çerçeveyi tam sarabileceği en uygun şerit uzunluğu 30 cm'dir, en yakın tam sayı şıkkı 30'a en yakın olan C şıkkıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına, bahçeyi güneşten korumak için bir gölge bezi sermek istiyorsunuz. Gölge bezinin kaç metre kare olması gerekir? Buna göre, gölge bezinin boyutlarını hesaplayabiliriz. Gölge bezinin boyutu kaç metre kare olmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Dikdörtgenin alanı uzunluk x genişliktir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

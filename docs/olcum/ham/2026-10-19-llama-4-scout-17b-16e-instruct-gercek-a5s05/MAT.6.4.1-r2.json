@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:47:18.851Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.6.4.1-r2"
+  },
+  "http": 200,
+  "sureMs": 115579,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu döşemek için taşlar kullanıyor. Taşların her biri 0,5 metre uzunluğunda. Bahçıvan, bahçe yolunun tamamını döşemek için kaç taşa ihtiyacı var?",
+        "options": [
+          {
+            "key": "A",
+            "text": "15"
+          },
+          {
+            "key": "B",
+            "text": "20"
+          },
+          {
+            "key": "C",
+            "text": "30"
+          },
+          {
+            "key": "D",
+            "text": "25"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bahçıvanın sadece yolun bir kısmını döşediğini sanıyor.",
+          "B": "Bahçe yolunun uzunluğunu yanlış hesaplıyor.",
+          "D": "Taşların uzunluğunu yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 / 0.5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "uzunluk",
+          "alan",
+          "ölçme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir evin pencereleri, her biri 1,5 metre genişliğinde ve 2 metre yüksekliğinde. Evde 4 pencere var. Pencerelerin toplam alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "12"
+          },
+          {
+            "key": "B",
+            "text": "6"
+          },
+          {
+            "key": "C",
+            "text": "8"
+          },
+          {
+            "key": "D",
+            "text": "10"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Pencerelerin sayısını yanlış hesaplıyor.",
+          "C": "Pencerelerin genişliğini yanlış hesaplıyor.",
+          "D": "Pencerelerin yüksekliğini yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "1.5 * 2 * 4",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "ölçme",
+          "pencere"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, 10 metre uzunluğundaki bir odanın boyanması için kaç litre boya gerektiğini hesaplamak istiyor. Odanın genişliği 3 metre ve tavan yüksekliği 2,5 metre. Öğrenci, 1 litre boya ile 10 metrekarelik bir alanı boyayabileceğini biliyor. Öğrenci kaç litre boya almalıdır ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "boyama",
+          "alan",
+          "ölçme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": true,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu döşemek için taşlar kullanıyor. Taşların her biri 0,5 metre uzunluğunda. Bahçıvan, bahçe yolunun tamamını döşemek için kaç taşa ihtiyacı var?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bahçe yolunun uzunluğu 15 metre, taşların uzunluğu 0.5 metre. 15 / 0.5 = 30 taşa ihtiyaç var.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir evin pencereleri, her biri 1,5 metre genişliğinde ve 2 metre yüksekliğinde. Evde 4 pencere var. Pencerelerin toplam alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Her pencerenin alanı 1,5 * 2 = 3 metrekaredir. 4 pencere varsa toplam alan 3 * 4 = 12 metrekaredir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

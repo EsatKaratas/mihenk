@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:03:19.252Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.O.8.9-r1"
+  },
+  "http": 200,
+  "sureMs": 17565,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe ve Mehmet iki farklı kitap okumaktadır. Ayşe'nin kitabı 200 sayfa, Mehmet'in kitabı 250 sayfa. Her iki kitap da aynı konuyu işlemektedir. Ayşe kitabı 4 günde, Mehmet kitabı 5 günde bitirmiştir. Bu bilgiler ışığında, kimin daha hızlı okuduğunu karşılaştırmak için hangi bilgiye ihtiyacımız vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Her iki kitabın da basım tarihleri"
+          },
+          {
+            "key": "B",
+            "text": "Her iki kitabın da konu çeşitliliği"
+          },
+          {
+            "key": "C",
+            "text": "Her iki kitabın da sayfa boyutları"
+          },
+          {
+            "key": "D",
+            "text": "Her iki kişinin de okuma hızları"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kitabın basım tarihini okuma hızıyla karıştırmaktadır.",
+          "B": "Konu çeşitliliğini okuma hızıyla karıştırıyor.",
+          "C": "Sayfa boyutunu okuma hızıyla directly ilişkilendirmektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, iki farklı metni okumaktadır. Birinci metinde 150 kelime, ikinci metinde 120 kelime bulunmaktadır. Öğrenci, birinci metni 10 dakikada, ikinci metni 8 dakikada okuyabilmektedir. Bu bilgiler ışığında, öğrencinin okuma hızını hesaplamak için hangi formülü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kelime sayısı / dakika"
+          },
+          {
+            "key": "B",
+            "text": "Dakika - kelime sayısı"
+          },
+          {
+            "key": "C",
+            "text": "Dakika / kelime sayısı"
+          },
+          {
+            "key": "D",
+            "text": "Kelime sayısı + dakika"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Dakikayı kelime sayısından çıkarmakta, bu da negatif bir okuma hızı anlamına gelmektedir.",
+          "C": "Okuma hızının formülünü tersine çevirmektedir.",
+          "D": "Kelime sayısını ve dakikayı toplamakta, bu da anlamsız bir sonuç doğurmaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "150 / 10",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, iki farklı metni okumuştur. Birinci metinde 200 kelime, ikinci metinde 180 kelime bulunmaktadır. Öğrenci, birinci metni 12 dakikada, ikinci metni 10 dakikada okuyabilmektedir. Bu bilgiler ışığında, öğrencinin okuma hızını karşılaştırın ve hangisinin daha hızlı okunduğunu gerekçelendirin.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma",
+          "gerekçelendirme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe ve Mehmet iki farklı kitap okumaktadır. Ayşe'nin kitabı 200 sayfa, Mehmet'in kitabı 250 sayfa. Her iki kitap da aynı konuyu işlemektedir. Ayşe kitabı 4 günde, Mehmet kitabı 5 günde bitirmiştir. Bu bilgiler ışığında, kimin daha hızlı okuduğunu karşılaştırmak için hangi bilgiye ihtiyacımız vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Sayfa boyutları farklıysa aynı sayfa sayısı aynı hızı vermeyebilir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, iki farklı metni okumaktadır. Birinci metinde 150 kelime, ikinci metinde 120 kelime bulunmaktadır. Öğrenci, birinci metni 10 dakikada, ikinci metni 8 dakikada okuyabilmektedir. Bu bilgiler ışığında, öğrencinin okuma hızını hesaplamak için hangi formülü kullanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Okuma hızı, belirli bir sürede okunan kelime sayısı ile ölçülür.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

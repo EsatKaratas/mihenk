@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:50:59.048Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.5.5.3-r3"
+  },
+  "http": 200,
+  "sureMs": 18786,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 50°C sıcaklıkta 200 mL su karıştırılıyor. Karışımın sıcaklığı kaç derece olur? Bu verilere göre ısı alışverişi nasıl gerçekleşir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "40°C"
+          },
+          {
+            "key": "B",
+            "text": "20°C"
+          },
+          {
+            "key": "C",
+            "text": "30°C"
+          },
+          {
+            "key": "D",
+            "text": "35°C"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Isı alışverişi hesabını yanlış yapıyor.",
+          "B": "Sıcak suyun etkisini göz ardı ediyor.",
+          "D": "Soğuk suyun etkisini abartıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(500*20 + 200*50) / (500+200)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bardakta 10°C sıcaklıkta 300 mL su ve bir diğer bardakta 80°C sıcaklıkta 100 mL su bulunuyor. Bu iki su bir araya getirildiğinde oluşan karışımın sıcaklığı kaç derece olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "35°C"
+          },
+          {
+            "key": "B",
+            "text": "30°C"
+          },
+          {
+            "key": "C",
+            "text": "25°C"
+          },
+          {
+            "key": "D",
+            "text": "40°C"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sıcak suyun etkisini abartıyor.",
+          "B": "Soğuk suyun etkisini göz ardı ediyor.",
+          "D": "Isı alışverişi hesabını yanlış yapıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(300*10 + 100*80) / (300+100)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, 15°C sıcaklıkta 250 mL su ve 90°C sıcaklıkta 150 mL su karıştırarak oluşan karışımın sıcaklığını ölçmek istiyor. Bu deneyde ısı alışverişi nasıl gerçekleşir ve öğrenci hangi sonuçları beklemelidir? Nedenini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık",
+          "deneysel sonuç"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 2,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 50°C sıcaklıkta 200 mL su karıştırılıyor. Karışımın sıcaklığı kaç derece olur? Bu verilere göre ısı alışverişi nasıl gerçekleşir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Isı alışverişi sonucu sıcak su soğur, soğuk su ısınır. Karışımın sıcaklığı iki suyun ortalamasıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bardakta 10°C sıcaklıkta 300 mL su ve bir diğer bardakta 80°C sıcaklıkta 100 mL su bulunuyor. Bu iki su bir araya getirildiğinde oluşan karışımın sıcaklığı kaç derece olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Isı alışverişi sonucu sıcaklıklar eşitlenir, ortalama sıcaklık hesaplanır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

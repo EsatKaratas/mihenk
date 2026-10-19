@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:03:48.766Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.O.8.9-r2"
+  },
+  "http": 200,
+  "sureMs": 14305,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuduğu iki metnin arasındaki benzerlik ve farklılıkları belirlemek istiyor. İlk metinde bir yazar, doğanın güzelliğini anlatırken, ikinci metinde başka bir yazar, doğanın insan üzerindeki etkilerini anlatıyor. Öğrenci, bu metinleri karşılaştırmak için hangi yöntemi kullanmalıdır? Bu metinleri karşılaştırmak için öğrenci hangisini seçmelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yazarların kullandıkları dil ve üslubu karşılaştırmak"
+          },
+          {
+            "key": "B",
+            "text": "Metinlerin konularını ve içeriklerini karşılaştırmak"
+          },
+          {
+            "key": "C",
+            "text": "Yazarların yaşlarını ve mesleklerini karşılaştırmak"
+          },
+          {
+            "key": "D",
+            "text": "Metinlerin uzunluğunu ve sayfalarını karşılaştırmak"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yazarların dil ve üslubunu metinlerin içeriği ile karıştırmaktadır.",
+          "C": "Yazarların kişisel bilgilerini metinlerin içeriği ile karıştırmaktadır.",
+          "D": "Metinlerin fiziksel özelliklerini metinlerin içeriği ile karıştırmaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "metin analizi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğretmen, öğrencilerine iki farklı metin okumalarını istiyor. İlk metinde bir hikaye anlatılırken, ikinci metinde bir bilimsel makale yer alıyor. Öğretmen, öğrencilerin bu metinleri okuduktan sonra hangi beceriyi geliştirmelerini istiyor? Öğretmen hangisini hedefliyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Metinleri okuduktan sonra metinleri karşılaştırma becerisi"
+          },
+          {
+            "key": "B",
+            "text": "Metinleri okuduktan sonra metinlerin uzunluğunu ölçme"
+          },
+          {
+            "key": "C",
+            "text": "Metinleri okuduktan sonra anımsama becerisi"
+          },
+          {
+            "key": "D",
+            "text": "Metinleri okuduktan sonra okuma hızını artırma"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Metinlerin uzunluğunu ölçme becerisini metinleri karşılaştırma becerisi ile karıştırmaktadır.",
+          "C": "Anımsama becerisini metinleri karşılaştırma becerisi ile karıştırmaktadır.",
+          "D": "Okuma hızını artırma becerisini metinleri karşılaştırma becerisi ile karıştırmaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "metin analizi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okuduğu iki metni karşılaştırırken benzerlik ve farklılıkları belirlemeye çalışıyor. Metinlerin konuları ve içerikleri farklı olsa da, öğrenci metinlerin bazı ortak noktalarını bulmaya çalışıyor. Öğrenci, bu metinleri karşılaştırmak için hangi stratejileri kullanabilir? Bu stratejileri neden etkili olabilir?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "metin analizi",
+          "strateji"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuduğu iki metnin arasındaki benzerlik ve farklılıkları belirlemek istiyor. İlk metinde bir yazar, doğanın güzelliğini anlatırken, ikinci metinde başka bir yazar, doğanın insan üzerindeki etkilerini anlatıyor. Öğrenci, bu metinleri karşılaştırmak için hangi yöntemi kullanmalıdır? Bu metinleri karşılaştırmak için öğrenci hangisini seçmelidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Metinlerin konularını ve içeriklerini karşılaştırmak, iki metin arasındaki benzerlik ve farklılıkları belirlemek için en uygun yöntemdir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğretmen, öğrencilerine iki farklı metin okumalarını istiyor. İlk metinde bir hikaye anlatılırken, ikinci metinde bir bilimsel makale yer alıyor. Öğretmen, öğrencilerin bu metinleri okuduktan sonra hangi beceriyi geliştirmelerini istiyor? Öğretmen hangisini hedefliyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Öğretmen öğrencilerin okuduklarını karşılaştırma becerisini geliştirmelerini istiyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

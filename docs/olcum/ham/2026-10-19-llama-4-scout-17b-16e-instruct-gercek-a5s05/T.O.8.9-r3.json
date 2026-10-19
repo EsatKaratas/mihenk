@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:13:26.169Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.O.8.9-r3"
+  },
+  "http": 200,
+  "sureMs": 39489,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, okumak için yeni bir kitap seçmek istiyor. Kitap 1. sayfadan 200. sayfaya kadar numaralandırılmıştır. Kitabın sayfalarını numaralandırmak için kaç rakam kullanılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "192"
+          },
+          {
+            "key": "B",
+            "text": "202"
+          },
+          {
+            "key": "C",
+            "text": "189"
+          },
+          {
+            "key": "D",
+            "text": "200"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Kitap sayfalarının numaralandırılması için sayfa sayısına 2 ekliyor",
+          "C": "1-9 arasındaki sayfalar için 9 rakam, 10-99 arasındaki sayfalar için 90*2=180 rakam; toplam 189",
+          "D": "Kitap sayfalarının numaralandırılması için sadece sayfa sayısını düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "sayfa",
+          "numara"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Okul kütüphanesinde 5 adet Türkçe kitap, 3 adet Matematik kitabı ve 2 adet Fen kitabı vardır. Bu kitaplar arasından rastgele seçilen bir kitabın Matematik kitabı olma olasılığı nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1/2"
+          },
+          {
+            "key": "B",
+            "text": "1/5"
+          },
+          {
+            "key": "C",
+            "text": "2/5"
+          },
+          {
+            "key": "D",
+            "text": "3/10"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Toplam kitap sayısını 10 sanıyor",
+          "B": "Matematik kitabı sayısını toplam kitap sayısına bölmüyor",
+          "C": "Fen kitabı sayısını toplam kitap sayısına bölüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "olasılık",
+          "matematik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, iki farklı hikaye okumuştur. İlk hikaye 120 sayfadan, ikinci hikaye 180 sayfadan oluşmaktadır. Ece'nin okuduğu sayfaları karşılaştırarak, okuduklarınızdan hangi hikayenin daha uzun olduğunu düşünüyorsunuz? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "hikaye",
+          "sayfa",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, okumak için yeni bir kitap seçmek istiyor. Kitap 1. sayfadan 200. sayfaya kadar numaralandırılmıştır. Kitabın sayfalarını numaralandırmak için kaç rakam kullanılmıştır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Sayfa numaraları 1'den 200'e kadardır, tek haneli sayılar 1-9, iki haneli sayılar 10-99 ve üç haneli sayılar 100-200'dür.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Okul kütüphanesinde 5 adet Türkçe kitap, 3 adet Matematik kitabı ve 2 adet Fen kitabı vardır. Bu kitaplar arasından rastgele seçilen bir kitabın Matematik kitabı olma olasılığı nedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Toplam 10 kitap vardır, 3 tanesi Matematik kitabıdır. Olasılık 3/10'dur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T10:03:35.668Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.5.15-r2"
+  },
+  "http": 200,
+  "sureMs": 61290,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, arkadaşının doğum günü için bir davetiye hazırlıyor. Davetiye metninde 'Geliyor musunuz?' sorusunu sormak istiyor. Doğru yazılışı aşağıdakilerden hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Geliyorsunuz?"
+          },
+          {
+            "key": "B",
+            "text": "Geliyormusunuz?"
+          },
+          {
+            "key": "C",
+            "text": "Geliyor musunuz?"
+          },
+          {
+            "key": "D",
+            "text": "Gelirmisiniz?"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Gelecek zaman ifadesini kullanmış, soru ifadesini de yanlış oluşturmuş",
+          "B": "Gelmek fiilini yanlış eklemiş, soru ifadesini de yanlış oluşturmuş",
+          "D": "Gelmek fiilini yanlış eklemiş, soru ifadesini de yanlış oluşturmuş"
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru yazılışı",
+          "noktalama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, bir hikaye yazıyor. Hikayesinde 'Büyükannemle beraber parka gittik.' cümlesini kullanıyor. Cümlede 'beraber' kelimesinin yerine uygun bağlantı ifadesi aşağıdakilerden hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "ile"
+          },
+          {
+            "key": "B",
+            "text": "veya"
+          },
+          {
+            "key": "C",
+            "text": "ki"
+          },
+          {
+            "key": "D",
+            "text": "ama"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Seçenekli cümleler bağlar, uygun değildir",
+          "C": "Bağlaç olarak kullanılmaz",
+          "D": "Zıt anlamlı cümleler bağlar, uygun değildir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadesi",
+          "kelime seçimi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, bir sınıf toplantısı düzenliyor. Toplantıda 'Öğrencilerin %60'ı projeyi bitirdi.' ifadesini kullanıyor. Bu ifadeyi daha etkili hale getirmek için Ece'nin kullanabileceği bir bağlantı ifadesi öneriniz ve nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadesi",
+          "etkili iletişim"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, arkadaşının doğum günü için bir davetiye hazırlıyor. Davetiye metninde 'Geliyor musunuz?' sorusunu sormak istiyor. Doğru yazılışı aşağıdakilerden hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Doğru soru structure kullanılmıştır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Emre, bir hikaye yazıyor. Hikayesinde 'Büyükannemle beraber parka gittik.' cümlesini kullanıyor. Cümlede 'beraber' kelimesinin yerine uygun bağlantı ifadesi aşağıdakilerden hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Beraber yerine 'ile' kullanmak uygun bir bağlantı ifadesidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

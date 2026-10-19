@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T09:47:22.749Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.6.4.1-r3"
+  },
+  "http": 200,
+  "sureMs": 76762,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bu bahçenin alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "120"
+          },
+          {
+            "key": "B",
+            "text": "130"
+          },
+          {
+            "key": "C",
+            "text": "110"
+          },
+          {
+            "key": "D",
+            "text": "100"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Uzunluğu genişlik sanıyor ve tersine hesaplıyor",
+          "C": "Uzunluk ve genişliği toplayarak hesaplıyor",
+          "D": "Genişliği uzunluk sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 * 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir odanın tabanı 5 metreye 4 metre boyutlarında halı ile kaplanacaktır. Halının metre kare fiyatı 20 TL ise, odanın tabanını kaplamak için kaç TL'ye ihtiyaç vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "500"
+          },
+          {
+            "key": "B",
+            "text": "400"
+          },
+          {
+            "key": "C",
+            "text": "450"
+          },
+          {
+            "key": "D",
+            "text": "350"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Halı fiyatını ve odanın bir kenarını yanlış hesaplıyor",
+          "C": "Odanın bir kenarını yanlış ölçüyor",
+          "D": "Halı fiyatını yanlış hatırlıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 * 4 * 20",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "fiyat",
+          "metrekare"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaatçı 10 metre uzunluğunda ve 5 metre genişliğinde bir duvar inşa ediyor. Duvarın alanı kaç metrekaredir? İnşaatçının bu duvarı inşa etmek için ne tür bir ölçme ve değerlendirme yapması gerekir?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "genişlik",
+          "ölçme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bu bahçenin alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bahçe alanı uzunluk ve genişliğin çarpılmasıyla bulunur. 15 * 8 = 120 metrekaredir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir odanın tabanı 5 metreye 4 metre boyutlarında halı ile kaplanacaktır. Halının metre kare fiyatı 20 TL ise, odanın tabanını kaplamak için kaç TL'ye ihtiyaç vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Odaların taban alanı 5x4=20 m², halının metre kare fiyatı 20 TL'dir. 20 m² x 20 TL = 400 TL",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

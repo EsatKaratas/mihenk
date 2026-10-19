@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T10:02:26.714Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.5.15-r1"
+  },
+  "http": 200,
+  "sureMs": 70639,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Öğretmen, öğrencilerden bir hikaye yazı yazmalarını istiyor. Hikaye yazarken uygun bağlantı ifadelerini kullanmalarını istiyor. Aşağıdaki cümlelerden hangisi uygun bağlantı ifadesi içerir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Ben dün parka gittim. Arkadaşlarımın yanına oturdum."
+          },
+          {
+            "key": "B",
+            "text": "Ben dün parka gittim. Çok eğlendim."
+          },
+          {
+            "key": "C",
+            "text": "Ben dün parka gittim; arkadaşlarım da vardı."
+          },
+          {
+            "key": "D",
+            "text": "Ben dün parka gittim. Gittim."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki cümle arasında uygun bağlantı ifadesi kullanmamıştır.",
+          "B": "İki cümle arasında bağlantı ifadesi kullanmamıştır.",
+          "D": "İkinci cümle anlamsızdır ve bağlantı ifadesi içermez."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadesi",
+          "hikaye yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, arkadaşıyla randevulaşırken 'Önce sen benim evime gel, sonra birlikte parka gidelim' diyor. Arkadaşı 'Tamam, saat 3'te evine geleceğim' diyor. Aşağıdaki ifadelerden hangisi bu konuşmaya uygun bir bağlantı ifadesidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sonra"
+          },
+          {
+            "key": "B",
+            "text": "Bununla birlikte"
+          },
+          {
+            "key": "C",
+            "text": "Önce"
+          },
+          {
+            "key": "D",
+            "text": "Ancak"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "İki olayın birlikte gerçekleştiğini belirtir, uygun değildir.",
+          "C": "Sırayı belirtir, ancak tek başına yeterli değildir.",
+          "D": "Bir farklılık belirtir, uygun değildir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadesi",
+          "konuşma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir kompozisyon yazarken akıcı bir metin oluşturmak istiyor. Uygun bağlantı ifadelerini kullanarak metni daha ilgi çekici hale getirmek istiyor. Bu durumda, öğrencinin kompozisyonunda hangi bağlantı ifadelerini kullanması gerektiğini önerirsiniz? Neden?",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadesi",
+          "kompozisyon yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Öğretmen, öğrencilerden bir hikaye yazı yazmalarını istiyor. Hikaye yazarken uygun bağlantı ifadelerini kullanmalarını istiyor. Aşağıdaki cümlelerden hangisi uygun bağlantı ifadesi içerir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Cümlede 'de' bağlacı vardır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, arkadaşıyla randevulaşırken 'Önce sen benim evime gel, sonra birlikte parka gidelim' diyor. Arkadaşı 'Tamam, saat 3'te evine geleceğim' diyor. Aşağıdaki ifadelerden hangisi bu konuşmaya uygun bir bağlantı ifadesidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Önce sen benim evime gel, sonra birlikte parka gidelim cümlesinde 'önce' ve 'sonra' sıralaması var.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

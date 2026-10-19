@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:36:20.941Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.YT.4.5-r1",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 53945,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, C++ dilinde bir program yazarak iki sayının toplamını hesaplamak istiyor. Programı yazarken operatörleri doğru kullanması gerekiyor. İki sayının toplamını hesaplamak için hangi operatörü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "+"
+          },
+          {
+            "key": "B",
+            "text": "/"
+          },
+          {
+            "key": "C",
+            "text": "-"
+          },
+          {
+            "key": "D",
+            "text": "*"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Bölme operatörünü kullanıyor; toplama işlemi için uygun değil",
+          "C": "Çıkarma operatörünü kullanıyor; toplama işlemi için uygun değil",
+          "D": "Çarpma operatörünü kullanıyor; toplama işlemi için uygun değil"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "toplama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci C++ dilinde değişken tanımlarken veri tipi seçimi yapıyor. Öğrenci, programında bir değişkenin değerini 10'dan 20'ye değiştirmek istiyor. Hangi veri tipi en uygunudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "char"
+          },
+          {
+            "key": "B",
+            "text": "float"
+          },
+          {
+            "key": "C",
+            "text": "bool"
+          },
+          {
+            "key": "D",
+            "text": "int"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Char veri tipini seçiyor; sayısal değerler için uygun değil",
+          "B": "Float veri tipini seçiyor; tam sayı aralığında değerler için uygun değil",
+          "C": "Bool veri tipini seçiyor; sayısal değerler için uygun değil"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "veri tipi",
+          "değişken"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "C++ dilinde bir program yazarken, operatörleri kullanarak sonucunu yordamak istiyorum. Programımda iki sayının toplamını hesaplamak için hangi operatörü kullanmalıyım ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "toplama",
+          "yordama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, C++ dilinde bir program yazarak iki sayının toplamını hesaplamak istiyor. Programı yazarken operatörleri doğru kullanması gerekiyor. İki sayının toplamını hesaplamak için hangi operatörü kullanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "İki sayının toplamını hesaplamak için toplama operatörü kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci C++ dilinde değişken tanımlarken veri tipi seçimi yapıyor. Öğrenci, programında bir değişkenin değerini 10'dan 20'ye değiştirmek istiyor. Hangi veri tipi en uygunudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Değişken değerini 10'dan 20'ye değiştirmek istiyor, int veri tipi en uygunudur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

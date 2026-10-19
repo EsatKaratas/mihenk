@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:57:41.772Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.7.5.8-r2"
+  },
+  "http": 200,
+  "sureMs": 32404,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "1000 g + 515 g"
+          },
+          {
+            "key": "B",
+            "text": "1000 g + 1030 g"
+          },
+          {
+            "key": "C",
+            "text": "800 g + 500 g"
+          },
+          {
+            "key": "D",
+            "text": "800 g + 515 g"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sütün hacmini kütle ile karıştırıyor; 500 mL yerine 1030 g alıyor",
+          "C": "Şekerin kütlesini yoğunluğuna göre hesaplamıyor; doğrudan 800 g alıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "1000 + 500*1.03",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yoğunluk",
+          "kütle",
+          "hacim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir su şişesi 1,5 L su alıyor. Bu suyun kütlesi yaklaşık kaç kg dir? (1 L suyun kütlesi 1 kg dir.)",
+        "options": [
+          {
+            "key": "A",
+            "text": "1,5 kg"
+          },
+          {
+            "key": "B",
+            "text": "2,0 kg"
+          },
+          {
+            "key": "C",
+            "text": "1,0 kg"
+          },
+          {
+            "key": "D",
+            "text": "1,2 kg"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "C": "1 L suyun kütlesini 1 kg yerine 1,5 kg alıyor",
+          "D": "Suyun yoğunluğunu 0,8 g/cm³ sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "yoğunluk",
+          "kütle",
+          "hacim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir kimyager, laboratuvarda homojen ve heterojen karışımlar hazırlıyor. Homojen karışımın özelliklerini açıklayarak, bu tür karışımlara iki örnek veriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 4,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Şekerin kütlesi 1000 g, sütün kütlesi 500 mL * 1,03 g/cm³ = 515 g",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir su şişesi 1,5 L su alıyor. Bu suyun kütlesi yaklaşık kaç kg dir? (1 L suyun kütlesi 1 kg dir.)",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "1 L suyun kütlesi 1 kg olduğuna göre 1,5 L suyun kütlesi de 1,5 kg olur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

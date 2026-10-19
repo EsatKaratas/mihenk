@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T10:10:17.078Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.TU.4.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 23603,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi anlatabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki boyutlu çizim ve fotoğrafçılık"
+          },
+          {
+            "key": "B",
+            "text": "Hem iki boyutlu hem de üç boyutlu çizim"
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizim"
+          },
+          {
+            "key": "D",
+            "text": "Üç boyutlu çizim"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Fotoğrafçılığın bir çizim türü olmadığını ve bu durumda üç boyutlu çizimin daha uygun olduğunu anlamamıştır.",
+          "B": "Her iki çizim türünün de farklı amaçlar için kullanılabileceğini, ancak bu durumda üç boyutlu çizimin daha uygun olduğunu göz ardı etmiştir.",
+          "C": "İki boyutlu çizimin sadece uzunluk ve genişlik ölçülerini gösterdiğini ve üç boyutlu bir nesnenin tasarımını tam olarak aktarmak için yeterli olmadığını anlamamıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir mühendis, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. Mühendis, arabayı iki boyutlu çizim kullanarak tasarladı. Ancak, mühendis daha sonra arabayı üç boyutlu çizime çevirmek istiyor. Mühendis, hangi bilgiye ihtiyaç duyacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Arabanın sadece uzunluk ve genişlik ölçülerini"
+          },
+          {
+            "key": "B",
+            "text": "Arabanın uzunluk, genişlik ve yükseklik ölçülerini"
+          },
+          {
+            "key": "C",
+            "text": "Arabanın sadece yükseklik ölçüsünü"
+          },
+          {
+            "key": "D",
+            "text": "Arabanın ağırlığını"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki boyutlu çizimin sadece uzunluk ve genişlik ölçülerini gösterdiğini ve üç boyutlu bir nesnenin tasarımını tam olarak aktarmak için yeterli olmadığını anlamamıştır.",
+          "C": "Yükseklik ölçüsünün önemli olduğunu, ancak üç boyutlu bir nesnenin tasarımını tam olarak aktarmak için sadece yükseklik ölçüsünün yeterli olmadığını göz ardı etmiştir.",
+          "D": "Ağırlığın bir çizim türü ile ilgili olmadığını ve bu durumda üç boyutlu çizimin daha uygun olduğunu anlamamıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarımı yapıyoruz. İki boyutlu çizim ve üç boyutlu çizim arasındaki farkları anlamak için bir örnek veriniz. Hangi çizim türünü kullanarak daha iyi anlatabilirsiniz ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi anlatabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Üç boyutlu çizim, nesnenin uzunluk, genişlik ve yükseklik ölçülerini göstererek daha detaylı bir tasarım sağlar.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir mühendis, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. Mühendis, arabayı iki boyutlu çizim kullanarak tasarladı. Ancak, mühendis daha sonra arabayı üç boyutlu çizime çevirmek istiyor. Mühendis, hangi bilgiye ihtiyaç duyacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Üç boyutlu çizim için uzunluk, genişlik ve yükseklik ölçülerine ihtiyaç vardır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

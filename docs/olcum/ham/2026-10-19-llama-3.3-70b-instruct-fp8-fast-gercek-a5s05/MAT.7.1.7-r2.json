@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:48:38.657Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.7.1.7-r2"
+  },
+  "http": 200,
+  "sureMs": 18808,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangi seçenek daha ucuzdur? Buna göre 2 litre süt için en uygun fiyatı seçiniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 adet 1 litrelik sütü 5 TL'ye almak"
+          },
+          {
+            "key": "B",
+            "text": "2 adet 1 litrelik sütü 6 TL'ye almak"
+          },
+          {
+            "key": "C",
+            "text": "2 litrelik sütü 8 TL'ye almak"
+          },
+          {
+            "key": "D",
+            "text": "2 litrelik sütü 10 TL'ye almak"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "1 litrelik sütlerin fiyatını yanlış hesaplıyor.",
+          "B": "2 adet 1 litrelik sütü ayrı ayrı satın almanın toplam maliyetini hesaplamıyor.",
+          "C": "2 litrelik süt için verilen fiyatın doğru olmadığını varsayıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(2 * 6) - 10",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, saatte 20 kilometre hızla gidecek bir bisiklet için 4 saatte 80 kilometre kat edebileceğini hesaplamaktadır. Ancak, bisikletin lastiği patlar ve bisikletçi 1 saat boyunca lastiğini tamir etmek zorunda kalır. Bisikletçi, lastiği tamir ettikten sonra bisikletini saatte 25 kilometre hızla sürerse, 5 saat içinde kaç kilometre yol alabilir? Buna göre bisikletçinin alabileceği mesafeyi seçiniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "120 kilometre"
+          },
+          {
+            "key": "B",
+            "text": "125 kilometre"
+          },
+          {
+            "key": "C",
+            "text": "100 kilometre"
+          },
+          {
+            "key": "D",
+            "text": "90 kilometre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bisikletçinin lastiği tamir ettiği süreyi hesaba katmıyor.",
+          "C": "Bisikletçinin hızının değişmediğini varsayıyor.",
+          "D": "Bisikletçinin yeni hızını yanlış hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "25 * 4",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "zaman",
+          "mesafe"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 5 TL'ye 1 litre su satmaktadır. Ancak, aynı su 2 litrelik bidonlarda 8 TL'ye satılmaktadır. Okul yönetimi, öğrencilerin su tüketimini artırmak için bir kampanya düzenlemeye karar vermiştir. Bu kampanya için en uygun su satışı seçeneğini ve nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma",
+          "ekonomi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangi seçenek daha ucuzdur? Buna göre 2 litre süt için en uygun fiyatı seçiniz.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "2 litrelik süt 8 TL'ye almak en ucuz seçenek",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bisikletçi, saatte 20 kilometre hızla gidecek bir bisiklet için 4 saatte 80 kilometre kat edebileceğini hesaplamaktadır. Ancak, bisikletin lastiği patlar ve bisikletçi 1 saat boyunca lastiğini tamir etmek zorunda kalır. Bisikletçi, lastiği tamir ettikten sonra bisikletini saatte 25 kilometre hızla sürerse, 5 saat içinde kaç kilometre yol alabilir? Buna göre bisikletçinin alabileceği mesafeyi seçiniz.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bisikletçi 1 saat lastiği tamir etti, 5-1=4 saat sürdü. 4 saat * 25 km/saat = 100 km. 20 km/saat * 1 saat bekleyince  kat edemediği 20 km de eklenmeli. 100 + 25 = 125 km.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

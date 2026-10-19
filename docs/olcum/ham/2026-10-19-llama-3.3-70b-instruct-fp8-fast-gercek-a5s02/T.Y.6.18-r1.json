@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T09:56:47.165Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.6.18-r1"
+  },
+  "http": 200,
+  "sureMs": 18589,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'okulun 50. yılı' ifadesini kullanmak istiyor. Ancak, öğrenci bu ifadeyi nasıl yazacağını bilmiyor. Öğrenci, 'okulun 50. yılı' ifadesini yazarken noktalama işaretlerini doğru kullanmak istiyor. Aşağıdakilerden hangisi doğru yazım şekli olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "okulun 50 yılı"
+          },
+          {
+            "key": "B",
+            "text": "okulun50.yılı"
+          },
+          {
+            "key": "C",
+            "text": "okulun 50.yılı"
+          },
+          {
+            "key": "D",
+            "text": "okulun 50. yılı"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Noktalama işaretlerinin gerekliliğini anlamıyor.",
+          "B": "Noktalama işaretlerinin kullanımını ve yazım kurallarını bilmiyor.",
+          "C": "Noktalama işaretlerinin kullanımını tam olarak bilmiyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama işaretleri",
+          "yazım kuralları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'okulun 50. yılı' ifadesini kullanmak istiyor. Ancak, öğrenci bu ifadeyi nasıl yazacağını bilmiyor. Öğrenci, 'okulun 50. yılı' ifadesini yazarken noktalama işaretlerini doğru kullanmak istiyor. Öğrenci, bu ifadeyi yazmak için hangi yazım kuralını kullanmalıdır? Neden?",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama işaretleri",
+          "yazım kuralları",
+          "okul yılı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir yazar, kitabında 'kitabın 2. baskısı' ifadesini kullanmak istiyor. Ancak, yazar bu ifadeyi nasıl yazacağını bilmiyor. Yazar, 'kitabın 2. baskısı' ifadesini yazarken noktalama işaretlerini doğru kullanmak istiyor. Aşağıdakilerden hangisi doğru yazım şekli olacaktır?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'okulun 50. yılı' ifadesini kullanmak istiyor. Ancak, öğrenci bu ifadeyi nasıl yazacağını bilmiyor. Öğrenci, 'okulun 50. yılı' ifadesini yazarken noktalama işaretlerini doğru kullanmak istiyor. Aşağıdakilerden hangisi doğru yazım şekli olacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Sıfat bildiren rakam veya sayılardan sonra gelen nokta ve virgül noktalama işaretleri kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

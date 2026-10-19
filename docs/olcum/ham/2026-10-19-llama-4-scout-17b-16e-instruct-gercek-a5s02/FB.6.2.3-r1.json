@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:55:08.022Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.6.2.3-r1"
+  },
+  "http": 200,
+  "sureMs": 24983,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte alır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1,5 saat"
+          },
+          {
+            "key": "B",
+            "text": "1,33 saat"
+          },
+          {
+            "key": "C",
+            "text": "2 saat"
+          },
+          {
+            "key": "D",
+            "text": "3 saat"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sürat arttıkça zaman azalır, fakat ters orantılıdır; 10/15 = 2/x => x = 3",
+          "C": "Sürat değişimini dikkate almadan aynı yolu aynı sürede alır sanıyor",
+          "D": "Sürat oranıyla doğru orantılı zamanda azalacağını düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 * 2 / 15",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Emre'den 10 metre ileride bulunuyor. Ayşe'nin Emre'yi yakalamak için geçen süre kaç saniyedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 saniye"
+          },
+          {
+            "key": "B",
+            "text": "20 saniye"
+          },
+          {
+            "key": "C",
+            "text": "10 saniye"
+          },
+          {
+            "key": "D",
+            "text": "2 saniye"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hız farkını dikkate almadan 10 m / 2 m/s = 5 s",
+          "B": "Ayşe'nin hızıyla Emre'nin hızını çarpıyor 5 * 10 = 50 / 3 = 16,67",
+          "D": "Ayşe'nin hızıyla Emre'nin hızını toplayarak 10 / 8 = 1,25"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 / (5 - 3)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "A",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "zaman",
+          "mesafe"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir aracın süratini 60 km/h'den 80 km/h'ye çıkarmak ne anlama gelir? Bu değişikliğin günlük sürüş güvenliği üzerindeki etkilerini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "güvenlik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte alır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ahmet'in 10 km/h süratle 2 saatte aldığı mesafeyi 15 km/h süratle kaç saatte alacağını hesapladım. Mesafe = sürat * zaman formülünü kullandım.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Emre'den 10 metre ileride bulunuyor. Ayşe'nin Emre'yi yakalamak için geçen süre kaç saniyedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ayşe'nin hızı Emre'den 2 m/s daha fazla, 10 metrelik mesafeyi kapatarak Emre'yi yakalaması 10 saniye sürer.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

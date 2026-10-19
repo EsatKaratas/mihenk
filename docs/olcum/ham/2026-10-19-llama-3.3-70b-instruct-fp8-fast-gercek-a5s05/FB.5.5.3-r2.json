@@ -1,0 +1,142 @@
+{
+  "zaman": "2026-10-19T09:52:14.936Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.5.5.3-r2"
+  },
+  "http": 200,
+  "sureMs": 11680,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimi nasıl gerçekleşir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "50°C"
+          },
+          {
+            "key": "B",
+            "text": "70°C"
+          },
+          {
+            "key": "C",
+            "text": "60°C"
+          },
+          {
+            "key": "D",
+            "text": "40°C"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sıcak suyun hacmini soğuk suya eşit sanıyor",
+          "B": "Sıcak suyun sıcaklığını soğuk suya eşit sanıyor",
+          "C": "Soğuk suyun sıcaklığını sıcak suya eşit sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(20*500 + 80*200) / (500 + 200)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, 10°C sıcaklıkta 200 mL su ve 80°C sıcaklıkta 50 mL su karıştırarak bir deneysel çalışma yapmaktadır. Öğrenci, karışımın sıcaklığını ölçtüğünde 25°C olduğunu gözlemlemektedir. Bu sonuç, öğrencinin beklediğiyle aynı mıdır? Nedenlerini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık",
+          "karışım",
+          "deneysel çalışma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir bardakta, 15°C sıcaklıkta 300 mL su ve 90°C sıcaklıkta 100 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimi nasıl gerçekleşir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimi nasıl gerçekleşir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi sonucu sıcaklık ortalamaya yaklaşır",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

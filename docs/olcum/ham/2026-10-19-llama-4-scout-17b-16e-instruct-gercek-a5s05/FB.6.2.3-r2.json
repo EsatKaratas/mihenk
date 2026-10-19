@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:55:30.749Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.6.2.3-r2"
+  },
+  "http": 200,
+  "sureMs": 23041,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 20 km uzaklıktaki bir parka gitmek istiyor. Ahmet'in bisikletinin sürati 10 km/saat, hızı ise 15 km/saat'tir. Ahmet'in bu yolu hangi kavramı kullanarak daha hızlı gidebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki kavramı da kullanarak"
+          },
+          {
+            "key": "B",
+            "text": "İki kavramı da kullanmadan"
+          },
+          {
+            "key": "C",
+            "text": "Hızını kullanarak"
+          },
+          {
+            "key": "D",
+            "text": "Süratini kullanarak"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki kavramın aynı olduğunu düşünüyor",
+          "B": "Kavramların hiçbirini kullanamayacağını düşünüyor",
+          "D": "Sürat ve hız kavramlarını karıştırıyor; oysa hız yönü de dikkate alır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir aracın 100 km uzaklıktaki bir noktaya 2 saatte gitmesi gerekiyor. Aracın sürati 50 km/saat ise, bu hedefe ulaşmak için ne yapmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Süratini azaltmalıdır"
+          },
+          {
+            "key": "B",
+            "text": "Hızını azaltmalıdır"
+          },
+          {
+            "key": "C",
+            "text": "Süratini arttırmalıdır"
+          },
+          {
+            "key": "D",
+            "text": "Süratini değiştirmemelidir"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Süratini azaltırsa daha yavaş gideceğini düşünmüyor",
+          "B": "Hızın süratle aynı olduğunu düşünüyor",
+          "D": "Süratini değiştirmemesi gerektiğini düşünüyor; oysa sürat yetmiyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ayşe, evinden okula 5 km uzaklıkta yaşıyor. Ayşe'nin yürüme sürati 4 km/saat, koşma hızı ise 6 km/saat'tir. Ayşe'nin okula gitmek için en uygun yöntemi seçmesi gerekiyor. Sizce Ayşe hangi yöntemi seçmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 20 km uzaklıktaki bir parka gitmek istiyor. Ahmet'in bisikletinin sürati 10 km/saat, hızı ise 15 km/saat'tir. Ahmet'in bu yolu hangi kavramı kullanarak daha hızlı gidebilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Hız, belirli bir yönde hareketi ifade eder. Ahmet'in bisikletinin hızı 15 km/saat, sürati 10 km/saat. Hız daha yüksek olduğu için hızını kullanarak daha hızlı gidebilir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir aracın 100 km uzaklıktaki bir noktaya 2 saatte gitmesi gerekiyor. Aracın sürati 50 km/saat ise, bu hedefe ulaşmak için ne yapmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Aracın sürati 50 km/saat, gitmesi gereken mesafe 100 km ve zamanı 2 saat. Süratini arttırmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

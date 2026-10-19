@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:43:59.666Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.6.4.1-r1"
+  },
+  "http": 200,
+  "sureMs": 14845,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacaktır. Yolun genişliği 1 metre olarak hesaplanmıştır. Bahçenin ve yolun birlikte kapladığı alan kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "200 m²"
+          },
+          {
+            "key": "B",
+            "text": "168 m²"
+          },
+          {
+            "key": "C",
+            "text": "152 m²"
+          },
+          {
+            "key": "D",
+            "text": "120 m²"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yolun genişliğini 2 metre olarak yanlış hesaplamış.",
+          "C": "Yolun genişliğini hesaba katmamış, sadece bahçenin alanını hesaplamış.",
+          "D": "Bahçenin ve yolun birlikte kapladığı alanı hesaplamak yerine, sadece bahçenin alanını hesaplamış."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 + 2) * (8 + 2)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir su deposu 2 metre yüksekliğinde ve 1 metre çapındadır. Deposunun hacmi kaç litredir? (π = 3,14 olarak kabul edin)",
+        "options": [
+          {
+            "key": "A",
+            "text": "6,28 m³"
+          },
+          {
+            "key": "B",
+            "text": "12,56 m³"
+          },
+          {
+            "key": "C",
+            "text": "1,57 m³"
+          },
+          {
+            "key": "D",
+            "text": "3,14 m³"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Π değerini yanlış hesaplamış.",
+          "C": "Depo yüksekliğini hesaba katmamış.",
+          "D": "Yarıçapın karesini hesaplamamış."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "3.14 * (1/2) * (1/2) * 2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "çap",
+          "yükseklik"
+        ],
+        "dilUyarisi": true
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgen prizma 6 cm uzunluğunda, 4 cm genişliğinde ve 2 cm yüksekliğindedir. Bu prizmanın hacmini ve yüzey alanını hesaplayınız. Hangi ölçüm birimi daha uygun olur ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "yüzey alanı",
+          "ölçüm birimi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 2,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacaktır. Yolun genişliği 1 metre olarak hesaplanmıştır. Bahçenin ve yolun birlikte kapladığı alan kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bahçenin ve yolun alanını hesapladım",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir su deposu 2 metre yüksekliğinde ve 1 metre çapındadır. Deposunun hacmi kaç litredir? (π = 3,14 olarak kabul edin)",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Silindirin hacmi = πr²h, r = 0,5m, h = 2m, hacim = 3,14 * (0,5)² * 2 = 3,14 * 0,25 * 2 = 1,57m³. 1m³ = 1000 litre, 1,57m³ = 1570 litre, ancak m³ cinsinden cevap D.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": true,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

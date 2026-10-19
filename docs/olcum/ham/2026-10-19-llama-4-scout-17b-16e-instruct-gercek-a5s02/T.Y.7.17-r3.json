@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:12:06.098Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.7.17-r3"
+  },
+  "http": 200,
+  "sureMs": 75646,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanmayı planlıyor. Açık ifadelerle neyi kastediyor olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okuyucunun kendisi tarafından çıkarılması gereken anlamlar"
+          },
+          {
+            "key": "B",
+            "text": "Direkt olarak belirtilen anlamlar"
+          },
+          {
+            "key": "C",
+            "text": "Sadece rakamlarla ifade edilen anlamlar"
+          },
+          {
+            "key": "D",
+            "text": "Yazarın kendisi tarafından ima edilen anlamlar"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Açık ifadelerin tersi olan örtük ifadeleri düşünüyor",
+          "C": "Açık ifadeleri sayısal verilerle karıştırıyor",
+          "D": "Açık ifadeleri yazarın niyetiyle karıştırıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Mehmet, bir şiir yazmak istiyor. Şiirinde örtük ifadeleri kullanarak okuyucunun kendi yorumlarını yapmasını istiyor. Aşağıdakilerden hangisi örtük bir ifade örneğidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kuşlar uçuyor"
+          },
+          {
+            "key": "B",
+            "text": "Güneş doğdu"
+          },
+          {
+            "key": "C",
+            "text": "Rüzgar sessizce esiyor"
+          },
+          {
+            "key": "D",
+            "text": "O, her şeyin ötesinde"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Doğrudan ve açık bir ifade veriyor",
+          "B": "Doğrudan ve açık bir ifade veriyor",
+          "C": "Betimleyici bir ifade veriyor, örtük değil"
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "şiir"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir hikaye yazarken açık ve örtük ifadeleri nasıl kullanabilir? Önerinizi yazın ve örnek verin.",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "hikaye"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanmayı planlıyor. Açık ifadelerle neyi kastediyor olabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Açık ifadeler direkt olarak belirtilen anlamları içerir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Mehmet, bir şiir yazmak istiyor. Şiirinde örtük ifadeleri kullanarak okuyucunun kendi yorumlarını yapmasını istiyor. Aşağıdakilerden hangisi örtük bir ifade örneğidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Örtük ifadeler okuyucunun kendi yorumlarını yapmasını sağlar, 'O, her şeyin ötesinde' ifadesi açık bir anlam taşımaz.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

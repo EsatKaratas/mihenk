@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T10:02:05.067Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.7.17-r2"
+  },
+  "http": 200,
+  "sureMs": 20982,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanmak için hangi yöntemi seçmelidir? Öyküsünde karakterin iç dünyasını ve duygularını doğrudan okuyucuya aktarmalıdır.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterin iç dünyasını ve duygularını hiç aktarmamalıdır"
+          },
+          {
+            "key": "B",
+            "text": "Karakterin eylemlerini ve davranışlarını okuyucunun yorumuna bırakmalıdır"
+          },
+          {
+            "key": "C",
+            "text": "Karakterin düşüncelerini ve duygularını doğrudan okuyucuya aktarmalıdır"
+          },
+          {
+            "key": "D",
+            "text": "Karakterin çevresindeki diğer karakterlerin düşüncelerini ve duygularını aktarmalıdır"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karakterin iç dünyasını ve duygularını hiç aktarmamayı tercih etmiştir, bu da okuyucunun karakteri anlamasını zorlaştırır",
+          "B": "Örtük ifadelerin önemini anlamamış ve karakterin iç dünyasını doğrudan aktarmak yerine okuyucunun yorumuna bırakmayı tercih etmiştir",
+          "D": "Karakterin iç dünyasını ve duygularını aktarmak yerine diğer karakterlerin düşüncelerini ve duygularını aktarmayı tercih etmiştir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "karakterin iç dünyası"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanmak için hangi yöntemi seçmelidir? Neden bu yöntemi seçerdin?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "karakterin iç dünyası",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir yazar, okuyucuyu etkilemek için öyküsünde açık ve örtük ifadeleri kullanmak istiyor. Açık ifadeleri kullanmak için hangi yöntemi seçmelidir? Öyküsünde karakterin duygularını ve düşüncelerini okuyucuya direkt olarak aktarmalıdır.",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanmak için hangi yöntemi seçmelidir? Öyküsünde karakterin iç dünyasını ve duygularını doğrudan okuyucuya aktarmalıdır.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Karakterin düşüncelerini ve duygularını doğrudan okuyucuya aktarmak, açık ve örtük ifadeleri kullanma yöntemidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

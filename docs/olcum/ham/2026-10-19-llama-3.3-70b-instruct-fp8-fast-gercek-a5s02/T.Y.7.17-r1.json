@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T09:58:12.049Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.7.17-r1"
+  },
+  "http": 200,
+  "sureMs": 13947,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazısında, okuldaki arkadaşlarının ve öğretmenlerinin duygularını ifade etmek istiyor. Açık ve örtük ifadeleri kullanarak yazısını renklendirmek istiyor. Aşağıdaki seçeneklerden hangisi, öğrencinin yazısında açık ve örtük ifadeleri kullanmasına yardımcı olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yazısında sadece öğretmenlerinin görüşlerini ifade etmek"
+          },
+          {
+            "key": "B",
+            "text": "Yazısında sadece arkadaşlarının düşüncelerini ifade etmek"
+          },
+          {
+            "key": "C",
+            "text": "Yazısında sadece somut gerçekleri ifade etmek"
+          },
+          {
+            "key": "D",
+            "text": "Yazısında duyguları ve düşünceleri açık ve örtük bir şekilde ifade etmek"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yazısında sadece öğretmenlerinin görüşlerini ifade etmeyi düşünüyor; arkadaşlarının duygularını ve düşüncelerini göz ardı ediyor.",
+          "B": "Yazısında sadece arkadaşlarının düşüncelerini ifade etmeyi düşünüyor; öğretmenlerinin görüşlerini göz ardı ediyor.",
+          "C": "Yazısında sadece somut gerçekleri ifade etmeyi düşünüyor; açık ve örtük ifadeleri kullanmayı göz ardı ediyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "duyguları ifade etmek"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazısında, okuldaki arkadaşlarının ve öğretmenlerinin duygularını ifade etmek istiyor. Açık ve örtük ifadeleri kullanarak yazısını renklendirmek istiyor. Bu öğrenci, yazısında hangi tür ifadeleri kullanabilir ve neden? Lütfen öğrencinin kararını ve gerekçesini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "duyguları ifade etmek"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir yazar, yazısında okuyucuların duygularını harekete geçirmek istiyor. Aşağıdaki seçeneklerden hangisi, yazarın yazısında açık ve örtük ifadeleri kullanarak okuyucuların duygularını harekete geçirmesine yardımcı olabilir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazısında, okuldaki arkadaşlarının ve öğretmenlerinin duygularını ifade etmek istiyor. Açık ve örtük ifadeleri kullanarak yazısını renklendirmek istiyor. Aşağıdaki seçeneklerden hangisi, öğrencinin yazısında açık ve örtük ifadeleri kullanmasına yardımcı olabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Öğrenci, yazısında açık ve örtük ifadeleri kullanarak okuldaki arkadaşlarının ve öğretmenlerinin duygularını ifade etmek istiyor.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

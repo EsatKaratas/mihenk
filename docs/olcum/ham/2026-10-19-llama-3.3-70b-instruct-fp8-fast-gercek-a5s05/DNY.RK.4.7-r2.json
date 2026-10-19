@@ -1,0 +1,199 @@
+{
+  "zaman": "2026-10-19T10:11:12.675Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.RK.4.7-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 15391,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir robotun hareketini ölçmek için kullanılan kuvvet sensörü, robotun ağırlığını ve sürtünme kuvvetini ölçebilir. Bir robot 10 Newtonluk bir kuvvetle hareket ediyor ve sürtünme kuvveti 2 Newton ise, robotun net hareket kuvveti kaç Newton'dur? Buna göre, robotun hareketini en çok hangi faktör etkiler?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 Newton ve yerçekimi"
+          },
+          {
+            "key": "B",
+            "text": "8 Newton ve sürtünme kuvveti"
+          },
+          {
+            "key": "C",
+            "text": "12 Newton ve ağırlık"
+          },
+          {
+            "key": "D",
+            "text": "10 Newton ve dış kuvvetler"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yerçekimi değil, sürtünme kuvveti ve dış kuvvetlerin etkisi önemlidir",
+          "C": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder",
+          "D": "Dış kuvvetlerin etkisi değil, sürtünme kuvvetinin etkisi göz ardı ediliyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 - 2)",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet sensörü",
+          "sürtünme kuvveti",
+          "net hareket kuvveti"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kuvvet sensörü, bir robotun farklı hızlarda hareket ederken uyguladığı kuvvetleri ölçmek için kullanılıyor. Aşağıdaki grafik, robotun hızının (x ekseninde) kuvvetin (y ekseninde) nasıl değiştiğini gösteriyor. Grafikte, robotun en yüksek kuvveti hangi hızda uygulandığını gösteren nokta hangisidir? Buna göre, robotun hızı ve uyguladığı kuvvet arasındaki ilişkiyi yorumlayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 m/s hızında"
+          },
+          {
+            "key": "B",
+            "text": "15 m/s hızında"
+          },
+          {
+            "key": "C",
+            "text": "10 m/s hızında"
+          },
+          {
+            "key": "D",
+            "text": "2 m/s hızında"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Grafikte gösterilen hız ve kuvvet değerleri karıştırıldı",
+          "C": "Hız ve kuvvet arasındaki ilişki doğru yorumlanmadı",
+          "D": "Grafikte en yüksek kuvvetin uygulandığı nokta bulunamadı"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet sensörü",
+          "hız",
+          "kuvvet",
+          "grafik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir robotun hareketini ölçmek için kullanılan kuvvet sensörü, robotun ağırlığını ve sürtünme kuvvetini ölçebilir. Bir robot 10 Newtonluk bir kuvvetle hareket ediyor ve sürtünme kuvveti 2 Newton ise, robotun net hareket kuvvetini hesaplayabilir ve bu sonucu yorumlayabilirsiniz. Buna göre, robotun hareketini en çok hangi faktör etkiler ve neden? Hangi faktörlerin robotun hareketini etkileyebileceğini düşünüyorsunuz?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet sensörü",
+          "sürtünme kuvveti",
+          "net hareket kuvveti",
+          "faktörler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir robotun hareketini ölçmek için kullanılan kuvvet sensörü, robotun ağırlığını ve sürtünme kuvvetini ölçebilir. Bir robot 10 Newtonluk bir kuvvetle hareket ediyor ve sürtünme kuvveti 2 Newton ise, robotun net hareket kuvveti kaç Newton'dur? Buna göre, robotun hareketini en çok hangi faktör etkiler?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Net kuvvet 10N - 2N = 8N, sürtünme kuvveti hareketi en çok etkileyen faktördür.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir kuvvet sensörü, bir robotun farklı hızlarda hareket ederken uyguladığı kuvvetleri ölçmek için kullanılıyor. Aşağıdaki grafik, robotun hızının (x ekseninde) kuvvetin (y ekseninde) nasıl değiştiğini gösteriyor. Grafikte, robotun en yüksek kuvveti hangi hızda uygulandığını gösteren nokta hangisidir? Buna göre, robotun hızı ve uyguladığı kuvvet arasındaki ilişkiyi yorumlayabilir misiniz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Grafikte en yüksek kuvvet değeri 10 m/s hızında görülüyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

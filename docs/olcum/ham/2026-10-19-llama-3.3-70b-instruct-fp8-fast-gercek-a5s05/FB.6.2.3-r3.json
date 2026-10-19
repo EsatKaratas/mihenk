@@ -1,0 +1,141 @@
+{
+  "zaman": "2026-10-19T09:54:11.340Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.6.2.3-r3"
+  },
+  "http": 200,
+  "sureMs": 14531,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisikletçi, düz bir yolda saatte 20 kilometre süratle ilerlemektedir. Rüzgarın etkisiyle bisikletçinin hızı saatte 25 kilometreye çıkmaktadır. Bisikletçinin sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Buna göre, sürat ve hız kavramlarını karşılaştırmak için hangi durumları dikkate almalısınız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürat, hareketin hızı ve yönüdür; hız, hareketin sadece hızıdır."
+          },
+          {
+            "key": "B",
+            "text": "Sürat ve hız, aynı anlama gelen kavramlardır."
+          },
+          {
+            "key": "C",
+            "text": "Sürat, hareketin yönüdür; hız, hareketin hızıdır."
+          },
+          {
+            "key": "D",
+            "text": "Sürat, hareketin hızıdır; hız, hareketin yönüdür."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sürat ve hızın aynı anlama geldiğini düşünüyor.",
+          "C": "Sürat ve hız kavramlarını tam tersine alıyor.",
+          "D": "Sürati hızı, hızı da yönü sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "hareket"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir bisikletçi, düz bir yolda saatte 20 kilometre süratle ilerlemektedir. Rüzgarın etkisiyle bisikletçinin hızı saatte 25 kilometreye çıkmaktadır. Bisikletçinin sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Sürat ve hız kavramlarını karşılaştırmak için hangi durumları dikkate almalısınız? Bu durumda bisikletçinin süratini ve hızını nasıl hesaplayabilirsiniz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "hareket",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir araba, düz bir yolda saatte 50 kilometre hızda ilerlemektedir. Araba, 10 saniyede 5 metre ilerlemektedir. Arabanın sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Buna göre, sürat ve hız kavramlarını karşılaştırmak için hangi durumları dikkate almalısınız?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre süratle ilerlemektedir. Rüzgarın etkisiyle bisikletçinin hızı saatte 25 kilometreye çıkmaktadır. Bisikletçinin sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Buna göre, sürat ve hız kavramlarını karşılaştırmak için hangi durumları dikkate almalısınız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Sürat ve hız kavramları genellikle birlikte kullanılır, ancak teknik olarak sürat, bir nesnenin ne kadar hızlı hareket ettiğini belirtirken, hız bir nesnenin belirli bir yöndeki hareket hızını belirtir. Bu soruda, bisikletçinin sürati ve hızı arasındaki farkın, yön bilgisi dahilinde hızın daha spesifik bir kavram olduğu vurgulanır. Ancak, pratik kullanımda sürat ve hız aynı anlama gelmektedir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

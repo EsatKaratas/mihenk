@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:57:01.263Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.7.5.8-r1"
+  },
+  "http": 200,
+  "sureMs": 28466,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "1500 gram"
+          },
+          {
+            "key": "B",
+            "text": "1300 gram"
+          },
+          {
+            "key": "C",
+            "text": "800 gram"
+          },
+          {
+            "key": "D",
+            "text": "1000 gram"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sütün yoğunluğunu 1 g/cm³ sanıp 500 gram ekliyor",
+          "C": "Şekerin kütlesini 500 gram sanıp sütü dikkate almıyor",
+          "D": "Yalnızca şekerin kütlesini dikkate alıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "1000 + 500 * 1.03",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yoğunluk",
+          "kütle"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir su şişesi 1,5 litre su alıyor. Bu şişe 1500 gram su ile dolduruluyor. Suyun yoğunluğu 1 g/cm³ olduğuna göre, şişe tamamen dolu mudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Evet, 100 mL fazla"
+          },
+          {
+            "key": "B",
+            "text": "Evet, tamamen dolu"
+          },
+          {
+            "key": "C",
+            "text": "Hayır, 500 mL eksik"
+          },
+          {
+            "key": "D",
+            "text": "Hayır, 100 mL eksik"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Suyun yoğunluğunu 0,9 g/cm³ sanıyor",
+          "C": "Şişenin hacmini 1 litre sanıyor",
+          "D": "1 litreye 1000 gram dersek 500 gram 500 mL sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "1500 / 1000",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "yoğunluk",
+          "hacim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir kimyager iki farklı sıvı karıştırarak yeni bir karışım elde ediyor. Sıvı 1'in yoğunluğu 0,9 g/cm³, Sıvı 2'nin yoğunluğu 1,1 g/cm³ tür. Karışımın yoğunluğunu 1 g/cm³ olarak ölçüyor. Bu sonucun neden olabileceğini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "yoğunluk",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Şekerin kütlesi 1 kg yani 1000 gram, sütün kütlesi 500 mL * 1,03 g/cm³ = 515 gram, toplam kütle 1000 + 500 = 1500 gram.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir su şişesi 1,5 litre su alıyor. Bu şişe 1500 gram su ile dolduruluyor. Suyun yoğunluğu 1 g/cm³ olduğuna göre, şişe tamamen dolu mudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Suyun yoğunluğu 1 g/cm³, 1500 gram su 1500 cm³ veya 1,5 litreye eşittir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

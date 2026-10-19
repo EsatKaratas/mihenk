@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:59:41.482Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.O.8.9-r1"
+  },
+  "http": 200,
+  "sureMs": 23503,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe ve Mehmet iki farklı romanı okumaktadır. Ayşe, 200 sayfalık bir romanı 4 günde bitirmiştir. Mehmet ise 250 sayfalık bir romanı 5 günde bitirmiştir. Bu bilgiler ışığında, kimin daha hızlı okuduğunu karşılaştırmak için hangi ölçütü kullanmalıyız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okunan sayfa sayısı"
+          },
+          {
+            "key": "B",
+            "text": "Okunan sayfa sayısının okuma süresine oranı"
+          },
+          {
+            "key": "C",
+            "text": "Okuma süresinin uzunluğu"
+          },
+          {
+            "key": "D",
+            "text": "Romanların basım tarihleri"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Okunan sayfa sayısının okuma hızını doğrudan belirlediğini sanıyor.",
+          "C": "Okuma süresinin uzunluğunun okuma hızını belirlediğini düşünüyor.",
+          "D": "Romanların basım tarihlerinin okuma hızıyla ilgili olduğunu sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, iki farklı metni okumaktadır. Birinci metinde 150 kelime, ikinci metinde 120 kelime bulunmaktadır. Öğrenci, birinci metni 3 dakikada, ikinci metni 2 dakikada okumaktadır. Hangi metni daha hızlı okuduğunu belirlemek için hangi veriyi kullanmalıyız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Metinlerin konu başlıkları"
+          },
+          {
+            "key": "B",
+            "text": "Okuma süreleri"
+          },
+          {
+            "key": "C",
+            "text": "Metinlerin kelime sayıları"
+          },
+          {
+            "key": "D",
+            "text": "Kelime sayısının okuma süresine oranı"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Metinlerin konu başlıklarının okuma hızıyla ilgili olduğunu sanıyor.",
+          "B": "Okuma sürelerinin okuma hızını belirlediğini düşünüyor.",
+          "C": "Metinlerin kelime sayılarının okuma hızını belirlediğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Fatma ve Emre, aynı sınıfın öğrencileridir ve her ikisi de bir roman okumaktadır. Fatma, 180 sayfalık bir romanı 5 günde bitirmiştir. Emre ise 200 sayfalık bir romanı 6 günde bitirmiştir. Fatma ve Emre'nin okuma hızlarını karşılaştırmak için hangi ölçütleri kullanabilir ve neden? Bu ölçütleri kullanarak kimin daha hızlı okuduğunu belirleyebilir misin? Gerekçeni açıklar mısın?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma hızı",
+          "karşılaştırma",
+          "gerekçe"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 1,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe ve Mehmet iki farklı romanı okumaktadır. Ayşe, 200 sayfalık bir romanı 4 günde bitirmiştir. Mehmet ise 250 sayfalık bir romanı 5 günde bitirmiştir. Bu bilgiler ışığında, kimin daha hızlı okuduğunu karşılaştırmak için hangi ölçütü kullanmalıyız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Kişilerin okuma hızını karşılaştırmak için okunan sayfa sayısının okuma süresine oranı kullanılmalıdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, iki farklı metni okumaktadır. Birinci metinde 150 kelime, ikinci metinde 120 kelime bulunmaktadır. Öğrenci, birinci metni 3 dakikada, ikinci metni 2 dakikada okumaktadır. Hangi metni daha hızlı okuduğunu belirlemek için hangi veriyi kullanmalıyız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Hangi metnin daha hızlı okunduğunu belirlemek için okunan kelime sayısının zamana oranı hesaplanmalıdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:10:11.534Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.YZ.3.5-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 20003,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak için Bayes Teoremini kullanıyor. Doktora göre, hastalığın genel popülasyondaki olasılığı %2, belirli bir testin pozitif çıkma olasılığı %90 ve aynı testin negatif çıkma olasılığı %10. Doktor, hastanın test sonucunun pozitif çıkma olasılığını hesaplamak istiyor. Buna göre, hastanın test sonucunun pozitif çıkma olasılığı kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "0.18"
+          },
+          {
+            "key": "B",
+            "text": "0.15"
+          },
+          {
+            "key": "C",
+            "text": "0.25"
+          },
+          {
+            "key": "D",
+            "text": "0.20"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hastalığın genel popülasyondaki olasılığını, testin pozitif çıkma olasılığı ile doğrudan ilişkilendirmektedir.",
+          "C": "Hastalığın genel popülasyondaki olasılığını, testin pozitif çıkma olasılığı ile çarpıp, toplam olasılığa bölmemektedir.",
+          "D": "Testin negatif çıkma olasılığını, hastalığın genel popülasyondaki olasılığı ile karıştırmaktadır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(0.02 * 0.9) / (0.02 * 0.9 + 0.98 * 0.1)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test etmek için bir çalışma yapıyor. Çalışma, 100 hasta üzerinde yapılıyor ve hastaların %80'i ilacı aldıktan sonra iyileşiyor. Ancak, plasebo grubundaki hastaların %30'u da iyileşiyor. Araştırma ekibi, ilacın gerçekten etkili olup olmadığını belirlemek için Bayes Teoremini kullanmak istiyor. Buna göre, ilacın gerçekten etkili olma olasılığı kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "0.65"
+          },
+          {
+            "key": "B",
+            "text": "0.55"
+          },
+          {
+            "key": "C",
+            "text": "0.60"
+          },
+          {
+            "key": "D",
+            "text": "0.70"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Plasebo grubundaki iyileşme oranını, ilacın etkinliği ile doğrudan ilişkilendirmektedir.",
+          "C": "İlaç alan hastaların iyileşme oranını, plasebo grubundaki iyileşme oranından bağımsız olarak hesaplamaktadır.",
+          "D": "İlaç alan hastaların iyileşme oranını, plasebo grubundaki iyileşme oranına bölmemektedir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(0.8 * 0.7) / (0.8 * 0.7 + 0.2 * 0.3)",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "etkinlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir şirket, müşteri memnuniyetini artırmak için bir çalışma yapıyor. Şirket, müşteri geri bildirimi toplamak için bir anket yapıyor ve anket sonuçlarına göre, müşterilerin %75'i şirketin hizmetinden memnun. Ancak, şirketin rakiplerinin müşteri memnuniyeti oranları da benzer. Buna göre, şirketin müşteri memnuniyetini artırmak için hangi stratejileri uygulaması gerekir? Neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "müşteri memnuniyeti",
+          "strateji"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 2,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak için Bayes Teoremini kullanıyor. Doktora göre, hastalığın genel popülasyondaki olasılığı %2, belirli bir testin pozitif çıkma olasılığı %90 ve aynı testin negatif çıkma olasılığı %10. Doktor, hastanın test sonucunun pozitif çıkma olasılığını hesaplamak istiyor. Buna göre, hastanın test sonucunun pozitif çıkma olasılığı kaçtır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bayes Teoremi kullanılarak hesaplandı",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test etmek için bir çalışma yapıyor. Çalışma, 100 hasta üzerinde yapılıyor ve hastaların %80'i ilacı aldıktan sonra iyileşiyor. Ancak, plasebo grubundaki hastaların %30'u da iyileşiyor. Araştırma ekibi, ilacın gerçekten etkili olup olmadığını belirlemek için Bayes Teoremini kullanmak istiyor. Buna göre, ilacın gerçekten etkili olma olasılığı kaçtır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bayes Teoremi kullanılarak ilacın etkili olma olasılığı hesaplandı.",
+        "guven": 0.8,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

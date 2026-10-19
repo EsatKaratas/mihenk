@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:53:23.554Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.7.5.8-r2"
+  },
+  "http": 200,
+  "sureMs": 16445,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir karıştırma kabında 500 mL su ve 200 mL sıvı yağ vardır. Bu karışım hangisine örnek olarak gösterilebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sabit bileşik"
+          },
+          {
+            "key": "B",
+            "text": "Heterojen karışımlar"
+          },
+          {
+            "key": "C",
+            "text": "Elementler"
+          },
+          {
+            "key": "D",
+            "text": "Homojen karışımlar"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karışımın sabit bir bileşik olduğunu düşünüyor.",
+          "C": "Su ve yağı elementler sanıyor.",
+          "D": "Su ve yağın karışımının homojen olacağını sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışımlar"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kimyager, bir deney için 2 litre su ve 1 litre alkol karışımı hazırlamak istiyor. Bu karışım tipi hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kimyasal bileşik"
+          },
+          {
+            "key": "B",
+            "text": "Homojen karışımlar"
+          },
+          {
+            "key": "C",
+            "text": "Fiziksel değişim"
+          },
+          {
+            "key": "D",
+            "text": "Heterojen karışımlar"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karışımın kimyasal bir bileşik olduğunu düşünüyor.",
+          "C": "Su ve alkolün fiziksel bir değişim geçirdiğini sanıyor.",
+          "D": "Su ve alkolün karışımının heterojen olacağını sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "karışımlar"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mutfakta, şef 1 litre su ve 500 mL süt karışımı hazırlamak istiyor. Bu karışımın özellikleri nelerdir ve neden homojen veya heterojen olarak sınıflandırılır? Gerekçenizi açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışımlar",
+          "özellikler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir karıştırma kabında 500 mL su ve 200 mL sıvı yağ vardır. Bu karışım hangisine örnek olarak gösterilebilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Su ve sıvı yağ karışımı homojen bir karışım değildir, çünkü karışımın bileşenleri birbirleriyle karışmaz ve ayrı fazlar oluşturur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir kimyager, bir deney için 2 litre su ve 1 litre alkol karışımı hazırlamak istiyor. Bu karışım tipi hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Su ve alkol karışımı homojen bir karışımdır çünkü bileşenleri birbirine tamamen karışır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

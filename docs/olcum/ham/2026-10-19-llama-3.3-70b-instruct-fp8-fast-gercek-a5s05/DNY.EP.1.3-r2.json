@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:14:04.395Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-DNY.EP.1.3-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 13313,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir evde kullanılan elektrikli cihazların akımları farklıdır. Bir ampul 2 amper, bir televizyon 5 amper ve bir buzdolabı 10 amper akım çeker. Dirençleri aynı olan bu cihazlardan hangisi en fazla gerilim altında çalışır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hepsi aynı gerilim altında çalışır"
+          },
+          {
+            "key": "B",
+            "text": "Ampul"
+          },
+          {
+            "key": "C",
+            "text": "Buzdolabı"
+          },
+          {
+            "key": "D",
+            "text": "Televizyon"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Cihazların farklı akımlarını göz ardı etmiştir",
+          "B": "Akım ve direnç arasındaki ilişkiyi yanlış anlamıştır",
+          "D": "Gerilimi doğru hesaplayamamıştır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 * R",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir devrede 12 volt gerilim ve 4 ohm direnç vardır. Devrede akan akım kaç amperdir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 amper"
+          },
+          {
+            "key": "B",
+            "text": "6 amper"
+          },
+          {
+            "key": "C",
+            "text": "4 amper"
+          },
+          {
+            "key": "D",
+            "text": "2 amper"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Direnç ve gerilimi karıştırarak yanlış hesaplamıştır",
+          "C": "Gerilimi dirence eşit saymıştır",
+          "D": "Ohm kanununu yanlış uygulamıştır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 / 4",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "ohm kanunu",
+          "akım",
+          "direnç"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrikli cihazın direnci 20 ohm, akımı 2 amperdir. Cihazın gerilimini hesaplayıp, bu değerin neden önemli olduğunu açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ohm kanunu",
+          "gerilim",
+          "direnç"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 1,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir evde kullanılan elektrikli cihazların akımları farklıdır. Bir ampul 2 amper, bir televizyon 5 amper ve bir buzdolabı 10 amper akım çeker. Dirençleri aynı olan bu cihazlardan hangisi en fazla gerilim altında çalışır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Dirençleri aynı olan cihazlarda akım arttıkça gerilim de artar. En fazla akım çeken buzdolabı en fazla gerilim altında çalışır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir devrede 12 volt gerilim ve 4 ohm direnç vardır. Devrede akan akım kaç amperdir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Ohm kanunu kullanılarak hesaplandı",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

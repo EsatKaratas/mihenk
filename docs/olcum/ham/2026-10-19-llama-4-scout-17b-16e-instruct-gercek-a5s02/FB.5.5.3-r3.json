@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:54:27.368Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.5.5.3-r3"
+  },
+  "http": 200,
+  "sureMs": 31419,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak su ve sıcaklığı 20°C olan 200 mL ılık su ile karıştırarak yeni bir su elde ediyor. Karıştırılan suların sıcaklığı dengeye geldiğinde, suyun son sıcaklığı ne olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "55°C"
+          },
+          {
+            "key": "B",
+            "text": "70°C"
+          },
+          {
+            "key": "C",
+            "text": "80°C"
+          },
+          {
+            "key": "D",
+            "text": "60°C"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sıcaklıkların ortalamasını alarak sonucu 55°C buluyor",
+          "B": "Sıcak suların daha fazla ısı verdiğini düşünerek sonucu 70°C buluyor",
+          "C": "Sıcak suların sıcaklığını son sıcaklık olarak alıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sıcaklık",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 50°C sıcaklıktaki 100 gram suyu 20°C sıcaklıktaki 100 gram su ile karıştırıyor. Karışımın son sıcaklığı hangi seçenekte doğru verilmiştir? (Su yoğunluğu: 1 g/mL)",
+        "options": [
+          {
+            "key": "A",
+            "text": "35°C"
+          },
+          {
+            "key": "B",
+            "text": "40°C"
+          },
+          {
+            "key": "C",
+            "text": "45°C"
+          },
+          {
+            "key": "D",
+            "text": "30°C"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sıcak suların daha fazla ısı verdiğini düşünerek sonucu 40°C buluyor",
+          "C": "Sıcak suların sıcaklığını son sıcaklık olarak alıyor",
+          "D": "Sıcaklık farkını ikiye bölerek sonucu 30°C buluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sıcaklık",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir fizik öğretmeni, öğrencileriyle birlikte sıcaklığı farklı olan iki sıvıyı karıştırarak bir deney yapıyor. Deneyde, sıcaklığı 80°C olan 150 mL su ve sıcaklığı 20°C olan 250 mL su karıştırılıyor. Öğretmen, öğrencilerden bu deneyin sonucunu yorumlamalarını ve karışıma giren suların sıcaklığının neden dengeye geldiğini açıklamalarını istiyor. Öğrencilerden biri, 'Karışan suların sıcaklığı dengeye gelir çünkü...' şeklinde bir açıklama yapıyor. Bu açıklamayı yapmış olan öğrencinin düşüncesini, verileri kullanarak savunmasını ve açıklamayı gerekçelendirmesini isteyin.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sıcaklık",
+          "karışım",
+          "denge"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak su ve sıcaklığı 20°C olan 200 mL ılık su ile karıştırarak yeni bir su elde ediyor. Karıştırılan suların sıcaklığı dengeye geldiğinde, suyun son sıcaklığı ne olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi sonucu sıcaklıklar ortalamaya yaklaşır. İki suyun sıcaklık ortalaması 55°C'dir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 50°C sıcaklıktaki 100 gram suyu 20°C sıcaklıktaki 100 gram su ile karıştırıyor. Karışımın son sıcaklığı hangi seçenekte doğru verilmiştir? (Su yoğunluğu: 1 g/mL)",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Isı alışverişi sonucu sıcaklık ortalaması alınır. İki su aynı miktarda ve yoğunluğu aynı olduğu için",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

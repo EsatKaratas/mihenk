@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:11:44.144Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.O.8.9-r1"
+  },
+  "http": 200,
+  "sureMs": 47527,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfadan, ikinci kitap 80 sayfadan oluşmaktadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısının 1,5 katıdır. Ayşe ikinci kitabı kaç sayfa okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "70"
+          },
+          {
+            "key": "B",
+            "text": "60"
+          },
+          {
+            "key": "C",
+            "text": "40"
+          },
+          {
+            "key": "D",
+            "text": "50"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İkinci kitabı 70 sayfa okumuştur; rastgele bir sayı seçiyor",
+          "B": "İkinci kitabı 60 sayfa okumuştur; 1,5 ile çarpıp 120'ye bölüyor",
+          "D": "İkinci kitabı 50 sayfa okumuştur; 1,5 ile çarpıp 120'ye bölüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "80 * 0.5 = 40",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "sayfa",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, iki farklı haber kaynağından aynı anda gelen iki farklı mesajı karşılaştırmaktadır. Mesajlardan birisi 120 karakterden, diğeri 80 karakterden oluşmaktadır. Emre'nin karşılaştırdığı anda, ilk mesajın karakter sayısı, ikinci mesajın karakter sayısının 1,5 katıdır. Emre ikinci mesajı kaç karakter okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "90"
+          },
+          {
+            "key": "B",
+            "text": "120"
+          },
+          {
+            "key": "C",
+            "text": "100"
+          },
+          {
+            "key": "D",
+            "text": "80"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "İkinci mesajı 120 karakter okumuştur; birinci mesajın uzunluğunu alıyor",
+          "C": "İkinci mesajı 100 karakter okumuştur; 1,2 ile çarpıp 120'ye bölüyor",
+          "D": "İkinci mesajı 80 karakter okumuştur; doğru cevap sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "120 / 1.5 = 80",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "mesaj",
+          "karakter",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, iki farklı matematik problemi çözmüştür. İlk problem 15 sorudan, ikinci problem 20 sorudan oluşmaktadır. Öğrenci, ilk problemi 30 dakikada, ikinci problemi 40 dakikada çözmüştür. Hangi problemi daha hızlı çözdüğünü düşünüyorsunuz? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "problem",
+          "soru",
+          "zaman",
+          "hız"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfadan, ikinci kitap 80 sayfadan oluşmaktadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısının 1,5 katıdır. Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İlk kitaptan okunan sayfa sayısı, ikinci kitaptan okunan sayfa sayısının 1,5 katıdır. İkinci kitaptan okunan sayfa sayısını x olarak kabul edersek, ilk kitaptan okunan sayfa sayısı 1,5x olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Emre, iki farklı haber kaynağından aynı anda gelen iki farklı mesajı karşılaştırmaktadır. Mesajlardan birisi 120 karakterden, diğeri 80 karakterden oluşmaktadır. Emre'nin karşılaştırdığı anda, ilk mesajın karakter sayısı, ikinci mesajın karakter sayısının 1,5 katıdır. Emre ikinci mesajı kaç karakter okumuştur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "İkinci mesajın karakter sayısı 80'dir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

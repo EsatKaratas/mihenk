@@ -1,0 +1,2264 @@
+{
+  "tohum": 2026,
+  "kaynak": [
+    "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02.csv",
+    "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05.csv",
+    "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02.csv",
+    "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05.csv"
+  ],
+  "uretim": "2026-10-19T10:38:55.739Z",
+  "n": 225,
+  "not": "Model, sıcaklık, çözücü, hesap ve bayraklar bilerek yok. isaretli_sik = sistemin cevap anahtarı (denetlenecek).",
+  "maddeler": [
+    {
+      "kno": "K001",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir bakteri türü her saat 2 katına artmaktadır. Başlangıçta 5 bakteri varsa 3 saat sonra kaç bakteri olur?",
+      "siklar": "A) 40 | B) 60 | C) 50 | D) 45",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K002",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm direnç ve 5 amper akım vardır. Direncin akıma olan etkisi nedir? Direncin akıma olan etkisi hangi ilişkiye göre değişir?",
+      "siklar": "A) Direnç arttıkça akım azalır | B) Direnç arttıkça akım artar | C) Direnç ve akım arasında ters orantı yoktur | D) Direnç ve akım arasında doğrudan bir ilişki yoktur",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K003",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir küpün hacmi 27 cm³ ise, küpün bir kenarının uzunluğu kaç cm'dir?",
+      "siklar": "A) 5 | B) 6 | C) 4 | D) 3",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K004",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerinin 3,5 olduğu ölçüldü. Aynı miktarda bir baz çözeltisinin pH değerinin 12,5 olduğu biliniyor. Hangi çözelti daha fazla hidrojen iyonu içerir?",
+      "siklar": "A) pH değerinden hidrojen iyonu miktarı belirlenemez | B) Asit çözeltisi | C) Baz çözeltisi | D) İkisi de aynı miktarda hidrojen iyonu içerir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K005",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile bağlantılıdır. Lambanın akımını hesaplamak için hangi formülü kullanmalıyız? Buna göre, lambanın akımını hesaplamak için hangi ilişkiyi kullanmalıyız?",
+      "siklar": "A) Akım = Direnç / Gerilim | B) Akım = Gerilim * Direnç | C) Akım = Direnç - Gerilim | D) Akım = Gerilim / Direnç",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K006",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Bir yazar, okuyucularının dikkatini çekmek için bir metinde açık ve örtük ifadeleri kullanıyor. Aşağıdaki seçeneklerden hangisi, yazarın okuyucularının dikkatini çekmek için kullandığı bir yöntem olacaktır?",
+      "siklar": "A) Yazar, okuyucularının already bildiği şeyleri tekrar ediyor. | B) Yazar, okuyucularına direkt olarak ne yapmak istediklerini söylüyor. | C) Yazar, okuyucularının zihninde bir sahne canlandırmasını sağlayarak onların dikkatini çekiyor. | D) Yazar, okuyucularına sadece gerekli bilgileri veriyor.",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K007",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle okuluna gitmektedir. Okuluna 10 km uzaklıktadır ve bisikletini 2 saatte okuluna götürmektedir. Ahmet'in bisikletinin hızı saatte kaç km'dir? Buna göre, sürati ve hızı arasındaki farkı açıklayabilir misiniz?",
+      "siklar": "A) 10 km/sa | B) 15 km/sa | C) 5 km/sa | D) 20 km/sa",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K008",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir bahçe için sulama sistemi kurulacak. Bahçenin uzunluğu 15 metre, genişliği 8 metre. Sulama sistemi, her bir metrekaresine 2 litreye yakın su verecek. Bahçenin toplam alanı kaç litre su alacaktır?",
+      "siklar": "A) 2400 litre | B) 480 litre | C) 4800 litre | D) 240 litre",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K009",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfadan, ikinci kitap ise 80 sayfadan oluşmaktadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısının 1,5 katıdır. Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "siklar": "A) 70 | B) 60 | C) 40 | D) 50",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K010",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir dikdörtgenin uzun kenarı 8 cm, kısa kenarı 5 cm'dir. Dikdörtgenin çevre uzunluğunu hesaplayan bir öğrenci, uzun kenarın iki katına kısa kenarın iki katını eklemiştir. Bu öğrencinin yaptığı hatanın sonucu ne olur? Buna göre...",
+      "siklar": "A) Dikdörtgenin çevre uzunluğu 30 cm olur | B) Dikdörtgenin çevre uzunluğu 22 cm olur | C) Dikdörtgenin çevre uzunluğu 18 cm olur | D) Dikdörtgenin çevre uzunluğu 26 cm olur",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K011",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi koşarak 5 m/s süratle kat ediyor. Ahmet'in bisikletiyle ve koşarak kat ettiği mesafeler eşit olduğuna göre, koşarak kat ettiği süre kaç saniyedir?",
+      "siklar": "A) 30 | B) 40 | C) 20 | D) 50",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K012",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir evin bahçesi 150 metrekaredir. Bahçenin uzunluğu 15 metredir. Bahçenin genişliği kaç metredir?",
+      "siklar": "A) 15 metre | B) 10 metre | C) 8 metre | D) 12 metre",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K013",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğretmen, öğrencilerine bir metin veriyor ve metinde 'kitapların, defterlerin' gibi kelimeler var. Öğretmen, bu kelimelerin sonuna gelen 'lerin' ekinin neden kullanıldığını soruyor. Bu durumda öğrenci ne cevap vermelidir?",
+      "siklar": "A) İsimlerin çoğul halinde kullanıldığı için. | B) İsimlerin bestimmelik halinde kullanıldığı için. | C) İsimlerin genitif halinde kullanıldığı için. | D) İsimlerin iyelik halinde kullanıldığı için.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K014",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak için Bayes Teoremini kullanıyor. Doktora göre, hastalığın genel popülasyondaki olasılığı %2, belirli bir testin pozitif çıkma olasılığı %90 ve aynı testin negatif çıkma olasılığı %10. Doktor, hastanın test sonucunun pozitif çıkma olasılığını hesaplamak istiyor. Buna göre, hastanın test sonucunun pozitif çıkma olasılığı kaçtır?",
+      "siklar": "A) 0.18 | B) 0.15 | C) 0.25 | D) 0.20",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K015",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, akımın değerini hesaplamak istiyor.",
+      "siklar": "A) 3 A | B) 2 A | C) 4 A | D) 6 A",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K016",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir bisikletçi, 20 kilometre saatte 10 kilometre hızla gidiyor. Daha sonra, bisikletçi hızını saatte 15 kilometre artırmaya karar veriyor. Bu durumda, bisikletçinin yeni hızı kaç kilometre saatte olur?",
+      "siklar": "A) 25 km/sa | B) 30 km/sa | C) 20 km/sa | D) 35 km/sa",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K017",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat firması, yeni bir bina için dikdörtgen bir arsa satın almıştır. Arsaların kenar uzunlukları 15 metre ve 20 metre olarak ölçülmüştür. İnşaat firması, arsanın köşegenini hesaplamak ister. Aşağıdaki seçeneklerden hangisi, köşegenin uzunluğunu doğru bir şekilde hesaplar?",
+      "siklar": "A) Köşegen = 15 / 20 | B) Köşegen = √(15² + 20²) | C) Köşegen = 15 * 20 | D) Köşegen = 15 + 20",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K018",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir robotik projede, kuvvet sensöründen elde edilen verileri kullanarak bir grafik oluşturduk. Grafikte, kuvvetin Newton (N) cinsinden değerleri ve zamanın saniye (s) cinsinden değerleri görülüyor. Aşağıdaki şıkların hangisinde doğru bir yorumlama yapılmıştır?",
+      "siklar": "A) Kuvvetin 20 N olduğu anda zaman 2 s'dir | B) Kuvvetin 0 N olduğu anda zaman 0 s'dir | C) Kuvvetin 5 N olduğu anda zaman 10 s'dir | D) Kuvvetin 10 N olduğu anda zaman 5 s'dir",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K019",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen toplam hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremi'ni kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, doktorun kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+      "siklar": "A) Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (1 - Hastalık olasılığı) | B) Olasılık = (Semptom olasılığı + Hastalık olasılığı) / (1 - Semptom olasılığı) | C) Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (1 - Semptom olasılığı) | D) Olasılık = (Semptom olasılığı x Hastalık olasılığı) / (Semptom olasılığı + Hastalık olasılığı)",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K020",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir öğrenci, 5 saatlik bir sınavda her soru için 2 dakika harcayabilir. Eğer sınavda 120 soru varsa ve öğrenci tüm soruları cevaplayabilirse, sınav süresini kaç dakika aşacaktır? Aşağıdaki seçeneklerden doğru olanı seçiniz.",
+      "siklar": "A) 30 dakika aşacaktır | B) Süreyi aşmayacaktır | C) 20 dakika aşacaktır | D) 10 dakika aşacaktır",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K021",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir öğrenci, 8 metre ve 15 metre kenar uzunluklarına sahip bir dik üçgenin hipotenüs uzunluğunu hesaplamak istiyor. Hipotenüs uzunluğunu hesaplamak için hangi formülü kullanmalıdır?",
+      "siklar": "A) c^2 = a * b | B) c^2 = a^2 + b^2 | C) c = a * b | D) c = a + b",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K022",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi 40 saniye boyunca sabit süratle hareket eden kardeşi, 5 m/s süratle gidiyor. Buna göre, Ahmet ve kardeşinin hızlarını karşılaştırınız. Hangisi daha hızlıdır?",
+      "siklar": "A) İkisi de aynı hızdadır | B) Kardeşi, Ahmet'ten daha hızlıdır | C) Ahmet, kardeşinden daha hızlıdır | D) Hızlarını karşılaştırmak için daha fazla bilgiye ihtiyacımız var",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K023",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe, okumak için yeni bir kitap seçmek istiyor. Kitap 1. sayfadan 200. sayfaya kadar numaralandırılmıştır. Kitabın sayfalarını numaralandırmak için kaç rakam kullanılmıştır?",
+      "siklar": "A) 192 | B) 202 | C) 189 | D) 200",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K024",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimi nasıl gerçekleşir?",
+      "siklar": "A) 50°C | B) 70°C | C) 60°C | D) 40°C",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K025",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 50°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre karışımın sıcaklığını hesaplayınız.",
+      "siklar": "A) 22°C | B) 25°C | C) 28°C | D) 30°C",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K026",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir devrede 12 volt gerilim ve 4 ohm direnç vardır. Devrede akan akım kaç amperdir?",
+      "siklar": "A) 3 amper | B) 6 amper | C) 4 amper | D) 2 amper",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K027",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Bir algoritma yazarken, iki sayının değerini karşılaştırmak için hangi operatörü kullanmalısınız?",
+      "siklar": "A) Eşitlik operatörü (==) | B) Toplama operatörü (+) | C) Atama operatörü (=) | D) Çıkarma operatörü (-)",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K028",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Ayşe Hanım, 3 çocuğu için eşit miktarda harçlık veriyor. Çocuklarının her birine 15 TL veriyor. Ayşe Hanım'ın 3 çocuğu için toplam harçlık gideri 45 TL ise, 5 çocuğu için aynı miktarda harçlık vermek isterse toplam kaç TL harçlık verecektir?",
+      "siklar": "A) 60 TL | B) 50 TL | C) 90 TL | D) 75 TL",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K029",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, devredeki akım şiddetini hesaplamak istiyor.",
+      "siklar": "A) 3 A | B) 4 A | C) 6 A | D) 2 A",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K030",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda taş yol yaptı. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metredir?",
+      "siklar": "A) 5 | B) 4 | C) 3 | D) 2",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K031",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık, bu arazinin gerçekten dik üçgen şekinde olduğunu doğrulamak istiyor. Arazinin dik üçgen olduğu nasıl doğrulanır?",
+      "siklar": "A) 6 + 8 = 10 | B) 8^2 + 10^2 = 6^2 | C) 6^2 + 10^2 = 8^2 | D) 6^2 + 8^2 = 10^2",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K032",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir öğrenci, dik üçgenin kenar uzunluklarını ölçüyor. Kenar uzunlukları 8 cm ve 15 cm. Öğrenci, bu kenarların birleştiği köşenin dik olduğunu biliyor. Aşağıdaki seçeneklerden hangisi, dik kenarların karelerinin toplamının hipotenüsün karesine eşit olduğunu gösteriyor?",
+      "siklar": "A) 8^2 - 15^2 = 17^2 | B) 8^2 + 15^2 = 17^2 | C) 8^2 * 15^2 = 17^2 | D) 8^2 + 15^2 = 20^2",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K033",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir bahçe için sulama sistemi kurulacak. Bahçenin uzunluğu 15 metre, genişliği 8 metre. Sulama sistemi, her bir metrekaresine 2 litre su verecek. Bahçenin toplam kaç litre suya ihtiyacı vardır?",
+      "siklar": "A) 240 litre | B) 480 litre | C) 400 litre | D) 360 litre",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K034",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu çizimler yapıyorlar. Tasarımlarını üç boyutlu olarak modellemek isteyen bir öğrenci, iki boyutlu çizimdeki ölçütleri kullanarak üç boyutlu modelini doğru bir şekilde oluşturmak istiyor. Aşağıdaki şıklardan hangisi iki boyutlu çizim ile üç boyutlu çizim arasındaki farkı doğru bir şekilde açıklar?",
+      "siklar": "A) İki boyutlu çizimlerde renk, üç boyutlu çizimlerde şekil kullanılır. | B) İki boyutlu çizimlerde şekil, üç boyutlu çizimlerde boyut sayısı kullanılır. | C) İki boyutlu çizimlerde sadece genişlik ve yükseklik, üç boyutlu çizimlerde ise genişlik, yükseklik ve derinlik kullanılır. | D) İki boyutlu çizimlerde boyut sayısı, üç boyutlu çizimlerde şekil kullanılır.",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K035",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacak ve bu yolun genişliği 2 metredir. Bahçenin ve yolun birlikte oluşan yeni dikdörtgenin alanı kaç metrekaredir? Bu alanı hesaplayabilmek için hangi adımları takip etmeniz gerekir?",
+      "siklar": "A) 272 metrekare | B) 238 metrekare | C) 306 metrekare | D) 204 metrekare",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K036",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir dikdörtgen odanın uzunluğu 12 metre, genişliği 8 metredir. Odanın alanını hesaplamak için hangi formülü kullanmalıdır? Odanın alanı kaç metrekaredir?",
+      "siklar": "A) 12 * 8 | B) 12 + 8 | C) 12 - 8 | D) 12 / 8",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K037",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Usta, bu arazinin gerçekten dik üçgen şekinde olup olmadığını kontrol etmek istiyor. Arazinin dik üçgen olduğu nasıl kanıtlanır?",
+      "siklar": "A) 6^2 + 8^2 = 10^2 | B) 6 + 8 = 10 | C) 8^2 + 10^2 = 6^2 | D) 6^2 + 10^2 = 8^2",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K038",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir bardak 200 mililitre su ile doldurulur. 50 mililitre su 20 derece santigrat sıcaklıkta, 150 mililitre su 40 derece santigrat sıcaklıkta iken karıştırılır. Karışımın sıcaklığı kaç derece santigrat?",
+      "siklar": "A) 40 | B) 50 | C) 30 | D) 20",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K039",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Robotik projelerinde kuvvet sensöründen alınan verileri kullanarak bir grafik oluşturduk. Grafikte 3 farklı kuvvet değerinin (5 N, 10 N, 15 N) zamanla değişimi görülüyor. Bu grafikten yola çıkarak hangi sonucu çıkarabiliriz?",
+      "siklar": "A) Kuvvet değerleri zamanla azalmaktadır | B) Kuvvet değerleri arasındaki ilişki doğrusal değildir | C) Her bir kuvvet değeri belirli bir süre sabit kalmıştır | D) Kuvvet değerleri eşit aralıklarla artmaktadır",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K040",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okul gazetesine yazacağı bir makale için başlık düşünmektedir. Başlığın doğru yazılması için noktalama işaretlerini kullanmayı planlıyor. Aşağıdaki başlıklardan hangisi doğrudur?",
+      "siklar": "A) Okul Gazetesi: Yeni Bir Başlangıç | B) Okul Gazetesi - Yeni Bir Başlangıç | C) okul gazetesi: yeni bir başlangıç | D) Okul gazetesi; yeni bir başlangıç",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K041",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Aşağıdaki maddelerden hangisinin pH değeri en yüksektir?",
+      "siklar": "A) Süt | B) Sirke | C) Tuzlu su | D) İçme suyu",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K042",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir öğrenci, 5 kg şekerin 20 TL olduğunu biliyor. Aynı markette 2 kg şekerin fiyatı kaç TL olur?",
+      "siklar": "A) 15 TL | B) 12 TL | C) 10 TL | D) 8 TL",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K043",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Ahmet, C++ dilinde bir program yazarak iki sayının toplamını hesaplamak istiyor. Programı yazarken operatörleri doğru kullanması gerekiyor. Ahmet'in programında 'a' ve 'b' adında iki değişken tanımlanmıştır. 'a' değişkenine 5, 'b' değişkenine 10 değerini atıyor. Ahmet, bu iki değişkenin toplamını ekrana yazdıran kodu yazmak istiyor.",
+      "siklar": "A) cout << a - b; | B) cout << a * b; | C) cout << a / b; | D) cout << a + b;",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K044",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Ayşe, 5 kg'lık pirinci 120 TL'ye alıyor. 2 kg'lık pirinci kaç TL'ye alacağını hesaplamak istiyor.",
+      "siklar": "A) 60 | B) 48 | C) 40 | D) 50",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K045",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte tamamlar?",
+      "siklar": "A) 3 saat | B) 1,5 saat | C) 2,5 saat | D) 4 saat",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K046",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz.",
+      "siklar": "A) 10 m/s | B) 15 m/s | C) 25 m/s | D) 20 m/s",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K047",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 volt gerilime bağlıdır. Lambanın çektiği akımı hesaplamak için hangi formülü kullanmalıyız? Buna göre, lambanın çektiği akım kaç amperdir?",
+      "siklar": "A) I = V*R | B) I = V+R | C) I = R/V | D) I = V/R",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K048",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir doktor, yeni bir ilacın etkili olup olmadığını belirlemek için bir araştırma yapıyor. Doktor, ilacın %80 etkili olduğunu söylüyor, ancak bu oranın %20 olasılıkla yanlış olduğunu da ekliyor. Bayes Teoremini kullanarak, ilacın gerçekten etkili olma olasılığını hesaplamak istersek, hangi değerleri kullanmalıyız?",
+      "siklar": "A) İlacın etkili olmadığı halde etkili olduğu sonucunun çıkma olasılığı ve ilacın gerçekten etkili olmadığı olasılığı | B) İlacın etkili olmadığı halde etkili olmadığı sonucunun çıkma olasılığı ve ilacın gerçekten etkili olduğu olasılığı | C) İlacın etkili olma olasılığı ve ilacın etkili olmadığı halde etkili olduğu sonucunun çıkma olasılığı | D) İlacın etkili olma olasılığı ve ilacın etkili olmadığı halde etkili olmadığı sonucunun çıkma olasılığı",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K049",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir arkadaşınla mesajlaşırken, ona 'Saat kaçta görüşelim?' diye sordun. Arkadaşın '8'e çeyrek kala' diye cevap verdi. Bu zamanı doğru şekilde yazmak istiyorsun.",
+      "siklar": "A) 07.15 | B) 08.45 | C) 08.15 | D) 07.45",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K050",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangi seçenek daha ucuzdur? Buna göre 2 litre süt için en uygun fiyatı seçiniz.",
+      "siklar": "A) 2 adet 1 litrelik sütü 5 TL'ye almak | B) 2 adet 1 litrelik sütü 6 TL'ye almak | C) 2 litrelik sütü 8 TL'ye almak | D) 2 litrelik sütü 10 TL'ye almak",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K051",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Bir yazar, okurlarının bir karakterin duygularını anlamalarına yardımcı olmak için örtük ifadeleri kullanıyor. Örneğin, 'Karakterin yüzü kızardı ve gözleri düşdü.' cümlesi, karakterin nasıl hissettiğini gösteriyor. Bu tür ifadelerin kullanım amacı nedir?",
+      "siklar": "A) Karakterin duygularını gizlemek | B) Okurların karakterin duygularını direkt olarak anlamalarını sağlamak | C) Okurların dikkatini başka yöne çekmek | D) Okurların karakterin duygularını yorumlamalarına ve anlamalarına yardımcı olmak",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K052",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir okulun kantininde, 5 öğrenciye yetecek kadar pizza 20 TL'dir. Kantin aynı pizzayı 3 öğrenciye yetecek kadar olarak satıyorsa, bu pizza kaç TL'dir?",
+      "siklar": "A) 8 TL | B) 12 TL | C) 15 TL | D) 10 TL",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K053",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+      "siklar": "A) 3 | B) 4 | C) 2 | D) 5",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K054",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Deneyap Teknoloji Atölyesinde bir robotik proje kapsamında kuvvetsensörü kullanılmaktadır. Proje kapsamında kuvvetsensörünün ölçtüğü değerler 2 Newton, 4 Newton ve 6 Newton olarak kaydedilmektedir. Bu değerlerin grafiksel olarak gösterilmesi için hangi tür grafik daha uygun olur?",
+      "siklar": "A) Nokta grafik | B) Pastel grafik | C) Çubuk grafik | D) Çizgi grafik",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K055",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "siklar": "A) 36 | B) 60 | C) 24 | D) 48",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K056",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okulun duvar gazetesinde yayınlanmak üzere bir yazı yazıyor. Yazıda 'Okulun 50. yılını kutlarız.' cümlesi var. Öğrenci, bu cümledeki '50.' sayısının başına nokta koyup koymama konusunda tereddüt ediyor. Bu durumda öğrenci ne yapmalıdır?",
+      "siklar": "A) Sayının başına nokta koymamalıdır. | B) Sayı yerine 'elli' yazmalıdır. | C) Sayının başına nokta koymalıdır. | D) Cümleyi yeniden yazmalıdır.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K057",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanarak okuyucuların dikkatini çekmek istiyor. Aşağıdaki ifadelerden hangisi örtük bir ifade örneğidir?",
+      "siklar": "A) Karakterin ağladığını söyledi | B) Karakterin yüz ifadesi değişti | C) Karakterin gözleri bir anda büyüdü | D) Karakterin korktuğunu açıkça belirtti",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K058",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ayşe, 10 cm uzunluğunda ve 5 cm genişliğinde bir dikdörtgen şekilli resim çerçevesi satın aldı. Çerçeveyi süslemek için çerçevenin çevresine bir şerit koyacak. Ayşe'nin şerit için kaç cm şerit alması gerekir? Çerçeveyi süslemek için 18 cm şerit aldığını varsayarsak, bu şeridin çerçevenin çevresini tam olarak kaç kere sarabileceğini hesaplayabiliriz. Buna göre, Ayşe'nin çerçevenin çevresini tam olarak sarabileceği şerit uzunluğu kaç cm'dir?",
+      "siklar": "A) 20 cm | B) 24 cm | C) 18 cm | D) 12 cm",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K059",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Daha sonra bu tasarımı üç boyutlu hale getirmek istiyor. Ayşe'nin tasarımında iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklayınız. Aşağıdaki görsellerden hangisi iki boyutlu çizimi temsil eder?",
+      "siklar": "A) Yalnızca genişlik ve yüksekliği olan çizim | B) Sadece yükseklik ve derinliği olan çizim | C) Genişlik, yükseklik ve derinliği olan çizim | D) Sadece genişlik ve derinliği olan çizim",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K060",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir öğrenci, eşit hacimli iki kaptan birine 50°C sıcaklığında su, diğerine 10°C sıcaklığında su koyuyor. Daha sonra iki kabı karıştırıyor. Karışımın sıcaklığı hakkında ne söylenebilir?",
+      "siklar": "A) Karışımın sıcaklığı 30°C olur | B) Karışımın sıcaklığı 10°C olur | C) Karışımın sıcaklığı 50°C ile 10°C arasında bir değer olur | D) Karışımın sıcaklığı 50°C olur",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K061",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Ela'yı 100 metre ileriden görüyor. Ayşe, Ela'yı kaç saniyede yakalar?",
+      "siklar": "A) 20 saniye | B) 100 saniye | C) 50 saniye | D) 25 saniye",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K062",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir bisiklet 2 saatte 40 km yol alır. Bisikletin 5 saatte alacağı mesafe kaç km'dir?",
+      "siklar": "A) 80 km | B) 100 km | C) 120 km | D) 60 km",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K063",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "siklar": "A) 24 | B) 36 | C) 60 | D) 48",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K064",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir markette 2 kg elma 10 TL, 3 kg armut 15 TL. Bir müşteri 4 kg elma ve 2 kg armut almak istiyor. Müşterinin toplam ne kadar ödeyeceğini hesaplayınız. Bu verilere göre müşterinin ödeyeceği toplam tutar kaç TL olacaktır?",
+      "siklar": "A) 30 TL | B) 40 TL | C) 35 TL | D) 25 TL",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K065",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir öğrenci, okula gitmek için her gün 30 dakika yürüyor. Arkadaşlarından birinin evi okula 10 dakika daha yakın. Öğrenci, arkadaşının evine gitmek için ne kadar zaman harcar? Bağlamı dikkate alarak uygun bağlantı ifadelerini kullanmak için aşağıdaki seçeneklerden hangisi doğru?",
+      "siklar": "A) Öğrenci, arkadaşının evine gitmek için 40 dakika harcar. | B) Öğrenci, arkadaşının evine gitmek için 30 dakika harcar. | C) Öğrenci, arkadaşının evine gitmek için 20 dakika harcar. | D) Öğrenci, arkadaşının evine gitmek için 50 dakika harcar.",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K066",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Bir öğrenci, C++ dilinde değişken tanımlarken veri tiplerini öğrenmek istiyor. Öğrenci, 'x' adında bir değişken tanımlayıp ona 10 değerini atamak istiyor. Öğrenci, bu değişkenin veri tipini seçerken tamsayı mı yoksa ondalıklı sayı mı kullanacağını düşünüyor.",
+      "siklar": "A) float x = 10.5; | B) char x = 'A'; | C) bool x = true; | D) int x = 10;",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K067",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile çalıştırılmaktadır. Lambanın çektiği akım ne kadardır? Buna göre lambanın direnci ve pilin voltajı arasındaki ilişkiyi açıklayabilir misiniz?",
+      "siklar": "A) 0.5 amper | B) 12 amper | C) 2 amper | D) 1.2 amper",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K068",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir spam filtresi, Bayes teoremini kullanarak e-postaların spam olma olasılığını belirliyor. Filtre, belirli bir kelimenin spam e-postalarda görünme olasılığını %50, normal e-postalarda görünme olasılığını %10 olarak belirliyor. E-postada bu kelimenin görünme olasılığı %30 ise, e-postanın spam olma olasılığı nedir?",
+      "siklar": "A) %30 | B) %60 | C) %20 | D) %40",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K069",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+      "siklar": "A) 1300 gram | B) 800 gram | C) 1500 gram | D) 1000 gram",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K070",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Mehmet, bir şiir yazmak istiyor. Şiirinde okuyucuların hislerini etkilemek için örtük ifadeler kullanmak istiyor. Şiirinde 'gözlerindeki ışık' ifadesini kullanıyor. Bu ifade hangi tür bir ifade örneğidir?",
+      "siklar": "A) Açık bir ifade | B) Örtük bir ifade | C) Doğrudan bir ifade | D) Dolaylı bir ifade",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K071",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat firması, bir binanın çatısını yapmak için necessary malzemeleri hesaplıyor. Çatının uzun kenarının uzunluğu 15 metre, kısa kenarının uzunluğu 8 metre olsun. İnşaat mühendisi, bu ölçülere göre çatının hipotenüs uzunluğunu hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi, bu üçgenin hipotenüs uzunluğunun karesine eşit olan değeri gösterir?",
+      "siklar": "A) 169 | B) 225 | C) 289 | D) 324",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K072",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen tüm hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremini kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Doktorun kullanacağı formül hangisidir?",
+      "siklar": "A) P(Hastalık|Semptom) = P(Semptom|Hastalık) / P(Hastalık) + P(Semptom) | B) P(Hastalık|Semptom) = P(Semptom|Hastalık) + P(Hastalık) - P(Semptom) | C) P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) * P(Semptom) | D) P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom)",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K073",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe ve Mehmet iki farklı kitap okumaktadır. Ayşe'nin kitabı 200 sayfa, Mehmet'in kitabı 250 sayfa. Her iki kitap da aynı konuyu işlemektedir. Ayşe kitabı 4 günde, Mehmet kitabı 5 günde bitirmiştir. Bu bilgiler ışığında, kimin daha hızlı okuduğunu karşılaştırmak için hangi bilgiye ihtiyacımız vardır?",
+      "siklar": "A) Her iki kitabın da basım tarihleri | B) Her iki kitabın da konu çeşitliliği | C) Her iki kitabın da sayfa boyutları | D) Her iki kişinin de okuma hızları",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K074",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir devrede 5 ohm dirençli bir eleman 10 volt gerilime bağlıdır. Direnç ve gerilim arasındaki ilişkiye dayanarak, bu devrenin akımını nasıl hesaplayabilirsiniz? Buna göre, devrenin akımı kaç amperdir?",
+      "siklar": "A) I = 5/10 | B) I = 10*5 | C) I = 5-10 | D) I = 10/5",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K075",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Bir yazar, yazdığı metinde okuyucuyu etkilemek için açık ve örtük ifadeleri kullanıyor. Aşağıdaki ifadelerden hangisi okuyucunun zihninde bir görüntü oluşturmak için kullanılan bir örtük ifadedir?",
+      "siklar": "A) Gökyüzü, uzanan bir deniz gibi geniş ve derin görünüyordu. | B) Gökyüzü çok güzeldi. | C) Gökyüzü maviydi. | D) Gökyüzü güzel bir renge sahipti.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K076",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanıyor. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirliyor. Bir hasta testte pozitif sonuç alırsa, gerçekten hasta olma olasılığı nedir?",
+      "siklar": "A) %45 | B) %75 | C) %30 | D) %60",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K077",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okulunun duvar gazetesinde bir yazı yazmak istiyor. Yazıda 'Okulumuzun bahçesi çok güzeldir.' cümlesi yer alacak. Öğrenci, cümledeki 'Okulumuzun' sözcüğünün doğru yazımını merak ediyor. Hangi seçenekte 'Okulumuzun' sözcüğünün doğru yazımı verilmiştir?",
+      "siklar": "A) Okulumuzda | B) Okulumuzun | C) Okulumuzun | D) Okulumuzda",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K078",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir elektrik devresinde direnç 5 ohm, akım 2 A ise, gerilim kaç voldur?",
+      "siklar": "A) 5 V | B) 20 V | C) 15 V | D) 10 V",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K079",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle 20 km uzaklıktaki bir parka gitmek istiyor. Ahmet'in bisikletinin sürati 10 km/saat, hızı ise 15 km/saat'tir. Ahmet'in bu yolu hangi kavramı kullanarak daha hızlı gidebilir?",
+      "siklar": "A) İki kavramı da kullanarak | B) İki kavramı da kullanmadan | C) Hızını kullanarak | D) Süratini kullanarak",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K080",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir kitapçı, aynı yazarın iki farklı kitabını satıyor. Birinci kitap 250 sayfa, 20 TL. İkinci kitap 300 sayfa, 25 TL. Hangi kitap sayfaya göre daha ucuz?",
+      "siklar": "A) Birinci kitap | B) İkisi de aynı fiyat | C) Yeterli bilgi yok | D) İkinci kitap",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K081",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türü ile daha iyi gösterebilir?",
+      "siklar": "A) İki boyutlu çizim | B) Hem iki boyutlu hem de üç boyutlu çizim | C) Hiçbiri | D) Üç boyutlu çizim",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K082",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir bakteri türü her 20 dakikada ikiye katlanarak çoğalıyor. Başlangıçta 5 bakteri varsa 1 saat sonra kaç bakteri olur?",
+      "siklar": "A) 40 | B) 80 | C) 320 | D) 160",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K083",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "siklar": "A) 48 | B) 36 | C) 60 | D) 24",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K084",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Bir C++ programında, iki adet integer değişken tanımlanmıştır: x = 5 ve y = 3. Aşağıdaki operatörleri kullanarak sonucunu yordayan ifadelerden hangisi doğrudur? x > y",
+      "siklar": "A) 3 | B) 5 | C) True | D) False",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K085",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak bir araba tasarımı yapıyor. Daha sonra bu tasarımı üç boyutlu olarak modellemeye karar veriyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istemesi doğru mudur?",
+      "siklar": "A) Evet, çünkü iki boyutlu çizimler sadece genişlik ve yükseklik içerir, üç boyutlu çizimler ise genişlik, yükseklik ve derinlik içerir. | B) Hayır, çünkü iki boyutlu çizimler ve üç boyutlu çizimler aynı şeylerdir. | C) Evet, çünkü üç boyutlu çizimler sadece genişlik ve yükseklik içerir. | D) Hayır, çünkü iki boyutlu çizimler daha detaylıdır.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K086",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Ahmet, bir programlama projesi için C++ dilinde bir değişken tanımlamak istiyor. Değişkenin veri tipi int olsun ve 10 değerini alabilsin. Aşağıdaki kod parçacıklarından hangisi bu işlemi gerçekleştirebilir?",
+      "siklar": "A) float deger = 10; | B) int deger = 10; | C) char deger = '10'; | D) bool deger = 10;",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K087",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okul gazetesine yazacağı bir makale için başlık seçmek istiyor. Başlıkta kullanacağı kelimelerin yazımını kontrol ediyor. 'Bu günkü' kelimesinin yazımı hakkında ne düşünmelidir?",
+      "siklar": "A) Bu gün ki | B) Bugünkü | C) Bugün ki | D) Bu günkü",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K088",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir elektrik devresinde akımı 2 katına çıkarmak istiyorlar. Direnç sabit ise voltaj nasıl değiştirilmelidir?",
+      "siklar": "A) 4 katına çıkarılmalıdır | B) 2 katına çıkarılmalıdır | C) Değiştirilmemelidir | D) Yarıya düşürülmelidir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K089",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir çözelti hazırlıyor. Bu çözelti hakkında ne söylenebilir?",
+      "siklar": "A) pH değeri 7'dir | B) Çözelti nötrdür | C) Çözelti bazik özellik gösterir | D) Çözelti asidik özellik gösterir",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K090",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir öğrenci, dik üçgenin kenar uzunluklarını a ve b, hipotenüs uzunluğunu c olarak gösterir. a² + b² = c² eşitliğini kullanarak, aşağıdaki hangi ifade, dik üçgenin özelliklerini doğru bir şekilde tanımlar?",
+      "siklar": "A) a ve b kenarlarının çarpımı, c kenarının karesine eşittir | B) a ve b kenarlarının kareleri toplamı, c kenarının karesine eşittir | C) a ve b kenarlarının toplamı, c kenarının karesine eşittir | D) a ve b kenarlarının kareleri farkı, c kenarının karesine eşittir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K091",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazıda, okulun başarılarını ve öğrencilerin katkılarını vurgulamak istiyor. Bağlamda uygun bağlantı ifadelerini kullanmak için, öğrenci aşağıdaki cümlelerden hangisini kullanmalıdır? 'Okulun başarıları, öğrencilerin katkılarından dolayı artmıştır.' ya da 'Okulun başarıları, öğrencilerin katkılarından bağımsız olarak artmıştır.'",
+      "siklar": "A) Okulun başarıları, öğrencilerin katkıları ile aynı anda artmıştır. | B) Okulun başarıları, öğrencilerin katkılarından dolayı artmıştır. | C) Okulun başarıları, öğrencilerin katkılarından bağımsız olarak artmıştır. | D) Okulun başarıları, öğrencilerin katkıları ile hiç ilişkili değildir.",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K092",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir küpün hacmi 8 cm³ ise, küpün bir kenarının uzunluğu kaç cm'dir?",
+      "siklar": "A) 3 | B) 1 | C) 2 | D) 4",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K093",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Bir oyuncak araba tasarlayan öğrenci, iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamalıdır. İki boyutlu çizim, nesnenin sadece genişlik ve yüksekliğini gösterirken, üç boyutlu çizim nesnenin genişlik, yükseklik ve derinliğini gösterir. Bir öğrenci, oyuncak araba tasarımı için hangi çizim türünü kullanmalıdır?",
+      "siklar": "A) Hem iki boyutlu hem de üç boyutlu çizim | B) Sadece iki boyutlu çizim | C) Sadece üç boyutlu çizim | D) İkisi de gerekli değildir",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K094",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir markette satılan şeker ve su karışımı %20 şekerden oluşmaktadır. Bu karışım homojen bir karışım mıdır, yoksa heterojen bir karışım mıdır? Karışımın bileşenleri eşit olarak dağılmışsa ve her yerinde aynı oranda şeker ve su bulunuyorsa, bu karışım hangisidir?",
+      "siklar": "A) Heterojen | B) Her ikisi de | C) Homojen | D) Hiçbiri",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K095",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir spam filtresi, Bayes öğrenmesi kullanarak e-postaları spam veya değil olarak sınıflandırıyor. Filtre, bir e-postanın spam olma olasılığını %5, belirli bir kelimenin spam e-postalarda görünme olasılığını %80, normal e-postalarda görünme olasılığını %10 olarak belirliyor. Bu kelimeyi içeren bir e-posta gerçekten spam olma olasılığı nedir?",
+      "siklar": "A) %50 | B) %40 | C) %64 | D) %30",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K096",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir bakteri türü her 20 dakikada 2 katına artmaktadır. Başlangıçta 1000 bakteri varsa, 1 saat sonra kaç bakteri olacaktır?",
+      "siklar": "A) 1000 | B) 8000 | C) 2000 | D) 4000",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K097",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir bakteri türü her saat 2 katına artmaktadır. Başlangıçta 5 bakteri varsa 3 saat sonra kaç bakteri olur?",
+      "siklar": "A) 50 | B) 45 | C) 40 | D) 60",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K098",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir içecek fabrikasında, 500 mL'lik şişeler için hazırlanan bir karışım, 200 mL su ve 300 mL meyve suyundan oluşmaktadır. Bu karışım homojen bir karışım mıdır, yoksa heterojen bir karışım mıdır? Karışımın bileşenleri birbirine tamamen karışmış ve eşit oranda dağılmışsa, bu karışım hangisidir?",
+      "siklar": "A) Her ikisi de | B) Homojen | C) Hiçbiri | D) Heterojen",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K099",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir öğrenci, iki farklı metni okumaktadır. Birinci metinde 150 kelime, ikinci metinde 120 kelime bulunmaktadır. Öğrenci, birinci metni 10 dakikada, ikinci metni 8 dakikada okuyabilmektedir. Bu bilgiler ışığında, öğrencinin okuma hızını hesaplamak için hangi formülü kullanmalıdır?",
+      "siklar": "A) Kelime sayısı / dakika | B) Dakika - kelime sayısı | C) Dakika / kelime sayısı | D) Kelime sayısı + dakika",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K100",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir bakteri türü her saat 2 katına artmaktadır. Başlangıçta 5 bakteri varsa 3 saat sonra kaç bakteri olur?",
+      "siklar": "A) 30 | B) 50 | C) 40 | D) 45",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K101",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir okulun kantininde, 5 öğrenciye 15 TL'ye pizza satılmaktadır. Aynı pizzayı 3 öğrenciye 9 TL'ye satmaktadır. 4 öğrenci için pizza almak istiyorsanız hangisi daha ucuzdur?",
+      "siklar": "A) 3 öğrencilik pizzayı iki kere satın almaktır | B) 5 öğrencilik pizza alıp bir kişilik payı atmaktır | C) İkisi de aynı fiyata gelmektedir | D) 3 öğrencilik pizza alıp bir kişilik payı eklemektir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K102",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 50°C sıcaklıkta 200 mL su karıştırılıyor. Karışımın sıcaklığı kaç derece olur? Bu verilere göre ısı alışverişi nasıl gerçekleşir?",
+      "siklar": "A) 40°C | B) 20°C | C) 30°C | D) 35°C",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K103",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre süratle ilerlemektedir. Rüzgarın etkisiyle bisikletçinin hızı saatte 25 kilometreye çıkmaktadır. Bisikletçinin sürati ve hızı arasındaki ilişkiyi açıklayabilir misiniz? Buna göre, sürat ve hız kavramlarını karşılaştırmak için hangi durumları dikkate almalısınız?",
+      "siklar": "A) Sürat, hareketin hızı ve yönüdür; hız, hareketin sadece hızıdır. | B) Sürat ve hız, aynı anlama gelen kavramlardır. | C) Sürat, hareketin yönüdür; hız, hareketin hızıdır. | D) Sürat, hareketin hızıdır; hız, hareketin yönüdür.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K104",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklinde olan çatı tasarımını planlamaktadır. Çatının dik kenarlarından birinin uzunluğu 6 metre, diğer dik kenarının uzunluğu 8 metredir. Ustalar, çatıların sağlamlığı için kenar uzunlukları a² + b² = c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını yorumlayabilmektedir. Buna göre, bu çatı tasarımının hipotenüs uzunluğu kaç metredir?",
+      "siklar": "A) 14 | B) 12 | C) 10 | D) 16",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K105",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfa, ikinci kitap ise 80 sayfadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısından 40 fazla olduğuna göre, Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "siklar": "A) 80 | B) 40 | C) 20 | D) 60",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K106",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okul projesi için bir metin yazıyor. Metinde 'Türkiye'nin başkenti Ankara'dır.' cümlesi var. Öğrenci, bu cümlede büyük harf kullanma kuralını uygulamalıdır. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "siklar": "A) Cümledeki 'Ankara' kelimesi büyük harfle yazılmalıdır, 'Türkiye' kelimesi küçük harfle yazılmalıdır. | B) Cümledeki 'Türkiye' ve 'Ankara' kelimeleri büyük harfle yazılmalıdır. | C) Cümledeki 'Türkiye' ve 'Ankara' kelimeleri küçük harfle yazılmalıdır. | D) Cümledeki 'Türkiye' kelimesi büyük harfle yazılmalıdır, 'Ankara' kelimesi küçük harfle yazılmalıdır.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K107",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir laboratuvarda, bir kimyager 100 mL'lik bir su örneğini 50 mL'lik bir tuz çözeltisiyle karıştırır. Elde edilen karışımın türünü belirlemek için hangi özelliği dikkate almalıdır?",
+      "siklar": "A) Bileşenlerin dağılımı | B) Karışımın kokusu | C) Karışımın kıvamı | D) Karışımın rengi",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K108",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir robotik sistemde kuvvetsensörünün verdiği değerler grafik olarak incelenmektedir. Grafikte kuvvetsensörünün verdiği değerler 0 ila 10 newton arasında değişmektedir. Grafikteki değerlerin yorumlanmasında, kuvvetsensörünün verdiği değerlerin 5 newton ve üzeri olduğunda robotun hareketinin yavaşladığı gözlemlenmiştir. Aşağıdakilerden hangisi bu gözlemi destekler?",
+      "siklar": "A) Kuvvetsensörünün verdiği değerler 5 newton ve üzeri olduğunda robotun hareketinin yavaşlaması, robotun ağırlığının artması nedeniyle oluşur | B) Kuvvetsensörünün verdiği değerler 5 newton ve üzeri olduğunda robotun hareketinin yavaşlaması, robotun hızının artması nedeniyle oluşur | C) Kuvvetsensörünün verdiği değerler 5 newton ve üzeri olduğunda robotun hareketinin yavaşlaması, motorun gücü azaldığı için oluşur | D) Kuvvetsensörünün verdiği değerler 5 newton ve üzeri olduğunda robotun hareketinin yavaşlaması, sürtünme kuvvetinin artması nedeniyle oluşur",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K109",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanıyor. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirliyor. Bir hasta testte pozitif sonuç alırsa, gerçekten hasta olma olasılığı nedir?",
+      "siklar": "A) %60 | B) %30 | C) %45 | D) %75",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K110",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir süpermarkette, homojen ve heterojen karışımlara ait örnekler verilmiştir: yoğurt (homojen), salata (heterojen). Aşağıdaki karışımlardan hangisi homojen bir karışım örneği değildir?",
+      "siklar": "A) Şekerli su | B) Tuzlu su | C) Salata | D) Kumlu su",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K111",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Ayşe, bir hikaye yazmak için 3 sayfa uzunluğundaki bir metni okumak istiyor. Metin 5 dakikada okunuyor. Ayşe'nin metni okumak için ayırdığı süre 15 dakika ise, okuduğu sayfa sayısı kaçtır?",
+      "siklar": "A) 5 sayfa | B) 3 sayfa | C) 1 sayfa | D) 9 sayfa",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K112",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir öğrenci, okul gazetesi için yazdığı bir makalede 'öğrenci' kelimesini yanlışlıkla 'ögretmen' olarak yazmıştır. Bu yazım hatasını fark eden öğrenci, kelimeyi doğru şekilde yazmak istiyor.",
+      "siklar": "A) öğretmen | B) öğrtenci | C) öğrenci | D) ögretmen",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K113",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir bisiklet 2 saatte 40 kilometre yol alabilir. Bisikletin 5 saatte alacağı mesafeyi hesaplamak için hangi orantı kullanılır?",
+      "siklar": "A) 40 km * 5 saat / 2 saat | B) 40 km - 2 saat * 5 | C) 40 km + 2 saat * 5 | D) 40 km / 2 saat = 20 km/saat",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K114",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir odanın boyu 6 metre, eni 4 metre. Odanın duvarlarına 5'er metre uzunluğunda perde takılacak. Her metre perde için 0.5 litre boya gerekiyor. Toplam kaç litre boya kullanılacaktır?",
+      "siklar": "A) 18 litre | B) 12 litre | C) 20 litre | D) 15 litre",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K115",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Bir mühendis, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. Mühendis, arabayı iki boyutlu çizim kullanarak tasarladı. Ancak, mühendis daha sonra arabayı üç boyutlu çizime çevirmek istiyor. Mühendis, hangi bilgiye ihtiyaç duyacaktır?",
+      "siklar": "A) Arabanın sadece uzunluk ve genişlik ölçülerini | B) Arabanın uzunluk, genişlik ve yükseklik ölçülerini | C) Arabanın sadece yükseklik ölçüsünü | D) Arabanın ağırlığını",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K116",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Ahmet, bir şiir yazmak istiyor. Şiirin teması 'doğa' olacak. Ahmet, şiirinde doğanın güzelliklerini vurgulamak istiyor. Aşağıdaki cümlelerden hangisi Ahmet'in şiirine uygun bir örnek cümle olabilir?",
+      "siklar": "A) Doğa, bizimle iletişim kurmaya çalışır. | B) Şehir hayatı çok stresli. | C) Doğanın güzellikleri her zaman bizi çevreler. | D) Hava kirliliği çok ciddi bir problem.",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K117",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir küpün hacmi 8 cm³ ise, küpün bir kenarının uzunluğu kaç cm'dir?",
+      "siklar": "A) 1 | B) 3 | C) 2 | D) 4",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K118",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 3 kg armut da 15 TL'ye satılmaktadır. Bir müşteri 1 kg elma ve 2 kg armut almak isterse kaç TL ödeyecektir? Müşterinin ödeyeceği tutarın en yakın değerini bulunuz.",
+      "siklar": "A) 14 TL | B) 12 TL | C) 13 TL | D) 15 TL",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K119",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir öğrenci, eşit hacimli iki kaptan birine 50°C sıcaklığında su, diğerine 10°C sıcaklığında su koyuyor. Daha sonra iki kabı karıştırıyor. Karışımın sıcaklığı hakkında ne söylenebilir?",
+      "siklar": "A) Karışımın sıcaklığı 50°C dir | B) Karışımın sıcaklığı 50°C ile 10°C arasında bir değerdir | C) Karışımın sıcaklığı 30°C dir | D) Karışımın sıcaklığı 50°C ve 10°C ortalamasıdır",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K120",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, iki sayının toplamını hesaplayacak. Öğrenci, 'a' ve 'b' değişkenlerini tanımlamış ve bu değişkenlere sırasıyla 5 ve 10 değerlerini atamış. Öğrenci, 'toplam' değişkenini tanımlamak için hangi operatörü kullanmalıdır? Buna göre, 'toplam' değişkeninin değerini hesaplayacak bir ifade hangisidir?",
+      "siklar": "A) toplam = a + b | B) toplam = a * b | C) toplam = a - b | D) toplam = a / b",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K121",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir öğrenci, okuduğu iki metni karşılaştırmak istiyor. İlk metin 150 sayfa, ikinci metin 200 sayfa. İlk metni 3 günde, ikinci metni 4 günde okuyabiliyor. Hangi metni daha hızlı okumuştur?",
+      "siklar": "A) İlk metni | B) İkinci metni | C) Yeterli bilgi yok | D) İkisini de aynı hızda",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K122",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Ahmet Bey'in bahçesi 15 metreye 20 metre boyutlarında dikdörtgen şeklindedir. Bahçenin etrafına 2 sıra tel örgü çekmek istiyor. 1 metre tel örgünün maliyeti 5 TL ise, Ahmet Bey'in bahçesi için kaç TL harcayacağını hesaplayınız. Buna göre, Ahmet Bey 1000 TL ile yetinebilir mi?",
+      "siklar": "A) 600 TL | B) 700 TL | C) 800 TL | D) 900 TL",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K123",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu döşemek için taşlar kullanacak. Taşların her biri 0,5 metre uzunluğunda. Bahçıvan, yolun her iki tarafına da aynı sayıda taş döşemek istiyor. Bahçıvanın yolun her iki tarafına kaçar taş döşemesi gerekiyor?",
+      "siklar": "A) 14 | B) 30 | C) 28 | D) 15",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K124",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ayşe, bahçesinde dikdörtgen şeklinde bir havuz yapacak. Havuzun uzun kenarı 10 metre, kısa kenarı 5 metre olacak. Ayşe, havuzun etrafına bir yol yapacak ve bu yolun genişliği 1 metre olacak. Ayşe, yolun çevre uzunluğunu hesaplamak istiyor. Buna göre, yolun çevre uzunluğu kaç metre olur?",
+      "siklar": "A) 32 metre | B) 36 metre | C) 44 metre | D) 40 metre",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K125",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir kuvvet sensörü, bir robotun farklı hızlarda hareket ederken uyguladığı kuvvetleri ölçmek için kullanılıyor. Aşağıdaki grafik, robotun hızının (x ekseninde) kuvvetin (y ekseninde) nasıl değiştiğini gösteriyor. Grafikte, robotun en yüksek kuvveti hangi hızda uygulandığını gösteren nokta hangisidir? Buna göre, robotun hızı ve uyguladığı kuvvet arasındaki ilişkiyi yorumlayabilir misiniz?",
+      "siklar": "A) 5 m/s hızında | B) 15 m/s hızında | C) 10 m/s hızında | D) 2 m/s hızında",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K126",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir öğrenci, laboratuvar dersinde homojen ve heterojen karışımlara örnekler veriyor. Homojen karışımlara örnek olarak saf suyu, heterojen karışımlara örnek olarak ise su ve yağı veriyor. Öğrencinin verdiği örnekler doğru mudur?",
+      "siklar": "A) Hayır, su ve yağı homojen bir karışımdır | B) Evet, doğrudur | C) Hayır, saf su heterojen bir karışımdır | D) Hayır, saf su homojen, su ve yağı heterojen değildir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K127",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini anlatırken, bir dik üçgenin dik kenarlarının uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu söylemektedir. Buna göre, bir dik üçgenin dik kenarları 5 cm ve 12 cm ise, hipotenüsün uzunluğu kaç cm'dir?",
+      "siklar": "A) 14 | B) 16 | C) 15 | D) 13",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K128",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Öğrenciler, hipotenüsün uzunluğunu hangi formülü kullanarak bulabilirler?",
+      "siklar": "A) c^2 = 5^2 - 12^2 | B) c = 5 + 12 | C) c^2 = 5^2 + 12^2 | D) c = 5 - 12",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K129",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, devredeki akım şiddetini hesaplamak istiyor.",
+      "siklar": "A) 3 A | B) 6 A | C) 2 A | D) 4 A",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K130",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir bisiklet sürücüsü, düz bir yolda saatte 20 kilometre hızla gidiyor. Rüzgarın etkisiyle bisikletin hızı saatte 25 kilometreye çıkıyor. Sürat ve hız arasındaki farkı açıklamak için hangisi doğrudur?",
+      "siklar": "A) Sürat, bisikletin aldığı yolun yönüdür; hız, bisikletin bu yolu alma hızının büyüklüğüdür. | B) Sürat, bisikletin aldığı yolun uzunluğudur; hız, bisikletin bu yolu alma süresidir. | C) Sürat, bisikletin aldığı yolun yönüdür; hız, bisikletin bu yolu alma süresidir. | D) Sürat, bisikletin aldığı yolun uzunluğu ve yönüdür; hız, bisikletin bu yolu alma süresidir.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K131",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir yazar, bir makale yazarken, önceki cümleyle sonraki cümleyi bağlamak için uygun bir bağlantı ifadesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, bu amaç için en uygun bağlantı ifadesidir? 'Bununla birlikte', 'Dolayısıyla', 'Örneğin', 'Sonuç olarak'",
+      "siklar": "A) Sonuç olarak | B) Dolayısıyla | C) Bununla birlikte | D) Örneğin",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K132",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir markette 2 litre süt 10 TL'dir. Aynı markette 1,5 litre süt kaç TL'dir?",
+      "siklar": "A) 8 TL | B) 7,5 TL | C) 15 TL | D) 12 TL",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K133",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık yaptığı işte, dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu kanıtlamak istiyor. Buna göre, ustanın ölçtüğü dik üçgenin dik kenar uzunluklarının kareleri toplamı kaç metrekaredir?",
+      "siklar": "A) 40 | B) 60 | C) 100 | D) 80",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K134",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir araba farının direnci 4 ohm, arabanın aküsü 12 voltluk bir pil ile çalışmaktadır. Araba farının çektiği akım ne kadardır? Buna göre direncin ve voltajın akım üzerindeki etkisini açıklayabilir misiniz?",
+      "siklar": "A) 4 amper | B) 3 amper | C) 2 amper | D) 1 amper",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K135",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir öğrenci, 5 saatlik bir yolculuk için 2 litre su getirmiştir. Bu su, yolculuk boyunca 4 kişiye yetecek midir? Her kişi yolculuk boyunca 0,5 litre su içmektedir.",
+      "siklar": "A) Evet, yetecek. | B) Sadece 2 kişiye yetecek. | C) Sadece 3 kişiye yetecek. | D) Hayır, yetmeyecek.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K136",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir laboratuvar çalışmasında, öğrenciler farklı asit ve bazların pH değerlerini ölçmektedir. Bir öğrenci, bir asidin pH değerini 3,5 olarak ölçer. Başka bir öğrenci ise aynı asidin pH değerini 4,2 olarak ölçer. Hangi ölçümün daha doğru olduğunu anlamak için, öğrencilerin pH ölçüm aralığını dikkate almaları gerekir. pH ölçüm aralığı 0,1'dir. Bu durumda, hangi ölçümün daha doğru olduğuna karar verebilmek için hangi değerlere bakılmalıdır?",
+      "siklar": "A) Ölçüm aralığının büyüklüğüne | B) Ölçüm aletinin markasına | C) Öğrencilerin deneyim seviyesine | D) Asidin gerçek pH değerine",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K137",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimini açıklayabilir misiniz?",
+      "siklar": "A) 60°C | B) 30°C | C) 50°C | D) 40°C",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K138",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL su ile sıcaklığı 20°C olan 300 mL suyu karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+      "siklar": "A) Karışımın sıcaklığı 20°C olur | B) Karışımın sıcaklığı 50°C olur | C) Karışımın sıcaklığı 20°C ile 90°C arasında bir değer olur | D) Karışımın sıcaklığı 90°C olur",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K139",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir öğrenci, 15 dakika süren bir sınavda 20 sorudan 12'sini doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Her yanlış cevap ise 0,5 puan düşürmüştür. Öğrenci sınavdan kaç puan almıştır? Her soru için doğru veya yanlış cevap verilmiştir.",
+      "siklar": "A) 22 puan | B) 24 puan | C) 20 puan | D) 21 puan",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K140",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir asit çözeltisi hazırlamıştır. Bu çözeltinin asitlik durumunu değerlendirmek istiyor. pH değerleri ile ilgili olarak, pH 7'nin altında olan çözeltilerin asit, pH 7'nin üstünde olan çözeltilerin baz olduğunu biliyor.",
+      "siklar": "A) Nötral | B) Baz | C) Asit | D) Tuz",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K141",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Ahmet, evindeki bir elektrik devresinde akımı ölçmek istiyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç bulunmaktadır. Ahmet, akımın değerini hesaplamak istiyor.",
+      "siklar": "A) 2 A | B) 3 A | C) 4 A | D) 6 A",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K142",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuşa girdiğinde hızını saatte 15 kilometre'ye düşürüyor. Bisikletçinin sürati ve hızı arasındaki farkı açıklayabilir misiniz? Buna göre, bisikletçinin sürati ve hızı aynı mıdır, farklı mıdır?",
+      "siklar": "A) Sürat, hızın bir parçasıdır, bu nedenle sürat hızı içerir. | B) Sürat ve hız farklı kavramlardır, sürat vektörel bir büyüklüktür, hız skaler bir büyüklüktür. | C) Sürat ve hız aynı şeydir, bu nedenle aynıdır. | D) Sürat, cismin aldığı yolun büyüklüğüdür, hız ise cismin aldığı zamanın büyüklüğüdür.",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K143",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacaktır. Yolun genişliği 1 metre olarak hesaplanmıştır. Bahçenin ve yolun birlikte kapladığı alan kaç metrekaredir?",
+      "siklar": "A) 200 m² | B) 168 m² | C) 152 m² | D) 120 m²",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K144",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir öğrenci, arkadaşıyla randevulaşırken 'Önce sen benim evime gel, sonra birlikte parka gidelim' diyor. Arkadaşı 'Tamam, saat 3'te evine geleceğim' diyor. Aşağıdaki ifadelerden hangisi bu konuşmaya uygun bir bağlantı ifadesidir?",
+      "siklar": "A) Sonra | B) Bununla birlikte | C) Önce | D) Ancak",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K145",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "siklar": "A) 24 | B) 36 | C) 60 | D) 48",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K146",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte alır?",
+      "siklar": "A) 1,5 saat | B) 1,33 saat | C) 2 saat | D) 3 saat",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K147",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ayşe, okuyucuların dikkatini çekmek için uygun bir başlangıç cümlesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, hikayenin konusu ile ilgili bir başlangıç cümlesi olabilir?",
+      "siklar": "A) Kışın ilk günü, doğanın uyanışıyla başlıyordu. | B) Ayşe'nin en sevdiği mevsim, yazdı. | C) Kışın ilk günü, çocuklar için tatil anlamına geliyordu. | D) Hava soğuk ve rüzgarlıydı.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K148",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+      "siklar": "A) 1000 g + 515 g | B) 1000 g + 1030 g | C) 800 g + 500 g | D) 800 g + 515 g",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K149",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Ece, arkadaşları için bir hikaye yazmak istiyor. Hikayenin başlığı 'Kışın İlk Günü' olacak. Ece, okuyucuların dikkatini çekmek için uygun bir giriş cümlesi yazmak istiyor. Aşağıdaki giriş cümlelerinden hangisi Ece'nin amacına uygundur?",
+      "siklar": "A) Kış mevsimi sonunda hava çok soğuktu. | B) Günün en önemli olayı, kışın başlamasıydı. | C) Hikayemiz, kışın ilk gününde başlıyor. | D) Eve oturan çocuk, dışarıdaki kardan çok sevindi.",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K150",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini anlatıyor. Öğretmen, bir dik üçgenin dik kenar uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden dik üçgenin hipotenüs uzunluğunu bulmalarını istiyor. Öğrenciler, hipotenüs uzunluğunu bulmak için hangi formülü kullanmalıdır?",
+      "siklar": "A) a * b = c | B) a - b = c | C) a + b = c | D) a^2 + b^2 = c^2",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K151",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir bardak sıcak çay ve bir bardak soğuk süt karıştırıldığında, ortaya çıkan karışımın sıcaklığı neye bağlıdır? Bardakların kapasitesi 200 mL'dir. Sıcak çay 80°C, soğuk süt 5°C'dir. Karışımın sıcaklığını belirleyen faktör nedir?",
+      "siklar": "A) Sıcak çay ve soğuk sütün hacimleri | B) Çay ve sütün renkleri | C) Bardakların malzemeleri | D) Sıcak çay ve soğuk sütün ısıl kapasiteleri",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K152",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir bisikletçi, saatte 20 kilometre hızla gidecek bir bisiklet için 4 saatte 80 kilometre kat edebileceğini hesaplamaktadır. Ancak, bisikletin lastiği patlar ve bisikletçi 1 saat boyunca lastiğini tamir etmek zorunda kalır. Bisikletçi, lastiği tamir ettikten sonra bisikletini saatte 25 kilometre hızla sürerse, 5 saat içinde kaç kilometre yol alabilir? Buna göre bisikletçinin alabileceği mesafeyi seçiniz.",
+      "siklar": "A) 120 kilometre | B) 125 kilometre | C) 100 kilometre | D) 90 kilometre",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K153",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık yaptığı işte köşelerden birinin dik açı olduğundan emin olmak istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "siklar": "A) 6² + 10² = 8² | B) 6² + 8² + 10² = 0 | C) 6² + 8² = 10² | D) 8² + 10² = 6²",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K154",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir öğrenci, okulunun yıl sonu etkinliği için bir metin yazmak istiyor. Metinde, okula yeni gelen öğrencilere okulun kuralları ve gelenekleri hakkında bilgi vermek istiyor. Öğrenci, metinde 'önce' ve 'sonra' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, metinde en uygun bağlantı ifadesi olur?",
+      "siklar": "A) Sonra okulun kuralları, önce gelenekleri | B) Önce okulun kuralları, sonra gelenekleri | C) Okulun kuralları ve gelenekleri arasında bir ilişki yok | D) Okulun kuralları ve gelenekleri aynı anda",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K155",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir araştırma ekibi, bir yeni ilaçın etkili olma olasılığını hesaplamak istiyor. İlacın etkili olma olasılığı %60, ilacın etkisiz olma olasılığı %40 olarak biliniyor. Ayrıca, ilacın etkili olduğu durumlarda, belirli bir yan etkinin görülme olasılığı %30, ilacın etkisiz olduğu durumlarda ise bu yan etkinin görülme olasılığı %10 olarak biliniyor. Araştırma ekibi, bir hasta bu yan etkiyi gösterdiğinde, ilacın etkili olma olasılığını hesaplamak istiyor. Aşağıdakilerden hangisi, araştırma ekibinin kullanacağı Bayes Teoremi formülünün doğru uygulanmasıdır?",
+      "siklar": "A) Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (Yan etki olasılığı + İlaç etkisiz olasılığı) | B) Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (1 - Yan etki olasılığı) | C) Olasılık = (Yan etki olasılığı x İlaç etkili olasılığı) / (Yan etki olasılığı x İlaç etkili olasılığı + Yan etki olasılığı x İlaç etkisiz olasılığı) | D) Olasılık = (Yan etki olasılığı + İlaç etkili olasılığı) / (1 - Yan etki olasılığı)",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K156",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde, ana karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanarak okuyucunun zihninde canlandıracağı bir sahne yazmak istiyor. Aşağıdaki seçeneklerden hangisi bu amaca uygun bir ifade olacaktır?",
+      "siklar": "A) Karakterin yüzü gözyaşlarıyla kaplandı ve içini bir hüzün duygusu sarıverdi. | B) Karakterin gözleri parlıyordu. | C) Karakter çok yorgundu. | D) Karakter çok mutsuzdu.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K157",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Emre'den 10 metre ileride bulunuyor. Ayşe'nin Emre'yi yakalamak için geçen süre kaç saniyedir?",
+      "siklar": "A) 5 saniye | B) 20 saniye | C) 10 saniye | D) 2 saniye",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K158",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir bardakta 10°C sıcaklıkta 300 mL su ve bir diğer bardakta 80°C sıcaklıkta 100 mL su bulunuyor. Bu iki su bir araya getirildiğinde oluşan karışımın sıcaklığı kaç derece olur?",
+      "siklar": "A) 35°C | B) 30°C | C) 25°C | D) 40°C",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K159",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir yazar, bir makale yazmak istiyor ve makalesinde 'fakat' ve 'ancak' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, makalede en uygun bağlantı ifadesi olur?",
+      "siklar": "A) Ancak, bu durumun olumlu bir etkisi var | B) Fakat, bu durumun ngược bir etkisi var | C) Hem Fakat hem de ancak, bu durumun aynı anda iki etkisi var | D) Bu durumun hiçbir etkisi yok",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K160",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir su deposu 2 metre yüksekliğinde ve 1 metre çapındadır. Deposunun hacmi kaç litredir? (π = 3,14 olarak kabul edin)",
+      "siklar": "A) 6,28 m³ | B) 12,56 m³ | C) 1,57 m³ | D) 3,14 m³",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K161",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Ahmet, bir kuvvet sensörü kullanarak bir nesnenin hızını ölçüyor. Kuvvet sensöründen gelen verileri bir grafik üzerinde çiziyor. Grafik üzerinde çizilen iki farklı hız verisi için iki ayrı çizgi elde ediyor. Bu çizgilerin her birinin eğimi hakkında bilgi veriyor. Birinci çizginin eğimi 2 m/s^2, ikinci çizginin eğimi ise 3 m/s^2'dir. Ahmet, bu iki çizgiyi yorumlarken hangi çıkarımlardan biri doğru olmaz?",
+      "siklar": "A) İkinci çizgi, birinci çizgiye göre daha hızlı bir hız artışını gösterir. | B) Eğer nesne aynı kuvvetle itilirse, birinci çizgi ikinci çizgiye göre daha büyük bir hız kazanır. | C) İki çizginin eğimi, nesnenin hızının zaman içindeki değişimini gösterir. | D) İki çizgi arasındaki fark, nesnenin hızındaki değişimin sabit olmadığını gösterir.",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K162",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen tüm hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremini kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Doktorun kullanacağı formül hangisidir?",
+      "siklar": "A) P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) * P(Semptom) | B) P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom) | C) P(Hastalık|Semptom) = P(Semptom|Hastalık) / P(Hastalık) + P(Semptom) | D) P(Hastalık|Semptom) = P(Semptom|Hastalık) + P(Hastalık) - P(Semptom)",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K163",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak su ve sıcaklığı 20°C olan 200 mL ılık su ile karıştırarak yeni bir su elde ediyor. Karıştırılan suların sıcaklığı dengeye geldiğinde, suyun son sıcaklığı ne olur?",
+      "siklar": "A) 55°C | B) 70°C | C) 80°C | D) 60°C",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K164",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak çay ile sıcaklığı 20°C olan 100 mL soğuk süt karıştırıyor. Karışımın sıcaklığı nasıl değişir?",
+      "siklar": "A) Karışımın sıcaklığı 20°C ile 90°C arasında bir değer olur | B) Karışımın sıcaklığı 90°C olur | C) Karışımın sıcaklığı 55°C olur | D) Karışımın sıcaklığı 20°C olur",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K165",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, iki sayıyı alıp bunların toplamını ve farkını hesaplayacak. Öğrenci, bu işlemi gerçekleştirmek için operatörleri kullanacak. Aşağıdaki operatörlerden hangisi, iki sayının toplamını hesaplamak için kullanılabilir?",
+      "siklar": "A) * | B) + | C) / | D) -",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K166",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir yazıda, 'Türkiye'nin başkenti Ankara'dır.' cümlesi yer alıyor. Bu cümlede kullanılan tırnak işareti yerine hangi noktalama işareti kullanılabilir?",
+      "siklar": "A) Parantez | B) Ayrıca işareti | C) Üstüste iki nokta | D) Vurgu işareti",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K167",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir markette 2 kg portakal 10 TL'ye, 1 kg elma 5 TL'ye satılmaktadır. Müşteri 3 kg portakal ve 2 kg elma almak istemektedir. Müşterinin toplam ne kadar ödemek zorunda kalacağına ilişkin aşağıdaki ifadelerden hangisi doğrudur?",
+      "siklar": "A) 45 TL | B) 50 TL | C) 35 TL | D) 40 TL",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K168",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfadan, ikinci kitap 80 sayfadan oluşmaktadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısının 1,5 katıdır. Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "siklar": "A) 50 | B) 40 | C) 60 | D) 70",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K169",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir laboratuvar deneyinde, 500 mL'lik bir asit çözeltisinin pH değerinin 2,5 olduğu ölçüldü. Aynı laboratuvarın bir başka deneyinde, 250 mL'lik bir baz çözeltisinin pH değerinin 12,8 olduğu belirlendi. Hangi çözeltinin asitlik veya bazlık durumu daha şiddetlidir?",
+      "siklar": "A) Baz çözeltisi daha şiddetli bazdır | B) pH değerlerinden asitlik veya bazlık durumları hakkında bir yorum yapılamaz | C) Asit çözeltisi daha şiddetli asittir | D) İki çözelti de aynı düzeyde asit veya bazdır",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K170",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir yayınevi, yeni bir kitap için tanıtım metni hazırlıyor. Metinde, kitabın adı ve yazarının doğru yazılması gerekiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "siklar": "A) Kitabın adı: 'çocukluk', Yazar: Ahmet DEMİR | B) Kitabın adı: Çocukluk, Yazar: Ahmet Demir | C) Kitabın adı: 'Çocukluk', Yazar: Ahmet Demir | D) Kitabın adı: Çocukluk, Yazar: ahmet demir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K171",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir markette satılan bir ürünün fiyatı 25 TL'dir. Bu ürünün fiyatı %15 oranında artırılmıştır. Ürünün yeni fiyatı kaç TL'dir?",
+      "siklar": "A) 32.50 TL | B) 28.75 TL | C) 30 TL | D) 35 TL",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K172",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir bisikletçi, düz bir yolda saatte 20 kilometre hızla gidiyor. Biraz sonra yokuş yukarı çıkıyor ve hızını saatte 10 kilometreye düşürüyor. Bisikletçi, yokuş yukarı çıkarken hızının değişip değişmediğini merak ediyor. Sürat ve hız kavramlarını karşılaştırdığımızda, bisikletçinin yokuş yukarı çıkarken hangi kavramda bir değişiklik olduğu söylenebilir?",
+      "siklar": "A) Hızda değişiklik olmaz, ancak süratte değişiklik olur | B) Hem süratte hem de hızda değişiklik olur | C) Süratte değişiklik olmaz, ancak hızda değişiklik olur | D) Hem süratte hem de hızda değişiklik olmaz",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K173",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Ahmet Bey, bahçesinin çevresine 4 sıra tel örgü çekmek istiyor. Bahçenin uzunluğu 15 metre, genişliği 8 metredir. Ahmet Bey'in bahçesinin çevresi için kaç metre tel örgüye ihtiyacı vardır?",
+      "siklar": "A) 100 | B) 96 | C) 92 | D) 80",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K174",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir kahve makinasi 50 santilitre su ile çalışır. Kahve makinasi 2 dakika içinde 100 santilitre su isiatabilir. Kahve makinasinin isi isi kapasitesi kaç santilitre dakika?",
+      "siklar": "A) 200 | B) 25 | C) 50 | D) 100",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K175",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ayşe bir dikdörtgen bahçe duvarı için 30 metre uzunluğunda ve 10 metre genişliğinde bir bahçe duvarı yapmak istiyor. Dikdörtgenin çevre uzunluğunu hesaplamak için hangi formülü kullanmalıdır? Bahçe duvarının uzun kenarları 2 adet, kısa kenarları 2 adet vardır. Dikdörtgenin çevre uzunluğu kaç metredir?",
+      "siklar": "A) 2 * (30 - 10) | B) 30 - 10 | C) 30 + 10 | D) 2 * (30 + 10)",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K176",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "siklar": "A) 48 | B) 36 | C) 24 | D) 60",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K177",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerle ilgili bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğretmen, öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Öğrenciler, hipotenüsün uzunluğunu hangi yöntemle bulabilirler?",
+      "siklar": "A) 5 + 12 = c | B) 5 * 12 = c | C) 5^2 - 12^2 = c^2 | D) 5^2 + 12^2 = c^2",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K178",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Ahmet, bir programlama projesi için C++ dilinde bir değişken tanımlamak istiyor. Değişkenin veri tipi int olsun ve 10 değerini alacak. Ahmet, bu değişkeni tanımlarken hangi operatörü kullanmalıdır?",
+      "siklar": "A) Atama operatörü (=) | B) Toplama operatörü (+) | C) Çarpma operatörü (*) | D) Çıkarma operatörü (-)",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K179",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat ustası, bir üçgenin iki kenarının uzunluğunu 6 cm ve 8 cm olarak ölçmüştür. Üçüncü kenarın uzunluğunu 10 cm olarak ölçtüğünde, bu üçgenin dik üçgen olduğunu düşünmektedir. Bu düşüncesi doğru mudur?",
+      "siklar": "A) Hayır, çünkü 6² + 8² ≠ 10² | B) Hayır, çünkü 6 + 8 < 10 | C) Evet, çünkü 6 + 8 > 10 | D) Evet, çünkü 6² + 8² = 10²",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K180",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Ahmet, Deneyap Teknoloji Atölyesinde bir oyuncak araba tasarlıyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Ahmet, oyuncak arabasının tasarımını hangi çizim türünü kullanarak daha iyi gösterebilir?",
+      "siklar": "A) Hem iki boyutlu hem de üç boyutlu çizim | B) İki boyutlu çizim | C) İki boyutlu çizim ve fotoğrafçılık | D) Üç boyutlu çizim",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K181",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Ayşe Hanım, 5 kg'lık bir paket unu 250 TL'ye alıyor. Aynı gün, 2 kg'lık paket unu 100 TL'ye satan bir başka markete de gidiyor. Ayşe Hanım, 15 kg un almak istiyor. Hangisini daha ekonomik buluyor? 15 kg un için hangi marketi seçmelidir?",
+      "siklar": "A) İkinci marketi seçmelidir, çünkü 15 kg un 750 TL'ye gelir | B) İkinci marketi seçmelidir, çünkü 15 kg un 600 TL'ye gelir | C) İlk marketi seçmelidir, çünkü 15 kg un 750 TL'ye gelir | D) İlk marketi seçmelidir, çünkü 15 kg un 900 TL'ye gelir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K182",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir öğrenci, 15 dakika süren bir sınavda 30 sorudan 24'ünü doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Öğrencinin sınavdan aldığı toplam puanı aşağıdaki ifadelerden hangisi doğru olarak vermektedir?",
+      "siklar": "A) 56 puan | B) 64 puan | C) 40 puan | D) 48 puan",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K183",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını anlatmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümlelerden hangisi karakterin duygularını örtük bir şekilde ifade eder?",
+      "siklar": "A) Karakterin gözleri yere düşmüştü ve suskundu. | B) Karakterin yüzü güldü. | C) Karakter çok mutsuzdu. | D) Karakter çok heyecanlıydı.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K184",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfadan, ikinci kitap 80 sayfadan oluşmaktadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısının 1,5 katıdır. Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "siklar": "A) 70 | B) 60 | C) 40 | D) 50",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K185",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir öğrenci, laboratuvar ortamında pH değeri 3 olan bir çözelti hazırlıyor. Bu çözelti hakkında ne söylenebilir?",
+      "siklar": "A) Çözelti bazik özellik gösterir | B) Çözelti asidik özellik gösterir | C) Çözelti nötraldir | D) pH değeri 7'dir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K186",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına, bahçeyi güneşten korumak için bir gölge bezi sermek istiyorsunuz. Gölge bezinin kaç metre kare olması gerekir? Buna göre, gölge bezinin boyutlarını hesaplayabiliriz. Gölge bezinin boyutu kaç metre kare olmalıdır?",
+      "siklar": "A) 120 metre kare | B) 140 metre kare | C) 100 metre kare | D) 160 metre kare",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K187",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanıyor. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirliyor. Bir hasta testte pozitif sonuç alırsa, gerçekten hasta olma olasılığı nedir?",
+      "siklar": "A) %30 | B) %75 | C) %60 | D) %45",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K188",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Emre, iki farklı haber kaynağından aynı anda gelen iki farklı mesajı karşılaştırmaktadır. Mesajlardan birisi 120 karakterden, diğeri 80 karakterden oluşmaktadır. Emre'nin karşılaştırdığı anda, ilk mesajın karakter sayısı, ikinci mesajın karakter sayısının 1,5 katıdır. Emre ikinci mesajı kaç karakter okumuştur?",
+      "siklar": "A) 90 | B) 120 | C) 100 | D) 80",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K189",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir mutfakta, 1 litre limon suyu için pH değerinin 2,0 olduğu biliniyor. Aynı mutfakta, 500 mL'lik bir portakal suyu için pH değerinin 3,5 olduğu ölçüldü. Hangi meyve suyunun asitlik durumu daha şiddetlidir?",
+      "siklar": "A) İki meyve suyu da aynı düzeyde asittir | B) Limon suyu daha şiddetli asittir | C) pH değerlerinden asitlik durumları hakkında bir yorum yapılamaz | D) Portakal suyu daha şiddetli asittir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K190",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir bahçe sulama sistemi, sulama suyunun pH değerini 6,5 olarak ölçer. Bu pH değeri, bitki yetiştirme için uygun mudur? Hangi pH aralığı, bitki yetiştirme için daha uygundur?",
+      "siklar": "A) 8,0-9,0 | B) 7,0-8,0 | C) 5,0-6,0 | D) 6,0-7,0",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K191",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir grup öğrenci, kuvvet sensörünü kullanarak bir oyuncak arabanın hızını ölçüyor. Elde ettikleri verileri bir grafik üzerinde çiziyorlar. Grafikte iki farklı veri çizgisi bulunuyor: birincisi 0-10 saniye aralığında, ikincisi 10-20 saniye aralığında. Birinci çizgi 5 m/s'den 15 m/s'ye çıkıyor, ikinci çizgi ise 15 m/s'den 25 m/s'ye çıkıyor. Hangi şık, bu iki çizgi arasındaki ilişkiyi doğru tanımlar?",
+      "siklar": "A) İki çizgi paraleldir, çünkü hızlar eşit sürede eşit miktarda artıyor. | B) İkinci çizgi, birinci çizgiye göre daha dik bir eğime sahiptir. | C) İki çizgi arasındaki fark, arabanın hızındaki artışın azaldığını gösterir. | D) İki çizgi birbiriyle kesişir, çünkü hızlar aynı noktada eşit oluyor.",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K192",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir restoranda yemek yiyen Ali, 25 TL'lik yemek için 10 TL'lik bir kupon kullanıyor. Ali'nin ödemesi gereken toplam tutar 18 TL ise, restoranın uyguladığı servis ücreti kaç TL'dir?",
+      "siklar": "A) 3 TL | B) 10 TL | C) 5 TL | D) 7 TL",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K193",
+      "ders": "Matematik",
+      "sinif": "5",
+      "kazanim": "MAT.5.4.4",
+      "kazanim_metni": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "govde": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+      "siklar": "A) 2 | B) 4 | C) 3 | D) 5",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K194",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir robotik sistemde iki farklı kuvvetsensör kullanılıyor. İlk kuvvetsensör 0-10 N aralığında, ikinci kuvvetsensör 0-50 N aralığında ölçüm yapıyor. Grafiklerde her iki kuvvetsensörün ölçtüğü değerler karşılaştırılarak robotun uyguladığı kuvvetteki değişimler analiz ediliyor. Hangi kuvvetsensör daha geniş bir ölçüm aralığına sahip?",
+      "siklar": "A) İlk kuvvetsensör daha dar bir ölçüm aralığına sahip | B) İlk kuvvetsensör | C) İkinci kuvvetsensör | D) Her iki kuvvetsensör aynı ölçüm aralığına sahip",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K195",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "kazanim": "T.Y.7.17",
+      "kazanim_metni": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanarak okuyucuların dikkatini çekmek istiyor. Aşağıdaki ifadelerden hangisi örtük bir ifade örneğidir?",
+      "siklar": "A) Kış mevsimiydi. | B) Hava çok soğuktu. | C) Sıcaklık -5 dereceydi. | D) Hikayedeki karakterin üşüdüğü hissedildi.",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K196",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test etmek için bir çalışma yapıyor. Çalışma, 100 hasta üzerinde yapılıyor ve hastaların %80'i ilacı aldıktan sonra iyileşiyor. Ancak, plasebo grubundaki hastaların %30'u da iyileşiyor. Araştırma ekibi, ilacın gerçekten etkili olup olmadığını belirlemek için Bayes Teoremini kullanmak istiyor. Buna göre, ilacın gerçekten etkili olma olasılığı kaçtır?",
+      "siklar": "A) 0.65 | B) 0.55 | C) 0.60 | D) 0.70",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K197",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Öğretmen, öğrencilerden bir kompozisyon yazısı istiyor. Yazıda noktalama işaretlerini doğru kullanmalarını istiyor. 'Kitap oku' cümlesinin sonuna hangi noktalama işaretini koymalıdır?",
+      "siklar": "A) ! | B) . | C) , | D) ?",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K198",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir araba, saatte 50 kilometre hızla giden bir kamyonun önünden geçmek istiyor. Araba, kamyonun önünden geçmek için 10 saniye sürecek bir manevra yapacak. Bu manevra sırasında arabanın hızı ne olur?",
+      "siklar": "A) Saatte 50 kilometre | B) Saatte 55 kilometre | C) Saatte 60 kilometre | D) Saatte 40 kilometre",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K199",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir robotik sistemde kuvvetsensörler kullanılarak robotun uyguladığı kuvvete bağlı olarak grafikler oluşturuluyor. Grafiklerde kuvvetsensörün ölçtüğü değerler x ekseninde, robotun uyguladığı kuvvetteki değişimler y ekseninde gösteriliyor. Grafiklerden biri doğrusal bir ilişki gösterirken diğeri doğrusal olmayan bir ilişkiyi temsil ediyor. Hangi grafik kuvvetsensörünün doğru çalıştığını gösteriyor?",
+      "siklar": "A) Hiçbiri kuvvetsensörünün doğru çalıştığını göstermez | B) Doğrusal ilişki gösteren grafik | C) Doğrusal olmayan ilişki gösteren grafik | D) Her iki grafik de kuvvetsensörünün doğru çalıştığını gösterir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K200",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir sınıfta 24 öğrenci vardır. Bu öğrencilerin 1/3'i matematik kulübüne, 1/4'i edebiyat kulübüne katılıyor. Kaç öğrenci hiçbir kulübe katılmıyor?",
+      "siklar": "A) 14 | B) 12 | C) 16 | D) 10",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K201",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir sınıfta öğrencilerin okudukları kitap sayıları hakkında bir grafik hazırlanmıştır. Grafikte 20 öğrencinin 5 kitap okuduğu, 15 öğrencinin 3 kitap okuduğu ve 10 öğrencinin 4 kitap okuduğu görülmektedir. Okunan toplam kitap sayısını, okuyan öğrenci sayısına bölerek ortalama kitap sayısını hesaplamak istiyoruz. Ortalama kitap sayısı kaçtır?",
+      "siklar": "A) 3,5 | B) 4 | C) 4,5 | D) 5",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K202",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Bir öğrenci, 1 litre su ve 1 litre yağın karıştırılmasının sonucunu gözlemliyor. Karışımın sonucu nedir?",
+      "siklar": "A) Katı bir madde | B) Homojen bir sıvı karışımı | C) Heterojen bir sıvı karışımı | D) Gaz halindeki bir madde",
+      "isaretli_sik": "C"
+    },
+    {
+      "kno": "K203",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YZ.3.5",
+      "kazanim_metni": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+      "govde": "Bir spam filtresi, Bayes öğrenmesi kullanarak e-postaları spam veya değil olarak sınıflandırıyor. Filtre, bir e-postanın spam olma olasılığını %20, spam e-postaların 'belirli bir kelime' içerme olasılığını %80, normal e-postaların 'belirli bir kelime' içerme olasılığını %10 olarak belirliyor. 'Belirli bir kelime' içeren bir e-posta geldiğinde, bu e-postanın spam olma olasılığı nedir?",
+      "siklar": "A) %50 | B) %64 | C) %73 | D) %82",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K204",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.RK.4.7",
+      "kazanim_metni": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+      "govde": "Bir öğrenci, kuvvet sensörünü kullanarak bir cismin üzerine uygulanan kuvveti ölçüyor. Ölçüm sonuçları bir grafik üzerinde gösteriliyor. Grafikte, kuvvetin 0 N'den 10 N'ye 2 saniyede değiştiği görülüyor. Öğrenci, bu verileri kullanarak cismin ivmesini hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi doğru ivme değerini verir? ( cismin kütlesi 2 kg)",
+      "siklar": "A) 20 m/s^2 | B) 10 m/s^2 | C) 2,5 m/s^2 | D) 5 m/s^2",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K205",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir araba, saatte 60 kilometre hızla giden bir kamyonun önünde 10 metre uzaklıkta ilerliyor. Araba, kamyonun hızından 20 kilometre daha hızlı gidiyor. Bu durumda, arabanın hızı ile sürati arasındaki ilişkiyi tanımlamak için hangisi đúngudur?",
+      "siklar": "A) Arabanın sürati ve hızı, aynı yönde ve aynı büyüklükte değildir | B) Arabanın hızı, süratine eşittir | C) Arabanın hızı, süratinden daha büyüktür | D) Arabanın sürati, hızından daha büyüktür",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K206",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Ahmet, marketten 1 kg şeker ve 500 mL süt alıyor. Şekerin yoğunluğu yaklaşık 0,8 g/cm³, sütün yoğunluğu ise 1,03 g/cm³ tür. Karışımın toplam kütlesini hesaplamak istiyor.",
+      "siklar": "A) 1500 gram | B) 1300 gram | C) 800 gram | D) 1000 gram",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K207",
+      "ders": "Matematik",
+      "sinif": "7",
+      "kazanim": "MAT.7.1.7",
+      "kazanim_metni": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "govde": "Bir otobüs 12 kilometreye 1 litre benzin tüketiyor. 96 kilometrelik bir yolculukta otobüsün tükettiği benzin miktarı kaç litredir?",
+      "siklar": "A) 10 litre | B) 8 litre | C) 12 litre | D) 6 litre",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K208",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir atletizm pisti 400 metre uzunluğundadır. Bu pistte 5 tur atan bir sporcu kaç kilometre koşmuş olur?",
+      "siklar": "A) 2 km | B) 3 km | C) 5 km | D) 1 km",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K209",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Bir elektrik devresinde akım şiddetini 2 katına çıkarmak istiyorlar. Direnç sabit ise voltajı nasıl değiştirmeliler?",
+      "siklar": "A) 2 katına çıkarmalı | B) Değiştirmelerine gerek yok | C) Yarısına düşürmeli | D) 4 katına çıkarmalı",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K210",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "kazanim": "T.Y.5.15",
+      "kazanim_metni": "Uygun bağlantı ifadelerini kullanabilme",
+      "govde": "Bir yazar, kitabında okuyucularını düşünmeye sevk etmek için uygun bağlantı ifadelerini kullanıyor. Aşağıdaki seçeneklerden hangisi, yazarın amacını gerçekleştirmek için en uygun bağlantı ifadesi?",
+      "siklar": "A) Örneğin | B) Dolayısıyla | C) Ancak | D) Sonuç olarak",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K211",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir üçgenin kenar uzunlukları 3 cm, 4 cm ve 5 cm olarak verilmiştir. Bu üçgenin niteliği hakkında aşağıdakilerden hangisi doğru bir yorumdur?",
+      "siklar": "A) Bu üçgen bir dik üçgen değildir ve 3² + 4² = 5² eşitliğini sağlamaz | B) Bu üçgen bir dik üçgen değildir ancak 3² + 4² = 5² eşitliğini sağlar | C) Bu üçgen bir dik üçgendir ancak 3² + 4² = 5² eşitliğini sağlamaz | D) Bu üçgen bir dik üçgendir ve 3² + 4² = 5² eşitliğini sağlar",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K212",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.EP.1.3",
+      "kazanim_metni": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+      "govde": "Ahmet, bir elektrik devresi kuruyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç kullanıyor. Ahmet, devredeki akım şiddetini hesaplamak istiyor.",
+      "siklar": "A) 4 A | B) 2 A | C) 3 A | D) 6 A",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K213",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "kazanim": "FB.7.5.8",
+      "kazanim_metni": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "govde": "Ayşe, evindeki mutfak için yeni bir karışım hazırlıyor. Karışımın homojen olup olmadığını anlamak için arkadaşıyla birlikte hazırladıkları karışımı bir kaşıkla karıştırıyor ve 5 dakika bekletiyor. Karışımın hâlâ eşit görünümde olduğunu görüyorlar. Buna göre Ayşe ve arkadaşları hangi tür karışım hazırlamış olabilirler?",
+      "siklar": "A) Sadece su ve tuz karışımı | B) Sadece şeker ve un karışımı | C) Heterojen karışım | D) Homojen karışım",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K214",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Bir dikdörtgenin alanı 48 metrekaredir. Uzunluğu 8 metredir. Bu dikdörtgenin genişliği kaç metredir?",
+      "siklar": "A) 6 | B) 4 | C) 10 | D) 8",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K215",
+      "ders": "Matematik",
+      "sinif": "6",
+      "kazanim": "MAT.6.4.1",
+      "kazanim_metni": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "govde": "Ahmet Bey, bahçesinin çevresine 4 sıra tel örgü çekmek istiyor. Bahçenin uzunluğu 15 metre, genişliği 8 metredir. Ahmet Bey'in bahçesinin çevresi için kaç metre tel örgüye ihtiyacı vardır?",
+      "siklar": "A) 100 | B) 96 | C) 80 | D) 92",
+      "isaretli_sik": "D"
+    },
+    {
+      "kno": "K216",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Oyuncak araba üretimi için bir tasarım ekibi, iki boyutlu ve üç boyutlu çizimlerin kullanımını tartışmaktadır. Bir ekip üyesi, 'İki boyutlu çizimler sadece temel fikirleri göstermek için kullanılır, ancak üç boyutlu çizimler daha gerçekçi ve detaylıdır' diyor. Hangi aşağıdaki ifade, bu görüşü destekler?",
+      "siklar": "A) İki boyutlu çizimler sadece temel tasarım için kullanılır, üç boyutlu çizimler ise üretim için kullanılır | B) Üç boyutlu çizimler daha yavaş ve daha fazla detaylıdır | C) İki boyutlu çizimler daha hızlı ve daha az detaylıdır | D) İki boyutlu ve üç boyutlu çizimler aynı amacı taşır ve birbirinin yerine kullanılabilir",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K217",
+      "ders": "Fen Bilimleri",
+      "sinif": "8",
+      "kazanim": "FB.8.5.7",
+      "kazanim_metni": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "govde": "Bir laboratuvar deneyinde, asitlik ve bazlık durumlarını ölçmek için pH değerleri kullanılır. Bir öğrenci, bir sıvının pH değerini 4 olarak ölçer. Buna göre, bu sıvının asitlik veya bazlık durumunu nasıl yorumlayabilirsiniz? Sıvının pH değeri 4 ise, bu sıvı hangisidir?",
+      "siklar": "A) Bazik | B) Asidik | C) Nötr | D) Yarı asidik",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K218",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "kazanim": "T.O.8.9",
+      "kazanim_metni": "Okuduklarını karşılaştırabilme",
+      "govde": "Bir öğrenci, okuduğu iki metnin arasındaki benzerlik ve farklılıkları belirlemek istiyor. İlk metinde bir yazar, doğanın güzelliğini anlatırken, ikinci metinde başka bir yazar, doğanın insan üzerindeki etkilerini anlatıyor. Öğrenci, bu metinleri karşılaştırmak için hangi yöntemi kullanmalıdır? Bu metinleri karşılaştırmak için öğrenci hangisini seçmelidir?",
+      "siklar": "A) Yazarların kullandıkları dil ve üslubu karşılaştırmak | B) Metinlerin konularını ve içeriklerini karşılaştırmak | C) Yazarların yaşlarını ve mesleklerini karşılaştırmak | D) Metinlerin uzunluğunu ve sayfalarını karşılaştırmak",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K219",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "kazanim": "FB.5.5.3",
+      "kazanim_metni": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "govde": "Bir bardakta 15°C sıcaklıkta 300 mL su ve bir diğer bardakta 90°C sıcaklıkta 100 mL su bulunmaktadır. Bu iki su birleştirildiğinde oluşan karışımın sıcaklığı kaç °C olur?",
+      "siklar": "A) 35°C | B) 30°C | C) 25°C | D) 40°C",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K220",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "kazanim": "T.Y.6.18",
+      "kazanim_metni": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "govde": "Bir metin içerisinde noktalama işaretlerinin doğru kullanımı önemlidir. Aşağıdaki cümlelerde noktalama işaretlerini doğru olarak kullanınız. 'Merhaba arkadaşım, nasılsın?' cümlesinde kullanılan noktalama işareti nedir?",
+      "siklar": "A) Nokta | B) Soru işareti | C) Ünlü işareti | D) Virgül",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K221",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.YT.4.5",
+      "kazanim_metni": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+      "govde": "Ahmet, bir program yazarken bir değişkenin değerini 5 artırıp sonucu ekrana yazdıran bir kod parçası yazmak istiyor. C++ dilinde bu işlemi yapacak kodu düşünüyor. Aşağıdaki seçeneklerden hangisi bu işlemi doğru yapar?",
+      "siklar": "A) int x = 5; x = x + 5; cout << x; | B) int x = 5; x = 5; cout << x; | C) int x = 5; x = x * 5; cout << x; | D) int x = 5; x = x - 5; cout << x;",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K222",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "kazanim": "FB.6.2.3",
+      "kazanim_metni": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "govde": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "siklar": "A) 35 m/s | B) 30 m/s | C) 20 m/s | D) 25 m/s",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K223",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.1.1",
+      "kazanim_metni": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "govde": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 3 kg elma kaç TL'ye satılmalıdır? Elma fiyatı kilogram başına sabittir.",
+      "siklar": "A) 15 TL | B) 12 TL | C) 18 TL | D) 20 TL",
+      "isaretli_sik": "A"
+    },
+    {
+      "kno": "K224",
+      "ders": "Matematik",
+      "sinif": "8",
+      "kazanim": "MAT.8.3.5",
+      "kazanim_metni": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+      "govde": "Bir inşaat şantiyesinde, dikdörtgen bir alanın köşelerine 3 metre, 4 metre ve 5 metre uzunluklarında üçgenler çizilmektedir. Bu üçgenlerin hangisi dik üçgendir?",
+      "siklar": "A) 6 metre, 8 metre ve 10 metre kenar uzunluklarına sahip üçgen | B) 3 metre, 4 metre ve 5 metre kenar uzunluklarına sahip üçgen | C) 2 metre, 3 metre ve 4 metre kenar uzunluklarına sahip üçgen | D) 5 metre, 12 metre ve 13 metre kenar uzunluklarına sahip üçgen",
+      "isaretli_sik": "B"
+    },
+    {
+      "kno": "K225",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "kazanim": "DNY.TU.4.3",
+      "kazanim_metni": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu çizimler yapıyorlar. Tasarımlarını üç boyutlu hale getirdiklerinde, arabanın boyutlarını değiştirmek istiyorlar. Aşağıdaki seçeneklerden hangisi, iki boyutlu çizim ile üç boyutlu çizim arasındaki farkı doğru bir şekilde açıklar?",
+      "siklar": "A) İki boyutlu çizimde yükseklik kavramı vardır. | B) İki boyutlu çizimde sadece uzunluk ve genişlik varken, üç boyutlu çizimde uzunluk, genişlik ve yükseklik vardır. | C) İki boyutlu çizimde derinlik kavramı yoktur. | D) İki boyutlu çizimde renk ve doku, üç boyutlu çizimde ise şekil ve boyut vardır.",
+      "isaretli_sik": "C"
+    }
+  ]
+}

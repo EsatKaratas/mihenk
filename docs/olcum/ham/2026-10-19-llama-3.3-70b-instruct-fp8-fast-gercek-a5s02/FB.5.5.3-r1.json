@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:49:27.197Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.5.5.3-r1"
+  },
+  "http": 200,
+  "sureMs": 14074,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimini açıklayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "60°C"
+          },
+          {
+            "key": "B",
+            "text": "30°C"
+          },
+          {
+            "key": "C",
+            "text": "50°C"
+          },
+          {
+            "key": "D",
+            "text": "40°C"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Soğuk suyun sıcaklık değişimini göz ardı ederek sadece sıcak suyun sıcaklığını dikkate aldığını düşünüyor.",
+          "B": "Isı alışverişi olmadığını varsayarak sıcaklıkların değişmeyeceğini düşünüyor.",
+          "C": "Sıcak suyun hacminin daha büyük olduğunu varsayarak yanlış bir ortalamanın hesaplandığını sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(500*20 + 200*80) / 700",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bardakta 15°C sıcaklıkta 300 mL su ve bir diğer bardakta 90°C sıcaklıkta 100 mL su bulunmaktadır. Bu iki su birleştirildiğinde oluşan karışımın sıcaklığı kaç °C olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "35°C"
+          },
+          {
+            "key": "B",
+            "text": "30°C"
+          },
+          {
+            "key": "C",
+            "text": "25°C"
+          },
+          {
+            "key": "D",
+            "text": "40°C"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Soğuk suyun sıcaklık değişimini abartarak daha yüksek bir sıcaklık hesapladığını düşünüyor.",
+          "C": "Isı alışverişi hesabında suyun özgül ısısını göz ardı ettiğini sanıyor.",
+          "D": "Sıcak suyun sıcaklığını direkt olarak karışımın sıcaklığı olarak aldığını varsayarak yanlış hesap yapıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(300*15 + 100*90) / 400",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, 20°C sıcaklıkta 1 L su ve 80°C sıcaklıkta 0.5 L su karıştırarak oluşan karışımın sıcaklığını ölçmek istiyor. Bu deneyde öğrencinin gözleyeceği sıcaklık değişimini açıklayabilir misiniz? Neden böyle bir sonuç oluştuğunu düşündüğünüzü gerekçelendiriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 2,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 80°C sıcaklıkta 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre sıcaklık değişimini açıklayabilir misiniz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Isı alışverişi sonucu sıcak su soğur, soğuk su ısınır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bardakta 15°C sıcaklıkta 300 mL su ve bir diğer bardakta 90°C sıcaklıkta 100 mL su bulunmaktadır. Bu iki su birleştirildiğinde oluşan karışımın sıcaklığı kaç °C olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Isı alışverişi sonucu sıcaklık ortalamaya yaklaşır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

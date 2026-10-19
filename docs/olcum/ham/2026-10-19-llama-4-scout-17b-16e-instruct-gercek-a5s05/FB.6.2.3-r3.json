@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:56:04.825Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.6.2.3-r3"
+  },
+  "http": 200,
+  "sureMs": 23803,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte tamamlar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 saat"
+          },
+          {
+            "key": "B",
+            "text": "1,5 saat"
+          },
+          {
+            "key": "C",
+            "text": "2,5 saat"
+          },
+          {
+            "key": "D",
+            "text": "4 saat"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Zamanı olduğu gibi 2 saat + 1 saat ekliyor",
+          "C": "Sürat arttıkça zaman azalır, fakat ters orantıdan emin değil",
+          "D": "Sürati 10 km/h sanıyor, 10 / 2.5 = 4"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 * 2 / 15",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Emre'den 20 metre ileride bulunuyor. Ayşe ve Emre aynı anda koşmaya başlayıp Ayşe Emre'yi yakaladığında aralarındaki mesafe nasıl değişmiştir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 metre azalır"
+          },
+          {
+            "key": "B",
+            "text": "0 metre değişmez"
+          },
+          {
+            "key": "C",
+            "text": "10 metre azalır"
+          },
+          {
+            "key": "D",
+            "text": "20 metre artar"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Ayşe ve Emre aynı hızda koşuyorlar sanıyor",
+          "C": "Ayşe 5 m/s, Emre 3 m/s hızla koşuyor fakat 10 metre fark sanıyor",
+          "D": "Ayşe'nin hızı Emre'ye göre daha az sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir aracın süratinin hızına oranı 1'dir. Bu araç 100 km yol almak için 2 saat sürüyor. Sürati ve hızı hakkında ne söyleyebilirsiniz? Gerekçenizi yazınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "oran"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 10 km/h süratle 2 saatlik bir yolculuğa çıkıyor. Aynı yolu, 15 km/h süratle kaç saatte tamamlar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ahmet aynı yolu 10 km/h süratle 2 saatte tamamlıyor. Aynı yolu 15 km/h süratle tamamlamak için gereken süre, hızın artmasıyla azalacaktır. Mesafe = Hız * Zaman formülünü kullanarak, 10 km/h * 2 saat = 20 km. 15 km/h süratle aynı mesafeyi katetmek için gereken zaman, 20 km / 15 km/h = 1,33 saat civarında olacaktır, ancak şıklar arasında 1,33 saat bulunmuyor, en yakın değer 1,5 saat.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Ayşe, 5 m/s hızla koşuyor. Aynı anda, 3 m/s hızla koşan arkadaşı Emre'den 20 metre ileride bulunuyor. Ayşe ve Emre aynı anda koşmaya başlayıp Ayşe Emre'yi yakaladığında aralarındaki mesafe nasıl değişmiştir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ayşe'nin hızı Emre'den daha fazla, böylece aralarındaki mesafeyi kapatıyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:05:24.212Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.Y.5.15-r3"
+  },
+  "http": 200,
+  "sureMs": 97452,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ece, arkadaşıyla buluşmak için evden 15 dakika önce çıkıyor. Arkadaşı 10 dakika yürüyerek geliyor. Eve 5 dakika mesafede olan parka 5 dakikada varıyorlar. Parkta 10 dakika oyun oynuyorlar. Ece'nin arkadaşıyla buluşmasından oyun oynamaya başlamasına kadar geçen süre kaç dakikadır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30 dakika"
+          },
+          {
+            "key": "B",
+            "text": "20 dakika"
+          },
+          {
+            "key": "C",
+            "text": "25 dakika"
+          },
+          {
+            "key": "D",
+            "text": "35 dakika"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Eve 5 dakika mesafede olan parka 10 dakikada vardığını düşünüyor",
+          "B": "Yalnızca evden çıkıp parka varma süresini düşünüyor",
+          "D": "Tüm süreyi yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 + 10",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "zaman",
+          "planlama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmak için 3 sayfa uzunluğundaki bir metni okumak istiyor. Metin 5 dakikada okunuyor. Ayşe'nin metni okumak için ayırdığı süre 15 dakika ise, okuduğu sayfa sayısı kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 sayfa"
+          },
+          {
+            "key": "B",
+            "text": "3 sayfa"
+          },
+          {
+            "key": "C",
+            "text": "1 sayfa"
+          },
+          {
+            "key": "D",
+            "text": "9 sayfa"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Süre ile sayfa sayısını toplayarak hesaplıyor",
+          "B": "Metnin uzunluğunu süresine bölüyor",
+          "C": "Süre ile sayfa sayısı ters orantılı sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "15 / 5 * 3",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "zaman",
+          "hız"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okul projesi için bir poster hazırlıyor. Posterinde başlık, resim ve açıklama olacak. Uygun bağlantı ifadelerini kullanarak posterini hazırlamak istiyor. Bu durumda, öğrenci hangi bağlantı ifadelerini kullanabilir ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı",
+          "ifade",
+          "poster"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ece, arkadaşıyla buluşmak için evden 15 dakika önce çıkıyor. Arkadaşı 10 dakika yürüyerek geliyor. Eve 5 dakika mesafede olan parka 5 dakikada varıyorlar. Parkta 10 dakika oyun oynuyorlar. Ece'nin arkadaşıyla buluşmasından oyun oynamaya başlamasına kadar geçen süre kaç dakikadır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ece 15 dakika önce çıkıyor, arkadaşı 10 dakika yürüyerek geliyor ve parka 5 dakikada varıyorlar. Topluluk 5 dakika sonra parka varıyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Ayşe, bir hikaye yazmak için 3 sayfa uzunluğundaki bir metni okumak istiyor. Metin 5 dakikada okunuyor. Ayşe'nin metni okumak için ayırdığı süre 15 dakika ise, okuduğu sayfa sayısı kaçtır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Metin 3 sayfa ve 5 dakikada okunuyor, Ayşe 15 dakika ayırdı, 15 dakika 3 katı 5 dakikaya eşit.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

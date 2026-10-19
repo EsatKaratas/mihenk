@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:33:20.602Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.EP.1.3-r1",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 56890,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, evindeki bir elektrik devresinde akımı ölçmek istiyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç bulunmaktadır. Ahmet, akımın değerini hesaplamak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 A"
+          },
+          {
+            "key": "B",
+            "text": "3 A"
+          },
+          {
+            "key": "C",
+            "text": "4 A"
+          },
+          {
+            "key": "D",
+            "text": "6 A"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Voltajı dirence bölerek 12/4=3A buluyor; Ohm yasasını uygulayamıyor.",
+          "C": "Direnci 3 ohm sanıp 12/3=4A hesaplıyor; yanlış direnç değeri kullanıyor.",
+          "D": "Voltajı 2 ile çarpıp 12*2=24, sonra 4'e bölerek 24/4=6A buluyor; yanlış işlem yapıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 / 4",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "B",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "ohm yasası"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir elektrik devresinde direnç 5 ohm, akım 2 A ise, gerilim kaç voldur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5 V"
+          },
+          {
+            "key": "B",
+            "text": "20 V"
+          },
+          {
+            "key": "C",
+            "text": "15 V"
+          },
+          {
+            "key": "D",
+            "text": "10 V"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Akımı dirence bölerek 2/5=0,4V buluyor; Ohm yasasını tersten uyguluyor.",
+          "B": "Akımı dirençle çarpıp 2*5=10, sonra 10 ile çarpıp 10*2=20V buluyor; yanlış işlem yapıyor.",
+          "C": "Direnci 2 ile çarpıp 5*2=10, sonra 5 ekleyerek 10+5=15V buluyor; yanlış işlem yapıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "2 * 5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "gerilim",
+          "akım",
+          "direnç"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir elektrik devresinde akımın değerini arttırmak istiyoruz. Direnci 10 ohm'dan 5 ohm'a düşürdük. Bu değişiklik akım üzerinde nasıl bir etki yapar? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "ohm yasası"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, evindeki bir elektrik devresinde akımı ölçmek istiyor. Devrede 12V'luk bir pil ve 4 ohm'luk bir direnç bulunmaktadır. Ahmet, akımın değerini hesaplamak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ohm kanunu kullanılarak hesaplanır, I = V/R",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir elektrik devresinde direnç 5 ohm, akım 2 A ise, gerilim kaç voldur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Ohm kanununa göre gerilim = direnç * akım, 5 ohm * 2 A = 10 V",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

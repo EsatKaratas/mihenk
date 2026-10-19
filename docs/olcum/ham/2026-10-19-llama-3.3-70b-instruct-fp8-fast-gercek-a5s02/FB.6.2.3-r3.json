@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T09:52:27.554Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.6.2.3-r3"
+  },
+  "http": 200,
+  "sureMs": 16407,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisiklet sürücüsü, düz bir yolda saatte 20 kilometre hızla gidiyor. Rüzgarın etkisiyle bisikletin hızı saatte 25 kilometreye çıkıyor. Sürat ve hız arasındaki farkı açıklamak için hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürat, bisikletin aldığı yolun yönüdür; hız, bisikletin bu yolu alma hızının büyüklüğüdür."
+          },
+          {
+            "key": "B",
+            "text": "Sürat, bisikletin aldığı yolun uzunluğudur; hız, bisikletin bu yolu alma süresidir."
+          },
+          {
+            "key": "C",
+            "text": "Sürat, bisikletin aldığı yolun yönüdür; hız, bisikletin bu yolu alma süresidir."
+          },
+          {
+            "key": "D",
+            "text": "Sürat, bisikletin aldığı yolun uzunluğu ve yönüdür; hız, bisikletin bu yolu alma süresidir."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sürati sadece alınan yolun yönü olarak tanımlamaktadır.",
+          "B": "Süreti sadece alınan yolun uzunluğu olarak tanımlamaktadır.",
+          "C": "Sürati sadece alınan yolun yönü olarak tanımlamaktadır."
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "bisiklet"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araba, saatte 50 kilometre hızla giden bir kamyonun önünden geçmek istiyor. Araba, kamyonun önünden geçmek için 10 saniye sürecek bir manevra yapacak. Bu manevra sırasında arabanın hızı ne olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Saatte 50 kilometre"
+          },
+          {
+            "key": "B",
+            "text": "Saatte 55 kilometre"
+          },
+          {
+            "key": "C",
+            "text": "Saatte 60 kilometre"
+          },
+          {
+            "key": "D",
+            "text": "Saatte 40 kilometre"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Arabanın hızının kamyonun hızına eşit olacağını varsaymaktadır.",
+          "B": "Arabanın hızının kamyonun hızına eşit olacağını varsaymaktadır.",
+          "D": "Arabanın hızının kamyonun hızından düşük olacağını varsaymaktadır."
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesap": "(50 + (10 * (50/10)))",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "araba",
+          "kamyon",
+          "hız",
+          "manevra"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir bisikletçi, saatte 20 kilometre hızla giden bir bisikletin süratini ve hızını açıklamak için bir örnek veriniz. Bisikletin sürati ve hızı arasındaki farkı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bisiklet",
+          "sürat",
+          "hız",
+          "açıklama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bisiklet sürücüsü, düz bir yolda saatte 20 kilometre hızla gidiyor. Rüzgarın etkisiyle bisikletin hızı saatte 25 kilometreye çıkıyor. Sürat ve hız arasındaki farkı açıklamak için hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Sürat bir cismin birim zamanda aldığı yolun büyüklüğüdür, hız ise bir cismin birim zamanda aldığı yolun büyüklüğü ve yönüdür.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araba, saatte 50 kilometre hızla giden bir kamyonun önünden geçmek istiyor. Araba, kamyonun önünden geçmek için 10 saniye sürecek bir manevra yapacak. Bu manevra sırasında arabanın hızı ne olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Araba kamyonu 10 saniyede geçecek, hızı artmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

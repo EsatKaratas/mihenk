@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:54:59.630Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.8.5.7-r3"
+  },
+  "http": 200,
+  "sureMs": 14321,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar çalışmasında, öğrenciler farklı maddelerin pH değerlerini ölçmektedir. Bir öğrenci, bir maddenin pH değerini 4 olarak ölçer. Bu madde asit midir? Maddenin pH değerinin 7'den küçük olduğunu hatırlayarak, öğrenci bu maddenin asit olduğunu söyleyebilir. Maddenin pH değerinin 7'den büyük olması durumunda ne olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Maddenin pH değeri 7'nin altında kalır"
+          },
+          {
+            "key": "B",
+            "text": "Maddenin asit veya baz olduğu belirlenemez"
+          },
+          {
+            "key": "C",
+            "text": "Maddenin baz olduğu söylenir"
+          },
+          {
+            "key": "D",
+            "text": "Maddenin nötr olduğu söylenir"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerinin değişmez olduğunu düşünüyor",
+          "B": "PH değerinin 7'den büyük olması durumunda maddenin baz olduğunu unutuyor",
+          "D": "Maddenin pH değerinin 7'ye eşit olması gerektiğini sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "asit",
+          "baz",
+          "pH değeri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe sulama sistemi, sulama suyundaki pH değerini kontrol etmek için bir pH ölçer kullanır. Sistem, suyun pH değerini 6,5 olarak ölçer. Bahçıvan, bu suyun bitkiler için uygun olup olmadığını merak etmektedir. pH değerinin 7'den küçük olması durumunda ne olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Su, bitkiler için nötr olur"
+          },
+          {
+            "key": "B",
+            "text": "Su, bitkiler için çok asidik olur"
+          },
+          {
+            "key": "C",
+            "text": "Su, bitkiler için hafif asidik olur"
+          },
+          {
+            "key": "D",
+            "text": "Su, bitkiler için çok bazik olur"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değerinin 7'ye eşit olması gerektiğini düşünüyor",
+          "B": "PH değerinin 7'den çok küçük olması gerektiğini sanıyor",
+          "D": "PH değerinin 7'den büyük olması gerektiğini sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asit",
+          "baz"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, farklı maddelerin pH değerlerini ölçmektedir. Öğrenci, bir maddenin pH değerini 9 olarak ölçer. Bu madde asit midir? Maddenin pH değerinin 7'den büyük olduğunu hatırlayarak, öğrenci bu maddenin baz olduğunu söyleyebilir. Ancak, öğrenci bu maddenin hangi tür bitkiler için uygun olduğunu merak etmektedir. Bu maddenin pH değerinin 7'den büyük olmasının bitkiler için ne anlama geldiğini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asit",
+          "baz",
+          "bitki"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir laboratuvar çalışmasında, öğrenciler farklı maddelerin pH değerlerini ölçmektedir. Bir öğrenci, bir maddenin pH değerini 4 olarak ölçer. Bu madde asit midir? Maddenin pH değerinin 7'den küçük olduğunu hatırlayarak, öğrenci bu maddenin asit olduğunu söyleyebilir. Maddenin pH değerinin 7'den büyük olması durumunda ne olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "pH değeri 7'den büyükse madde bazdır",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bahçe sulama sistemi, sulama suyundaki pH değerini kontrol etmek için bir pH ölçer kullanır. Sistem, suyun pH değerini 6,5 olarak ölçer. Bahçıvan, bu suyun bitkiler için uygun olup olmadığını merak etmektedir. pH değerinin 7'den küçük olması durumunda ne olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "pH değeri 7'den küçükse, su hafif asidik olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

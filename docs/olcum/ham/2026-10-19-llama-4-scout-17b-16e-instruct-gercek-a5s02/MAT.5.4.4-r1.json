@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:42:30.482Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.5.4.4-r1"
+  },
+  "http": 200,
+  "sureMs": 37272,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2"
+          },
+          {
+            "key": "B",
+            "text": "4"
+          },
+          {
+            "key": "C",
+            "text": "3"
+          },
+          {
+            "key": "D",
+            "text": "5"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Genişliği uzunluk sanıyor",
+          "C": "Çevreyi yarıya bölerek uzunluğu çıkarıyor",
+          "D": "Havuzun uzunluğunu genişlik sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(20 - 2*6) / 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "36"
+          },
+          {
+            "key": "B",
+            "text": "60"
+          },
+          {
+            "key": "C",
+            "text": "24"
+          },
+          {
+            "key": "D",
+            "text": "48"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Tahtanın uzunluğu ile genişliğinin toplamını alıyor",
+          "B": "Rastgele büyük bir sayı seçiyor",
+          "C": "Tahtanın uzunluğunu genişliği ile bölüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "12 * 4",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaatçı, dikdörtgen şeklindeki bir arsanın üzerine evler inşa etmek istiyor. Arsanın uzunluğu 15 metre, genişliği 8 metredir. İnşaatçı, arsanın çevresine 2 sıra halinde duvar örüleceğini düşünmektedir. Duvarın metresi 50 TL'ye mal olmaktadır. İnşaatçının duvar için ne kadar bütçe ayırması gerektiğini hesaplayınız ve cevabınızı gerekçelendiriniz.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "maliyet"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Dikdörtgenin çevre uzunluğu 2*(uzunluk + genişlik) şeklinde hesaplanır. 20 = 2*(6 + genişlik) denklemini çözerek genişliği bulabiliriz.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Dikdörtgenin alanı uzunluk ve genişlik çarpımıdır. 12 * 4 = 48",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

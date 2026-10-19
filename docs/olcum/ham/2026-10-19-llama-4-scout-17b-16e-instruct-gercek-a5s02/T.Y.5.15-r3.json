@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:05:16.391Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.5.15-r3"
+  },
+  "http": 200,
+  "sureMs": 91049,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ece, arkadaşıyla buluşmak için evden 15 dakika önce çıkıyor. Arkadaşı 10 dakika daha erken beklemeye başlamıştır. Ece evden çıktıktan 5 dakika sonra telefonunu unuttuğunu fark ediyor ve geri dönüyor. Ece arkadaşıyla kaç dakika sonra buluşur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "15 dakika"
+          },
+          {
+            "key": "B",
+            "text": "10 dakika"
+          },
+          {
+            "key": "C",
+            "text": "25 dakika"
+          },
+          {
+            "key": "D",
+            "text": "20 dakika"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Ece'nin telefonunu unuttuğunu fark etmesi ve geri dönmesini dikkate almıyor",
+          "B": "Ece'nin arkadaşının beklemeye başladığı süreyi dikkate almıyor",
+          "C": "Ece'nin evden çıkıp geri dönme süresi ile arkadaşının bekleme süresini yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "zaman",
+          "planlama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir restoranda yemek yiyen Ali, 25 TL'lik yemek için 10 TL'lik bir kupon kullanıyor. Ali'nin ödemesi gereken toplam tutar 18 TL ise, restoranın uyguladığı servis ücreti kaç TL'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 TL"
+          },
+          {
+            "key": "B",
+            "text": "10 TL"
+          },
+          {
+            "key": "C",
+            "text": "5 TL"
+          },
+          {
+            "key": "D",
+            "text": "7 TL"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Kupon değerini doğrudan servis ücreti olarak alıyor",
+          "C": "Kupon değerini servis ücretine ekliyor",
+          "D": "Yemek fiyatından kupon değerini çıkarmayı unutuyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "18 - (25 - 10)",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "para",
+          "indirim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunda düzenlenecek bir yarışma için poster hazırlıyor. Posterinde yarışmanın amacını, katılımcıların uymak zorunda oldukları kuralları ve ödülleri belirtmek istiyor. Bu poster için en uygun bağlantı ifadelerini öneriniz. Neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı",
+          "ifade",
+          "poster"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ece, arkadaşıyla buluşmak için evden 15 dakika önce çıkıyor. Arkadaşı 10 dakika daha erken beklemeye başlamıştır. Ece evden çıktıktan 5 dakika sonra telefonunu unuttuğunu fark ediyor ve geri dönüyor. Ece arkadaşıyla kaç dakika sonra buluşur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Ece evden çıkıyor, 5 dakika sonra geri dönüyor ve tekrar çıkıyor. Arkadaşı 10 dakika önce beklemeye başlıyor.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir restoranda yemek yiyen Ali, 25 TL'lik yemek için 10 TL'lik bir kupon kullanıyor. Ali'nin ödemesi gereken toplam tutar 18 TL ise, restoranın uyguladığı servis ücreti kaç TL'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Yemek 25 TL, kupon 10 TL, Ali 18 TL ödedi. Servis ücreti 25 - 10 - (18 - (25-10)) = 25 - 10 - 8 = 7 TL değil, 25 - 10 = 15 TL, 15 - 18 = -3 TL, 3 TL servis ücreti Ali'ye eklendi.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

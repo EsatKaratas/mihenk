@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:15:15.142Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-MAT.8.3.5-r2"
+  },
+  "http": 200,
+  "sureMs": 48007,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat ustası, bir dik üçgen şeklinde olan çatı tasarımını planlamaktadır. Çatının dik kenarlarından birinin uzunluğu 6 metre, diğer dik kenarının uzunluğu 8 metredir. Ustalar, çatıların sağlamlığı için kenar uzunlukları a² + b² = c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını yorumlayabilmektedir. Buna göre, bu çatı tasarımının hipotenüs uzunluğu kaç metredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "14"
+          },
+          {
+            "key": "B",
+            "text": "12"
+          },
+          {
+            "key": "C",
+            "text": "10"
+          },
+          {
+            "key": "D",
+            "text": "16"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenar uzunluklarını toplayarak 6 + 8 = 14 sonucuna ulaşıyor",
+          "B": "Pisagor teoremini uygularken 6^2 + 8^2 = 100 yerine 6^2 + 8^2 = 144 yanlış hesap yapıyor",
+          "D": "Dik kenar uzunluklarının karelerini toplayarak 36 + 64 = 100, ancak karekökünü 16 olarak yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "sqrt(6^2 + 8^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Pisagor teoremi",
+          "dik üçgen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini öğretmek istiyor. Öğretmen, bir dik üçgenin dik kenarlarından birinin uzunluğunu 5 cm, diğer dik kenarının uzunluğunu 12 cm olarak veriyor. Öğretmen, öğrencilerden bu dik üçgenin hipotenüs uzunluğunu hesaplamalarını istiyor. Aşağıdakilerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 cm"
+          },
+          {
+            "key": "B",
+            "text": "17 cm"
+          },
+          {
+            "key": "C",
+            "text": "13 cm"
+          },
+          {
+            "key": "D",
+            "text": "15 cm"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenar uzunluklarının karelerini toplayarak 25 + 144 = 169, ancak karekökünü 20 olarak yanlış hesaplıyor",
+          "B": "Dik kenar uzunluklarını toplayarak 5 + 12 = 17 sonucuna ulaşıyor",
+          "D": "5^2 + 12^2 = 169 yerine 5^2 + 12^2 = 225 yanlış hesap yapıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "sqrt(5^2 + 12^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Pisagor teoremi",
+          "dik üçgen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mühendis, bir inşaat projesi için dik üçgen şeklinde bir tasarım planlıyor. Tasarımın dik kenarlarından birinin uzunluğu 8 metre, diğer dik kenarının uzunluğu 15 metredir. Mühendis, tasarımın hipotenüs uzunluğunu hesaplamak istiyor. Sen mühendisin bu problemini nasıl çözerken, a² + b² = c² eşitliğini nasıl kullanırsın? Lütfen açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "Pisagor teoremi",
+          "dik üçgen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklinde olan çatı tasarımını planlamaktadır. Çatının dik kenarlarından birinin uzunluğu 6 metre, diğer dik kenarının uzunluğu 8 metredir. Ustalar, çatıların sağlamlığı için kenar uzunlukları a² + b² = c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını yorumlayabilmektedir. Buna göre, bu çatı tasarımının hipotenüs uzunluğu kaç metredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "a² + b² = c² eşitliğine göre 6² + 8² = c² hesaplandı.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenlerin özelliklerini öğretmek istiyor. Öğretmen, bir dik üçgenin dik kenarlarından birinin uzunluğunu 5 cm, diğer dik kenarının uzunluğunu 12 cm olarak veriyor. Öğretmen, öğrencilerden bu dik üçgenin hipotenüs uzunluğunu hesaplamalarını istiyor. Aşağıdakilerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Pisagor teoremi kullanılarak hesaplandı. 5² + 12² = c²",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

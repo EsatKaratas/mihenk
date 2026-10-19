@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:45:56.043Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.6.4.1-r2"
+  },
+  "http": 200,
+  "sureMs": 46106,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey, bahçesinin çevresine 4 sıra tel örgü çekmek istiyor. Bahçenin uzunluğu 15 metre, genişliği 8 metredir. Ahmet Bey'in bahçesinin çevresi için kaç metre tel örgüye ihtiyacı vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "100"
+          },
+          {
+            "key": "B",
+            "text": "96"
+          },
+          {
+            "key": "C",
+            "text": "92"
+          },
+          {
+            "key": "D",
+            "text": "80"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çevreyi 3 sıra tel örgü ile kaplamak istiyor sanıyor",
+          "B": "Çevreyi 4 sıra tel örgü ile kaplamak istiyor ancak 2 ile çarpma işlemini unutuyor",
+          "D": "Genişliği ve uzunluğu topluyor, sonucu 2 ile çarpıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 + 8) * 2 * 4",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "çevre",
+          "tel örgü"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir dikdörtgenin alanı 48 metrekaredir. Uzunluğu 8 metredir. Bu dikdörtgenin genişliği kaç metredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "4"
+          },
+          {
+            "key": "B",
+            "text": "6"
+          },
+          {
+            "key": "C",
+            "text": "8"
+          },
+          {
+            "key": "D",
+            "text": "12"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Alan yerine uzunluğu 4 ile çarpıyor",
+          "C": "Genişliği uzunlukla karıştırıyor",
+          "D": "Alan yerine uzunluğu 12 ile çarpıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "48 / 8",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir atletizm pisti 400 metre uzunluğundadır. Bu pistte 5 tur atan bir sporcu kaç metre koşmuş olur? Neden?",
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "atletizm pisti",
+          "koşu"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet Bey, bahçesinin çevresine 4 sıra tel örgü çekmek istiyor. Bahçenin uzunluğu 15 metre, genişliği 8 metredir. Ahmet Bey'in bahçesinin çevresi için kaç metre tel örgüye ihtiyacı vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bahçenin çevresi 2*(uzunluk + genişlik) = 2*(15 + 8) = 2*23 = 46 metre. 4 sıra tel örgü için 46*4 = 184 metre tel örgüye ihtiyaç vardır, ancak bu seçeneklerde yok. En yakın seçenek 92 metre, 4 sıra tel örgü için değil de 2 sıra tel örgü için hesaplanmış olabilir.",
+        "guven": 0.7,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir dikdörtgenin alanı 48 metrekaredir. Uzunluğu 8 metredir. Bu dikdörtgenin genişliği kaç metredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Dikdörtgenin alanı 48 metrekaredir, uzunluğu 8 metredir. Alan = Uzunluk * Genişlik formülünü kullanarak Genişlik = Alan / Uzunluk hesabını yaparız. Genişlik = 48 / 8 = 6 metredir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

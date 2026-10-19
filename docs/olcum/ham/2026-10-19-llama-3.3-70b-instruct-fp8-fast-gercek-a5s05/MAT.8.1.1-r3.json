@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:51:09.770Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.8.1.1-r3"
+  },
+  "http": 200,
+  "sureMs": 16519,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette satılan bir ürünün fiyatı 25 TL'dir. Bu ürünün fiyatı %15 oranında artırılmıştır. Ürünün yeni fiyatı kaç TL'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "32.50 TL"
+          },
+          {
+            "key": "B",
+            "text": "28.75 TL"
+          },
+          {
+            "key": "C",
+            "text": "30 TL"
+          },
+          {
+            "key": "D",
+            "text": "35 TL"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Artış oranını yanlış hesaplamıştır.",
+          "C": "Artış oranını direkt olarak fiyatın üzerine eklemiştir.",
+          "D": "Artış oranını %50 olarak hesaplamıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(25 * 15 / 100) + 25",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yüzde artış",
+          "fiyat hesaplaması"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 10 metre uzunluğundaki bir ipi 2 eşit parçaya bölmek ister. Her bir parça kaç metre uzunluğundadır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "4 metre"
+          },
+          {
+            "key": "B",
+            "text": "5 metre"
+          },
+          {
+            "key": "C",
+            "text": "8 metre"
+          },
+          {
+            "key": "D",
+            "text": "6 metre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İpi 3 parçaya böldüğünü düşünmüştür.",
+          "C": "İpi 2 parçaya bölerken bir parça daha uzun olacağını düşünmüştür.",
+          "D": "İpi 5 parçaya böldüğünü düşünmüştür."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 / 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "bölme işlemi",
+          "eşit parçalar"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantininde satılan bir ürünün ambalajında '2 x 250 ml' yazmaktadır. Bu ürünün toplam hacmi kaç ml'dir? Kantin yönetimi, bu ürünü 500 ml'lik ambalajlarla satmaya karar verirse, ambalaj başına kaç adet ürün satabilir?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim hesaplaması",
+          "ambalaj dönüşümü"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette satılan bir ürünün fiyatı 25 TL'dir. Bu ürünün fiyatı %15 oranında artırılmıştır. Ürünün yeni fiyatı kaç TL'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ürünün fiyatı %15 artırılmıştır, yani 25 TL x 0.15 = 3.75 TL artış olur. Yeni fiyat 25 + 3.75 = 28.75 TL.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 10 metre uzunluğundaki bir ipi 2 eşit parçaya bölmek ister. Her bir parça kaç metre uzunluğundadır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İpi 2 eşit parçaya bölmek için 10 metreyi 2'ye böleriz.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "zaman": "2026-10-19T09:52:56.948Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.7.5.8-r1"
+  },
+  "http": 200,
+  "sureMs": 22119,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir eczacı, bir ilacın üretiminde kullanılan karışımı hazırlamak için 500 mL su ve 200 mL etanolü karıştırır. Bu karışım hangi tür bir karışımdır? Karışımın bileşenleri birbirleriyle tamamen karışıp homojen bir yapı oluşturur mu, yoksa ayrı ayrı görülebilecek bir yapı mı oluşturur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Homojen karışımdır"
+          },
+          {
+            "key": "B",
+            "text": "Heterojen karışımdır"
+          },
+          {
+            "key": "C",
+            "text": "Süspansiyondur"
+          },
+          {
+            "key": "D",
+            "text": "Kolloiddir"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Su ve etanolün birbirleriyle tamamen karışamayacağını sanıyor.",
+          "C": "Süspansiyonun tanımını karıştırıyor; süspansiyon büyük parçacıkların süspansiyonu iken bu karışım homojendir.",
+          "D": "Kolloidin tanımını karıştırıyor; kolloidin boyut aralığı bu karışımda geçerli değildir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışımlar"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir laboratuvar deneyinde, bir öğrenci 100 mL su ve 50 mL yağın karıştırılmasının ardından oluşan karışıma bakar. Öğrenci, bu karışımın homojen mi yoksa heterojen mi olduğunu belirlemek ister. Karışımın türünü belirlemek için öğrencinin hangi gözlemler yapması ve hangi adımları izlemesi gerekir? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışımlar",
+          "gözlem"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir mutfakta, şef bir salata sosu hazırlamak için 300 mL zeytinyağı ve 100 mL sirkeyi karıştırır. Bu karışım hangi tür bir karışımdır? Karışımın bileşenleri birbirleriyle tamamen karışıp homojen bir yapı oluşturur mu, yoksa ayrı ayrı görülebilecek bir yapı mı oluşturur?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir eczacı, bir ilacın üretiminde kullanılan karışımı hazırlamak için 500 mL su ve 200 mL etanolü karıştırır. Bu karışım hangi tür bir karışımdır? Karışımın bileşenleri birbirleriyle tamamen karışıp homojen bir yapı oluşturur mu, yoksa ayrı ayrı görülebilecek bir yapı mı oluşturur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Su ve etanol her oranda karıştırılabilir, homojen bir karışım oluşturur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

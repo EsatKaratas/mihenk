@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:34:51.255Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-DNY.YT.4.5-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 65779,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, C++ dilinde bir program yazarak iki sayının toplamını hesaplamak istiyor. Programı yazarken operatörleri doğru kullanması gerekiyor. Ahmet'in programında 'a' ve 'b' adında iki değişken tanımlanmıştır. 'a' değişkenine 5, 'b' değişkenine 10 değerini atıyor. Ahmet, bu iki değişkenin toplamını ekrana yazdıran kodu yazmak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "cout << a - b;"
+          },
+          {
+            "key": "B",
+            "text": "cout << a * b;"
+          },
+          {
+            "key": "C",
+            "text": "cout << a / b;"
+          },
+          {
+            "key": "D",
+            "text": "cout << a + b;"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çıkarma operatörünü kullanıyor; toplama değil.",
+          "B": "Çarpma operatörünü kullanıyor; toplama değil.",
+          "C": "Bölme operatörünü kullanıyor; toplama değil."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 + 10",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "operatör",
+          "toplama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, C++ dilinde değişken tanımlarken veri tiplerini öğrenmek istiyor. Öğrenci, 'x' adında bir değişken tanımlayıp ona 10 değerini atamak istiyor. Öğrenci, bu değişkenin veri tipini seçerken tamsayı mı yoksa ondalıklı sayı mı kullanacağını düşünüyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "float x = 10.5;"
+          },
+          {
+            "key": "B",
+            "text": "char x = 'A';"
+          },
+          {
+            "key": "C",
+            "text": "bool x = true;"
+          },
+          {
+            "key": "D",
+            "text": "int x = 10;"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Ondalıklı sayı veri tipini seçiyor; tamsayı kullanmalı.",
+          "B": "Karakter veri tipini seçiyor; tamsayı değil.",
+          "C": "Mantıksal veri tipini seçiyor; tamsayı değil."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "veri tipi",
+          "tamsayı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir programcı, C++ dilinde bir algoritma yazarken operatörleri doğru kullanması gerekiyor. Programcı, iki sayının toplamını hesaplayan bir kod yazmak istiyor. Programcı, bu kodda hangi operatörü kullanmalıdır? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "operatör",
+          "algoritma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, C++ dilinde bir program yazarak iki sayının toplamını hesaplamak istiyor. Programı yazarken operatörleri doğru kullanması gerekiyor. Ahmet'in programında 'a' ve 'b' adında iki değişken tanımlanmıştır. 'a' değişkenine 5, 'b' değişkenine 10 değerini atıyor. Ahmet, bu iki değişkenin toplamını ekrana yazdıran kodu yazmak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Ahmet iki sayının toplamını hesaplamak istiyor, bu nedenle toplama operatörü kullanmalıdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, C++ dilinde değişken tanımlarken veri tiplerini öğrenmek istiyor. Öğrenci, 'x' adında bir değişken tanımlayıp ona 10 değerini atamak istiyor. Öğrenci, bu değişkenin veri tipini seçerken tamsayı mı yoksa ondalıklı sayı mı kullanacağını düşünüyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Öğrenci tamsayı değerini atamak istiyor.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

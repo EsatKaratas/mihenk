@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:45:04.432Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.6.4.1-r3"
+  },
+  "http": 200,
+  "sureMs": 19130,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe için sulama sistemi kurulacak. Bahçenin uzunluğu 15 metre, genişliği 8 metre. Sulama sistemi, her bir metrekaresine 2 litre su verecek. Bahçenin toplam kaç litre suya ihtiyacı vardır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "240 litre"
+          },
+          {
+            "key": "B",
+            "text": "480 litre"
+          },
+          {
+            "key": "C",
+            "text": "400 litre"
+          },
+          {
+            "key": "D",
+            "text": "360 litre"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bahçenin alanını hesaplamayı unutuyor.",
+          "B": "Bahçenin alanını hesapladıktan sonra su miktarını iki katına çıkarıyor.",
+          "C": "Her metrekaresine 2 litre yerine 2.5 litre su vereceğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 * 8) * 2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "A",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "hacim",
+          "oran"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir odanın boyu 6 metre, eni 4 metre. Odanın zemini, her bir metrekaresine 0.5 kilogram malzeme gerektiren bir malzeme ile kaplanacak. Odanın zemini için kaç kilogram malzeme gerekecektir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "10 kilogram"
+          },
+          {
+            "key": "B",
+            "text": "20 kilogram"
+          },
+          {
+            "key": "C",
+            "text": "12 kilogram"
+          },
+          {
+            "key": "D",
+            "text": "15 kilogram"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Odanın alanını hesapladıktan sonra malzeme miktarını yarıya indiriyor.",
+          "B": "Odanın alanını hesapladıktan sonra malzeme miktarını iki katına çıkarıyor.",
+          "D": "Her metrekaresine 0.5 kilogram yerine 0.75 kilogram malzeme gerektiğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(6 * 4) * 0.5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "oran",
+          "malzeme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun bahçesi için bir sulama sistemi kurulacak. Bahçenin boyutları 20 metre uzunluk ve 10 metre genişliktir. Sulama sistemi, her bir metrekaresine 1.5 litre su verecek. Bahçenin toplam kaç litre suya ihtiyacı vardır ve bu sulama sistemi neden tercih edilmiştir? Gerekçenizi veriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sulama",
+          "bahçe",
+          "oran"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçe için sulama sistemi kurulacak. Bahçenin uzunluğu 15 metre, genişliği 8 metre. Sulama sistemi, her bir metrekaresine 2 litre su verecek. Bahçenin toplam kaç litre suya ihtiyacı vardır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Bahçenin alanı 15*8=120m², 120m²*2litre=240litre",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir odanın boyu 6 metre, eni 4 metre. Odanın zemini, her bir metrekaresine 0.5 kilogram malzeme gerektiren bir malzeme ile kaplanacak. Odanın zemini için kaç kilogram malzeme gerekecektir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Odanın alanı 6*4=24 metrekare, 24*0.5=12 kilogram malzeme gerekir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

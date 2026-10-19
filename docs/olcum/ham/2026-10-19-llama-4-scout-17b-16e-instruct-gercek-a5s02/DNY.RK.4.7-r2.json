@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T10:26:42.511Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.RK.4.7-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 73799,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir kuvvet sensörü kullanarak bir nesnenin üzerine uygulanan kuvveti ölçüyor. Kuvvet sensöründen alınan veriler bir grafik üzerinde çiziliyor. Grafik üzerinde çizilen kuvvet değerleri 5N, 10N ve 15N olarak ölçülüyor. Ahmet bu verileri kullanarak bir analiz yapıyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kuvvetin maksimum değeri 15N'dir"
+          },
+          {
+            "key": "B",
+            "text": "Kuvvetin minimum değeri 5N'dir"
+          },
+          {
+            "key": "C",
+            "text": "Kuvvet sabit bir değerde uygulanmıştır"
+          },
+          {
+            "key": "D",
+            "text": "Kuvvetin ortalama değeri 10N'dir"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Öğrenci, minimum değerin ortalama değer olduğunu düşünüyor",
+          "C": "Öğrenci, grafikteki verilerin sabit olduğunu düşünüyor",
+          "D": "Öğrenci, ortalama değerin maksimum değer olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet sensörü",
+          "grafik analizi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, kuvvet sensörünü kullanarak bir cismin üzerine uygulanan kuvveti ölçüyor. Ölçülen veriler bir grafik üzerinde çiziliyor. Grafikte çizilen kuvvet değerleri 5N, 10N ve 15N olarak ölçülüyor. Öğrenci, bu verileri kullanarak bir analiz yapıyor ve kuvvetin maksimum değerini belirlemek istiyor. Sizce öğrenci hangi adımları takip etmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet sensörü",
+          "grafik analizi",
+          "maksimum değer"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir öğrenci, kuvvet sensörünü kullanarak bir cismin hızını ve ivmesini ölçüyor. Ölçülen veriler bir grafik üzerinde çiziliyor. Grafikte çizilen hız değerleri 5m/s, 10m/s ve 15m/s olarak ölçülüyor. Öğrenci, hız ve ivme arasındaki ilişkiyi analiz ediyor.",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bir kuvvet sensörü kullanarak bir nesnenin üzerine uygulanan kuvveti ölçüyor. Kuvvet sensöründen alınan veriler bir grafik üzerinde çiziliyor. Grafik üzerinde çizilen kuvvet değerleri 5N, 10N ve 15N olarak ölçülüyor. Ahmet bu verileri kullanarak bir analiz yapıyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Kuvvetin maksimum değeri 15N'dir, çünkü grafik üzerindeki en yüksek değer budur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:59:43.472Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.6.18-r1"
+  },
+  "http": 200,
+  "sureMs": 15727,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulun duvar gazetesinde yayınlanmak üzere bir yazı yazıyor. Yazıda 'Okulun 50. yılını kutlarız.' cümlesi var. Öğrenci, bu cümledeki '50.' sayısının başına nokta koyup koymama konusunda tereddüt ediyor. Bu durumda öğrenci ne yapmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sayının başına nokta koymamalıdır."
+          },
+          {
+            "key": "B",
+            "text": "Sayı yerine 'elli' yazmalıdır."
+          },
+          {
+            "key": "C",
+            "text": "Sayının başına nokta koymalıdır."
+          },
+          {
+            "key": "D",
+            "text": "Cümleyi yeniden yazmalıdır."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sayı yerine kelime kullanmayı düşünüyor.",
+          "C": "Sayının başına gereksiz bir nokta koymayı düşünüyor.",
+          "D": "Cümleyi yeniden yazmayı düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "nokta",
+          "sayı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğretmen, öğrencilerine bir metin veriyor ve metinde 'kitapların, defterlerin' gibi kelimeler var. Öğretmen, bu kelimelerin sonuna gelen 'lerin' ekinin neden kullanıldığını soruyor. Bu durumda öğrenci ne cevap vermelidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İsimlerin çoğul halinde kullanıldığı için."
+          },
+          {
+            "key": "B",
+            "text": "İsimlerin bestimmelik halinde kullanıldığı için."
+          },
+          {
+            "key": "C",
+            "text": "İsimlerin genitif halinde kullanıldığı için."
+          },
+          {
+            "key": "D",
+            "text": "İsimlerin iyelik halinde kullanıldığı için."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "'lerin' ekinin çoğul için kullanıldığını düşünüyor.",
+          "B": "'lerin' ekinin bestimmelik için kullanıldığını düşünüyor.",
+          "C": "'lerin' ekinin genitif için kullanıldığını düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iyelik",
+          "ek"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir yazı yazıyor ve yazısında 'okulun bahçesi çok güzel' cümlesi var. Öğretmen, öğrenciye bu cümledeki 'okulun' kelimesinin sonuna gelen 'n' harfinin neden kullanıldığını soruyor. Öğrenci, bu soruyu nasıl cevaplamalıdır? Nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "iyelik",
+          "ek",
+          "neden"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulun duvar gazetesinde yayınlanmak üzere bir yazı yazıyor. Yazıda 'Okulun 50. yılını kutlarız.' cümlesi var. Öğrenci, bu cümledeki '50.' sayısının başına nokta koyup koymama konusunda tereddüt ediyor. Bu durumda öğrenci ne yapmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Sıra bildiren sayılardan sonra nokta konur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğretmen, öğrencilerine bir metin veriyor ve metinde 'kitapların, defterlerin' gibi kelimeler var. Öğretmen, bu kelimelerin sonuna gelen 'lerin' ekinin neden kullanıldığını soruyor. Bu durumda öğrenci ne cevap vermelidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "İsimlerin sonuna 'lerin' eki iyelik durumunu belirtmek için kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

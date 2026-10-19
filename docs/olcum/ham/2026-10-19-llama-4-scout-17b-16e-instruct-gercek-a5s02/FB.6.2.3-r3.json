@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:56:22.182Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.6.2.3-r3"
+  },
+  "http": 200,
+  "sureMs": 30290,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi 40 saniye boyunca sabit süratle hareket eden kardeşi, 5 m/s süratle gidiyor. Buna göre, Ahmet ve kardeşinin hızlarını karşılaştırınız. Hangisi daha hızlıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkisi de aynı hızdadır"
+          },
+          {
+            "key": "B",
+            "text": "Kardeşi, Ahmet'ten daha hızlıdır"
+          },
+          {
+            "key": "C",
+            "text": "Ahmet, kardeşinden daha hızlıdır"
+          },
+          {
+            "key": "D",
+            "text": "Hızlarını karşılaştırmak için daha fazla bilgiye ihtiyacımız var"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Süratlerini eşitliyor; oysa hız = sürat / zaman değil",
+          "B": "Kardeşinin süratini hız sanıyor; oysa hız vektörel bir büyüklüktür",
+          "D": "Mesafeyi bilmiyoruz; oysa hızı hesaplamak için mesafe gereklidir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "sürat"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "35 m/s"
+          },
+          {
+            "key": "B",
+            "text": "30 m/s"
+          },
+          {
+            "key": "C",
+            "text": "20 m/s"
+          },
+          {
+            "key": "D",
+            "text": "25 m/s"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "72'yi 2'ye bölüyor; oysa bu oran yanlış",
+          "C": "72'yi 3.6'ya bölüyor; oysa km/h'den m/s'ye dönüşümde 1000/3600 kullanılır",
+          "D": "72'yi 2.5'e bölüyor; oysa bu oran yanlış"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(72 * 1000) / 3600",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "dönüşüm"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sürat ve hız kavramlarını karşılaştırınız. Bir örnek vererek aralarındaki farkı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle 10 m/s sabit süratle 20 saniye boyunca hareket ediyor. Aynı mesafeyi 40 saniye boyunca sabit süratle hareket eden kardeşi, 5 m/s süratle gidiyor. Buna göre, Ahmet ve kardeşinin hızlarını karşılaştırınız. Hangisi daha hızlıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Sürat ve hız aynı yönde ise eşitlenir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir aracın hızı 72 km/h'dir. Bu hızı m/s cinsinden ifade ediniz. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "1 km = 1000 m, 1 saat = 3600 saniye. Hız 72 km/h = 72 * 1000 / 3600 = 20 m/s",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:58:37.278Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.7.17-r2"
+  },
+  "http": 200,
+  "sureMs": 13363,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını anlatmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümlelerden hangisi karakterin duygularını örtük bir şekilde ifade eder?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterin gözleri yere düşmüştü ve suskundu."
+          },
+          {
+            "key": "B",
+            "text": "Karakterin yüzü güldü."
+          },
+          {
+            "key": "C",
+            "text": "Karakter çok mutsuzdu."
+          },
+          {
+            "key": "D",
+            "text": "Karakter çok heyecanlıydı."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karakterin duygularını olumlu bir şekilde ifade ediyor, ancak örtük değil.",
+          "C": "Karakterin duygularını açık bir şekilde ifade etmeyi tercih ediyor.",
+          "D": "Karakterin duygularını açık bir şekilde ifade ediyor ve duyguyu yanlış yorumluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "duygular"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, yazdığı metinde okuyucuyu etkilemek için açık ve örtük ifadeleri kullanıyor. Aşağıdaki ifadelerden hangisi okuyucunun zihninde bir görüntü oluşturmak için kullanılan bir örtük ifadedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Gökyüzü, uzanan bir deniz gibi geniş ve derin görünüyordu."
+          },
+          {
+            "key": "B",
+            "text": "Gökyüzü çok güzeldi."
+          },
+          {
+            "key": "C",
+            "text": "Gökyüzü maviydi."
+          },
+          {
+            "key": "D",
+            "text": "Gökyüzü güzel bir renge sahipti."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Gökyüzünün güzelliğini genel bir ifadeyle belirtiyor.",
+          "C": "Gökyüzünün rengini açık bir şekilde ifade ediyor.",
+          "D": "Gökyüzünün rengini belirsiz bir şekilde ifade ediyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "görselleştirme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde karakterin duygularını ve düşüncelerini okuyucuya aktarmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümleleri kullanarak karakterin duygularını örtük bir şekilde ifade eden bir paragraf yazınız ve neden bu ifadeleri seçtiğinizi açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "duygular",
+          "yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 2,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde bir karakterin duygularını anlatmak için açık ve örtük ifadeleri kullanmak istiyor. Aşağıdaki cümlelerden hangisi karakterin duygularını örtük bir şekilde ifade eder?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Karakterin gözleri yere düşmüştü ve suskundu cümlesi, karakterin duygularını doğrudan ifade etmek yerine fiziksel tepkileri üzerinden anlatır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, yazdığı metinde okuyucuyu etkilemek için açık ve örtük ifadeleri kullanıyor. Aşağıdaki ifadelerden hangisi okuyucunun zihninde bir görüntü oluşturmak için kullanılan bir örtük ifadedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Okuyucunun zihninde canlanan bir görüntü oluşturur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

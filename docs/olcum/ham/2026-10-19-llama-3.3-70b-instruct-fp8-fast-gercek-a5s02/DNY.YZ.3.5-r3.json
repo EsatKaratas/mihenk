@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:06:50.931Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.YZ.3.5-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 18183,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen tüm hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremini kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Doktorun kullanacağı formül hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) / P(Hastalık) + P(Semptom)"
+          },
+          {
+            "key": "B",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) + P(Hastalık) - P(Semptom)"
+          },
+          {
+            "key": "C",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) * P(Semptom)"
+          },
+          {
+            "key": "D",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom)"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Olasılık hesaplamasında kullanılan formülü tam olarak anlamıyor.",
+          "B": "Olasılık hesaplamasında kullanılan formülü karıştırıyor.",
+          "C": "Olasılık hesaplamasında kullanılan formülü yanlış uyguluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesaplaması"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test etmek için bir çalışma düzenliyor. Çalışma, 1000 kişilik bir grupta yürütülüyor ve gruptaki kişilerin %20'si ilacı alan gruba, %80'i ise placebo alan gruba ayrılmış durumda. İlaç alan gruptaki kişilerin %80'i iyileşirken, placebo alan gruptaki kişilerin %30'u iyileşiyor. Araştırma ekibi, ilacın etkinliğini değerlendirmek için Bayes Teoremini kullanmak istiyor. Ekibin kullanacağı olasılık hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "P(İyileşme|Placebo)"
+          },
+          {
+            "key": "B",
+            "text": "P(İlaç|İyileşme)"
+          },
+          {
+            "key": "C",
+            "text": "P(Placebo|İyileşme)"
+          },
+          {
+            "key": "D",
+            "text": "P(İyileşme|İlaç)"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Placebo grubundaki kişilerin iyileşme olasılığını ilacın etkinliği ile karıştırıyor.",
+          "C": "Placebo alan gruptaki kişilerin iyileşme olasılığını ilacın etkinliği ile karıştırıyor.",
+          "D": "İlacın etkinliğini değerlendirmek için kullanılan olasılığı karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesaplaması",
+          "ilaç etkinliği"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen tüm hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremini kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Doktorun bu hastalığa sahip olma olasılığını hesaplamak için hangi adımları takip etmesi gerekir? Hesaplamasını açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesaplaması",
+          "hastalık teşhisi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın semptomlarının %80 oranında bu hastalığa sahip olan kişilerde görüldüğünü ve hastaneye gelen tüm hastaların %10'unun bu hastalığa sahip olduğunu biliyor. Doktor, Bayes Teoremini kullanarak hastanın bu hastalığa sahip olma olasılığını hesaplamak istiyor. Doktorun kullanacağı formül hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Bayes Teoremi formülü",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test etmek için bir çalışma düzenliyor. Çalışma, 1000 kişilik bir grupta yürütülüyor ve gruptaki kişilerin %20'si ilacı alan gruba, %80'i ise placebo alan gruba ayrılmış durumda. İlaç alan gruptaki kişilerin %80'i iyileşirken, placebo alan gruptaki kişilerin %30'u iyileşiyor. Araştırma ekibi, ilacın etkinliğini değerlendirmek için Bayes Teoremini kullanmak istiyor. Ekibin kullanacağı olasılık hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İlacın etkinliğini değerlendirmek için Bayes Teoremi kullanılmak istendiğinden, iyileşen bir kişinin ilacı alma olasılığı olan P(İlaç|İyileşme) hesaplanmalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

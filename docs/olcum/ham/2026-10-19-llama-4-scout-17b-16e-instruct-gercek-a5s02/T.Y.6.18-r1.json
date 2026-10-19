@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:06:45.469Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-T.Y.6.18-r1"
+  },
+  "http": 200,
+  "sureMs": 81855,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir hikaye yazarken cümle sonunda noktalama işaretlerini kullanmayı unuttuğunu fark etti. Yazım kurallarına göre cümle sonunda hangi noktalama işareti kullanılır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "nokta (.)"
+          },
+          {
+            "key": "B",
+            "text": "soru işareti (?)"
+          },
+          {
+            "key": "C",
+            "text": "virgül (,)"
+          },
+          {
+            "key": "D",
+            "text": "noktalı virgül (;)"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Soru cümlelerinde kullanılır, her cümle sonunda değil",
+          "C": "Cümleleri ayırmak için kullanılır, cümle sonunda değil",
+          "D": "Bağlı cümleleri ayırmak için kullanılır, cümle sonunda değil"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kitabın sayfasında 'Sayfa 12-15' yazmaktadır. Bu sayfa numaraları hangi noktalama işareti ile ayrılır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "virgül (,)"
+          },
+          {
+            "key": "B",
+            "text": "nokta (.)"
+          },
+          {
+            "key": "C",
+            "text": "tire (-)"
+          },
+          {
+            "key": "D",
+            "text": "noktalı virgül (;)"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Cümleleri ayırmak için kullanılır, sayfa numaralarında değil",
+          "B": "Cümle sonunda kullanılır, sayfa numaralarında değil",
+          "D": "Bağlı cümleleri ayırmak için kullanılır, sayfa numaralarında değil"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir arkadaşınızın 'Ben yarın  saat 15:00 de görüşmek üzere' cümlesini yazarken tarih ve saat bilgisini noktalama işaretleriyle doğru bir şekilde yazmasını istediniz. Arkadaşınızın cümlesini nasıl yazardı ve neden?",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 200,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri",
+          "tarih ve saat"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bir hikaye yazarken cümle sonunda noktalama işaretlerini kullanmayı unuttuğunu fark etti. Yazım kurallarına göre cümle sonunda hangi noktalama işareti kullanılır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Cümle sonunda noktalama işareti olarak nokta kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir kitabın sayfasında 'Sayfa 12-15' yazmaktadır. Bu sayfa numaraları hangi noktalama işareti ile ayrılır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Sayfa numaraları tire ile ayrılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

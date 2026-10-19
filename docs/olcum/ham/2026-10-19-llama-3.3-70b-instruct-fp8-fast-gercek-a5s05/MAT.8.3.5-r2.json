@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:06:05.968Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.8.3.5-r2"
+  },
+  "http": 200,
+  "sureMs": 17985,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat firması, yeni bir bina için dikdörtgen bir arsa satın almıştır. Arsaların kenar uzunlukları 15 metre ve 20 metre olarak ölçülmüştür. İnşaat firması, arsanın köşegenini hesaplamak ister. Aşağıdaki seçeneklerden hangisi, köşegenin uzunluğunu doğru bir şekilde hesaplar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Köşegen = 15 / 20"
+          },
+          {
+            "key": "B",
+            "text": "Köşegen = √(15² + 20²)"
+          },
+          {
+            "key": "C",
+            "text": "Köşegen = 15 * 20"
+          },
+          {
+            "key": "D",
+            "text": "Köşegen = 15 + 20"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Köşegeni iki kenarın oranı sanıyor",
+          "C": "Köşegeni iki kenarın çarpımı sanıyor",
+          "D": "Köşegeni iki kenarın toplamı sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "√(15² + 20²)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "köşegen",
+          "Pisagor teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir üçgenin kenar uzunlukları 3 cm, 4 cm ve 5 cm olarak verilmiştir. Bu üçgenin niteliği hakkında aşağıdakilerden hangisi doğru bir yorumdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu üçgen bir dik üçgen değildir ve 3² + 4² = 5² eşitliğini sağlamaz"
+          },
+          {
+            "key": "B",
+            "text": "Bu üçgen bir dik üçgen değildir ancak 3² + 4² = 5² eşitliğini sağlar"
+          },
+          {
+            "key": "C",
+            "text": "Bu üçgen bir dik üçgendir ancak 3² + 4² = 5² eşitliğini sağlamaz"
+          },
+          {
+            "key": "D",
+            "text": "Bu üçgen bir dik üçgendir ve 3² + 4² = 5² eşitliğini sağlar"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hem dik üçgen tanımını hem de Pisagor teoreminin uygulanmasını karıştırıyor",
+          "B": "Dik üçgen tanımını karıştırıyor ancak Pisagor teoreminin uygulanmasını biliyor",
+          "C": "Dik üçgen olmasını biliyor ancak Pisagor teoreminin uygulanmasını karıştırıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "3² + 4² = 9 + 16 = 25 = 5²",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "Pisagor teoremi",
+          "kenar uzunlukları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mimar, yeni bir binanın tasarımını yapmak üzeredir. Binanın zemin katının duvarları 10 metre ve 12 metre uzunluklarında iki dikdörtgen oluşturacak şekilde tasarlanacaktır. Mimar, bu duvarların birleştiği köşenin karşısındaki duvarın uzunluğunu hesaplamak ister. Bu uzunluğu hesaplayarak, neden bu hesaplamayı Pisagor teoremi kullanarak yaptığınızı açıklayın.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "köşegen",
+          "Pisagor teoremi",
+          "mimarlık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat firması, yeni bir bina için dikdörtgen bir arsa satın almıştır. Arsaların kenar uzunlukları 15 metre ve 20 metre olarak ölçülmüştür. İnşaat firması, arsanın köşegenini hesaplamak ister. Aşağıdaki seçeneklerden hangisi, köşegenin uzunluğunu doğru bir şekilde hesaplar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Dik üçgenin hipotenüsünü hesaplamak için Pisagor teoremi kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 2,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir üçgenin kenar uzunlukları 3 cm, 4 cm ve 5 cm olarak verilmiştir. Bu üçgenin niteliği hakkında aşağıdakilerden hangisi doğru bir yorumdur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Dik üçgenlerde dik kenar uzunluklarının kareleri toplamı hipotenüs uzunluğunun karesine eşittir. 3² + 4² = 9 + 16 = 25 = 5²",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

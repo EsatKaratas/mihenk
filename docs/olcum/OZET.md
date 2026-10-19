@@ -173,3 +173,75 @@ kontrolde de görünmez. İnsan alan uzmanı kontrolü 6 aylık planda.
   (elle 9 yineleme bulundu, aday 0). Elle sayılar esas alındı.
 - Ölçüm koşulları: yerel `wrangler dev`, Workers AI uzak çağrı, aynı hesap.
   Canlı (`mihenk.bies.workers.dev`) ölçülmedi.
+
+## 8. A5 koşumu — istem sürümü 2, A1–A4 denetimleri (19 Ekim 2026, W2) · ETİKETLENMEDİ
+
+> **Bu bölümdeki sayılar OTOMATİK denetimlerin ne kadar sık İŞARET koyduğudur.
+> "Yanlış anahtar oranı" DEĞİLDİR.** Doğrulama elle etiketlemeyle yapılacak
+> (`a5/etiket-kor.json`). Ayrıca istem sürümü 2'dir (PROGRESS §55.3); §2'deki
+> sürüm 1 sonuçlarıyla karşılaştırma istem değişikliğiyle karışıktır.
+
+**Düzen.**
+- 18 kazanım (set-v1.1) × 3 tekrar × 2 sıcaklık (0,5 / 0,2) × 2 model.
+  - A: llama-3.3-70b, yedeği Scout.
+  - B: Scout, yedeği 70b — B'de bağımsız çözüm için çapraz model gerektiği için.
+- Her ÇSS için bağımsız çözüm (`/api/ai/solve`, çapraz).
+- Sabit worktree (`18319d1`), ölçüm modunda dört yerel sunucu (`APP_ENV=olcum`,
+  `OLCUM_HAM=1`). Sıcaklık her çağrıda sunucunun `meta.sicaklik` değeriyle doğrulandı.
+- Ham: `ham/*-gercek-a5s0{5,2}/` · CSV: `*-gercek-a5s0{5,2}.csv`.
+
+**Çağrılar.**
+- 216 üretim çağrısının **216'sı HTTP 200**; ortam hatası, 503 ve 429 **0**.
+- 392 çözücü çağrısının 392'si 200.
+- **Yedeğe düşen üretim: 2 çağrı** (A s0,5'te 1, B s0,5'te 1) → 4 ÇSS
+  `a5/yedege-dusenler.json`'a ayrıldı. Aşağıdaki oranlar yalnız birincil modelin
+  ürettikleridir.
+
+| | A s0,5 | A s0,2 | B s0,5 | B s0,2 |
+|---|---|---|---|---|
+| ÇSS (birincil) | 92 | 94 | 101 | 105 |
+| sayısal ÇSS (gövde + tüm şıklarda rakam) | 37 | 30 | 61 | 60 |
+| Açık uçlu istenen / dönen (**A4**) | 54 / 54 | 54 / 54 | 54 / 54 | 54 / 54 |
+| `elenenTekrar` (hepsi aynı tür) | 14 | 14 | 5 | 3 |
+| **hesap yazma — sayısal ÇSS'de** | 34/37 (%91,9) | 29/30 (%96,7) | 37/61 (%60,7) | 43/60 (%71,7) |
+| **hesap yazma — SAYISAL OLMAYAN ÇSS'de** | 10/55 (%18,2) | 14/64 (%21,9) | 1/40 (%2,5) | 1/45 (%2,2) |
+| hesap okunamadı (ayrıştırıcı reddetti) | 7 | 14 | 5 | 7 |
+| hesap ↔ doğru şık: uyuşmaz / uyuşur | 16 / 15 | 16 / 10 | 6 / 26 | 13 / 24 |
+| hesap başka bir şıkla tutuyor | 4 | 5 | 4 | 9 |
+| çözücü anahtardan farklı şık seçti (**A1**) | 27/92 (%29,3) | 23/94 (%24,5) | 23/101 (%22,8) | 23/105 (%21,9) |
+| çözücü "çözülemedi" | 0 | 0 | 0 | 0 |
+| `uzunSikIpucu` (**A3**, yalnız ölçüm) | 3 (%3,3) | 4 (%4,3) | 7 (%6,9) | 4 (%3,8) |
+
+**Gözlemler (etiketlemeden önce, dikkatle).**
+- **A4 kaybı kapandı:** sabah (§54, sürüm 1) 42 açık uçlu istenip 32 geliyordu;
+  A5'te 216 / 216. Bu doğrudan ölçümdür.
+- **Hesap alanı:** A sayısal soruların %92–97'sinde yazıyor, B %61–72'sinde.
+  A, kural 10'a rağmen sayısal OLMAYAN soruların %18–22'sinde de ifade yazıyor
+  (ör. "(10 / 2) < 6"); B neredeyse hiç yazmıyor (%2).
+- **Hesap uyuşmazlığının bilinen yanlış pozitifi:** doğru şıkkın kendisi bir
+  işlem ifadesiyse ("40 km * 5 saat / 2 saat") ilk sayı alınıyor. 392 ÇSS'nin
+  30'unda doğru şıkta işlem ifadesi var (`sikIfadeIceriyor`, birleşik CSV'de).
+  Etiketlemede ayrı kodla bakılacak; ürün kodu etiketlemeden önce değiştirilmedi.
+- Elle bakılan ilk örneklerde uyuşmazlıkların çoğu **gerçek tutarsızlık** gibi
+  duruyor (ör. (8×2)+(5×2) = 26, anahtar 22 cm; hesap ve çözücü ikisi de 26'yı
+  gösteren şıkkı seçti). Bu bir ÖN İZLENİM; oranı etiketleme verecek.
+
+**Etiket kümeleri** (`a5/`, tohum 2026; W4'ün iki aşamalı kör yöntemi):
+- (a) tekrar 1 · s0,5 · iki model · tüm ÇSS: 68
+- (b) A1/A2 bayraklı tüm ÇSS (çözücü uyuşmazlığı, hesap uyuşmazlığı, hesap
+  başka şıkla tutuyor, doğru şıkta işlem ifadesi): 144
+- (c) bayraksızlardan tabakalı (model × sıcaklık, 4 × 10): 40
+- **Tekil soru: 225.** Bir soru birden çok kümede olabilir; her soru bir kez
+  etiketlenir.
+- Kör dosya: `etiket-kor.json` (gövde, şıklar, işaretli harf, kazanım, sınıf;
+  model / sıcaklık / çözücü / hesap / bayrak yok).
+- Eşleme: `etiket-esleme.json` — Aşama 1 commit'lenene kadar etiketleyiciye verilmez.
+- Kör ikinci kontrol (W3): `ikinci-kontrol-kor.json`, 225'in tohumlu %20'si = 45,
+  kendi numaraları; birinci kontrolün kararları ve K-no yok.
+
+**Maliyet (ölçüldü, Cloudflare analitiği, 09:39 → 10:38 UTC):** Scout +329 çağrı
++21.848 Neuron · 70b +335 çağrı +38.584 Neuron · toplam ≈ **60.430 Neuron ≈ 0,66 $**
+(bugün ücretsiz 10.000'lik pay daha önce dolmuştu, tamamı ücretli).
+**Üst sınırdır:** pencere başka oturumların çağrılarını da içerebilir (bu
+bölümün dışında W2 canlı doğrulaması 2 çağrı yaptı). Tahminim 35–50 bin idi;
+gerçek değer daha yüksek çıktı.

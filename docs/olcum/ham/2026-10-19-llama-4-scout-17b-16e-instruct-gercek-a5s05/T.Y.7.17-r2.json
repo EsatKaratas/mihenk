@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T10:09:45.134Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.Y.7.17-r2"
+  },
+  "http": 200,
+  "sureMs": 45414,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanarak okuyucuların dikkatini çekmek istiyor. Aşağıdaki ifadelerden hangisi örtük bir ifade örneğidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterin ağladığını söyledi"
+          },
+          {
+            "key": "B",
+            "text": "Karakterin yüz ifadesi değişti"
+          },
+          {
+            "key": "C",
+            "text": "Karakterin gözleri bir anda büyüdü"
+          },
+          {
+            "key": "D",
+            "text": "Karakterin korktuğunu açıkça belirtti"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Açık bir ifade örneği veriyor; oysa örtük ifadede okuyucu kendisi çıkarım yapmalı",
+          "B": "Çok belirsiz; okuyucu ne demek istediğini anlamayabilir",
+          "D": "Açık bir ifade örneği veriyor; oysa örtük ifadede okuyucu kendisi çıkarım yapmalı"
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "edebiyat"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir yazar, okuyucuların dikkatini çekmek için yazısında açık ve örtük ifadeleri nasıl kullanabilir? Örnek vererek açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "edebiyat",
+          "yazarlık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Mehmet, bir şiir yazmak istiyor. Şiirinde okuyucuların hislerini etkilemek için örtük ifadeler kullanmak istiyor. Aşağıdaki ifadelerden hangisi açık bir ifade örneğidir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanarak okuyucuların dikkatini çekmek istiyor. Aşağıdaki ifadelerden hangisi örtük bir ifade örneğidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Karakterin yüz ifadesi değişti ifadesi örtük bir ifade örneğidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

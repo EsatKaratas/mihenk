@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T09:58:10.235Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.5.15-r1"
+  },
+  "http": 200,
+  "sureMs": 15618,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazıda, okulun başarılarını ve öğrencilerin katkılarını vurgulamak istiyor. Bağlamda uygun bağlantı ifadelerini kullanmak için, öğrenci aşağıdaki cümlelerden hangisini kullanmalıdır? 'Okulun başarıları, öğrencilerin katkılarından dolayı artmıştır.' ya da 'Okulun başarıları, öğrencilerin katkılarından bağımsız olarak artmıştır.'",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okulun başarıları, öğrencilerin katkıları ile aynı anda artmıştır."
+          },
+          {
+            "key": "B",
+            "text": "Okulun başarıları, öğrencilerin katkılarından dolayı artmıştır."
+          },
+          {
+            "key": "C",
+            "text": "Okulun başarıları, öğrencilerin katkılarından bağımsız olarak artmıştır."
+          },
+          {
+            "key": "D",
+            "text": "Okulun başarıları, öğrencilerin katkıları ile hiç ilişkili değildir."
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Zaman çakışması ifadesini kullanarak, öğrencilerin katkıları ile okulun başarıları arasında neden-sonuç ilişkisi olmadığını düşünüyor.",
+          "C": "Bağlantı ifadesini yanlış kullanarak, öğrencilerin katkıları ile okulun başarıları arasında hiçbir ilişki olmadığını sanıyor.",
+          "D": "Bağlantı ifadesini hiç kullanmayarak, öğrencilerin katkıları ile okulun başarıları arasında hiçbir ilişki olmadığını varsayıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "neden-sonuç ilişkisi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, bir makale yazarken, önceki cümleyle sonraki cümleyi bağlamak için uygun bir bağlantı ifadesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, bu amaç için en uygun bağlantı ifadesidir? 'Bununla birlikte', 'Dolayısıyla', 'Örneğin', 'Sonuç olarak'",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sonuç olarak"
+          },
+          {
+            "key": "B",
+            "text": "Dolayısıyla"
+          },
+          {
+            "key": "C",
+            "text": "Bununla birlikte"
+          },
+          {
+            "key": "D",
+            "text": "Örneğin"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sonuç ifadesini kullanarak, cümleler arasında bir sonuç ilişkisi olduğunu varsayıyor.",
+          "C": "Karşıt fikir ifadesini kullanarak, cümleler arasında zıt bir ilişki olduğunu sanıyor.",
+          "D": "Örnek ifadesini kullanarak, cümleler arasında açıklama ilişkisi olduğunu düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "neden-sonuç ilişkisi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir yazı yazarken, uygun bağlantı ifadelerini kullanmak istiyor. Ancak, cümleler arasında doğru ilişkiyi kurmakta zorlanıyor. Öğrencinin bu zorluğun nedenini açıklar mısınız? Bu durumda, öğrenci hangi bağlantı ifadesini kullanmalıdır? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "neden-sonuç ilişkisi",
+          "cümle ilişkisi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulunun yıl sonu etkinliği için bir yazı yazmak istiyor. Yazıda, okulun başarılarını ve öğrencilerin katkılarını vurgulamak istiyor. Bağlamda uygun bağlantı ifadelerini kullanmak için, öğrenci aşağıdaki cümlelerden hangisini kullanmalıdır? 'Okulun başarıları, öğrencilerin katkılarından dolayı artmıştır.' ya da 'Okulun başarıları, öğrencilerin katkılarından bağımsız olarak artmıştır.'",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Öğrencilerin katkıları okulun başarılarını etkilemiştir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, bir makale yazarken, önceki cümleyle sonraki cümleyi bağlamak için uygun bir bağlantı ifadesi kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, bu amaç için en uygun bağlantı ifadesidir? 'Bununla birlikte', 'Dolayısıyla', 'Örneğin', 'Sonuç olarak'",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Önceki cümleyle sonraki cümleyi bağlamak için 'Bununla birlikte' ifadesi uygun bir seçenek olabilir, çünkü iki cümle arasında bir kontrast veya bir ekleme ilişkisi kurmaya yardımcı olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

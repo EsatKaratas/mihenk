@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T09:59:18.355Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.5.15-r3"
+  },
+  "http": 200,
+  "sureMs": 15817,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir metin yazmak istiyor. Metinde, okula yeni gelen öğrencilere okulun kuralları ve gelenekleri hakkında bilgi vermek istiyor. Öğrenci, metinde 'önce' ve 'sonra' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, metinde en uygun bağlantı ifadesi olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sonra okulun kuralları, önce gelenekleri"
+          },
+          {
+            "key": "B",
+            "text": "Önce okulun kuralları, sonra gelenekleri"
+          },
+          {
+            "key": "C",
+            "text": "Okulun kuralları ve gelenekleri arasında bir ilişki yok"
+          },
+          {
+            "key": "D",
+            "text": "Okulun kuralları ve gelenekleri aynı anda"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Metinde bağlantı ifadelerinin sıralamasını karıştırıyor.",
+          "C": "Metinde bağlantı ifadelerinin gerekliliğini anlamıyor.",
+          "D": "Metinde bağlantı ifadelerinin kullanımını anlamıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "metin yazma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, bir makale yazmak istiyor ve makalesinde 'fakat' ve 'ancak' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, makalede en uygun bağlantı ifadesi olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Ancak, bu durumun olumlu bir etkisi var"
+          },
+          {
+            "key": "B",
+            "text": "Fakat, bu durumun ngược bir etkisi var"
+          },
+          {
+            "key": "C",
+            "text": "Hem Fakat hem de ancak, bu durumun aynı anda iki etkisi var"
+          },
+          {
+            "key": "D",
+            "text": "Bu durumun hiçbir etkisi yok"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Makalede bağlantı ifadelerinin kullanımını anlamıyor.",
+          "C": "Makalede bağlantı ifadelerinin sıralamasını karıştırıyor.",
+          "D": "Makalede bağlantı ifadelerinin gerekliliğini anlamıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "makale yazma"
+        ],
+        "dilUyarisi": true
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okulunun yıl sonu etkinliği için bir metin yazmak istiyor. Metinde, okula yeni gelen öğrencilere okulun kuralları ve gelenekleri hakkında bilgi vermek istiyor. Öğrenci, metinde uygun bağlantı ifadelerini kullanmak istiyor. Bu durumda, öğrencinin metinde hangi bağlantı ifadelerini kullanması uygun olur? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "metin yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okulunun yıl sonu etkinliği için bir metin yazmak istiyor. Metinde, okula yeni gelen öğrencilere okulun kuralları ve gelenekleri hakkında bilgi vermek istiyor. Öğrenci, metinde 'önce' ve 'sonra' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, metinde en uygun bağlantı ifadesi olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Önce okulun kuralları, sonra gelenekleri şeklinde bir sıralama mantıklıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, bir makale yazmak istiyor ve makalesinde 'fakat' ve 'ancak' gibi bağlantı ifadelerini kullanmak istiyor. Aşağıdaki seçeneklerden hangisi, makalede en uygun bağlantı ifadesi olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Ancak ve fakat gibi bağlantı ifadeleri genellikle bir olumsuzluk veya bir sınırlama belirtmek için kullanılır. Seçenek A, bu tür ifadelerle uyumlu bir şekilde 'ancak' ifadesini kullanarak olumlu bir etkiyi belirtmektedir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

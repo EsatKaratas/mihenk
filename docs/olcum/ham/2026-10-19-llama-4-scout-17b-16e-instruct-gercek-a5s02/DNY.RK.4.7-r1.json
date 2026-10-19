@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:25:22.462Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.RK.4.7-r1",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 190602,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Deneyap robotumuzun kuvvet sensöründen aldığı değerleri bir grafik üzerinde izliyoruz. Grafikte üç farklı veri seti var: kuvvetin zamanla değişimi, hızın zamanla değişimi ve ivmenin zamanla değişimi. Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir. Aşağıdaki grafiklerden hangisi kuvvet, hız ve ivme arasındaki ilişkiyi doğru gösterir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kuvvet arttıkça hız ve ivme azalıyor"
+          },
+          {
+            "key": "B",
+            "text": "Kuvvet, hız ve ivme doğrusal olarak artıyor"
+          },
+          {
+            "key": "C",
+            "text": "Kuvvet sabit, hız ve ivme artıyor"
+          },
+          {
+            "key": "D",
+            "text": "Kuvvet ve hız aynı anda artıyor, ivme sabit kalıyor"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kuvvet arttıkça hız ve ivmenin azaldığını düşünüyor; oysa kuvvet arttıkça hız ve ivme artar",
+          "C": "Kuvvetin sabit, hız ve ivmenin arttığını düşünüyor; oysa kuvvet sabit kalmaz",
+          "D": "Kuvvet ve hızın aynı anda arttığını, ivmenin sabit kaldığını düşünüyor; oysa ivme kuvvetin değişimiyle ilgilidir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet",
+          "hız",
+          "ivme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, kuvvet sensörünü kullanarak bir cismin üzerine uygulanan kuvveti ölçüyor. Ölçüm sonuçları bir grafik üzerinde gösteriliyor. Grafikte, kuvvetin 0 N'den 10 N'ye 2 saniyede değiştiği görülüyor. Öğrenci, bu verileri kullanarak cismin ivmesini hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi doğru ivme değerini verir? ( cismin kütlesi 2 kg)",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 m/s^2"
+          },
+          {
+            "key": "B",
+            "text": "10 m/s^2"
+          },
+          {
+            "key": "C",
+            "text": "2,5 m/s^2"
+          },
+          {
+            "key": "D",
+            "text": "5 m/s^2"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kuvvetin değişimini 1 saniyede gerçekleştiğini düşünüyor ve kütleyi dikkate almıyor",
+          "B": "Kütleyi dikkate almadan kuvvetin değişimini ivmeye eşitliyor",
+          "C": "Kuvvetin değişimini 1 saniyede gerçekleştiğini düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10-0)/2/2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet",
+          "ivme",
+          "kütle"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Deneyap robotumuzun kuvvet sensörü ile bir cismin üzerine uygulanan kuvveti ölçtük. Ölçüm sonuçları, kuvvetin zamanla değişimini gösteren bir grafik üzerinde gösteriliyor. Grafikte, kuvvetin 5 N'den 15 N'ye 4 saniyede değiştiği görülüyor. Cismin kütlesi 3 kg olduğuna göre, ivmenin zamanla değişimini gösteren bir grafik çiziniz ve çiziminizi verilerle savununuz.",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvet",
+          "ivme",
+          "kütle"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Deneyap robotumuzun kuvvet sensöründen aldığı değerleri bir grafik üzerinde izliyoruz. Grafikte üç farklı veri seti var: kuvvetin zamanla değişimi, hızın zamanla değişimi ve ivmenin zamanla değişimi. Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir. Aşağıdaki grafiklerden hangisi kuvvet, hız ve ivme arasındaki ilişkiyi doğru gösterir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Kuvvet, hız ve ivme arasındaki ilişki fiziksel olarak doğrusal olarak artar. Newton'un hareket yasaları bunu destekler.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, kuvvet sensörünü kullanarak bir cismin üzerine uygulanan kuvveti ölçüyor. Ölçüm sonuçları bir grafik üzerinde gösteriliyor. Grafikte, kuvvetin 0 N'den 10 N'ye 2 saniyede değiştiği görülüyor. Öğrenci, bu verileri kullanarak cismin ivmesini hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi doğru ivme değerini verir? ( cismin kütlesi 2 kg)",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Newton'un ikinci yasası F=ma kullanılarak hesaplanır. Kuvvet 0 N'den 10 N'ye 2 saniyede değiştiğinden, ivme a = F/m = 10/2 = 5 m/s^2",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

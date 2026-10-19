@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:46:14.178Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.7.1.7-r2"
+  },
+  "http": 200,
+  "sureMs": 11873,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'ye satılıyor. Aynı markette 1 litre süt 6 TL'ye satılıyor. 2 litre süt almak için hangisi daha uygun?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1 litrelik süt daha pahalı"
+          },
+          {
+            "key": "B",
+            "text": "2 litrelik sütü alma"
+          },
+          {
+            "key": "C",
+            "text": "İkisi de aynı"
+          },
+          {
+            "key": "D",
+            "text": "1 litrelik sütleri alma"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "1 litrelik sütlerin toplam fiyatını hesaplamıyor",
+          "C": "Fiyatları karşılaştırmıyor",
+          "D": "2 litrelik sütü 2 adet 1 litrelik süt olarak hesaplıyor, ancak 2 litrelik süt daha ucuz"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 / 2) < 6",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir restoranda 5 kişilik bir grup yemek için 200 TL ödüyor. Aynı restoranda 3 kişilik bir grup yemek için 120 TL ödüyor. 5 kişilik grup için kişi başına ödenen tutar 3 kişilik gruptan daha mı az?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkisi de aynı"
+          },
+          {
+            "key": "B",
+            "text": "Evet"
+          },
+          {
+            "key": "C",
+            "text": "Hayır"
+          },
+          {
+            "key": "D",
+            "text": "Yeterli bilgi yok"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki gruptaki kişi başına tutarları karşılaştırmıyor",
+          "C": "5 kişilik gruptaki kişi başına tutarı hesaplamıyor",
+          "D": "Verilen bilgilerden yola çıkmıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(200 / 5) < (120 / 3)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantininde 15 öğrenci 3 TL'ye pizza alabiliyor. Aynı kantinde 20 öğrenci 4 TL'ye pizza alabiliyor. Okul yönetimi 30 öğrenci için pizza almayı planlıyor. Hangi seçeneği tercih etmelidir ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma",
+          "karar verme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 litre süt 10 TL'ye satılıyor. Aynı markette 1 litre süt 6 TL'ye satılıyor. 2 litre süt almak için hangisi daha uygun?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "2 litre süt 10 TL'ye satılıyor, 1 litrelik iki süt 12 TL'ye gelir",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir restoranda 5 kişilik bir grup yemek için 200 TL ödüyor. Aynı restoranda 3 kişilik bir grup yemek için 120 TL ödüyor. 5 kişilik grup için kişi başına ödenen tutar 3 kişilik gruptan daha mı az?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "5 kişilik grup için kişi başına 40 TL, 3 kişilik grup için kişi başına 40 TL ödeniyor. Kişi başı ödenen tutar aynı.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

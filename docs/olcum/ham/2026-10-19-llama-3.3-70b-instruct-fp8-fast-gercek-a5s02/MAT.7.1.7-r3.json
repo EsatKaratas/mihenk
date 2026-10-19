@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:46:47.160Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.7.1.7-r3"
+  },
+  "http": 200,
+  "sureMs": 18316,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangisi daha ucuzdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İkisi de aynı fiyata gelmektedir"
+          },
+          {
+            "key": "B",
+            "text": "2 litrelik süt"
+          },
+          {
+            "key": "C",
+            "text": "1 litrelik sütleri ayrı ayrı almak"
+          },
+          {
+            "key": "D",
+            "text": "1 litrelik süt daha ucuzdur"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "2 litrelik süt ve 1 litrelik sütlerin fiyatlarını karşılaştırmayı ihmal etmektedir",
+          "C": "Birden fazla 1 litrelik sütü ayrı ayrı almak daha pahalıya gelmektedir",
+          "D": "1 litrelik sütlerin toplam fiyatı 2 litrelik sütten daha pahalıdır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 / 2) < 6",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir okulun kantininde, 5 öğrenciye 15 TL'ye pizza satılmaktadır. Aynı pizzayı 3 öğrenciye 9 TL'ye satmaktadır. 4 öğrenci için pizza almak istiyorsanız hangisi daha ucuzdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 öğrencilik pizzayı iki kere satın almaktır"
+          },
+          {
+            "key": "B",
+            "text": "5 öğrencilik pizza alıp bir kişilik payı atmaktır"
+          },
+          {
+            "key": "C",
+            "text": "İkisi de aynı fiyata gelmektedir"
+          },
+          {
+            "key": "D",
+            "text": "3 öğrencilik pizza alıp bir kişilik payı eklemektir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "3 öğrencilik pizzayı iki kere satın almak daha pahalıya gelmektedir",
+          "C": "5 öğrencilik pizza ve 3 öğrencilik pizzaların fiyatlarını karşılaştırmayı ihmal etmektedir",
+          "D": "3 öğrencilik pizza alıp bir kişilik payı eklemek daha pahalıya gelmektedir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 / 5) < (9 / 3)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir evde su tüketimi azaltma projesi uygulanmaktadır. Evde 4 kişi yaşamaktadır ve her kişi günde 200 litre su tüketmektedir. Su tüketimini yarıya indirmek için ne gibi önlemler alınabilir? Bu önlemlerin gerekçesini veriniz.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "su tüketimi",
+          "azaltma",
+          "önlemler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangisi daha ucuzdur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "2 litre süt 10 TL'ye satılmaktadır, 1 litrelik sütleri ayrı ayrı almak 12 TL'ye mal olacaktır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir okulun kantininde, 5 öğrenciye 15 TL'ye pizza satılmaktadır. Aynı pizzayı 3 öğrenciye 9 TL'ye satmaktadır. 4 öğrenci için pizza almak istiyorsanız hangisi daha ucuzdur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "3 öğrencilik pizzayı iki kere satın almak 18 TL, 5 öğrencilik pizza alıp bir kişilik payı atmak 15 TL. 4 öğrenciye 3 öğrencilik pizza alıp bir kişilik payı eklemekte 12 TL.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

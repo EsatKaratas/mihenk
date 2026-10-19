@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:27:19.836Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-DNY.TU.4.3-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 45782,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Daha sonra bu tasarımı üç boyutlu hale getirmek istiyor. Ayşe'nin tasarımında iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklayınız. Aşağıdaki görsellerden hangisi iki boyutlu çizimi temsil eder?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yalnızca genişlik ve yüksekliği olan çizim"
+          },
+          {
+            "key": "B",
+            "text": "Sadece yükseklik ve derinliği olan çizim"
+          },
+          {
+            "key": "C",
+            "text": "Genişlik, yükseklik ve derinliği olan çizim"
+          },
+          {
+            "key": "D",
+            "text": "Sadece genişlik ve derinliği olan çizim"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Öğrenci, yükseklik ve derinliği olan çizimi iki boyutlu sanıyor",
+          "C": "Öğrenci, üç boyutlu çizimi iki boyutlu çizim sanıyor",
+          "D": "Öğrenci, genişlik ve derinliği olan çizimi iki boyutlu sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizimler yapıyorlar. İki boyutlu çizimlerde hangi özellikler bulunur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Genişlik, yükseklik ve derinlik"
+          },
+          {
+            "key": "B",
+            "text": "Genişlik ve yükseklik"
+          },
+          {
+            "key": "C",
+            "text": "Sadece yükseklik"
+          },
+          {
+            "key": "D",
+            "text": "Sadece derinlik"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Öğrenci, iki boyutlu çizime üç boyutlu çizim özelliklerini ekliyor",
+          "C": "Öğrenci, sadece yüksekliği iki boyutlu çizimin özelliği sanıyor",
+          "D": "Öğrenci, sadece derinliği iki boyutlu çizimin özelliği sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "özellikleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim ile üç boyutlu çizim arasındaki farklar nelerdir? Bir tasarımcı olarak, hangi durumlarda iki boyutlu çizimi tercih edersiniz ve neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "farklar"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Daha sonra bu tasarımı üç boyutlu hale getirmek istiyor. Ayşe'nin tasarımında iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklayınız. Aşağıdaki görsellerden hangisi iki boyutlu çizimi temsil eder?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "İki boyutlu çizim yalnızca genişlik ve yüksekliği içerir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizimler yapıyorlar. İki boyutlu çizimlerde hangi özellikler bulunur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İki boyutlu çizimlerde genişlik ve yükseklik özellikleri bulunur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

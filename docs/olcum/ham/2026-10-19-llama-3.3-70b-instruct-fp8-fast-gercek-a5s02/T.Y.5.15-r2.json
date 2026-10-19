@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T09:55:52.045Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.Y.5.15-r2"
+  },
+  "http": 200,
+  "sureMs": 17604,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okula gitmek için her gün 30 dakika yürüyor. Arkadaşlarından birinin bisikleti 10 dakika önce okulda oluyor. Öğrenci, bisikletle gitmek için uygun bağlantı ifadelerini kullanmak isterse, aşağıdaki seçeneklerden hangisini kullanmalıdır? Bisikletle gitmenin avantajı, daha kısa sürede okula varmak olduğunu söyleyen öğrenci, 'çünkü' kelimesini kullanarak neden bisikletle gitmeyi tercih ettiğini açıklamalıdır. Bu durumda öğrenci 'çünkü' kelimesini kullanarak neden bisikletle gitmeyi tercih ettiğini açıklamalıdır.",
+        "options": [
+          {
+            "key": "A",
+            "text": "çünkü bisikletle gitmek daha yavaş"
+          },
+          {
+            "key": "B",
+            "text": "çünkü bisikletle gitmek aynı hızda"
+          },
+          {
+            "key": "C",
+            "text": "çünkü bisikletle gitmek daha hızlı"
+          },
+          {
+            "key": "D",
+            "text": "çünkü bisikletle gitmek daha uzun sürer"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bisikletle gitmenin yavaş olduğunu sanıyor, oysa bisikletle gitmek daha hızlı",
+          "B": "Bisikletle gitmenin aynı hızda olduğunu sanıyor, oysa bisikletle gitmek daha hızlı",
+          "D": "Bisikletle gitmenin daha uzun sürdüğünü sanıyor, oysa bisikletle gitmek daha kısa sürer"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "neden"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, makalesinde 'ancak' kelimesini kullanarak iki karşıt fikri bağlamak ister. Aşağıdaki seçeneklerden hangisi, 'ancak' kelimesinin doğru kullanımını gösterir? Yazar, 'ancak' kelimesini kullanarak iki karşıt fikri bağlamak için uygun bir bağlantı ifadesi seçmelidir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu kitap çok ilginç, ve çok uzun"
+          },
+          {
+            "key": "B",
+            "text": "Bu kitap çok ilginç, öyle ki çok uzun"
+          },
+          {
+            "key": "C",
+            "text": "Bu kitap çok ilginç, ancak çok uzun"
+          },
+          {
+            "key": "D",
+            "text": "Bu kitap çok ilginç, çünkü çok uzun"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Ve kelimesini kullanarak iki fikri birleştirmeye çalışıyor, ancak 'ancak' kelimesi daha uygun",
+          "B": "Öyle ki kelimesini kullanarak sonuç-原因 ilişkisi kurmaya çalışıyor, ancak 'ancak' kelimesi daha uygun",
+          "D": "Çünkü kelimesini kullanarak neden-sonuç ilişkisi kurmaya çalışıyor, ancak 'ancak' kelimesi daha uygun"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "karşıt fikirler"
+        ],
+        "dilUyarisi": true
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, arkadaşlarına bir mektup yazıyor. Mektupta, neden okula gitmeyi sevdiğini açıklamak istiyor. Öğrenci, 'çünkü' kelimesini kullanarak neden okula gitmeyi sevdiğini açıklamalıdır. Bu durumda öğrenci, neden okula gitmeyi sevdiğini açıklarken 'çünkü' kelimesini nasıl kullanabilir? Nedenini açıklarken 'çünkü' kelimesini kullanarak uygun bir bağlantı ifadesi seçmelidir.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "neden"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okula gitmek için her gün 30 dakika yürüyor. Arkadaşlarından birinin bisikleti 10 dakika önce okulda oluyor. Öğrenci, bisikletle gitmek için uygun bağlantı ifadelerini kullanmak isterse, aşağıdaki seçeneklerden hangisini kullanmalıdır? Bisikletle gitmenin avantajı, daha kısa sürede okula varmak olduğunu söyleyen öğrenci, 'çünkü' kelimesini kullanarak neden bisikletle gitmeyi tercih ettiğini açıklamalıdır. Bu durumda öğrenci 'çünkü' kelimesini kullanarak neden bisikletle gitmeyi tercih ettiğini açıklamalıdır.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bisikletle gitmek daha hızlı olduğu için",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, makalesinde 'ancak' kelimesini kullanarak iki karşıt fikri bağlamak ister. Aşağıdaki seçeneklerden hangisi, 'ancak' kelimesinin doğru kullanımını gösterir? Yazar, 'ancak' kelimesini kullanarak iki karşıt fikri bağlamak için uygun bir bağlantı ifadesi seçmelidir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Ancak kelimesi iki karşıt fikri bağlamak için kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

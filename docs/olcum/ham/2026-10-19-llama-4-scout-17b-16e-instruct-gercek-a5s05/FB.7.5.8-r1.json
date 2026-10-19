@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:56:48.884Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.7.5.8-r1"
+  },
+  "http": 200,
+  "sureMs": 36128,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, evindeki mutfak için yeni bir karışım hazırlıyor. Karışımın homojen olup olmadığını anlamak için arkadaşıyla birlikte hazırladıkları karışımı bir kaşıkla karıştırıyor ve 5 dakika bekletiyor. Karışımın hâlâ eşit görünümde olduğunu görüyorlar. Buna göre Ayşe ve arkadaşları hangi tür karışım hazırlamış olabilirler?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sadece su ve tuz karışımı"
+          },
+          {
+            "key": "B",
+            "text": "Sadece şeker ve un karışımı"
+          },
+          {
+            "key": "C",
+            "text": "Heterojen karışım"
+          },
+          {
+            "key": "D",
+            "text": "Homojen karışım"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece su ve tuzun homojen karışım oluşturabileceğini düşünüyor",
+          "B": "Sadece şeker ve unun homojen karışım oluşturabileceğini düşünüyor",
+          "C": "Karışımın eşit görünümde olmasını, bileşenlerin birbirine karışmaması olarak yorumluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir süpermarkette, homojen ve heterojen karışımlara ait örnekler verilmiştir: yoğurt (homojen), salata (heterojen). Aşağıdaki karışımlardan hangisi homojen bir karışım örneği değildir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Şekerli su"
+          },
+          {
+            "key": "B",
+            "text": "Tuzlu su"
+          },
+          {
+            "key": "C",
+            "text": "Salata"
+          },
+          {
+            "key": "D",
+            "text": "Kumlu su"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Şekerli suyun homojen olduğunu düşünüyor",
+          "B": "Tuzlu suyun homojen olduğunu düşünüyor",
+          "D": "Kumlu suyun homojen olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, bir deney için homojen ve heterojen karışımlar hazırlıyor. Homojen karışımının her yerine birkaç damla gıda boyası ekliyor ve karıştırıyor. Karışımın tamamı eşit renk alıyor. Daha sonra heterojen bir karışım hazırlıyor ve aynı işlemi uyguluyor, ancak bu sefer karışımın tamamı eşit renk almadı. Ece'nin hazırladığı karışımların özelliklerini ve deneyinin sonucunu açıklayarak, bu deneyden hangi sonuçları çıkarabilir?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen",
+          "deney"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, evindeki mutfak için yeni bir karışım hazırlıyor. Karışımın homojen olup olmadığını anlamak için arkadaşıyla birlikte hazırladıkları karışımı bir kaşıkla karıştırıyor ve 5 dakika bekletiyor. Karışımın hâlâ eşit görünümde olduğunu görüyorlar. Buna göre Ayşe ve arkadaşları hangi tür karışım hazırlamış olabilirler?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Karışımın eşit görünümde olması homojen karışım olduğunu gösterir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir süpermarkette, homojen ve heterojen karışımlara ait örnekler verilmiştir: yoğurt (homojen), salata (heterojen). Aşağıdaki karışımlardan hangisi homojen bir karışım örneği değildir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Salata heterojen bir karışımdır, diğer seçenekler homojendir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

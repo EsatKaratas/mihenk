@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:07:52.860Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Robotik ve Kodlama",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.RK.4.7",
+    "outcomeLabel": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+    "topicArea": "4. Hafta · Kuvvet Sensörü",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.RK.4.7-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 24168,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir robotik sistemde kuvvetsensörü kullanılarak ölçülen değerler, grafik üzerinde gösterilmektedir. Grafikte kuvvetsensörünün ölçtüğü değerler 5 Newton, 10 Newton ve 15 Newton olarak görülmektedir. Bu grafikten hareketle, kuvvetsensörünün ölçtüğü değerlerin artış oranını yorumlayabilmek için hangi bilgiye ihtiyaç duyulur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sensörün hassasiyet değerleri"
+          },
+          {
+            "key": "B",
+            "text": "Sensörün ölçtüğü değerlerin zaman içindeki değişimi"
+          },
+          {
+            "key": "C",
+            "text": "Sensörün ölçtüğü değerlerin sıcaklığa bağlı değişimi"
+          },
+          {
+            "key": "D",
+            "text": "Sensörün ölçtüğü değerlerin nem oranına bağlı değişimi"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kuvvetsensörünün hassasiyet değerlerinin doğrudan artış oranını etkileyebileceğini sanıyor.",
+          "C": "Sıcaklık değişimlerinin kuvvetsensörünün ölçtüğü değerleri direkt olarak etkileyebileceğini düşünüyor.",
+          "D": "Nem oranının kuvvetsensörünün ölçtüğü değerleri direkt olarak etkileyebileceğini düşünüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvetsensörü",
+          "grafik",
+          "artış oranı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Deneyap Teknoloji Atölyesinde bir robotik proje kapsamında kuvvetsensörü kullanılmaktadır. Proje kapsamında kuvvetsensörünün ölçtüğü değerler 2 Newton, 4 Newton ve 6 Newton olarak kaydedilmektedir. Bu değerlerin grafiksel olarak gösterilmesi için hangi tür grafik daha uygun olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Nokta grafik"
+          },
+          {
+            "key": "B",
+            "text": "Pastel grafik"
+          },
+          {
+            "key": "C",
+            "text": "Çubuk grafik"
+          },
+          {
+            "key": "D",
+            "text": "Çizgi grafik"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Nokta grafiklerin sürekli değişen değerleri göstermek için yeterli olmadığını sanıyor.",
+          "B": "Pastel grafiklerin genellikle kategorik verileri göstermek için kullanıldığını göz ardı ediyor.",
+          "C": "Çubuk grafiklerin sürekli değişen değerleri göstermek için uygun olmadığını düşünmüyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvetsensörü",
+          "grafik",
+          "çizgi grafik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir robotik sistemde kuvvetsensörü kullanılarak ölçülen değerler grafik üzerinde gösterilmektedir. Grafikte kuvvetsensörünün ölçtüğü değerler 10 Newton, 15 Newton ve 20 Newton olarak görülmektedir. Bu grafikten hareketle, kuvvetsensörünün ölçtüğü değerlerin artış oranını yorumlayabilmek için hangi adımları takip ederdiniz? Neden bu adımları seçerdiniz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "kuvvetsensörü",
+          "grafik",
+          "artış oranı",
+          "yorumlama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir robotik sistemde kuvvetsensörü kullanılarak ölçülen değerler, grafik üzerinde gösterilmektedir. Grafikte kuvvetsensörünün ölçtüğü değerler 5 Newton, 10 Newton ve 15 Newton olarak görülmektedir. Bu grafikten hareketle, kuvvetsensörünün ölçtüğü değerlerin artış oranını yorumlayabilmek için hangi bilgiye ihtiyaç duyulur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Kuvvetsensörünün ölçtüğü değerlerin artış oranını yorumlamak için değerlerin zaman içindeki değişimini bilmemiz gerekir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Deneyap Teknoloji Atölyesinde bir robotik proje kapsamında kuvvetsensörü kullanılmaktadır. Proje kapsamında kuvvetsensörünün ölçtüğü değerler 2 Newton, 4 Newton ve 6 Newton olarak kaydedilmektedir. Bu değerlerin grafiksel olarak gösterilmesi için hangi tür grafik daha uygun olur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Kuvvetsensörünün ölçtüğü değerler birden fazla olduğu için ve değerlerin sıralı bir şekilde gösterilmesi gerekmiyor, bu nedenle çubuk grafik daha uygun olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

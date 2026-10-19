@@ -1,0 +1,42 @@
+{
+  "n": 4,
+  "not": "fellBack=1: üretim birincil modelden değil; kümelere alınmadı.",
+  "maddeler": [
+    {
+      "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+      "model_kosum": "A",
+      "model_yanit": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "sicaklik": "0.5",
+      "kazanim": "MAT.5.4.4",
+      "tekrar": "2",
+      "sira": "1"
+    },
+    {
+      "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+      "model_kosum": "A",
+      "model_yanit": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "sicaklik": "0.5",
+      "kazanim": "MAT.5.4.4",
+      "tekrar": "2",
+      "sira": "2"
+    },
+    {
+      "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+      "model_kosum": "B",
+      "model_yanit": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sicaklik": "0.5",
+      "kazanim": "MAT.6.4.1",
+      "tekrar": "2",
+      "sira": "1"
+    },
+    {
+      "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+      "model_kosum": "B",
+      "model_yanit": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sicaklik": "0.5",
+      "kazanim": "MAT.6.4.1",
+      "tekrar": "2",
+      "sira": "2"
+    }
+  ]
+}

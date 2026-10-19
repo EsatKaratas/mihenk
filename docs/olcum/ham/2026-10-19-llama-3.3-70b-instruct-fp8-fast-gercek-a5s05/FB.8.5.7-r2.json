@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:57:01.413Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.8.5.7-r2"
+  },
+  "http": 200,
+  "sureMs": 16642,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir laboratuvar deneyinde, asitlik ve bazlık durumlarını ölçmek için pH değerleri kullanılır. Bir öğrenci, bir sıvının pH değerini 4 olarak ölçer. Buna göre, bu sıvının asitlik veya bazlık durumunu nasıl yorumlayabilirsiniz? Sıvının pH değeri 4 ise, bu sıvı hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bazik"
+          },
+          {
+            "key": "B",
+            "text": "Asidik"
+          },
+          {
+            "key": "C",
+            "text": "Nötr"
+          },
+          {
+            "key": "D",
+            "text": "Yarı asidik"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bazik bir sıvının pH değerinin 7'den büyük olduğunu unuttu.",
+          "C": "Nötr bir sıvının pH değerinin 7 olduğunu unuttu.",
+          "D": "Yarı asidik bir sıvının tanımını karıştırdı."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "asitlik",
+          "bazlık",
+          "pH değeri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe sulama sistemi, sulama suyunun pH değerini 6,5 olarak ölçer. Bu pH değeri, bitki yetiştirme için uygun mudur? Hangi pH aralığı, bitki yetiştirme için daha uygundur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "8,0-9,0"
+          },
+          {
+            "key": "B",
+            "text": "7,0-8,0"
+          },
+          {
+            "key": "C",
+            "text": "5,0-6,0"
+          },
+          {
+            "key": "D",
+            "text": "6,0-7,0"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Bazik bir ortamın bitki yetiştirme için uygun olmadığını unuttu.",
+          "B": "Bitki yetiştirme için uygun pH aralığını unuttu.",
+          "C": "Asidik bir ortamın bitki yetiştirme için uygun olmadığını unuttu."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "bitki yetiştirme",
+          "sulama suyu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir deneyde kullanılan sıvının pH değerini ölçer ve 9 olarak bulur. Bu sıvının asitlik veya bazlık durumunu yorumlayabilir misiniz? Neden böyle bir yorum yaparsınız? Hangi faktörler, bir sıvının pH değerini etkiler?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık",
+          "etken faktörler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir laboratuvar deneyinde, asitlik ve bazlık durumlarını ölçmek için pH değerleri kullanılır. Bir öğrenci, bir sıvının pH değerini 4 olarak ölçer. Buna göre, bu sıvının asitlik veya bazlık durumunu nasıl yorumlayabilirsiniz? Sıvının pH değeri 4 ise, bu sıvı hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "pH değeri 7'den küçükse sıvı asidik, 7 ise nötr, 7'den büyükse baziktir. pH 4 değeri 7'den küçük olduğu için sıvı asidiktir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bahçe sulama sistemi, sulama suyunun pH değerini 6,5 olarak ölçer. Bu pH değeri, bitki yetiştirme için uygun mudur? Hangi pH aralığı, bitki yetiştirme için daha uygundur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Bitkiler için uygun pH aralığı genellikle 6,0-7,0 arasıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

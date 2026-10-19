@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T10:18:32.792Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.8.3.5-r3"
+  },
+  "http": 200,
+  "sureMs": 51765,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık, bu arazinin gerçekten dik üçgen şekinde olduğunu doğrulamak istiyor. Arazinin dik üçgen olduğu nasıl doğrulanır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "6 + 8 = 10"
+          },
+          {
+            "key": "B",
+            "text": "8^2 + 10^2 = 6^2"
+          },
+          {
+            "key": "C",
+            "text": "6^2 + 10^2 = 8^2"
+          },
+          {
+            "key": "D",
+            "text": "6^2 + 8^2 = 10^2"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kenar uzunluklarının karelerini değil, kenar uzunluklarını topluyor",
+          "B": "Dik kenarları ve hipotenüsü yanlış tanımlamıştır",
+          "C": "Dik kenarları ve hipotenüsü yanlış tanımlamıştır"
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Öğrenciler, hipotenüsün uzunluğunu hangi formülü kullanarak bulabilirler?",
+        "options": [
+          {
+            "key": "A",
+            "text": "c^2 = 5^2 - 12^2"
+          },
+          {
+            "key": "B",
+            "text": "c = 5 + 12"
+          },
+          {
+            "key": "C",
+            "text": "c^2 = 5^2 + 12^2"
+          },
+          {
+            "key": "D",
+            "text": "c = 5 - 12"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenarların karelerini yanlış işaretlemiştir",
+          "B": "Kenar uzunluklarının karelerini değil, kenar uzunluklarını topluyor",
+          "D": "Kenar uzunluklarını çıkarıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir marangoz, dik üçgen şeklindeki bir ahşap parçasının kenar uzunluklarını ölçüyor. Kenar uzunlukları 9 cm, 12 cm ve 15 cm olarak ölçülüyor. Marangoz, bu ahşap parçasının gerçekten dik üçgen şekinde olduğunu iddia ediyor. Bu iddiayı desteklemek için marangoz ne yapmalıdır? Açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunlukları"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat ustası, bir dik üçgen şeklindeki arazinin kenar uzunluklarını ölçüyor. Kenar uzunlukları 6 metre, 8 metre ve 10 metre olarak ölçülüyor. Ustalık, bu arazinin gerçekten dik üçgen şekinde olduğunu doğrulamak istiyor. Arazinin dik üçgen olduğu nasıl doğrulanır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Pisagor teoremine göre, dik üçgenin kenar uzunlukları a² + b² = c² eşitliğini sağlar.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüsün uzunluğunu bulmalarını istiyor. Öğrenciler, hipotenüsün uzunluğunu hangi formülü kullanarak bulabilirler?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Dik üçgenlerde hipotenüsün karesi, diğer iki kenarın karelerinin toplamına eşittir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T09:46:57.743Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.6.4.1-r2"
+  },
+  "http": 200,
+  "sureMs": 17097,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılmak isteniyor ve bu yolun genişliği 1 metre olacak. Bahçenin etrafındaki yolun alanını hesaplamak için hangi uzunluk ölçme birimi kullanılmalıdır? Bahçenin etrafındaki yolun alanı hesaplanırken, bahçenin uzunluğuna ve genişliğine yolun genişliğinin eklenmesi gerekir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Milimetre"
+          },
+          {
+            "key": "B",
+            "text": "Santimetre"
+          },
+          {
+            "key": "C",
+            "text": "Kilometre"
+          },
+          {
+            "key": "D",
+            "text": "Metre"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Milimetre, bahçe boyutlarını ifade etmek için çok küçük bir birimdir.",
+          "B": "Bahçenin boyutları metre cinsinden verildiğinden, santimetre kullanmak uygun olmaz.",
+          "C": "Kilometre, bahçe boyutlarını ifade etmek için çok büyük bir birimdir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(15 + 2) * (8 + 2) - 15 * 8",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "uzunluk",
+          "alan",
+          "ölçme birimleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir odanın boyu 12 metre, eni 9 metredir. Odanın etrafına 2 metre genişliğinde bir halı serilmek isteniyor. Halının alanı için hangi ölçme birimi kullanılmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Santimetre"
+          },
+          {
+            "key": "B",
+            "text": "Kare metre"
+          },
+          {
+            "key": "C",
+            "text": "Metre"
+          },
+          {
+            "key": "D",
+            "text": "Kilometre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Santimetre, küçük boyutları ölçmek için kullanılır, odanın alanını ifade etmek için uygun değildir.",
+          "C": "Metre, uzunluğu ölçmek için kullanılır, alanı ifade etmez.",
+          "D": "Kilometre, çok büyük mesafeleri ölçmek için kullanılır, odanın alanını ifade etmek için çok büyüktür."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(12 + 4) * (9 + 4) - 12 * 9",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "ölçme birimleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir şehir parkı 500 metre uzunluğunda ve 200 metre genişliğindedir. Parkın etrafına bir bisiklet yolu yapılmak isteniyor ve bu yolun genişliği 3 metre olacak. Parkın etrafındaki bisiklet yolunun alanını hesaplayabilmek için hangi adımları takip etmelisiniz? Bisiklet yolunun alanını hesaplamak için kullanılan ölçme birimleri nelerdir? Hesaplamalarınızı ve kullanılan ölçme birimlerini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "alan",
+          "uzunluk",
+          "ölçme birimleri",
+          "hesaplama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılmak isteniyor ve bu yolun genişliği 1 metre olacak. Bahçenin etrafındaki yolun alanını hesaplamak için hangi uzunluk ölçme birimi kullanılmalıdır? Bahçenin etrafındaki yolun alanı hesaplanırken, bahçenin uzunluğuna ve genişliğine yolun genişliğinin eklenmesi gerekir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Bahçenin uzunluğu ve genişliği metre cinsinden verildiğinden ve yolun genişliği de metre cinsinden verildiğinden bahçenin etrafındaki yolun alanını hesaplamak için metre kullanılmalıdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir odanın boyu 12 metre, eni 9 metredir. Odanın etrafına 2 metre genişliğinde bir halı serilmek isteniyor. Halının alanı için hangi ölçme birimi kullanılmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Halı alanını ölçmek için uzunluk birimlerinin karesi yani alan birimi kullanılmalıdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

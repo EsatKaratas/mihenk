@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:00:09.034Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.O.8.9-r2"
+  },
+  "http": 200,
+  "sureMs": 14461,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuduğu iki metni karşılaştırmak istiyor. İlk metin 150 sayfa, ikinci metin 200 sayfa. İlk metni 3 günde, ikinci metni 4 günde okuyabiliyor. Hangi metni daha hızlı okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İlk metni"
+          },
+          {
+            "key": "B",
+            "text": "İkinci metni"
+          },
+          {
+            "key": "C",
+            "text": "Yeterli bilgi yok"
+          },
+          {
+            "key": "D",
+            "text": "İkisini de aynı hızda"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "İkinci metnin sayfa sayısını, okuma süresini doğru orantılı sanıyor",
+          "C": "Verilen bilgileri kullanarak karşılaştırma yapamıyor",
+          "D": "Okuma hızının sayfa sayısıyla değil, okuma süresiyle belirlendiğini düşünmüyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(150 / 3) > (200 / 4)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "okuma hızı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kitapçı, aynı yazarın iki farklı kitabını satıyor. Birinci kitap 250 sayfa, 20 TL. İkinci kitap 300 sayfa, 25 TL. Hangi kitap sayfaya göre daha ucuz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Birinci kitap"
+          },
+          {
+            "key": "B",
+            "text": "İkisi de aynı fiyat"
+          },
+          {
+            "key": "C",
+            "text": "Yeterli bilgi yok"
+          },
+          {
+            "key": "D",
+            "text": "İkinci kitap"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Kitapların fiyatlarını sayfaya göre karşılaştırmayı düşünmüyor",
+          "C": "Verilen bilgileri kullanarak karşılaştırma yapamıyor",
+          "D": "Sayfa sayısını, kitabın fiyatıyla doğru orantılı sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(20 / 250) < (25 / 300)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "fiyat"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Okul kütüphanesinde, iki farklı yazarın kitapları bulunuyor. Bir yazarın kitapları daha çok okunuyor. Bu durumun nedenleri neler olabilir? Bu nedenleri açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "okuma",
+          "yazar",
+          "neden"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuduğu iki metni karşılaştırmak istiyor. İlk metin 150 sayfa, ikinci metin 200 sayfa. İlk metni 3 günde, ikinci metni 4 günde okuyabiliyor. Hangi metni daha hızlı okumuştur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İkinci metni daha hızlı okumuştur çünkü 200 sayfayı 4 günde okuyorsa günde 50 sayfa okumuştur, ilk metni 3 günde okuyorsa günde 50 sayfa okumuştur, aynı hızdadır hayır 150/3=50 200/4=50 evet aynı hızda",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir kitapçı, aynı yazarın iki farklı kitabını satıyor. Birinci kitap 250 sayfa, 20 TL. İkinci kitap 300 sayfa, 25 TL. Hangi kitap sayfaya göre daha ucuz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "İkinci kitap daha fazla sayfaya sahip ve daha az fiyat farkı var",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

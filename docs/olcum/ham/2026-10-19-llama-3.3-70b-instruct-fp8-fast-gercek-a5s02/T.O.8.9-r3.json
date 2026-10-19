@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:00:44.842Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-T.O.8.9-r3"
+  },
+  "http": 200,
+  "sureMs": 15291,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, okuduğu iki kitabı karşılaştırıyor. İlk kitap 200 sayfa, ikinci kitap 250 sayfa. Ayşe, ilk kitabı 4 günde, ikinci kitabı 5 günde bitirdi. Hangi kitap daha hızlı okunuyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yeterli bilgi yok"
+          },
+          {
+            "key": "B",
+            "text": "İlk kitap"
+          },
+          {
+            "key": "C",
+            "text": "İkinci kitap"
+          },
+          {
+            "key": "D",
+            "text": "İki kitap da aynı hızda okunuyor"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yeterli bilgi olmadığını düşünüyor, oysa verilen bilgilerle karşılaştırma yapılabiliyor",
+          "C": "İkinci kitabı daha hızlı okunduğunu sanıyor, oysa sayfa sayısını gün sayısıyla karşılaştırmıyor",
+          "D": "İki kitabın okunma hızının aynı olduğunu düşünüyor, oysa sayfa sayısı ve gün sayısı farklı"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(200 / 4) > (250 / 5)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "okuma hızı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, iki farklı metni okur. İlk metinde 150 kelime, ikinci metinde 120 kelime vardır. Öğrenci, ilk metni 3 dakikada, ikinci metni 2 dakikada okur. Hangi metin daha hızlı okunuyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki metin de aynı hızda okunuyor"
+          },
+          {
+            "key": "B",
+            "text": "Yeterli bilgi yok"
+          },
+          {
+            "key": "C",
+            "text": "İkinci metin"
+          },
+          {
+            "key": "D",
+            "text": "İlk metin"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki metnin okunma hızının aynı olduğunu düşünüyor, oysa kelime sayısı ve dakika sayısı farklı",
+          "B": "Yeterli bilgi olmadığını düşünüyor, oysa verilen bilgilerle karşılaştırma yapılabiliyor",
+          "D": "İlk metni daha hızlı okunduğunu sanıyor, oysa kelime sayısını dakika sayısıyla karşılaştırmıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(120 / 2) > (150 / 3)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "okuma hızı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Okul kütüphanesinde iki farklı kitap vardır. Birinci kitap 300 sayfa, ikinci kitap 400 sayfa. Bir öğrenci, birinci kitabı 6 günde, ikinci kitabı 8 günde bitirdi. Hangi kitabı daha hızlı okuduğunu belirlemek için hangi bilgileri kullanabilirsiniz? Bu kararı verirken hangi gerekçeleri dikkate alırsınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "karşılaştırma",
+          "okuma hızı",
+          "gerekçe"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, okuduğu iki kitabı karşılaştırıyor. İlk kitap 200 sayfa, ikinci kitap 250 sayfa. Ayşe, ilk kitabı 4 günde, ikinci kitabı 5 günde bitirdi. Hangi kitap daha hızlı okunuyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İlk kitap daha hızlı okunuyor çünkü 200 sayfa 4 güne bölündüğünde günde 50 sayfa okunur, 250 sayfa 5 güne bölündüğünde günde 50 sayfa okunur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, iki farklı metni okur. İlk metinde 150 kelime, ikinci metinde 120 kelime vardır. Öğrenci, ilk metni 3 dakikada, ikinci metni 2 dakikada okur. Hangi metin daha hızlı okunuyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "İkinci metin daha hızlı okunuyor çünkü 120 kelime 2 dakikada, 150 kelime 3 dakikada okunuyor.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

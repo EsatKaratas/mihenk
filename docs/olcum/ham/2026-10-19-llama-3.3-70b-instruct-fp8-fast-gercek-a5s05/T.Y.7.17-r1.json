@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:01:30.306Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.7.17-r1"
+  },
+  "http": 200,
+  "sureMs": 22333,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde, ana karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanarak okuyucunun zihninde canlandıracağı bir sahne yazmak istiyor. Aşağıdaki seçeneklerden hangisi bu amaca uygun bir ifade olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterin yüzü gözyaşlarıyla kaplandı ve içini bir hüzün duygusu sarıverdi."
+          },
+          {
+            "key": "B",
+            "text": "Karakterin gözleri parlıyordu."
+          },
+          {
+            "key": "C",
+            "text": "Karakter çok yorgundu."
+          },
+          {
+            "key": "D",
+            "text": "Karakter çok mutsuzdu."
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Karakterin gözlerinin parlamasını mutlulukla eşleştiriyor ama bu durum her zaman böyle olmayabilir.",
+          "C": "Karakterin yorgunluğunu belirtiyor ama bu durum okuyucunun zihninde bir sahne canlandırmasını sağlamıyor.",
+          "D": "Karakterin duygusunu açıkça belirtiyor ama okuyucunun zihninde canlandırmasını sağlamıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": true,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "okuyucunun zihninde canlandırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, okuyucularının dikkatini çekmek için bir metinde açık ve örtük ifadeleri kullanıyor. Aşağıdaki seçeneklerden hangisi, yazarın okuyucularının dikkatini çekmek için kullandığı bir yöntem olacaktır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Yazar, okuyucularının already bildiği şeyleri tekrar ediyor."
+          },
+          {
+            "key": "B",
+            "text": "Yazar, okuyucularına direkt olarak ne yapmak istediklerini söylüyor."
+          },
+          {
+            "key": "C",
+            "text": "Yazar, okuyucularının zihninde bir sahne canlandırmasını sağlayarak onların dikkatini çekiyor."
+          },
+          {
+            "key": "D",
+            "text": "Yazar, okuyucularına sadece gerekli bilgileri veriyor."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yazarın okuyucularının already bildiği şeyleri tekrar etmesini düşünüyor ama bu yöntem dikkati çekmek için uygun değildir.",
+          "B": "Yazarın direkt olarak okuyucularına ne yapmak istediklerini söylemesini düşünüyor ama bu yöntem dikkati çekmek için uygun değildir.",
+          "D": "Yazarın sadece gerekli bilgileri vermesini düşünüyor ama bu yöntem okuyucuların dikkatini çekmek için yeterli değildir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "okuyucunun dikkatini çekme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde, ana karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanarak okuyucunun zihninde canlandıracağı bir sahne yazmak istiyor. Bu amaca uygun bir ifade yazmak için hangi yöntemleri kullanabilir? Neden bu yöntemleri seçer?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "okuyucunun zihninde canlandırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 1,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okuldaki yazma yarışmasına katılmak için bir öykü yazıyor. Öyküsünde, ana karakterin duygularını ve düşüncelerini okuyucuya aktarmak istiyor. Açık ve örtük ifadeleri kullanarak okuyucunun zihninde canlandıracağı bir sahne yazmak istiyor. Aşağıdaki seçeneklerden hangisi bu amaca uygun bir ifade olacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "A seçeneğinde karakterin yüzü gözyaşlarıyla kaplandı ve içini bir hüzün duygusu sarıverdi. Bu ifade okuyucunun zihninde canlanan bir sahne yaratır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yazar, okuyucularının dikkatini çekmek için bir metinde açık ve örtük ifadeleri kullanıyor. Aşağıdaki seçeneklerden hangisi, yazarın okuyucularının dikkatini çekmek için kullandığı bir yöntem olacaktır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Yazarın okuyucularının zihninde bir sahne canlandırmasını sağlayarak onların dikkatini çekmesi örtük ifade kullanma yöntemidir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

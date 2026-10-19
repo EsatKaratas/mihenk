@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T10:01:28.022Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.3.5-r1"
+  },
+  "http": 200,
+  "sureMs": 23615,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mimar, yeni bir bina tasarlıyor. Binanın iki kenarının uzunluğu 5 metre ve 12 metre. Mimar, bu kenarların birleştiği köşenin dik olduğunu biliyor. Binanın hipotenüsünün uzunluğunu hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi hipotenüsün uzunluğunu doğru olarak veriyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 metre"
+          },
+          {
+            "key": "B",
+            "text": "13 metre"
+          },
+          {
+            "key": "C",
+            "text": "17 metre"
+          },
+          {
+            "key": "D",
+            "text": "14 metre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik üçgenin kenarlarını karesini alıp sonra kökünü alarak hipotenüsün uzunluğunu hesaplıyor.",
+          "C": "Dik üçgenin kenarlarını çarpıp sonra kökünü alarak hipotenüsün uzunluğunu hesaplıyor.",
+          "D": "Dik üçgenin kenarlarını toplayarak hipotenüsün uzunluğunu hesaplıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(5^2 + 12^2)^(1/2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "kenar uzunluğu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, dik üçgenin kenar uzunluklarını ölçüyor. Kenar uzunlukları 8 cm ve 15 cm. Öğrenci, bu kenarların birleştiği köşenin dik olduğunu biliyor. Aşağıdaki seçeneklerden hangisi, dik kenarların karelerinin toplamının hipotenüsün karesine eşit olduğunu gösteriyor?",
+        "options": [
+          {
+            "key": "A",
+            "text": "8^2 - 15^2 = 17^2"
+          },
+          {
+            "key": "B",
+            "text": "8^2 + 15^2 = 17^2"
+          },
+          {
+            "key": "C",
+            "text": "8^2 * 15^2 = 17^2"
+          },
+          {
+            "key": "D",
+            "text": "8^2 + 15^2 = 20^2"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik üçgenin kenarlarını çıkarıp sonra karesini alarak hipotenüsün karesini hesaplıyor.",
+          "C": "Dik üçgenin kenarlarını çarpıp sonra karesini alarak hipotenüsün karesini hesaplıyor.",
+          "D": "Dik üçgenin kenarlarını çarpıp sonra karesini alarak hipotenüsün karesini hesaplıyor."
+        },
+        "gerekceTekrari": true,
+        "uzunSikIpucu": false,
+        "hesap": "(8^2 + 15^2) = (17^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "kenar uzunluğu",
+          "hipotenüs"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaat şirketi, yeni bir bina inşa ediyor. Binanın iki kenarının uzunluğu 10 metre ve 20 metre. İnşaat mühendisi, bu kenarların birleştiği köşenin dik olduğunu biliyor. Mühendis, binanın hipotenüsünün uzunluğunu hesaplamak istiyor. Hipotenüsün uzunluğunu hesaplayınız ve neden bu yöntemi kullandığınızı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "kenar uzunluğu"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir mimar, yeni bir bina tasarlıyor. Binanın iki kenarının uzunluğu 5 metre ve 12 metre. Mimar, bu kenarların birleştiği köşenin dik olduğunu biliyor. Binanın hipotenüsünün uzunluğunu hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi hipotenüsün uzunluğunu doğru olarak veriyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Pisagor teoremine göre 5² + 12² = c², yani 25 + 144 = c², c² = 169, c = 13 metre",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, dik üçgenin kenar uzunluklarını ölçüyor. Kenar uzunlukları 8 cm ve 15 cm. Öğrenci, bu kenarların birleştiği köşenin dik olduğunu biliyor. Aşağıdaki seçeneklerden hangisi, dik kenarların karelerinin toplamının hipotenüsün karesine eşit olduğunu gösteriyor?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Dik üçgenin kenar uzunlukları 8 cm ve 15 cm ise, hipotenüs uzunluğu Pisagor teoremine göre 17 cm'dir. Bu nedenle, 8^2 + 15^2 = 17^2 eşitliği sağlanır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

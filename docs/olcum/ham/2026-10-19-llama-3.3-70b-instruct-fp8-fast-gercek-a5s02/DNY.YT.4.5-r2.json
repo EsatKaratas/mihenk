@@ -1,0 +1,143 @@
+{
+  "zaman": "2026-10-19T10:13:35.144Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-DNY.YT.4.5-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 16090,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, iki sayının toplamını hesaplayacak. Öğrenci, 'a' ve 'b' değişkenlerini tanımlamış ve bu değişkenlere sırasıyla 5 ve 10 değerlerini atamış. Öğrenci, 'toplam' değişkenini tanımlamak için hangi operatörü kullanmalıdır? Buna göre, 'toplam' değişkeninin değerini hesaplayacak bir ifade hangisidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "toplam = a + b"
+          },
+          {
+            "key": "B",
+            "text": "toplam = a * b"
+          },
+          {
+            "key": "C",
+            "text": "toplam = a - b"
+          },
+          {
+            "key": "D",
+            "text": "toplam = a / b"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Çarpma işlemini toplama sanıyor.",
+          "C": "Çıkarma işlemini toplama sanıyor.",
+          "D": "Bölme işlemini toplama sanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "5 + 10",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, iki sayının ortalamasını hesaplayacak. Öğrenci, 'sayi1' ve 'sayi2' değişkenlerini tanımlamış ve bu değişkenlere sırasıyla 10 ve 20 değerlerini atamış. Öğrenci, 'ortalama' değişkenini tanımlamak için hangi ifadeyi kullanmalıdır? Buna göre, 'ortalama' değişkeninin değerini hesaplayacak bir ifadeyi yazınız ve neden bu ifadeyi kullandığınızı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör",
+          "ortalama"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, bir sayının karesini hesaplayacak. Öğrenci, 'sayi' değişkenini tanımlamış ve bu değişkene 4 değerini atamış. Öğrenci, 'kare' değişkenini tanımlamak için hangi ifadeyi kullanmalıdır? Buna göre, 'kare' değişkeninin değerini hesaplayacak bir ifade hangisidir?",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, C++ dilinde bir program yazmak istiyor. Program, iki sayının toplamını hesaplayacak. Öğrenci, 'a' ve 'b' değişkenlerini tanımlamış ve bu değişkenlere sırasıyla 5 ve 10 değerlerini atamış. Öğrenci, 'toplam' değişkenini tanımlamak için hangi operatörü kullanmalıdır? Buna göre, 'toplam' değişkeninin değerini hesaplayacak bir ifade hangisidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "İki sayının toplamını hesaplamak için toplama operatörü kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

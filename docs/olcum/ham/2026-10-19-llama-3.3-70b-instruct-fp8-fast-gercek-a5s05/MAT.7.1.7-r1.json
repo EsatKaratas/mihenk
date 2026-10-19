@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T09:48:07.381Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-MAT.7.1.7-r1"
+  },
+  "http": 200,
+  "sureMs": 11535,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'dir. Aynı markette 1,5 litre süt kaç TL'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "8 TL"
+          },
+          {
+            "key": "B",
+            "text": "7,5 TL"
+          },
+          {
+            "key": "C",
+            "text": "15 TL"
+          },
+          {
+            "key": "D",
+            "text": "12 TL"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Süt fiyatını litre başına sabit olarak düşünüyor, orantılı ilişkiyi hesaplamıyor",
+          "C": "Süt fiyatını litre başına artan olarak yanlış hesaplıyor",
+          "D": "2 litre süt fiyatını 1,5 litre için de geçerli sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 / 2) * 1,5",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "süt fiyatı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir okulun kantininde, 5 öğrenciye yetecek kadar pizza 20 TL'dir. Kantin aynı pizzayı 3 öğrenciye yetecek kadar olarak satıyorsa, bu pizza kaç TL'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "8 TL"
+          },
+          {
+            "key": "B",
+            "text": "12 TL"
+          },
+          {
+            "key": "C",
+            "text": "15 TL"
+          },
+          {
+            "key": "D",
+            "text": "10 TL"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "3 öğrenciye yetecek pizza fiyatını 5 öğrenciye yetecek pizza fiyatından düşük hesaplıyor, orantı kuramıyor",
+          "C": "Pizza fiyatını öğrenci başına artan olarak yanlış hesaplıyor",
+          "D": "Pizza fiyatını öğrenci başına sabit olarak düşünüyor, orantılı ilişkiyi hesaplamıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(20 / 5) * 3",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "pizza fiyatı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir çiftçi, bahçesindeki sebzelere su vermek için bir sulama sistemi kullanıyor. Sistem, 10 dakika içinde 50 litre su verebiliyor. Çiftçi, 200 litre su ile tüm bahçesini sulamak istiyor. Bu işlemi kaç dakika sürede tamamlayabilir? Neden böyle düşünüyorsun?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "sulama sistemi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 litre süt 10 TL'dir. Aynı markette 1,5 litre süt kaç TL'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Doğru orantı kullanarak 1,5 litre sütün fiyatını hesapladım.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir okulun kantininde, 5 öğrenciye yetecek kadar pizza 20 TL'dir. Kantin aynı pizzayı 3 öğrenciye yetecek kadar olarak satıyorsa, bu pizza kaç TL'dir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "5 öğrenciye yetecek pizza 20 TL ise, 1 öğrenciye yetecek pizza 20 / 5 = 4 TL'dir. 3 öğrenciye yetecek pizza ise 4 * 3 = 12 TL'dir, ancak doğru orantı kurarak 5 öğrenciye 20 TL olan pizzanın 3 öğrenciye yetecek miktarını 20 * (3/5) = 12 TL olarak hesaplanır, bu da şıklara göre 12 TL değil, 12'ye denk gelen bir şık yok, 20 * 3 / 5 = 12, 12 yok, 20/5*3=12, 12 yok, o zaman 20/5=4, 4*3=12, 12 yoksa D şıkkı 10 TL doğru olmaz mı?",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

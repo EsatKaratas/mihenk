@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T09:58:30.416Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-FB.7.5.8-r3"
+  },
+  "http": 200,
+  "sureMs": 40245,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, evindeki mutfak için yeni bir karışım hazırlıyor. Karışımın homojen olup olmadığını anlamak için arkadaşına bir yöntem öneriyor. Arkadaşı, karışımın bir kısmını bir kaba alıyor ve çalkalıyor. Eğer karışımın görünümü değişmiyor ve tek faza sahip oluyorsa, karışım homojendir. Ayşe'nin hazırladığı karışımın başlangıçta 3 farklı madde içerdiği biliniyor. Karışımı çalkaladıktan sonra, eğer karışımın görünümü değişiyorsa ve 2 faza sahip oluyorsa, bu karışım hangi türde sınıflandırılır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Süspansiyon"
+          },
+          {
+            "key": "B",
+            "text": "Heterojen"
+          },
+          {
+            "key": "C",
+            "text": "Emülsiyon"
+          },
+          {
+            "key": "D",
+            "text": "Homojen"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Süspansiyonu ayrı bir kategori sanıyor; oysa süspansiyon da heterojen bir karışımdır",
+          "C": "Emülsiyonu ayrı bir kategori sanıyor; oysa emülsiyon da heterojen bir karışımdır",
+          "D": "Karışımın homojen olduğunu düşünüyor; oysa heterojen bir karışımın fazları birbirinden farklıdır"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, laboratuvar dersinde homojen ve heterojen karışımlara örnekler veriyor. Homojen karışımlara örnek olarak saf suyu, heterojen karışımlara örnek olarak ise su ve yağı veriyor. Öğrencinin verdiği örnekler doğru mudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hayır, su ve yağı homojen bir karışımdır"
+          },
+          {
+            "key": "B",
+            "text": "Evet, doğrudur"
+          },
+          {
+            "key": "C",
+            "text": "Hayır, saf su heterojen bir karışımdır"
+          },
+          {
+            "key": "D",
+            "text": "Hayır, saf su homojen, su ve yağı heterojen değildir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Su ve yağının karışımını yanlış sınıflandırıyor; oysa su ve yağı gerçekten heterojendir",
+          "C": "Saf suyun kimyasal yapısını unutuyor; oysa saf su gerçekten homojendir",
+          "D": "İki örneği de yanlış sınıflandırıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir arkadaşınız size, evindeki bahçe için gübre ve toprak karışımı hazırlamasını istiyor. Karışımın homojen olup olmadığını nasıl belirleyebilirsiniz? Karışımın homojen olup olmadığını belirlemek için hangi adımları takip edeceksiniz ve neden?",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "homojen",
+          "heterojen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, evindeki mutfak için yeni bir karışım hazırlıyor. Karışımın homojen olup olmadığını anlamak için arkadaşına bir yöntem öneriyor. Arkadaşı, karışımın bir kısmını bir kaba alıyor ve çalkalıyor. Eğer karışımın görünümü değişmiyor ve tek faza sahip oluyorsa, karışım homojendir. Ayşe'nin hazırladığı karışımın başlangıçta 3 farklı madde içerdiği biliniyor. Karışımı çalkaladıktan sonra, eğer karışımın görünümü değişiyorsa ve 2 faza sahip oluyorsa, bu karışım hangi türde sınıflandırılır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Karışımın görünümü değişiyor ve 2 faza sahip oluyorsa heterojen karışımdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, laboratuvar dersinde homojen ve heterojen karışımlara örnekler veriyor. Homojen karışımlara örnek olarak saf suyu, heterojen karışımlara örnek olarak ise su ve yağı veriyor. Öğrencinin verdiği örnekler doğru mudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Saf su homojen, su ve yağı heterojen karışımdır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

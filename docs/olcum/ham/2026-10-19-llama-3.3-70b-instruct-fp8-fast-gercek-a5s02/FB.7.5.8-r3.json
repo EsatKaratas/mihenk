@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:53:48.553Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-FB.7.5.8-r3"
+  },
+  "http": 200,
+  "sureMs": 14486,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir eczacı, bir ilacı hazırlamak için 500 mL su ve 200 mL alkol karışımı kullanıyor. Bu karışım homojen mi yoksa heterojen mi?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Heterojen"
+          },
+          {
+            "key": "B",
+            "text": "İlaçların karışımı her zaman heterojendir"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın türünü belirleyebilmek için daha fazla bilgiye ihtiyaç vardır"
+          },
+          {
+            "key": "D",
+            "text": "Homojen"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Su ve alkolün karıştırıldığında her zaman ayrı ayrı kalacağını sanıyor.",
+          "B": "İlaçların her zaman heterojen bir karışım oluşturduğunu sanıyor, ancak bu doğru değildir.",
+          "C": "Karışımın homojen veya heterojen olup olmadığını belirlemek için daha fazla bilgiye ihtiyaç olduğunu düşünüyor, ancak bu durumda karışımın bileşenleri tamamen karıştırıldığından homojendir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 1 litre su ve 1 litre yağın karıştırılmasının sonucunu gözlemliyor. Karışımın sonucu nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Katı bir madde"
+          },
+          {
+            "key": "B",
+            "text": "Homojen bir sıvı karışımı"
+          },
+          {
+            "key": "C",
+            "text": "Heterojen bir sıvı karışımı"
+          },
+          {
+            "key": "D",
+            "text": "Gaz halindeki bir madde"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karışımın katı bir madde oluşturacağını düşünüyor, ancak bu doğru değildir.",
+          "B": "Su ve yağın karıştırıldığında her zaman homojen bir karışım oluşturacağını sanıyor.",
+          "D": "Karışımın gaz halindeki bir madde oluşturacağını sanıyor, ancak bu da doğru değildir."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mutfakta, şef bir yemek için 2 litre su ve 1 litre sıvı yağ karışımı kullanıyor. Şef, bu karışımın homojen veya heterojen olduğunu belirlemek istiyor. Şefin bu kararı vermesi için hangi adımları takip etmesi gerekir? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "homojen",
+          "heterojen",
+          "karışım",
+          "mutfak"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir eczacı, bir ilacı hazırlamak için 500 mL su ve 200 mL alkol karışımı kullanıyor. Bu karışım homojen mi yoksa heterojen mi?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Su ve alkol karışımı her zaman homojen bir karışım oluşturur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 1 litre su ve 1 litre yağın karıştırılmasının sonucunu gözlemliyor. Karışımın sonucu nedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Su ve yağ karışımı heterojen bir sıvı karışımı oluşturur.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

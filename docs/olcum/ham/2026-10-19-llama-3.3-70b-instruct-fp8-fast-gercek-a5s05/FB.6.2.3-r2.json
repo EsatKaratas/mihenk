@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:53:46.151Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-FB.6.2.3-r2"
+  },
+  "http": 200,
+  "sureMs": 14298,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle okuluna gitmektedir. Okuluna 10 km uzaklıktadır ve bisikletini 2 saatte okuluna götürmektedir. Ahmet'in bisikletinin hızı saatte kaç km'dir? Buna göre, sürati ve hızı arasındaki farkı açıklayabilir misiniz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "10 km/sa"
+          },
+          {
+            "key": "B",
+            "text": "15 km/sa"
+          },
+          {
+            "key": "C",
+            "text": "5 km/sa"
+          },
+          {
+            "key": "D",
+            "text": "20 km/sa"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hızı saatte 10 km'nin iki katına çıkarmış",
+          "C": "Süreti hızın yarısı sanıyor",
+          "D": "Hızı saatte 10 km'nin dört katına çıkarmış"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "10 / 2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": "C",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "bisiklet"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araba, 50 km'lik bir yolu 1 saatte almaktadır. Aynı araba, 100 km'lik bir yolu kaç saatte alacaktır? Sürat ve hız kavramlarını kullanarak bu soruyu çözümleyebilirsiniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "1 saat"
+          },
+          {
+            "key": "B",
+            "text": "3 saat"
+          },
+          {
+            "key": "C",
+            "text": "2 saat"
+          },
+          {
+            "key": "D",
+            "text": "4 saat"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Arabanın süratini değişmez sanıyor",
+          "B": "Arabanın hızını yarıya indiriyor",
+          "D": "Arabanın hızını üçte birine indiriyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "100 / 50",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "araba"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir bisikletçi, 20 km'lik bir yolu 1 saatte almaktadır. Aynı bisikletçi, 40 km'lik bir yolu almak için kaç saatte bisiklete binmelidir? Sürat ve hız kavramlarını kullanarak bu soruyu çözümleyerek, bisikletçinin sürati ve hızı arasındaki farkı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "bisikletçi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bisikletiyle okuluna gitmektedir. Okuluna 10 km uzaklıktadır ve bisikletini 2 saatte okuluna götürmektedir. Ahmet'in bisikletinin hızı saatte kaç km'dir? Buna göre, sürati ve hızı arasındaki farkı açıklayabilir misiniz?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Hız = mesafe / zaman = 10 km / 2 saat = 5 km/sa",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir araba, 50 km'lik bir yolu 1 saatte almaktadır. Aynı araba, 100 km'lik bir yolu kaç saatte alacaktır? Sürat ve hız kavramlarını kullanarak bu soruyu çözümleyebilirsiniz.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Araba 50 km'lik yolu 1 saatte alıyor. 100 km'lik yol için 100 / 50 = 2 saat gerekir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

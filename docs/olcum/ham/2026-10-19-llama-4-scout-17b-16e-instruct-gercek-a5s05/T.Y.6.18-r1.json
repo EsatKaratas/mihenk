@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:06:20.501Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.Y.6.18-r1"
+  },
+  "http": 200,
+  "sureMs": 47819,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul gazetesine yazacağı bir makale için başlık düşünmektedir. Başlığın doğru yazılması için noktalama işaretlerini kullanmayı planlıyor. Aşağıdaki başlıklardan hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Okul Gazetesi: Yeni Bir Başlangıç"
+          },
+          {
+            "key": "B",
+            "text": "Okul Gazetesi - Yeni Bir Başlangıç"
+          },
+          {
+            "key": "C",
+            "text": "okul gazetesi: yeni bir başlangıç"
+          },
+          {
+            "key": "D",
+            "text": "Okul gazetesi; yeni bir başlangıç"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Eksi işareti yanlış kullanılmıştır.",
+          "C": "Cümle başı küçük harfle başlamıştır.",
+          "D": "Noktalı virgül yanlış kullanılmıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yayınevi, yeni bir kitap için tanıtım metni hazırlıyor. Metinde, kitabın adı ve yazarının doğru yazılması gerekiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Kitabın adı: 'çocukluk', Yazar: Ahmet DEMİR"
+          },
+          {
+            "key": "B",
+            "text": "Kitabın adı: Çocukluk, Yazar: Ahmet Demir"
+          },
+          {
+            "key": "C",
+            "text": "Kitabın adı: 'Çocukluk', Yazar: Ahmet Demir"
+          },
+          {
+            "key": "D",
+            "text": "Kitabın adı: Çocukluk, Yazar: ahmet demir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kitabın adı tırnak içinde başlamıştır ve yazarın adı büyük harfle yazılmamıştır.",
+          "C": "Kitabın adı tırnak içinde doğru başlamıştır ancak yazarın adı ve soyadı doğru yazılmamıştır.",
+          "D": "Cümle başı küçük harfle başlamıştır ve yazarın soyadı küçük harfle yazılmıştır."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, sosyal medya hesabında paylaştığı bir yazıda, cümle sonunda nokta kullanmayı unutmuştur. Yazıdaki cümleler: 'Yeni bir gün başlamış, hava çok güzel'. 'Güneş parlıyor, kuşlar ötüyor'. Bu durumda, öğrencinin yazısını nasıl düzenleyebilir ve neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "noktalama işaretleri",
+          "düzenleme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, okul gazetesine yazacağı bir makale için başlık düşünmektedir. Başlığın doğru yazılması için noktalama işaretlerini kullanmayı planlıyor. Aşağıdaki başlıklardan hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Başlık büyük harfle başlar ve iki kelime arasında doğru noktalama işareti kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir yayınevi, yeni bir kitap için tanıtım metni hazırlıyor. Metinde, kitabın adı ve yazarının doğru yazılması gerekiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Kitabın adı tırnak işareti içinde yazılır, yazarın adı büyük harfle başlamalıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

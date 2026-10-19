@@ -1,0 +1,198 @@
+{
+  "zaman": "2026-10-19T10:02:38.668Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.3.5-r3"
+  },
+  "http": 200,
+  "sureMs": 16844,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir inşaat firması, yeni bir bina için dikdörtgenler ve üçgenler kullanarak bir çatı tasarlıyor. Çatının bir kısmında, 5 metre ve 12 metre kenar uzunluklarına sahip bir dik üçgen oluşturmak istiyorlar. Bu dik üçgenin hipotenüs uzunluğunun karesi kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "169"
+          },
+          {
+            "key": "B",
+            "text": "13 metrekare"
+          },
+          {
+            "key": "C",
+            "text": "169 metrekare"
+          },
+          {
+            "key": "D",
+            "text": "144"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hipotenüs uzunluğunu direkt olarak metrekare olarak veriyor",
+          "C": "Sonuçta birim ekliyor",
+          "D": "Dik kenar uzunluklarının kareleri toplamını hesaplamıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(5^2 + 12^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "kenar uzunluğu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 8 metre ve 15 metre kenar uzunluklarına sahip bir dik üçgenin hipotenüs uzunluğunu hesaplamak istiyor. Hipotenüs uzunluğunu hesaplamak için hangi formülü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "c^2 = a * b"
+          },
+          {
+            "key": "B",
+            "text": "c^2 = a^2 + b^2"
+          },
+          {
+            "key": "C",
+            "text": "c = a * b"
+          },
+          {
+            "key": "D",
+            "text": "c = a + b"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Dik kenar uzunluklarını çarpıp kareye eşitliyor",
+          "C": "Dik kenar uzunluklarını çarpıyor",
+          "D": "Dik kenar uzunluklarını direkt olarak topluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "c^2 = (8^2 + 15^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "kenar uzunluğu"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mimar, bir binanın çatısını tasarlamak için dik üçgenler kullanıyor. Çatının bir kısmında, 10 metre ve 6 metre kenar uzunluklarına sahip bir dik üçgen oluşturmak istiyor. Bu dik üçgenin hipotenüs uzunluğunu hesaplayınız ve bu hesaplamayı neden bu şekilde yaptığınızı açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "hipotenüs",
+          "kenar uzunluğu",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir inşaat firması, yeni bir bina için dikdörtgenler ve üçgenler kullanarak bir çatı tasarlıyor. Çatının bir kısmında, 5 metre ve 12 metre kenar uzunluklarına sahip bir dik üçgen oluşturmak istiyorlar. Bu dik üçgenin hipotenüs uzunluğunun karesi kaç metrekaredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Dik üçgenin hipotenüs uzunluğu a² + b² = c² eşitliğini kullanarak bulunabilir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 8 metre ve 15 metre kenar uzunluklarına sahip bir dik üçgenin hipotenüs uzunluğunu hesaplamak istiyor. Hipotenüs uzunluğunu hesaplamak için hangi formülü kullanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Dik üçgenlerde dik kenar uzunluklarının kareleri toplamı hipotenüs uzunluğunun karesine eşittir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

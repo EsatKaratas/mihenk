@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T09:50:00.772Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-MAT.7.1.7-r3"
+  },
+  "http": 200,
+  "sureMs": 65800,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, 5 kg'lık pirinci 120 TL'ye alıyor. 2 kg'lık pirinci kaç TL'ye alacağını hesaplamak istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "60"
+          },
+          {
+            "key": "B",
+            "text": "48"
+          },
+          {
+            "key": "C",
+            "text": "40"
+          },
+          {
+            "key": "D",
+            "text": "50"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Pirinç fiyatını 1 kg için 30 TL'den hesaplıyor",
+          "C": "Pirinç fiyatını 1 kg için 20 TL'den hesaplıyor",
+          "D": "Pirinç fiyatını 1 kg için 25 TL'den hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "120 / 5 * 2",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "orantı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir otobüs, 250 km'lik bir yolculuk için 15 litre benzin tüketiyor. 500 km'lik bir yolculuk için kaç litre benzin tüketeceğini hesaplamak istiyor. Nasıl bir hesap yapar ve sonucu kaç litre olur?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "orantı"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": [
+        {
+          "neden": "tekrar",
+          "type": "mc",
+          "body": "Bir market, 3 adet yumurta için 5 TL alıyor. 12 adet yumurta için kaç TL ödeyeceğini hesaplamak istiyor.",
+          "benzedigi": "ayniTur"
+        }
+      ]
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, 5 kg'lık pirinci 120 TL'ye alıyor. 2 kg'lık pirinci kaç TL'ye alacağını hesaplamak istiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "5 kg pirincin fiyatı 120 TL, 1 kg pirincin fiyatı 120/5 = 24 TL, 2 kg pirincin fiyatı 24 * 2 = 48 TL",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

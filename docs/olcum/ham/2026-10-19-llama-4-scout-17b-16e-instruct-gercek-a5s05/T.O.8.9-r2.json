@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:12:37.860Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-T.O.8.9-r2"
+  },
+  "http": 200,
+  "sureMs": 44743,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfa, ikinci kitap ise 80 sayfadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısından 40 fazla olduğuna göre, Ayşe ikinci kitabı kaç sayfa okumuştur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "80"
+          },
+          {
+            "key": "B",
+            "text": "40"
+          },
+          {
+            "key": "C",
+            "text": "20"
+          },
+          {
+            "key": "D",
+            "text": "60"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İkinci kitabın tamamını okumuştur; oysa soru tamamını değil, bir kısmını okuduğunu ima ediyor",
+          "B": "İkinci kitabı 40 sayfa okumuştur; farkın kendisi okunan sayfa sayısı sanıyor",
+          "C": "Farkı ikiye bölerek 20 buluyor; oysa bölme işlemini yanlış uyguluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "okuma",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sınıfta, Türkçe dersinden alınan puanların ortalaması 80, Matematik dersinden alınan puanların ortalaması 70'tir. Türkçe'den 85 alan bir öğrenci, Matematik'ten kaç puan almıştır? Sınıfın Matematik ortalamasının Türkçe ortalamasından 10 puan düşük olması, öğrencilerin puanlarını etkilemektedir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "85"
+          },
+          {
+            "key": "B",
+            "text": "90"
+          },
+          {
+            "key": "C",
+            "text": "75"
+          },
+          {
+            "key": "D",
+            "text": "65"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Türkçe puanını Matematik puanı olarak alıyor; iki dersin ortalamasını karıştırıyor",
+          "B": "Türkçe puanına 5 ekliyor; keyfi bir sayı ekliyor",
+          "D": "Matematik ortalamasını 10 puan düşük alıyor; oysa bu farkı puana eklemiyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "ortalama",
+          "puan",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, iki farklı hikaye kitabı okumaktadır. İlk kitap 150 sayfa, ikinci kitap 200 sayfadır. Öğrenci, her iki kitabı da aynı anda okumaya başlamıştır. İkinci kitabı okumaya başladığı anda, ilk kitaptan 30 sayfa okumuştur. Öğrenci, ikinci kitabı kaç sayfa okumalıdır ki, her iki kitaptan okuduğu sayfa sayıları eşit olsun? Önerinizi verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "okuma",
+          "eşitlik"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, hafta sonu iki farklı kitap okumuştur. İlk kitap 120 sayfa, ikinci kitap ise 80 sayfadır. Ayşe'nin okuduğu sayfaları karşılaştırdığı bir anda, ilk kitaptan okuduğu sayfa sayısı, ikinci kitaptan okuduğu sayfa sayısından 40 fazla olduğuna göre, Ayşe ikinci kitabı kaç sayfa okumuştur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "İlk kitaptan okunan sayfa sayısı, ikinci kitaptan okunan sayfa sayısından 40 fazladır. İlk kitaptan 80 sayfa okunmuşsa, ikinci kitaptan 80 - 40 = 40 sayfa okunmuş olur.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir sınıfta, Türkçe dersinden alınan puanların ortalaması 80, Matematik dersinden alınan puanların ortalaması 70'tir. Türkçe'den 85 alan bir öğrenci, Matematik'ten kaç puan almıştır? Sınıfın Matematik ortalamasının Türkçe ortalamasından 10 puan düşük olması, öğrencilerin puanlarını etkilemektedir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Matematik ortalaması Türkçe ortalamasından 10 puan düşüktür, öğrenci Türkçe'den 85 puan almıştır.",
+        "guven": 0.8,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

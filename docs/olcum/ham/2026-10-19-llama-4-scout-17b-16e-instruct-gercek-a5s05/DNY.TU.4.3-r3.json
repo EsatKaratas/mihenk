@@ -1,0 +1,194 @@
+{
+  "zaman": "2026-10-19T10:28:35.503Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-DNY.TU.4.3-r3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 68019,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Daha sonra bu tasarımı üç boyutlu hale getirmek istiyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlaması gerekiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "İki boyutlu çizimler daha büyüktür, üç boyutlu çizimler ise daha küçüktür."
+          },
+          {
+            "key": "B",
+            "text": "İki boyutlu çizimler renkli olabilir, üç boyutlu çizimler ise siyah beyazdır."
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizimler sadece genişlik ve yükseklik içerir, üç boyutlu çizimler ise genişlik, yükseklik ve derinlik içerir."
+          },
+          {
+            "key": "D",
+            "text": "İki boyutlu çizimler daha detaylıdır, üç boyutlu çizimler ise daha az detaylıdır."
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Boyut kavramını yanlış yorumluyor.",
+          "B": "Renk özelliğini boyut ile ilişkilendiriyor.",
+          "D": "İki boyutlu çizimlerin detaylı olma durumunu yanlış genelleştiriyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu çizim yapıyorlar. Tasarımın üç boyutlu modelini oluşturmak için hangi aracı kullanabilirler?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2D çizim programı"
+          },
+          {
+            "key": "B",
+            "text": "3D modelleme yazılımı"
+          },
+          {
+            "key": "C",
+            "text": "Grafik tasarım programı"
+          },
+          {
+            "key": "D",
+            "text": "Video düzenleme yazılımı"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki boyutlu çizim programının yeteneklerini yanlış değerlendiriyor.",
+          "C": "Grafik tasarım programının işlevini yanlış yorumluyor.",
+          "D": "Video düzenleme yazılımının kullanım alanını yanlış belirliyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "3D modelleme",
+          "oyuncak araba tasarımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Ece, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklamak için bir poster hazırlıyor. Posterinde hangi noktalara değinmelidir? Açıklayın.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "farklar"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak oyuncak araba tasarlıyor. Daha sonra bu tasarımı üç boyutlu hale getirmek istiyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlaması gerekiyor.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "İki boyutlu çizimler genişlik ve yükseklik içerir, üç boyutlu çizimler ise genişlik, yükseklik ve derinlik içerir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu çizim yapıyorlar. Tasarımın üç boyutlu modelini oluşturmak için hangi aracı kullanabilirler?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Üç boyutlu model oluşturmak için 3D modelleme yazılımı kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

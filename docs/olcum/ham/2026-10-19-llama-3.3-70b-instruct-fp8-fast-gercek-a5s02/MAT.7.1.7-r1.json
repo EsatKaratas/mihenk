@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T09:45:48.894Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 1,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.7.1.7-r1"
+  },
+  "http": 200,
+  "sureMs": 24813,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangisi daha ucuzdur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1 litrelik süt daha pahalıdır"
+          },
+          {
+            "key": "B",
+            "text": "2 litrelik sütü alma"
+          },
+          {
+            "key": "C",
+            "text": "1 litrelik sütleri alma"
+          },
+          {
+            "key": "D",
+            "text": "İkisi de aynı fiyata gelir"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "1 litrelik sütü 2 litrelik sütten daha pahalı sanıyor",
+          "C": "Birden fazla küçük birim yerine tek bir büyük birim almanın daha pahalı olacağını düşünüyor",
+          "D": "2 litrelik ve 1 litrelik sütlerin fiyatlarını karşılaştırmayı atlıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(2 * 6) - 10",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bisiklet 2 saatte 40 kilometre yol alabilir. Bisikletin 5 saatte alacağı mesafeyi hesaplamak için hangi orantı kullanılır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "40 km * 5 saat / 2 saat"
+          },
+          {
+            "key": "B",
+            "text": "40 km - 2 saat * 5"
+          },
+          {
+            "key": "C",
+            "text": "40 km + 2 saat * 5"
+          },
+          {
+            "key": "D",
+            "text": "40 km / 2 saat = 20 km/saat"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Zaman ve mesafeyi çıkarıyor, orantı hesabını atlıyor",
+          "C": "Zaman ve mesafeyi topluyor, orantı hesabını atlıyor",
+          "D": "Orantı hesabında saat başına alınan mesafeyi hesaplıyor, ancak toplam mesafeyi hesaplamıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "40 * 5 / 2",
+        "hesapUyusmazligi": true,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "zaman",
+          "mesafe"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 5 TL'ye 1 litre su satmaktadır. Okul yönetimi, öğrencilere su satmak için bir otomatik su dağıtıcı makine almak istiyor. Makine 1000 litre su dağıtabiliyor ve 500 TL'ye satılmaktadır. Okul yönetimi makineyi aldıktan sonra suyun litresine kaç TL koyarsa, makinenin maliyetini 1000 litre su sattıktan sonra karşılayabilecek ve aynı zamanda kâr edebilecek? Makinenin maliyetini karşılayabilmesi ve kâr edebilmesi için litresine kaç TL koyabileceğini hesaplayıp, neden böyle bir fiyat belirlediğini açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "maliyet",
+          "kâr",
+          "fiyat"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 1,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 litre süt 10 TL'ye satılmaktadır. Aynı markette 1 litre süt 6 TL'ye satılmaktadır. 2 litre süt almak için hangisi daha ucuzdur?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "2 litre süt 10 TL'ye satılırken, 1 litrelik sütleri almak 12 TL'ye mal olacaktır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir bisiklet 2 saatte 40 kilometre yol alabilir. Bisikletin 5 saatte alacağı mesafeyi hesaplamak için hangi orantı kullanılır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bisikletin hızı 40 km / 2 saat = 20 km/saat. 5 saatte alacağı mesafe 20 km/saat * 5 saat = 100 km. Doğru orantı A şıkkıdır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

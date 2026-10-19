@@ -1,0 +1,193 @@
+{
+  "zaman": "2026-10-19T10:18:58.899Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-DNY.YZ.3.5-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 52476,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanıyor. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirliyor. Bir hasta testte pozitif sonuç alırsa, gerçekten hasta olma olasılığı nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "%60"
+          },
+          {
+            "key": "B",
+            "text": "%30"
+          },
+          {
+            "key": "C",
+            "text": "%45"
+          },
+          {
+            "key": "D",
+            "text": "%75"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hastalığa yakalanma olasılığını yanlış pozitif oranı ile karıştırıyor",
+          "B": "Bayes teoremini uygularken yanlış pozitif oranı dikkate almamaktadır",
+          "D": "Testin pozitif sonuç verme olasılığını, hasta olma olasılığı olarak alıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "makine öğrenmesi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir Bayes öğrenmesi modelinde, bir olayın gerçekleşme olasılığı P(A) = 0.4, olayın gerçekleşmemesi durumunda başka bir olayın gerçekleşme olasılığı P(B|A') = 0.7, olayın gerçekleşmesi durumunda başka bir olayın gerçekleşme olasılığı P(B|A) = 0.3 olarak veriliyor. P(A|B) olasılığını hesaplamak için Bayes teoremini kullanmanız gerekiyor. P(B) = 0.5 olduğuna göre, P(A|B) kaçtır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "0.48"
+          },
+          {
+            "key": "B",
+            "text": "0.64"
+          },
+          {
+            "key": "C",
+            "text": "0.52"
+          },
+          {
+            "key": "D",
+            "text": "0.36"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "P(A|B) yerine P(B|A) hesaplıyor",
+          "C": "P(B|A) ve P(B|A') değerlerini karıştırıyor",
+          "D": "Bayes teoreminde P(A) ve P(B) değerlerini yanlış uyguluyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "koşullu olasılık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir spam filtresi, Bayes öğrenmesi kullanarak bir e-postanın spam olma olasılığını belirliyor. Filtre, e-postanın içeriğinde belirli kelimelerin varlığına dayanarak olasılığı hesaplıyor. Eğer bir e-postada 'ürün' kelimesi geçiyorsa, spam olma olasılığı %60, 'ürün' kelimesi geçmiyorsa %20 olarak belirliyor. Ayrıca, e-postaların %30'unda 'ürün' kelimesi geçiyor. Bayes teoremini kullanarak, 'ürün' kelimesi geçen bir e-postanın spam olma olasılığını hesaplayınız ve sonucunuzu gerekçelendirin.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "spam filtresi"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanıyor. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirliyor. Bir hasta testte pozitif sonuç alırsa, gerçekten hasta olma olasılığı nedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "Bayes teoremi kullanılarak hesaplandı. Olasılıklar doğru şekilde uygulanmıştır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir Bayes öğrenmesi modelinde, bir olayın gerçekleşme olasılığı P(A) = 0.4, olayın gerçekleşmemesi durumunda başka bir olayın gerçekleşme olasılığı P(B|A') = 0.7, olayın gerçekleşmesi durumunda başka bir olayın gerçekleşme olasılığı P(B|A) = 0.3 olarak veriliyor. P(A|B) olasılığını hesaplamak için Bayes teoremini kullanmanız gerekiyor. P(B) = 0.5 olduğuna göre, P(A|B) kaçtır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Bayes teoremi kullanılarak P(A|B) hesaplandı. Olasılık hesaplandıktan sonra sonuç bulundu.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

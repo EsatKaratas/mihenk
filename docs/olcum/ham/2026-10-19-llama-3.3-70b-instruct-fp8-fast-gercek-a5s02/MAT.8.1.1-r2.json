@@ -1,0 +1,197 @@
+{
+  "zaman": "2026-10-19T09:48:11.056Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.1.1-r2"
+  },
+  "http": 200,
+  "sureMs": 14527,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 3 kg elma kaç TL'ye satılmalıdır? Elma fiyatı kilogram başına sabittir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "15 TL"
+          },
+          {
+            "key": "B",
+            "text": "12 TL"
+          },
+          {
+            "key": "C",
+            "text": "18 TL"
+          },
+          {
+            "key": "D",
+            "text": "20 TL"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Elma fiyatını kilogram başına hesaplamamış, 2 kg'nin fiyatını 3'e çıkarmış.",
+          "C": "Elma fiyatını kilogram başına hesaplamış, ancak 3 kg için 2 katına çıktığını düşünmüş.",
+          "D": "Elma fiyatını kilogram başına hesaplamış, ancak 3 kg için 4 katına çıktığını düşünmüş."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "(10 / 2) * 3",
+        "hesapUyusmazligi": false,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "elma",
+          "fiyat",
+          "kilogram"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 5 saatlik bir yolculuk için 2 litre su getirmiştir. Bu su, yolculuk boyunca 4 kişiye yetecek midir? Her kişi yolculuk boyunca 0,5 litre su içmektedir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Evet, yetecek."
+          },
+          {
+            "key": "B",
+            "text": "Sadece 2 kişiye yetecek."
+          },
+          {
+            "key": "C",
+            "text": "Sadece 3 kişiye yetecek."
+          },
+          {
+            "key": "D",
+            "text": "Hayır, yetmeyecek."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Her kişinin su içme miktarını hesaplamamış.",
+          "B": "Sadece 2 kişiye yeteceğini düşünmüş, ancak hesaplama yapmamış.",
+          "C": "Sadece 3 kişiye yeteceğini düşünmüş, ancak hesaplama yapmamış."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "4 * 0.5",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "su",
+          "yolculuk",
+          "kişi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantini, öğrencilere 0,5 litrelik su şişeleri satmaktadır. Okul yönetimi, öğrencilerin su tüketimini azaltmak için 0,3 litrelik su şişeleri satmaya karar vermiştir. Bu kararın öğrencilerin su tüketimine etkisi nedir? Neden böyle düşünüyorsunuz?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "su",
+          "tüketim",
+          "okul"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir markette 2 kg elma 10 TL'ye satılmaktadır. Aynı markette 3 kg elma kaç TL'ye satılmalıdır? Elma fiyatı kilogram başına sabittir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "2 kg elma 10 TL ise 1 kg elma 5 TL'dir. 3 kg elma 3 x 5 = 15 TL'dir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, 5 saatlik bir yolculuk için 2 litre su getirmiştir. Bu su, yolculuk boyunca 4 kişiye yetecek midir? Her kişi yolculuk boyunca 0,5 litre su içmektedir.",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "4 kişi 0,5 litre su içerse 4 * 0,5 = 2 litre su tüketilir. 2 litre su 4 kişiye yetecektir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": true,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

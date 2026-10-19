@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T10:33:33.352Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-DNY.YT.4.5-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 47695,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir program yazarken bir değişkenin değerini 5 artırıp sonucu ekrana yazdıran bir kod parçası yazmak istiyor. C++ dilinde bu işlemi yapacak kodu düşünüyor. Aşağıdaki seçeneklerden hangisi bu işlemi doğru yapar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "int x = 5; x = x + 5; cout << x;"
+          },
+          {
+            "key": "B",
+            "text": "int x = 5; x = 5; cout << x;"
+          },
+          {
+            "key": "C",
+            "text": "int x = 5; x = x * 5; cout << x;"
+          },
+          {
+            "key": "D",
+            "text": "int x = 5; x = x - 5; cout << x;"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Değişkenin değerini sabitliyor",
+          "C": "Değişkenin değerini 5 ile çarpıyor",
+          "D": "Değişkenin değerini azaltıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, C++ dilinde iki sayının toplamını hesaplayan bir program yazıyor. Programı yazarken hangi operatörü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "-"
+          },
+          {
+            "key": "B",
+            "text": "*"
+          },
+          {
+            "key": "C",
+            "text": "+"
+          },
+          {
+            "key": "D",
+            "text": "/"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çıkarma operatörü kullanıyor",
+          "B": "Çarpma operatörü kullanıyor",
+          "D": "Bölme operatörü kullanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "operatör",
+          "toplama"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir programcı, C++ dilinde bir algoritma içinde operatörleri kullanarak sonucunu yordayan bir kod parçası yazmak istiyor. Programcı, iki sayının çarpımını hesaplayan bir kod yazarken nelere dikkat etmelidir? Kararınızı verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "algoritma",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bir program yazarken bir değişkenin değerini 5 artırıp sonucu ekrana yazdıran bir kod parçası yazmak istiyor. C++ dilinde bu işlemi yapacak kodu düşünüyor. Aşağıdaki seçeneklerden hangisi bu işlemi doğru yapar?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Değişkenin değerini 5 artırıp sonucu ekrana yazdıran kod parçası doğru çalışır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, C++ dilinde iki sayının toplamını hesaplayan bir program yazıyor. Programı yazarken hangi operatörü kullanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "C",
+        "gerekce": "İki sayının toplamını hesaplamak için toplama operatörü kullanılır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

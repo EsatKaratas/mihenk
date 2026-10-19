@@ -1,0 +1,196 @@
+{
+  "zaman": "2026-10-19T10:00:44.263Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "8",
+    "outcomeCode": "FB.8.5.7",
+    "outcomeLabel": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+    "topicArea": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s05-FB.8.5.7-r3"
+  },
+  "http": 200,
+  "sureMs": 54663,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, laboratuvar ortamında pH değerleri 3, 7 ve 10 olan üç farklı çözelti hazırlamıştır. pH değeri 7 olan çözelti suya, pH değeri 3 olan çözelti limon suyuna, pH değeri 10 olan çözelti ise sabun çözeltisine karşılık gelmektedir. Bu çözeltilerin asitlik ve bazlık durumlarını pH değerleri kullanarak belirleyin. Buna göre, hangi çözelti asidik özellik gösterir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "pH değeri 7 olan çözelti"
+          },
+          {
+            "key": "B",
+            "text": "pH değeri 10 olan çözelti"
+          },
+          {
+            "key": "C",
+            "text": "pH değeri 3 ve 10 olan çözeltiler"
+          },
+          {
+            "key": "D",
+            "text": "pH değeri 3 olan çözelti"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "PH değeri 7 olan çözelti nötr özellik gösterir, asidik özellik göstermez",
+          "B": "PH değeri 10 olan çözelti bazik özellik gösterir, asidik özellik göstermez",
+          "C": "PH değeri 3 olan çözelti asidik, pH değeri 10 olan çözelti bazik özellik gösterir"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sulama kanalının pH değeri 6 olarak ölçülmüştür. Kanalın yanındaki bir tarım alanında yetiştirilen bitkiler için uygun pH aralığı 7-8 dir. Tarım alanındaki toprağın pH değerini yükseltmek için hangi madde kullanılabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karbon dioksit"
+          },
+          {
+            "key": "B",
+            "text": "Amonyak"
+          },
+          {
+            "key": "C",
+            "text": "Sülfürik asit"
+          },
+          {
+            "key": "D",
+            "text": "Kireç"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karbon dioksit suda çözündüğünde asit oluşturur, pH değerini düşürür",
+          "B": "Amonyak bazik özellik gösterir ancak toprağın pH değerini kontrolsüz yükseltebilir",
+          "C": "Sülfürik asit asidik özellik gösterir, pH değerini düşürür"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "asitlik",
+          "bazlık",
+          "toprak"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, evindeki temizlik ürünlerinin pH değerlerini ölçmek istiyor. Elinde pH kağıtları ve bir pH metre bulunmaktadır. pH kağıtları ile pH metre arasındaki farklar nelerdir? Hangi ölçüm aracını tercih edersiniz, neden?",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "pH değeri",
+          "pH kağıdı",
+          "pH metre"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir öğrenci, laboratuvar ortamında pH değerleri 3, 7 ve 10 olan üç farklı çözelti hazırlamıştır. pH değeri 7 olan çözelti suya, pH değeri 3 olan çözelti limon suyuna, pH değeri 10 olan çözelti ise sabun çözeltisine karşılık gelmektedir. Bu çözeltilerin asitlik ve bazlık durumlarını pH değerleri kullanarak belirleyin. Buna göre, hangi çözelti asidik özellik gösterir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "pH değeri 7'nin altında olan çözeltiler asidik özellik gösterir. pH değeri 3 olan çözelti asidik özellik gösterir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir sulama kanalının pH değeri 6 olarak ölçülmüştür. Kanalın yanındaki bir tarım alanında yetiştirilen bitkiler için uygun pH aralığı 7-8 dir. Tarım alanındaki toprağın pH değerini yükseltmek için hangi madde kullanılabilir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Kireç, pH değerini yükseltir. Tarım alanındaki toprağın pH değerini yükseltmek için kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "zaman": "2026-10-19T10:00:49.688Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 3,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s05-T.Y.6.18-r3"
+  },
+  "http": 200,
+  "sureMs": 22004,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir metin içerisinde noktalama işaretlerinin doğru kullanımı önemlidir. Aşağıdaki cümlelerde noktalama işaretlerini doğru olarak kullanınız. 'Merhaba arkadaşım, nasılsın?' cümlesinde kullanılan noktalama işareti nedir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Nokta"
+          },
+          {
+            "key": "B",
+            "text": "Soru işareti"
+          },
+          {
+            "key": "C",
+            "text": "Ünlü işareti"
+          },
+          {
+            "key": "D",
+            "text": "Virgül"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Cümle sonunu belirtmek için nokta kullanıyor.",
+          "C": "Ünlü işaretini soru işareti sanıyor.",
+          "D": "Cümle içinde virgül kullanıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama",
+          "soru işareti"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir paragraf içerisinde büyük harf kullanımı önemlidir. Aşağıdaki cümlede büyük harf kullanımını belirleyiniz. 'Bu kitap Türk Edebiyatı dersinde okutulmuştur.' cümlesinde 'Türk Edebiyatı' ifadesindeki büyük harf kullanımı nedenidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Özel isim"
+          },
+          {
+            "key": "B",
+            "text": "Sözdizimi"
+          },
+          {
+            "key": "C",
+            "text": "Cümle başı"
+          },
+          {
+            "key": "D",
+            "text": "Noktalama"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Sözdizimi kurallarını büyük harf kullanımı ile karıştırıyor.",
+          "C": "Cümle başındaki büyük harfi özel isim sanıyor.",
+          "D": "Noktalama işaretlerini büyük harf kullanımı ile karıştırıyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "büyük harf",
+          "özel isim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Aşağıdaki metinde yazım kurallarına uygun olarak noktalama işaretlerini ekleyiniz ve neden böyle yaptığınızı gerekçelendiriniz. 'Merhaba arkadaşım nasılsın günaydın'",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama",
+          "yazım kuralları"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.5,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir metin içerisinde noktalama işaretlerinin doğru kullanımı önemlidir. Aşağıdaki cümlelerde noktalama işaretlerini doğru olarak kullanınız. 'Merhaba arkadaşım, nasılsın?' cümlesinde kullanılan noktalama işareti nedir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Cümle soru cümlesi olduğu için soru işareti kullanılmıştır.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir paragraf içerisinde büyük harf kullanımı önemlidir. Aşağıdaki cümlede büyük harf kullanımını belirleyiniz. 'Bu kitap Türk Edebiyatı dersinde okutulmuştur.' cümlesinde 'Türk Edebiyatı' ifadesindeki büyük harf kullanımı nedenidir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Türk Edebiyatı özel bir isimdir.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

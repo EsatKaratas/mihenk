@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:02:02.178Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.3.5",
+    "outcomeLabel": "Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme",
+    "topicArea": "3. Ünite · GEOMETRİK ŞEKİLLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-a5s02-MAT.8.3.5-r2"
+  },
+  "http": 200,
+  "sureMs": 13788,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mimar, yeni bir bina tasarlıyor. Binanın ön cephesi 5 metre, yan cephesi 12 metre uzunluğunda olacak. Mimar, binanın ön ve yan cephesini birleştiren köşegen uzunluğunu hesaplamak istiyor. Köşegen uzunluğu kaç metredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 metre"
+          },
+          {
+            "key": "B",
+            "text": "13 metre"
+          },
+          {
+            "key": "C",
+            "text": "25 metre"
+          },
+          {
+            "key": "D",
+            "text": "17 metre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Köşegen uzunluğunu hesaplamak için yanlış bir formül kullanıyor.",
+          "C": "Köşegen uzunluğunu hesaplamak için çok büyük bir değer kullanıyor.",
+          "D": "Köşegen uzunluğunu hesaplamak için Pythagoras teoremini yanlış uyguluyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "karekök(5^2 + 12^2)",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "Pythagoras teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, dik bir üçgenin kenar uzunluklarını ölçüyor. Üçgenin bir kenarı 8 cm, diğer kenarı 15 cm uzunluğunda. Öğrenci, bu üçgenin bir dik üçgen olup olmadığını kontrol etmek istiyor. Bu üçgen bir dik üçgen midir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu bilgiyle karar verilemez."
+          },
+          {
+            "key": "B",
+            "text": "Hayır, bir dik üçgen değildir."
+          },
+          {
+            "key": "C",
+            "text": "Yeterli bilgi yok."
+          },
+          {
+            "key": "D",
+            "text": "Evet, bir dik üçgendir."
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karar verilemeyeceğini düşünüyor.",
+          "B": "Dik üçgen tanımını yanlış uyguluyor.",
+          "C": "Yeterli bilgi olduğunu göremiyor."
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesap": "8^2 + 15^2 = 17^2",
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "Pythagoras teoremi"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaat şantiyesinde, dik bir üçgen şeklinde bir iskele kuruluyor. İskele'nin bir kenarı 10 metre, diğer kenarı 6 metre uzunluğunda. İskele'nin hypotenüs uzunluğu kaç metredir? Bu uzunluğu hesaplayarak, iskele'nin dik bir üçgen olup olmadığını gerekçelendiriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dik üçgen",
+          "Pythagoras teoremi",
+          "hypotenüs"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 2,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Bir mimar, yeni bir bina tasarlıyor. Binanın ön cephesi 5 metre, yan cephesi 12 metre uzunluğunda olacak. Mimar, binanın ön ve yan cephesini birleştiren köşegen uzunluğunu hesaplamak istiyor. Köşegen uzunluğu kaç metredir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "B",
+        "gerekce": "Pisagor teoremi kullanılarak hesaplandı",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir öğrenci, dik bir üçgenin kenar uzunluklarını ölçüyor. Üçgenin bir kenarı 8 cm, diğer kenarı 15 cm uzunluğunda. Öğrenci, bu üçgenin bir dik üçgen olup olmadığını kontrol etmek istiyor. Bu üçgen bir dik üçgen midir?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "D",
+        "gerekce": "Pisagor teoremi uygulanarak 8² + 15² = 64 + 225 = 289 ve 17² = 289 olduğundan dik üçgendir.",
+        "guven": 1,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}

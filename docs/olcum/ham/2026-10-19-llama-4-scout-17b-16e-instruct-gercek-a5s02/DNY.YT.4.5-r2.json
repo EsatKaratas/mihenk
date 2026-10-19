@@ -1,0 +1,195 @@
+{
+  "zaman": "2026-10-19T10:37:25.026Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "18319d1",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "156b0a2",
+  "src_ozet": "76e8ac252349",
+  "tekrar": 2,
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-a5s02-DNY.YT.4.5-r2",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 56014,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bir programlama projesi için C++ dilinde bir değişken tanımlamak istiyor. Değişkenin veri tipi int olsun ve 10 değerini alacak. Ahmet, bu değişkeni tanımlarken hangi operatörü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Atama operatörü (=)"
+          },
+          {
+            "key": "B",
+            "text": "Toplama operatörü (+)"
+          },
+          {
+            "key": "C",
+            "text": "Çarpma operatörü (*)"
+          },
+          {
+            "key": "D",
+            "text": "Çıkarma operatörü (-)"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Toplama operatörünü değişken tanımlama sanıyor",
+          "C": "Çarpma operatörünü değişken tanımlama sanıyor",
+          "D": "Çıkarma operatörünü değişken tanımlama sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir algoritma yazarken, iki sayının değerini karşılaştırmak için hangi operatörü kullanmalısınız?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Eşitlik operatörü (==)"
+          },
+          {
+            "key": "B",
+            "text": "Toplama operatörü (+)"
+          },
+          {
+            "key": "C",
+            "text": "Atama operatörü (=)"
+          },
+          {
+            "key": "D",
+            "text": "Çıkarma operatörü (-)"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Toplama operatörünü karşılaştırma sanıyor",
+          "C": "Atama operatörünü karşılaştırma sanıyor",
+          "D": "Çıkarma operatörünü karşılaştırma sanıyor"
+        },
+        "gerekceTekrari": false,
+        "uzunSikIpucu": false,
+        "hesapUyusmazligi": null,
+        "hesapBaskaSik": null,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir C++ programında, int veri tipinde bir değişken tanımlanmıştır. Bu değişkene bir değer atanırken hangi operatörü kullanmalısınız? Kararınızı verilerle savun.",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 180,
+        "needsSource": false,
+        "refKeywords": [
+          "C++",
+          "değişken",
+          "operatör"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6,
+      "uzunSikIpucu": 0,
+      "hesapUyusmazligi": 0,
+      "hesapOkunamadi": 0,
+      "istemSurumu": 2,
+      "sicaklik": 0.2,
+      "elenenler": []
+    }
+  },
+  "cozumler": [
+    {
+      "govde": "Ahmet, bir programlama projesi için C++ dilinde bir değişken tanımlamak istiyor. Değişkenin veri tipi int olsun ve 10 değerini alacak. Ahmet, bu değişkeni tanımlarken hangi operatörü kullanmalıdır?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "Değişkeni tanımlamak için atama operatörü kullanılır. Atama operatörü (=) ile değişkene değer atanır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    },
+    {
+      "govde": "Bir algoritma yazarken, iki sayının değerini karşılaştırmak için hangi operatörü kullanmalısınız?",
+      "http": 200,
+      "yanit": {
+        "secilenSik": "A",
+        "gerekce": "İki sayının değerini karşılaştırmak için eşitlik operatörü kullanılır.",
+        "guven": 0.9,
+        "cozulemedi": false,
+        "anahtarUyusmazligi": false,
+        "dilUyarisi": false,
+        "meta": {
+          "provider": "workers-ai",
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "capraz": true,
+          "attempts": 1,
+          "fellBack": false
+        }
+      }
+    }
+  ]
+}
