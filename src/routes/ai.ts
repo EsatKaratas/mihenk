@@ -186,6 +186,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       excludeQuestions: b.excludeQuestions,
       // §31: üretim dayanağı ve (yalnızca kazanım modunda) öğretmen yönergesi.
       mode: b.mode,
+      // §51b: kazanımın kaynağı (MEB / Deneyap); yalnızca kazanım modunda istemi değiştirir.
+      kaynakTuru: b.kaynakTuru,
       guidance: b.guidance,
       materialName: b.materialName,
     },

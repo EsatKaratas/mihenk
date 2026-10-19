@@ -385,3 +385,18 @@ describe('kazanım metni üst sınırı (§51b)', () => {
     }).success).toBe(false);
   });
 });
+
+describe('generateQuestionsSchema — kaynakTuru (§51b)', () => {
+  const temel = { mode: 'kazanim' as const, subject: 'Deneyap', grade: 'Deneyap', outcomeCode: 'DNY.1', outcomeLabel: 'Kazanım' };
+  it("varsayılan 'meb' (alanı göndermeyen eski istemci etkilenmez)", () => {
+    expect(generateQuestionsSchema.parse(temel).kaynakTuru).toBe('meb');
+  });
+  it("'meb' ve 'deneyap' kabul edilir", () => {
+    expect(generateQuestionsSchema.parse({ ...temel, kaynakTuru: 'meb' }).kaynakTuru).toBe('meb');
+    expect(generateQuestionsSchema.parse({ ...temel, kaynakTuru: 'deneyap' }).kaynakTuru).toBe('deneyap');
+  });
+  it("geçersiz değer reddedilir (sessizce MEB'e düşmez)", () => {
+    expect(generateQuestionsSchema.safeParse({ ...temel, kaynakTuru: 'tubitak' }).success).toBe(false);
+    expect(generateQuestionsSchema.safeParse({ ...temel, kaynakTuru: 'MEB' }).success).toBe(false);
+  });
+});
