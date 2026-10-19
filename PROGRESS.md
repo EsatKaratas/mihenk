@@ -8188,3 +8188,122 @@ Cloudflare'de yeni hiçbir şey açılmadı.
 | `docs/olcum` boyutu · sır taraması | 712 KB · temiz |
 | CSV Türkçe karakter | UTF-8 (BOM'lu) okundu, bozulma yok |
 | `src/`, `test/`, `public/` değişikliği (W5) | **yok** |
+
+---
+
+## 55. SUNUCU DENETİMLERİ A1–A4 + ÖLÇÜM ALTYAPISI A5 (19 Ekim 2026, W2)
+
+**İstek (Esat → müdür):** üretilen sorulardaki ölçülmüş kusurlar için sunucuya
+yeni denetimler. **Kesin kural (agents.md §1):** hiçbir denetim otomatik onay ya
+da otomatik düzeltme yapmaz; yalnız İŞARETLER, karar insanda. Kalibre
+edilmemiş sabit yok; zorunlu olan sabit gerekçesiyle yazıldı (tuzak 9).
+Tasarım önce W5'in ham verisinden ölçülerek yapıldı (6 gerçek koşum, 42 kayıt,
+75 ÇSS; model çağrısı yok), sonra iki paket hâlinde ayrı worktree'de
+(`mihenk-w2`, dal `w2-a1a4`) yazıldı ve main'e alındı.
+
+### 55.1 Tasarım ölçümleri (W5 ham verisi, `docs/olcum/ham`)
+
+| Ölçüm | Sonuç | Karar |
+|---|---|---|
+| Doğru şık **tek başına** en uzun | 11 / 75 (**%14,7**); rastgele beklenti %25 | genel "uzun şık" kusuru YOK → A3 yalnız ölçüm |
+| en uzun / ikinci ≥ 1,5 olanlarda en uzun şık doğru | 5 / 11 (%45) · ≥ 2: 3 / 6 | eşik 1,5, **N=11, kalibre değil** |
+| Sayısal ÇSS (gövdede ve tüm şıklarda rakam) | 30 / 75 (%40) | A2'nin hedef kitlesi büyük |
+| Açık uçlu istenen / gelen | 42 / 32; 10 kayıtta açık uçlu eksik VE `elenenTekrar > 0` | A4: türler arası eleme güçlü İZ (elenen gövde kayıtlı değildi → kanıt değil) |
+| Cevap anahtarı doğru (W5, elle) | A (llama-3.3-70b) %48 · B (Scout) %62 | A1'de çözücü **çapraz** = Scout |
+
+### 55.2 Paket-1 — merge `002e9bc` (A4 + A3 + A1 + A5 ayarları)
+
+- **A4 — aynı turda yalnız aynı tür tekrar sayılır.** ÇSS ile aynı kavramı
+  soran açık uçlu soru artık elenmiyor (biri seçtirir, öteki gerekçe yazdırır).
+  **Sınır:** `excludeQuestions` tür taşımadığı için ÖNCEKİ turlarla kıyas tür
+  ayırmadan sürer (testli).
+- **A3 — `uzunSikIpucu`** (soru başına) + `meta.uzunSikIpucu` (sayı).
+  **YALNIZ ÖLÇÜM, ROZET YOK.** `UZUN_SIK_ORANI = 1,5` N=11'den seçildi, kalibre
+  değil; A5'te büyük örneklemle yeniden bakılacak.
+- **A1 — `POST /api/ai/solve`, bağımsız çözüm.** Girdi `{questionBody,
+  options[3–5], anahtar?, outcomeLabel?}`; çıktı `{secilenSik, gerekce, guven,
+  cozulemedi, anahtarUyusmazligi (true|false|null), dilUyarisi, meta{…, capraz}}`.
+  - **Anahtar isteme girmez:** `buildSolvePrompt` anahtarı parametre olarak
+    bile almaz; test, anahtarlı ve anahtarsız istemin (rastgele sınır dışında)
+    birebir aynı olduğunu doğrular.
+  - **Çapraz model:** varsayılan çözücü yedek model (Scout). Yedek yoksa ya da
+    düşerse birincil çözer, `meta.capraz=false` — sessiz değil.
+  - Şıklarda olmayan harf tahminle düzeltilmez (`secilenSik:null`,
+    `cozulemedi:true`). Sınır belirteci (injection), soru başına 5/dk + IP 60/dk,
+    `max_tokens` 400, sıcaklık 0,2.
+  - İstemci yalnız **düğmeyle** çağırır (W1, `3010949`): kota.
+  - **Gerçek kanıt** (kendi 8790 sunucum, sonra kapatıldı): aynı soru iki kez —
+    Scout B'yi seçti ("30 N − 20 N = 10 N"); anahtar B → uyuşmazlık `false`,
+    anahtar C → `true`; ~4,5 sn, 1 deneme.
+- **A5 — ölçüm ayarları: `OLCUM_SICAKLIK`, `OLCUM_HAM=1` (→ `meta.elenenler`).**
+  `meta.sicaklik` her yanıtta döner.
+  - **Güvence İZİN LİSTESİDİR: yalnız `APP_ENV === "olcum"`.** Dışlama listesi
+    ("demo/üretim değilse açık") YETMEZDİ — ölçüldü: üretim yapılandırması
+    `wrangler.jsonc` `APP_ENV`'i **"development"** tanımlıyor; `npm run deploy`
+    ile yayımlanırsa ayarlar canlıda açılırdı.
+  - Test, depodaki **üç** wrangler dosyasının üçünde de kapalı olduğunu ve demo
+    ortamında modele giden sıcaklığın 0,5 kaldığını (sahte AI ile yakalanarak)
+    kanıtlar. Ölçüm sunucusu: `--var APP_ENV:olcum --var OLCUM_SICAKLIK:X --var OLCUM_HAM:1`.
+
+### 55.3 Paket-2 — merge `c68e9cb` (A2 + istem sürümü 2)
+
+- **A2 — sayısal hesap denetimi.** Model ÇSS için isteğe bağlı `hesap`
+  ifadesi yazar; sunucu **elle yazılmış özyinelemeli iniş ayrıştırıcısıyla**
+  hesaplar (eval/Function YOK; yalnız sayı, + − × ÷ * / ve parantez; ≤120
+  karakter, derinlik ≤20, sıfıra bölme null). Testte reddedilenler:
+  `process.exit()`, `constructor`, `alert(1)`, `1e3`, `2^3`, `Math.PI`,
+  `"1"+1`, `2**3`, eksik parantez.
+- Doğru şıktaki ilk sayıyla karşılaştırılır. **Tolerans sabit değil, şıkkın
+  kendi yazımından türetilir** (son basamağın yarısı: "3,33" → ±0,005). Belirsiz
+  "1.250" yazımı tahmin edilmez → denetlenmez.
+- Alanlar: soru başına `hesap`, `hesapUyusmazligi` (true|false|null — null =
+  "denetlenmedi", "temiz" DEĞİL), `hesapBaskaSik` (hesap başka şıkla tutuyorsa
+  o harf: anahtar muhtemelen yanlış); meta `hesapUyusmazligi`, `hesapOkunamadi`,
+  `istemSurumu`.
+- **İSTEM SÜRÜMÜ 1 → 2 (bilinçli parmak izi geçişi).** Kural 10 + JSON
+  örneğinde bir satır eklendi. MEB parmak izi `f9f636a4…` (10.147 karakter) →
+  `6659c1e8…` (10.553). **Kanıt:** sürüm 2'den A2 ekleri çıkarılınca sürüm 1
+  hash'i BİREBİR geri geliyor — istemde başka hiçbir şey değişmedi (testli).
+- **Bedel:** §54 (sürüm 1) ile A5 (sürüm 2) anahtar doğruluğu karşılaştırması
+  istem değişikliğiyle KARIŞIKTIR. `meta.istemSurumu` ölçümde ayırmak içindir;
+  A5 bunu ayrı raporlar.
+
+### 55.4 Ölçüm altyapısı (`42054c4`, `tools/olcum`)
+
+- `olc.mjs`: `--tekrar N`, `--sicaklik X` (sunucu `meta.sicaklik` X değilse
+  koşum DURUR), `--capraz` (her ÇSS için `/solve`). Yeni sütunlar sona eklendi;
+  eski sıra korunur, aynı adlı eski CSV'ye eklenmez.
+- `orneklem.mjs`: tohumlu (mulberry32) örneklem; KÖR dosya (doğru şık, bayrak
+  ve çözücü sonucu yok) + EŞLEME dosyası. Aynı tohum aynı örneklemi veriyor
+  (denendi).
+- **Duman testi** (ölçüm modunda 8790, MAT.7.1.7, s=0,2, `--capraz`):
+  - HTTP 200, `meta.sicaklik` 0,2 doğrulandı, istem v2.
+  - 2 ÇSS + **1 açık uçlu geldi** (A4), `elenenler` döndü.
+  - Bir `hesap` "(40 / 2) * 5" doğru şıkla (100 km) tuttu. Öteki
+    **"(10 / 2) < 6"** — karşılaştırma; ayrıştırıcı reddetti, `hesapOkunamadi:1`.
+    Kural 10'a rağmen model sayısal olmayan soruya ifade yazdı (A5 için veri).
+  - Çözücü 2/2 uyuştu.
+  - Duman çıktısı depoya alınmadı.
+
+### 55.5 Maliyet ve kota
+
+- Cloudflare: Free ve Paid planda günlük **10.000 Neuron** ücretsiz; aşımı
+  Paid'de 1.000 Neuron başına 0,011 $; Free'de aşınca istek hata verir
+  (developers.cloudflare.com/workers-ai/platform/pricing).
+- Bugünün (19 Ekim) hesap toplamı ≈ **24.450 Neuron** (Scout 56 çağrı ≈ 7.466,
+  70b 82 çağrı ≈ 16.983) — ücretsiz payın üstü; bugün Paid'den ücretleniyor.
+- Formül doğrulandı: Scout'un bugünkü 182.851 girdi + 38.540 çıktı token'ı CF
+  fiyatlarıyla (0,27 $ / 0,85 $ / M) 7.466 Neuron eder, ölçülenle eş. Bir `/solve`
+  çağrısı ≈ ~19 Neuron **TAHMİN** (token sayısı ölçülmedi).
+- **A5 koşumu** (216 üretim + 216 çözüm) kabaca 35–50 bin Neuron ≈ 0,4–0,55 $.
+  **26 Ekim'den sonra Free planda günlük kotayı aşar ve yarıda hata verir —
+  A5 26 Ekim'den önce koşulmalı.**
+
+### 55.6 Doğrulama
+
+| Kontrol | Önce | Sonra |
+|---|---|---|
+| `npm test` | 302 / 9 dosya | **334 / 12 dosya** (`denetimler`, `cozucu`, `hesap` yeni) |
+| lint · öz-kontrol · check:config | temiz | **temiz** |
+| Model çağrısı (bu bölüm) | — | 5 (A1 kanıtı 2 + duman 3) |
+| Push / deploy | — | **YAPILMADI** (müdürün sözüyle) |
