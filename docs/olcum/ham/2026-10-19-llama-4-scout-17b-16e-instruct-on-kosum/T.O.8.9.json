@@ -1,0 +1,123 @@
+{
+  "zaman": "2026-10-19T04:38:54.765Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "8",
+    "outcomeCode": "T.O.8.9",
+    "outcomeLabel": "Okuduklarını karşılaştırabilme",
+    "topicArea": "Okuma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-T.O.8.9"
+  },
+  "http": 200,
+  "sureMs": 42608,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Türkçe dersinde okuduğu iki kitabın içeriklerine dair notlar almıştır. Birinci kitap 150 sayfa uzunluğunda ve sayfalarında ortalama 20 satır bulunuyor. İkinci kitap 200 sayfa ve sayfalarında ortalama 25 satır var. Ayşe, okuduklarını karşılaştırabilmek için hangi kitapta daha fazla satır olduğunu belirlemek istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Birinci kitapta 3000 satır, ikinci kitapta 5000 satır"
+          },
+          {
+            "key": "B",
+            "text": "Birinci kitapta 2500 satır, ikinci kitapta 4000 satır"
+          },
+          {
+            "key": "C",
+            "text": "Birinci kitapta 2500 satır, ikinci kitapta 5000 satır"
+          },
+          {
+            "key": "D",
+            "text": "Birinci kitapta 3000 satır, ikinci kitapta 4000 satır"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İkinci kitabın sayfa sayısını doğru hesaplamış ama birinci kitabın sayfalarını yanlış hesaplamıştır",
+          "B": "Her iki kitabın sayfalarını da yanlış hesaplamıştır",
+          "C": "Birinci kitabın sayfalarını doğru hesaplamış ama ikinci kitabın sayfalarını yanlış hesaplamıştır"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "kitap",
+          "sayfa",
+          "satır"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, iki farklı kaynak metinden okuduğu parçaların uzunluklarını karşılaştırmak istiyor. Metinlerden birisi 5 sayfa uzunluğunda ve her sayfasında 400 kelime bulunuyor. Diğer metin 8 sayfa uzunluğunda ve her sayfasında 250 kelime var. Emre hangi metnin daha uzun olduğunu belirlemek istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "İlk metin 2000 kelime, ikinci metin 2500 kelime"
+          },
+          {
+            "key": "B",
+            "text": "İlk metin 2500 kelime, ikinci metin 2500 kelime"
+          },
+          {
+            "key": "C",
+            "text": "İlk metin 2500 kelime, ikinci metin 2000 kelime"
+          },
+          {
+            "key": "D",
+            "text": "İlk metin 2000 kelime, ikinci metin 2000 kelime"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Her iki metni de yanlış hesaplıyor",
+          "C": "İkinci metnin kelime sayısını yanlış hesaplıyor",
+          "D": "Her iki metni de eşit uzunlukta sanıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "metin",
+          "sayfa",
+          "kelime"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

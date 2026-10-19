@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:31:48.713Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-MAT.6.4.1"
+  },
+  "http": 200,
+  "sureMs": 18636,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu 2 metre genişliğinde ve 5 santimetre kalınlığında kumla kaplamak istiyor. Kumun hacmini hesaplamak için hangi birimi kullanmalıdır? Bahçıvanın kullanacağı kumun hacmini litre olarak hesaplamak için hangi dönüştürme faktörünü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Desilitre"
+          },
+          {
+            "key": "B",
+            "text": "Santilitre"
+          },
+          {
+            "key": "C",
+            "text": "Litreyi direkt kullanabilir"
+          },
+          {
+            "key": "D",
+            "text": "Metreküp"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Desilitrenin litreyle ilişkisini karıştırmaktadır.",
+          "B": "Santilitrenin çok küçük bir birim olduğunu ve bu hesaplamada uygun olmadığını anlamamaktadır.",
+          "C": "Doğru birimin metre küp olduğunu bilmemektedir."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "dönüştürme",
+          "birim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir inşaat projesinde, 20 metre uzunluğunda ve 10 metre genişliğinde bir alan betonla kaplanacak. Betonun kalınlığı 10 santimetre olarak belirlenmiştir. İnşaatçı, betonun hacmini hesaplamak için hangi formülü kullanmalıdır? Ayrıca, bu hacmi litre olarak ifade etmek için hangi dönüştürme faktörünü kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hacim = Uzunluk x Genişlik x Kalınlık, 1 metreküp = 1000 litre"
+          },
+          {
+            "key": "B",
+            "text": "Hacim = Uzunluk + Genişlik + Kalınlık, 1 metreküp = 100 litre"
+          },
+          {
+            "key": "C",
+            "text": "Hacim = Uzunluk + Genişlik - Kalınlık, 1 metreküp = 1000 litre"
+          },
+          {
+            "key": "D",
+            "text": "Hacim = Uzunluk x Genişlik / Kalınlık, 1 metreküp = 1000 litre"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hacim hesabında toplama yerine çarpma kullanılması gerektiğini bilmemektedir.",
+          "C": "Hacim hesabında çıkarma yerine çarpma kullanılması gerektiğini anlamamaktadır.",
+          "D": "Beton kalınlığının hesabında bölme yerine çarpma kullanılması gerektiğini karıştırmaktadır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "dönüştürme",
+          "formül"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir mutfakta, bir tarif 250 mililitre süt gerektirmektedir. Ancak, only 1 litrelik süt kutuları bulunmaktadır. Bu tarifi 4 katı yapmak isteyen bir aşçı, kaç litre süt almalıdır? Aşçının alacağı süt miktarını litre olarak hesaplayabilmesi için hangi adımları takip etmelidir? Hesaplamasını açıklayınız.",
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "orantı",
+          "dönüştürme",
+          "hesap"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

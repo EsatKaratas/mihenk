@@ -1,0 +1,134 @@
+{
+  "zaman": "2026-10-19T04:35:04.220Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "7",
+    "outcomeCode": "FB.7.5.8",
+    "outcomeLabel": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-FB.7.5.8"
+  },
+  "http": 200,
+  "sureMs": 22321,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, evindeki mutfak malzemelerini整理 etmeye karar verdi. Şekildeki gibi homojen ve heterojen karışımların sınıflandırılması ile ilgili bir tablo hazırladı. Tabloya göre, su ve şeker karışımı hangi sınıfa girer?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sıvı"
+          },
+          {
+            "key": "B",
+            "text": "Gaz"
+          },
+          {
+            "key": "C",
+            "text": "Heterojen"
+          },
+          {
+            "key": "D",
+            "text": "Homojen"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karışımın fazına odaklanıyor, sınıflandırmayı göz ardı ediyor",
+          "B": "Karışımın halini dikkate alıyor, sınıflandırmayı dikkate almıyor",
+          "C": "Karışımın bileşenlerinin gözle görülür şekilde ayrılmış olduğunu düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "sınıflandırma"
+        ],
+        "dilUyarisi": true
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, toprak ve su karışımını bir kaba koyup karıştırıyor. Karışımın homojen mi yoksa heterojen mi olduğunu nasıl belirleyebilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karışımın rengini gözlemleyerek"
+          },
+          {
+            "key": "B",
+            "text": "Karışımın sıcaklığını ölçerek"
+          },
+          {
+            "key": "C",
+            "text": "Karışımın yoğunluğunu ölçerek"
+          },
+          {
+            "key": "D",
+            "text": "Karışımı bir süre beklettikten sonra bileşenlerin ayrıştığını gözlemleyerek"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Renk gözlemi ile karışımın homojenliğini belirleyemiyor",
+          "B": "Sıcaklık ölçümü ile karışımın homojenliğini belirleyemiyor",
+          "C": "Yoğunluk ölçümü ile karışımın homojenliğini belirleyemiyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "sınıflandırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir kimyager, laboratuvarda homojen ve heterojen karışımlar hazırlıyor. Homojen karışımların özelliklerini heterojen karışımlardan ayıran temel özellikleri nelerdir? Bir örnek vererek açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "karışım",
+          "özellikleri"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

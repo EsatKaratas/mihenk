@@ -1,0 +1,34 @@
+{
+  "zaman": "2026-10-19T04:41:56.971Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "fa3aa64+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-T.Y.5.15"
+  },
+  "http": 502,
+  "sureMs": 51537,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "error": "ai_call_failed",
+    "message": "Expected ',' or ']' after array element in JSON at position 378 (line 9 column 14)"
+  }
+}

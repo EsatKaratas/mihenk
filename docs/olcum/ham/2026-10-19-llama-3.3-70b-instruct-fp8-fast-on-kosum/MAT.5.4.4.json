@@ -1,0 +1,82 @@
+{
+  "zaman": "2026-10-19T04:31:17.062Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-MAT.5.4.4"
+  },
+  "http": 200,
+  "sureMs": 11933,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçe duvarının uzunluğu 15 metre, kısa kenarının uzunluğu 8 metredir. Bahçe duvarının çevre uzunluğunu hesaplamak için hangi formülü kullanmalısınız? Duvarın uzun kenarları 15 metre, kısa kenarları 8 metredir.",
+        "options": [
+          {
+            "key": "A",
+            "text": "15 * 8"
+          },
+          {
+            "key": "B",
+            "text": "2 * (15 + 8)"
+          },
+          {
+            "key": "C",
+            "text": "15 + 8"
+          },
+          {
+            "key": "D",
+            "text": "2 * (15 * 8)"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki kenarın uzunluğunu çarpıyor, çevre uzunluğunu hesaplamıyor.",
+          "C": "Yalnızca iki kenarın uzunluğunu topluyor, diğer iki kenarı hesaba katmıyor.",
+          "D": "Çevre uzunluğunu hesaplamak için çarpma işlemini kullanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "çevre uzunluğu",
+          "dikdörtgen"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 1,
+      "elenenTekrar": 2,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

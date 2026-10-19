@@ -1,0 +1,135 @@
+{
+  "zaman": "2026-10-19T04:32:31.270Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 15996,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 3 çocuğu için eşit miktarda harcama yaparak 90 TL'lik bir hediye paketi hazırlıyor. Buna göre, Ayşe Hanım'ın her bir çocuğu için ayırdığı para miktarı kaç TL'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "25"
+          },
+          {
+            "key": "B",
+            "text": "35"
+          },
+          {
+            "key": "C",
+            "text": "30"
+          },
+          {
+            "key": "D",
+            "text": "45"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Toplam parayı 4 çocuğa bölüyor; oysa çocuk sayısı 3",
+          "B": "Rastgele yüksek bir değer seçiyor",
+          "D": "Toplam parayı 2'ye bölüyor; oysa 3 çocuk var"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "uygulama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir market, 5 kg'lık şeker paketini 120 TL'ye satıyor. Aynı market, 2 kg'lık şeker paketini kaç TL'ye satar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "48"
+          },
+          {
+            "key": "B",
+            "text": "50"
+          },
+          {
+            "key": "C",
+            "text": "60"
+          },
+          {
+            "key": "D",
+            "text": "40"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "5 kg için 120 TL; 1 kg için 20 TL sanıyor",
+          "C": "5 kg için 120 TL; 2 kg için oran kurmuyor",
+          "D": "5 kg için 120 TL; 1 kg için 24 TL sanıp 2 kg için 48 TL yerine 40 TL seçiyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir otobüs, 240 km'lik bir yolculuğu 4 saatte tamamlıyor. Eğer otobüsün hızı sabit ise, 360 km'lik bir yolculuğu kaç saatte tamamlayacaktır? Kararınızı verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem çözme",
+          "gerekçelendirme"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "zaman": "2026-10-19T04:40:04.225Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "fa3aa64+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "5",
+    "outcomeCode": "FB.5.5.3",
+    "outcomeLabel": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+    "topicArea": "5. Ünite · MADDENİN DOĞASI",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-FB.5.5.3"
+  },
+  "http": 200,
+  "sureMs": 15002,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir mutfakta, 20°C sıcaklıkta 500 mL su ve 50°C sıcaklıkta 200 mL su karıştırılıyor. Karıştırmadan sonra suyun sıcaklığı hakkında neler söyleyebiliriz? Bu karışımın sıcaklığı kaç derece olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sıcaklık değişmez"
+          },
+          {
+            "key": "B",
+            "text": "35°C"
+          },
+          {
+            "key": "C",
+            "text": "50°C"
+          },
+          {
+            "key": "D",
+            "text": "20°C"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Isı alışverişi olmadığını sanıyor.",
+          "C": "Sıcak suyun sıcaklığının soğuk suyun sıcaklığını değiştiremeyeceğini düşünüyor.",
+          "D": "Sıcak suyun soğuk su ile karıştırılmasının sıcaklığı değiştirmediğini sanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir okulun kantininde, 500 mL 80°C sıcaklıkta çorba ve 200 mL 20°C sıcaklıkta su karıştırıldı. Karıştırmadan sonra çorbanın sıcaklığı kaç derece olur? Bu sıcaklık değişimini neden yaşandığını açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "ısı alışverişi",
+          "sıcaklık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:33:31.322Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-on-kosum-FB.6.2.3"
+  },
+  "http": 200,
+  "sureMs": 11502,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bisiklet sürücüsü, düz bir yolda saatte 20 kilometre hızla gidiyor. Aniden yokuş yukarı çıkıyor ve hızını saatte 10 kilometre düşürüyor. Sürücünün sürat ve hız kavramlarını karşılaştırmak için hangi kavramı kullanması gerekir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sürat ve hız aynı şeydir"
+          },
+          {
+            "key": "B",
+            "text": "Sürat, hızın tersidir"
+          },
+          {
+            "key": "C",
+            "text": "Hız, süratin bir ölçüsüdür"
+          },
+          {
+            "key": "D",
+            "text": "Sürat, hızın bir bileşenidir"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sürat ve hızın aynı olduğunu sanıyor",
+          "B": "Sürat ve hızın zıt olduğunu düşünüyor",
+          "D": "Sürat ve hızın ilişkisini yanlış yorumluyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir araba, saatte 50 kilometre hızla giden bir kamyonun önüne geçmek istiyor. Arabanın sürücüsü, kamyonun hızını ölçmek için hangi kavramı kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "İvme"
+          },
+          {
+            "key": "B",
+            "text": "Yerçekimi"
+          },
+          {
+            "key": "C",
+            "text": "Hız"
+          },
+          {
+            "key": "D",
+            "text": "Sürat"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İvme, hızın değişimini ölçer, ancak bu durumda hız kavramı daha uygun",
+          "B": "Yerçekimi, cisimlerin düşmesini açıklar, ancak bu durumda hız kavramı daha uygun",
+          "D": "Sürat, hızın bir bileşenidir, ancak bu durumda hız kavramı daha uygun"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "sürat",
+          "ivme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, okula giderken saatte 5 kilometre hızla yürüyor. Okulda, saatte 10 kilometre hızla bisiklete binen bir arkadaşına rastlıyor. Öğrenci, arkadaşının hızını kendi süratiyle karşılaştırmak için hangi kavramı kullanmalıdır? Neden?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

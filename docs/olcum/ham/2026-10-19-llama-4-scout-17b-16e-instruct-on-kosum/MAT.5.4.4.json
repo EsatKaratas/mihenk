@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:31:47.082Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum",
+  "etiket": "on-kosum",
+  "set_surum": "set-v1",
+  "betik_surum": "f52f838",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1-2026-10-19-llama-4-scout-17b-16e-instruct-on-kosum-MAT.5.4.4"
+  },
+  "http": 200,
+  "sureMs": 40958,
+  "denemeler429": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet Bey, bahçesine dikdörtgen şeklindeki bir havuzun çevresine 20 metre uzunluğunda bir ışıklandırma sistemi kurmak istiyor. Havuzun uzunluğu 6 metre olduğuna göre, havuzun genişliği kaç metre olmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3"
+          },
+          {
+            "key": "B",
+            "text": "2"
+          },
+          {
+            "key": "C",
+            "text": "4"
+          },
+          {
+            "key": "D",
+            "text": "5"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Havuzun çevresini sadece uzunlukla ilişkilendirme hatası yapıyor",
+          "B": "Havuzun çevresini sadece genişlikle ilişkilendirme hatası yapıyor",
+          "D": "Havuzun uzunluğunu genişlikle toplama hatası yapıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir sınıfta dikdörtgen şeklindeki bir beyaz tahta 12 metre uzunluğunda ve 4 metre genişliğindedir. Bu tahtanın alanı kaç metrekaredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "48"
+          },
+          {
+            "key": "B",
+            "text": "36"
+          },
+          {
+            "key": "C",
+            "text": "60"
+          },
+          {
+            "key": "D",
+            "text": "24"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Tahtanın uzunluğunu genişliği ile yanlış çarpma hatası yapıyor",
+          "C": "Rastgele yüksek bir değer seçme hatası yapıyor",
+          "D": "Tahtanın uzunluğunu 2 ile çarpma hatası yapıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "uzunluk",
+          "genişlik"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaatçı, dikdörtgen şeklindeki bir arsanın üzerine evler inşa etmek istiyor. Arsanın uzunluğu 15 metre, genişliği 8 metredir. İnşaatçı, arsanın tamamını kullanarak evlerin oturacağı dikdörtgen şeklindeki parseller oluşturmak istiyor. Her parselin alanı en az 30 metrekare olmalıdır. Bu arsaya en fazla kaç parsel oluşturulabilir? Kararınızı verilerle savun.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "parsel",
+          "ars"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}
