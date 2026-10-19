@@ -453,9 +453,13 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 Kapsam şunlardır: pilotun büyütülmesi, Deneyap atölyeleriyle ikinci bir
 uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
 
-### 7.1 Gelecek plan — öğrenci çalışma modu: soru fotoğrafından çözüm
+### 7.1 Geliştirilebilir yönler
 
-*Kaynak: Creathon mentor önerisi. Bu bir **plandır**; hiçbiri yapılmadı ve ölçülmedi.*
+İki yön aynı ağırlıktadır. İkisi de **plandır**; hiçbiri yapılmadı ve ölçülmedi.
+
+#### 7.1.1 Soru fotoğrafından çözüm (öğrenci çalışma modu)
+
+*Kaynak: Creathon mentor önerisi.*
 
 - **Hedef:** sınav dışında, öğrenci çalışırken bir sorunun fotoğrafını
   çeker, adım adım çözüm görür.
@@ -483,6 +487,27 @@ uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
 - **Veri ve izin:** LGS örnek soruları yalnız iç ölçümde kullanılır.
   Yayımlanacak herhangi bir sette kullanılmadan önce MEB Ölçme, Değerlendirme
   ve Sınav Hizmetleri Genel Müdürlüğü'nden (ÖDSGM) izin alınır.
+
+#### 7.1.2 T3 AI ile çalışma
+
+*Bu bir **plandır**; bugün erişim yok ve T3 AI ile hiçbir şey ölçülmedi.
+Erişim durumunun ayrıntısı ve kaynakları: §5.2.*
+
+- **Bugün:** T3 AI'ya dışarıdan API ya da açık ağırlık erişimi bulunamadı.
+- **Emsal:** T3 Vakfı, 2024 T3 AI Hackathonu'nda katılımcılara "T3AI LLM
+  API'sine ve T3AI LLM ağırlık dosyalarına" erişim verileceğini duyurdu
+  ([t3vakfi.org duyurusu](https://t3vakfi.org/en/news/t3-ai-hackathon-applications-are-now-open),
+  29.07.2024; 19 Ekim 2026'da açılıp doğrulandı). Araştırma için benzer bir
+  erişim, burs kapsamında vakıf ve mentor aracılığıyla talep edilecek.
+- **Teknik hazırlık:** Mihenk sağlayıcıdan bağımsızdır. Yapay zekâ katmanı
+  (`src/lib/ai.ts`) OpenAI uyumlu bir uca bağlanabiliyor. T3 AI'nın ucu
+  OpenAI uyumluysa bağlantı kod değil yapılandırma işidir (adres, model adı,
+  anahtar; tahmini ~30 dk). Uyumlu değilse ya da yalnız ağırlık verilirse iş
+  büyür. Uç uyumluluğu bilinmiyor.
+- **Ölçüm:** erişim gelirse aynı 18 kazanımlık setle (set-v1.1, §6) aynı gün
+  Llama modelleriyle yan yana karşılaştırılır. İlk bakılacak şey, modelin
+  ürünün beklediği JSON biçiminde çıktı verip vermediğidir. Bazı modeller bu
+  istemle bozuk JSON üretmişti (§5.1).
 
 ---
 
