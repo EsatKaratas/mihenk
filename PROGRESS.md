@@ -8387,6 +8387,6 @@ denenmedi.
 
 ### 56.4 Doğrulama
 
-334/334 · öz-kontrol %100 (+16 ad) · servis = disk SHA-256 her adımda ·
+334/334 · öz-kontrol 370 ad %100 (356 → 370, +14) · servis = disk SHA-256 her adımda ·
 U+FFFD 0 · konsol JS hatası 0 · yinelenen `id` 0. Bu bölümdeki gerçek model
 çağrısı 3 (2 `/solve`, 1 üretim), üçü de başarılı. Push/deploy yok.
