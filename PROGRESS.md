@@ -7864,6 +7864,22 @@ Hem eski app.js'ten kalma bayat `localStorage` hem temiz durumla açıldı.
    için Metaller işaretli; Kompozitler de savunulabilir (çok doğrulu soru
    sınıfı, İçerik Uzmanı onayında yakalanmalı).
 
+**Sonuç (aynı gün, yayından önce):**
+- **1 → düzeltildi (`7ac074d`).** `katalogBeklemeDurumu()` seçici ve not
+  satırı için tek ölçüt (MEB dosyası + Deneyap indeksi). Doğrularken ikinci
+  yanlış ifade bulundu: katalog 404 iken seçici "aşağıdaki nota bakın"
+  diyordu, not "hazır katalog yok" diyordu; MEB'de `state.katalogHata` hiç
+  gösterilmiyordu. Artık not "yüklenemedi" + yeniden deneme yolunu yazıyor.
+  Ölçüm: 2,5 sn gecikme → "Deneyap/MEB kataloğu yükleniyor…"; 404 →
+  "yüklenemedi" (seçici ve not tutarlı).
+- **3 → düzeltildi (`2c6298c`).** 800×455'te iki modal 415 px'e sınırlı,
+  başlık görünür, "Seçilenleri Ekle" tıklanabilir; 1280×800'de MEB 663 /
+  Deneyap 700 px, iç kaydırma yok. Yan etki de kapatıldı: ortak `#modalBox`
+  yeniden açılınca eski kaydırma konumunda kalıyordu (`openModal` artık
+  overlay görünür olduktan sonra `scrollTop = 0` yapıyor).
+- **2 → bilinen, bırakıldı** (Orchestrator kararı): çift istek zararsız
+  (aynı dosya, önbellekten), yayın öncesi risk alınmadı.
+
 Model çağrısı toplamı: **12 deneme, 9 başarılı**.
 
 ---
