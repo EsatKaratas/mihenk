@@ -77,37 +77,47 @@ bulunuyor ve metinleri birebir eşleşiyor (PROGRESS §12, §22). Her kazanım
 *yazılı sınavla ölçülebilir · performans gerektirir · süreç kazanımı* diye
 ayrılmıştır. Bu ayrım ürünün kendi katkısıdır, müfredatın parçası değildir.
 
-**Deneyap — 5 atölye, 298 kazanım** (19 Ekim 2026, katalog dosyaları
+**Deneyap — 12 atölye, 622 kazanım** (19 Ekim 2026, katalog dosyaları
 `public/mufredat/deneyap-*.json`; kaynak, yöntem ve sınırlar:
 [DENEYAP_KAYNAK.md](./DENEYAP_KAYNAK.md)):
 
 | Atölye | Kazanım | Yazılı sınavla ölçülebilir | Performans/gözlem | Süreç (duyuşsal) |
 |---|---:|---:|---:|---:|
 | Tasarım ve Üretim | 60 | 16 | 25 | 19 |
+| Yazılım Teknolojileri | 50 | 20 | 30 | 0 |
+| Siber Güvenlik | 41 | 22 | 19 | 0 |
+| Enerji Teknolojileri | 46 | 28 | 18 | 0 |
+| Yapay Zekâ | 66 | 25 | 41 | 0 |
+| Mobil Uygulama | 48 | 24 | 24 | 0 |
+| Çevrim İçi Yazılım Teknolojileri | 53 | 29 | 24 | 0 |
 | Robotik ve Kodlama | 55 | 13 | 42 | 0 |
 | Elektronik Programlama ve Nesnelerin İnterneti (EPNİ) | 67 | 13 | 54 | 0 |
-| Yapay Zekâ | 66 | 25 | 41 | 0 |
-| Yazılım Teknolojileri | 50 | 20 | 30 | 0 |
-| **Toplam** | **298** | **87** | **192** | **19** |
+| İleri Robotik | 27 | 6 | 21 | 0 |
+| Havacılık ve Uzay | 61 | 34 | 27 | 0 |
+| Malzeme Bilimi ve Nanoteknoloji | 48 | 42 | 6 | 0 |
+| **Toplam** | **622** | **272** | **331** | **19** |
 
 - **Kaynak:** TÜBİTAK Yayınları, Deneyap Kitapları, ortaokul sürümleri
   (<https://yayinlar.tubitak.gov.tr/deneyap-atolyesi>). Her kitap künyeli
-  (ISBN, yayım 2023; bir kısmı Ocak 2025'te güncellenmiş). deneyap.org
-  kopyalarıyla çapraz kontrol edildi.
-- **Uydurma ve türetme yok:** kazanımların tamamı kitabın kendi kazanım
-  bölümünden birebir alındı (türetme 0). İkinci, bağımsız bir PDF okuyucuyla
-  298/298 eşleşme sağlandı. PDF'ler telif nedeniyle depoda değil; SHA-256
+  (ISBN, yayım ve güncellenme tarihi). deneyap.org kopyalarıyla çapraz kontrol
+  edildi. Ortaokul listesindeki 14 kitabın 12'si eklendi; eklenmeyen 2 kitap
+  aynı atölyelerin eski sürümleri. Lise kitapları kapsam dışıdır.
+- **Uydurma ve türetme yok:** 622 kazanımın tamamı kitapların kendi kazanım
+  bölümlerinden birebir alındı (türetme 0) ve ikinci, bağımsız bir PDF
+  okuyucuyla karşılaştırıldı. PDF'ler telif nedeniyle depoda değil; SHA-256
   özetleri kayıtlı.
-- **Ölçme açısından bulgu:** 298 kazanımın yalnızca **87'si** yazılı sınavla
+- **Ölçme açısından bulgu:** 622 kazanımın **272'si** yazılı sınavla
   ölçülebilir. Uygulamalı atölye müfredatı, yazılı soru üretimine ancak kısmen
   uygun. Sınıflandırma ürünün kendi kuralıdır, müfredatın parçası değildir.
 - **Sınırlar:** kitaplar sınıf düzeyi (5-8) ayırmaz. Bunlar resmî bir öğretim
-  programı değil, eğitmen kitaplarındaki haftalık kazanımlardır. 9 atölye
-  daha **eklenmedi**. Katalog bugün **arayüze bağlı değil**; Deneyap
-  kazanımlarıyla soru üretimi henüz denenmedi ve ölçülmedi.
+  programı değil, eğitmen kitaplarındaki haftalık kazanımlardır. Katalog bugün
+  **arayüze bağlı değil.** Sunucu `kaynakTuru: "deneyap"` ile Deneyap
+  kazanımından üretimi destekliyor (PROGRESS §51b.4). Şimdiye kadar **tek bir**
+  gerçek üretim denendi: DNY.YZ.1.1, 2 soru (§51b.9). Deneyap üretimi için
+  bundan bir oran çıkarılmaz.
 
-Sayılar 19 Ekim'de katalog dosyalarındaki kayıtlar sayılarak yeniden
-doğrulandı.
+Sayılar 19 Ekim'de katalog dosyalarındaki kayıtlar sayılarak ve
+`docs/DENEYAP_KAYNAK.md` §1 ile karşılaştırılarak yeniden doğrulandı.
 
 > Not: Üründe bugün bulunan 18 "Keşif" atölye kazanımı (PROGRESS §50b'de 14, §50f'de Fizik eklenince 18)
 > kullanıcının verdiği dört ders belgesinden alındı. Bunlar resmî Deneyap
@@ -210,7 +220,7 @@ kısmını ikinci bir etiketleyicinin işaretlemesi planlanıyor.
 - **Set:** kazanım × soru türü (çoktan seçmeli / açık uçlu) × üretim modu
   (kaynak metinli / yalnızca kazanım). Kazanımlar MEB kataloğundan ve,
   arayüze bağlandığında, Deneyap kataloğunun yazılı sınavla ölçülebilir
-  87 kazanımından seçilir. Set sürümlenir ve depoda tutulur.
+  272 kazanımından seçilir. Set sürümlenir ve depoda tutulur.
 - **Betik:** set üzerinde model başına N üretim yapar. Mevcut otomatik
   denetimleri (`guards.ts`) çıktılara uygular ve hata kodlarını sayar.
   Çıktıyı CSV ve özet olarak verir. Her satırda tarih, model adı ve istem
@@ -345,7 +355,8 @@ uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
 | Token bütçesi | `700 + soru×700` (tavan 5600) modelin sayacıyla doğrulanmadı; yalnızca kesilme olmadığı ölçüldü (§48.7) |
 | Demo soruları | **Elle yazıldı** (§48b.2); canlı üretim "AI ile Soru Üret" ile gösterilir |
 | Ön bulguların örneklemi | Küçük (2-24 madde); sabit set ve büyük N ile tekrarlanacak |
-| Latin harfli yabancı kelime | Denetim yok, bilerek açık (§48b.3) |
+| Dil denetiminin kapsamı | Latin dışı alfabeler, Latin Extended Additional ve (Türkçe ğ ı İ ş harfleri hariç) Latin Extended-A taranıyor; son eklenen aralık "tăngdı" (ă) vakasından sonra geldi. 1.228 kazanımda (606 MEB + 622 Deneyap) ve demo sorularında yanlış alarm **0** (PROGRESS §51b.6). Latin-1'deki é, ñ, ã, ß ile Latin harfli yabancı kelimeler ("necessary") **bilerek yakalanmıyor**: Türkçenin ç ö ü â î û harfleriyle aynı blokta yaşıyorlar ve ayıklamak sözlük ister (§48b.3, §51b.6) |
+| Hız sınırı | Kaba kullanıma karşı istemci adresi (IP) başına tüm yapay zekâ uçlarında toplam **dakikada 60 istek** tavanı var. Amaç maliyet güvenliği, kalite eşiği değil; değer mevcut sınırlardan türetildi (45 + 3×5). Bellek içi ve isolate başına, dağıtık garanti değil (§51b.6). Okul ağı NAT arkasındaysa aynı dış adresi paylaşan öğretmenler bu tavanı birlikte tüketir. Bugün ürün tek cihazda çalıştığı için etkisiz; çok kullanıcıya geçişte sayaç **kullanıcı başına** anahtara dönülmeli |
 | Yedek model | Aynı Cloudflare Neuron havuzunu kullanır; hesap kotası bitince kurtarmaz |
 
 ---

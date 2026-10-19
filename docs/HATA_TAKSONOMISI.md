@@ -36,13 +36,13 @@
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `GRK-KALIP` | Gerekçe kalıp özneyle başlıyor ("bu şıkkı seçen öğrenci…") | İstem düzeltmesinden sonra 24/24 kalıplı; sunucu temizliğinden sonra 0/24 (§47.3, §47.5) | `gerekceyiSadelestir` / `gerekceleriSadelestir` | düzelt | oto (temizlik öncesi ham çıktıda sayılır) |
+| `GRK-KALIP` | Gerekçe kalıp özneyle başlıyor ("bu şıkkı seçen öğrenci…") | İstem düzeltmesinden sonra 24/24 kalıplı; sunucu temizliğinden sonra 0/24 (§47.3, §47.5) · ilk gerçek Deneyap üretiminde 6/6 (19 Ekim, tek üretim, §51b.9) | `gerekceyiSadelestir` / `gerekceleriSadelestir`; sayaç `meta.sadelestirilenGerekce` / `meta.toplamGerekce` (§51b.5) | düzelt | oto (sunucu sayacı ham davranışı sayar) |
 | `GRK-TEKRAR` | İki çeldiricinin gerekçesi **birebir aynı** | B ve D: "İklimi belirleyen faktörlerin sadece bir kısmını dikkate almaktadır." (§47b) | `gerekceTekrariVarMi` → `gerekceTekrari` | bayrak | oto |
 | `GRK-GENEL` | Gerekçe şıkkın içeriğine değil genel geçer bir hataya işaret ediyor | "Yanlış bir oranlama yapıyor" (§47.6) | — (eşik kalibre edilmedi, bilerek eklenmedi) | — | elle |
 | `GRK-TUTARSIZ` | Gerekçe şıkla çelişiyor ya da doğru şıkkı yanlış diye niteliyor | 1 kg su sorusunda doğru olan 100 cL şıkkı için "çok düşük" gerekçesi (§46.2) · "gerekçeler tutarsız" (§48b.2 aday 4) | — | — | elle |
 | `SIK-SACMA` | Hiçbir öğrencinin seçmeyeceği çeldirici | Model karşılaştırmasında "saçma çeldirici" sütunu (§27i). Tarama önerildi, **uygulanmadı** (§27) | — | — | elle |
 | `SIK-SAYI` | Çoktan seçmeli soruda 3'ten az şık | Kod okunarak; `elenenGecersiz > 0` yolu uçtan uca **gözlenemedi** (§44.2) | `routes/ai.ts`: `opts.length < 3` → `meta.elenenGecersiz` | ele | oto |
-| `SIK-ESANLAM` | İki şık aynı anlama geliyor ya da birden fazla şık doğru | **Gözlenmedi** (PROGRESS'te kayıtlı örnek yok); setin etiketlemesinde aranacak | — | — | elle |
+| `SIK-ESANLAM` | İki şık aynı anlama geliyor, birbirinin üst/alt kavramı, ya da birden fazla şık savunulabilir | İlk gözlem 19 Ekim, Deneyap DNY.YZ.1.1: iki sorunun şıkları birbirinin üst/alt kavramıydı (makine öğrenimi / derin öğrenme / yapay sinir ağları), tek doğru cevap tartışmalı (§51b.9; **tek vaka**) | — | — | elle |
 
 ## C. Tekrar
 
@@ -55,8 +55,8 @@
 
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
-| `DIL-ALFABE` | Türkçe metinde Latin dışı ya da Latin Extended Additional karakter | "açıkla**йте**", 10 soruda 1 (§20) · "durumlar**下的**" (§45.2) · "ph**ứ**cekli" önce kaçtı, sonra aralık eklendi (§48.4) · `重要` (§48.5) | `yabanciAlfabeVarMi` · `soruDilUyarisi` (soru) · `metinDilUyarisi` (değerlendirme) → `dilUyarisi` | bayrak | oto |
-| `DIL-LATIN` | Türkçe cümlede Latin harfli yabancı kelime | "**necessary**" (§48b.2 aday 3, §48b.3) | — (bilerek açık: sözlük yanlış pozitif üretir) | — | elle |
+| `DIL-ALFABE` | Türkçe metinde Latin dışı, Latin Extended Additional ya da (Türkçe ğ ı İ ş hariç) Latin Extended-A karakter | "açıkla**йте**", 10 soruda 1 (§20) · "durumlar**下的**" (§45.2) · "ph**ứ**cekli" önce kaçtı, sonra aralık eklendi (§48.4) · `重要` (§48.5) · "t**ă**ngdı" (U+0103) önce kaçtı, Latin Extended-A eklendi; 1.228 kazanımda yanlış alarm 0 (§51b.6) | `yabanciAlfabeVarMi` · `soruDilUyarisi` (soru) · `metinDilUyarisi` (değerlendirme) → `dilUyarisi` | bayrak | oto |
+| `DIL-LATIN` | Türkçe cümlede Latin harfli yabancı kelime ya da Latin-1'deki yabancı harf (é, ñ, ã, ß) | "**necessary**" (§48b.2 aday 3, §48b.3) | — (bilerek açık: bu harfler Türkçenin ç ö ü â î û harfleriyle aynı blokta; sözlük yanlış pozitif üretir, §51b.6) | — | elle |
 
 ## E. Gövde ve soru niteliği
 

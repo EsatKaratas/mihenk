@@ -379,9 +379,9 @@ ifadesi **terstir**. PROGRESS §46.2'ye göre model 1000 cL işaretledi, doğrus
 - **Ölçüm sonuçları:** set-v1 ile ilk koşum yapılıyor (`docs/olcum/`).
   Özet ARASTIRMA §6'ya ve PROGRESS §53'e işlenecek. *Bu belgede henüz oran
   yok.*
-- **Deneyap müfredatı:** `9f7e304` ile katalog eklendi: 5 atölye, **298
-  kazanım** (yazılı sınavla ölçülebilir 87), TÜBİTAK Deneyap Kitapları
-  ortaokul sürümlerinden birebir alıntı. Kaynak: `docs/DENEYAP_KAYNAK.md`,
+- **Deneyap müfredatı:** iki turda katalog eklendi (`9f7e304`,
+  `a92c521…da1304f`): 12 atölye, **622 kazanım** (yazılı sınavla ölçülebilir
+  272), TÜBİTAK Deneyap Kitapları ortaokul sürümlerinden birebir alıntı. Kaynak: `docs/DENEYAP_KAYNAK.md`,
   özet: ARASTIRMA §2.3. **Arayüze henüz bağlı değil.**
 
 ### 5.1 §42 — Dış inceleme
