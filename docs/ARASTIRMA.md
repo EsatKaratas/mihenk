@@ -688,7 +688,61 @@ ayar stratejilerini başlıca güçlükler olarak gösterir.
 yayımlamayı planladığı açık set (6. ay), *üretilen* maddeleri ve hata
 etiketlerini içerecek; bu yönüyle iki seti tamamlar.
 
-### 9.5 Boşluk — kısa özet
+### 9.5 Cevap doğrulama yöntemleri (önerilen A1 ve A2 denetimleri için)
+
+İlk ölçümde yanlış ya da belirsiz anahtarlı 31 sorunun yalnız 1'i bir
+otomatik uyarı aldı (§6.5). Bu kaynaklar, anahtar hatasını yakalamaya
+yönelik önerilen iki denetimin (cevap anahtarı çapraz çözümü ve sayısal
+sorularda deterministik hesap; yol haritası A1, A2) dayanağıdır. Bu
+denetimler henüz yazılmadı ve ölçülmedi.
+
+**[11] Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S.,
+Chowdhery, A., Zhou, D. (2023).** *Self-Consistency Improves Chain of
+Thought Reasoning in Language Models.* ICLR 2023.
+<https://arxiv.org/abs/2203.11171>
+Açgözlü (greedy) kod çözme yerine birden çok akıl yürütme yolu örnekler,
+en tutarlı cevabı seçer. Özette GSM8K'de +17,9 puan gibi kazançlar
+bildirilir.
+**Mihenk'in farkı / boşluk:** çalışma modelin *soruyu çözmesini*
+iyileştirir. Mihenk'te aynı fikir bir *denetim* olarak önerilir: model
+ürettiği soruyu anahtarı görmeden birkaç kez çözer, çözümler işaretli
+anahtarla uyuşmazsa soru öğretmene işaretlenir (A1). Bu bir düzeltme değil,
+uyarıdır; karar öğretmende kalır (`agents.md` §1).
+
+**[12] Gao, L., Madaan, A., Zhou, S., Alon, U., Liu, P., Yang, Y., Callan,
+J., Neubig, G. (2023).** *PAL: Program-aided Language Models.* ICML 2023,
+PMLR 202, s. 10764-10799. <https://proceedings.mlr.press/v202/gao23f.html>
+Model, problemi çözüm adımları olarak bir program biçiminde yazar;
+hesaplamayı Python yorumlayıcısı yapar. Özette 13 akıl yürütme görevinde
+çok daha büyük modelleri geçtiği bildirilir.
+
+**[13] Chen, W., Ma, X., Wang, X., Cohen, W. W. (2023).** *Program of
+Thoughts Prompting: Disentangling Computation from Reasoning for Numerical
+Reasoning Tasks.* TMLR 2023. <https://arxiv.org/abs/2211.12588>
+Akıl yürütmeyi modelde, hesabı programda tutar. Özette düşünce zinciri
+(CoT) istemine göre ortalama yaklaşık %12 kazanç bildirilir.
+**Mihenk'in farkı / boşluk ([12] ve [13] için):** iki çalışma da hesabı
+modelden alıp yorumlayıcıya verir. Mihenk'te bu, sayısal sorularda bir
+denetime dönüşür (A2): sorudaki işlem deterministik olarak hesaplanır ve
+işaretli anahtarla karşılaştırılır. İlk ölçümde yanlış anahtarların bir
+kısmı sayısal hesap hatasıydı (ör. "doğru cevap hiçbir şıkta yok"
+vakaları, `ANH-YOK`). Hesabın sorudan güvenli biçimde nasıl çıkarılacağı
+henüz tasarlanmadı.
+
+**[14] Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H., Kaiser,
+Ł., Plappert, M., Tworek, J., Hilton, J., Nakano, R., Hesse, C.,
+Schulman, J. (2021).** *Training Verifiers to Solve Math Word Problems.*
+arXiv:2110.14168 (ön baskı; hakemli yayın bilgisi belirtilmemiş).
+<https://arxiv.org/abs/2110.14168>
+GSM8K veri setini tanıtır. Adayların doğruluğunu değerlendiren bir
+doğrulayıcı (verifier) eğitir ve test sırasında en yüksek puanlı çözümü
+seçer; bunun performansı belirgin biçimde artırdığını bildirir.
+**Mihenk'in farkı / boşluk:** Mihenk bir doğrulayıcı *eğitmeyi*
+önermiyor. Ama fikir aynıdır: üretilen çıktıyı ikinci bir adım denetler.
+Mihenk'te bu adımın çıktısı bir seçim değil, öğretmene gösterilen bir
+uyarıdır. Yakalama ve yanlış alarm oranları büyük ölçümde (A5) ölçülecek.
+
+### 9.6 Boşluk — kısa özet
 
 Taranan çalışmaların çoğu İngilizcedir. Bunlar ya soru üretiminin genel
 kalitesine ([1], [2], [4]) ya da LLM puanlamasının insanla uyumuna
@@ -697,5 +751,6 @@ kalitesine ([1], [2], [4]) ya da LLM puanlamasının insanla uyumuna
 ölçme içeriği üretiminde LLM hatalarının kodlu bir taksonomisi, bu
 hataların sıklığı, ve kural tabanlı denetimler ile insan onayının bunları
 ne kadar yakaladığı.** Mihenk'in araştırma sorusu bu boşluğa yöneliktir.
-Tarama 10 kaynakla sınırlıdır ve sistematik bir literatür taraması
-değildir; 1. ayda genişletilecek.
+Cevap doğrulama yöntemleri ([11]-[14]) bu boşluğu kapatmak için önerilen
+denetimlerin dayanağıdır. Tarama 14 kaynakla sınırlıdır ve sistematik bir
+literatür taraması değildir; 1. ayda genişletilecek.
