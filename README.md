@@ -38,6 +38,14 @@ model istemleri, geliştirme kuralları, güvenlik testi.</sub>
 Ama yapay zekâ hiçbir şeye karar vermez: soru **önerir**, puan **önerir**,
 rubrik **önerir**. Onaylayan her zaman insandır.
 
+> ### 🔬 Araştırma planı → [docs/ARASTIRMA.md](./docs/ARASTIRMA.md)
+>
+> **Türkçe büyük dil modelleri ölçme-değerlendirme içeriği üretirken hangi
+> hataları ne sıklıkla yapıyor ve bu hatalar otomatik denetimler ve insan
+> onayıyla ne ölçüde azaltılabiliyor?** Araştırma sorusu, PROGRESS.md'den
+> doğrulanmış ön bulgular, yöntem, 6 aylık plan ve etik/KVKK çerçevesi
+> bu belgededir. Gözlenen hata türleri: [docs/HATA_TAKSONOMISI.md](./docs/HATA_TAKSONOMISI.md).
+
 ### Son değişiklikler — 6 Eylül 2026
 
 Proje günlüğü `PROGRESS.md`'dir ve **50 bölümdür**; her madde kök nedeni ve
