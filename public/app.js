@@ -2028,10 +2028,17 @@ function kazanimSecenekleriHtml() {
   /* Yer tutucu HER ZAMAN seçilidir: burası bir "seçim" alanı değil bir "ekle"
      alanıdır. Seçilen kazanım sekmeye taşındığı için seçici yeniden boşa
      döner ve aynı kazanım ikinci kez eklenemez. */
-  const katalogVar = !!MUFREDAT_KATALOGLARI[katalogAnahtari(state.ceForm.subject, state.ceForm.grade)];
+  const anahtar = katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
+  const katalogVar = !!MUFREDAT_KATALOGLARI[anahtar];
+  /* §51: katalog dosyası HENÜZ GELMEDİYSE liste boştur ve eskiden bu durum
+     "hepsi eklendi" diye okunuyordu (ölçüldü: Fen'e geçince ~1 sn boyunca,
+     ardından 25 kazanım geliyordu). Yükleniyor / yüklenemedi ayrı söylenir. */
+  const katalogYuklu = !!(state.katalog || {})[anahtar];
   const yerTutucu = '<option value="" selected>' +
     (katalog.length
       ? "MEB öğretim programından kazanım ekleyin… (" + katalog.length + " kazanım)"
+      : katalogVar && !katalogYuklu
+        ? (state.katalogHata ? "— MEB kataloğu yüklenemedi (aşağıdaki nota bakın) —" : "— MEB kataloğu yükleniyor… —")
       : katalogVar
         ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
         : "— bu ders/sınıf için hazır MEB kataloğu yok; “+” ile kendiniz yazın —") +
@@ -2099,6 +2106,16 @@ function kazanimNotuHtml() {
       "</button>"
     : "";
 
+  /* §51: katalog henüz gelmediyse sayı geçici olarak eksiktir; bunu söyle.
+     Hata durumu ayrı yerde (katalogHata) yazdığı için burada yalnız
+     "yükleniyor" ele alınır. */
+  const anahtar = katalogAnahtari(state.ceForm.subject, state.ceForm.grade);
+  const katalogYukleniyor = !!MUFREDAT_KATALOGLARI[anahtar] &&
+    !(state.katalog || {})[anahtar] && !state.katalogHata;
+  if (katalogYukleniyor && !secilebilir) {
+    return '<span class="field-note">' + dersSinif + " · <b>MEB kataloğu yükleniyor…</b></span>";
+  }
+
   // GERÇEKTEN hiç seçenek yok: öğretmeni yönlendir, yoksa "0 kazanım"
   // yazısıyla baş başa kalır ve ne yapacağını bilemez.
   if (!secilebilir) {
@@ -2129,6 +2146,7 @@ function kazanimNotuHtml() {
       : " · bu ders/sınıf için hazır MEB kataloğu yok; <b>+</b> sekmesiyle elle tanımlayın";
     satir += "; her sekmenin “×”i o kazanımı kalıcı olarak siler";
   }
+  if (katalogYukleniyor) satir += " · <b>MEB kataloğu yükleniyor…</b>";
   return satir + tumunuGoster + "</span>";
 }
 
@@ -6567,7 +6585,7 @@ function teacherTab3Html() {
     : "";
 
   const acikUclu = opens.length
-    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI\'in en az emin oldugu yanit en ustte</span></div>' +
+    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
       (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
       (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
         done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
@@ -9702,7 +9720,7 @@ function dikkatVeliyeOnayla(sid) {
   }
   const onay = ensureDikkatOnay();
   onay[sid] = { at: Date.now(), sinavSayisi: s.isaretli.length, aktor: "Öğretmen" };
-  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sinavda isaret" });
+  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sınavda işaret" });
   saveState();
   renderAll();
   return true;
