@@ -180,9 +180,24 @@ export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
  * orada yaşıyor (U+011E, U+011F, U+0130, U+0131, U+015E, U+015F). O bloğu
  * toptan eklemek MEŞRU TÜRKÇEYİ işaretlerdi. U+1E00–1EFF'te Türkçe harf
  * yoktur; yanlış pozitif riski taşımaz ve kalibre edilecek bir eşik doğurmaz.
+ *
+ * §51b — LATIN EXTENDED-A ARTIK VAR, TÜRKÇE HARFLER HARİÇ.
+ * Yukarıdaki "bilerek eklenmedi" kararının bedeli ölçüldü: W1'in gerçek
+ * üretiminde (KK.FIZ.2.1, 19 Ekim) "tăngdı" geçti — `ă` U+0103, Vietnamca —
+ * ve `dilUyarisi` FALSE döndü. Blok toptan değil, Türkçe harfler DIŞARIDA
+ * bırakılarak eklendi: U+0100–011D, U+0120–012F, U+0132–015D, U+0160–017F.
+ * Dışarıda kalan altı nokta: Ğ ğ (011E/011F), İ ı (0130/0131), Ş ş (015E/015F).
+ * Türkçenin diğer harfleri (ç ö ü Ç Ö Ü) ve şapkalı â î û Latin-1'dedir
+ * (U+00C0–00FF), bu bloğun dışında kalır.
+ * Ölçüldü: depodaki 32 metin dosyasında (12 MEB müfredatı, 13 Deneyap
+ * dosyası, ders belgeleri, app.js — 1.049.353 karakter) bu bloktan Türkçe
+ * dışı karakter 0; yanlış pozitif 0 (test/guards.test.ts).
+ * BİLİNÇLİ SINIR: Latin-1 içindeki é, ñ, ã, ß gibi harfler hâlâ
+ * yakalanmaz — Türkçenin ç ö ü â î û harfleriyle aynı blokta yaşarlar ve
+ * tek tek ayıklamak sözlük gerektirir (§48b.3'teki "necessary" sınıfı).
  */
 export const YABANCI_ALFABE =
-  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF]/;
+  /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF\u0100-\u011D\u0120-\u012F\u0132-\u015D\u0160-\u017F]/;
 
 /** Metinde Türkçe dışı alfabe geçiyorsa true. */
 export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));
