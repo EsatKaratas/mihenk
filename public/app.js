@@ -2221,19 +2221,19 @@ function kazanimSecenekleriHtml() {
   /* Birleştirme (§52 + §51): W1'in "yükleniyor / yüklenemedi" ayrımı AYNEN;
      anahtar seciliKatalogAnahtari()'den (Deneyap'ta atölyeli), metinler
      mebYerine'den geçer — MEB'de birebir eski metin. */
-  const anahtar = seciliKatalogAnahtari();
-  const katalogVar = !!MUFREDAT_KATALOGLARI[anahtar];
+  const katalogVar = !!MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()];
   /* §51: katalog dosyası HENÜZ GELMEDİYSE liste boştur ve eskiden bu durum
      "hepsi eklendi" diye okunuyordu (ölçüldü: Fen'e geçince ~1 sn boyunca,
-     ardından 25 kazanım geliyordu). Yükleniyor / yüklenemedi ayrı söylenir. */
-  const katalogYuklu = !!(state.katalog || {})[anahtar];
+     ardından 25 kazanım geliyordu). Yükleniyor / yüklenemedi ayrı söylenir;
+     durum tek yerden (katalogBeklemeDurumu) okunur — Deneyap indeksi dahil. */
+  const bekleme = katalogBeklemeDurumu();
   const yerTutucu = '<option value="" selected>' +
     (katalog.length
       ? mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + " kazanım ekleyin… (" + katalog.length + " kazanım)"
-      : katalogVar && !katalogYuklu
-        ? (state.katalogHata
-            ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yüklenemedi (aşağıdaki nota bakın) —"
-            : "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor… —")
+      : bekleme === "hata"
+        ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yüklenemedi (aşağıdaki nota bakın) —"
+      : bekleme === "yukleniyor"
+        ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor… —"
       : katalogVar
         ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
         : "— bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; “+” ile kendiniz yazın —") +
@@ -2304,9 +2304,7 @@ function kazanimNotuHtml() {
   /* §51: katalog henüz gelmediyse sayı geçici olarak eksiktir; bunu söyle.
      Hata durumu ayrı yerde (katalogHata) yazdığı için burada yalnız
      "yükleniyor" ele alınır. */
-  const anahtar = seciliKatalogAnahtari();   // §52: Deneyap'ta atölyeli anahtar
-  const katalogYukleniyor = !!MUFREDAT_KATALOGLARI[anahtar] &&
-    !(state.katalog || {})[anahtar] && !state.katalogHata;
+  const katalogYukleniyor = katalogBeklemeDurumu() === "yukleniyor";   // seçiciyle AYNI ölçüt
   if (katalogYukleniyor && !secilebilir) {
     return '<span class="field-note">' + dersSinif + " · <b>" + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor…</b></span>";
   }
@@ -2321,6 +2319,15 @@ function kazanimNotuHtml() {
       return '<span class="field-note">0 kazanım · ' + dersSinif + " · <b>Deneyap atölye listesi " +
         (deneyapIndeksHata ? "yüklenemediği" : "henüz yüklenmediği") +
         " için katalog açılamadı</b> (yukarıdaki Deneyap alanına bakın)." + tumunuGoster + "</span>";
+    }
+    /* §51.7: MEB kataloğu yüklenemediyse sebebi söylenir (state.katalogHata
+       başka hiçbir yerde gösterilmiyordu; seçici "aşağıdaki nota bakın"
+       dediği hâlde not bunu yazmıyordu). */
+    if (katalogBeklemeDurumu() === "hata") {
+      return '<span class="field-note">0 kazanım · ' + dersSinif + " · <b>" +
+        escapeHtml(state.katalogHata || "Kazanım kataloğu yüklenemedi.") +
+        "</b> Ders ya da sınıfı yeniden seçerek tekrar deneyin; <b>+</b> sekmesiyle elle de tanımlayabilirsiniz." +
+        tumunuGoster + "</span>";
     }
     return '<span class="field-note">0 kazanım · ' + dersSinif +
       " · <b>bu ders ve sınıf için henüz kazanım tanımlı değil.</b> " +
@@ -2343,7 +2350,13 @@ function kazanimNotuHtml() {
        (Müzik, Görsel Sanatlar…) hazır katalog olmayabilir; "Katalog ile
        ekleyin" demek o durumda karşılığı olmayan bir yönlendirme olurdu —
        bu satırın daha önce düştüğü "ekranı yalanlama" hatasının aynı sınıfı. */
-    satir += MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()]
+    /* §51.7: katalog yüklenemediyse "hazır katalog yok" demek yanlış beyandır
+       (ölçüldü: Deneyap indeksi 404 iken bu satır öyle diyordu). */
+    satir += katalogBeklemeDurumu() === "hata"
+      ? " · <b>" + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yüklenemedi</b>; " +
+        mebYerine("tekrar denemek için ders ya da sınıfı yeniden seçin", "ders sekmesine yeniden tıklayarak tekrar deneyin") +
+        ", <b>+</b> sekmesiyle elle de tanımlayabilirsiniz"
+      : MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()]
       ? " · <b>Katalog</b> ile " + mebYerine("MEB müfredatından", "TÜBİTAK Deneyap kitabından") + " ekleyin, <b>+</b> sekmesiyle elle tanımlayın"
       : " · bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; <b>+</b> sekmesiyle elle tanımlayın";
     satir += "; her sekmenin “×”i o kazanımı kalıcı olarak siler";
@@ -9187,6 +9200,20 @@ async function deneyapIndeksYukle(yenidenDene) {
  *  BİREBİR döner (§52: MEB tarafındaki anlam değişmesin); Deneyap'ta yalnız
  *  çağıranın verdiği Deneyap metni. Türkçe ek tuzağı yüzünden (§6.3-14) ek
  *  türetilmez, iki metin de çağıranda tam yazılır. */
+/* §51.7 — Katalog henüz gelmedi mi? TEK ÖLÇÜT: kazanım seçicisi ve not
+   satırı ikisi de buradan okur (tuzak 7). Ölçüldü: Deneyap indeksi gelene
+   kadar `MUFREDAT_KATALOGLARI`'nda atölye anahtarı yoktu, seçici bunu "hazır
+   katalog yok; '+' ile kendiniz yazın" diye okuyordu (U5'in aynı sınıfı).
+   Dönüş: "yukleniyor" | "hata" | "" (bekleme yok). */
+function katalogBeklemeDurumu() {
+  if (state.ceForm.subject === DENEYAP_DERSI && !deneyapIndeksi) {
+    return deneyapIndeksHata ? "hata" : "yukleniyor";
+  }
+  const anahtar = seciliKatalogAnahtari();
+  if (!MUFREDAT_KATALOGLARI[anahtar] || (state.katalog || {})[anahtar]) return "";
+  return state.katalogHata ? "hata" : "yukleniyor";
+}
+
 function mebYerine(meb, deneyap) {
   return state.ceForm.subject === DENEYAP_DERSI ? deneyap : meb;
 }
@@ -10370,7 +10397,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
