@@ -7706,3 +7706,112 @@ Deneyap) ve demo sorularında yanlış alarm **0** (`test/guards.test.ts`).
   arka plan `wrangler dev`'i durdurduktan sonra portun boşaldığı ölçülmeden
   yeni sunucuya güvenilmez.
 
+
+---
+
+## 51. ARAYÜZ DENETİMİ + DÜZELTMELER (19 Ekim 2026, W1)
+
+**İstek (Mihenk Orchestrator, T3 AI bursu hazırlığı):** giriş kapısı, rehberli
+demo, İçerik Uzmanı ve Öğretmen ekranlarının her düğmesi gerçek tarayıcıda
+denetlensin; bulgular P0/P1/P2 diye sınıflansın; onaylananlar düzeltilsin.
+Dosya sahipliği: `public/app.js`, `public/app.css`, `public/index.html`.
+
+### 51.1 Ölçüm koşulları
+
+- Yerel `wrangler dev -c wrangler.demo.jsonc --port 8788` (launch.json'daki
+  `mihenk-final` girdisi eski `C:/Users/pc` yolunu gösteriyordu, düzeltildi).
+- Her doğrulamadan önce **servis edilen `app.js` ↔ disk SHA-256 eş** ölçüldü
+  (tuzak 2). Başlangıç: `68c34d26`, son: commit `ca8c345` sonrası diskle eş.
+- Baseline: lint temiz · 263/263 · öz-kontrol 336 ad %100.
+- **Gerçek model çağrısı: 10 deneme, 7 başarılı** (rubrik 2, evaluate 3/5,
+  generate 1/2, misconceptions 1). Başarısız 3'ünün üçü de ortam kaynaklı (51.4).
+
+### 51.2 Denetim sonucu (Faz 1)
+
+**P0 yok.** HITL zinciri sağlam ölçüldü: onay/red/yeniden incele yalnız
+tıklamayla; AI puanı öğretmen tıklamadan nihai olmuyor; sonuçlar "siz
+yayınlayana kadar gizli"; yayındaki sınavın sorusu silinemiyor ve sebebi
+yazıyor; yayından sonra tepsi/puan/süre kilitli. Konsolda JS hatası **0**,
+yinelenen `id` **0** (her ekranda), 375 px'te CE 1-2 ve Öğretmen 1-4
+sekmelerinde yatay taşma **0**. Koyu tema kullanıcıya görünmüyor:
+`index.html` `data-theme="light"` ile bilerek sabit (gerekçe `app.css:40`).
+
+**Ayrıca ölçülen ve sorunsuz olanlar:** demo 1→5 kilitleri insan aksiyonu
+bekliyor; şık ▲▼ ile doğru cevap ve gerekçe içerikle birlikte taşınıyor;
+Keşif → sınıf "Keşif" + atölye seçici; belge kilidi üç atölyede doğru belgeyi
+okuyor, kırpma sessiz değil. **§49.8'deki "belgeye kilitli üretim gerçek
+çağrıyla denenmedi" maddesi kapandı:** KK.FIZ.2.1 · `surtunme-kuvveti.txt` ile
+3 soru üretildi. Kalitesi zayıftı: bir soru olgusal olarak sorunluydu ("aynı
+hızda bırakılan bilye mi araba mı daha hızlı") ve reddedildi; bir şıkta
+**"tăngdı"** (Vietnamca ă, U+0103) vardı ve `dilUyarisi` false döndü — kök
+neden `YABANCI_ALFABE` U+0100–017F'yi kapsamıyordu (Türkçe ğ ı ş aynı blokta);
+W2'ye verildi, §51b'de ele alındı.
+
+### 51.3 Düzeltmeler (Faz 2) — kök neden + ölçüm
+
+| Commit | Bulgu | Kök neden | Ölçüm (gerçek tarayıcı) |
+|---|---|---|---|
+| `e51456d` | **P1-a (HITL'e yakın):** AI rubrik taslağı öğretmen kabul etmeden yürürlüğe giriyordu | "🤖 taslak öner" kriterleri doğrudan yazıyordu; şerit "onaylamadan önce gözden geçirin" diyordu ama **onay düğmesi yoktu**; `rubrikGecerliMi` `aiDraft`'ı görmüyordu; aynı ekran "yayınlayabilirsiniz" diyordu. Ada'nın gerçek yanıtı bu onaysız taslakla puanlanmıştı | Taslak gelince: yayın düğmesi kapalı, sebep "1 rubrik yapay zekâ taslağı ve henüz kabul edilmedi", sekme rozeti 1. "✓ Taslağı kabul et" → `aiDraft:false`, yayın açık. Demo tohumu rubriği `aiDraft` taşımıyor → demo akışı değişmedi (ölçüldü) |
+| `371842f` | P1-b: Analitik "→ tekrar sorusu üret" yanlış ders bağlamı | Yalnız `outcomeCode` yazılıyordu; MAT.7.3.4 seçilince form "Fen · 7" ve Fen demo metniyle kalıyordu | Tıklama → Matematik · 7 · MAT.7.3.4 · Kazanımdan; "başka ders/sınıf" etiketi yok |
+| `371842f` | U4: grafikte boş gruplar | `renderKazanimGrafigi` tüm `OUTCOMES_LIST`'i çiziyordu | Fen demo sınavında **22 → 3 grup**, SVG genişliği 566 px; öğretmen ve yönetici aynı |
+| `35cbd58` | U5: katalog yüklenirken "hepsi eklendi" | Yüklenmemiş katalog boş liste olarak okunuyordu | `fetch` 2,5 sn geciktirildi, Fen'e gerçek tıklama → "MEB kataloğu yükleniyor…", ardından 25 kazanım |
+| `35cbd58` | U1 + ASCII tarama | — | Yorum dışı string'lerde görünür metin tarandı: **yalnız 2 kalıntı** (onay ipucu, dikkat-sinyali denetim notu). CSV başlıkları makine anahtarı, bilerek dokunulmadı |
+| `80f9448` | U2: karne öğretmene yazılmış metni öğrenciye gösteriyordu | Karne `ev.justification` + ölçüt `reason` gösteriyordu (3. şahıs, "Öğrenci … kullanmış"); öğretmen paneli ise "siz aktarmadan öğrenciye gitmez" diyor | Karnede ölçüt **puanları** + "Öğretmeninizin notu" kaldı; `studentFeedback` otomatik gösterilmez (aynı söz). "öğretmenin okuyup onayladı" ve sen/siz karışıklığı düzeltildi |
+| `80f9448` | 🔴 **Doğrulama sırasında bulunan sessiz düşüş:** "Tek Tıkla Onayla" not alanını okumuyordu | `finalizeReview(..., "", ...)` sabit boş not | Önce: "Nota Aktar" + "Tek Tıkla Onayla" → `comment:""`. Sonra: not kaydediliyor ve karnede görünüyor |
+| `80f9448` | P1-e: Sınıf Verisi metni sabit + bayat kota ifadesi | Metin `gonderenSayisi`'na bakmıyordu; "ücretsiz model kotası" §19 sonrası bayat | 4 gönderimde "Sınıf ortalaması bu 4 gönderimden hesaplanır" |
+| `5368925` | Ondalık nokta | `toFixed`/ham sayı ekranda | `ondalikTr()` yalnız görüntüde: "6,5 dk", "p = 0,75", "4,5/6"; sayıdan sonra ek yok (tuzak 8) |
+| `5368925` | Erişilebilirlik + Keşif metni | `.opt-input` adsızdı; Keşif'te "Dayanak MEB kazanımı" yanlıştı | "A şıkkının metni"…; belgeye bağlı kazanımda "bağlı ders belgesi" |
+| `ca8c345` | U3/U6: simüle ad çakışması ve tekrarı | `SIM_ISIMLER` sırayla veriliyordu | 10 ad üretimi: gerçek "Ada Yılmaz" varken "Ada" ile başlayan ad yok; tekrarlar "Deniz K. 2" gibi ayrışıyor |
+| `ca8c345` | İkiz koşul: `simulateClass` | `totalWeight === 100` (tuzak 7) — kabul edilmemiş taslakla da çalışıyordu | `aiDraft` iken simülasyon çağrı yapmadan durdu, öğrenci sayısı değişmedi |
+| `ca8c345` | Soru düzenlemede kazanım seçici | Tüm dersler karışık listeleniyordu | Fen sorusunda 21 → 1 seçenek |
+| `ca8c345` | Yönetici "4/4 sınav tamamlandı" | Sayılan şey öğrenci-sınav atamasıydı | "4/4 sınav ataması tamamlandı" |
+
+**KARAR — kriteri elle düzenlemek kabul SAYILMAZ.** Tek bir ağırlığı ya da adı
+değiştirmek taslağın tamamının okunduğunu kanıtlamaz. Kabul tek, açık ve
+denetim izine düşen bir eylemdir: `rubrik_kabul_edildi` kaydı `degisti`
+alanıyla "aynen kabul" ile "düzenleyip kabul"ü ayırır (ikisi de ölçüldü).
+Ayrıca `rubrik_onerildi` etiketi `AUDIT_ETIKET`'te tanımlıydı ama **hiçbir
+yerde yazılmıyordu**; artık model adıyla yazılıyor.
+
+**Bedel:** daha önce AI taslağı alıp kabul etmeden yayınlanmış bir sınavın
+rubriği olan tarayıcıda, ilgili sınav "rubrik bekliyor" rozetini gösterir;
+öğretmenin bir kez "kabul et" demesi gerekir. Bu bilerek kabul edildi.
+
+### 51.4 Ortam sorunları (ürün hatası DEĞİL)
+
+- **Paylaşılan `wrangler dev` yeniden yüklenmesi:** başka bir worker `src/**`
+  düzenledikçe sunucu "Reloading" yaptı, uçuştaki istekleri "Network
+  connection lost" → **HTTP 503** ile öldürdü (evaluate 2, generate 1). Önlem:
+  W2 ayrı worktree'ye geçti. Ürünün başarısız-değerlendirme yolu bu sayede
+  gerçek hatayla sınandı: yanıt korunuyor, "Yeniden Dene" ve "Elle Puanla"
+  çalışıyor; yeniden deneme 15/20 + ölçüt kırılımı verdi.
+- **Tarayıcı aracı yerel `confirm()`'i otomatik reddediyor** (araç sınırı).
+  Onay isteyen düğmeler `confirm` geçici olarak "evet" döndürülerek sınandı;
+  "Yayından kaldır" onay metninin sayımlı geldiği ölçüldü.
+- **Koordinatla tıklama ölçeklenmiş ekran görüntüsü çerçevesinde
+  yorumlanıyor**; bir kez kartlar arası boşluğa düştü ve "kart tıklaması
+  çalışmıyor" gibi göründü. `elementFromPoint` ile ayırt edildi; ürün hatası
+  değil. Bundan sonra yalnız `ref` ile tıklandı.
+
+### 51.5 Bilinen — bilerek bırakılanlar
+
+- **Reddetmede gerekçe sorulmuyor.** Red anında ve geri alınabilir
+  ("↩ Yeniden İncele" ölçüldü). Gerekçe alanı ayrı bir tasarım kararı.
+- **Yayından sonra sınav başlığı düzenlenebiliyor**; süre/puan/soru kilitli.
+  Başlık ölçmeyi etkilemediği için bırakıldı.
+- **Denenmedi:** "5 öğrencilik sınıf simüle et" (5+ gerçek çağrı; yalnız
+  kapı ve ad mantığı ölçüldü), PDF/dosya yükleme ve OCR, "Kazanım Denetimi
+  Yap", "Örnek listeyi temizle", "+ Öğrenci ekle".
+- Keşif kazanım listesinde üst başlık (KK.KIM.1) ile alt kazanım (KK.KIM.1.1)
+  aynı düzeyde listeleniyor — W3'ün Deneyap/Keşif yapısıyla birlikte
+  ele alınmalı.
+
+### 51.6 Doğrulama (son durum)
+
+| Kontrol | Sonuç |
+|---|---|
+| `node tools/ozkontrol-dogrula.mjs` | **340 ad · %100** (+4: `rubrikTaslaginiKabulEt`, `tekrarFormunuKazanimaAyarla`, `ondalikTr`, `simIsmiSec`) |
+| `npm test` · `npm run lint` | **302/302** (9 dosya; W2 merge'ü `e35628f` dahil) · lint exit 0 |
+| Servis ↔ disk SHA-256 | her düzeltme sonrası eş |
+| Türkçe karakter (U+FFFD) | 0 |
+| HITL değişmezi | `"approved"` atayan satır sayısı `e4a4024` ile aynı (2); yeni otomatik kabul yok |
