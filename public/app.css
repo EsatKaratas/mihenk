@@ -1031,7 +1031,12 @@
   /* ---------- Modal ---------- */
   .modal-overlay { position: fixed; inset: 0; background: rgba(10,14,24,0.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); padding: 24px; max-width: 420px; width: 100%; }
+  .modal { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); padding: 24px; max-width: 420px; width: 100%;
+    /* §51.7: kısa pencerede (ölçüldü: 455 px) katalog modalı 579 px'e çıkıyor,
+       üstü −62 px'te kalıyordu; başlık ve "Seçilenleri Ekle" görünmüyordu.
+       Yükseklik pencereye (overlay'in 20 px iç boşluğu düşülerek) sınırlanır,
+       taşan modal kendi içinde kayar. Normal ekranda görünüm değişmez. */
+    max-height: calc(100vh - 40px); overflow-y: auto; }
   .modal h3 { font-size: 16px; margin-bottom: 8px; }
   .modal p { font-size: 13.5px; color: var(--text-muted); margin: 0 0 18px; }
   .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }

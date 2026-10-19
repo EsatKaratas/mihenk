@@ -9419,8 +9419,15 @@ function katalogModalGoster(k, hata) {
 }
 
 function openModal(html) {
-  document.getElementById("modalBox").innerHTML = html;
+  const kutu = document.getElementById("modalBox");
+  kutu.innerHTML = html;
+  /* §51.7: modal artık kendi içinde kayabiliyor (app.css .modal max-height);
+     aynı kutu yeniden açılınca önceki kaydırma konumu kalıyordu ve başlık
+     görünmüyordu (ölçüldü: scrollTop 159). Her açılış en üstten başlar.
+     Sıfırlama overlay GÖRÜNÜR olduktan sonra yapılır: display:none iken
+     verilen scrollTop'u tarayıcı yok sayıyordu (ölçüldü: 79 ve 103 kaldı). */
   document.getElementById("modalOverlay").classList.add("open");
+  kutu.scrollTop = 0;
   const cancel = document.getElementById("modalCancel"); if (cancel) cancel.onclick = closeModal;
   const confirmFinish = document.getElementById("modalConfirmFinish"); if (confirmFinish) confirmFinish.onclick = function () { closeModal(); finishExam(); };
 }
