@@ -8500,3 +8500,36 @@ görüntüsü varsa yayından sonra yeniden çekilmeli.
 
 **Doğrulama:** 338/338 · öz-kontrol 380 ad %100 · U+FFFD 0 · servis = disk
 (app.js `5719dc956c31…`, app.css `4db61d40ea04…`) · model çağrısı 0.
+
+### 59a. W3 bağımsız testi sonrası iki P2 + üst/altbilgi ölçümü (W1)
+
+W3'ün bağımsız testi temiz çıktı; Orchestrator iki küçük iş iletti. Ayrı
+commit'ler, push yok.
+
+| Commit | İş | Ölçüm |
+|---|---|---|
+| `f6e832c` | Rubrikte "Beklenen" sütunu: hiçbir ölçütte açıklama yoksa basılmıyor, kısmen boşsa "—" | Demo rubriğinde açıklama YOK (sütun önceden hep boş basılıyordu) → artık `Ölçüt / % / Puan`. Kısmen dolu: `— / Örnek verir / —` |
+| `6787732` | Sayfa numarası + sonraki sayfalarda kısa ad satırı. CSS sayfa kenar kutuları (`@page yzKagit`, `@page yzAnahtar`, named page) | 16 soruluk sınav: sağ altta "Sayfa 1 / 4 … 4 / 4"; "Ad Soyad / Numara" satırı yalnız 2–4. sayfalarda (`:first` ile ilk sayfada yok). Anahtarda sol altta "Cevap anahtarı — öğretmene özeldir" + "Sayfa 1 / 1" |
+
+`counter(page)` / `counter(pages)` Chrome'da çalıştı (PDF'te ölçüldü), bu
+yüzden kâğıt başına "M sayfa" yazan yedek çözüme gerek kalmadı. Sayfa
+kırılımı JS ile hesaplanmıyor, tarayıcı yapıyor. Firefox ve Safari'de kenar
+kutuları ölçülmedi.
+
+**Tarayıcının kendi üst/altbilgisi (bilgi):** Kâğıdın DOM görüntüsü, Chrome
+`--headless --print-to-pdf` ile üst/altbilgi açıkken basıldı ve kenar kutusu
+olmayan bir kontrol kopyasıyla karşılaştırıldı.
+- Kontrolde Chrome üstte tarih + sayfa başlığını, altta **dosya URL'si** +
+  "1/1"i basıyor.
+- Bizim kâğıtta alttaki URL ve sayfa numarası **basılmıyor**; yerine bizim
+  "Sayfa 1 / 1" geliyor.
+- Üstteki tarih ve "Mihenk — Ölçme ve Değerlendirme" başlığı ilk sayfada
+  **hâlâ basılıyor** (orada bizim üst kutumuz yok). Zararsız; kapatmak için
+  diyalogdaki "Üstbilgi ve altbilgi" kutusunun işareti kaldırılır.
+
+Varsayım (ölçülmedi): headless `--print-to-pdf` ile diyaloğun aynı
+üst/altbilgi çizicisini kullandığı. Yazdırma diyaloğunun kendisi otomasyonla
+açılamadı.
+
+**Doğrulama:** 338/338 · öz-kontrol 380 ad %100 · U+FFFD 0 · servis = disk
+(app.js `e2a0f5acd6c4…`, app.css `86f5cb22f3d3…`) · model çağrısı 0.
