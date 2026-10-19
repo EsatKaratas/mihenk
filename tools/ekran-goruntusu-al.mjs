@@ -12,8 +12,13 @@
  * yapay zekâ gerçekten puan önerir, öğretmen onaylar), sahne KURGULAMAZ.
  *
  * Kullanım:
- *   node tools/ekran-goruntusu-al.mjs [url]
- *   (varsayılan url: https://mihenk.bies.workers.dev)
+ *   node tools/ekran-goruntusu-al.mjs [url] [cikti-dizini]
+ *   (varsayılan url: https://mihenk.bies.workers.dev, dizin: docs/ekran)
+ *
+ *   §51b: ikinci argüman yerel KURU çalıştırma içindir — ör.
+ *   `node tools/ekran-goruntusu-al.mjs http://127.0.0.1:8788 /tmp/ekran-kuru`
+ *   README görüntülerini (docs/ekran) ezmeden betiğin uçtan uca çalıştığını
+ *   sınar. README görüntüleri YALNIZCA canlıdan, varsayılan dizine alınır.
  *
  * Gereksinim: `playwright-core` (devDependency) + sistemde kurulu Chrome.
  * BİLEREK `playwright` DEĞİL `playwright-core`: `playwright` paketi kurulumda
@@ -24,7 +29,7 @@ import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 
 const URL = process.argv[2] || 'https://mihenk.bies.workers.dev';
-const CIKTI = 'docs/ekran';
+const CIKTI = process.argv[3] || 'docs/ekran';
 const GENISLIK = 1440;
 
 mkdirSync(CIKTI, { recursive: true });
@@ -102,9 +107,25 @@ await cek('01-icerik-uzmani.png', 'onay bekleyen soru taslağı + çeldirici ger
 //    Sahne kurgulanmıyor: sınav yayınlanır, öğrenci çözer, model GERÇEKTEN çağrılır.
 // ---------------------------------------------------------------------------
 console.log('  … sınav yayınlanıyor, öğrenci sınavı çözüyor, model çağrılıyor');
-await sayfa.evaluate(async () => {
+/* §51b — YAYIN ENGELİ SESSİZ KALMIYOR. Düğme `canPublishExam()` false iken
+   devre dışıdır ve `click()` hiçbir şey yapmaz; betik eskiden yine de
+   öğrenciye geçip 120 sn sonra anlamsız bir zaman aşımıyla düşerdi. (§51'de
+   kabul edilmemiş AI rubrik taslağı yayını engelleyen bir koşul oldu; demo
+   tohumunun rubriği şablondur, etkilenmez — ama koşul değişirse sebep burada
+   yazılır.) */
+const yayinEngeli = await sayfa.evaluate(() => {
   state.role = 'teacher'; state.teacherTab = 1; renderAll();
   document.getElementById('btnPublishExam')?.click();
+  return state.exam.status === 'published'
+    ? ''
+    : ((typeof yayinEngeliMetni === 'function' && yayinEngeliMetni()) || 'sınav yayınlanamadı (sebep bilinmiyor)');
+});
+if (yayinEngeli) {
+  console.error(`  ✗ 02: sınav yayınlanamadı — ${yayinEngeli}`);
+  await tarayici.close();
+  process.exit(1);
+}
+await sayfa.evaluate(async () => {
   state.role = 'student'; renderAll();
   startExam();
   await finishExam();            // ← gerçek /api/ai/evaluate çağrısı
@@ -142,6 +163,52 @@ await cek('04-egitim-yoneticisi.png', 'okul geneli + kazanım başarı grafiği'
 await sayfa.evaluate(() => { state.role = 'parent'; renderAll(); });
 await cek('05-veli.png', 'yalnızca onaylanmış sonuç, sıralama yok', '#panel-parent .card');
 
-console.log(hatalar.length ? `\n⚠ konsol hatası: ${hatalar.length}\n` + hatalar.join('\n')
-                           : '\n✓ konsol hatası yok');
+// ---------------------------------------------------------------------------
+// 6) DENEYAP — İçerik Uzmanı → Deneyap Atölyeleri → atölye → katalog modalı
+//    (§52, W3). Kadrajda olması gerekenler: kitap adı + ISBN (başlıktaki
+//    künye satırı) ve her kazanım satırında kitabın basılı sayfası ("s.13").
+//    Durum elle kurulmaz; ürünün kendi fonksiyonları çağrılır (ders seçimi
+//    sınıfı da getirir, indeks sunucudan okunur, katalog gerçek JSON'dan).
+// ---------------------------------------------------------------------------
+const DENEYAP_ATOLYE = 'Yapay Zekâ';
+const deneyap = await sayfa.evaluate(async (atolye) => {
+  if (typeof DENEYAP_DERSI === 'undefined' || typeof deneyapIndeksYukle !== 'function') {
+    return { atla: 'Deneyap arayüzü bu sürümde yok (DENEYAP_DERSI / deneyapIndeksYukle tanımsız)' };
+  }
+  closeModal();
+  state.role = 'content_expert'; state.ceTab = 1; renderAll();
+  dersSec(DENEYAP_DERSI);
+  /* dersSec indeksi kendisi yüklemeye başlar; o sürerken deneyapIndeksYukle
+     null döner ("yükleniyor"). Bu yüzden çağırıp bırakmak değil, yüklemenin
+     BİTMESİNİ (indeks ya da hata) en çok 15 sn beklemek gerekir. */
+  await deneyapIndeksYukle(true);
+  for (let i = 0; i < 150 && !deneyapIndeksi && !deneyapIndeksHata; i++) {
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  const indeks = deneyapIndeksi;
+  if (!indeks) return { atla: 'Deneyap indeksi yüklenemedi: ' + (deneyapIndeksHata || '15 sn içinde yüklenmedi') };
+  if (!indeks.atolyeler.some((a) => a.ad === atolye)) return { atla: `"${atolye}" atölyesi indekste yok` };
+  atolyeSec(atolye);
+  await katalogAc();
+  return { atla: '' };
+}, DENEYAP_ATOLYE);
+if (deneyap.atla) {
+  // Sessiz düşüş yok: neden çekilmediği yazılır ve sonda özetlenir.
+  hatalar.push(`06-deneyap ALINMADI: ${deneyap.atla}`);
+  console.log(`  ⚠ 06-deneyap.png alınmadı — ${deneyap.atla}`);
+} else {
+  await sayfa.waitForSelector('#modalBox .kat-satir', { timeout: 15000 });
+  const modal = await sayfa.evaluate(() => {
+    const kutu = document.getElementById('modalBox');
+    const t = kutu ? kutu.innerText : '';
+    return { isbn: /ISBN\s*978[-\d]+/.test(t), sayfa: /\bs\.\d+/.test(t), kitap: /TÜBİTAK Deneyap Kitapları/.test(t) };
+  });
+  if (!modal.isbn || !modal.sayfa || !modal.kitap) {
+    hatalar.push(`06-deneyap: modalda eksik — ${JSON.stringify(modal)}`);
+  }
+  await cek('06-deneyap.png', `Deneyap kataloğu — ${DENEYAP_ATOLYE}: kitap, ISBN, basılı sayfa`, '#modalBox');
+}
+
+console.log(hatalar.length ? `\n⚠ konsol hatası / eksik çekim: ${hatalar.length}\n` + hatalar.join('\n')
+                           : '\n✓ konsol hatası yok, tüm çekimler alındı');
 await tarayici.close();
