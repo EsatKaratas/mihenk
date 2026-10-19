@@ -8438,3 +8438,26 @@ OZET §9.6):
 **Ders.** Yapılandırılmış çıktıda karar alanı akıl yürütme alanından önce
 gelirse karar hesaptan kopabiliyor. **Açık aday (ölçülmedi):** değerlendirme
 isteminde `"points"` `"reason"`dan önce.
+
+
+---
+
+## 58. JÜRİ GÖZÜYLE ARAYÜZ DÜZELTMELERİ — W3 değerlendirmesinden 6 madde (20 Ekim 2026, W1)
+
+Kaynak: W3'ün jüri değerlendirmesi (Orchestrator iletti). Her madde ayrı
+commit, gerçek tarayıcıda ölçüldü, servis = disk SHA-256. Push yok.
+
+| Commit | Madde | Kök neden / karar | Ölçüm |
+|---|---|---|---|
+| `c65016b` | (1) Uyuşmazlık durum satırında yoktu | `denetimDurumHtml`'de `anahtarUyusmazligi === true` dalı yoktu: rozet çıkıyor, satır sessiz kalıyordu | Satır artık "bağımsız çözüm: FARKLI (B) — işaretli anahtar A, kontrol edin"; `null` ise "C seçti (anahtarla karşılaştırılamadı)" |
+| `dd7dc06` | (2) Demo kartı "sistem denetlemiyor" gibi okunuyordu | Demo tohumu elle yazıldı, sunucudan geçmedi (tuzak 11) | Demo sorusunda "demo sorusu — elle yazıldı, sunucu denetiminden geçmedi · 'Bağımsız çöz' ile deneyebilirsiniz"; gerçek soruda metin aynı. İki etikete `title` açıklaması |
+| `3a17671` | (3) Giriş kapısı | "Sisteme giriş" şifre beklentisi yaratıyordu. "Demoyu başlat" **seçilmedi**: üst çubuktaki rehberli "Demo Akışı" ile karışırdı. Düğme "Panel seçimine geç"; tez "Yapay zekâ önerir, öğretmen karar verir." + demo notu | Alt dolgu 170 → 100 px (mobil 140 → 90). 1280×720: taşma 65 px → 0; 375×812: 0. Logo, tez, düğme ve not çakışmıyor; not dalga boyasının üstünde (615 < 654 px) |
+| `152e7f0` | (4) Doğru-şık radyoları | Dördü de ağaçta yalnız "doğru" adını taşıyordu, `value` "on"du | `aria-label` "A şıkkı doğru cevap"…, `value` harf. Ağaçta 4/4 adlı; gerçek tıklamayla anahtar C'ye ve geri A'ya geçti |
+| `32ce019` | (5) Deneyap kataloğu iki kez iniyordu | `deneyapIndeksYukle` önce `renderAll()` (ilk istek), ardından `katalogHazirla(true)` "yeniden dene" bayrağıyla korumayı atlıyordu. `katalogYukle` artık anahtar başına uçuştaki isteği paylaşıyor | Deneyap'a gerçek tıklama: atölye dosyası **2 → 1** istek. 404 sonrası yeniden deneme çalışıyor (ikinci istek 35 kazanım) |
+| `4cdd4bd` | (6) Kazanım süzgeci atölye düzeyine | Ders süzgeci Deneyap/Keşif'te bütün atölyeleri listeliyordu | Deneyap sorusu 10 → 2, Keşif sorusu 18 → 6 seçenek; MEB Fen 1 (değişmedi) |
+
+**Kadraj:** `00-giris` (tez + not + düğme metni) ve `01-icerik-uzmani` (demo
+kartının durum satırı) görüntüleri değişti; yayından sonra yeniden çekilmeli.
+
+**Doğrulama:** 338/338 · öz-kontrol 370 ad %100 · U+FFFD 0 · konsol JS
+hatası 0 · model çağrısı 0.
