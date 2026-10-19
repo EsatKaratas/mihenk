@@ -237,5 +237,12 @@ katmalı (`katalogModalHtml` bugün `k.sinif + ". sınıf"` yazıyor).
   cümleleri, kitap adı, sayfa, URL ve SHA-256 var. Kısa kazanım cümlelerinin
   kaynak gösterilerek kullanımı alıntı sınırında kabul edildi. Bu bir hukuk
   görüşü **değil**; yarışma dışı yayında TÜBİTAK'tan izin istenmesi önerilir.
+- **Keşif Kampüsü ile ilişki — gözlem, doğrulanmadı.** deneyap.org atölye
+  listesinde "Gaziantep Keşif Kampüsü Deneyap Teknoloji Atölyesi" ve "Samsun
+  Keşif Kampüsü Deneyap Teknoloji Atölyesi" adları geçiyor; yani Mihenk'teki
+  "Keşif Kampüsü" de bir Deneyap atölyesi olabilir. Ürün kararı (Orchestrator,
+  19.10): Deneyap **ayrı ders** olarak kalır, Keşif'in altına girmez. Gerekçe:
+  kaynaklar farklı (Keşif = okulun kendi ders belgeleri, belge kilitli üretim;
+  Deneyap = TÜBİTAK kitabı, belge kilidi yok).
 - **`uygunluk` ürün kararıdır**, kural tabanlıdır, 298 kaydın her biri tek tek
   pedagojik incelemeden geçmedi (yalnız 2 düzeltme). Esat'ın gözden geçirmesine açıktır.

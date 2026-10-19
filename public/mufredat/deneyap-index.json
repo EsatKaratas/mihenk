@@ -1,0 +1,79 @@
+{
+ "ders": "Deneyap Atölyeleri",
+ "sinif": "Deneyap",
+ "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+ "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
+ "toplamKazanim": 298,
+ "atolyeler": [
+  {
+   "ad": "Tasarım ve Üretim",
+   "kod": "TU",
+   "dosya": "/mufredat/deneyap-tasarim-uretim.json",
+   "kitapNo": 1,
+   "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+   "isbn": "978-605-312-437-5",
+   "kazanimSayisi": 60,
+   "uygunluk": {
+    "yazili": 16,
+    "performans": 25,
+    "surec": 19
+   }
+  },
+  {
+   "ad": "Yazılım Teknolojileri",
+   "kod": "YT",
+   "dosya": "/mufredat/deneyap-yazilim-teknolojileri.json",
+   "kitapNo": 7,
+   "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+   "isbn": "978-605-312-442-9",
+   "kazanimSayisi": 50,
+   "uygunluk": {
+    "yazili": 20,
+    "performans": 30,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Yapay Zekâ",
+   "kod": "YZ",
+   "dosya": "/mufredat/deneyap-yapay-zeka.json",
+   "kitapNo": 13,
+   "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+   "isbn": "978-605-312-517-4",
+   "kazanimSayisi": 66,
+   "uygunluk": {
+    "yazili": 25,
+    "performans": 41,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Robotik ve Kodlama",
+   "kod": "RK",
+   "dosya": "/mufredat/deneyap-robotik-kodlama.json",
+   "kitapNo": 19,
+   "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+   "isbn": "978-605-312-535-8",
+   "kazanimSayisi": 55,
+   "uygunluk": {
+    "yazili": 13,
+    "performans": 42,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "kod": "EP",
+   "dosya": "/mufredat/deneyap-epni.json",
+   "kitapNo": 21,
+   "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+   "isbn": "978-605-312-537-2",
+   "kazanimSayisi": 67,
+   "uygunluk": {
+    "yazili": 13,
+    "performans": 54,
+    "surec": 0
+   }
+  }
+ ]
+}
