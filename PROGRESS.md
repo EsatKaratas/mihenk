@@ -7602,6 +7602,12 @@ En uzun kazanım metinleri (12 MEB dosyası, 606 kazanım, ölçüldü):
 | 165 | MAT.7.4.8 |
 | 163 | MAT.8.7.1 |
 
+**Deneyap eklenince (ölçüldü, `c6da055`):** 1.228 kazanımda metni eski 200
+sınırını aşan kazanım **1 değil 7**; en uzunu DNY.EP.7.1 — 273 karakter
+(etiket "KOD — metin" 286). Sınır 200'de kalsaydı bu yedisiyle de üretim 400
+alırdı. 400 sınırına bugünkü pay 114 karakter; `test/mufredat.test.ts`
+katalog her değiştiğinde bunu denetler.
+
 Bedeli: istem kazanım başına en çok ~200 karakter uzayabilir; kazanım
 denetiminde 60 adayla en kötü durum ~13.200 → ~24.000 karakter (gerçek aday
 metinleri ortalama ~100 karakter, pratikte değişmez). Kanıt: 8788'de MAT.8.3.5
