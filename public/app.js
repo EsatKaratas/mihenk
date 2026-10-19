@@ -6281,13 +6281,167 @@ function teacherTab1Html() {
         ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' +
           escapeHtml(yayinEngeliMetni() || "Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.") + '</div>'
         : "")
-    ) + "</div></div>" + rejectedPoolHtml("teacher");
+    ) + yazdirCubuguHtml() + "</div></div>" + rejectedPoolHtml("teacher");
+}
+
+/* ===========================================================================
+   §59 — YAZDIRMA: SINAV KÂĞIDI + AYRI CEVAP ANAHTARI
+   ===========================================================================
+   İki AYRI çıktı: kâğıt öğrenciye hiçbir koşulda anahtarla birlikte gitmez.
+   Yalnız ONAYLI sorular yazdırılır (agents.md §1); süzülen soru olursa
+   düğmenin yanında sayısıyla yazar (sessiz düşüş yok). Yayınlanmamış sınav
+   "TASLAK" ibaresi taşır. Yazdırma aynı sayfadaki gizli bir kapla yapılır:
+   yeni pencere açılır pencere engelleyicisine takılabilir; CSP'de inline
+   script yok, style-src 'unsafe-inline' var — kap bu politikaya uyar.
+   Baskı her zaman açık renklidir (app.css @media print, sabit renkler). */
+
+/** Sınavdaki sorular; yalnız onaylılar yazdırılır, süzülenler sayılır. */
+function yazdirSorulari() {
+  const hepsi = (state.exam.questionIds || []).map(function (id) {
+    return state.questions.find(function (q) { return q.id === id; });
+  }).filter(Boolean);
+  const onayli = hepsi.filter(function (q) { return q.status === "approved"; });
+  return { sorular: onayli, dusen: hepsi.length - onayli.length };
+}
+
+/** Bir sorunun ders etiketi: MEB "Fen Bilimleri · 7. sınıf",
+    Deneyap/Keşif "Deneyap Atölyeleri · Yapay Zekâ" (atölye adıyla). */
+function soruDersEtiketi(q) {
+  const kayit = OUTCOMES_LIST().filter(function (o) { return o.code === q.outcome; })[0];
+  const b = soruDersSinif(q);
+  if (b.subject === DENEYAP_DERSI || b.subject === KESIF_DERSI) {
+    return b.subject + (kayit && kayit.atolye ? " · " + kayit.atolye : "");
+  }
+  return b.subject + (b.grade ? " · " + sinifEtiketi(b.grade) : "");
+}
+
+/** Sınavın ders etiketi: tek ders/sınıfsa o, değilse "Karma (… / …)". */
+function sinavDersEtiketi(sorular) {
+  const liste = [];
+  sorular.forEach(function (q) { const e = soruDersEtiketi(q); if (e && liste.indexOf(e) < 0) liste.push(e); });
+  if (!liste.length) return "";
+  return liste.length === 1 ? liste[0] : "Karma (" + liste.join(" / ") + ")";
+}
+
+/** Kâğıt ve anahtarda ortak başlık. */
+function yazdirBaslikHtml(sorular, ek) {
+  const ex = state.exam;
+  const tarih = new Date(ex.startsAt || Date.now()).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const taslak = ex.status !== "published";
+  return '<div class="yz-bas">' +
+    (taslak ? '<div class="yz-taslak">TASLAK — yayınlanmadı</div>' : "") +
+    '<div class="yz-baslik">' + escapeHtml(ex.title || "Sınav") + (ek ? " — " + escapeHtml(ek) : "") + "</div>" +
+    '<div class="yz-alt">' + escapeHtml(sinavDersEtiketi(sorular)) + " · " + escapeHtml(tarih) +
+    " · Süre: " + escapeHtml(String(ex.durationMin || "")) + " dk · Toplam: " +
+    ondalikTr(examTotalPoints(sorular)) + " puan</div></div>";
+}
+
+/** Sorunun puanı (kâğıtta ve anahtarda aynı kaynaktan). */
+function yazdirPuan(q) {
+  if (q.type === "mc") return mcPuani();
+  const rub = state.rubrics[q.id];
+  return rub ? rub.maxScore : 0;
+}
+
+/** (a) Öğrenci sınav kâğıdı — cevap, gerekçe, kazanım kodu YOK. */
+function sinavKagidiHtml(sorular) {
+  let sonKaynak = null;
+  const govde = sorular.map(function (q, i) {
+    let kaynak = "";
+    if (soruKaynakIster(q)) {
+      const k = kaynakBul(q.srcId);
+      /* Aynı metne bağlı ardışık sorularda metin bir kez basılır. */
+      if (k && k.id !== sonKaynak) {
+        kaynak = '<div class="yz-kaynak"><div class="yz-kaynak-bas">Aşağıdaki soru(lar) bu metne göre cevaplanacaktır' +
+          (k.title ? " — " + escapeHtml(k.title) : "") + "</div>" + escapeHtml(k.text) + "</div>";
+        sonKaynak = k.id;
+      } else if (!k) {
+        kaynak = '<div class="yz-kaynak">[Bu sorunun kaynak metni bulunamadı — öğretmeninize bildirin.]</div>';
+        sonKaynak = null;
+      }
+    } else {
+      sonKaynak = null;
+    }
+    const sik = q.type === "mc"
+      ? '<ol class="yz-siklar" type="A">' + (q.options || []).map(function (o) {
+          return "<li>" + escapeHtml(o.text) + "</li>";
+        }).join("") + "</ol>"
+      : '<div class="yz-yazma">' + Array.from({ length: 8 }).map(function () { return '<div class="yz-cizgi"></div>'; }).join("") + "</div>";
+    return kaynak + '<div class="yz-soru"><div class="yz-soru-bas"><b>' + (i + 1) + ".</b> " + escapeHtml(q.body) +
+      ' <span class="yz-puan">(' + ondalikTr(yazdirPuan(q)) + " puan)</span></div>" + sik + "</div>";
+  }).join("");
+  return '<div class="yz-sayfa">' + yazdirBaslikHtml(sorular) +
+    '<div class="yz-ogrenci"><span>Ad Soyad: ________________________________</span>' +
+    "<span>Numara: __________</span><span>Şube: ______</span></div>" + govde + "</div>";
+}
+
+/** (b) Cevap anahtarı — öğretmene özel; açık uçluda rubrik ölçütleri. */
+function cevapAnahtariHtml(sorular) {
+  const satir = sorular.map(function (q, i) {
+    let cevap;
+    if (q.type === "mc") {
+      const d = (q.options || []).filter(function (o) { return o.key === q.correctKey; })[0];
+      cevap = "<b>" + escapeHtml(q.correctKey || "?") + "</b>" + (d ? " — " + escapeHtml(truncate(d.text, 70)) : "");
+    } else {
+      const rub = state.rubrics[q.id];
+      cevap = !rub || !rub.criteria || !rub.criteria.length
+        ? "<i>Rubrik tanımlı değil</i>"
+        : (rub.aiDraft ? '<div class="yz-uyari">Rubrik yapay zekâ taslağı — öğretmen tarafından henüz kabul edilmedi.</div>' : "") +
+          '<table class="yz-rubrik"><tr><th>Ölçüt</th><th>%</th><th>Puan</th><th>Beklenen</th></tr>' +
+          rub.criteria.map(function (c) {
+            return "<tr><td>" + escapeHtml(c.label) + "</td><td>" + escapeHtml(String(c.weight)) + "</td><td>" +
+              ondalikTr(Math.round(rub.maxScore * Number(c.weight) / 100 * 10) / 10) + "</td><td>" + escapeHtml(c.description || "") + "</td></tr>";
+          }).join("") + "</table>";
+    }
+    return '<tr class="yz-soru"><td>' + (i + 1) + "</td><td>" + (q.type === "mc" ? "ÇSS" : "Açık uçlu") + "</td><td>" + cevap +
+      "</td><td>" + ondalikTr(yazdirPuan(q)) + "</td><td>" + escapeHtml(q.outcome || "") + "</td></tr>";
+  }).join("");
+  return '<div class="yz-sayfa">' + yazdirBaslikHtml(sorular, "Cevap Anahtarı") +
+    '<div class="yz-gizli">Öğretmene özeldir — öğrenciye dağıtılmaz.</div>' +
+    '<table class="yz-anahtar"><thead><tr><th>No</th><th>Tür</th><th>Doğru cevap / rubrik</th><th>Puan</th><th>Kazanım</th></tr></thead><tbody>' +
+    satir + "</tbody></table></div>";
+}
+
+/** Yazdır: kabı doldurur, yazdırır, sonra boşaltır. tur: "kagit" | "anahtar". */
+function sinavYazdir(tur) {
+  const y = yazdirSorulari();
+  if (!y.sorular.length) return;
+  let kap = document.getElementById("yazdirKabi");
+  if (!kap) { kap = document.createElement("div"); kap.id = "yazdirKabi"; document.body.appendChild(kap); }
+  kap.innerHTML = tur === "anahtar" ? cevapAnahtariHtml(y.sorular) : sinavKagidiHtml(y.sorular);
+  document.body.classList.add("yazdiriliyor");
+  document.documentElement.classList.add("yazdiriliyor");   // kenar boşluğu zemini (koyu tema)
+  const temizle = function () {
+    document.body.classList.remove("yazdiriliyor");
+    document.documentElement.classList.remove("yazdiriliyor");
+    kap.innerHTML = "";
+    window.removeEventListener("afterprint", temizle);
+  };
+  window.addEventListener("afterprint", temizle);
+  window.print();
+}
+
+/** Sınav Taslağı kartındaki yazdırma çubuğu. */
+function yazdirCubuguHtml() {
+  const y = yazdirSorulari();
+  if (!y.sorular.length) return "";
+  return '<div class="yazdir-cubuk"><button type="button" class="btn btn-secondary btn-sm js-yazdir" data-tur="kagit">🖨 Sınav kâğıdı</button>' +
+    '<button type="button" class="btn btn-secondary btn-sm js-yazdir" data-tur="anahtar">🖨 Cevap anahtarı</button>' +
+    (y.dusen ? '<span class="pill pill-warning">' + y.dusen + " soru onaylı olmadığı için yazdırılmaz</span>" : "") +
+    '<span class="lbl-hint">Ayrı çıktılar: kâğıtta cevap yoktur. Yalnız onaylı sorular yazdırılır.</span></div>';
+}
+
+function wireYazdir() {
+  document.querySelectorAll(".js-yazdir").forEach(function (b) {
+    b.onclick = function () { sinavYazdir(b.dataset.tur); };
+  });
 }
 
 function wireTeacherTab1() {
   wireSinifYonetim();
   wireExamSwitcher();
   wireRejectedPool("teacher");
+  wireYazdir();   // §59
   // Boş durumdaki yönlendirme düğmeleri.
   const git = document.getElementById("btnIcerikUzmaninaGit");
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
@@ -10770,7 +10924,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
