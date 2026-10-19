@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import app from '../src/index';
-import { kalipliGerekceSayisi } from '../src/lib/guards';
+import { kalipliGerekceSayisi, RATE_LIMIT_IP_PER_MIN, RATE_LIMIT_EVAL_PER_MIN, RATE_LIMIT_PER_MIN } from '../src/lib/guards';
 
 /** Her çağrıda verilen yanıtı döndüren sahte Workers AI bağlaması. */
 function sahteAi(yanit: unknown) {
@@ -222,5 +222,50 @@ describe('model çağrısı: yeniden deneme yalnız ayrıştırma hatasında, ye
     expect(cagri.bozuk).toBe(1);
     const ayrinti = hata.mock.calls.map((a) => String(a[0])).find((x) => x.includes('ai_failed'));
     expect(ayrinti).toContain('quota');
+  });
+});
+
+// §51b P1-2 / P2-4 — IP başına ortak tavan ve sayaç sırası.
+describe('hız sınırı: IP başına ortak tavan (§51b)', () => {
+  const istek = (ip: string, govde: unknown) =>
+    app.request('/api/ai/generate-questions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'cf-connecting-ip': ip },
+      body: JSON.stringify(govde),
+    }, sahteAi({}));
+  // Hiç soru istemeyen gövde: model çağrılmaz (400), ama IP sayacından geçer.
+  const bos = (docKey: string) => ({ ...uretimGovdesi(), mcCount: 0, openCount: 0, docKey });
+
+  it('tavan mevcut sınırlardan türetilir ve meşru en yoğun kullanımın üstündedir', () => {
+    expect(RATE_LIMIT_IP_PER_MIN).toBe(60);
+    expect(RATE_LIMIT_IP_PER_MIN).toBeGreaterThanOrEqual(RATE_LIMIT_EVAL_PER_MIN + RATE_LIMIT_PER_MIN);
+  });
+
+  it('anahtarı her istekte değiştiren döngü IP tavanında durur; başka IP etkilenmez', async () => {
+    const ip = '203.0.113.' + Math.floor(Math.random() * 200);
+    let gecen = 0;
+    let ilk429 = -1;
+    for (let i = 0; i < RATE_LIMIT_IP_PER_MIN + 5; i++) {
+      const r = await istek(ip, bos('dongu-' + i)); // her istekte FARKLI docKey
+      if (r.status !== 429) gecen++;
+      else if (ilk429 < 0) {
+        ilk429 = i;
+        const j: any = await r.json();
+        expect(j.error).toBe('rate_limited');
+        expect(j.message).toContain(String(RATE_LIMIT_IP_PER_MIN));
+      }
+    }
+    expect(gecen).toBe(RATE_LIMIT_IP_PER_MIN);
+    expect(ilk429).toBe(RATE_LIMIT_IP_PER_MIN);
+    const baska = await istek('198.51.100.7', bos('baska'));
+    expect(baska.status).toBe(400); // tavana takılmadı, kendi doğrulamasına ulaştı
+  });
+
+  it('geçersiz istek (soru sayısı 0) belge başına üretim hakkını YEMEZ (P2-4)', async () => {
+    const ip = '192.0.2.' + Math.floor(Math.random() * 200);
+    for (let i = 0; i < RATE_LIMIT_PER_MIN + 2; i++) {
+      const r = await istek(ip, bos('ayni-belge'));
+      expect(r.status).toBe(400); // eskiden 6. istek 429 dönüyordu
+    }
   });
 });

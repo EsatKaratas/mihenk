@@ -21,6 +21,26 @@ export const RATE_LIMIT_PER_MIN = 5;
 export const RATE_LIMIT_EVAL_PER_MIN = 45;
 
 /**
+ * §51b — İSTEMCİ ADRESİ (IP) BAŞINA ORTAK TAVAN, tüm AI uçlarında toplam.
+ *
+ * NEDEN: Yukarıdaki iki sınırın anahtarı İSTEMCİNİN verdiği değerdir (docKey,
+ * soru gövdesi). Anahtarı her istekte değiştiren bir döngü — hatalı bir
+ * istemci ya da kötü niyet — hiçbir sınıra takılmadan sınırsız model çağırır.
+ * 26 Ekim 2026'dan sonra hesap ücretsiz Workers AI planına dönüyor; günlük
+ * Neuron kotası tek böyle bir istemciyle tükenir ve demo düşer.
+ *
+ * AMAÇ MALİYET GÜVENLİĞİDİR, KALİTE EŞİĞİ DEĞİL. Değer ölçülmüş bir trafikten
+ * değil (öyle bir veri yok), mevcut iki sınırdan TÜRETİLDİ ki meşru kullanımı
+ * asla kesmesin: bir öğretmenin aynı dakikada yapabileceği en yoğun meşru iş,
+ * bir sınıfı değerlendirmek (RATE_LIMIT_EVAL_PER_MIN = 45) artı üretim / rubrik
+ * / kazanım denetiminin her birinden bir dakikalık sınır (3 × 5 = 15) → 60.
+ * Ölçüm betiği (tools/olcum, çağrılar arası 13 sn ≈ dakikada 5) bunun çok
+ * altında kalır. Sınırın kendisi bellek içidir ve isolate başınadır — dağıtık
+ * bir garanti değil, döngüyü kesen bir sigortadır (agents.md §4 izinli).
+ */
+export const RATE_LIMIT_IP_PER_MIN = RATE_LIMIT_EVAL_PER_MIN + 3 * RATE_LIMIT_PER_MIN;
+
+/**
  * Dakika penceresinde istek sayan basit sayaç.
  *
  * BİLİNEN SINIR (PROGRESS.md §9): Sayaç bellek içidir ve Cloudflare

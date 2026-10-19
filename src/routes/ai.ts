@@ -24,6 +24,7 @@ import {
 import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
+  RATE_LIMIT_IP_PER_MIN,
   rateLimited as rateLimitedRaw,
   soruDilUyarisi,
   metinDilUyarisi,
@@ -106,6 +107,29 @@ function modelHatasiGovdesi(e: unknown, uc: string) {
 
 const ai = new Hono<{ Bindings: Bindings }>();
 
+/* §51b — İSTEMCİ ADRESİ BAŞINA ORTAK TAVAN (gerekçe ve değer: guards.ts
+   RATE_LIMIT_IP_PER_MIN). Tüm POST uçlarına, doğrulamadan ÖNCE uygulanır:
+   bozuk istekle döngüye giren bir istemci de sayılır. Uç başına sınırlar
+   aynen duruyor; bu onların ÜSTÜNE bir sigortadır.
+   Adres Cloudflare'in koyduğu CF-Connecting-IP başlığından okunur. Başlık
+   yoksa (yerel geliştirme, testler) tüm istekler TEK ortak "yerel" kovaya
+   düşer — yerelde sınır gevşemez, aynı makinedeki tüm istemciler birlikte
+   sayılır. GET /status sayılmaz (model çağırmaz). */
+ai.use('*', async (c, next) => {
+  if (c.req.method !== 'POST') return next();
+  const adres = (c.req.header('cf-connecting-ip') || '').trim() || 'yerel';
+  if (rateLimited(`ip:${adres}`, RATE_LIMIT_IP_PER_MIN)) {
+    return c.json(
+      {
+        error: 'rate_limited',
+        message: `Bu bağlantıdan dakikada en fazla ${RATE_LIMIT_IP_PER_MIN} yapay zekâ isteği gönderilebilir. Bir dakika bekleyip tekrar deneyin.`,
+      },
+      429
+    );
+  }
+  return next();
+});
+
 /** Sağlayıcı/model bilgisi — arayüzdeki "AI modu" rozeti bunu okur. */
 ai.get('/status', (c) => {
   const yedek = fallbackEnv(c.env);
@@ -133,16 +157,19 @@ ai.get('/status', (c) => {
 ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
 
+  /* §51b: bu ucuz denetim hız sayacından ÖNCE yapılır. Eskiden sırası
+     tersti; hiç soru istemeyen (ve modeli hiç çağırmayan) geçersiz bir
+     istek, aynı belge için dakikadaki 5 üretim hakkından birini yiyordu. */
+  const total = b.mcCount + b.openCount;
+  if (total < 1) {
+    return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
+  }
+
   if (rateLimited(`gen:${b.docKey}`)) {
     return c.json(
       { error: 'rate_limited', message: `Aynı kaynak için dakikada en fazla ${RATE_LIMIT_PER_MIN} üretim isteği gönderilebilir.` },
       429
     );
-  }
-
-  const total = b.mcCount + b.openCount;
-  if (total < 1) {
-    return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
   }
 
   /* §31 — KAZANIM MODU İKİNCİ KATMAN. İstem modele "metne atıf yapma ve
