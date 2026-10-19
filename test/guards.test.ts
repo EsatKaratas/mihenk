@@ -774,8 +774,8 @@ describe('yabanciAlfabeVarMi — Latin Extended-A (§51b)', () => {
   });
 });
 
-// §56 — Latin Extended-B: Vietnamca ơ / ư (A5'te "ngược" yalnız ợ sayesinde yakalanmıştı).
-describe('yabanciAlfabeVarMi — Latin Extended-B (§56)', () => {
+// §57 — Latin Extended-B: Vietnamca ơ / ư (A5'te "ngược" yalnız ợ sayesinde yakalanmıştı).
+describe('yabanciAlfabeVarMi — Latin Extended-B (§57)', () => {
   it('"thư", "sư", "ơ", "ư", Ơ, Ư yakalanır', () => {
     for (const s of ['thư', 'sư', 'ơ', 'ư', '\u01A0', '\u01AF']) expect(yabanciAlfabeVarMi(s)).toBe(true);
   });

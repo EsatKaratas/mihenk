@@ -129,8 +129,8 @@ describe('A1 — bağımsız çözüm', () => {
   });
 });
 
-// §56 — çözücü istemi sürüm 2: GEREKÇE ÖNCE, harf sonra.
-describe('A1 çözücü istemi sürüm 2 (§56)', () => {
+// §57 — çözücü istemi sürüm 2: GEREKÇE ÖNCE, harf sonra.
+describe('A1 çözücü istemi sürüm 2 (§57)', () => {
   it('istemde çıktı şablonunda "gerekce" alanı "secilenSik"ten ÖNCE gelir ve Kural 1 bunu söyler', () => {
     const p = buildSolvePrompt({ questionBody: 'Soru', options: [{ key: 'A', text: '1' }, { key: 'B', text: '2' }, { key: 'C', text: '3' }] });
     const sablon = p.slice(p.lastIndexOf('{"'));
