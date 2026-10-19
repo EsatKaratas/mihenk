@@ -9,6 +9,8 @@
 // ============================================================================
 
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   rateLimited,
   yabanciAlfabeVarMi,
@@ -710,5 +712,64 @@ describe('gerekceTekrariVarMi — aynı gerekçe iki çeldiricide (§47b)', () =
   it('boş/null harita güvenle false döner', () => {
     expect(gerekceTekrariVarMi(undefined)).toBe(false);
     expect(gerekceTekrariVarMi({})).toBe(false);
+  });
+});
+
+// §51b — Latin Extended-A (U+0100–017F), Türkçe harfler hariç.
+describe('yabanciAlfabeVarMi — Latin Extended-A (§51b)', () => {
+  it('canlıda kaçan "tăngdı" (ă U+0103) artık yakalanır', () => {
+    expect(yabanciAlfabeVarMi('Sürtünme kuvveti tăngdı.')).toBe(true);
+    expect(soruDilUyarisi({ body: 'Kutu tăngdı ve durdu.' })).toBe(true);
+  });
+
+  it('Türkçenin bloktaki altı harfi (Ğ ğ İ ı Ş ş) yanlış alarm vermez', () => {
+    for (const c of ['\u011E', '\u011F', '\u0130', '\u0131', '\u015E', '\u015F']) {
+      expect(yabanciAlfabeVarMi(c)).toBe(false);
+    }
+    const uzun =
+      'Işıl, İğneada’daki ağaçlı yolda yürürken Şükrü’ye seslendi: “Ağustos güneşi çok yakıcı; ' +
+      'gölgede dinlenip şişeden su içelim.” ĞÜŞİÖÇ ğüşıöç harfleri, şapkalı â î û ile birlikte, ' +
+      'Türkçe bir metnin olağan parçasıdır. Öğrenciler sınıfta düşüncelerini açıkça paylaştı.';
+    expect(yabanciAlfabeVarMi(uzun)).toBe(false);
+  });
+
+  it('Türkçe harflerin hemen komşuları yakalanır (aralık sınırları)', () => {
+    for (const c of ['\u0100', '\u011D', '\u0120', '\u012F', '\u0132', '\u015D', '\u0160', '\u017F']) {
+      expect(yabanciAlfabeVarMi(c)).toBe(true);
+    }
+  });
+
+  it('BİLİNÇLİ SINIR: Latin-1 içindeki é ñ hâlâ yakalanmaz', () => {
+    expect(yabanciAlfabeVarMi('café, niño')).toBe(false);
+  });
+
+  it('yanlış pozitif 0: tüm müfredat kazanımları (MEB) ve demo soruları', () => {
+    const kok = path.resolve(__dirname, '..');
+    const dizin = path.join(kok, 'public', 'mufredat');
+    let kazanim = 0;
+    let turkceKazanim = 0;
+    const alarm: string[] = [];
+    for (const f of fs.readdirSync(dizin).filter((x) => x.endsWith('.json'))) {
+      const j = JSON.parse(fs.readFileSync(path.join(dizin, f), 'utf8'));
+      for (const k of j.kazanimlar || []) {
+        kazanim++;
+        if (f.startsWith('turkce-')) turkceKazanim++;
+        for (const v of Object.values(k)) {
+          if (typeof v === 'string' && yabanciAlfabeVarMi(v)) alarm.push(`${f} ${k.kod}`);
+        }
+      }
+    }
+    expect(turkceKazanim).toBe(365);
+    expect(kazanim).toBeGreaterThanOrEqual(606);
+    // Demo soruları: app.js'teki DEMO_SORULAR / DEMO_METIN / DEMO_YANIT bloğu.
+    const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
+    const bas = app.indexOf('const DEMO_SORULAR = [');
+    const son = app.indexOf('function loadDemoScenario');
+    expect(bas).toBeGreaterThan(0);
+    expect(son).toBeGreaterThan(bas);
+    const demo = app.slice(bas, son);
+    expect(demo.length).toBeGreaterThan(2000);
+    if (yabanciAlfabeVarMi(demo)) alarm.push('DEMO_SORULAR');
+    expect(alarm).toEqual([]);
   });
 });

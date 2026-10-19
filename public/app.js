@@ -400,6 +400,15 @@ const ROLES = [
 ];
 
 /* ============================== Yardımcılar ============================== */
+/* §51 — Ekranda ondalık AYRAÇ Türkçede virgüldür (6,5 dk · 4,5/6 · p = 0,75).
+   Yalnızca GÖRÜNTÜ içindir; hesaplama ve kayıtlar sayı olarak kalır.
+   Sayıdan sonra ek getirilmez (tuzak 8): çağıranlar birimi ayrı yazar. */
+function ondalikTr(x, basamak) {
+  const n = Number(x);
+  if (!isFinite(n)) return String(x);
+  return (basamak == null ? String(n) : n.toFixed(basamak)).replace(".", ",");
+}
+
 function escapeHtml(str) {
   return String(str == null ? "" : str).replace(/[&<>"']/g, function (ch) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
@@ -489,8 +498,14 @@ function uretimModuSecHtml() {
     '<div class="mod-secici">' +
     kart("kaynak", "📄 Kaynak metinden",
       "Yüklediğiniz ders notundan üretilir. Okuma kazanımları için gerekli — metin sınavda öğrenciye gösterilir.") +
+    /* §51: Keşif kazanımlarının MEB kataloğu yoktur; dayanakları okulun ders
+       belgesidir (belge kilidi). Metin bunu yanlış söylüyordu. */
     kart("kazanim", "🎯 Kazanımdan",
-      "Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.") +
+      seciliMateryal()
+        ? "Metin gerekmez. Dayanak bu kazanıma bağlı ders belgesi; isterseniz bir yönerge yazarsınız."
+        : mebYerine("Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.",
+            /* §52: Deneyap kazanımı MEB kazanımı değildir. */
+            "Metin gerekmez. Dayanak TÜBİTAK Deneyap kitabındaki kazanım; isterseniz bir yönerge yazarsınız.")) +
     '</div></div>';
 }
 
@@ -2188,10 +2203,22 @@ function kazanimSecenekleriHtml() {
   /* Yer tutucu HER ZAMAN seçilidir: burası bir "seçim" alanı değil bir "ekle"
      alanıdır. Seçilen kazanım sekmeye taşındığı için seçici yeniden boşa
      döner ve aynı kazanım ikinci kez eklenemez. */
-  const katalogVar = !!MUFREDAT_KATALOGLARI[seciliKatalogAnahtari()];
+  /* Birleştirme (§52 + §51): W1'in "yükleniyor / yüklenemedi" ayrımı AYNEN;
+     anahtar seciliKatalogAnahtari()'den (Deneyap'ta atölyeli), metinler
+     mebYerine'den geçer — MEB'de birebir eski metin. */
+  const anahtar = seciliKatalogAnahtari();
+  const katalogVar = !!MUFREDAT_KATALOGLARI[anahtar];
+  /* §51: katalog dosyası HENÜZ GELMEDİYSE liste boştur ve eskiden bu durum
+     "hepsi eklendi" diye okunuyordu (ölçüldü: Fen'e geçince ~1 sn boyunca,
+     ardından 25 kazanım geliyordu). Yükleniyor / yüklenemedi ayrı söylenir. */
+  const katalogYuklu = !!(state.katalog || {})[anahtar];
   const yerTutucu = '<option value="" selected>' +
     (katalog.length
       ? mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + " kazanım ekleyin… (" + katalog.length + " kazanım)"
+      : katalogVar && !katalogYuklu
+        ? (state.katalogHata
+            ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yüklenemedi (aşağıdaki nota bakın) —"
+            : "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor… —")
       : katalogVar
         ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
         : "— bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; “+” ile kendiniz yazın —") +
@@ -2259,6 +2286,16 @@ function kazanimNotuHtml() {
       "</button>"
     : "";
 
+  /* §51: katalog henüz gelmediyse sayı geçici olarak eksiktir; bunu söyle.
+     Hata durumu ayrı yerde (katalogHata) yazdığı için burada yalnız
+     "yükleniyor" ele alınır. */
+  const anahtar = seciliKatalogAnahtari();   // §52: Deneyap'ta atölyeli anahtar
+  const katalogYukleniyor = !!MUFREDAT_KATALOGLARI[anahtar] &&
+    !(state.katalog || {})[anahtar] && !state.katalogHata;
+  if (katalogYukleniyor && !secilebilir) {
+    return '<span class="field-note">' + dersSinif + " · <b>" + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor…</b></span>";
+  }
+
   // GERÇEKTEN hiç seçenek yok: öğretmeni yönlendir, yoksa "0 kazanım"
   // yazısıyla baş başa kalır ve ne yapacağını bilemez.
   if (!secilebilir) {
@@ -2296,6 +2333,7 @@ function kazanimNotuHtml() {
       : " · bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; <b>+</b> sekmesiyle elle tanımlayın";
     satir += "; her sekmenin “×”i o kazanımı kalıcı olarak siler";
   }
+  if (katalogYukleniyor) satir += " · <b>" + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor…</b>";
   return satir + tumunuGoster + "</span>";
 }
 
@@ -3434,6 +3472,7 @@ var AUDIT_ETIKET = {
   soru_onaylandi:       { ad: "Soru onaylandı",           sinif: "pill-success", aktor: "içerik uzmanı" },
   soru_reddedildi:      { ad: "Soru reddedildi",          sinif: "pill-critical",aktor: "içerik uzmanı" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
+  rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   degerlendirme_onerildi:{ad: "Puan önerildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
@@ -4180,7 +4219,7 @@ function renderPendingQuestionCard(q) {
     return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
-      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" value="' + escapeHtml(o.text) + '">' +
+      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
       '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
       '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label>' +
       '<span class="opt-reorder-btns">' +
@@ -4327,13 +4366,15 @@ function wirePendingCards() {
 function remedialBannerHtml() {
   const r = state.remedial;
   if (!r) return "";
-  const hazir = state.ceForm.text.trim().length >= 30;
+  const kazanimModu = uretimModu() === "kazanim";
+  const hazir = kazanimModu || state.ceForm.text.trim().length >= 30;
   return '<div class="remedial-banner" id="remedialBanner">' +
     '<div class="rbn-head">Analizden gelen talep</div>' +
     '<div class="rbn-body"><b>' + escapeHtml(r.sinif) + '</b> sınıfı, <b>' + escapeHtml(outcomeLabel(r.outcomeCode)) +
     '</b> kazanımında <b class="tabular">%' + r.deger + '</b> başarı gösterdi. ' +
     'Bu kazanıma yönelik tekrar sorusu üretmek için ' +
-    (hazir ? 'aşağıdaki kaynak metin kullanılacak.' : 'sağdaki alana kaynak metni yapıştırın.') + '</div>' +
+    (kazanimModu ? 'dayanak olarak kazanımın kendisi (ya da bağlı ders belgesi) kullanılacak.'
+      : hazir ? 'aşağıdaki kaynak metin kullanılacak.' : 'sağdaki alana kaynak metni yapıştırın.') + '</div>' +
     '<div class="rbn-actions">' +
     (hazir ? '<button class="btn btn-primary btn-sm" id="btnRemedialGen"' + (state.ai.busy ? " disabled" : "") + '>Bu kazanıma soru üret</button>' : "") +
     '<button class="btn btn-secondary btn-sm" id="btnRemedialDismiss">Kapat</button></div></div>';
@@ -5383,8 +5424,16 @@ function wireExamSwitcher() {
 
    Ölçüt artık TEK yerde. İki tüketicinin koşulu bir daha ayrışamaz —
    bu depoda ayrışan ikiz koşul sınıfından hata yaşandı (§42.1). */
+/* §51 — KABUL EDİLMEMİŞ AI TASLAĞI GEÇERLİ RUBRİK DEĞİLDİR.
+   Eskiden "🤖 taslak öner" kriterleri doğrudan yazıyor, şerit "onaylamadan
+   önce gözden geçirin" diyordu ama onay düğmesi YOKTU; aynı ekran "sınavı
+   yayınlayabilirsiniz" diyordu ve öğrenci yanıtı bu taslakla puanlandı
+   (ölçüldü, PROGRESS §51). Şart BURAYA konuldu ki canPublishExam,
+   pendingRubricCount ve yayinEngeliMetni ayrışmasın (tuzak 7). Taslak
+   yalnızca öğretmenin "✓ Taslağı kabul et" tıklamasıyla geçerli olur. */
 function rubrikGecerliMi(rub) {
   if (!rub || !rub.criteria || !rub.criteria.length) return false;
+  if (rub.aiDraft) return false;
   if (totalWeight(rub) !== 100) return false;
   return rub.criteria.every(function (c) { return String((c && c.label) || "").trim().length > 0; });
 }
@@ -5411,8 +5460,10 @@ function yayinEngeliMetni() {
     const r = state.rubrics[q.id];
     return r && r.criteria && r.criteria.length && r.criteria.some(function (c) { return !String((c && c.label) || "").trim(); });
   }).length;
+  const taslak = opens.filter(function (q) { const r = state.rubrics[q.id]; return r && r.aiDraft; }).length;
   const p = [];
   if (eksikRubrik) p.push(eksikRubrik + " açık uçlu sorunun rubriği yok");
+  if (taslak) p.push(taslak + " rubrik yapay zekâ taslağı ve henüz kabul edilmedi (“✓ Taslağı kabul et”)");
   if (agirlikBozuk) p.push(agirlikBozuk + " rubrikte ağırlık toplamı %100 değil");
   if (bosEtiket) p.push(bosEtiket + " rubrikte kriter adı boş (boş adlı kriterle puanlama sunucuda reddedilir)");
   return p.length ? "Rubrik sekmesinden düzeltin: " + p.join("; ") + "." : "";
@@ -5482,12 +5533,37 @@ async function aiSuggestRubric(qid) {
     });
     state.rubrics[qid].aiDraft = true;
     state.rubrics[qid].userEdited = false; // taze öneri — henüz elle dokunulmadı
+    /* §51: `rubrik_onerildi` etiketi AUDIT_ETIKET'te tanımlıydı ama hiçbir
+       yerde YAZILMIYORDU. Karşılığı öğretmenin `rubrik_kabul_edildi` kaydıdır. */
+    auditKaydet("rubrik_onerildi", {
+      qid: qid, soru: auditKisalt(q.body),
+      model: (j.meta && j.meta.model) || state.ai.model || null,
+      not: state.rubrics[qid].criteria.length + " ölçüt",
+    });
   } catch (e) {
     state.rubricError = "Rubrik önerisi alınamadı: " + String((e && e.message) || e);
   } finally {
     state.ai.busy = false;
     renderAll();
   }
+}
+
+/* §51 — AI rubrik taslağını YALNIZCA öğretmenin tıklaması kabul eder.
+   KARAR: kriteri elle düzenlemek kabul SAYILMAZ. Tek bir ağırlığı değiştirmek
+   taslağın tamamının okunduğunu kanıtlamaz; kabulün tek, açık ve denetim
+   izine düşen bir eylem olması HITL zincirini ölçülebilir kılar
+   (agents.md §1). Düzenleme `userEdited`'i işaretler, kabul ayrıca istenir. */
+function rubrikTaslaginiKabulEt(qid) {
+  const rub = state.rubrics[qid];
+  if (!rub || !rub.aiDraft) return;
+  rub.aiDraft = false;
+  const q = findQuestion(qid);
+  auditKaydet("rubrik_kabul_edildi", {
+    qid: qid, soru: auditKisalt(q && q.body),
+    degisti: rub.userEdited === true,
+    not: rub.userEdited ? "öğretmen düzenleyip kabul etti" : "aynen kabul edildi",
+  });
+  renderAll();
 }
 
 /* ===========================================================================
@@ -5655,7 +5731,7 @@ function examTrayHtml() {
       (mc * mcPuani()) + ' puan · açık uçlu ' + (puan - mc * mcPuani()) + ' puan</span><span></span></div>'
     : "") +
   '<div class="ts-row strong"><span>Toplam puan</span><span class="tabular">' + puan + ' puan</span></div>' +
-  '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + onerilenDk + ' dk</span></div>' +
+  '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + ondalikTr(onerilenDk) + ' dk</span></div>' +
   '</div>';
 }
 
@@ -5810,7 +5886,13 @@ function poolEditHtml(q) {
       return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
-    OUTCOMES_LIST().map(function (o) {
+    /* §51: tüm derslerin kazanımları karışık listeleniyordu; bir Fen sorusuna
+       Matematik kazanımı atanabiliyordu. Sorunun dersine ait olanlar + mevcut
+       kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
+    OUTCOMES_LIST().filter(function (o) {
+      const ders = soruDersSinif(q).subject;
+      return o.code === q.outcome || !ders || (o.subject || kodDanDers(o.code)) === ders;
+    }).map(function (o) {
       return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Süre (sn)</label>' +
@@ -6116,6 +6198,31 @@ function wireTeacherTab1() {
    tanımladığı gerçek rubrikle yapılır — sınıf ortalamaları uydurma sabit
    veriden değil, bu gerçek değerlendirmelerden hesaplanır.            */
 const SIM_ISIMLER = ["Ada Y.", "Deniz K.", "Ege T.", "Mira S.", "Poyraz A.", "Zeynep D.", "Kerem B.", "Elif N."];
+
+/* §51 (U3/U6) — Simüle öğrenci adı, sınıfta zaten bulunan bir öğrencinin
+   ADIYLA aynı başlamaz ve kendini tekrar etmez. Ölçüldü: varsayılan sınıfta
+   gerçek "Ada Yılmaz" varken simülasyon aynı şubeye "Ada Y." ekliyordu; ikinci
+   basışta aynı beş ad yeniden geliyordu ("Ada Y." ×2). Liste tükenirse ada
+   sıra numarası eklenir. Demo tohumu bunu kullanmaz (demoSinifOturumlari),
+   yani demo analitiği kaymaz. */
+function simIsmiSec() {
+  const ilkAd = function (ad) { return String(ad || "").split(" ")[0].toLocaleLowerCase("tr"); };
+  const mevcut = state.students.map(function (s) { return s.name; });
+  const mevcutIlk = mevcut.map(ilkAd);
+  const aday = SIM_ISIMLER.filter(function (ad) { return mevcutIlk.indexOf(ilkAd(ad)) < 0; })[0];
+  if (aday) return aday;
+  /* Yedek yol: gerçek (simüle olmayan) öğrencinin adıyla başlayan ad yine
+     kullanılmaz; simüle adların tekrarı sıra numarasıyla ayrışır. */
+  const gercekIlk = state.students.filter(function (s) { return !s.demo; }).map(function (s) { return ilkAd(s.name); });
+  const suzulmus = SIM_ISIMLER.filter(function (ad) { return gercekIlk.indexOf(ilkAd(ad)) < 0; });
+  const havuz = suzulmus.length ? suzulmus : SIM_ISIMLER;   // boş havuz → sonsuz döngü olmasın
+  for (let n = 2; ; n++) {
+    for (let i = 0; i < havuz.length; i++) {
+      const ad = havuz[i] + " " + n;
+      if (mevcut.indexOf(ad) < 0) return ad;
+    }
+  }
+}
 const SIM_DUZEYLER = [
   "kavramı doğru ve örnekle açıklayan güçlü bir yanıt",
   "kavramı büyük ölçüde doğru açıklayan ama örnek vermeyen orta düzey yanıt",
@@ -6138,8 +6245,10 @@ async function simulateClass(adet) {
   if (!items.length) { state.poolError = "Önce sınava soru ekleyin."; renderAll(); return; }
   if (state.exam.status !== "published") { state.poolError = "Sınıfı simüle etmeden önce sınavı yayınlayın."; renderAll(); return; }
   const opens = items.filter(function (q) { return q.type === "open"; });
-  if (opens.some(function (q) { return !state.rubrics[q.id] || totalWeight(state.rubrics[q.id]) !== 100; })) {
-    state.poolError = "Açık uçlu sorular için puanlama anahtarını tamamlayın (%100).";
+  /* §51: ikiz koşul (totalWeight === 100) yerine tek ölçüt — kabul
+     edilmemiş AI rubrik taslağıyla da simülasyon yapılabiliyordu (tuzak 7). */
+  if (opens.some(function (q) { return !rubrikGecerliMi(state.rubrics[q.id]); })) {
+    state.poolError = "Açık uçlu sorular için puanlama anahtarını tamamlayın (%100) ve yapay zekâ taslağıysa kabul edin.";
     renderAll();
     return;
   }
@@ -6155,7 +6264,7 @@ async function simulateClass(adet) {
       // Simüle öğrenciler mevcut şubelere sırayla dağıtılır ki şube
       // karşılaştırması anlamlı olsun.
       const subeler = siniflar();
-      const s = { id: studentIdSeq++, name: SIM_ISIMLER[i % SIM_ISIMLER.length], demo: true,
+      const s = { id: studentIdSeq++, name: simIsmiSec(), demo: true,
                   sinif: subeler.length ? subeler[i % subeler.length] : "7-A",
                   ability: 0.35 + (i / Math.max(1, adet - 1)) * 0.55 };
       state.students.push(s);
@@ -6307,17 +6416,21 @@ function teacherTab2Html() {
     (tw < 100 ? '<div class="rb-seg rb-empty" style="width:' + (100 - tw) + '%;"></div>' : "") +
     '</div>';
 
-  const durum = tw === 100
+  /* §51: ağırlık tamam olsa da kabul edilmemiş AI taslağı yayına izin vermez;
+     "yayınlayabilirsiniz" yazısı artık bunu yalanlamıyor. */
+  const durum = tw === 100 && rub.aiDraft
+    ? '<div class="rub-status warn">Ağırlıklar tamam (%100), ama bu ölçütler <b>yapay zekâ taslağı</b>. Gözden geçirip “✓ Taslağı kabul et” deyince sınavı yayınlayabilirsiniz.</div>'
+    : tw === 100
     ? '<div class="rub-status ok">✓ Ölçütler tamam. Toplam <b>' + rub.maxScore + ' puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.</div>'
     : tw < 100
-      ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + kalanPuan + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
+      ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + ondalikTr(kalanPuan) + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
       : '<div class="rub-status err">Ağırlıkların toplamı <b>%' + tw + '</b> — 100\'ü <b>' + (tw - 100) + ' puan</b> aşıyor. Fazlalığı azaltın.</div>';
 
   const soruSecici = opens.length > 1
     ? '<div class="rub-qpick"><span class="lbl-hint">Bu sınavda ' + opens.length + ' açık uçlu soru var — her biri için ayrı ölçüt tanımlarsınız:</span><div>' +
       opens.map(function (o) {
         const r = state.rubrics[o.id];
-        const hazir = r && totalWeight(r) === 100;
+        const hazir = rubrikGecerliMi(r);   // §51: ikiz koşul değil, tek ölçüt
         return '<button class="btn ' + (o.id === q.id ? "btn-primary" : "btn-secondary") + ' btn-sm rub-select" data-qid="' + o.id + '">' +
           (hazir ? "✓ " : "• ") + escapeHtml(truncate(o.body, 30)) + '</button>';
       }).join("") + '</div></div>'
@@ -6343,7 +6456,9 @@ function teacherTab2Html() {
     }).join("") +
     '</div>' +
     (state.rubricError ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.rubricError) + '</div>' : "") +
-    (rub.aiDraft ? '<div class="pill pill-accent2" style="margin-bottom:10px;">Bu taslağı yapay zekâ önerdi — onaylamadan önce gözden geçirin.</div>' : "") +
+    (rub.aiDraft ? '<div class="rub-taslak-serit">' +
+      '<span class="pill pill-accent2">Bu taslağı yapay zekâ önerdi — kabul etmeden önce gözden geçirin. Kabul edilene kadar sınav yayınlanamaz.</span>' +
+      '<button type="button" class="btn btn-primary btn-sm js-rubrik-kabul">✓ Taslağı kabul et</button></div>' : "") +
 
     bar + durum +
     '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(rub, c, i); }).join("") + '</div>' +
@@ -6354,6 +6469,9 @@ function teacherTab2Html() {
 function wireTeacherTab2() {
   const aiRub = document.getElementById("btnAiRubric");
   if (aiRub) aiRub.onclick = function () { aiSuggestRubric(state.rubricSelectedQ); };
+  document.querySelectorAll(".js-rubrik-kabul").forEach(function (b) {
+    b.onclick = function () { rubrikTaslaginiKabulEt(state.rubricSelectedQ); };
+  });
 
   document.querySelectorAll(".rub-tpl").forEach(function (b) {
     b.onclick = function () {
@@ -6460,7 +6578,7 @@ function rubRefreshBar(rub) {
       st.innerHTML = "✓ Ölçütler tamam. Toplam <b>" + rub.maxScore + " puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.";
     } else if (tw < 100) {
       st.className = "rub-status warn";
-      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b>. Dağıtılmayı bekleyen <b>" + kalanPuan + " puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.";
+      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b>. Dağıtılmayı bekleyen <b>" + ondalikTr(kalanPuan) + " puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.";
     } else {
       st.className = "rub-status err";
       st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b> — 100'ü <b>" + (tw - 100) + " puan</b> aşıyor. Fazlalığı azaltın.";
@@ -6492,7 +6610,7 @@ function evalCardHtml(q, student, ev) {
     injectionWarnHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
-      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
+      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + ondalikTr(b.points) + '/' + ondalikTr(b.max) + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
         (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
     }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div>' +
@@ -6603,15 +6721,19 @@ function sinifVerisiKutusuHtml(gonderenSayisi) {
   return '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
     '<h3>Sınıf Verisi</h3><span class="hint">' + gonderenSayisi + ' öğrenci sınavı gönderdi</span></div>' +
     '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">' +
-    'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf ' +
-    'oluşturabilirsiniz: yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
+    /* §51: bu cümle sabitti ve 4 öğrenci gönderdiğinde de "tek öğrenciyle
+       hesaplanamaz" diyordu (ölçüldü, demo adım 4). Artık sayıya bakıyor. */
+    (gonderenSayisi > 1
+      ? 'Sınıf ortalaması bu ' + gonderenSayisi + ' gönderimden hesaplanır. Daha kalabalık bir sınıfla denemek isterseniz buradan simüle edilmiş öğrenciler ekleyebilirsiniz: '
+      : 'Tek öğrenciyle sınıf ortalaması hesaplanamaz. Buradan simüle edilmiş bir sınıf oluşturabilirsiniz: ') +
+    'yanıtlar farklı başarı düzeylerinde üretilir, ancak ' +
     '<b>değerlendirme gerçek modelle ve sizin tanımladığınız rubrikle</b> yapılır. ' +
     'Simüle öğrenciler listede açıkça işaretlenir.</div>' +
     '<button class="btn btn-secondary btn-sm" id="btnSimClass"' + (state.simRunning ? " disabled" : "") + '>' +
     (state.simRunning ? "Sınıf hazırlanıyor…" : "5 öğrencilik sınıf simüle et") + '</button>' +
     '<div class="cache-row">Değerlendirme önbelleği: <b>' + evalCacheCount() + '</b> kayıt' +
     (evalCacheCount() ? ' <button class="btn btn-secondary btn-sm" id="btnClearCache">Temizle</button>' : "") +
-    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; ücretsiz model kotasını korur.</span></div>' +
+    '<span class="lbl-hint">Aynı yanıt + aynı rubrik yeniden değerlendirilmez; gereksiz model çağrısı ve maliyeti önlenir.</span></div>' +
     '<div id="simProgress" class="sim-progress">' +
     (state.simStatus ? '<div class="sim-bar"><div class="sim-fill" style="width:' + Math.round(state.simStatus.oran * 100) + '%;"></div></div><div class="sim-text">' + escapeHtml(state.simStatus.metin) + '</div>' : "") +
     '</div></div>';
@@ -6734,7 +6856,7 @@ function teacherTab3Html() {
     : "";
 
   const acikUclu = opens.length
-    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">AI\'in en az emin oldugu yanit en ustte</span></div>' +
+    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
       (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
       (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
         done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
@@ -6782,7 +6904,12 @@ function wireTeacherTab3() {
     b.onclick = function () {
       const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
       const ev = (readSession(sid).aiEvals || {})[qid] || {};
-      finalizeReview(qid, ev.aiScore, "", "approved_as_is", sid);
+      /* §51 — SESSİZ DÜŞÜŞ KAPATILDI: bu düğme not alanını hiç okumuyor, ""
+         yazıyordu. Ölçüldü: "Nota Aktar" ile alınan geri bildirim + "Tek
+         Tıkla Onayla" → reviews.comment "" ve karnede not yok. Puan AI
+         önerisiyle aynı kalır; not, öğretmenin yazdığı/aldığı metindir. */
+      const notEl = document.querySelector('.teacher-comment[data-qid="' + qid + '"][data-sid="' + sid + '"]');
+      finalizeReview(qid, ev.aiScore, notEl ? notEl.value : "", "approved_as_is", sid);
     };
   });
   document.querySelectorAll(".revise-approve").forEach(function (b) {
@@ -7158,9 +7285,9 @@ function itemAnalysisHtml() {
     return '<div class="ia-item">' +
       '<div class="ia-body">' + escapeHtml(m.q.body) + "</div>" +
       '<div class="ia-metrics">' +
-        '<span class="ia-metric"><b>p</b> = ' + m.p.toFixed(2) +
+        '<span class="ia-metric"><b>p</b> = ' + ondalikTr(m.p, 2) +
           ' <span class="pill ' + py.s + '">' + py.t + "</span></span>" +
-        '<span class="ia-metric"><b>d</b> = ' + m.d.toFixed(2) +
+        '<span class="ia-metric"><b>d</b> = ' + ondalikTr(m.d, 2) +
           ' <span class="pill ' + dy.s + '">' + dy.t + "</span></span>" +
       "</div>" +
       '<div class="ia-opts">' + sikDagilimi +
@@ -7375,14 +7502,14 @@ function calibrationHtml() {
   const yonMetni = Math.abs(c.yon) < 0.05
     ? "Sistematik bir sapma yok."
     : (c.yon > 0
-      ? "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CİMRİ</b> davranıyor - siz puan ekliyorsunuz."
-      : "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CÖMERT</b> davranıyor - siz puan kırıyorsunuz.");
+      ? "Yapay zekâ ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan CİMRİ</b> davranıyor - siz puan ekliyorsunuz."
+      : "Yapay zekâ ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan CÖMERT</b> davranıyor - siz puan kırıyorsunuz.");
 
   const bantAd = { yuksek: "Yüksek güven (%85 ve üstü)", orta: "Orta güven (%70-85)", dusuk: "Düşük güven (%70 altı)" };
   const bantSatir = c.bantOzeti.map(function (b) {
     return '<div class="cal-band"><span class="cal-band-ad">' + bantAd[b.bant] + "</span>" +
       '<span class="cal-band-adet">' + b.adet + " yanıt</span>" +
-      '<span class="cal-band-sapma">ortalama sapma <b>' + b.ortSapma.toFixed(1) + "</b> puan</span></div>";
+      '<span class="cal-band-sapma">ortalama sapma <b>' + ondalikTr(b.ortSapma, 1) + "</b> puan</span></div>";
   }).join("");
 
   const kalibreNotu = c.guvenKalibre === null
@@ -7395,7 +7522,7 @@ function calibrationHtml() {
     ? '<div class="cal-worst"><span class="cal-worst-baslik">En çok ayrıştığınız yanıt</span>' +
       escapeHtml(c.enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(c.enFarkli.soru).slice(0, 90)) +
       '<div class="cal-worst-sayi">AI önerisi <b>' + c.enFarkli.ai + "</b> &rarr; sizin puanınız <b>" +
-      c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + c.enFarkli.fark.toFixed(1) + ")</div></div>"
+      c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + ondalikTr(c.enFarkli.fark, 1) + ")</div></div>"
     : "";
 
 
@@ -7427,12 +7554,12 @@ function calibrationHtml() {
         : "Bunların <b>" + c.degistirilen + "</b> tanesinde yapay zekânın önerdiği puanı değiştirdiniz. " +
           "Uyum oranı, en az 5 onaydan sonra anlamlı bir sayı verir.")
     : yonMetni + " <b>" + c.aynenOnay + "</b> yanıtı olduğu gibi onayladınız, <b>" + c.degistirilen +
-      "</b> yanıtta puanı değiştirdiniz. Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+      "</b> yanıtta puanı değiştirdiniz. Ortalama sapma <b>" + ondalikTr(c.sapma, 1) + "</b> puan" +
       (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".";
 
   const ayrintiIc =
     (azVeriModu
-      ? "<div>Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+      ? "<div>Ortalama sapma <b>" + ondalikTr(c.sapma, 1) + "</b> puan" +
         (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".</div>" +
         (c.uyum != null ? "<div>Ham uyum oranı: <b>%" + c.uyum + "</b> — yalnızca " + c.n +
           " onay üzerinden hesaplandığı için tek bir puan değişikliği bu sayıyı büyük ölçüde oynatır.</div>" : "")
@@ -8125,9 +8252,9 @@ function studentTab3Html() {
       if (!res) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
-          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtın kaydedilmemiş — ' +
-          'soru sen sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanına eklenmedi; ' +
-          'öğretmenine söyle.</div></div>';
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtınız kaydedilmemiş — ' +
+          'soru siz sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanınıza eklenmedi; ' +
+          'öğretmeninize bildirin.</div></div>';
       }
       /* PUAN GÖRÜNÜR OLMALI (ekip denemesi geri bildirimi): burada eskiden
          yalnızca "✓ Doğru" rozeti vardı; soru puanlanıyordu ama öğrenci o
@@ -8168,8 +8295,8 @@ function studentTab3Html() {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
           '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
           '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru ' +
-          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmenin tarafından onaylanmamış") +
-          '. Toplam puanına eklenmedi — öğretmenine söyle.</div></div>';
+          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmeniniz tarafından onaylanmamış") +
+          '. Toplam puanınıza eklenmedi — öğretmeninize bildirin.</div></div>';
       }
       totalScore += rv.finalScore; totalMax += rub.maxScore;
       /* "Değiştirildi mi" sorusu ETİKETTEN DEĞİL, PUANDAN türetilir.
@@ -8199,18 +8326,25 @@ function studentTab3Html() {
            söyle. HITL tezinin gereği: öğrenci puanın nasıl oluştuğunu doğru
            bilmeli. */
         (aiOneri == null
-          ? 'Bu puanı öğretmenin kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
+          ? 'Bu puanı öğretmeniniz kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
           : revize
-            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmenin okuyup ' + rv.finalScore + ' puana çevirdi.'
-            : 'Yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı.') + '</div>' +
+            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmeniniz yanıtınızı okuyup puanı ' + rv.finalScore + ' olarak belirledi.'
+            : 'Yapay zekâ bu puanı önerdi; öğretmeniniz yanıtınızı okuyup onayladı.') + '</div>' +
         ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
+        /* §51 — ÖĞRENCİYE YALNIZCA ÖĞRETMENİN ONAYLADIĞI METİN GİDER.
+           Eskiden karne `ev.justification` ile ölçüt `reason`larını da
+           gösteriyordu: modelin ÖĞRETMENE 3. şahısla yazdığı gerekçe
+           ("Öğrenci … kullanmış") doğrudan öğrenciye ulaşıyordu. Öğretmen
+           paneli ise "geri bildirim taslağı · siz aktarmadan öğrenciye
+           gitmez" diyor (feedbackDraftHtml) — karne bu sözü çiğniyordu.
+           `studentFeedback` de otomatik gösterilmez (aynı söz); öğretmen
+           "Nota Aktar" ile alırsa `rv.comment` olarak gelir. Ölçüt PUANLARI
+           kalır: puanın nereden geldiği öğrencinin hakkıdır. */
         (ev.breakdown || []).map(function (b) {
-          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>' +
-            (b.reason ? '<div class="rc-reason">' + escapeHtml(b.reason) + '</div>' : "");
+          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + ondalikTr(b.points) + ' / ' + ondalikTr(b.max) + '</span></div>';
         }).join("") +
-        ((ev.justification || rv.comment)
-          ? '<div class="justification" style="margin-top:8px;">' + escapeHtml(ev.justification || "") +
-            (rv.comment ? (ev.justification ? "<br>" : "") + "<b>Öğretmen notu:</b> " + escapeHtml(rv.comment) : "") + '</div>'
+        (rv.comment
+          ? '<div class="justification" style="margin-top:8px;"><b>Öğretmeninizin notu:</b> ' + escapeHtml(rv.comment) + '</div>'
           : "") + '</div>';
     }
   }).join("");
@@ -8232,8 +8366,8 @@ function studentTab3Html() {
       '<div class="kt-sayi"><span class="kt-puan tabular">' + puan + '</span>' +
       '<span class="kt-tavan tabular">/ ' + totalMax + '</span></div>' +
       (yuzde == null ? "" : '<div class="kt-yuzde tabular">%' + yuzde + '</div>') +
-      '<div class="kt-not">Bu senin bu sınavdan aldığın <b>nihai puan</b>. ' +
-      'Aşağıda her soruda ne yazdığını, kaç puan aldığını ve neden o puanı aldığını görebilirsin.</div>' +
+      '<div class="kt-not">Bu, sınavdan aldığınız <b>nihai puan</b>. ' +
+      'Aşağıda her soruda ne yazdığınızı, kaç puan aldığınızı ve puanın hangi ölçütlerden geldiğini görebilirsiniz.</div>' +
     '</div>' + rows + '</div>';
 }
 
@@ -8396,7 +8530,15 @@ function kazanimGrafigiSvg(rows, cols) {
 function renderKazanimGrafigi(targetId, rows) {
   const el = document.getElementById(targetId);
   if (!el) return;
-  const cols = OUTCOMES_LIST();
+  /* §51 — Yalnızca EN AZ BİR şubede verisi olan kazanımlar çizilir. Ölçüldü:
+     bir Fen sınavında 22 grup çiziliyor, ~18'i (Keşif KK.* + verisiz MAT)
+     baştan sona "—" idi; grafik yatayda uzuyor, asıl veri kayboluyordu.
+     Hiç verisi olmayan bir kazanım için çizilecek bir şey yoktur — bu bir
+     süzme değil, boş sütun göstermemektir; verisi gelince kendiliğinden
+     görünür. */
+  const cols = OUTCOMES_LIST().filter(function (c) {
+    return rows.some(function (r) { return r.scores && r.scores[c.code] != null; });
+  });
   if (!rows.length || !cols.length) {
     el.innerHTML = '<div class="empty-state">Karşılaştırma için henüz yeterli sonuç yok.</div>';
     return;
@@ -8455,7 +8597,7 @@ function renderKazanimGrafigi(targetId, rows) {
     el.querySelectorAll(".remedial-btn").forEach(function (b) {
       b.onclick = function () {
         state.remedial = { outcomeCode: b.dataset.kod, sinif: b.dataset.sinif, deger: Number(b.dataset.deger) };
-        state.ceForm.outcomeCode = b.dataset.kod;
+        tekrarFormunuKazanimaAyarla(b.dataset.kod);
         state.role = "content_expert";
         state.ceTab = 1;
         renderAll();
@@ -8466,6 +8608,26 @@ function renderKazanimGrafigi(targetId, rows) {
   }
 }
 
+
+/* §51 — "→ tekrar sorusu üret" YALNIZCA kazanım kodunu yazıyordu. Ölçüldü:
+   Analitik'ten MAT.7.3.4 seçilince form "Fen Bilimleri · 7. sınıf" kaldı,
+   kazanım "başka ders/sınıf" etiketiyle göründü ve kaynak metin Fen demo
+   metniydi — üretim yanlış ders bağlamıyla gidecekti. Ders, sınıf ve
+   (Keşif'te) atölye kazanım kaydından türetilir (soruDersSinif ile aynı
+   kaynak); dayanak "Kazanımdan" moduna alınır ki önceki dersin metni bu
+   kazanıma uygulanmasın. Metin SİLİNMEZ — uzman kaynak moduna dönerse
+   kendi notu yerinde durur. outcomeSeciminiTazele çağrılmaz: o, kodu
+   listenin ilkine sıfırlayabilir. */
+function tekrarFormunuKazanimaAyarla(kod) {
+  const o = OUTCOMES_LIST().concat(katalogKazanimlari()).filter(function (x) { return x.code === kod; })[0];
+  const ders = (o && o.subject) || kodDanDers(kod);
+  const sinif = (o && o.grade) || kodDanSinif(kod);
+  if (ders && SUBJECTS_LIST().indexOf(ders) >= 0) state.ceForm.subject = ders;
+  if (sinif) state.ceForm.grade = sinif;
+  state.ceForm.atolye = (o && o.atolye) || state.ceForm.atolye;
+  state.ceForm.outcomeCode = kod;
+  state.ceForm.mode = "kazanim";
+}
 
 function buildAdminHeatmapRows() {
   const gercek = realClassRows();
@@ -8554,7 +8716,9 @@ function renderAdmin() {
     (rate == null ? "—" : "%" + rate) + '</div>' +
     '<div class="s-sub tabular">' +
     (durum.atanan
-      ? durum.tamamlanan + '/' + durum.atanan + ' sınav tamamlandı'
+      /* §51: "4/4 sınav" diyordu, oysa 1 sınav × 4 öğrenci idi; sayılan şey
+         (alttaki notta yazdığı gibi) öğrenci-sınav atamasıdır. */
+      ? durum.tamamlanan + '/' + durum.atanan + ' sınav ataması tamamlandı'
       : 'henüz yayınlanmış sınav yok') + '</div>' +
     '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı ' +
     '(yayınlanmış her sınav × her öğrenci bir atama sayılır)</div></div>' +
@@ -8650,7 +8814,7 @@ function teacherOzetCumlesi(t) {
   const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
   return pct != null && pct > 0
     ? "AI analizine kıyasla ortalama %" + pct + " " + yonKelime + " puan veriyor"
-    : "AI analizine kıyasla ortalama " + Math.abs(c.yon).toFixed(1) + " puan " + yonKelime + " veriyor";
+    : "AI analizine kıyasla ortalama " + ondalikTr(Math.abs(c.yon), 1) + " puan " + yonKelime + " veriyor";
 }
 
 function teacherAnalyticsHtml() {
@@ -8714,7 +8878,7 @@ function teacherReportCardHtml(t) {
     ? escapeHtml(t.name) + ", AI analizine kıyasla sistematik bir sapma göstermiyor."
     : (pct != null && pct > 0
         ? escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>%" + pct + "</b> " + yonKelime + " puan verdi"
-        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan</b> " + yonKelime + " verdi")
+        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan</b> " + yonKelime + " verdi")
       + " / <b>" + yonEtiket + "</b>.";
   const tamMutabakat = Math.round(c.aynenOnay / c.n * 100);
   const enFarkli = c.enFarkli;
@@ -8737,7 +8901,7 @@ function teacherReportCardHtml(t) {
     '<div class="s-sub">açık uçlu değerlendirme</div></div>' +
     '<div class="stat-tile"><div class="s-label">Tam Mutabakat</div><div class="s-value tabular">%' + tamMutabakat + '</div>' +
     '<div class="s-sub tabular">' + c.aynenOnay + '/' + c.n + ' onayda AI puanı aynen kabul edildi</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + c.sapma.toFixed(1) + '</div>' +
+    '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + ondalikTr(c.sapma, 1) + '</div>' +
     '<div class="s-sub">puan (mutlak değer' + (c.ortTavan ? ", ortalama tam puan " + c.ortTavan.toFixed(0) : "") + ')</div></div>' +
     '</div>' +
 
@@ -8745,7 +8909,7 @@ function teacherReportCardHtml(t) {
       ? '<div class="cal-worst" style="margin-top:14px;"><span class="cal-worst-baslik">En çok ayrıştığı rubrik/soru</span>' +
         escapeHtml(enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(enFarkli.soru).slice(0, 90)) +
         '<div class="cal-worst-sayi">AI önerisi <b>' + enFarkli.ai + "</b> &rarr; öğretmenin puanı <b>" +
-        enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + enFarkli.fark.toFixed(1) + ")</div></div>"
+        enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + ondalikTr(enFarkli.fark, 1) + ")</div></div>"
       : "") +
     '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır; öğretmen puanı kriter bazında değil toplam ' +
     'olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
@@ -9935,7 +10099,7 @@ function dikkatVeliyeOnayla(sid) {
   }
   const onay = ensureDikkatOnay();
   onay[sid] = { at: Date.now(), sinavSayisi: s.isaretli.length, aktor: "Öğretmen" };
-  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sinavda isaret" });
+  auditKaydet("dikkat_veliye_bildirildi", { sid: sid, not: s.isaretli.length + " sınavda işaret" });
   saveState();
   renderAll();
   return true;
@@ -10191,7 +10355,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",

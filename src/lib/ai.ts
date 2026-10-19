@@ -49,14 +49,14 @@ export function temizAnahtar(k?: string): string {
 }
 
 /**
- * Birincil sa\u011Flay\u0131c\u0131 \u00E7a\u011Fr\u0131labilir durumda m\u0131?
+ * Birincil sağlayıcı çağrılabilir durumda mı?
  *
- * \u00A742: `/status` ucu bunu `!!c.env.AI_API_KEY` ile ham olarak \u00F6l\u00E7\u00FCyordu \u2014
- * yani BOM'lu ya da yaln\u0131zca bo\u015Fluktan olu\u015Fan bir anahtar "haz\u0131r" g\u00F6r\u00FCn\u00FCyordu.
- * Oysa `callModel()` ayn\u0131 anahtar\u0131 `temizAnahtar()`'dan ge\u00E7irip bo\u015F bulunca
- * hata f\u0131rlat\u0131yor. \u0130ki \u00F6l\u00E7\u00FCt ayr\u0131\u015Fm\u0131\u015Ft\u0131: rozet ye\u015Fil, \u00E7a\u011Fr\u0131 \u00F6l\u00FC.
- * BOM tuza\u011F\u0131 bu dosyada zaten bir kez ya\u015Fand\u0131 (bkz. temizAnahtar notu);
- * haz\u0131rl\u0131k kontrol\u00FC de ayn\u0131 temizlikten ge\u00E7mek zorunda.
+ * §42: `/status` ucu bunu `!!c.env.AI_API_KEY` ile ham olarak ölçüyordu —
+ * yani BOM'lu ya da yalnızca boşluktan oluşan bir anahtar "hazır" görünüyordu.
+ * Oysa `callModel()` aynı anahtarı `temizAnahtar()`'dan geçirip boş bulunca
+ * hata fırlatıyor. İki ölçüt ayrışmıştı: rozet yeşil, çağrı ölü.
+ * BOM tuzağı bu dosyada zaten bir kez yaşandı (bkz. temizAnahtar notu);
+ * hazırlık kontrolü de aynı temizlikten geçmek zorunda.
  */
 export function saglayiciHazirMi(env: AiEnv): boolean {
   return providerName(env) === 'workers-ai' ? !!env.AI : !!temizAnahtar(env.AI_API_KEY);
@@ -383,10 +383,18 @@ async function callOne(
           temperature: opts.temperature,
         }
       : opts;
-    try {
-      const raw = await callModel(env, p, buOpts);
-      const data = extractJson(raw);
-      // agents.md §7.4: maliyet görünürlüğü — Workers Logs'a yazılır.
+    /* §51b — İKİ DEĞİŞİKLİK.
+       (1) Her deneme Workers Logs'a yazılır, başarısız olan da (`ok:false`).
+           Eskiden yalnızca başarılı deneme yazılıyordu; JSON'u ayrıştırılamayan
+           ilk deneme de token harcadığı hâlde kayıtta görünmüyordu (agents.md
+           §4 maliyet görünürlüğü).
+       (2) Yeniden deneme YALNIZCA yanıt geldi ama JSON ayrıştırılamadıysa
+           yapılır. Model çağrısının kendisi düştüyse (kota, 429, kesinti, model
+           kaldırıldı) aynı sağlayıcıyı ikinci kez denemek aynı hatayı verir ve
+           boşa çağrı harcar; hata hemen yükselir ve callModelJson YEDEĞE geçer
+           (README §3.1'deki "birincil bozuk, yine 200" davranışı korunur —
+           test/rota.test.ts). */
+    const kayit = (ok: boolean, asama?: 'model' | 'ayristirma', hata?: unknown) =>
       console.log(
         JSON.stringify({
           ev: 'ai_call',
@@ -395,10 +403,23 @@ async function callOne(
           approxPromptChars: p.length,
           maxTokens: buOpts.maxTokens,
           attempt,
+          ok,
+          ...(ok ? {} : { asama, hata: (hata instanceof Error ? hata.message : String(hata)).slice(0, 200) }),
         })
       );
+    let raw: string | object;
+    try {
+      raw = await callModel(env, p, buOpts);
+    } catch (e) {
+      kayit(false, 'model', e);
+      throw e instanceof Error ? e : new Error(String(e));
+    }
+    try {
+      const data = extractJson(raw);
+      kayit(true);
       return { data, attempts: attempt, approxPromptChars: p.length };
     } catch (e) {
+      kayit(false, 'ayristirma', e);
       lastErr = e;
     }
   }

@@ -548,6 +548,8 @@
     margin-bottom: 14px; }
   .rub-status.ok { background: var(--success-soft); color: var(--success); }
   .rub-status.warn { background: var(--warning-soft); color: var(--warning); }
+  /* §51: AI rubrik taslağı şeridi + kabul düğmesi */
+  .rub-taslak-serit { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
   .rub-status.err { background: var(--accent2-soft); color: var(--critical); }
 
   .crit-row { display: flex; align-items: center; gap: 8px; }

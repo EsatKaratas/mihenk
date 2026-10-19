@@ -7547,3 +7547,277 @@ yapılandırmaları depoda hazır durur, tek bir komutla açılır."*
 
 **Kazanılan:** aynı satır artık "yapmadık" değil, "yaptık, ölçtük, bilerek
 kapattık" diyor — ve her cümlesi depodan doğrulanabiliyor.
+
+---
+
+## 51b. UÇTAN UCA DENETİM + SUNUCU DÜZELTMELERİ (19 Ekim 2026, W2)
+
+**Bağlam:** T3 AI Lisans Araştırmacı bursu teslimi (19 Ekim akşam). Çalışma
+ekip düzeninde yürüdü: müdür oturum + W1–W5. Bu bölüm W2'nin işidir
+(sunucu `src/**`, `test/**`, `tools/` — `tools/olcum` hariç). Sunucu
+düzenlemeleri, ortak yerel sunucuyu (8788/8789) yeniden yükleyip uçuştaki
+model çağrılarını düşürmemek için ayrı worktree'de (`mihenk-w2`, dal
+`w2-duzeltme`) yapıldı ve tek seferde alındı.
+
+### 51b.1 Cloudflare — salt okuma (hiçbir ayar değiştirilmedi)
+
+| Ölçüm | Sonuç |
+|---|---|
+| Panel (yerleşik tarayıcı) | oturum yok — Workers planı / iptal tarihi **ölçülemedi**; `/subscriptions` API'si wrangler belirteciyle yetki hatası verdi |
+| `wrangler whoami` · canlı sürüm | girişli · `518cdeb7` (6 Eylül 09:53Z), sonrasında dağıtım yok |
+| Workers Logs (`script-settings`) | **açık**: `logs.persist=true`, `invocation_logs=true`, örnekleme 1,0; traces kapalı |
+| `mihenk` son 24 sa / 7 gün | 4 istek 0 hata / 7 istek 0 hata |
+| Workers AI, 1–19 Ekim | **0 çağrı**. Son 30 günde tek kayıt: 27 Eylül, llama-3.3-70b, 3 çağrı, ~674 Neuron |
+| Canlı smoke | `/api/health` ok · `/api/ai/status` ready, `fallbackSorunu:null` · `/`, `/privacy-policy`, `/robots.txt` 200 |
+
+### 51b.2 Uçtan uca denetim (yerel, `127.0.0.1:8788`, gerçek model)
+
+İçerik (kaynak metin, FEN.7.1.2) → 2 üretim → 3 soru **insan onayıyla**
+havuza → sınav + AI rubrik taslağı → yayın → öğrenci yanıtı → AI 15/20
+önerisi → 5 kişilik simüle sınıf → 6 öneri (biri elle 8→10, beşi tek tık) →
+sonuç yayını → karne **20/30** (5+0+15, elle doğrulandı) → veli (yalnız onaylı
+sonuç) → yönetici (onay bekleyen 0, tamamlanma 6/9) → kavram yanılgısı analizi.
+
+- **HITL:** öğretmen onayından önce öğrencinin Karne ve Sınavlarım
+  sekmelerinde puan **görünmüyor** (ölçüldü).
+- Konsol hatası **0** (`error` + `unhandledrejection` dinlendi), yinelenen id **0**.
+- Model çağrısı: 12 uç isteği (üretim 3, rubrik 1, değerlendirme 6, örnek yanıt 1, yanılgı 1), hepsi 200.
+- Arayüz bulguları (U1–U6) W1'e iletildi; bu bölümde değil.
+
+### 51b.3 P0 — kazanım metni sınırı 200 → 400 (`fc1750c`)
+
+W5 gerçek istekle buldu: MAT.8.3.5 kazanım metni 213 karakter, şemada
+`outcomeLabel` en çok 200 → HTTP 400, model çağrılmıyor, bu kazanımla soru
+**üretilemiyordu**. İstemcide kırpılmadı (modele eksik kazanım giderdi);
+sunucuda tek sabit `MAX_OUTCOME_LABEL_CHARS = 400`, altı şemanın hepsinde ve
+kazanım denetimi aday metninde (eskiden 220).
+
+En uzun kazanım metinleri (12 MEB dosyası, 606 kazanım, ölçüldü):
+
+| Karakter | Kod |
+|---:|---|
+| 213 | MAT.8.3.5 (tek aşan) |
+| 200 | MAT.5.3.7 |
+| 199 | MAT.8.5.2 |
+| 165 | MAT.7.4.8 |
+| 163 | MAT.8.7.1 |
+
+**Deneyap eklenince (ölçüldü, `c6da055`):** 1.228 kazanımda metni eski 200
+sınırını aşan kazanım **1 değil 7**; en uzunu DNY.EP.7.1 — 273 karakter
+(etiket "KOD — metin" 286). Sınır 200'de kalsaydı bu yedisiyle de üretim 400
+alırdı. 400 sınırına bugünkü pay 114 karakter; `test/mufredat.test.ts`
+katalog her değiştiğinde bunu denetler.
+
+Bedeli: istem kazanım başına en çok ~200 karakter uzayabilir; kazanım
+denetiminde 60 adayla en kötü durum ~13.200 → ~24.000 karakter (gerçek aday
+metinleri ortalama ~100 karakter, pratikte değişmez). Kanıt: 8788'de MAT.8.3.5
+ile gerçek üretim HTTP 200.
+
+### 51b.4 `kaynakTuru: "meb" | "deneyap"` (`7f6cbd5`)
+
+Kazanım modunda istem "MEB KAZANIMINDAN" ve "MEB öğretim programında yer alan
+bilgiyle sınırlı" diyordu; TÜBİTAK Deneyap kitabı kazanımları için ikisi de
+yanlıştı. İsteğe bağlı alan, varsayılan `meb`. **MEB istemi değişmedi:**
+değişiklikten önce aynı spec ile alınan SHA-256 parmak izi (10.147 karakter)
+testte sabit; alan yokken ve `meb` iken birebir eşit. "SORU TARZI" bloğundaki
+"MEB ÖGM / LGS / PISA" satırı bilerek değiştirilmedi (kaynak değil, soru
+geleneği).
+
+### 51b.5 Kalıplı gerekçe sayacı (`5014c20`)
+
+`meta.sadelestirilenGerekce` / `meta.toplamGerekce`: sunucuda "Bu şıkkı seçen
+öğrenci…" açılışı kesilen gerekçe sayısı ve toplam gerekçe sayısı.
+Kullanılabilir tüm ÇSS'ler üzerinden, tekrar elemesinden **önce** sayılır —
+ölçülen şey modelin ham davranışı, araştırmanın "otomatik denetim ne kadar
+yakalıyor" sorusunun doğrudan ölçüsü. Davranış değişmedi.
+
+### 51b.6 Sunucu düzeltmeleri (`29cd4c6`, `81847da`, `bbe8205`)
+
+| # | Kusur (ölçüldü) | Düzeltme |
+|---|---|---|
+| P1-1 | Bozuk/boş JSON gövdesi **HTTP 500** `internal_error` + Logs'a `unhandled_error` (zValidator'ın HTTPException(400)'ı `onError`'da 500'e çevriliyordu) | 400 `invalid_json` |
+| P1-2 | Uç başına sınırların anahtarı istemcinin verdiği değer (docKey, soru gövdesi); anahtarı değiştiren döngü sınırsız model çağırır | IP (`CF-Connecting-IP`) başına tüm POST AI uçlarında ortak tavan **60/dk** |
+| P2-1 | `ai_call_failed` istemciye ham hata veriyordu (sağlayıcı URL'si, model adı, sağlayıcı/model gövdesinden parça) | iki kısa Türkçe mesaj; ayrıntı `ev:"ai_failed"` ile log'a |
+| P2-2 | `ai_call` kaydı yalnız başarılı denemede; JSON'u ayrıştırılamayan deneme token harcadığı hâlde görünmüyordu | her deneme `ok:true/false` + `asama` |
+| P2-3 | Her hatada aynı model yeniden deneniyordu (kota/429 dahil) | yeniden deneme yalnız ayrıştırma hatasında; model hatasında **hemen yedeğe** |
+| P2-4 | "en az bir soru" denetimi hız sayacından sonraydı; geçersiz istek belgenin 5 hakkından birini yiyordu | sıra düzeltildi |
+| P2-7 | `src/lib/ai.ts` s.52-59 yorumu `\u` kaçışlarıyla yazılmıştı | okunur UTF-8 Türkçe |
+| 9 | KK.FIZ.2.1 üretiminde "tăngdı" (ă U+0103) — `dilUyarisi:false` | Latin Extended-A eklendi, Türkçe harfler hariç |
+
+**P1-2 değerinin gerekçesi (sabit tahminle konmadı, §5 tuzak 9):** amaç
+**maliyet güvenliği, kalite eşiği değil** — 26 Ekim'den sonra hesap ücretsiz
+Workers AI planına dönüyor ve günlük Neuron kotası tek bir döngüyle tükenir.
+Değer mevcut sınırlardan türetildi: sınıf değerlendirme (`RATE_LIMIT_EVAL_PER_MIN`
+= 45) + üretim/rubrik/denetim için 3 × 5 = **60**. Başlık yoksa (yerel geliştirme,
+testler) tüm istekler tek "yerel" kovada sayılır. Ölçüm betiği (13 sn arayla,
+~5/dk) etkilenmez. Bellek içi ve isolate başına — dağıtık garanti değil, sigorta.
+
+**P1-2 bilinen sınırı:** sayaç IP başınadır. Okul ağı NAT arkasındaysa aynı
+dış adresi paylaşan birçok öğretmen 60/dk'yı **birlikte** tüketir. Bugün ürün
+tek cihazda çalıştığı için (kimlik doğrulama yok, §43) etkisizdir; çok
+kullanıcıya geçişte (agents.md §2 hedefi, Better Auth) sayaç **kullanıcı
+başına** anahtara dönülmelidir.
+
+**P2-3 yedeğin korunduğunun gerçek kanıtı:** worktree'den ayrı bir sunucu
+(8790), `AI_MODEL=@cf/meta/bu-model-yok-w2`. `POST /evaluate` → **HTTP 200**,
+yanıt yedek modelden. Log sırası: `ai_call` bozuk model `attempt 1 ok:false
+asama:model "5007: No such model"` → `ai_fallback` → `ai_call` scout `ok:true`.
+Birincil **bir kez** çağrıldı (eskiden iki).
+
+**9. maddenin ölçümü:** Latin Extended-A'da Türkçe harfler yalnız Ğ ğ İ ı Ş ş
+(ç ö ü â î û Latin-1'dedir). Depodaki 32 metin dosyasında (12 MEB müfredatı,
+13 Deneyap dosyası, ders belgeleri, `app.js`; 1.049.353 karakter) bu bloktan
+Türkçe dışı karakter **0**. 1.228 kazanımda (606 MEB — 365'i Türkçe — + 622
+Deneyap) ve demo sorularında yanlış alarm **0** (`test/guards.test.ts`).
+
+**Bilinçli sınır:** Latin-1 içindeki é, ñ, ã, ß hâlâ yakalanmaz — Türkçenin
+ç ö ü â î û harfleriyle aynı blokta yaşarlar, ayıklamak sözlük ister (§48b.3).
+
+### 51b.7 Bilinen, bırakıldı (müdür kararı: risk/getiri düşük)
+
+- **P2-5:** POST uçlarına GET → 404 (405 değil).
+- **P2-6:** `content-type` başlığı yoksa gövde `{}` sayılıyor, yanıltıcı
+  "Required" mesajları dönüyor (yine 400, yine JSON).
+
+### 51b.8 Doğrulama
+
+| Kontrol | Önce | Sonra |
+|---|---|---|
+| `npm test` | 263/263 · 7 dosya | **291/291 · 8 dosya** (`test/rota.test.ts` yeni: uygulamayı `app.request` ile uçtan çağırır, sahte AI bağlamasıyla — gerçek çağrı yok) |
+| `npm run lint` | temiz | **temiz** |
+| `node tools/ozkontrol-dogrula.mjs` | %100 | **%100** |
+| `npm run check:config` | exit 0 | **exit 0** |
+
+### 51b.9 Birleştirme ve canlı-öncesi kanıt
+
+- Merge **`e35628f`** (main, `--no-ff`, çakışma yok). Yalnız `src/` + `test/`
+  değişti (10 dosya, +600/−26); `public/app.js`'e dokunmadığı
+  `git diff HEAD^1 HEAD` ile doğrulandı.
+- Ana ağaçta: `npm test` **291/291** · lint temiz · öz-kontrol %100 ·
+  `check:config` exit 0.
+- **Gerçek Deneyap üretimi** (yerel 8788, llama-3.3): `kaynakTuru:"deneyap"`,
+  DNY.YZ.1.1 ("Öğrenciler 'yapay zekâ' kavramını temel düzeyde açıklar."),
+  2 ÇSS → HTTP 200, 11,6 sn, `attempts 1`, `fellBack false`, `dilUyarisi`
+  false ×2, **`sadelestirilenGerekce 6 / toplamGerekce 6`** — altı gerekçenin
+  altısı da kalıplıydı ve sunucuda kesildi.
+- **İçerik gözlemi (kod değil):** iki sorunun şıkları da birbirinin üst/alt
+  kavramıydı (makine öğrenimi / derin öğrenme / yapay sinir ağları) — tek doğru
+  cevap tartışmalı. Korumaların yakalamadığı sınıf (§DEVIR 1: olgusal/anahtar
+  hatası); İçerik Uzmanı onayı yakalamalı.
+- **Kendi ölçüm hatam:** yedek kanıtı için açtığım 8790 sunucusu (bozuk model
+  adıyla) kapatıldı sanıldı, ama arka plan görevini durdurmak yalnız `npx`'i
+  kapatmış, `wrangler`/`workerd` alt süreçleri yaşamaya devam etmişti. Sonraki
+  bir deneme bu eski sunucuya gitti ve yedekten (scout) döndü. Süreçler port
+  üzerinden bulunup kapatıldı (14 süreç); sonuç ölçüme katılmadı. Ders: Windows'ta
+  arka plan `wrangler dev`'i durdurduktan sonra portun boşaldığı ölçülmeden
+  yeni sunucuya güvenilmez.
+
+
+---
+
+## 51. ARAYÜZ DENETİMİ + DÜZELTMELER (19 Ekim 2026, W1)
+
+**İstek (Mihenk Orchestrator, T3 AI bursu hazırlığı):** giriş kapısı, rehberli
+demo, İçerik Uzmanı ve Öğretmen ekranlarının her düğmesi gerçek tarayıcıda
+denetlensin; bulgular P0/P1/P2 diye sınıflansın; onaylananlar düzeltilsin.
+Dosya sahipliği: `public/app.js`, `public/app.css`, `public/index.html`.
+
+### 51.1 Ölçüm koşulları
+
+- Yerel `wrangler dev -c wrangler.demo.jsonc --port 8788` (launch.json'daki
+  `mihenk-final` girdisi eski `C:/Users/pc` yolunu gösteriyordu, düzeltildi).
+- Her doğrulamadan önce **servis edilen `app.js` ↔ disk SHA-256 eş** ölçüldü
+  (tuzak 2). Başlangıç: `68c34d26`, son: commit `ca8c345` sonrası diskle eş.
+- Baseline: lint temiz · 263/263 · öz-kontrol 336 ad %100.
+- **Gerçek model çağrısı: 10 deneme, 7 başarılı** (rubrik 2, evaluate 3/5,
+  generate 1/2, misconceptions 1). Başarısız 3'ünün üçü de ortam kaynaklı (51.4).
+
+### 51.2 Denetim sonucu (Faz 1)
+
+**P0 yok.** HITL zinciri sağlam ölçüldü: onay/red/yeniden incele yalnız
+tıklamayla; AI puanı öğretmen tıklamadan nihai olmuyor; sonuçlar "siz
+yayınlayana kadar gizli"; yayındaki sınavın sorusu silinemiyor ve sebebi
+yazıyor; yayından sonra tepsi/puan/süre kilitli. Konsolda JS hatası **0**,
+yinelenen `id` **0** (her ekranda), 375 px'te CE 1-2 ve Öğretmen 1-4
+sekmelerinde yatay taşma **0**. Koyu tema kullanıcıya görünmüyor:
+`index.html` `data-theme="light"` ile bilerek sabit (gerekçe `app.css:40`).
+
+**Ayrıca ölçülen ve sorunsuz olanlar:** demo 1→5 kilitleri insan aksiyonu
+bekliyor; şık ▲▼ ile doğru cevap ve gerekçe içerikle birlikte taşınıyor;
+Keşif → sınıf "Keşif" + atölye seçici; belge kilidi üç atölyede doğru belgeyi
+okuyor, kırpma sessiz değil. **§49.8'deki "belgeye kilitli üretim gerçek
+çağrıyla denenmedi" maddesi kapandı:** KK.FIZ.2.1 · `surtunme-kuvveti.txt` ile
+3 soru üretildi. Kalitesi zayıftı: bir soru olgusal olarak sorunluydu ("aynı
+hızda bırakılan bilye mi araba mı daha hızlı") ve reddedildi; bir şıkta
+**"tăngdı"** (Vietnamca ă, U+0103) vardı ve `dilUyarisi` false döndü — kök
+neden `YABANCI_ALFABE` U+0100–017F'yi kapsamıyordu (Türkçe ğ ı ş aynı blokta);
+W2'ye verildi, §51b'de ele alındı.
+
+### 51.3 Düzeltmeler (Faz 2) — kök neden + ölçüm
+
+| Commit | Bulgu | Kök neden | Ölçüm (gerçek tarayıcı) |
+|---|---|---|---|
+| `e51456d` | **P1-a (HITL'e yakın):** AI rubrik taslağı öğretmen kabul etmeden yürürlüğe giriyordu | "🤖 taslak öner" kriterleri doğrudan yazıyordu; şerit "onaylamadan önce gözden geçirin" diyordu ama **onay düğmesi yoktu**; `rubrikGecerliMi` `aiDraft`'ı görmüyordu; aynı ekran "yayınlayabilirsiniz" diyordu. Ada'nın gerçek yanıtı bu onaysız taslakla puanlanmıştı | Taslak gelince: yayın düğmesi kapalı, sebep "1 rubrik yapay zekâ taslağı ve henüz kabul edilmedi", sekme rozeti 1. "✓ Taslağı kabul et" → `aiDraft:false`, yayın açık. Demo tohumu rubriği `aiDraft` taşımıyor → demo akışı değişmedi (ölçüldü) |
+| `371842f` | P1-b: Analitik "→ tekrar sorusu üret" yanlış ders bağlamı | Yalnız `outcomeCode` yazılıyordu; MAT.7.3.4 seçilince form "Fen · 7" ve Fen demo metniyle kalıyordu | Tıklama → Matematik · 7 · MAT.7.3.4 · Kazanımdan; "başka ders/sınıf" etiketi yok |
+| `371842f` | U4: grafikte boş gruplar | `renderKazanimGrafigi` tüm `OUTCOMES_LIST`'i çiziyordu | Fen demo sınavında **22 → 3 grup**, SVG genişliği 566 px; öğretmen ve yönetici aynı |
+| `35cbd58` | U5: katalog yüklenirken "hepsi eklendi" | Yüklenmemiş katalog boş liste olarak okunuyordu | `fetch` 2,5 sn geciktirildi, Fen'e gerçek tıklama → "MEB kataloğu yükleniyor…", ardından 25 kazanım |
+| `35cbd58` | U1 + ASCII tarama | — | Yorum dışı string'lerde görünür metin tarandı: **yalnız 2 kalıntı** (onay ipucu, dikkat-sinyali denetim notu). CSV başlıkları makine anahtarı, bilerek dokunulmadı |
+| `80f9448` | U2: karne öğretmene yazılmış metni öğrenciye gösteriyordu | Karne `ev.justification` + ölçüt `reason` gösteriyordu (3. şahıs, "Öğrenci … kullanmış"); öğretmen paneli ise "siz aktarmadan öğrenciye gitmez" diyor | Karnede ölçüt **puanları** + "Öğretmeninizin notu" kaldı; `studentFeedback` otomatik gösterilmez (aynı söz). "öğretmenin okuyup onayladı" ve sen/siz karışıklığı düzeltildi |
+| `80f9448` | 🔴 **Doğrulama sırasında bulunan sessiz düşüş:** "Tek Tıkla Onayla" not alanını okumuyordu | `finalizeReview(..., "", ...)` sabit boş not | Önce: "Nota Aktar" + "Tek Tıkla Onayla" → `comment:""`. Sonra: not kaydediliyor ve karnede görünüyor |
+| `80f9448` | P1-e: Sınıf Verisi metni sabit + bayat kota ifadesi | Metin `gonderenSayisi`'na bakmıyordu; "ücretsiz model kotası" §19 sonrası bayat | 4 gönderimde "Sınıf ortalaması bu 4 gönderimden hesaplanır" |
+| `5368925` | Ondalık nokta | `toFixed`/ham sayı ekranda | `ondalikTr()` yalnız görüntüde: "6,5 dk", "p = 0,75", "4,5/6"; sayıdan sonra ek yok (tuzak 8) |
+| `5368925` | Erişilebilirlik + Keşif metni | `.opt-input` adsızdı; Keşif'te "Dayanak MEB kazanımı" yanlıştı | "A şıkkının metni"…; belgeye bağlı kazanımda "bağlı ders belgesi" |
+| `ca8c345` | U3/U6: simüle ad çakışması ve tekrarı | `SIM_ISIMLER` sırayla veriliyordu | 10 ad üretimi: gerçek "Ada Yılmaz" varken "Ada" ile başlayan ad yok; tekrarlar "Deniz K. 2" gibi ayrışıyor |
+| `ca8c345` | İkiz koşul: `simulateClass` | `totalWeight === 100` (tuzak 7) — kabul edilmemiş taslakla da çalışıyordu | `aiDraft` iken simülasyon çağrı yapmadan durdu, öğrenci sayısı değişmedi |
+| `ca8c345` | Soru düzenlemede kazanım seçici | Tüm dersler karışık listeleniyordu | Fen sorusunda 21 → 1 seçenek |
+| `ca8c345` | Yönetici "4/4 sınav tamamlandı" | Sayılan şey öğrenci-sınav atamasıydı | "4/4 sınav ataması tamamlandı" |
+
+**KARAR — kriteri elle düzenlemek kabul SAYILMAZ.** Tek bir ağırlığı ya da adı
+değiştirmek taslağın tamamının okunduğunu kanıtlamaz. Kabul tek, açık ve
+denetim izine düşen bir eylemdir: `rubrik_kabul_edildi` kaydı `degisti`
+alanıyla "aynen kabul" ile "düzenleyip kabul"ü ayırır (ikisi de ölçüldü).
+Ayrıca `rubrik_onerildi` etiketi `AUDIT_ETIKET`'te tanımlıydı ama **hiçbir
+yerde yazılmıyordu**; artık model adıyla yazılıyor.
+
+**Bedel:** daha önce AI taslağı alıp kabul etmeden yayınlanmış bir sınavın
+rubriği olan tarayıcıda, ilgili sınav "rubrik bekliyor" rozetini gösterir;
+öğretmenin bir kez "kabul et" demesi gerekir. Bu bilerek kabul edildi.
+
+### 51.4 Ortam sorunları (ürün hatası DEĞİL)
+
+- **Paylaşılan `wrangler dev` yeniden yüklenmesi:** başka bir worker `src/**`
+  düzenledikçe sunucu "Reloading" yaptı, uçuştaki istekleri "Network
+  connection lost" → **HTTP 503** ile öldürdü (evaluate 2, generate 1). Önlem:
+  W2 ayrı worktree'ye geçti. Ürünün başarısız-değerlendirme yolu bu sayede
+  gerçek hatayla sınandı: yanıt korunuyor, "Yeniden Dene" ve "Elle Puanla"
+  çalışıyor; yeniden deneme 15/20 + ölçüt kırılımı verdi.
+- **Tarayıcı aracı yerel `confirm()`'i otomatik reddediyor** (araç sınırı).
+  Onay isteyen düğmeler `confirm` geçici olarak "evet" döndürülerek sınandı;
+  "Yayından kaldır" onay metninin sayımlı geldiği ölçüldü.
+- **Koordinatla tıklama ölçeklenmiş ekran görüntüsü çerçevesinde
+  yorumlanıyor**; bir kez kartlar arası boşluğa düştü ve "kart tıklaması
+  çalışmıyor" gibi göründü. `elementFromPoint` ile ayırt edildi; ürün hatası
+  değil. Bundan sonra yalnız `ref` ile tıklandı.
+
+### 51.5 Bilinen — bilerek bırakılanlar
+
+- **Reddetmede gerekçe sorulmuyor.** Red anında ve geri alınabilir
+  ("↩ Yeniden İncele" ölçüldü). Gerekçe alanı ayrı bir tasarım kararı.
+- **Yayından sonra sınav başlığı düzenlenebiliyor**; süre/puan/soru kilitli.
+  Başlık ölçmeyi etkilemediği için bırakıldı.
+- **Denenmedi:** "5 öğrencilik sınıf simüle et" (5+ gerçek çağrı; yalnız
+  kapı ve ad mantığı ölçüldü), PDF/dosya yükleme ve OCR, "Kazanım Denetimi
+  Yap", "Örnek listeyi temizle", "+ Öğrenci ekle".
+- Keşif kazanım listesinde üst başlık (KK.KIM.1) ile alt kazanım (KK.KIM.1.1)
+  aynı düzeyde listeleniyor — W3'ün Deneyap/Keşif yapısıyla birlikte
+  ele alınmalı.
+
+### 51.6 Doğrulama (son durum)
+
+| Kontrol | Sonuç |
+|---|---|
+| `node tools/ozkontrol-dogrula.mjs` | **340 ad · %100** (+4: `rubrikTaslaginiKabulEt`, `tekrarFormunuKazanimaAyarla`, `ondalikTr`, `simIsmiSec`) |
+| `npm test` · `npm run lint` | **302/302** (9 dosya; W2 merge'ü `e35628f` dahil) · lint exit 0 |
+| Servis ↔ disk SHA-256 | her düzeltme sonrası eş |
+| Türkçe karakter (U+FFFD) | 0 |
+| HITL değişmezi | `"approved"` atayan satır sayısı `e4a4024` ile aynı (2); yeni otomatik kabul yok |
