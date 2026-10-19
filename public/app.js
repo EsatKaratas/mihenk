@@ -6384,13 +6384,18 @@ function cevapAnahtariHtml(sorular) {
       cevap = "<b>" + escapeHtml(q.correctKey || "?") + "</b>" + (d ? " — " + escapeHtml(truncate(d.text, 70)) : "");
     } else {
       const rub = state.rubrics[q.id];
+      /* "Beklenen" sütunu: hiçbir ölçütte açıklama yoksa sütun basılmaz,
+         kısmen boşsa boş hücre yerine "—" yazılır. */
+      const beklenenVar = !!rub && (rub.criteria || []).some(function (c) { return String(c.description || "").trim(); });
       cevap = !rub || !rub.criteria || !rub.criteria.length
         ? "<i>Rubrik tanımlı değil</i>"
         : (rub.aiDraft ? '<div class="yz-uyari">Rubrik yapay zekâ taslağı — öğretmen tarafından henüz kabul edilmedi.</div>' : "") +
-          '<table class="yz-rubrik"><tr><th>Ölçüt</th><th>%</th><th>Puan</th><th>Beklenen</th></tr>' +
+          '<table class="yz-rubrik"><tr><th>Ölçüt</th><th>%</th><th>Puan</th>' + (beklenenVar ? "<th>Beklenen</th>" : "") + "</tr>" +
           rub.criteria.map(function (c) {
+            const acik = String(c.description || "").trim();
             return "<tr><td>" + escapeHtml(c.label) + "</td><td>" + escapeHtml(String(c.weight)) + "</td><td>" +
-              ondalikTr(Math.round(rub.maxScore * Number(c.weight) / 100 * 10) / 10) + "</td><td>" + escapeHtml(c.description || "") + "</td></tr>";
+              ondalikTr(Math.round(rub.maxScore * Number(c.weight) / 100 * 10) / 10) + "</td>" +
+              (beklenenVar ? "<td>" + (acik ? escapeHtml(acik) : "—") + "</td>" : "") + "</tr>";
           }).join("") + "</table>";
     }
     return '<tr class="yz-soru"><td>' + (i + 1) + "</td><td>" + (q.type === "mc" ? "ÇSS" : "Açık uçlu") + "</td><td>" + cevap +
