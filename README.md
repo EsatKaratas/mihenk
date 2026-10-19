@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-334%2F334-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-338%2F338-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -440,7 +440,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 334 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 338 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -680,11 +680,11 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **334 test**
-  koşar (`test/guards.test.ts` 110 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **338 test**
+  koşar (`test/guards.test.ts` 112 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
   `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/mufredat.test.ts` 11 ·
-  `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 · `test/cozucu.test.ts` 10 ·
+  `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 · `test/cozucu.test.ts` 12 ·
   `test/atolye-ve-materyal.test.ts` 9) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
@@ -783,7 +783,7 @@ sınırı vardır.
 | **Bloom bilişsel düzey dengesi** | Sınav ezber mi ölçüyor? Alt düzey (hatırlama/anlama) ve üst düzey (uygulama/analiz/değerlendirme/yaratma) dağılımı sınav kurarken görünür. **Hedef oran dayatılmaz** — ölçmede sabit bir "doğru oran" yoktur; yalnızca iki uç bildirilir: hiç üst düzey soru yoksa *"sınav büyük olasılıkla ezber ölçüyor"*, hiç alt düzey yoksa *"temel bilgi hiç ölçülmüyor"* |
 | **Madde analizi** *(klasik test kuramı)* | Üretilen sorunun **iyi bir ölçme aracı olup olmadığını** ölçer: güçlük indeksi (p) ve ayırt edicilik indeksi (d). En değerli sinyal **negatif d** — iyi öğrenciler yanlış, zayıflar doğru yanıtlıyorsa soru ya da cevap anahtarı hatalıdır. **İşlevsiz çeldirici** (hiç kimsenin seçmediği şık) da işaretlenir. Sınıf 10 kişiden azsa sonuç "gösterge niteliğindedir" uyarısıyla verilir — istatistiksel dürüstlük. AI çağrısı yapılmaz, saf hesap |
 | **Öğretmen-AI uyumu** *(kalibrasyon)* | Brief'in *"değerlendiriciler arasında tutarsızlık"* sorununa doğrudan cevap. AI cimri mi cömert mi davranıyor, ortalama sapma kaç puan, kaç yanıtı olduğu gibi onayladınız. **Güven skorunun kendisini de denetler:** AI "eminim" dediğinde gerçekten daha isabetli mi? Değilse *"kuyruk sıralamasına bu veriyle güvenmeyin"* uyarısı çıkar |
-| **Şüphe rozetleri + Bağımsız çöz** *(B1, A1, A2 — 20 Ekim)* | İçerik Uzmanının onay kartında "neden şüpheli?" rozetleri: hesap tutmuyor, anahtar muhtemelen başka şık, bağımsız çözüm farklı, cevap anahtarı yok, yabancı harf, kazanımı ölçmüyor, aynı gerekçe. "Bağımsız çöz" düğmesi soruyu anahtarı göstermeden başka bir modele çözdürür. Hiçbiri onayı engellemez ya da anahtarı değiştirmez; denetim yapılmadıysa "temiz" değil **"denetlenmedi"** yazar. Denetimlerin yakalama oranı **henüz ölçülmedi** (bkz. [ARASTIRMA §4.5](./docs/ARASTIRMA.md)) |
+| **Şüphe rozetleri + Bağımsız çöz** *(B1, A1, A2 — 20 Ekim)* | İçerik Uzmanının onay kartında "neden şüpheli?" rozetleri: hesap tutmuyor, anahtar muhtemelen başka şık, bağımsız çözüm farklı, cevap anahtarı yok, yabancı harf, kazanımı ölçmüyor, aynı gerekçe. "Bağımsız çöz" düğmesi soruyu anahtarı göstermeden başka bir modele çözdürür. Hiçbiri onayı engellemez ya da anahtarı değiştirmez; denetim yapılmadıysa "temiz" değil **"denetlenmedi"** yazar. İkinci ölçümde (A5, 19–20 Ekim; ön bulgu) bağımsız çözüm ve hesap denetimi birlikte kusurlu soruların **%61'ini** işaretledi, sağlam soruların **%5'inde** yanlış alarm verdi; kusurluların ≈57/146'sı yine uyarısız geçti, yani insan onayı şart (bkz. [ARASTIRMA §6.8](./docs/ARASTIRMA.md)) |
 | **YZ ↔ öğretmen uyum raporu** *(A7 — 20 Ekim)* | Karar Günlüğü'nden soru bazında: yapay zekânın önerdiği puan, öğretmenin nihai puanı, ortalama fark, aynen kabul ve revize sayısı; fark dağılımı grafiği ve CSV (öğrenci adı yok). Yalnız bu sistemde gerçekten verilen kararlar sayılır, örnek veri katılmaz; 5'ten az kararda oran yerine ham sayı gösterilir. **Sınır:** öğretmen yalnız toplam puan verdiği için **kriter bazında fark ölçülemiyor** |
 | **Kavram yanılgısı kümeleme** | Başarı grafiği *"hangi kazanım zayıf"* der; bu bölüm **"neden zayıf"** der. Sınıfın açık uçlu yanıtlarında en az iki öğrencide tekrarlayan hataları gruplar, yanıtlardan **birebir alıntı** gösterir ve öğretmene tek cümlelik somut öneri verir. Öğrenci adı yapay zekâya gönderilmez; hiçbir puanı etkilemez |
 | **Kapalı döngü** | Grafikte %60 altındaki kazanım için "tekrar sorusu üret" düğmesi; İçerik Uzmanı paneline geçip kazanımı seçer. Zincir kapanır: içerik → sınav → değerlendirme → analiz → **yeni içerik** |

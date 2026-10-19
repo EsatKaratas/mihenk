@@ -22,7 +22,7 @@ Değerlendirme Sistemi** kapsamında geliştirilmektedir.
 > | §5 dosya ağacı (`routes/auth.ts`, `documents.ts`, `lib/rubric.ts`, `migrations/`) | Gerçek ağaç: `src/index.ts`, `src/routes/ai.ts`, `src/lib/{ai,guards,prompts}.ts`, `src/schemas/ai.ts`. `migrations/` yok |
 > | §4 `AI_TASKS_QUEUE` ile asenkron işleme | Queue **kullanılmıyor**; çağrılar senkron. (Ücretsiz planda Queues yüzünden `npm run deploy` kırılır — `deploy:demo` kullanılır) |
 > | §4 `max_tokens` **yaklaşık 600–800** | Bu sayı tek soru içindi. Bugün istek başına hesaplanır: `700 + soru×700`, tavan **5600** (§48). Sınır hâlâ AÇIKÇA verilir — "sınırsız üretim" yasağı aynen geçerlidir |
-> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/` altındaki 12 dosyada **334 test** (`guards`, `schemas`, `rota`, `mufredat`, `hesap`, `cozucu` ve diğerleri; 20 Ekim'de ölçüldü) ile `tools/ozkontrol-dogrula.mjs` (370 ad, %100) koşar. Şüphe rozetleri (B1) ve uyum raporu (A7) da §1'e bağlıdır: hiçbiri onayı engellemez ya da otomatik karar vermez |
+> | §6 "yetkisiz rol erişemez" testi | Sunucuda rol olmadığı için yazılamaz. Yerine `test/` altındaki 12 dosyada **338 test** (`guards`, `schemas`, `rota`, `mufredat`, `hesap`, `cozucu` ve diğerleri; 20 Ekim'de ölçüldü) ile `tools/ozkontrol-dogrula.mjs` (370 ad, %100) koşar. Şüphe rozetleri (B1) ve uyum raporu (A7) da §1'e bağlıdır: hiçbiri onayı engellemez ya da otomatik karar vermez |
 > | §8 demo kontrol listesi (`d1 execute --remote`, test hesapları) | D1 ve hesap yok; demo tohumu istemcide (`loadDemoScenario`). §8.5'teki `/privacy-policy` ve `/robots.txt` maddeleri geçerlidir ve canlıda doğrulanmıştır |
 >
 > **Değişmeyen ve tam bağlayıcı olanlar:** §1 (Human-in-the-Loop), §7

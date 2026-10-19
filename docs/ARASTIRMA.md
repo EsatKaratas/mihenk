@@ -268,13 +268,13 @@ içermeyen dışa aktarım gerekir (§8).
 
 ---
 
-### 4.5 Yazılan denetimler (A1–A4) — yazıldı, henüz ÖLÇÜLMEDİ
+### 4.5 Yazılan denetimler (A1–A4) — yazıldı; A5'te ölçüldü (§6.8)
 
 İlk ölçümde yanlış ya da belirsiz anahtarlı 31 sorunun yalnız 1'i bir
 otomatik uyarı aldı (§6.5). Bu boşluğa yönelik dört denetim 20 Ekim'de koda
 girdi (W2 Paket-1 `002e9bc`, Paket-2 `c68e9cb`; arayüz rozetleri `3010949`).
-**Hiçbirinin yakalama ya da yanlış alarm oranı henüz ölçülmedi;** ölçüm
-büyük koşumdadır (A5). Hiçbiri soruyu onaylamaz, anahtarı değiştirmez ya da
+Yakalama ve yanlış alarm oranları büyük ölçümde (A5) ölçüldü: **§6.8**.
+A1'in ilk sürümündeki istem hatası ve düzeltmesi de orada. Hiçbiri soruyu onaylamaz, anahtarı değiştirmez ya da
 onayı engellemez; yalnızca öğretmene gösterir (`agents.md` §1).
 
 | # | Denetim | Nasıl çalışır | Kod | Arayüz | Dayanak |
@@ -296,7 +296,7 @@ doğruluğu karşılaştırması istem değişikliğiyle karışıktır ve öyle
 döndürülmesi (`OLCUM_HAM=1`) yalnız `APP_ENV` "olcum" iken okunur; canlıda
 kapalıdır ve bu testlidir.
 
-Test: 302 → **334/334** (12 dosya; yeni `denetimler`, `cozucu`, `hesap`
+Test: 302 → **334/334** (A1 çözücü v2 ve Latin Genişletilmiş-B ile 20 Ekim'de **338/338**; 12 dosya; yeni `denetimler`, `cozucu`, `hesap`
 test dosyaları).
 
 ## 5. Model karşılaştırması
@@ -445,7 +445,7 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 1. **`TKR-GOVDE` türe bakmıyor.** Açık uçlu soruyu bir ÇSS'nin tekrarı
    sayıp eleyebiliyor. "Açık uçlu istendi, hiç dönmedi": MEB A 1/13, B 2/13
    çağrı; Deneyap 3/5 ve 3/5. Bu ölçümde kod değiştirilmedi. **20 Ekim:** tür
-   içi tekrar (A4) yazıldı, henüz ölçülmedi (§4.5).
+   içi tekrar (A4) yazıldı; A5'te istenen 216 açık uçlunun 216'sı döndü (§6.8).
 2. **`KYN-ATIF` deseni kazanım modunda 5/5 yanlış pozitif verdi** (sorular
    öğrencinin *kendi yazacağı* metinden söz ediyordu; kazanım modunda
    `needsSource` zaten false'a sabit olduğu için zararsız). Tersine,
@@ -467,6 +467,85 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 - Açık uçlu soruların anahtarı ve rubriği kontrol edilmedi.
 - Ölçüm yerel `wrangler dev` ile, Workers AI'a uzak çağrıyla yapıldı; canlı
   adres ölçülmedi.
+
+
+### 6.8 İkinci ölçüm (A5, 19–20 Ekim 2026) · ÖN BULGU
+
+> Kaynak: [`docs/olcum/OZET.md`](./olcum/OZET.md) §8–§9.6, ayrıntılı tablolar
+> `docs/olcum/a5/a5-basarim.txt`. Sayılar 20 Ekim'de OZET'ten okunup
+> doğrulandı. **Kontrolcüler yapay zekâdır, insan alan uzmanı değil.**
+
+**Yöntem.**
+- **Üretim:** set-v1.1 (18 kazanım) × 3 tekrar × 2 sıcaklık (0,5 / 0,2) × 2
+  model (A `llama-3.3-70b-instruct-fp8-fast`, B `llama-4-scout-17b-16e-instruct`)
+  = **216 üretim çağrısı**, 216'sı başarılı. Soru üretim istemi **sürüm 2**
+  (§4.5). Yedeğe düşen 2 çağrının 4 ÇSS'si ayrı tutuldu; oranlar 392 birincil
+  ÇSS üzerindendir. Sunucu: sabit worktree `18319d1`.
+- **Etiketleme:** 225 tekil ÇSS iki aşamalı kör yöntemle etiketlendi (W4 113
+  + W1 112; etiketler eşleme açılmadan commit'lendi). %20 kör ikinci kontrol
+  (W3, n=45): üç sınıfta uyuşma %88,9, **κ = 0,81**; doğru ↔ yanlış karşıtlığı
+  hiç yok.
+- **Ağırlıklandırma:** bayraklı 144 ÇSS'nin hepsi etiketli; bayraksızlar
+  model × sıcaklık tabakasındaki etiketli bayraksızlarla temsil edildi.
+  **Uyarı:** sıcaklık 0,2 hücreleri tabaka başına yalnız 10 etiketli maddeye
+  dayanır, gürültülüdür. Ayrıca rastgele örneklem varsayımı yapılmıştır.
+
+**Anahtar doğruluğu — taban küme (tekrar 1 · sıcaklık 0,5 · tüm ÇSS):**
+
+| Model | n | doğru | yanlış | belirsiz |
+|---|---:|---:|---:|---:|
+| A (llama-3.3-70b) | 32 | **22 (%68,8)** | 3 | 7 |
+| B (llama-4-scout) | 36 | **22 (%61,1)** | 5 | 9 |
+
+İlk ölçümle (§6.2; A %48, B %62) karşılaştırma **istem değişikliğiyle
+karışıktır** (sürüm 1 → 2) ve iki örneklem de küçüktür. "İyileşti" sonucu
+çıkarılmaz.
+
+**Denetimlerin başarımı** — ağırlıklı, 392 birincil ÇSS'ye genellenmiş.
+Kusurlu = yanlış ya da belirsiz (≈146, yani ≈%37); sağlam ≈246.
+
+| Denetim | Yakalama | Yanlış alarm |
+|---|---:|---:|
+| A1 bağımsız çözüm, istem sürüm 2 | **%52,2** | **%2,9** |
+| A2 sayısal hesap | %30,8 | %2,4 |
+| **A1 (v2) ∪ A2** | **%61,1** | **%5,3** |
+| A3 "doğru şık en uzun" | %1,4 | %10,6 |
+
+**Araştırma sorusunun ikinci yarısı için ölçüm:** iki denetim birlikte
+kusurlu ≈146 ÇSS'nin ≈%61'ini işaretliyor; **≈57'si hiçbir otomatik uyarı
+almadan geçiyor.** Bu, ilk ölçümdeki "31 hatalı anahtardan yalnız 1'i
+yakalandı" durumundan belirgin bir değişiktir. Ama kaçanların varlığı,
+insan onayının hâlâ tek tam savunma olduğunu gösterir (`agents.md` §1).
+İnsan onayının hataları ne kadar azalttığı **ölçülmedi** (plan, 4. ay).
+
+**Ayrı bulgular (hepsi ön bulgu):**
+
+1. **"Harf önce" istem etkisi.** A1'in ilk sürümünde çıktı şablonu modelden
+   seçtiği harfi gerekçeden **önce** istiyordu. W4'ün kör karşılaştırmasında
+   A1'in 15 yanlış alarmının 9'unda gerekçe doğru değeri bulup başka harf
+   seçmişti. Kontrollü deney (aynı soru, llama-3.3-70b, sıcaklık 0,2):
+   harf önce **3/3 yanlış**, gerekçe önce **3/3 doğru**. Düzeltmeden sonra
+   (`1b8f611`) aynı 225 ÇSS yeniden çözüldü: A1 yanlış alarmı %13,4 → %2,9,
+   yakalaması %43,1 → %52,2. Bu, [11] self-consistency ve [14] doğrulayıcı
+   çalışmalarının dayandığı düşünce zinciri fikriyle tutarlıdır: model önce
+   akıl yürütürse kararı hesaba dayanır. Deney 3+3 denemedir; genelleme
+   yapılmaz. **Açık aday (ölçülmedi):** açık uçlu değerlendirme isteminde de
+   her kriterin puanı (`points`) gerekçeden (`reason`) önce isteniyor. Aynı
+   riski taşıyabilir; ayrı bir kontrollü deney olmadan değiştirilmeyecek.
+2. **Tür içi tekrar (A4) açık uçlu kaybını kapattı:** istenen 216 açık uçlu
+   sorunun 216'sı döndü. İlk ölçümde 42 istenip 32 dönüyordu.
+3. **A3 işe yaramıyor:** yakalama %1,4, yanlış alarm %10,6. Arayüzde rozet
+   yapılmaması kararı ölçümle doğrulandı.
+4. **A2'nin bilinen yanlış alarmı:** doğru şık metni bir işlem ifadesi
+   olduğunda (`DEN-YP-SIKIFADE`) yanlış alarm veriyor. A2'nin bayrakladığı 51
+   ÇSS'nin 4'ü bu türdendi.
+5. **Dil denetimi açığı kapandı:** ölçümde Vietnamca iki kelime görüldü
+   ("ngược", "đúngudur"); ikisi de yakalandı. Ama yalnız Latin
+   Genişletilmiş-B harfleri (ư, ơ) içeren bir kelime kaçabiliyordu. Bu blok
+   `1b8f611` ile eklendi (koddan doğrulandı).
+
+**Maliyet:** ≈60.430 Neuron ≈ 0,66 $ (Cloudflare analitiği; pencere başka
+çağrıları da içerebileceği için üst sınır).
 
 ---
 
@@ -513,7 +592,7 @@ uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
   fotoğraflarla bir "emin olma" ölçümü (doğruluk ve "emin değilim" deme
   isabeti) yapılmadan **öğrenciye açılmaz**.
 - **İlk adım:** öğretmen aracı olarak *cevap anahtarı çapraz çözümü*
-  (A1; 20 Ekim'de yazıldı, ölçülmedi, §4.5). Bir model, üretilen soruyu anahtarı görmeden ayrı bir çağrıyla çözer;
+  (A1; 20 Ekim'de yazıldı; A5'te ölçüldü: yakalama %52,2, yanlış alarm %2,9, §6.8). Bir model, üretilen soruyu anahtarı görmeden ayrı bir çağrıyla çözer;
   uyuşmazlık öğretmene işaretlenir. Bu hem öğretmenin işine yarar hem de
   öğrenci modunun dayanacağı çözme doğruluğunu ölçer.
 - **Veri ve izin:** LGS örnek soruları yalnız iç ölçümde kullanılır.
@@ -619,8 +698,9 @@ flaws) arar. Kural tabanlı yöntem insan etiketleyicilerin bulduğu kusurların
 %91'ini, GPT-4 ise %79'unu yakalar.
 **Mihenk'in farkı / boşluk:** en yakın yöntemsel örnek budur, ama sorular
 öğrenci yazımıdır ve dil İngilizcedir. Mihenk'in taksonomisi *LLM'in Türkçe
-üretiminde* gözlenen kusurlardan çıktı. Kendi kural tabanlı denetimlerinin
-yakalama oranı henüz ölçülmedi; bu ölçüm planın 3. ayıdır.
+üretiminde* gözlenen kusurlardan çıktı. Kendi denetimlerinin yakalama oranı
+ilk kez 20 Ekim'de ölçüldü (§6.8, ön bulgu); büyük örneklemle ölçüm planın
+3. ayıdır.
 
 ### 9.2 Çeldirici üretimi
 
@@ -726,7 +806,9 @@ etiketlerini içerecek; bu yönüyle iki seti tamamlar.
 otomatik uyarı aldı (§6.5). Bu kaynaklar, anahtar hatasını yakalamaya
 yönelik önerilen iki denetimin (cevap anahtarı çapraz çözümü ve sayısal
 sorularda deterministik hesap; yol haritası A1, A2) dayanağıdır. Bu
-denetimler 20 Ekim'de **yazıldı, henüz ölçülmedi** (§4.5).
+denetimler 20 Ekim'de yazıldı ve A5'te ölçüldü (§4.5, §6.8). A1'in ilk
+sürümündeki "harf önce" istem hatası da bu kaynakların düşünce zinciri
+fikrini destekleyen bir gözlem oldu (§6.8, ayrı bulgu 1).
 
 **[11] Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S.,
 Chowdhery, A., Zhou, D. (2023).** *Self-Consistency Improves Chain of

@@ -41,7 +41,7 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 334/334, 12 dosya
+npm test                            # 338/338, 12 dosya
 node tools/ozkontrol-dogrula.mjs    # 370 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
@@ -52,7 +52,7 @@ curl -s https://mihenk.bies.workers.dev/api/ai/status
 Beklenen test dökümü:
 
 ```
-test/guards.test.ts          110
+test/guards.test.ts          112
 test/prompts.test.ts          52
 test/schemas.test.ts          49
 test/ai-lib.test.ts           24
@@ -62,10 +62,10 @@ test/rota.test.ts             14
 test/mufredat.test.ts         11
 test/hesap.test.ts            11
 test/denetimler.test.ts       10
-test/cozucu.test.ts           10
+test/cozucu.test.ts           12
 test/atolye-ve-materyal.test.ts 9
                              ---
-                             334
+                             338
 ```
 
 Beklenen canlı çıktı:
@@ -252,8 +252,8 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | | |
 |---|---|
 | Depo | dal `main`. `origin/main` = `e4a4024`; 19 Ekim commit'leri **pushlanmadı** |
-| Test | **334/334** (12 dosya) — 20 Ekim |
-| Cevap denetimleri | A1–A4 yazıldı (20 Ekim), **ölçülmedi** — ARASTIRMA §4.5 |
+| Test | **338/338** (12 dosya) — 20 Ekim |
+| Cevap denetimleri | A1–A4 yazıldı ve A5'te ölçüldü (ön bulgu): A1 (v2) ∪ A2 yakalama %61,1 / yanlış alarm %5,3; A1'de "harf önce" istem hatası düzeltildi — ARASTIRMA §6.8 |
 | Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
 | Öz-kontrol | **370 ad · kapsama %100** — 20 Ekim |
 | B1 · A7 (20 Ekim) | Şüphe rozetleri + "Bağımsız çöz"; YZ ↔ nihai puan raporu. A7 kriter bazında farkı ölçemez. PROGRESS §56 |

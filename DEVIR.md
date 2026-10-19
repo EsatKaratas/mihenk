@@ -28,8 +28,8 @@ Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
 |---|---|
 | Dal | `main`. 19 Ekim'de iş doğrudan `main`'de yürüyor; `origin/main` hâlâ `e4a4024` (bugünkü commit'ler pushlanmadı) |
 | Canlı | `mihenk.bies.workers.dev`. 19 Ekim'de ölçüldü: canlıdaki `app.js`, `app.css` ve `/` diskle **SHA-256 eş**. Fark yalnızca satır sonundan geliyor; CR'ler atılınca HEAD ile de eş. Son yayın 6 Eylül (§50 turları) |
-| Test | **334/334** (12 dosya) — 20 Ekim |
-| Cevap denetimleri (20 Ekim) | A1 bağımsız çözüm · A2 sayısal hesap · A3 uzun şık (yalnız ölçüm) · A4 tür içi tekrar — **yazıldı, ölçülmedi** (ARASTIRMA §4.5) |
+| Test | **338/338** (12 dosya) — 20 Ekim |
+| Cevap denetimleri (20 Ekim) | A1 bağımsız çözüm · A2 sayısal hesap · A3 uzun şık (yalnız ölçüm) · A4 tür içi tekrar — yazıldı ve A5'te ölçüldü: A1 (v2) ∪ A2 yakalama %61,1, yanlış alarm %5,3; A3 işe yaramıyor. A1 çözücüsünde "harf önce" istem hatası bulunup düzeltildi (`1b8f611`). Ön bulgu — ARASTIRMA §6.8, OZET §9 |
 | Lint (`tsc --noEmit`) | temiz — 19 Ekim |
 | Öz-kontrol | **370 ad · eksik 0 · kapsama %100** — 20 Ekim |
 | Şüphe rozetleri + uyum raporu (20 Ekim) | B1 onay kartında "neden şüpheli?" rozetleri ve "Bağımsız çöz"; A7 YZ önerisi ↔ nihai puan raporu (soru bazında). Onayı engellemez. A7 kriter bazında farkı **ölçemez** (öğretmen yalnız toplam puan verir). PROGRESS §56 |
@@ -49,7 +49,7 @@ Doğrulama komutları:
 git clone https://github.com/EsatKaratas/mihenk.git && cd mihenk && npm install
 git rev-parse --short HEAD
 npm run lint                        # sessiz
-npm test                            # 334/334
+npm test                            # 338/338
 node tools/ozkontrol-dogrula.mjs    # 370 ad · kapsama %100
 npm run check:config                # exit 0
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -580,7 +580,7 @@ public/
   app.css               Tema (açık/koyu)
   mufredat/*.json       606 MEB öğrenme çıktısı
   _headers              CSP ve güvenlik başlıkları
-test/                   334 test, 12 dosya
+test/                   338 test, 12 dosya
 tools/
   ozkontrol-dogrula.mjs selfCheck listesi ↔ tanımlar (çift yönlü)
   check-config.mjs      JSONC doğrulayıcı (çapraz platform)
