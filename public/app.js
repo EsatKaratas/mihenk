@@ -3221,6 +3221,7 @@ var AUDIT_ETIKET = {
   soru_onaylandi:       { ad: "Soru onaylandı",           sinif: "pill-success", aktor: "içerik uzmanı" },
   soru_reddedildi:      { ad: "Soru reddedildi",          sinif: "pill-critical",aktor: "içerik uzmanı" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
+  rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   degerlendirme_onerildi:{ad: "Puan önerildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
@@ -5169,8 +5170,16 @@ function wireExamSwitcher() {
 
    Ölçüt artık TEK yerde. İki tüketicinin koşulu bir daha ayrışamaz —
    bu depoda ayrışan ikiz koşul sınıfından hata yaşandı (§42.1). */
+/* §51 — KABUL EDİLMEMİŞ AI TASLAĞI GEÇERLİ RUBRİK DEĞİLDİR.
+   Eskiden "🤖 taslak öner" kriterleri doğrudan yazıyor, şerit "onaylamadan
+   önce gözden geçirin" diyordu ama onay düğmesi YOKTU; aynı ekran "sınavı
+   yayınlayabilirsiniz" diyordu ve öğrenci yanıtı bu taslakla puanlandı
+   (ölçüldü, PROGRESS §51). Şart BURAYA konuldu ki canPublishExam,
+   pendingRubricCount ve yayinEngeliMetni ayrışmasın (tuzak 7). Taslak
+   yalnızca öğretmenin "✓ Taslağı kabul et" tıklamasıyla geçerli olur. */
 function rubrikGecerliMi(rub) {
   if (!rub || !rub.criteria || !rub.criteria.length) return false;
+  if (rub.aiDraft) return false;
   if (totalWeight(rub) !== 100) return false;
   return rub.criteria.every(function (c) { return String((c && c.label) || "").trim().length > 0; });
 }
@@ -5197,8 +5206,10 @@ function yayinEngeliMetni() {
     const r = state.rubrics[q.id];
     return r && r.criteria && r.criteria.length && r.criteria.some(function (c) { return !String((c && c.label) || "").trim(); });
   }).length;
+  const taslak = opens.filter(function (q) { const r = state.rubrics[q.id]; return r && r.aiDraft; }).length;
   const p = [];
   if (eksikRubrik) p.push(eksikRubrik + " açık uçlu sorunun rubriği yok");
+  if (taslak) p.push(taslak + " rubrik yapay zekâ taslağı ve henüz kabul edilmedi (“✓ Taslağı kabul et”)");
   if (agirlikBozuk) p.push(agirlikBozuk + " rubrikte ağırlık toplamı %100 değil");
   if (bosEtiket) p.push(bosEtiket + " rubrikte kriter adı boş (boş adlı kriterle puanlama sunucuda reddedilir)");
   return p.length ? "Rubrik sekmesinden düzeltin: " + p.join("; ") + "." : "";
@@ -5268,12 +5279,37 @@ async function aiSuggestRubric(qid) {
     });
     state.rubrics[qid].aiDraft = true;
     state.rubrics[qid].userEdited = false; // taze öneri — henüz elle dokunulmadı
+    /* §51: `rubrik_onerildi` etiketi AUDIT_ETIKET'te tanımlıydı ama hiçbir
+       yerde YAZILMIYORDU. Karşılığı öğretmenin `rubrik_kabul_edildi` kaydıdır. */
+    auditKaydet("rubrik_onerildi", {
+      qid: qid, soru: auditKisalt(q.body),
+      model: (j.meta && j.meta.model) || state.ai.model || null,
+      not: state.rubrics[qid].criteria.length + " ölçüt",
+    });
   } catch (e) {
     state.rubricError = "Rubrik önerisi alınamadı: " + String((e && e.message) || e);
   } finally {
     state.ai.busy = false;
     renderAll();
   }
+}
+
+/* §51 — AI rubrik taslağını YALNIZCA öğretmenin tıklaması kabul eder.
+   KARAR: kriteri elle düzenlemek kabul SAYILMAZ. Tek bir ağırlığı değiştirmek
+   taslağın tamamının okunduğunu kanıtlamaz; kabulün tek, açık ve denetim
+   izine düşen bir eylem olması HITL zincirini ölçülebilir kılar
+   (agents.md §1). Düzenleme `userEdited`'i işaretler, kabul ayrıca istenir. */
+function rubrikTaslaginiKabulEt(qid) {
+  const rub = state.rubrics[qid];
+  if (!rub || !rub.aiDraft) return;
+  rub.aiDraft = false;
+  const q = findQuestion(qid);
+  auditKaydet("rubrik_kabul_edildi", {
+    qid: qid, soru: auditKisalt(q && q.body),
+    degisti: rub.userEdited === true,
+    not: rub.userEdited ? "öğretmen düzenleyip kabul etti" : "aynen kabul edildi",
+  });
+  renderAll();
 }
 
 /* ===========================================================================
@@ -6093,7 +6129,11 @@ function teacherTab2Html() {
     (tw < 100 ? '<div class="rb-seg rb-empty" style="width:' + (100 - tw) + '%;"></div>' : "") +
     '</div>';
 
-  const durum = tw === 100
+  /* §51: ağırlık tamam olsa da kabul edilmemiş AI taslağı yayına izin vermez;
+     "yayınlayabilirsiniz" yazısı artık bunu yalanlamıyor. */
+  const durum = tw === 100 && rub.aiDraft
+    ? '<div class="rub-status warn">Ağırlıklar tamam (%100), ama bu ölçütler <b>yapay zekâ taslağı</b>. Gözden geçirip “✓ Taslağı kabul et” deyince sınavı yayınlayabilirsiniz.</div>'
+    : tw === 100
     ? '<div class="rub-status ok">✓ Ölçütler tamam. Toplam <b>' + rub.maxScore + ' puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.</div>'
     : tw < 100
       ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + kalanPuan + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
@@ -6103,7 +6143,7 @@ function teacherTab2Html() {
     ? '<div class="rub-qpick"><span class="lbl-hint">Bu sınavda ' + opens.length + ' açık uçlu soru var — her biri için ayrı ölçüt tanımlarsınız:</span><div>' +
       opens.map(function (o) {
         const r = state.rubrics[o.id];
-        const hazir = r && totalWeight(r) === 100;
+        const hazir = rubrikGecerliMi(r);   // §51: ikiz koşul değil, tek ölçüt
         return '<button class="btn ' + (o.id === q.id ? "btn-primary" : "btn-secondary") + ' btn-sm rub-select" data-qid="' + o.id + '">' +
           (hazir ? "✓ " : "• ") + escapeHtml(truncate(o.body, 30)) + '</button>';
       }).join("") + '</div></div>'
@@ -6129,7 +6169,9 @@ function teacherTab2Html() {
     }).join("") +
     '</div>' +
     (state.rubricError ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.rubricError) + '</div>' : "") +
-    (rub.aiDraft ? '<div class="pill pill-accent2" style="margin-bottom:10px;">Bu taslağı yapay zekâ önerdi — onaylamadan önce gözden geçirin.</div>' : "") +
+    (rub.aiDraft ? '<div class="rub-taslak-serit">' +
+      '<span class="pill pill-accent2">Bu taslağı yapay zekâ önerdi — kabul etmeden önce gözden geçirin. Kabul edilene kadar sınav yayınlanamaz.</span>' +
+      '<button type="button" class="btn btn-primary btn-sm js-rubrik-kabul">✓ Taslağı kabul et</button></div>' : "") +
 
     bar + durum +
     '<div id="critList">' + rub.criteria.map(function (c, i) { return critRowHtml(rub, c, i); }).join("") + '</div>' +
@@ -6140,6 +6182,9 @@ function teacherTab2Html() {
 function wireTeacherTab2() {
   const aiRub = document.getElementById("btnAiRubric");
   if (aiRub) aiRub.onclick = function () { aiSuggestRubric(state.rubricSelectedQ); };
+  document.querySelectorAll(".js-rubrik-kabul").forEach(function (b) {
+    b.onclick = function () { rubrikTaslaginiKabulEt(state.rubricSelectedQ); };
+  });
 
   document.querySelectorAll(".rub-tpl").forEach(function (b) {
     b.onclick = function () {
@@ -9883,7 +9928,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
