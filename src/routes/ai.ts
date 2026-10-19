@@ -16,6 +16,7 @@ import {
   buildSampleAnswerPrompt,
   buildMisconceptionPrompt,
   buildAlignmentPrompt,
+  buildSolvePrompt,
 } from '../lib/prompts';
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
@@ -41,6 +42,8 @@ import {
   gerekceTekrariVarMi,
   kalipliGerekceSayisi,
   makulSoruSayisi,
+  uzunSikIpucu,
+  olcumAyarlari,
 } from '../lib/guards';
 import {
   generateQuestionsSchema,
@@ -56,9 +59,13 @@ import {
   alignmentSchema,
   modelAlignmentSchema,
   MAX_SOURCE_CHARS,
+  solveSchema,
+  modelSolveSchema,
 } from '../schemas/ai';
 
-type Bindings = AiEnv;
+/* §55: APP_ENV ve iki ölçüm ayarı yalnız `olcumAyarlari()` üzerinden okunur
+   (guards.ts — APP_ENV === "olcum" izin listesi; canlıda kapalı). */
+type Bindings = AiEnv & { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string };
 
 // Hız sınırı, kaynak metin tespiti ve sayısal yardımcılar ayrı bir modülde:
 // dışa açık olmadıkları için test edilemiyorlardı (agents.md §6 birim testi
@@ -278,9 +285,17 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      denetimin onu ne sıklıkla yakaladığıdır, kullanıcıya kalan soru değil. */
   let sadelestirilenGerekce = 0;
   let toplamGerekce = 0;
+  /* §55 A5: elenen maddeler — YALNIZ ölçüm sunucusunda (OLCUM_HAM=1) yanıta
+     eklenir; aksi hâlde toplanır ama dönmez (davranış aynı). */
+  const elenenler: Array<{ neden: 'tekrar' | 'ayniSik' | 'gecersiz'; type: string; body: string; benzedigi?: 'onceki' | 'ayniTur' }> = [];
 
   try {
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
+    /* §55 A5: sıcaklık ürün için 0,5'te SABİT. Yalnız ölçüm sunucusunda
+       (APP_ENV=olcum) OLCUM_SICAKLIK ile değişir; kullanılan değer meta'da
+       döner ki ölçüm betiği sunucunun gerçekten o değeri kullandığını doğrulasın. */
+    const olcum = olcumAyarlari(c.env);
+    const sicaklik = olcum.sicaklik ?? 0.5;
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: sicaklik });
     const parsed = modelQuestionsSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -299,7 +314,11 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
              kurulan "sebebini söyle" kuralı bu yola UYGULANMAMIŞTI: kullanıcı
              5 soru isteyip 3 alıyor ve hiçbir açıklama görmüyordu (§6.3-5).
              Sayaç aşağıda meta.elenenGecersiz olarak döner. */
-          if (opts.length < 3) { elenenGecersiz++; return null; }
+          if (opts.length < 3) {
+            elenenGecersiz++;
+            elenenler.push({ neden: 'gecersiz', type: 'mc', body: String(q.body || '').trim() });
+            return null;
+          }
           toplamGerekce += Object.values(q.distractorRationale || {}).filter((v) => String(v || '').trim()).length;
           sadelestirilenGerekce += kalipliGerekceSayisi(q.distractorRationale);
           /* §32 (Burak Modül 4): şıklar burada hem A,B,C,... olarak
@@ -345,6 +364,10 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
                Uzmanına bildirilir. Otomatik düzeltilmez — hangi gerekçenin
                yeniden yazılacağı bir ölçme kararıdır, insanda kalır. */
             gerekceTekrari: gerekceTekrariVarMi(sadeGerekceler),
+            /* §55 A3: YALNIZ ÖLÇÜM — arayüzde rozet YOK (eşik N=11, kalibre
+               değil; bkz. guards.ts UZUN_SIK_ORANI). Anahtar belirsizse
+               "doğru şık" bilinmediği için false. */
+            uzunSikIpucu: anahtarGecerli ? uzunSikIpucu(karisik.options, karisik.correctKey) : false,
             difficulty: q.difficulty,
             bloom: q.bloom,
             aiTime: clamp(q.aiTime, 30, 180),
@@ -388,7 +411,18 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
        KAPSAM SINIRI (bilerek): `excludeQuestions` yalnızca gövde METNİ
        taşır, şık bilgisi içermez. Bu yüzden şık denetimi yalnızca AYNI
        üretim turu içinde çalışır; turlar arası tekrar hâlâ gövde
-       benzerliğine bakar. */
+       benzerliğine bakar.
+
+       §55 A4 — AYNI TURDA YALNIZ AYNI TÜR KARŞILAŞTIRILIR.
+       Bir ÇSS ile aynı kavramı soran bir AÇIK UÇLU soru tekrar değildir:
+       biri seçtirir, öteki gerekçe yazdırır. Eski kural ikisini kıyaslıyordu
+       ve model önce ÇSS'leri yazdığı için kaybeden hep açık uçluydu.
+       ÖLÇÜLDÜ (W5 ham verisi, 42 kayıt): 42 açık uçlu istendi, 32 geldi;
+       10 kayıtta hem açık uçlu eksik hem elenenTekrar > 0. (Ham kayıt elenen
+       gövdeleri tutmadığı için bu bir İZ; A5 koşumu OLCUM_HAM ile doğrudan
+       ölçer.)
+       SINIR (bilerek): `excludeQuestions` tür bilgisi taşımaz; ÖNCEKİ
+       turlarla karşılaştırma tür ayırmadan sürer. */
     const oncekiler = (b.excludeQuestions || []).filter(Boolean);
     const kabul: typeof questions = [];
     const gorulenSikImzalari = new Set<string>();
@@ -396,14 +430,24 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
     let elenenAyniSik = 0;
     for (const q of questions) {
       const govde = String((q as any).body || '');
+      const tur = String((q as any).type || '');
       const eskiyeBenzer = oncekiler.some((o) => benzerlik(govde, o) >= BENZERLIK_ESIGI);
-      const yeniyeBenzer = kabul.some((k) => benzerlik(govde, String((k as any).body || '')) >= BENZERLIK_ESIGI);
-      if (eskiyeBenzer || yeniyeBenzer) { elenenTekrar++; continue; }
+      const yeniyeBenzer = !eskiyeBenzer && kabul.some((k) =>
+        (k as any).type === tur && benzerlik(govde, String((k as any).body || '')) >= BENZERLIK_ESIGI);
+      if (eskiyeBenzer || yeniyeBenzer) {
+        elenenTekrar++;
+        elenenler.push({ neden: 'tekrar', type: tur, body: govde, benzedigi: eskiyeBenzer ? 'onceki' : 'ayniTur' });
+        continue;
+      }
 
       if ((q as any).type === 'mc') {
         const imza = sikImzasi((q as any).options);
         if (imza) {
-          if (gorulenSikImzalari.has(imza)) { elenenAyniSik++; continue; }
+          if (gorulenSikImzalari.has(imza)) {
+            elenenAyniSik++;
+            elenenler.push({ neden: 'ayniSik', type: tur, body: govde });
+            continue;
+          }
           gorulenSikImzalari.add(imza);
         }
       }
@@ -441,6 +485,12 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         // gerekçe sayısı / boş olmayan toplam gerekçe sayısı (tekrar elemesinden önce).
         sadelestirilenGerekce,
         toplamGerekce,
+        // §55 A3: kabul edilen ÇSS'lerde uzunSikIpucu taşıyan sayısı (yalnız ölçüm).
+        uzunSikIpucu: kabul.filter((q) => (q as any).uzunSikIpucu === true).length,
+        // §55 A5: kullanılan sıcaklık — ölçüm betiği sunucunun gerçekten bunu kullandığını doğrular.
+        sicaklik,
+        // §55 A5: elenen maddeler YALNIZ ölçüm sunucusunda (APP_ENV=olcum + OLCUM_HAM=1).
+        ...(olcum.ham ? { elenenler } : {}),
       },
     });
   } catch (e) {
@@ -864,6 +914,78 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
       modelHatasiGovdesi(e, c.req.path),
       502
     );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/ai/solve — §55 A1 BAĞIMSIZ ÇÖZÜM
+//
+// Üretilen ÇSS'yi cevap anahtarını GÖRMEDEN çözdürür ve (anahtar verildiyse)
+// uyuşmazlığı İŞARETLER. Soruyu onaylamaz, anahtarı değiştirmez; karar İçerik
+// Uzmanındadır (agents.md §1). İstemci yalnız DÜĞMEYLE çağırır (kota).
+//
+// ÇAPRAZ MODEL: varsayılan olarak YEDEK model çözer. Aynı modelin kendi
+// yanlışını tekrarlama olasılığını azaltır; ölçümde yedek (Scout) anahtarı
+// daha sık doğru koydu (B %62 / A %48, docs/olcum/OZET.md). Yedek yoksa ya da
+// çağrısı düşerse birincil çözer ve meta.capraz=false döner — sessiz değil.
+// ---------------------------------------------------------------------------
+function caprazEnv(env: AiEnv): { env: AiEnv; capraz: boolean } {
+  const yedek = fallbackEnv(env);
+  if (!yedek || !fallbackConfigured(env)) return { env, capraz: false };
+  return {
+    env: {
+      ...yedek,
+      // Yedek düşerse birincile dön: rolleri yer değiştirmiş bir env.
+      AI_FALLBACK_PROVIDER: env.AI_PROVIDER || 'workers-ai',
+      AI_FALLBACK_MODEL: env.AI_MODEL,
+      AI_FALLBACK_BASE_URL: env.AI_BASE_URL,
+      AI_FALLBACK_API_KEY: env.AI_API_KEY,
+    },
+    capraz: true,
+  };
+}
+
+ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
+  const b = c.req.valid('json');
+
+  if (rateLimited(`solve:${anahtarla(b.questionBody)}`)) {
+    return c.json(
+      { error: 'rate_limited', message: `Aynı soru için dakikada en fazla ${RATE_LIMIT_PER_MIN} bağımsız çözüm istenebilir.` },
+      429
+    );
+  }
+
+  const options = b.options.map((o) => ({ key: o.key.trim().toUpperCase(), text: o.text.trim() }));
+  // Anahtar BURAYA GİRMEZ: buildSolvePrompt onu parametre olarak bile almaz.
+  const prompt = buildSolvePrompt({ questionBody: b.questionBody, options, outcomeLabel: b.outcomeLabel });
+  const { env: cozucuEnv, capraz } = caprazEnv(c.env);
+
+  try {
+    // max_tokens açık (agents.md §4): ~2 cümle gerekçe + kısa JSON. Düşük sıcaklık: çözüm, yaratıcılık değil.
+    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 });
+    const parsed = modelSolveSchema.safeParse(data);
+    if (!parsed.success) {
+      return c.json({ error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' }, 502);
+    }
+    const harf = parsed.data.secilenSik.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 1);
+    const gecerli = options.some((o) => o.key === harf);
+    // Şıklarda olmayan bir harf "çözüldü" sayılmaz; tahminle düzeltilmez.
+    const cozulemedi = parsed.data.cozulemedi || !gecerli;
+    const anahtar = b.anahtar ? b.anahtar.trim().toUpperCase() : '';
+    const gerekce = parsed.data.gerekce.trim();
+    return c.json({
+      secilenSik: gecerli ? harf : null,
+      gerekce,
+      guven: parsed.data.guven,
+      cozulemedi,
+      /* true: çözücü anahtardan farklı şık seçti · false: aynı · null: anahtar
+         verilmedi ya da çözücü bir şık belirleyemedi (karşılaştırma yok). */
+      anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
+      dilUyarisi: metinDilUyarisi(gerekce),
+      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack },
+    });
+  } catch (e) {
+    return c.json(modelHatasiGovdesi(e, c.req.path), 502);
   }
 });
 
