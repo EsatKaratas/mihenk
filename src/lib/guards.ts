@@ -192,7 +192,7 @@ export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
  * Ölçüldü: depodaki 32 metin dosyasında (12 MEB müfredatı, 13 Deneyap
  * dosyası, ders belgeleri, app.js — 1.049.353 karakter) bu bloktan Türkçe
  * dışı karakter 0; yanlış pozitif 0 (test/guards.test.ts).
- * §56 — LATIN EXTENDED-B (U+0180–024F) DA VAR. A5'te W4 Vietnamca sızıntı
+ * §57 — LATIN EXTENDED-B (U+0180–024F) DA VAR. A5'te W4 Vietnamca sızıntı
  * buldu ("ngược"); yakalanması "ư" (U+01B0) sayesinde DEĞİL, aynı kelimedeki
  * "ợ" (U+1EE3) sayesindeydi. "ư" ve "ơ" (U+01A1) Ext-B'dedir ve kapsanmıyordu:
  * "thư", "sư" uyarısız geçerdi. Türkçede bu blokta harf YOKTUR; bloğun tamamı

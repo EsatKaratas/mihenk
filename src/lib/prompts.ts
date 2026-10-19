@@ -881,7 +881,7 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
 // aynı sınır belirteci korumasına alınır.
 // ---------------------------------------------------------------------------
 /**
- * §56 — ÇÖZÜCÜ İSTEMİNİN SÜRÜMÜ (yanıtta meta.cozucuIstemSurumu).
+ * §57 — ÇÖZÜCÜ İSTEMİNİN SÜRÜMÜ (yanıtta meta.cozucuIstemSurumu).
  *   1: çıktı şablonu {"secilenSik", "gerekce", …} — HARF ÖNCE.
  *      ÖLÇÜLDÜ (A5, W4 Aşama 2): A1'in 15 yanlış alarmının 9'unda gerekçe
  *      doğru değeri bulup BAŞKA harf seçti. Kök: model harfi hesap yapmadan

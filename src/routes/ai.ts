@@ -1004,7 +1004,7 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
          verilmedi ya da çözücü bir şık belirleyemedi (karşılaştırma yok). */
       anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
       dilUyarisi: metinDilUyarisi(gerekce),
-      // §56: çözücü isteminin sürümü (2 = gerekçe önce, harf sonra). Ölçümler buna göre ayrılmalı.
+      // §57: çözücü isteminin sürümü (2 = gerekçe önce, harf sonra). Ölçümler buna göre ayrılmalı.
       meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU },
     });
   } catch (e) {
