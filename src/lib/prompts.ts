@@ -16,6 +16,15 @@
 // üretmeye geri döner.
 // ============================================================================
 
+/**
+ * §55 — SORU ÜRETİM İSTEMİNİN SÜRÜMÜ. Yanıtın meta.istemSurumu alanında döner.
+ *   1: §51b'ye kadar (MEB kazanım istemi SHA-256 f9f636a4…, 10.147 karakter)
+ *   2: §55 A2 — ÇSS için isteğe bağlı "hesap" alanı (Kural 10 + JSON örneği)
+ * Ölçümler (tools/olcum) bu alana göre ayrılmalı: istem değiştiği için sürüm 1
+ * ile sürüm 2 sonuçlarının karşılaştırması istem değişikliğiyle KARIŞIKTIR.
+ */
+export const ISTEM_SURUMU = 2;
+
 export type QuestionSpec = {
   subject: string;
   grade: number | string;
@@ -386,6 +395,11 @@ ${materyalModu ? `9. BELGEYE ATIF YAPMAK BU MODDA YASAKTIR. Öğrenci ders belge
    işaretlersen öğrenci cevaplanamayacak bir soruyla karşılaşır.
    Metne atıf yapmak YASAK DEĞİLDİR — özellikle okuma kazanımlarında gereklidir;
    yalnızca doğru işaretlenmelidir.`}
+10. HESAP ALANI (isteğe bağlı): Doğru cevabı sayısal bir işlemle bulunan
+   çoktan seçmeli sorularda "hesap" alanına O İŞLEMİ yaz: yalnızca sayılar,
+   + - * / ve parantez (ör. "(30 - 10) * 2"). Birim, harf, değişken ya da
+   eşittir işareti yazma; ondalık için nokta kullan. İşlemin sonucu doğru
+   şıktaki sayıya eşit olmalı. Hesap gerektirmeyen sorularda bu alanı yazma.
 
 ÇIKTI BİÇİMİ — yalnızca aşağıdaki şemaya uyan geçerli JSON döndür.
 Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin ekleme.
@@ -397,6 +411,7 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
       "body": "önce 2-5 cümlelik günlük hayat bağlamı ve verisi, sonra görev cümlesi",
       "options": [{"key": "A", "text": "..."}, {"key": "B", "text": "..."}],
       "correctKey": "A",
+      "hesap": "(30 - 10) * 2",
       "distractorRationale": {"B": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder"},
       "difficulty": "medium",
       "bloom": "uygulama",
