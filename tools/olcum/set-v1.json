@@ -1,0 +1,111 @@
+{
+  "surum": "set-v1",
+  "olusturma": "2026-10-19",
+  "aciklama": "Mihenk ölçüm seti v1 — 12 MEB kazanımı (3 ders × 4 sınıf), kazanım modu (kaynak metin YOK), her kazanım için 2 çoktan seçmeli + 1 açık uçlu soru istenir. Sabittir: değiştirilirse sürüm numarası artırılır (set-v2), eski koşumlar eski sürümle kıyaslanır.",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": []
+  },
+  "maddeler": [
+    {
+      "kod": "MAT.5.4.4",
+      "ders": "Matematik",
+      "sinif": 5,
+      "metin": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+      "grup": "4. Ünite · GEOMETRİK NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-5.json"
+    },
+    {
+      "kod": "MAT.6.4.1",
+      "ders": "Matematik",
+      "sinif": 6,
+      "metin": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+      "grup": "4. Ünite · GEOMETRİK NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-6.json"
+    },
+    {
+      "kod": "MAT.7.1.7",
+      "ders": "Matematik",
+      "sinif": 7,
+      "metin": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+      "grup": "1. Ünite · SAYILAR VE NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-7.json"
+    },
+    {
+      "kod": "MAT.8.1.1",
+      "ders": "Matematik",
+      "sinif": 8,
+      "metin": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+      "grup": "1. Ünite · SAYILAR VE NİCELİKLER",
+      "kaynakDosya": "public/mufredat/matematik-8.json"
+    },
+    {
+      "kod": "FB.5.5.3",
+      "ders": "Fen Bilimleri",
+      "sinif": 5,
+      "metin": "Sıcaklığı farklı olan sıvıların karıştırılması sonucu ısı alışverişi olduğuna yönelik bilimsel çıkarım yapabilme",
+      "grup": "5. Ünite · MADDENİN DOĞASI",
+      "kaynakDosya": "public/mufredat/fen-5.json"
+    },
+    {
+      "kod": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": 6,
+      "metin": "Sürat ve hız kavramlarını karşılaştırabilme",
+      "grup": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+      "kaynakDosya": "public/mufredat/fen-6.json"
+    },
+    {
+      "kod": "FB.7.5.8",
+      "ders": "Fen Bilimleri",
+      "sinif": 7,
+      "metin": "Karışımları homojen ve heterojen olarak sınıflandırabilme",
+      "grup": "5. Ünite · MADDENİN DOĞASINA YOLCULUK",
+      "kaynakDosya": "public/mufredat/fen-7.json"
+    },
+    {
+      "kod": "FB.8.5.7",
+      "ders": "Fen Bilimleri",
+      "sinif": 8,
+      "metin": "Maddelerin asitlik ve bazlık durumlarına ilişkin “pH“ değerlerini kullanarak tümevarımsal akıl yürütebilme",
+      "grup": "5. Ünite · PERİYODİK TABLO VE MADDENİN ETKİLEŞİMİ",
+      "kaynakDosya": "public/mufredat/fen-8.json"
+    },
+    {
+      "kod": "T.Y.5.15",
+      "ders": "Türkçe",
+      "sinif": 5,
+      "metin": "Uygun bağlantı ifadelerini kullanabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-5.json"
+    },
+    {
+      "kod": "T.Y.6.18",
+      "ders": "Türkçe",
+      "sinif": 6,
+      "metin": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-6.json"
+    },
+    {
+      "kod": "T.Y.7.17",
+      "ders": "Türkçe",
+      "sinif": 7,
+      "metin": "Yazısında açık ve örtük ifadeleri kullanabilme",
+      "grup": "Yazma",
+      "kaynakDosya": "public/mufredat/turkce-7.json"
+    },
+    {
+      "kod": "T.O.8.9",
+      "ders": "Türkçe",
+      "sinif": 8,
+      "metin": "Okuduklarını karşılaştırabilme",
+      "grup": "Okuma",
+      "kaynakDosya": "public/mufredat/turkce-8.json"
+    }
+  ]
+}
