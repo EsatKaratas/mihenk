@@ -392,3 +392,90 @@ diğer istemlerindeki alan sırası da bu açıdan gözden geçirilmeli.
 içinde `"points"`, `"reason"`dan ÖNCE geliyor (`src/lib/prompts.ts`,
 `breakdown` şablonu) — aynı "karar önce" riskini taşıyabilir. Etkisi ayrı bir
 kontrollü deneyle ölçülmeden değiştirilmemeli.
+
+### 9.7 İstatistik ve tekrarlanabilirlik (W2)
+
+**Yöntem.**
+- Tabakalı bootstrap: 1.000 tekrar, tohum 20261019 (`tools/olcum/a5-birlestir.mjs`
+  [5], ham sonuç `a5/a5-bootstrap.json`).
+- Her model × sıcaklık tabakasında iki hücre kendi içinde, yerine koyarak yeniden
+  örneklenir: bayraklı ve etiketli bayraksız. Tasarım ağırlıkları sabit kalır.
+- Bayraklı hücre tasarımda tam sayımdır; onu da yeniden örneklemek etiketlerin
+  süper-popülasyon değişkenliğini katar (bilerek tutucu).
+- %95 GA = 2,5. ve 97,5. yüzdelikler.
+- Çözücü **v2** (bugünkü ürün).
+- **Yakalama iki tanımla verilir:**
+  - **yanlış** (manşet): yalnız karar = yanlış.
+  - **kusurlu** (ikincil): yanlış ∪ belirsiz.
+- Yanlış alarm = doğru etiketlilerden işaretlenen.
+
+**Toplam (392 birincil ÇSS'ye ağırlıklı), nokta [%95 GA]:**
+
+| | Yakalama — yanlış (manşet) | Yakalama — kusurlu | Yanlış alarm |
+|---|---|---|---|
+| A1 v2 | 62,9 [47,9–82,2] | 52,2 [42,3–64,8] | 2,9 [0,8–5,4] |
+| A2 | 53,5 [39,1–73,5] | 30,8 [23,3–39,6] | 2,4 [0,8–4,4] |
+| **A1 v2 ∪ A2** | **77,7 [60,6–98,4]** | 61,1 [51,2–74,6] | **5,3 [2,6–8,4]** |
+| A3 | 0,0 [0,0–0,0] | 1,4 [0,0–3,4] | 10,6 [4,2–18,0] |
+
+**Tabaka başına (A1 v2 ∪ A2):**
+
+| Tabaka | Yakalama — yanlış | Yakalama — kusurlu | Yanlış alarm | Etiketli "yanlış" (bayraklı / bayraksız) |
+|---|---|---|---|---|
+| A s0,5 | 100 [100–100]* | 60,1 [44,7–77,7] | 13,4 [5,8–23,0] | 12 / 1 |
+| A s0,2 | 100 [100–100]* | 65,1 [44,6–100] | 5,0 [0,0–11,0] | 17 / 0 |
+| B s0,5 | 86,3 [59,3–100] | 61,6 [42,8–81,5] | 4,9 [0,0–13,2] | 9 / 3 |
+| B s0,2 | 49,0 [26,3–100] | 57,8 [35,5–100] | 0,0 [0,0–0,0]* | 15 / 2 |
+
+Tüm dedektörlerin tabaka sonuçları `a5/a5-basarim.txt` [5]'tedir.
+
+\* **Çöken aralıklar.**
+- A tabakalarında etiketli hiçbir "yanlış" madde kaçırılmamış (13/13 ve 17/17).
+  Sıfır kaçırma gözlenince yüzdelik bootstrap belirsizliği gösteremez; aralık
+  [100–100] çöker.
+- Daha dürüst alt sınır (ağırlıksız Wilson): A s0,5 13/13 → [77,2–100]; A s0,2
+  17/17 → [81,6–100]; B s0,5 11/12 → [64,6–98,5]; B s0,2 14/17 → [59,0–93,8];
+  toplam 55/59 → [83,8–97,3].
+- **Ağırlıksız %93 ile ağırlıklı %77,7 arasındaki fark:** B s0,2'de kaçırılan 3
+  "yanlış" madde (K126, K076, K203) bayraksız tabakadan geliyor ve her biri
+  6,8 ağırlık taşıyor.
+- B s0,2'nin yanlış alarmı 0'dır, ama yalnız 10 etiketli bayraksız maddeye dayanır.
+
+**Basit oranlar — Wilson %95 GA:**
+
+| Oran | k / n | Nokta | %95 GA |
+|---|---|---|---|
+| A5 (a) anahtar doğru — A (70b), istem v2 | 22 / 32 | %68,8 | [51,4–82,0] |
+| A5 (a) anahtar doğru — B (Scout), istem v2 | 22 / 36 | %61,1 | [44,9–75,2] |
+| §54 ilk ölçüm anahtar doğru — A, istem v1 | 12 / 25 | %48,0 | [30,0–66,5] |
+| §54 ilk ölçüm anahtar doğru — B, istem v1 | 16 / 26 | %61,5 | [42,5–77,6] |
+| Harf-önce deneyi (v1 şablon) yanlış | 3 / 3 | %100 | [43,8–100] |
+| Gerekçe-önce deneyi (v2 şablon) doğru | 3 / 3 | %100 | [43,8–100] |
+
+**Okuma.**
+- A'nın anahtar doğruluğu v1 → v2'de %48 → %69, ama aralıklar örtüşüyor
+  ([30–67] ve [51–82]).
+- Ayrıca istem değişti, kazanım alt kümesi ve etiketleyiciler farklı. **Bu fark
+  bir iyileşme kanıtı DEĞİLDİR.**
+- Harf-önce deneyi n=3 ile yönü gösterir; etkinin büyüklüğü için daha büyük
+  deney gerekir. A1 v2'nin yanlış alarm düşüşü (13,4 → 2,9) 225 maddede ayrıca
+  ölçüldü (§9.6).
+
+**Tekrarlanabilirlik.**
+
+| Öğe | Değer |
+|---|---|
+| Model A | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (Workers AI) |
+| Model B | `@cf/meta/llama-4-scout-17b-16e-instruct` (Workers AI) |
+| Model sürümü | Cloudflare model kimlikleri bir sürüm ya da ağırlık özeti taşımıyor. Aynı kimliğin arkasındaki modelin değişip değişmediği dışarıdan **doğrulanamaz**. `fp8-fast` bir nicemleme/hız varyantının adıdır, sürüm değildir. Sonuçlar aşağıdaki tarih ve saatlere bağlıdır. |
+| Çağrı pencereleri (UTC, 19 Ekim 2026) | §54 ilk ölçüm: A 04:43–04:54, B 04:43–04:57 · A5 üretim + çözücü v1: A 09:42–10:16, B 09:42–10:38 · çözücü v2 yeniden ölçümü: bitiş 10:56 · harf-önce deneyi: v2 ölçümünden önce, saat kaydı yok |
+| Değerlendirme seti | `set-v1.1` (`tools/olcum/set-v1.1.json`, 13 MEB + 5 Deneyap = 18 kazanım) |
+| Üretim istemi | §54: sürüm 1 · A5: sürüm 2 (`ISTEM_SURUMU`; MEB parmak izi v1 `f9f636a4…`, v2 `6659c1e8…`) |
+| Çözücü istemi | A5 koşumu: v1 (harf önce) · yeniden ölçüm ve ürün: v2 (`COZUCU_ISTEM_SURUMU`) |
+| Sıcaklık / max_tokens | üretim 0,5 ve 0,2 (`OLCUM_SICAKLIK`, her çağrıda `meta.sicaklik` ile doğrulandı) / 700 + 700 × soru, tavan 5.600 · çözücü 0,2 / 400 |
+| Sunucu kodu | §54: `fc1750c` (ham kayıtta "+kaydedilmemis": o sırada ana ağaçta W2'nin satır sonu düzeltmesi vardı, içerik farkı 0) · A5: src `156b0a2`, betik `18319d1` · çözücü v2: `3af821b` |
+| Tohumlar | etiket örneklemi 2026 · kör ikinci kontrol 2027 · bootstrap 20261019 |
+| Etiketler | W1 `0387114` (çift K) · W4 `6c83bcf` (tek K) · W3 `efa9277` (ikinci kontrol, I-no) |
+| Veri commit'leri | A5 ham + CSV + kümeler `51728b4` · çözücü v2 `0ffc977` |
+| Betikler | `tools/olcum/olc.mjs`, `a5-orneklem.mjs`, `a5-cozucu-v2.mjs`, `a5-birlestir.mjs` |
+| Yeniden üretim | `node tools/olcum/a5-birlestir.mjs` — model çağırmaz; bu bölümdeki tüm sayıları depodaki verilerden yeniden hesaplar |

@@ -176,6 +176,80 @@ yaz(`  üç sınıf: uyuşma ${(100 * po).toFixed(1)}% · κ = ${kappa.toFixed(2
 yaz(`  ikili (kusurlu mu?): uyuşma ${(100 * po2).toFixed(1)}% · κ = ${((po2 - pe2) / (1 - pe2)).toFixed(2)}`);
 yaz(`  uyuşmazlıklar: ${uyusmaz.join(' · ')}`);
 
+// --- [5] İstatistik: tabakalı bootstrap + Wilson (OZET §9.7) ---------------
+/* Tabakalı bootstrap (BOOT_N tekrar, tohumlu): her tabaka × {bayraklı, etiketli
+   bayraksız} hücresi KENDİ İÇİNDE yerine koyarak yeniden örneklenir; ağırlıklar
+   (tabakadaki bayraksız sayısı / hücredeki etiketli sayısı) sabit kalır. Bayraklı
+   hücre tasarımda tam sayımdır; onu da yeniden örneklemek etiketlerin süper-
+   popülasyon değişkenliğini katar (bilerek tutucu). %95 GA = 2,5. ve 97,5. yüzdelikler.
+   İki yakalama tanımı: "yanlış" (manşet: yalnız karar=yanlış) ve "kusurlu"
+   (ikincil: yanlış ∪ belirsiz). Yanlış alarm = doğru etiketlilerden işaretlenen. */
+const BOOT_N = 1000, BOOT_TOHUM = 20261019;
+function mulberry32(t) { return () => { t = (t + 0x6d2b79f5) | 0; let r = Math.imul(t ^ (t >>> 15), 1 | t); r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r; return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+function wilson(k, n, z = 1.96) {
+  if (!n) return [null, null];
+  const p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n), h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n));
+  return [(c - h) / d, (c + h) / d];
+}
+const yzd = (x) => (x === null || x === undefined || Number.isNaN(x) ? '—' : (100 * x).toFixed(1));
+const bDedektor = v2 ? { 'A1v2': (r) => r.A1v2, A2: (r) => r.A2, 'A1v2∪A2': (r) => r.A1v2 || r.A2, A3: (r) => r.A3 }
+  : { A1: (r) => r.A1, A2: (r) => r.A2, 'A1∪A2': (r) => r.A1 || r.A2, A3: (r) => r.A3 };
+const tanimlar = { yanlis: (r) => r.et.karar === 'yanlis', kusurlu: (r) => r.et.karar !== 'dogru' };
+function olc(orneklem) {
+  const sonuc = {};
+  for (const [tAd, tF] of Object.entries(tanimlar)) {
+    const K = orneklem.filter(tF).reduce((t, r) => t + w(r), 0);
+    const S = orneklem.filter((r) => r.et.karar === 'dogru').reduce((t, r) => t + w(r), 0);
+    for (const [dAd, f] of Object.entries(bDedektor)) {
+      sonuc[`${dAd}|${tAd}|yak`] = K ? orneklem.filter((r) => tF(r) && f(r)).reduce((t, r) => t + w(r), 0) / K : NaN;
+      sonuc[`${dAd}|ya`] = S ? orneklem.filter((r) => r.et.karar === 'dogru' && f(r)).reduce((t, r) => t + w(r), 0) / S : NaN;
+    }
+  }
+  return sonuc;
+}
+const rnd = mulberry32(BOOT_TOHUM);
+const kapsamlar = ['Toplam', ...tabakalar];
+const hucreler = (kap) => {
+  const s = etiketli.filter((r) => kap === 'Toplam' || r.tabaka === kap);
+  const h = {};
+  for (const r of s) (h[`${r.tabaka}|${r.bayrak ? 'b' : 'u'}`] ||= []).push(r);
+  return Object.values(h);
+};
+yaz(`\n[5] İstatistik — tabakalı bootstrap (${BOOT_N} tekrar, tohum ${BOOT_TOHUM}); nokta tahmini [%95 GA]:`);
+const bootTablo = {};
+for (const kap of kapsamlar) {
+  const hs = hucreler(kap);
+  const nokta = olc(hs.flat());
+  const dagilim = {};
+  for (let b = 0; b < BOOT_N; b++) {
+    const ornek = hs.flatMap((h) => Array.from({ length: h.length }, () => h[Math.floor(rnd() * h.length)]));
+    for (const [k, v] of Object.entries(olc(ornek))) (dagilim[k] ||= []).push(v);
+  }
+  bootTablo[kap] = {};
+  for (const [k, v] of Object.entries(nokta)) {
+    const s = dagilim[k].filter((x) => !Number.isNaN(x)).sort((x, y) => x - y);
+    bootTablo[kap][k] = { nokta: v, alt: s[Math.floor(0.025 * s.length)], ust: s[Math.min(s.length - 1, Math.ceil(0.975 * s.length) - 1)] };
+  }
+  const g = (k) => { const x = bootTablo[kap][k]; return `${yzd(x.nokta)} [${yzd(x.alt)}–${yzd(x.ust)}]`; };
+  yaz(`  ${kap}:`);
+  for (const d of Object.keys(bDedektor)) {
+    yaz(`    ${d.padEnd(8)} yakalama(yanlış) ${g(`${d}|yanlis|yak`)} · yakalama(kusurlu) ${g(`${d}|kusurlu|yak`)} · yanlış alarm ${g(`${d}|ya`)}`);
+  }
+}
+yaz('\n[6] Wilson %95 GA (basit oranlar):');
+for (const [ad, k, n] of [
+  ['(a) A5 anahtar doğru — A (70b), istem v2', etiketli.filter((r) => r.kumeler.includes('a') && r.model === 'A' && r.et.karar === 'dogru').length, etiketli.filter((r) => r.kumeler.includes('a') && r.model === 'A').length],
+  ['(a) A5 anahtar doğru — B (Scout), istem v2', etiketli.filter((r) => r.kumeler.includes('a') && r.model === 'B' && r.et.karar === 'dogru').length, etiketli.filter((r) => r.kumeler.includes('a') && r.model === 'B').length],
+  ['§54 ilk ölçüm anahtar doğru — A, istem v1', 12, 25],
+  ['§54 ilk ölçüm anahtar doğru — B, istem v1', 16, 26],
+  ['harf-önce deneyi (v1 şablon) yanlış', 3, 3],
+  ['gerekçe-önce deneyi (v2 şablon) doğru', 3, 3],
+]) {
+  const [a, b] = wilson(k, n);
+  yaz(`  ${ad}: ${k}/${n} = ${yzd(k / n)}% [${yzd(a)}–${yzd(b)}]`);
+}
+fs.writeFileSync(path.join(D, 'a5-bootstrap.json'), JSON.stringify({ tohum: BOOT_TOHUM, tekrar: BOOT_N, cozucu: v2 ? 'v2' : 'v1', sonuc: bootTablo }, null, 2) + '\n', 'utf8');
+
 // --- etiketli CSV ----------------------------------------------------------
 const sut = ['kno', 'kumeler', 'model', 'sicaklik_kosum', 'kosum', 'kazanim', 'tekrar', 'sira', 'etiketleyen', 'karar', 'anhYok', 'dogruCevap', 'kodlar',
   'A1', 'A2', 'A3', 'SIKIFADE', 'dilUyarisi', 'agirlik', 'dogru_sik', 'cozucu_sik', 'hesap', 'hesapBaskaSik', 'A1v2', 'cozucu_v2_sik'];
