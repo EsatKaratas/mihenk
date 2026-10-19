@@ -6145,7 +6145,13 @@ function poolEditHtml(q) {
        kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
     OUTCOMES_LIST().filter(function (o) {
       const ders = soruDersSinif(q).subject;
-      return o.code === q.outcome || !ders || (o.subject || kodDanDers(o.code)) === ders;
+      /* §58: Deneyap ve Keşif'te süzgeç ATÖLYE düzeyine iner (ölçüldü: bir
+         Malzeme Bilimi sorusunda 5 atölyenin 11 kazanımı listeleniyordu). */
+      const kayit = OUTCOMES_LIST().filter(function (x) { return x.code === q.outcome; })[0];
+      const atolye = kayit && kayit.atolye;
+      if (o.code === q.outcome || !ders) return true;
+      if ((o.subject || kodDanDers(o.code)) !== ders) return false;
+      return !atolye || o.atolye === atolye;
     }).map(function (o) {
       return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
