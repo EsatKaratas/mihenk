@@ -86,7 +86,7 @@
 | Kod | Tanım | Gerçek örnek (PROGRESS) | Denetim | Davranış | Ölçüm |
 |---|---|---|---|---|---|
 | `DEG-INJ` | Öğrenci cevabındaki talimat puanı etkiliyor | İlk sürümde otorite taklidi 20/20 aldı; düzeltmeden sonra 5/5 vektör savunuldu (§10e, §19d) | Rastgele sınır belirteci + istemde güvenlik bloğu; model `injectionAttempt` bayrağını öğretmene gösterir | bayrak (model tabanlı; yedek modelde 4'te 1 kaçtı, §16) | oto (`tools/injection-test.py`) |
-| `DEG-BOSGEREKCE` | İçi boş gerekçe ("Mükemmel", "Tam puan") | Injection vakasında tüm gerekçeler "Mükemmel" (§10e) | — (yalnızca istem kuralı 4) | — | yarı |
+| `DEG-BOSGEREKCE` | İçi boş gerekçe ("Mükemmel", "Tam puan") | Injection vakasında tüm gerekçeler "Mükemmel" (§10e) | — (yalnızca istem kuralı 4) | — | elle |
 | `DEG-FARK` | Yapay zekâ puanı ile öğretmenin nihai puanı arasındaki fark | Karar Günlüğü bu farkı kaydeder (§21); sahada ölçülmedi | — (tanım gereği insan kararı) | — | oto (pilotta Karar Günlüğü'nden) |
 
 ---
@@ -102,6 +102,14 @@ kelime sayısı; eşik raporlanır, eleme yapılmaz), `DEG-INJ`.
 `GRK-TUTARSIZ`, `SIK-SACMA`, `SIK-ESANLAM`, `DIL-LATIN`, `GVD-TEKADIM`,
 `GVD-VERIFAZLA`, `KZN-DISI`, `SNF-DISI`, `DEG-BOSGEREKCE`. Bunlar için
 otomatik bir oran **yazılmaz**.
+
+**Yarı otomatik kodlar** (betik aday işaretler, karar elle verilir):
+`GVD-KALIP`, `GVD-YINELEME`.
+
+**Pilotta ölçülecek kod:** `DEG-FARK` (Karar Günlüğü'nden, öğretmen kararı
+gerektirir).
+
+Toplam: 10 otomatik + 12 elle + 2 yarı otomatik + 1 pilot = **25 kod**.
 
 Bu ayrım araştırma sorusunun ikinci yarısına doğrudan cevap verir. Elle
 etiketlenen türlerin hiçbirinde bugün deterministik denetim yok. Bu

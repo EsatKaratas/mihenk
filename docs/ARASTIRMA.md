@@ -237,11 +237,31 @@ istemle **tek tur** soru üretimi yaptırıldı.
 JSON üretti. Tek turluk bir ölçümdür, kesin sonuç değildir. Soru sayısı
 sınırı ve tekrar denetimi eklenmeden önce yapıldığı için **tekrarlanmalıdır**.
 
-### 5.2 T3 AI
+### 5.2 T3 AI — erişim durumu (19 Ekim 2026'da web'de araştırıldı)
 
-*Erişim araştırması bu bölüme işlenecek: erişim var mı, denendi mi, kaynak
-bağlantıları.* T3 AI ile ölçülmüş bir sonuç yoktur. Erişim sağlanırsa aynı
-set ve aynı betikle karşılaştırılması **planlanıyor**.
+**Sonuç: dışarıdan programatik erişim bulunamadı. Hiçbir şey denenmedi, T3
+AI ile ölçülmüş bir sonuç yoktur.** Mihenk T3 AI ile entegre değildir.
+
+| Soru | Bulunan | Kaynak |
+|---|---|---|
+| Model ne? | T3 Vakfı öncülüğünde, Baykar iş birliğiyle geliştirilen Türkçe odaklı büyük dil modeli. Vakıf "açık kaynak yapay zekâ projesi" diye tanımlıyor | [t3vakfi.org — T3 AI](https://t3vakfi.org/en/project/t3-ai) |
+| Nasıl kullanılıyor? | TEKNOFEST Sosyal (NSosyal) platformunda beta: kullanıcı gönderide modeli etiketliyor, model yanıtlıyor (haber tarihi 11 Temmuz 2025) | [DonanımHaber](https://www.donanimhaber.com/turkce-buyuk-dil-modeli-t3-ai-in-beta-surumu-yayinlandi--193724) |
+| API var mı? | Resmî sayfada ve haberlerde API, geliştirici erişimi veya anahtar başvurusu **yok** | aynı kaynaklar |
+| Açık ağırlık var mı? | Resmî sayfada ağırlık, lisans ve parametre sayısı **yazmıyor**. Hugging Face'te resmî bir T3 AI deposu bulunamadı | Hugging Face araması (`search=t3ai`) |
+| Hugging Face'te ne var? | `T3AI-HACKATHON` topluluk organizasyonu: 15 takım deposu (5 Eylül 2024, TEKNOFEST 2024 T3AI Hackathon dönemi). Çoğu elle onaylı erişimli (`gated: manual`), en az biri boş (yalnızca README). Bir takımın deposunda (`FoxySapiens/t3ai-pt-model-v1`) Llama mimarili, yaklaşık 8,0 milyar parametreli bir model var. Hiçbir depoda `base_model` etiketi yok; bunların resmî T3 AI sürümü olduğu **doğrulanamadı** | [huggingface.co/T3AI-HACKATHON](https://huggingface.co/T3AI-HACKATHON) · [FoxySapiens/t3ai-pt-model-v1](https://huggingface.co/FoxySapiens/t3ai-pt-model-v1) |
+| Workers AI'da var mı? | **Yok.** Katalogda T3/Baykar modeli ve Türkçeye özgü bir metin modeli yok | [Workers AI modelleri](https://developers.cloudflare.com/workers-ai/models/) |
+| Başvuru yolu | Vakfın açık formu **gönüllü katkı** içindir; model veya araştırmacı erişimi tanımlamıyor | [t3kys.com — T3 AI başvuru](https://t3kys.com/en/program/t3-ai-apply/) |
+
+**Neden NSosyal üzerinden ölçülmüyor:** gönderide etiketleyerek alınan
+yanıtlarda istem, sıcaklık ve `max_tokens` kontrol edilemez. Sabit set
+üzerinde tekrarlanabilir ölçüm yapılamaz ve yapılırsa diğer modellerle
+karşılaştırılamaz.
+
+**Plan:** burs kapsamında vakıf ve mentor aracılığıyla araştırma amaçlı
+erişim (API ya da ağırlık) talep etmek **planlanıyor**. Erişim olursa T3 AI
+aynı set, aynı istem ve aynı betikle diğer modellerle karşılaştırılacak
+(plan ayı 2). Erişim olmazsa karşılaştırma Workers AI'daki modellerle
+yapılacak ve bu sınırlama raporda açıkça yazılacak.
 
 ---
 
