@@ -42,7 +42,7 @@ npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
 npm test                            # 338/338, 12 dosya
-node tools/ozkontrol-dogrula.mjs    # 370 ad · kapsama %100
+node tools/ozkontrol-dogrula.mjs    # 380 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -255,7 +255,8 @@ Ortak ilke: **otomatik düzeltme değil, insana gösterme.** Bir kusuru gizleme.
 | Test | **338/338** (12 dosya) — 20 Ekim |
 | Cevap denetimleri | A1–A4 yazıldı ve A5'te ölçüldü (ön bulgu): A1 (v2) ∪ A2 yakalama %61,1 / yanlış alarm %5,3; A1'de "harf önce" istem hatası düzeltildi — ARASTIRMA §6.8 |
 | Lint (`tsc --noEmit`) · `check:config` · `node --check` | temiz · exit 0 · temiz — 19 Ekim |
-| Öz-kontrol | **370 ad · kapsama %100** — 20 Ekim |
+| Öz-kontrol | **380 ad · kapsama %100** — 20 Ekim |
+| Sınav yazdırma (20 Ekim) | Kâğıt + ayrı cevap anahtarı (A4, yalnız onaylı sorular, sayfa no). PROGRESS §59 |
 | B1 · A7 (20 Ekim) | Şüphe rozetleri + "Bağımsız çöz"; YZ ↔ nihai puan raporu. A7 kriter bazında farkı ölçemez. PROGRESS §56 |
 | Canlı ↔ disk | `app.js` · `app.css` · `/` **SHA-256 eş** — 19 Ekim (CRLF'li disk dosyasıyla; CR'ler atılınca HEAD ile eş) |
 | `/api/health` · `/api/ai/status` | `ok:true` · `ready:true`, `fallbackSorunu: null` — 19 Ekim |
