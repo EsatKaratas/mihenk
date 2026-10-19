@@ -305,6 +305,15 @@ const ROLES = [
 ];
 
 /* ============================== Yardımcılar ============================== */
+/* §51 — Ekranda ondalık AYRAÇ Türkçede virgüldür (6,5 dk · 4,5/6 · p = 0,75).
+   Yalnızca GÖRÜNTÜ içindir; hesaplama ve kayıtlar sayı olarak kalır.
+   Sayıdan sonra ek getirilmez (tuzak 8): çağıranlar birimi ayrı yazar. */
+function ondalikTr(x, basamak) {
+  const n = Number(x);
+  if (!isFinite(n)) return String(x);
+  return (basamak == null ? String(n) : n.toFixed(basamak)).replace(".", ",");
+}
+
 function escapeHtml(str) {
   return String(str == null ? "" : str).replace(/[&<>"']/g, function (ch) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
@@ -394,8 +403,12 @@ function uretimModuSecHtml() {
     '<div class="mod-secici">' +
     kart("kaynak", "📄 Kaynak metinden",
       "Yüklediğiniz ders notundan üretilir. Okuma kazanımları için gerekli — metin sınavda öğrenciye gösterilir.") +
+    /* §51: Keşif kazanımlarının MEB kataloğu yoktur; dayanakları okulun ders
+       belgesidir (belge kilidi). Metin bunu yanlış söylüyordu. */
     kart("kazanim", "🎯 Kazanımdan",
-      "Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.") +
+      seciliMateryal()
+        ? "Metin gerekmez. Dayanak bu kazanıma bağlı ders belgesi; isterseniz bir yönerge yazarsınız."
+        : "Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.") +
     '</div></div>';
 }
 
@@ -3986,7 +3999,7 @@ function renderPendingQuestionCard(q) {
     return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
-      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" value="' + escapeHtml(o.text) + '">' +
+      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
       '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
       '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label>' +
       '<span class="opt-reorder-btns">' +
@@ -5497,7 +5510,7 @@ function examTrayHtml() {
       (mc * mcPuani()) + ' puan · açık uçlu ' + (puan - mc * mcPuani()) + ' puan</span><span></span></div>'
     : "") +
   '<div class="ts-row strong"><span>Toplam puan</span><span class="tabular">' + puan + ' puan</span></div>' +
-  '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + onerilenDk + ' dk</span></div>' +
+  '<div class="ts-row"><span>Sorulara verilen sürelerin toplamı</span><span class="tabular">' + ondalikTr(onerilenDk) + ' dk</span></div>' +
   '</div>';
 }
 
@@ -6156,7 +6169,7 @@ function teacherTab2Html() {
     : tw === 100
     ? '<div class="rub-status ok">✓ Ölçütler tamam. Toplam <b>' + rub.maxScore + ' puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.</div>'
     : tw < 100
-      ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + kalanPuan + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
+      ? '<div class="rub-status warn">Ağırlıkların toplamı <b>%' + tw + '</b>. Dağıtılmayı bekleyen <b>' + ondalikTr(kalanPuan) + ' puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.</div>'
       : '<div class="rub-status err">Ağırlıkların toplamı <b>%' + tw + '</b> — 100\'ü <b>' + (tw - 100) + ' puan</b> aşıyor. Fazlalığı azaltın.</div>';
 
   const soruSecici = opens.length > 1
@@ -6311,7 +6324,7 @@ function rubRefreshBar(rub) {
       st.innerHTML = "✓ Ölçütler tamam. Toplam <b>" + rub.maxScore + " puan</b> eksiksiz dağıtıldı; sınavı yayınlayabilirsiniz.";
     } else if (tw < 100) {
       st.className = "rub-status warn";
-      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b>. Dağıtılmayı bekleyen <b>" + kalanPuan + " puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.";
+      st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b>. Dağıtılmayı bekleyen <b>" + ondalikTr(kalanPuan) + " puan</b> var — ölçüt ekleyin ya da ağırlıkları artırın.";
     } else {
       st.className = "rub-status err";
       st.innerHTML = "Ağırlıkların toplamı <b>%" + tw + "</b> — 100'ü <b>" + (tw - 100) + " puan</b> aşıyor. Fazlalığı azaltın.";
@@ -6343,7 +6356,7 @@ function evalCardHtml(q, student, ev) {
     injectionWarnHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
-      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + b.points + '/' + b.max + '</span></div>' +
+      return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + ondalikTr(b.points) + '/' + ondalikTr(b.max) + '</span></div>' +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
         (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
     }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div>' +
@@ -7018,9 +7031,9 @@ function itemAnalysisHtml() {
     return '<div class="ia-item">' +
       '<div class="ia-body">' + escapeHtml(m.q.body) + "</div>" +
       '<div class="ia-metrics">' +
-        '<span class="ia-metric"><b>p</b> = ' + m.p.toFixed(2) +
+        '<span class="ia-metric"><b>p</b> = ' + ondalikTr(m.p, 2) +
           ' <span class="pill ' + py.s + '">' + py.t + "</span></span>" +
-        '<span class="ia-metric"><b>d</b> = ' + m.d.toFixed(2) +
+        '<span class="ia-metric"><b>d</b> = ' + ondalikTr(m.d, 2) +
           ' <span class="pill ' + dy.s + '">' + dy.t + "</span></span>" +
       "</div>" +
       '<div class="ia-opts">' + sikDagilimi +
@@ -7235,14 +7248,14 @@ function calibrationHtml() {
   const yonMetni = Math.abs(c.yon) < 0.05
     ? "Sistematik bir sapma yok."
     : (c.yon > 0
-      ? "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CİMRİ</b> davranıyor - siz puan ekliyorsunuz."
-      : "Yapay zekâ ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan CÖMERT</b> davranıyor - siz puan kırıyorsunuz.");
+      ? "Yapay zekâ ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan CİMRİ</b> davranıyor - siz puan ekliyorsunuz."
+      : "Yapay zekâ ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan CÖMERT</b> davranıyor - siz puan kırıyorsunuz.");
 
   const bantAd = { yuksek: "Yüksek güven (%85 ve üstü)", orta: "Orta güven (%70-85)", dusuk: "Düşük güven (%70 altı)" };
   const bantSatir = c.bantOzeti.map(function (b) {
     return '<div class="cal-band"><span class="cal-band-ad">' + bantAd[b.bant] + "</span>" +
       '<span class="cal-band-adet">' + b.adet + " yanıt</span>" +
-      '<span class="cal-band-sapma">ortalama sapma <b>' + b.ortSapma.toFixed(1) + "</b> puan</span></div>";
+      '<span class="cal-band-sapma">ortalama sapma <b>' + ondalikTr(b.ortSapma, 1) + "</b> puan</span></div>";
   }).join("");
 
   const kalibreNotu = c.guvenKalibre === null
@@ -7255,7 +7268,7 @@ function calibrationHtml() {
     ? '<div class="cal-worst"><span class="cal-worst-baslik">En çok ayrıştığınız yanıt</span>' +
       escapeHtml(c.enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(c.enFarkli.soru).slice(0, 90)) +
       '<div class="cal-worst-sayi">AI önerisi <b>' + c.enFarkli.ai + "</b> &rarr; sizin puanınız <b>" +
-      c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + c.enFarkli.fark.toFixed(1) + ")</div></div>"
+      c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + ondalikTr(c.enFarkli.fark, 1) + ")</div></div>"
     : "";
 
 
@@ -7287,12 +7300,12 @@ function calibrationHtml() {
         : "Bunların <b>" + c.degistirilen + "</b> tanesinde yapay zekânın önerdiği puanı değiştirdiniz. " +
           "Uyum oranı, en az 5 onaydan sonra anlamlı bir sayı verir.")
     : yonMetni + " <b>" + c.aynenOnay + "</b> yanıtı olduğu gibi onayladınız, <b>" + c.degistirilen +
-      "</b> yanıtta puanı değiştirdiniz. Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+      "</b> yanıtta puanı değiştirdiniz. Ortalama sapma <b>" + ondalikTr(c.sapma, 1) + "</b> puan" +
       (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".";
 
   const ayrintiIc =
     (azVeriModu
-      ? "<div>Ortalama sapma <b>" + c.sapma.toFixed(1) + "</b> puan" +
+      ? "<div>Ortalama sapma <b>" + ondalikTr(c.sapma, 1) + "</b> puan" +
         (c.ortTavan ? " (ortalama tam puan " + c.ortTavan.toFixed(0) + ")" : "") + ".</div>" +
         (c.uyum != null ? "<div>Ham uyum oranı: <b>%" + c.uyum + "</b> — yalnızca " + c.n +
           " onay üzerinden hesaplandığı için tek bir puan değişikliği bu sayıyı büyük ölçüde oynatır.</div>" : "")
@@ -8074,7 +8087,7 @@ function studentTab3Html() {
            "Nota Aktar" ile alırsa `rv.comment` olarak gelir. Ölçüt PUANLARI
            kalır: puanın nereden geldiği öğrencinin hakkıdır. */
         (ev.breakdown || []).map(function (b) {
-          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + b.points + ' / ' + b.max + '</span></div>';
+          return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + ondalikTr(b.points) + ' / ' + ondalikTr(b.max) + '</span></div>';
         }).join("") +
         (rv.comment
           ? '<div class="justification" style="margin-top:8px;"><b>Öğretmeninizin notu:</b> ' + escapeHtml(rv.comment) + '</div>'
@@ -8545,7 +8558,7 @@ function teacherOzetCumlesi(t) {
   const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
   return pct != null && pct > 0
     ? "AI analizine kıyasla ortalama %" + pct + " " + yonKelime + " puan veriyor"
-    : "AI analizine kıyasla ortalama " + Math.abs(c.yon).toFixed(1) + " puan " + yonKelime + " veriyor";
+    : "AI analizine kıyasla ortalama " + ondalikTr(Math.abs(c.yon), 1) + " puan " + yonKelime + " veriyor";
 }
 
 function teacherAnalyticsHtml() {
@@ -8609,7 +8622,7 @@ function teacherReportCardHtml(t) {
     ? escapeHtml(t.name) + ", AI analizine kıyasla sistematik bir sapma göstermiyor."
     : (pct != null && pct > 0
         ? escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>%" + pct + "</b> " + yonKelime + " puan verdi"
-        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + Math.abs(c.yon).toFixed(1) + " puan</b> " + yonKelime + " verdi")
+        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan</b> " + yonKelime + " verdi")
       + " / <b>" + yonEtiket + "</b>.";
   const tamMutabakat = Math.round(c.aynenOnay / c.n * 100);
   const enFarkli = c.enFarkli;
@@ -8632,7 +8645,7 @@ function teacherReportCardHtml(t) {
     '<div class="s-sub">açık uçlu değerlendirme</div></div>' +
     '<div class="stat-tile"><div class="s-label">Tam Mutabakat</div><div class="s-value tabular">%' + tamMutabakat + '</div>' +
     '<div class="s-sub tabular">' + c.aynenOnay + '/' + c.n + ' onayda AI puanı aynen kabul edildi</div></div>' +
-    '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + c.sapma.toFixed(1) + '</div>' +
+    '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + ondalikTr(c.sapma, 1) + '</div>' +
     '<div class="s-sub">puan (mutlak değer' + (c.ortTavan ? ", ortalama tam puan " + c.ortTavan.toFixed(0) : "") + ')</div></div>' +
     '</div>' +
 
@@ -8640,7 +8653,7 @@ function teacherReportCardHtml(t) {
       ? '<div class="cal-worst" style="margin-top:14px;"><span class="cal-worst-baslik">En çok ayrıştığı rubrik/soru</span>' +
         escapeHtml(enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(enFarkli.soru).slice(0, 90)) +
         '<div class="cal-worst-sayi">AI önerisi <b>' + enFarkli.ai + "</b> &rarr; öğretmenin puanı <b>" +
-        enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + enFarkli.fark.toFixed(1) + ")</div></div>"
+        enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + ondalikTr(enFarkli.fark, 1) + ")</div></div>"
       : "") +
     '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır; öğretmen puanı kriter bazında değil toplam ' +
     'olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
@@ -9992,7 +10005,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
