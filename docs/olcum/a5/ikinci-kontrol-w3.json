@@ -1,0 +1,254 @@
+{
+ "kontrolEden": "Mihenk Worker 3 (Claude Opus 5.5) — A5 bağımsız ikinci kontrol, KÖR",
+ "tarih": "2026-10-19",
+ "kaynak": "docs/olcum/a5/ikinci-kontrol-kor.json (45 madde, I001–I045). ikinci-kontrol-esleme.json, etiket-esleme.json, etiket-kor.json, a5-birlesik.csv, ham/ ve OZET.md'nin A5 madde düzeyi içeriği AÇILMADI. Yöntem için yalnız A5 dışı docs/olcum/anahtar-ikinci-kontrol.json (sabahki W1 kör kontrolü) ve OZET.md'nin yöntem satırları okundu.",
+ "karar_kurali": "W1'in sabahki kuralı aynen: dogru = işaretli şık savunulabilir tek doğru. yanlis = işaretli şık her makul yorumda yanlış (doğru cevap başka şıkta ya da hiçbir şıkta yok; soru belirsiz olsa bile işaretli şık savunulamıyorsa yanlis). belirsiz = soru verilen veriyle cevaplanamıyor (eksik veri, kök yok, kurgu tutarsız) YA DA birden çok savunulabilir doğru var ve işaretli şık bunlardan biri. dogruCevap: 'yok' = hiçbir şık doğru değil.",
+ "uygulama_notu": "Soru cümlesi olmayan ama 'hesaplamak istiyor / değerlendirmek istiyor' gibi niyet cümlesi kök işlevi gören maddelerde (I009, I013, I016, I042, I044) kök VAR kabul edildi ve karar işaretli şıka göre verildi (I013/I042/I044 dogru, I009/I016 yanlis); 'kök yok → belirsiz' uygulanmadı. Bu, belirsiz sınırında bir tercihtir. Kazanımla uyumsuzluk (KZN-DISI benzeri) karar değiştirmez, 'not' alanına yazıldı.",
+ "ozet": {
+  "dogru": 25,
+  "yanlis": 16,
+  "belirsiz": 4,
+  "not": "Sayılar kararlardan betikle sayıldı (45 madde). Yanlışların 'dogruCevap: yok' olanları ayrıca sayıldı.",
+  "yanlis_dogruCevap_yok": 9
+ },
+ "kararlar": {
+  "I001": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "Doğru orantı: 5 öğrencilik pizza 20 TL → 3 öğrencilik 20 × 3/5 = 12 TL."
+  },
+  "I002": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "5 × 2³ = 40."
+  },
+  "I003": {
+   "karar": "yanlis",
+   "dogruCevap": "C",
+   "gerekce": "72 km/h = 72 000 m / 3 600 s = 20 m/s (C). İşaretli 30 m/s hiçbir yorumda çıkmaz.",
+   "not": "Kazanım sürat–hız karşılaştırması; soru birim dönüşümü ölçüyor."
+  },
+  "I004": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Çevre = 2 × (30 + 10) = 80 m; D bu ifadedir. Gövde 'formül' ve 'kaç metre' sorularını karıştırıyor ama tek savunulabilir şık D."
+  },
+  "I005": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Bekletince görünümü değişmeyen karışım homojendir. Soru TÜRÜ soruyor; A (su ve tuz) homojen bir örnektir, tür değildir.",
+   "not": "A'nın da homojen olması belirsiz sınırına yakın."
+  },
+  "I006": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Yükseklik de gerektiren bir oyuncak arabayı en iyi üç boyutlu çizim gösterir."
+  },
+  "I007": {
+   "karar": "yanlis",
+   "dogruCevap": "yok",
+   "gerekce": "Cümledeki kesme işaretleri tırnak değildir; tırnak işaretinin yerine iki nokta konmaz (iki nokta alıntıdan önce gelir, tırnağın yerini tutmaz). A (parantez) ile B (ayraç) aynı şeydir. Savunulabilir şık yok."
+  },
+  "I008": {
+   "karar": "yanlis",
+   "dogruCevap": "yok",
+   "gerekce": "Kurgu tutarsız (perde için boya). En makul okuma 4 duvar × 5 m = 20 m × 0,5 L = 10 L ya da çevre 20 m → 10 L; şıklarda yok. İşaretli 18 L hiçbir okumada çıkmaz.",
+   "not": "Kazanım birim ilişkisi; soru dört işlem."
+  },
+  "I009": {
+   "karar": "yanlis",
+   "dogruCevap": "A",
+   "gerekce": "I = V / R = 12 / 4 = 3 A (A). İşaretli 2 A yanlış. Soru cümlesi yok ama niyet açık."
+  },
+  "I010": {
+   "karar": "yanlis",
+   "dogruCevap": "yok",
+   "gerekce": "Birinci kitaptan kaç sayfa okunduğu verilmediği için ikinci kitaptan okunan bulunamaz; tamamı okunduysa 120 / 1,5 = 80 (şıklarda yok). İşaretli 40 için hiçbir dayanak yok.",
+   "not": "Türkçe okuma kazanımı (T.O.8.9), soru matematik."
+  },
+  "I011": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "12 / 10 = 1,2 A. Gövdedeki ikinci soru (ilişkiyi açıklayın) şıklarla cevaplanmıyor ama işaretli şık hesabın tek doğrusu."
+  },
+  "I012": {
+   "karar": "yanlis",
+   "dogruCevap": "D",
+   "gerekce": "150 / 3 = 50 ve 200 / 4 = 50 sayfa/gün; ikisi aynı hızda (D). İşaretli A yanlış.",
+   "not": "Türkçe kazanımı, soru oran hesabı."
+  },
+  "I013": {
+   "karar": "dogru",
+   "dogruCevap": "C",
+   "gerekce": "pH 3 < 7 → asit. Soru cümlesi yok; 'asitlik durumunu değerlendirmek istiyor' kök işlevi görüyor."
+  },
+  "I014": {
+   "karar": "yanlis",
+   "dogruCevap": "yok",
+   "gerekce": "Saf su karışım değildir (saf madde); su–yağ heterojendir. Doğru cevap 'Hayır, saf su karışım değildir' şıklarda yok. İşaretli 'Evet, doğrudur' yanlış; C ve D de saf suyu karışım sayıyor."
+  },
+  "I015": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "pH 2,0 < 3,5 → limon suyu daha asidik. Hacim farkı çeldirici, asitliği etkilemez."
+  },
+  "I016": {
+   "karar": "yanlis",
+   "dogruCevap": "A",
+   "gerekce": "12 / 4 = 3 A (A). İşaretli 2 A yanlış."
+  },
+  "I017": {
+   "karar": "yanlis",
+   "dogruCevap": "yok",
+   "gerekce": "Havuz 10 × 5, çevresinde 1 m yol: yolun dış çevresi 2 × (12 + 7) = 38 m, iç çevresi 30 m. İkisi de şıklarda yok; işaretli 36 m hiçbir okumada çıkmaz."
+  },
+  "I018": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Ohm yasası: Akım = Gerilim / Direnç. Gövde aynı soruyu iki kez soruyor."
+  },
+  "I019": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "40 / 2 = 20 km/saat × 5 = 100 km."
+  },
+  "I020": {
+   "karar": "belirsiz",
+   "dogruCevap": "B veya C (aynı şık)",
+   "gerekce": "B ve C birebir aynı ('Okulumuzun'); iki doğru şık var, işaretli B bunlardan biri.",
+   "not": "Soru yazım kuralı ölçmüyor; cevap gövdede yazılı."
+  },
+  "I021": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "96 / 12 = 8 litre."
+  },
+  "I022": {
+   "karar": "yanlis",
+   "dogruCevap": "yok (≈ %33; en yakın C %30)",
+   "gerekce": "Bayes: P(+) = 0,1 × 0,9 + 0,9 × 0,2 = 0,27; P(H | +) = 0,09 / 0,27 ≈ %33,3. Şıklarda yok. İşaretli %45 yanlış."
+  },
+  "I023": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Bitkilerin çoğu için genel kabul aralığı yaklaşık 6,0–7,0; 6,5 bu aralıkta.",
+   "not": "Genel bilgi; kazanım (pH ile tümevarımsal akıl yürütme) ile zayıf ilişki. Asit seven bitkiler için C de savunulabilir, belirsiz sınırında."
+  },
+  "I024": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "Sürat 20'den 10 km/saate düştü; hız vektörel olduğu için hem büyüklük hem (yokuşta) yön değişir → ikisi de değişir."
+  },
+  "I025": {
+   "karar": "yanlis",
+   "dogruCevap": "yok (≈ %33; en yakın A %30)",
+   "gerekce": "I022 ile aynı veri: P(H | +) ≈ %33,3. İşaretli %45 yanlış."
+  },
+  "I026": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "pH düştükçe H⁺ derişimi artar; pH 3,5 olan asit, pH 12,5 olan bazdan çok daha fazla H⁺ içerir (eşit hacim)."
+  },
+  "I027": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "Toplam için + operatörü: toplam = a + b."
+  },
+  "I028": {
+   "karar": "yanlis",
+   "dogruCevap": "C",
+   "gerekce": "Çap 1 m → r = 0,5 m; V = π r² h = 3,14 × 0,25 × 2 = 1,57 m³ (C). İşaretli 6,28 m³ yarıçapı 1 alınca çıkar. Soru litre soruyor, şıklar m³.",
+   "not": "Kazanım uzunluk–alan birimleri; soru silindir hacmi."
+  },
+  "I029": {
+   "karar": "yanlis",
+   "dogruCevap": "C",
+   "gerekce": "Aradaki fark 100 m, bağıl hız 5 − 3 = 2 m/s → 50 s (C). İşaretli 25 s yanlış."
+  },
+  "I030": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "400 × 5 = 2 000 m = 2 km."
+  },
+  "I031": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "12 / 4 = 3 A."
+  },
+  "I032": {
+   "karar": "yanlis",
+   "dogruCevap": "yok (35 °C)",
+   "gerekce": "(50 × 20 + 150 × 40) / 200 = 35 °C; şıklarda yok. İşaretli 30 yanlış.",
+   "not": "5. sınıf kazanımı nitel çıkarım ister; soru ağırlıklı ortalama hesabı."
+  },
+  "I033": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "pH 3 < 7 → asidik."
+  },
+  "I034": {
+   "karar": "belirsiz",
+   "dogruCevap": "C veya A",
+   "gerekce": "Gövdedeki veri tutarsız ('%80 etkili, %20 olasılıkla yanlış'). Bayes için önsel olasılık ve yanlış pozitif oranı gerekir: C (P(etkili) + yanlış pozitif) savunulabilir; A (P(etkili değil) + yanlış pozitif) aynı bilgiyi verir. İşaretli C bunlardan biri."
+  },
+  "I035": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "Pisagor: c² = a² + b²."
+  },
+  "I036": {
+   "karar": "yanlis",
+   "dogruCevap": "A (Emre öndeyse); kurgu tutarsız",
+   "gerekce": "Metne göre Ayşe zaten 10 m önde ve daha hızlı, 'yakalama' anlamsız. Emre önde okunursa 10 / (5 − 3) = 5 s (A). İşaretli 10 s hiçbir okumada çıkmaz."
+  },
+  "I037": {
+   "karar": "belirsiz",
+   "dogruCevap": "C veya B",
+   "gerekce": "İki boyutlu çizim uzunluk ve genişliği zaten içerir; üç boyuta geçmek için EK olarak gereken yükseklik (C). Gerekli bilginin tamamı olarak B de savunulabilir. İşaretli B bunlardan biri."
+  },
+  "I038": {
+   "karar": "dogru",
+   "dogruCevap": "B",
+   "gerekce": "10 × 20 = 200 m; 200 / 5 = 40 s."
+  },
+  "I039": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "Soru açık ve örtük ifadeyi BİRLİKTE istiyor: A hem örtük ('yüzü gözyaşlarıyla kaplandı') hem açık ('hüzün duygusu sardı') ifade taşıyor. B yalnız örtük, C ve D yalnız açık.",
+   "not": "Yoruma açık; tek savunulabilir şık A kabul edildi."
+  },
+  "I040": {
+   "karar": "dogru",
+   "dogruCevap": "C",
+   "gerekce": "6² + 8² = 100 → 10 m."
+  },
+  "I041": {
+   "karar": "dogru",
+   "dogruCevap": "A",
+   "gerekce": "12 × 4 = 48 m².",
+   "not": "12 m'lik beyaz tahta gerçekçi değil (GVD-VERI benzeri)."
+  },
+  "I042": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "'8'e çeyrek kala' = 07.45. Soru cümlesi yok; niyet cümlesi kök işlevi görüyor.",
+   "not": "Kazanım yazım–noktalama; soru saat okuma."
+  },
+  "I043": {
+   "karar": "belirsiz",
+   "dogruCevap": "B veya C",
+   "gerekce": "B farkı tam açıklıyor; C ('iki boyutlu çizimde derinlik yoktur') da doğru ve farkı açıklayan bir önerme. İki savunulabilir şık var, işaretli C bunlardan biri."
+  },
+  "I044": {
+   "karar": "dogru",
+   "dogruCevap": "D",
+   "gerekce": "Tamsayı 10 için int x = 10;. Soru cümlesi yok; niyet cümlesi kök işlevi görüyor.",
+   "not": "Kazanım operatörlerle sonuç yordama; soru veri tipi."
+  },
+  "I045": {
+   "karar": "yanlis",
+   "dogruCevap": "yok (≈ 37,1 °C)",
+   "gerekce": "(500 × 20 + 200 × 80) / 700 = 26 000 / 700 ≈ 37,1 °C; şıklarda yok. İşaretli 40 °C yanlış."
+  }
+ }
+}
