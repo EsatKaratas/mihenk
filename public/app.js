@@ -3561,7 +3561,7 @@ function auditZaman(ts) {
 function auditCsv() {
   ensureAudit();
   var basliklar = ["zaman", "olay", "aktor", "model", "yedekMi", "soru", "ogrenciNo",
-                   "aiPuan", "nihaiPuan", "degisti", "guven", "not"];
+                   "aiPuan", "nihaiPuan", "degisti", "guven", "not", "supheler"];
   var satirlar = state.auditLog.map(function (k) {
     var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
     return [
@@ -3570,6 +3570,8 @@ function auditCsv() {
       k.aiScore != null ? k.aiScore : "", k.finalScore != null ? k.finalScore : "",
       k.degisti === true ? "evet" : (k.degisti === false ? "hayır" : ""),
       k.confidence != null ? k.confidence : "", k.not || "",
+      // §56: onay anındaki şüphe türleri (araştırma: şüpheye rağmen onay)
+      Array.isArray(k.supheler) ? k.supheler.join(",") : "",
     ].map(function (h) {
       h = String(h == null ? "" : h);
       return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
@@ -3782,6 +3784,9 @@ function kaynakBlokHtml(q, mod) {
   if (!soruKaynakIster(q)) return "";
   const k = kaynakBul(q.srcId);
   if (!k) {
+    /* §56: incelemede bu durum "Kaynak metin yok" rozetiyle (yüksek ciddiyet,
+       açık gelir) söylenir; aynı metni ikinci kez kutu olarak çizmeyiz. */
+    if (mod === "review") return "";
     // Kaynak bulunamadı: sessizce metinsiz soru göstermek öğrenciyi
     // cevaplanamaz bir soruyla baş başa bırakır. Açıkça söylenir.
     return '<div class="src-yok"><b>Bu soru bir kaynak metne dayanıyor ama metin bulunamadı.</b> ' +
@@ -4088,15 +4093,68 @@ function wireAlignment() {
  * bozabilir. Karar zaten insanda (agents.md §1); doğru davranış gizlemek
  * değil GÖSTERMEK (§6.3-5).
  */
-/* §41 Madde 2 — GEÇERSİZ CEVAP ANAHTARI UYARISI.
-   Model şıklarda olmayan bir cevap anahtarı döndürdüğünde sunucu soruyu
-   `anahtarBelirsiz` ile işaretler. Burada İçerik Uzmanına AÇIKÇA söylenir;
-   soru sessizce "A doğru" diye onaya sunulmaz. */
-function anahtarUyarisiHtml(q) {
-  if (!q || !q.anahtarBelirsiz) return "";
-  return '<div class="anahtar-uyari">⚠ <b>Model geçerli bir cevap anahtarı vermedi.</b> ' +
-    'Aşağıda işaretli görünen şık YALNIZCA bir yer tutucudur — doğru olduğu ' +
-    'DOĞRULANMAMIŞTIR. Onaylamadan önce doğru şıkkı kendiniz seçin.</div>';
+/* §56 (B1) — "NEDEN ŞÜPHELİ?" ROZETLERİ. TEK KAYNAK.
+   Eskiden her bayrak kendi uzun kutusunu çiziyordu (anahtarUyarisiHtml,
+   dilUyarisiHtml, gerekceTekrariHtml); metinler artık BURADA, kutular yerine
+   onay kartında tek bir rozet şeridi çizilir. Yeni bir şüphe türü (W2'nin
+   meta alanları) bu tabloya TEK SATIR olarak eklenir; ikiz metin yazılmaz.
+   - ciddiyet "yuksek": açıklama kart açılırken AÇIK gelir (kritik uyarı bir
+     tıklamanın arkasına gizlenmez — sessiz düşüş yasağı); kullanıcı kapatabilir.
+   - "orta"/"dusuk": kapalı gelir, rozete tıklayınca açılır.
+   HİÇBİR rozet onayı engellemez, kapatmaz, değiştirmez (agents.md §1).
+   Kökenler: anahtarBelirsiz §41.2 · dilUyarisi §20/§45 (Kiril "açıklaйте",
+   ~10 soruda 1) · gerekceTekrari §47b · kazanım denetimi §31 · kaynak §15. */
+const SUPHE_TURLERI = [
+  { anahtar: "anahtarBelirsiz", etiket: "Cevap anahtarı yok", ciddiyet: "yuksek",
+    var: function (q) { return !!q.anahtarBelirsiz; },
+    aciklama: "Model geçerli bir cevap anahtarı vermedi. İşaretli görünen şık YALNIZCA bir yer tutucudur — " +
+      "doğru olduğu DOĞRULANMAMIŞTIR. Onaylamadan önce doğru şıkkı kendiniz seçin." },
+  { anahtar: "kaynakYok", etiket: "Kaynak metin yok", ciddiyet: "yuksek",
+    var: function (q) { return soruKaynakIster(q) && !kaynakBul(q.srcId); },
+    aciklama: "Soru bir kaynak metne dayanıyor ama metin bulunamadı; öğrenci soruyu metinsiz göremez. " +
+      "Metni yeniden yükleyip soruyu tekrar üretmeyi ya da reddetmeyi düşünün." },
+  { anahtar: "dilUyarisi", etiket: "Yabancı harf", ciddiyet: "orta",
+    var: function (q) { return !!q.dilUyarisi; },
+    aciklama: "Bu soruda Türkçe olmayan karakterler var; model metne başka bir alfabeden harf karıştırmış " +
+      "olabilir. Onaylamadan önce soruyu ve şıkları okuyup düzeltin." },
+  { anahtar: "kazanimUyusmuyor", etiket: "Kazanımı ölçmüyor", ciddiyet: "orta",
+    var: function (q) { return ((state.alignment || {})[alignKey(q.id)] || {}).karar === "olcmuyor"; },
+    aciklama: "Bağımsız kazanım denetimi bu sorunun seçili kazanımı ölçmediğine karar verdi. " +
+      "Gerekçe ve önerilen kazanım kartın altında." },
+  { anahtar: "gerekceTekrari", etiket: "Aynı gerekçe", ciddiyet: "dusuk",
+    var: function (q) { return !!q.gerekceTekrari; },
+    aciklama: "İki çeldiricinin gerekçesi birebir aynı; aynı yanılgıyı ölçen iki çeldiriciden biri gereksizdir. " +
+      "Gerekçelerden birini yeniden yazın ya da o şıkkı değiştirin." },
+];
+
+/** Bir soruda var olan şüphe türleri (tablo sırasıyla). */
+function soruSupheleri(q) {
+  if (!q) return [];
+  return SUPHE_TURLERI.filter(function (t) { return t.var(q); });
+}
+
+/** Rozet açık mı? Kullanıcı dokunmadıysa ciddiyete göre varsayılan. */
+function supheAcikMi(q, t) {
+  const kayit = ((state.supheAcik || {})[q.id] || {})[t.anahtar];
+  return kayit == null ? t.ciddiyet === "yuksek" : kayit;
+}
+
+/** Onay kartındaki rozet şeridi. Şüphe yoksa hiçbir şey çizilmez. */
+function supheSeridiHtml(q) {
+  const liste = soruSupheleri(q);
+  if (!liste.length) return "";
+  const sinif = { yuksek: "pill-critical", orta: "pill-warning", dusuk: "pill-neutral" };
+  return '<div class="supheli-serit" role="group" aria-label="Neden şüpheli?">' +
+    '<span class="supheli-bas">Neden şüpheli?</span>' +
+    liste.map(function (t) {
+      const acik = supheAcikMi(q, t);
+      return '<button type="button" class="pill ' + sinif[t.ciddiyet] + ' suphe-rozet" data-qid="' + q.id +
+        '" data-suphe="' + t.anahtar + '" aria-expanded="' + acik + '">⚠ ' + escapeHtml(t.etiket) + "</button>";
+    }).join("") +
+    liste.filter(function (t) { return supheAcikMi(q, t); }).map(function (t) {
+      return '<div class="suphe-aciklama suphe-' + t.ciddiyet + '"><b>' + escapeHtml(t.etiket) + ":</b> " +
+        escapeHtml(t.aciklama) + "</div>";
+    }).join("") + "</div>";
 }
 
 /* §41 Madde 7 — kelime/karakter sayacı metni. Saf fonksiyon; sınır koymaz. */
@@ -4104,22 +4162,6 @@ function yanitSayacMetni(metin) {
   const t = String(metin || "").trim();
   const kelime = t ? t.split(/\s+/).length : 0;
   return kelime + " kelime · " + String(metin || "").length + " karakter";
-}
-
-/* §47b — İKİ ÇELDİRİCİYE AYNI GEREKÇE. Sunucu birebir eşitlik arar (eşik
-   yok); burada yalnızca gösterilir. Karar İçerik Uzmanında (agents.md §1). */
-function gerekceTekrariHtml(q) {
-  if (!q || !q.gerekceTekrari) return "";
-  return '<div class="dil-uyari">⚠ <b>İki çeldiricinin gerekçesi birebir aynı.</b> ' +
-    'Aynı yanılgıyı ölçen iki çeldiriciden biri gereksizdir. ' +
-    'Onaylamadan önce gerekçelerden birini yeniden yazın ya da o şıkkı değiştirin.</div>';
-}
-
-function dilUyarisiHtml(q) {
-  if (!q || !q.dilUyarisi) return "";
-  return '<div class="dil-uyari">⚠ <b>Bu soruda Türkçe olmayan karakterler var.</b> ' +
-    'Model, metne başka bir alfabeden harf karıştırmış olabilir. ' +
-    'Onaylamadan önce soruyu ve şıkları okuyup düzeltin.</div>';
 }
 
 /* §45 — AYNI UYARININ DEĞERLENDİRME TARAFI.
@@ -4264,9 +4306,7 @@ function renderPendingQuestionCard(q) {
     subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
-    anahtarUyarisiHtml(q) +
-    dilUyarisiHtml(q) +
-    gerekceTekrariHtml(q) +
+    supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
@@ -4274,7 +4314,10 @@ function renderPendingQuestionCard(q) {
     alignmentRowHtml(q) +
     '<div class="actions">' +
     '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
-    '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button></div></div>';
+    '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button>' +
+    /* §56: bilgi amaçlı sayaç — onay düğmesini ENGELLEMEZ (agents.md §1). */
+    (soruSupheleri(q).length ? '<span class="suphe-sayac">' + soruSupheleri(q).length + ' şüphe işareti var</span>' : "") +
+    '</div></div>';
 }
 
 // Model, her yanlis sik icin o sikki secen ogrencinin hangi kavram yanilgisina
@@ -4368,13 +4411,29 @@ function wirePendingCards() {
       dragFromIndex = null;
     };
   });
+  /* §56: rozet aç/kapa. Yalnız görünüm durumu; soruya dokunmaz. */
+  document.querySelectorAll(".suphe-rozet").forEach(function (el) {
+    el.onclick = function () {
+      const q = findQuestion(el.dataset.qid);
+      const t = SUPHE_TURLERI.filter(function (x) { return x.anahtar === el.dataset.suphe; })[0];
+      if (!q || !t) return;
+      state.supheAcik = state.supheAcik || {};
+      state.supheAcik[q.id] = state.supheAcik[q.id] || {};
+      state.supheAcik[q.id][t.anahtar] = !supheAcikMi(q, t);
+      renderAll();
+    };
+  });
   document.querySelectorAll(".approve-btn").forEach(function (el) {
     el.onclick = function () {
       const q = findQuestion(el.dataset.qid);
       if (q) {
         // Denetim izi: AI'ın ürettiği soruyu İNSAN onayladı.
+        /* §56: şüpheye rağmen onay SAYILABİLSİN diye o anki şüpheler yazılır
+           (araştırma verisi). Onay davranışı değişmedi. */
+        const supheler = soruSupheleri(q).map(function (t) { return t.anahtar; });
         auditKaydet("soru_onaylandi", { qid: q.id, soru: auditKisalt(q.body),
-          model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null });
+          model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null,
+          supheler: supheler.length ? supheler : null });
         q.status = "approved"; renderAll();
       }
     };
@@ -10387,7 +10446,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "dilUyarisiHtml", "degerlendirmeDilUyarisiHtml", "gerekceTekrariHtml",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
@@ -10457,7 +10516,7 @@ function bosDurumHtml(mesaj) {
     /* §34 — öğretmen adı hızlı seçim listesi. */
     "ogretmenSecenekleri", "wireTeacherWhoami",
     /* §41 — geçersiz cevap anahtarı uyarısı ve öğrenci yanıt sayacı. */
-    "anahtarUyarisiHtml", "yanitSayacMetni",
+    "yanitSayacMetni",
     /* =======================================================================
        §42 — LİSTE %100 KAPSAMA ÇIKARILDI
        =======================================================================

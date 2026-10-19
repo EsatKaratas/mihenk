@@ -1428,6 +1428,18 @@
     background: var(--warning-soft); color: var(--text);
     border-left: 3px solid var(--warning); font-size: 12.5px; line-height: 1.6; }
 
+  /* §56 (B1) — "Neden şüpheli?" rozet şeridi. Açıklama kutuları eski uyarı
+     kutularının tonunu korur (yüksek = kritik, orta = uyarı, düşük = nötr). */
+  .supheli-serit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 6px; }
+  .supheli-bas { font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
+  .suphe-rozet { cursor: pointer; border: 1px solid transparent; font: inherit; font-size: 11.5px; }
+  .suphe-rozet[aria-expanded="true"] { border-color: currentColor; }
+  .suphe-aciklama { flex: 1 1 100%; padding: 8px 11px; border-radius: 8px; font-size: 12px; line-height: 1.55;
+    background: var(--surface-2, var(--bg)); border-left: 3px solid var(--border-strong); color: var(--text); }
+  .suphe-aciklama.suphe-yuksek { background: var(--critical-soft); border-left-color: var(--critical); }
+  .suphe-aciklama.suphe-orta { background: var(--warning-soft); border-left-color: var(--warning); }
+  .suphe-sayac { align-self: center; font-size: 11.5px; color: var(--text-muted); }
+
   /* --- Yapay Zekâ Karar Günlüğü (denetim izi) -----------------------------
      Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
   .au-aciklama { font-size: 12.5px; color: var(--text-muted); line-height: 1.65;
