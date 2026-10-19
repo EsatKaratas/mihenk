@@ -1,0 +1,847 @@
+{
+ "kontrolEden": "Mihenk Worker 4 (Claude, yapay zekâ asistanı — insan alan uzmanı DEĞİL)",
+ "tarih": "2026-10-20",
+ "kaynak": "docs/olcum/a5/etiket-kor.json (commit 51728b4), yalnız TEK numaralı maddeler",
+ "yontem": "Kör etiketleme: model, sıcaklık, çözücü (A1), hesap (A2), A3/A4 ve hiçbir sunucu bayrağı görülmedi; eşleme dosyası açılmadı. Her maddede işaretli şık elle çözülerek denetlendi. Kurallar sabahki kör kontrolle aynı.",
+ "tanimlar": {
+  "dogru": "işaretli şık doğru ve tek doğru cevap",
+  "yanlis": "işaretli şık yanlış; doğru cevap başka şıkta ya da hiçbir şıkta değil (dogru_sik: 'Hiçbiri')",
+  "belirsiz": "işaretli şık savunulamıyor ama tek doğru belirlenemiyor: birden çok şık savunulabilir, veri eksik, soru kökü yok ya da kurgu tutarsız",
+  "dogru_sik": "A–D · 'Hiçbiri' · 'Birden fazla' · null (belirlenemez)",
+  "SIKIFADE": "not alanında: doğru ya da işaretli şıkkın metni kendisi bir işlem/formül ifadesi (Aşama 2'de A2 yanlış pozitifi incelemesi için)"
+ },
+ "taksonomi": "docs/HATA_TAKSONOMISI.md v0.2",
+ "n": 113,
+ "etiketler": {
+  "K001": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "5·2³ = 40."
+  },
+  "K003": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "∛27 = 3."
+  },
+  "K005": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "I = V/R. Soru cümlesi iki kez soruluyor. SIKIFADE: şıklar formül."
+  },
+  "K007": {
+   "anahtar": "yanlis",
+   "dogru_sik": "C",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "10 km / 2 sa = 5 km/sa; işaretli 10. Gövdede şıklarla ilgisiz ikinci soru (sürat-hız farkı)."
+  },
+  "K009": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "İlk kitaptan okunan sayfa sayısı verilmemiş (veri eksik); 120 tamamı okunduysa 80, şıklarda yok. Okuma kazanımı matematik problemine dönmüş."
+  },
+  "K011": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "10·20 = 200 m; 200/5 = 40 s."
+  },
+  "K013": {
+   "anahtar": "yanlis",
+   "dogru_sik": "C",
+   "kodlar": [
+    "ANH-OLGU",
+    "DIL-LATIN"
+   ],
+   "not": "'-lerin' = çoğul -ler + ilgi (tamlayan) eki -in; işaretli 'iyelik' yanlış. C (genitif) en yakın, A kısmen doğru. 'bestimmelik' Almanca kökenli uydurma kelime."
+  },
+  "K015": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU",
+    "GVD-KOKYOK"
+   ],
+   "not": "12/4 = 3 A; işaretli 2 A. Soru kökü yok."
+  },
+  "K017": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "SIKIFADE: doğru şık işlem ifadesi √(15²+20²)."
+  },
+  "K019": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "Bayes: P(H|S) = P(S|H)·P(H)/P(S); P(S) verilmemiş ve hiçbir şık doğru formül değil. SIKIFADE."
+  },
+  "K021": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "SIKIFADE: c² = a² + b²."
+  },
+  "K023": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK",
+    "KZN-DISI"
+   ],
+   "not": "1–200 arası rakam sayısı 9 + 180 + 303 = 492; şıklarda yok. Okuma kazanımı matematik problemine dönmüş."
+  },
+  "K025": {
+   "anahtar": "yanlis",
+   "dogru_sik": "C",
+   "kodlar": [
+    "ANH-OLGU",
+    "SNF-DISI"
+   ],
+   "not": "(20·500 + 50·200)/700 ≈ 28,6 °C; en yakın C (28). İşaretli 22. Ağırlıklı ortalama 5. sınıf kapsamı dışı."
+  },
+  "K027": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "Karşılaştırma ==."
+  },
+  "K029": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU",
+    "GVD-KOKYOK"
+   ],
+   "not": "12/4 = 3 A; işaretli 2 A. Soru kökü yok."
+  },
+  "K031": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "SIKIFADE: 6² + 8² = 10²."
+  },
+  "K033": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "15·8 = 120 m² · 2 = 240 L; işaretli 360."
+  },
+  "K035": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "(15+4)·(8+4) = 228 m²; şıklarda yok. Gövdede ikinci soru (adımlar)."
+  },
+  "K037": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "SIKIFADE: 6² + 8² = 10²."
+  },
+  "K039": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "KYN-ATIF"
+   ],
+   "not": "Gösterilmeyen grafiğe atıf; soru grafiksiz cevaplanamaz."
+  },
+  "K041": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "Tuzlu su ve içme suyu ikisi de ~7 (nötr); hangisinin daha yüksek olduğu belirlenemez. Süt ~6,5, sirke ~2,5."
+  },
+  "K043": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-KOKYOK"
+   ],
+   "not": "cout << a + b. Soru kökü yok. SIKIFADE: şıklar kod ifadesi."
+  },
+  "K045": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "Yol 10·2 = 20 km; 20/15 ≈ 1,33 sa; şıklarda yok. İşaretli 1,5."
+  },
+  "K047": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "I = V/R. Gövde önce formülü, sonra 'kaç amper' diye sayıyı soruyor; şıklar formül. SIKIFADE."
+  },
+  "K049": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-KOKYOK"
+   ],
+   "not": "8'e çeyrek kala = 07.45. Soru kökü yok."
+  },
+  "K051": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "'düşdü' yazım hatası (düştü)."
+  },
+  "K053": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "2·(6 + g) = 20 → g = 4."
+  },
+  "K055": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "12·4 = 48. 12 m'lik tahta gerçekçi değil."
+  },
+  "K057": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "B (yüz ifadesi değişti) ve C (gözleri büyüdü) ikisi de örtük ifade."
+  },
+  "K059": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "Gövde hem 'açıklayınız' hem 'görsellerden hangisi' diyor; görsel yok ama şıklar metin, cevaplanabilir."
+  },
+  "K061": {
+   "anahtar": "yanlis",
+   "dogru_sik": "C",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "Göreli hız 2 m/s; 100/2 = 50 s. İşaretli 25."
+  },
+  "K063": {
+   "anahtar": "yanlis",
+   "dogru_sik": "D",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "12·4 = 48; işaretli 24."
+  },
+  "K065": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "Arkadaşın evinin öğrencinin evine uzaklığı verilmemiş; 30−10 = 20 ancak 'okula daha yakın' bunu belirlemez. Bağlantı ifadesi kazanımı matematik problemine dönmüş."
+  },
+  "K067": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "12/10 = 1,2 A. Gövdede şıklarla ilgisiz ikinci soru."
+  },
+  "K069": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [
+    "GVD-KOKYOK",
+    "GVD-VERIFAZLA"
+   ],
+   "not": "1000 + 500·1,03 = 1515 g; en yakın C (1500). Şekerin yoğunluğu gereksiz. Soru kökü yok."
+  },
+  "K071": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [
+    "DIL-LATIN"
+   ],
+   "not": "15² + 8² = 289. 'necessary' İngilizce kelime."
+  },
+  "K073": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [],
+   "not": "Sayfa ve gün verilmiş, hız hesaplanabilir (ikisi de 50 sayfa/gün); 'hangi bilgi gerekir' sorusunun cevabı D döngüsel. Kurgu tutarsız."
+  },
+  "K075": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "Benzetmeyle imge oluşturuyor."
+  },
+  "K077": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "B ve C birebir aynı ('Okulumuzun'), A ve D de aynı."
+  },
+  "K079": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [],
+   "not": "Kurgu fiziksel olarak tutarsız: hız büyüklüğü süratten büyük olamaz; soru anlamsız."
+  },
+  "K081": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": ""
+  },
+  "K083": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "12·4 = 48."
+  },
+  "K085": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "Soru biçimi tuhaf ('anlamak istemesi doğru mudur') ama A tek savunulabilir şık."
+  },
+  "K087": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "'Bugünkü' bitişik."
+  },
+  "K089": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "pH 3 asidik."
+  },
+  "K091": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "Gövde iki şıkkı kendisi de sayıyor."
+  },
+  "K093": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "A (ikisi birlikte) ve C (yalnız üç boyutlu) ikisi de savunulabilir."
+  },
+  "K095": {
+   "anahtar": "yanlis",
+   "dogru_sik": "D",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "0,8·0,05 / (0,8·0,05 + 0,1·0,95) = 0,04/0,135 ≈ %30. İşaretli %64."
+  },
+  "K097": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [],
+   "not": "5·2³ = 40."
+  },
+  "K099": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [
+    "GVD-VERIFAZLA"
+   ],
+   "not": "SIKIFADE: 'Kelime sayısı / dakika'. Sayısal veri kullanılmıyor."
+  },
+  "K101": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [],
+   "not": "Kişi başı fiyat iki pakette de 3 TL; 'bir kişilik pay eklemek' (D, 12 TL) mümkünse en ucuzu o, değilse B. Kurgu eksik."
+  },
+  "K103": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "A tanımları ters veriyor (yön ve büyüklük hızın özelliği, sürat skaler). Doğru tanım hiçbir şıkta yok. Kurgu da tutarsız (hız > sürat)."
+  },
+  "K105": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "İlk kitaptan okunan sayfa verilmemiş; 'ilk = ikinci + 40' tek denklem, çözüm tek değil. Okuma kazanımı matematiğe dönmüş."
+  },
+  "K107": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "Homojen/heterojen ayrımı bileşenlerin dağılımına bakar."
+  },
+  "K109": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "0,9·0,1 / (0,9·0,1 + 0,2·0,9) = 0,09/0,27 ≈ %33; şıklarda yok, en yakın B (%30). İşaretli %45."
+  },
+  "K111": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "15/5 = 3 → 3·3 = 9 sayfa. Bağlantı ifadesi kazanımı matematik problemine dönmüş."
+  },
+  "K113": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "SIKIFADE: doğru şık işlem ifadesi '40 km * 5 saat / 2 saat' (= 100 km)."
+  },
+  "K115": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": ""
+  },
+  "K117": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [],
+   "not": "∛8 = 2."
+  },
+  "K119": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "Eşit hacim: 30 °C. B, C ve D üçü de doğru."
+  },
+  "K121": {
+   "anahtar": "yanlis",
+   "dogru_sik": "D",
+   "kodlar": [
+    "ANH-OLGU",
+    "KZN-DISI"
+   ],
+   "not": "150/3 = 200/4 = 50 sayfa/gün; aynı hız. İşaretli 'ilk metni'."
+  },
+  "K123": {
+   "anahtar": "yanlis",
+   "dogru_sik": "B",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "15/0,5 = 30 taş (her taraf). İşaretli 14."
+  },
+  "K125": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "KYN-ATIF",
+    "GVD-YINELEME"
+   ],
+   "not": "Gösterilmeyen grafiğe atıf. Gövdede ikinci soru."
+  },
+  "K127": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "√(25 + 144) = 13."
+  },
+  "K129": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU",
+    "GVD-KOKYOK"
+   ],
+   "not": "12/4 = 3 A; işaretli 2 A. Soru kökü yok."
+  },
+  "K131": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "GVD-KOKYOK"
+   ],
+   "not": "Bağlanacak cümleler verilmemiş; hangi bağlacın uygun olduğu belirlenemez."
+  },
+  "K133": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [],
+   "not": "36 + 64 = 100."
+  },
+  "K135": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU",
+    "KZN-DISI"
+   ],
+   "not": "4·0,5 = 2 L; yeter. İşaretli 'yetmeyecek'. Üslü ifadeler kazanımını ölçmüyor."
+  },
+  "K137": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "(20·500 + 80·200)/700 ≈ 37,1 °C; şıklarda yok. İşaretli 40."
+  },
+  "K139": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "12·2 − 8·0,5 = 20. Üslü ifadeler kazanımını ölçmüyor."
+  },
+  "K141": {
+   "anahtar": "yanlis",
+   "dogru_sik": "B",
+   "kodlar": [
+    "ANH-OLGU",
+    "GVD-KOKYOK"
+   ],
+   "not": "12/4 = 3 A; işaretli 2 A. Soru kökü yok."
+  },
+  "K143": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "(15+2)·(8+2) = 170 m²; şıklarda yok. İşaretli 168."
+  },
+  "K145": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "12·4 = 48."
+  },
+  "K147": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "C ve D ikisi de konuyla ilgili giriş cümlesi; A'daki 'doğanın uyanışı' kışa uymuyor."
+  },
+  "K149": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "B, C, D savunulabilir; 'dikkat çekme' ölçütü tanımsız."
+  },
+  "K151": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "Son sıcaklık hem miktarlara (A) hem ısıl kapasiteye (D) bağlı; D bilimsel olarak daha doğru."
+  },
+  "K153": {
+   "anahtar": "dogru",
+   "dogru_sik": "C",
+   "kodlar": [],
+   "not": "SIKIFADE: 6² + 8² = 10²."
+  },
+  "K155": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [],
+   "not": "Kastedilen C, ama iki farklı koşullu olasılık aynı adla ('Yan etki olasılığı') yazılmış; yazıldığı hâliyle formül yanlış. SIKIFADE."
+  },
+  "K157": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "Kastedilen okumayla (Emre 10 m önde) 10/(5−3) = 5 s. İşaretli 10. Gövde ters yazılmış: yazıldığı gibi Ayşe öndeyse hiç yakalamaz."
+  },
+  "K159": {
+   "anahtar": "belirsiz",
+   "dogru_sik": null,
+   "kodlar": [
+    "DIL-ALFABE",
+    "GVD-KOKYOK"
+   ],
+   "not": "B'de Vietnamca 'ngược'. Bağlam cümlesi yok; A da savunulabilir."
+  },
+  "K161": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "B yanlış çıkarım (anahtar), ama D de yanlış (her çizgide değişim sabit). Kurgu: kuvvet sensörüyle hız ölçülmez."
+  },
+  "K163": {
+   "anahtar": "yanlis",
+   "dogru_sik": "A",
+   "kodlar": [
+    "ANH-OLGU"
+   ],
+   "not": "Eşit hacim: (90 + 20)/2 = 55 °C. İşaretli 60."
+  },
+  "K165": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": ""
+  },
+  "K167": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK",
+    "KZN-DISI"
+   ],
+   "not": "3 kg portakal 15 TL + 2 kg elma 10 TL = 25 TL; şıklarda yok. İşaretli 35."
+  },
+  "K169": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "pH 12,8 nötrden 5,8; pH 2,5 nötrden 4,5 uzak."
+  },
+  "K171": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "25·1,15 = 28,75. Üslü ifadeler kazanımını ölçmüyor."
+  },
+  "K173": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "Çevre 46 m · 4 sıra = 184 m; şıklarda yok. İşaretli 92 (2 sıra)."
+  },
+  "K175": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "SIKIFADE: '2 * (30 + 10)'. Gövde hem formülü hem değeri soruyor."
+  },
+  "K177": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "SIKIFADE: 5² + 12² = c²."
+  },
+  "K179": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": "36 + 64 = 100."
+  },
+  "K181": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK",
+    "GVD-YINELEME"
+   ],
+   "not": "İki markette de 50 TL/kg → 15 kg = 750 TL; eşit. Hiçbir şık 'eşit' demiyor. İşaretli B (600 TL) yanlış."
+  },
+  "K183": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": ""
+  },
+  "K185": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": ""
+  },
+  "K187": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "0,09/0,27 ≈ %33; şıklarda yok. İşaretli %45."
+  },
+  "K189": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [
+    "GVD-VERIFAZLA"
+   ],
+   "not": "pH 2 < 3,5. Hacimler gereksiz."
+  },
+  "K191": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "İki çizginin eğimi de 1 m/s². Kurgu: kuvvet sensörüyle hız ölçülmez."
+  },
+  "K193": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "2·(6 + g) = 20 → 4."
+  },
+  "K195": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": ""
+  },
+  "K197": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "Emir cümlesi sonuna nokta (TDK)."
+  },
+  "K199": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "Doğru çalışan sensör ölçülen ve uygulanan kuvvet arasında doğrusal ilişki verir. Kurgu karışık."
+  },
+  "K201": {
+   "anahtar": "yanlis",
+   "dogru_sik": "B",
+   "kodlar": [
+    "ANH-OLGU",
+    "KZN-DISI"
+   ],
+   "not": "(100 + 45 + 40)/45 ≈ 4,11; en yakın B (4). İşaretli 3,5. Okuma kazanımı matematiğe dönmüş."
+  },
+  "K203": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "0,16 / (0,16 + 0,08) ≈ %67; şıklarda yok. İşaretli %64."
+  },
+  "K205": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [
+    "DIL-ALFABE",
+    "GVD-VERIFAZLA"
+   ],
+   "not": "Düz yolda hızın büyüklüğü sürate eşit. Gövdede Vietnamca 'đúngudur'. Kamyon verisi gereksiz."
+  },
+  "K207": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [],
+   "not": "96/12 = 8."
+  },
+  "K209": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "V = I·R."
+  },
+  "K211": {
+   "anahtar": "dogru",
+   "dogru_sik": "D",
+   "kodlar": [],
+   "not": ""
+  },
+  "K213": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "D (homojen) ve A (su-tuz, homojen bir örnek) ikisi de uygun."
+  },
+  "K215": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "46 m · 4 = 184 m; şıklarda yok. İşaretli 92."
+  },
+  "K217": {
+   "anahtar": "dogru",
+   "dogru_sik": "B",
+   "kodlar": [
+    "GVD-YINELEME"
+   ],
+   "not": "Soru iki kez soruluyor."
+  },
+  "K219": {
+   "anahtar": "yanlis",
+   "dogru_sik": "Hiçbiri",
+   "kodlar": [
+    "ANH-YOK"
+   ],
+   "not": "(15·300 + 90·100)/400 = 33,75 °C; şıklarda yok. İşaretli 30."
+  },
+  "K221": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [],
+   "not": "SIKIFADE: şıklar kod."
+  },
+  "K223": {
+   "anahtar": "dogru",
+   "dogru_sik": "A",
+   "kodlar": [
+    "KZN-DISI"
+   ],
+   "not": "5 TL/kg · 3 = 15. Üslü ifadeler kazanımını ölçmüyor."
+  },
+  "K225": {
+   "anahtar": "belirsiz",
+   "dogru_sik": "Birden fazla",
+   "kodlar": [
+    "SIK-ESANLAM"
+   ],
+   "not": "B ve C ikisi de doğru."
+  }
+ }
+}
