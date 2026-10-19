@@ -24,6 +24,7 @@ import {
 import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
+  RATE_LIMIT_IP_PER_MIN,
   rateLimited as rateLimitedRaw,
   soruDilUyarisi,
   metinDilUyarisi,
@@ -38,6 +39,7 @@ import {
   sikImzasi,
   gerekceleriSadelestir,
   gerekceTekrariVarMi,
+  kalipliGerekceSayisi,
   makulSoruSayisi,
 } from '../lib/guards';
 import {
@@ -82,7 +84,51 @@ const onInvalid = (result: { success: boolean; error?: { issues?: Array<{ path: 
   );
 };
 
+/**
+ * §51b — MODEL HATASI İSTEMCİYE HAM GİTMİYOR.
+ * Eskiden `e.message` olduğu gibi dönüyordu: sağlayıcı URL'si, model adı,
+ * sağlayıcı yanıt gövdesinden 400 karakter ya da modelin ham çıktısından 200
+ * karakter (anahtar sızmıyordu, ama iç ayrıntı kullanıcı ekranına çıkıyordu).
+ * Artık ayrıntı yalnızca Workers Logs'a yazılır (`ev: "ai_failed"`); istemciye
+ * iki kısa Türkçe mesajdan biri gider. Hata yine SESSİZ DEĞİL: kod aynı
+ * (`ai_call_failed`, 502) ve arayüz mesajı gösterir.
+ */
+function modelHatasiGovdesi(e: unknown, uc: string) {
+  const ayrinti = e instanceof Error ? e.message : String(e);
+  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: ayrinti.slice(0, 500) }));
+  const ayristirma = /JSON|kapanm|kesil/i.test(ayrinti);
+  return {
+    error: 'ai_call_failed',
+    message: ayristirma
+      ? 'Yapay zekâ geçerli bir yanıt üretemedi. Lütfen tekrar deneyin.'
+      : 'Yapay zekâ servisine şu an ulaşılamıyor (kota, kesinti ya da yapılandırma). Biraz sonra tekrar deneyin.',
+  };
+}
+
 const ai = new Hono<{ Bindings: Bindings }>();
+
+/* §51b — İSTEMCİ ADRESİ BAŞINA ORTAK TAVAN (gerekçe ve değer: guards.ts
+   RATE_LIMIT_IP_PER_MIN). Tüm POST uçlarına, doğrulamadan ÖNCE uygulanır:
+   bozuk istekle döngüye giren bir istemci de sayılır. Uç başına sınırlar
+   aynen duruyor; bu onların ÜSTÜNE bir sigortadır.
+   Adres Cloudflare'in koyduğu CF-Connecting-IP başlığından okunur. Başlık
+   yoksa (yerel geliştirme, testler) tüm istekler TEK ortak "yerel" kovaya
+   düşer — yerelde sınır gevşemez, aynı makinedeki tüm istemciler birlikte
+   sayılır. GET /status sayılmaz (model çağırmaz). */
+ai.use('*', async (c, next) => {
+  if (c.req.method !== 'POST') return next();
+  const adres = (c.req.header('cf-connecting-ip') || '').trim() || 'yerel';
+  if (rateLimited(`ip:${adres}`, RATE_LIMIT_IP_PER_MIN)) {
+    return c.json(
+      {
+        error: 'rate_limited',
+        message: `Bu bağlantıdan dakikada en fazla ${RATE_LIMIT_IP_PER_MIN} yapay zekâ isteği gönderilebilir. Bir dakika bekleyip tekrar deneyin.`,
+      },
+      429
+    );
+  }
+  return next();
+});
 
 /** Sağlayıcı/model bilgisi — arayüzdeki "AI modu" rozeti bunu okur. */
 ai.get('/status', (c) => {
@@ -111,16 +157,19 @@ ai.get('/status', (c) => {
 ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInvalid), async (c) => {
   const b = c.req.valid('json');
 
+  /* §51b: bu ucuz denetim hız sayacından ÖNCE yapılır. Eskiden sırası
+     tersti; hiç soru istemeyen (ve modeli hiç çağırmayan) geçersiz bir
+     istek, aynı belge için dakikadaki 5 üretim hakkından birini yiyordu. */
+  const total = b.mcCount + b.openCount;
+  if (total < 1) {
+    return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
+  }
+
   if (rateLimited(`gen:${b.docKey}`)) {
     return c.json(
       { error: 'rate_limited', message: `Aynı kaynak için dakikada en fazla ${RATE_LIMIT_PER_MIN} üretim isteği gönderilebilir.` },
       429
     );
-  }
-
-  const total = b.mcCount + b.openCount;
-  if (total < 1) {
-    return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
   }
 
   /* §31 — KAZANIM MODU İKİNCİ KATMAN. İstem modele "metne atıf yapma ve
@@ -186,6 +235,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       excludeQuestions: b.excludeQuestions,
       // §31: üretim dayanağı ve (yalnızca kazanım modunda) öğretmen yönergesi.
       mode: b.mode,
+      // §51b: kazanımın kaynağı (MEB / Deneyap); yalnızca kazanım modunda istemi değiştirir.
+      kaynakTuru: b.kaynakTuru,
       guidance: b.guidance,
       materialName: b.materialName,
     },
@@ -221,6 +272,12 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
 
   // §44: kullanılamaz biçimde dönen (şıkkı eksik) soru sayısı — meta ile bildirilir.
   let elenenGecersiz = 0;
+  /* §51b — ölçüm sayaçları (davranışı değiştirmez, istemci görmezden gelir).
+     Modelin döndürdüğü KULLANILABİLİR tüm ÇSS'ler üzerinden, tekrar
+     elemesinden ÖNCE sayılır: ölçülen şey modelin ham davranışı ve otomatik
+     denetimin onu ne sıklıkla yakaladığıdır, kullanıcıya kalan soru değil. */
+  let sadelestirilenGerekce = 0;
+  let toplamGerekce = 0;
 
   try {
     const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.5 });
@@ -243,6 +300,8 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
              5 soru isteyip 3 alıyor ve hiçbir açıklama görmüyordu (§6.3-5).
              Sayaç aşağıda meta.elenenGecersiz olarak döner. */
           if (opts.length < 3) { elenenGecersiz++; return null; }
+          toplamGerekce += Object.values(q.distractorRationale || {}).filter((v) => String(v || '').trim()).length;
+          sadelestirilenGerekce += kalipliGerekceSayisi(q.distractorRationale);
           /* §32 (Burak Modül 4): şıklar burada hem A,B,C,... olarak
              normalleştirilir HEM DE rastgele karıştırılır. Eskiden yalnızca
              normalleştirme vardı; modelin kendi seçtiği KONUM korunuyordu ve
@@ -378,11 +437,15 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         // §44: modelin kullanılamaz döndürdüğü (şıkkı eksik) soru sayısı.
         elenenGecersiz,
         kisiltmaNotu,
+        // §51b: kalıp açılışı ("Bu şıkkı seçen öğrenci...") sunucuda kesilen
+        // gerekçe sayısı / boş olmayan toplam gerekçe sayısı (tekrar elemesinden önce).
+        sadelestirilenGerekce,
+        toplamGerekce,
       },
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -494,7 +557,7 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -554,7 +617,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -605,7 +668,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -708,7 +771,7 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }
@@ -798,7 +861,7 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
     });
   } catch (e) {
     return c.json(
-      { error: 'ai_call_failed', message: e instanceof Error ? e.message : 'Model çağrısı başarısız oldu.' },
+      modelHatasiGovdesi(e, c.req.path),
       502
     );
   }

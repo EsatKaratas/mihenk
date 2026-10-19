@@ -27,6 +27,9 @@ export const MAX_OUTCOME_LABEL_CHARS = 400;
    gösterilecek bir metin yoktur (soru kendi başına anlaşılır olmalı). */
 export const URETIM_MODLARI = ['kaynak', 'kazanim', 'materyal'] as const;
 
+/** §51b — kazanımın kaynağı: MEB öğretim programı ya da TÜBİTAK Deneyap kitabı. */
+export const KAYNAK_TURLERI = ['meb', 'deneyap'] as const;
+
 /** §31: yönerge (öğretmenin serbest yönlendirmesi) üst sınırı. */
 export const MAX_GUIDANCE_CHARS = 600;
 
@@ -47,6 +50,17 @@ export const generateQuestionsSchema = z.object({
    *             ekranında "metin bulunamadı" kutusu çıkardı.
    */
   mode: z.enum(URETIM_MODLARI).default('kaynak'),
+  /**
+   * §51b — KAZANIMIN KAYNAĞI. Yalnızca 'kazanim' modunda istemi değiştirir.
+   *   'meb'     (varsayılan): MEB öğretim programı kazanımı — eski davranış,
+   *             istem metni BİREBİR aynı kalır (test/prompts.test.ts parmak izi).
+   *   'deneyap' : TÜBİTAK Deneyap Teknoloji Atölyesi kitabı kazanımı. MEB
+   *             programında yer almadığı için istem "MEB öğretim programıyla
+   *             sınırlı kal" DEMEMELİ; aksi hâlde model kazanımı MEB'e uydurmaya
+   *             çalışır ya da kapsam dışı sayıp soru üretmez.
+   * Varsayılan 'meb' olduğu için alanı göndermeyen eski istemciler etkilenmez.
+   */
+  kaynakTuru: z.enum(KAYNAK_TURLERI).default('meb'),
   /**
    * §31 — ÖĞRETMENİN YÖNERGESİ (serbest metin). Yalnızca 'kazanim' modunda
    * anlamlıdır; 'kaynak' modunda yok sayılır.

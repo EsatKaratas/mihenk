@@ -10,6 +10,7 @@
 // ============================================================================
 
 import { describe, it, expect } from 'vitest';
+import { createHash } from 'node:crypto';
 import { buildQuestionPrompt, type QuestionSpec } from '../src/lib/prompts';
 
 const temelSpec: QuestionSpec = {
@@ -426,5 +427,44 @@ describe("buildQuestionPrompt — 'materyal' modu (belgeye kilitli kazanım)", (
      '"distractorRationale"', '"needsSource"', '"refKeywords"'].forEach((alan) => {
       expect(p).toContain(alan);
     });
+  });
+});
+
+// §51b — kaynakTuru: MEB / Deneyap. MEB dalının istemi DEĞİŞMEMELİ.
+// Parmak izi, değişiklikten ÖNCE (main 4e40c76) aynı spec ile alındı:
+// 10.147 karakter, aşağıdaki SHA-256. Kazanım modunda (yönerge ve önceki soru
+// yokken) istemde rastgele sınır belirteci olmadığı için çıktı deterministiktir.
+describe('buildQuestionPrompt — kaynakTuru (§51b)', () => {
+  const kazanimSpec: QuestionSpec = {
+    subject: 'Matematik', grade: 8, outcomeCode: 'MAT.8.3.5', outcomeLabel: 'Dik üçgen',
+    mcCount: 2, openCount: 1, optionCount: 4, mode: 'kazanim',
+  };
+  const ONCEKI_MEB_ISTEMI_SHA256 = 'f9f636a45ecf3a669921540d71c4ec7e5ffc690d1d1fc44d03c7c5cfafdef631';
+  const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+
+  it('alan verilmezse istem değişiklikten önceki MEB istemiyle BİREBİR aynıdır', () => {
+    const p = buildQuestionPrompt(kazanimSpec, '');
+    expect(p.length).toBe(10147);
+    expect(sha(p)).toBe(ONCEKI_MEB_ISTEMI_SHA256);
+  });
+
+  it("kaynakTuru 'meb' de aynı istemi üretir", () => {
+    expect(sha(buildQuestionPrompt({ ...kazanimSpec, kaynakTuru: 'meb' }, ''))).toBe(ONCEKI_MEB_ISTEMI_SHA256);
+  });
+
+  it("kaynakTuru 'deneyap' MEB varsayımını kaldırır ve Deneyap kaynağını söyler", () => {
+    const p = buildQuestionPrompt({ ...kazanimSpec, kaynakTuru: 'deneyap' }, '');
+    expect(p).toContain('DENEYAP TEKNOLOJİ ATÖLYESİ KAZANIMINDAN (TÜBİTAK Deneyap kitabı)');
+    expect(p).toContain('Deneyap Teknoloji Atölyesi (TÜBİTAK Deneyap kitabı) kapsamında');
+    expect(p).not.toContain('MEB KAZANIMINDAN');
+    expect(p).not.toContain('MEB öğretim programında');
+  });
+
+  it('kaynak metin modunda kaynakTuru istemi etkilemez', () => {
+    const meb = buildQuestionPrompt({ ...temelSpec, kaynakTuru: 'meb' }, 'Sürtünme yüzeye bağlıdır.');
+    const dny = buildQuestionPrompt({ ...temelSpec, kaynakTuru: 'deneyap' }, 'Sürtünme yüzeye bağlıdır.');
+    // Rastgele sınır belirteçleri dışında aynı olmalı.
+    const temizle = (s: string) => s.replace(/(KAYNAK|ONCEKI|YONERGE)-[0-9a-f]{12}/g, 'X');
+    expect(temizle(dny)).toBe(temizle(meb));
   });
 });

@@ -9,6 +9,7 @@
 // ============================================================================
 
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
 import aiRoutes from './routes/ai';
 import type { AiEnv } from './lib/ai';
 
@@ -34,6 +35,21 @@ app.route('/api/ai', aiRoutes);
 app.notFound((c) => c.json({ error: 'not_found', message: 'Böyle bir API ucu yok.' }, 404));
 
 app.onError((err, c) => {
+  /* §51b — BOZUK/BOŞ JSON GÖVDESİ 500 DÖNÜYORDU.
+     Ölçüldü (19 Ekim, yerel): `--data '{bozuk'` ve gövdesiz POST →
+     HTTP 500 internal_error, Workers Logs'a "unhandled_error". Kök: zValidator
+     ayrıştıramadığı gövde için HTTPException(400) fırlatıyor; burası onu da
+     500'e çeviriyordu. İstemci hatası sunucu hatası gibi görünüyor ve hata
+     oranını şişiriyordu. HTTPException kendi durum koduyla döner. */
+  if (err instanceof HTTPException) {
+    const durum = err.status;
+    return c.json(
+      durum === 400
+        ? { error: 'invalid_json', message: 'İstek gövdesi geçerli bir JSON değil.' }
+        : { error: 'http_error', message: 'İstek işlenemedi.' },
+      durum
+    );
+  }
   console.error(JSON.stringify({ ev: 'unhandled_error', message: err.message }));
   return c.json({ error: 'internal_error', message: 'Beklenmeyen bir hata oluştu.' }, 500);
 });
