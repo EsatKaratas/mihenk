@@ -30,6 +30,17 @@
 //   --kosum-ek  koşum adına ek (ör. deneyap) → ayrı CSV dosyası
 //   --kaynak-turu  Deneyap maddelerine kaynakTuru:"deneyap" ekler (W2'nin alanı
 //             sunucuya girdikten sonra kullanılır; yoksa istem kazanımı "MEB" diye sunar)
+//   --tekrar N  her kazanım N kez koşulur (varsayılan 1); her tekrar ayrı docKey ve
+//             ayrı ham dosya (KOD-r2.json …) alır
+//   --sicaklik X  beklenen üretim sıcaklığı. Sunucu meta.sicaklik ile AYNI değeri
+//             döndürmezse betik DURUR: sunucu ölçüm modunda değildir (§55 A5;
+//             sunucu `--var APP_ENV:olcum --var OLCUM_SICAKLIK:X` ile başlatılır)
+//   --capraz  her ÇSS için POST /api/ai/solve (A1 bağımsız çözüm, cevap anahtarı
+//             yalnız sunucuda karşılaştırılır); sonuç soru satırına yazılır
+//
+// §55 sütunları (tekrar, sicaklik, istemSurumu, hesap…, cozucu_…, elenenler…)
+// sona eklendi; eski sütunların sırası değişmedi. Aynı adlı eski bir CSV'ye
+// eklenmez (başlık denetimi) — yeni koşum için --kosum-ek verin.
 //
 // Hız sınırı: sunucu `gen:<docKey>` başına dakikada 5 istek kabul eder
 // (src/lib/guards.ts RATE_LIMIT_PER_MIN). Her kazanıma ayrı docKey verilir;
@@ -50,11 +61,12 @@ import { KAYNAK_ATIF, sikImzasi } from '../../src/lib/guards.ts';
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 function argumanlar(argv) {
-  const a = { url: 'http://localhost:8788', set: 'tools/olcum/set-v1.json', bekle: 13, kuru: false };
+  const a = { url: 'http://localhost:8788', set: 'tools/olcum/set-v1.json', bekle: 13, kuru: false, tekrar: 1, sicaklik: null, capraz: false };
   for (let i = 2; i < argv.length; i++) {
     const k = argv[i];
     if (k === '--kuru') { a.kuru = true; continue; }
     if (k === '--kaynak-turu') { a.kaynakTuru = true; continue; }
+    if (k === '--capraz') { a.capraz = true; continue; }
     const v = argv[i + 1];
     if (k === '--url') a.url = v;
     else if (k === '--src-kok') a.srcKok = path.resolve(v);
@@ -63,11 +75,16 @@ function argumanlar(argv) {
     else if (k === '--sadece') a.sadece = v.split(',').map((s) => s.trim()).filter(Boolean);
     else if (k === '--bekle') a.bekle = Number(v);
     else if (k === '--kosum-ek') a.kosumEk = String(v).replace(/[^a-z0-9]/gi, '');
+    else if (k === '--tekrar') a.tekrar = Math.max(1, Math.floor(Number(v)) || 1);
+    else if (k === '--sicaklik') a.sicaklik = Number(String(v).replace(',', '.'));
     else throw new Error(`Bilinmeyen seçenek: ${k}`);
     i++;
   }
   if (!['on-kosum', 'gercek'].includes(a.etiket)) {
     throw new Error('--etiket zorunlu: "on-kosum" ya da "gercek"');
+  }
+  if (a.sicaklik !== null && !(Number.isFinite(a.sicaklik) && a.sicaklik >= 0 && a.sicaklik <= 2)) {
+    throw new Error('--sicaklik 0 ile 2 arasında bir sayı olmalı');
   }
   return a;
 }
@@ -128,6 +145,9 @@ const SORU_SUTUNLARI = [
   'sik_sayisi', 'dogru_sik', 'gerekce_sayisi', 'eksik_gerekce', 'kalip_gerekce',
   'anahtarBelirsiz', 'gerekceTekrari', 'dilUyarisi', 'needsSource', 'kaynak_atif_govde',
   'bloom', 'zorluk', 'aiTime', 'govde', 'siklar', 'gerekceler',
+  // §55 — sona eklendi (eski sütun sırası korunur)
+  'tekrar', 'sicaklik', 'istemSurumu', 'hesap', 'hesapUyusmazligi', 'hesapBaskaSik', 'uzunSikIpucu',
+  'cozucu_http', 'cozucu_model', 'cozucu_capraz', 'cozucu_sik', 'cozucu_guven', 'cozucu_cozulemedi', 'cozucu_uyusmazlik', 'cozucu_gerekce',
 ];
 
 const CAGRI_SUTUNLARI = [
@@ -137,6 +157,9 @@ const CAGRI_SUTUNLARI = [
   'elenenTekrar', 'elenenAyniSik', 'elenenGecersiz', 'eksik_uretim', 'kisiltmaNotu',
   // §51b (e35628f) sonrası sunucu sayaçları; eski sunucuda boş kalır.
   'sadelestirilenGerekce', 'toplamGerekce',
+  // §55 — sona eklendi
+  'tekrar', 'sicaklik', 'istemSurumu', 'hesapUyusmazligi', 'hesapOkunamadi', 'uzunSikIpucu',
+  'elenenler_sayisi', 'elenenler_ayniTur_tekrar', 'elenenler_json',
 ];
 
 // wrangler dev yeniden yüklenirken uçuştaki istek bu metinlerle düşer.
@@ -146,7 +169,7 @@ const ORTAM_HATASI = /restarted mid-request|Network connection lost/i;
 // §47 kalıbı. Sunucu bunu keser; betik kesilmeyen kaldı mı diye bakar.
 const KALIP_GEREKCE = /^\s*bu\s+(ş[ıi]kk[ıi]|seçene[ğg]i|cevab[ıi])\s/i;
 
-async function istekGonder(url, govde) {
+async function istekGonder(url, govde, uc = '/api/ai/generate-questions') {
   let denemeler429 = 0;
   let denemeler503 = 0;
   for (;;) {
@@ -155,7 +178,7 @@ async function istekGonder(url, govde) {
     let yanit = null;
     let agHatasi = null;
     try {
-      const r = await fetch(`${url}/api/ai/generate-questions`, {
+      const r = await fetch(`${url}${uc}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(govde),
@@ -219,8 +242,10 @@ async function main() {
 
   const ortak = { tarih, kosum, etiket: a.etiket, set_surum: set.surum, betik_surum: betik, model_sunucu: modelSunucu };
 
-  for (let i = 0; i < maddeler.length; i++) {
-    const m = maddeler[i];
+  const isler = [];
+  for (const m of maddeler) for (let t = 1; t <= a.tekrar; t++) isler.push({ m, t });
+  for (let i = 0; i < isler.length; i++) {
+    const { m, t: tekrar } = isler[i];
     const govde = {
       ...set.istek,
       subject: m.ders,
@@ -228,20 +253,36 @@ async function main() {
       outcomeCode: m.kod,
       outcomeLabel: m.metin,
       topicArea: m.grup,
-      docKey: `olcum-${set.surum}-${kosum}-${m.kod}`,
+      docKey: `olcum-${set.surum}-${kosum}-${m.kod}${a.tekrar > 1 ? '-r' + tekrar : ''}`,
       ...(a.kaynakTuru && m.mufredat === 'Deneyap' ? { kaynakTuru: 'deneyap' } : {}),
     };
     if (a.kuru) { console.log(JSON.stringify(govde)); continue; }
 
-    console.log(`[${i + 1}/${maddeler.length}] ${m.kod} …`);
+    console.log(`[${i + 1}/${isler.length}] ${m.kod}${a.tekrar > 1 ? ' (tekrar ' + tekrar + ')' : ''} …`);
     const src = srcDurumu(a.srcKok);
     const { http, yanit, sureMs, denemeler429, denemeler503, agHatasi } = await istekGonder(a.url, govde);
     const meta = (yanit && yanit.meta) || {};
     const sorular = (yanit && Array.isArray(yanit.questions)) ? yanit.questions : [];
 
+    // §55 A5: sunucu istenen sıcaklığı GERÇEKTEN kullandı mı? Kullanmadıysa koşum geçersizdir.
+    if (http === 200 && a.sicaklik !== null && meta.sicaklik !== a.sicaklik) {
+      throw new Error(`Sunucu sıcaklığı ${meta.sicaklik} döndürdü, beklenen ${a.sicaklik}. Sunucu ölçüm modunda değil ` +
+        '(--var APP_ENV:olcum --var OLCUM_SICAKLIK:...). Koşum DURDURULDU.');
+    }
+
+    // §55 A1: her ÇSS için bağımsız çözüm (cevap anahtarı yalnız sunucuda karşılaştırılır).
+    const cozumler = new Map();
+    if (a.capraz && http === 200) {
+      for (const q of sorular.filter((x) => x.type === 'mc')) {
+        const c = await istekGonder(a.url, { questionBody: q.body, options: q.options, anahtar: q.correctKey, outcomeLabel: m.metin }, '/api/ai/solve');
+        cozumler.set(q, c);
+      }
+    }
+
     fs.writeFileSync(
-      path.join(hamDizin, `${m.kod}.json`),
-      JSON.stringify({ zaman: zamanDamgasi(), ...ortak, ...src, istek: govde, http, sureMs, denemeler429, denemeler503, agHatasi, yanit }, null, 2) + '\n',
+      path.join(hamDizin, `${m.kod}${a.tekrar > 1 ? '-r' + tekrar : ''}.json`),
+      JSON.stringify({ zaman: zamanDamgasi(), ...ortak, ...src, tekrar, istek: govde, http, sureMs, denemeler429, denemeler503, agHatasi, yanit,
+        ...(cozumler.size ? { cozumler: [...cozumler.entries()].map(([q, c]) => ({ govde: q.body, http: c.http, yanit: c.yanit })) } : {}) }, null, 2) + '\n',
       'utf8'
     );
 
@@ -263,6 +304,12 @@ async function main() {
       elenenTekrar: meta.elenenTekrar ?? '', elenenAyniSik: meta.elenenAyniSik ?? '',
       elenenGecersiz: meta.elenenGecersiz ?? '', eksik_uretim: eksikUretim, kisiltmaNotu: meta.kisiltmaNotu || '',
       sadelestirilenGerekce: meta.sadelestirilenGerekce ?? '', toplamGerekce: meta.toplamGerekce ?? '',
+      tekrar, sicaklik: meta.sicaklik ?? '', istemSurumu: meta.istemSurumu ?? '',
+      hesapUyusmazligi: meta.hesapUyusmazligi ?? '', hesapOkunamadi: meta.hesapOkunamadi ?? '', uzunSikIpucu: meta.uzunSikIpucu ?? '',
+      // Yalnız ölçüm sunucusunda (OLCUM_HAM=1) dolu; aksi hâlde boş (bilinmiyor, 0 değil).
+      elenenler_sayisi: Array.isArray(meta.elenenler) ? meta.elenenler.length : '',
+      elenenler_ayniTur_tekrar: Array.isArray(meta.elenenler) ? meta.elenenler.filter((e) => e.benzedigi === 'ayniTur').length : '',
+      elenenler_json: Array.isArray(meta.elenenler) ? JSON.stringify(meta.elenenler) : '',
     };
     fs.appendFileSync(cagriCsv, csvSatir(CAGRI_SUTUNLARI.map((k) => cagri[k])) + '\n', 'utf8');
 
@@ -290,6 +337,18 @@ async function main() {
         govde: q.body || '',
         siklar: secenekler.map((o) => `${o.key}) ${o.text}`).join(' | '),
         gerekceler: Object.entries(gerekceler).map(([k, g]) => `${k}: ${g}`).join(' | '),
+        hesap: q.hesap || '', hesapUyusmazligi: q.type === 'mc' ? (q.hesapUyusmazligi ?? '') : '',
+        hesapBaskaSik: q.hesapBaskaSik || '', uzunSikIpucu: q.type === 'mc' ? !!q.uzunSikIpucu : '',
+        ...(() => {
+          const c = cozumler.get(q);
+          if (!c) return {};
+          const y = c.yanit || {};
+          return {
+            cozucu_http: c.http, cozucu_model: (y.meta && y.meta.model) || '', cozucu_capraz: y.meta ? !!y.meta.capraz : '',
+            cozucu_sik: y.secilenSik ?? '', cozucu_guven: y.guven ?? '', cozucu_cozulemedi: y.cozulemedi ?? '',
+            cozucu_uyusmazlik: y.anahtarUyusmazligi ?? '', cozucu_gerekce: y.gerekce || (y.error ? `HATA ${y.error}` : ''),
+          };
+        })(),
       };
       fs.appendFileSync(soruCsv, csvSatir(SORU_SUTUNLARI.map((k) => satir[k])) + '\n', 'utf8');
     });
@@ -301,10 +360,12 @@ async function main() {
     console.log(`  http ${http} · ${(sureMs / 1000).toFixed(1)} sn · dönen ${sorular.length}/${meta.istenen ?? '?'} ` +
       `(mc ${donenMc}, açık ${donenOpen}) · elenen T${meta.elenenTekrar ?? '-'} Ş${meta.elenenAyniSik ?? '-'} G${meta.elenenGecersiz ?? '-'}` +
       ` · eksik ${eksikUretim} · model ${meta.model || '-'}${meta.fellBack ? ' (YEDEK)' : ''}` +
+      (meta.sicaklik !== undefined ? ` · s${meta.sicaklik} · istem v${meta.istemSurumu ?? '?'}` : '') +
+      (cozumler.size ? ` · çözücü uyuşmaz ${[...cozumler.values()].filter((c) => c.yanit && c.yanit.anahtarUyusmazligi === true).length}/${cozumler.size}` : '') +
       (ayniImza ? ` · DÖNENLERDE aynı şık kümesi ${ayniImza}` : '') +
       (http !== 200 ? ` · HATA ${(yanit && yanit.error) || agHatasi}` : ''));
 
-    if (i < maddeler.length - 1) await uyu(a.bekle * 1000);
+    if (i < isler.length - 1) await uyu(a.bekle * 1000);
   }
   if (!a.kuru) console.log(`\nYazıldı:\n  ${soruCsv}\n  ${cagriCsv}\n  ${hamDizin}`);
 }
