@@ -8307,3 +8307,86 @@ Tasarım önce W5'in ham verisinden ölçülerek yapıldı (6 gerçek koşum, 42
 | lint · öz-kontrol · check:config | temiz | **temiz** |
 | Model çağrısı (bu bölüm) | — | 5 (A1 kanıtı 2 + duman 3) |
 | Push / deploy | — | **YAPILMADI** (müdürün sözüyle) |
+
+
+---
+
+## 56. ŞÜPHE ROZETLERİ (B1) + YZ ÖNERİSİ ↔ NİHAİ PUAN RAPORU (A7) (19 Ekim 2026, W1)
+
+**İstek (Mihenk Orchestrator):** İçerik Uzmanı onay kartında "neden şüpheli?"
+rozetleri (mevcut bayraklar + W2'nin A1/A2 sonuçları) ve Karar Günlüğü
+verisinden "YZ önerisi ↔ öğretmenin nihai puanı" raporu. Hiçbiri onayı
+engellemez (agents.md §1).
+
+### 56.1 B1 — "Neden şüpheli?" (`8254ad2`, `3010949`, `e6ba533`)
+
+- **Tek kaynak:** `SUPHE_TURLERI` tablosu {anahtar, etiket, açıklama,
+  ciddiyet, var(q)}. Eski üç uyarı kutusu (`anahtarUyarisiHtml`,
+  `dilUyarisiHtml`, `gerekceTekrariHtml`) silindi, metinleri tabloya taşındı.
+  Yeni şüphe türü tabloya tek satırla eklenir.
+- **Türler:** Anahtar muhtemelen X (`hesapBaskaSik`) · Hesap tutmuyor
+  (`hesapUyusmazligi`) · Bağımsız çözüm farklı (`/api/ai/solve`
+  `anahtarUyusmazligi`) · Cevap anahtarı yok · Kaynak metin yok → **yüksek**,
+  açıklama açık gelir (kritik uyarı tıklamanın arkasına gizlenmez) · Yabancı
+  harf · Kazanımı ölçmüyor → orta · Aynı gerekçe → düşük (kapalı gelir).
+  `uzunSikIpucu` taşınır ama rozet YOK (zayıf sinyal, yalnız ölçüm).
+- **"Denetlenmedi" ≠ "temiz":** alan hiç gelmediyse (demo tohumu, eski
+  sorular) "hesap denetimi: denetlenmedi"; `null` ise "sonuç yok (sunucu bu
+  soruda hesabı denetleyemedi)" — gerçek üretimde 2/2 ÇSS `null` geldi ve
+  durum satırı önce hiçbir şey yazmıyordu (`e6ba533`). Model çözemediyse
+  bilgi (şüphe değil); soru çözümden sonra değiştiyse "yeniden çözün"
+  (`cozumImzasi`: gövde + şıklar + anahtar).
+- **Bağımsız çöz (A1):** kartta düğme + listede "Bekleyenlerin hepsini çöz"
+  (sırayla, ilerleme; 429'da 60 sn geri sayımla bekler, aynı soruyu en fazla
+  3 kez dener; hata kartta yazar). İstek `{questionBody, options, anahtar,
+  outcomeLabel}`; anahtar çözüm istemine GİRMEZ (W2 `buildSolvePrompt` onu
+  parametre olarak almıyor — kodda doğrulandı). Sonuç anahtarı değiştirmez.
+- **Şüpheye rağmen onay sayılabilir:** `soru_onaylandi` kaydına `supheler`
+  dizisi, Karar Günlüğü CSV'sine `supheler` sütunu; `bagimsiz_cozum` denetim
+  izi olayı (model çağrısı sayımına dahil). Onay düğmesinin yanında yalnız
+  bilgi: "N şüphe işareti var".
+
+**Ölçüm:** demo tohumundaki bekleyen kartta şüphe yok → rozet şeridi
+çizilmiyor, durum satırı "denetlenmedi / yapılmadı" diyor. Sahte bayraklarla:
+yüksek açık, orta/düşük kapalı; gerçek tıklamayla aç/kapa; şüpheli soru
+onaylandı (engellenmedi), kayıt `supheler:[anahtarBelirsiz, dilUyarisi,
+gerekceTekrari]`. Sahte `/solve` yanıtlarıyla uyuşmazlık / aynı / çözülemedi /
+bayat / hesapBaskaSik / hesapUyusmazligi / 429 (geri sayım görüldü, ikinci
+denemede başarılı) / uç yok (kartta "yapılamadı — Böyle bir API ucu yok.").
+**Gerçek:** 2 `/solve` çağrısı (kart + toplu) → 200, çapraz model
+llama-4-scout, "anahtarla aynı (A)"; 1 üretim (MAT.7.2.1) → hesap alanları
+geldi (`null`).
+
+**Kadraj notu:** `docs/ekran/01-icerik-uzmani` görüntüsündeki demo kartına
+artık bir durum satırı ("hesap denetimi: denetlenmedi · bağımsız çözüm:
+yapılmadı" + düğme) ekleniyor; yayından sonra yeniden çekilmeli.
+
+### 56.2 A7 — YZ önerisi ↔ nihai puan raporu (`622cb42`)
+
+- Öğretmen 4·Analitik'te Uyum kartının altında (aktif sınav) ve Yönetici'de
+  kurum geneli (yalnız bu sistemde gerçekten verilen kararlar; "örnek"
+  öğretmen verisi KATILMAZ).
+- Yeni olan: soru bazında tablo (n, ort. YZ, ort. nihai, ort. fark, aynen,
+  revize), fark dağılımı çubuk grafiği (nihai − YZ, puan kutuları), rapor
+  CSV'si (öğrenci adı yok, öğrenci no var). Genel özet `calibrationFromRecords`
+  ile AYNI motor; kayıt toplama `calibrationKayitlari()`'ne ayrıldı, Uyum kartı
+  ve rapor aynı kayıtları okur.
+- **Ölçülemeyen, açıkça yazılan:** kriter bazında fark. Öğretmen yalnız toplam
+  puan veriyor; kriter bazında nihai puan kaydı yok.
+- **Ölçüm (demo):** 3 karar (16→16, 13→11, 7→7): ort. YZ 12,0 · nihai 11,3 ·
+  fark −0,7 · aynen 2 · revize 1 — elle hesapla aynı; Uyum kartı da "1
+  değiştirdiniz" diyor. n<5 olduğu için "gösterge" uyarısı ve oran yerine ham
+  sayı. CSV içeriği fonksiyondan doğrulandı; indirme düğmesine tıklanmadı.
+
+### 56.3 Erişilebilirlik (`3c0e3b4`)
+
+Giriş ekranındaki 5 rol kartı ve 2 üretim modu kartı erişilebilirlik ağacında
+ADSIZ çıkıyordu (içerik `span`'lardan oluşuyor). `aria-label` açıkça verildi;
+ağaçta 7/7 adlı, tıklama ve `aria-pressed` bozulmadı. Gerçek ekran okuyucuyla
+denenmedi.
+
+### 56.4 Doğrulama
+
+334/334 · öz-kontrol %100 (+16 ad) · servis = disk SHA-256 her adımda ·
+U+FFFD 0 · konsol JS hatası 0 · yinelenen `id` 0. Bu bölümdeki gerçek model
+çağrısı 3 (2 `/solve`, 1 üretim), üçü de başarılı. Push/deploy yok.
