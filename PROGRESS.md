@@ -7877,8 +7877,9 @@ Hem eski app.js'ten kalma bayat `localStorage` hem temiz durumla açıldı.
   Deneyap 700 px, iç kaydırma yok. Yan etki de kapatıldı: ortak `#modalBox`
   yeniden açılınca eski kaydırma konumunda kalıyordu (`openModal` artık
   overlay görünür olduktan sonra `scrollTop = 0` yapıyor).
-- **2 → bilinen, bırakıldı** (Orchestrator kararı): çift istek zararsız
-  (aynı dosya, önbellekten), yayın öncesi risk alınmadı.
+- **2 → bilinen, bırakıldı** (Orchestrator kararı): aynı atölye dosyası
+  iki kez isteniyor; ekranda bir etkisi görülmedi. İkinci isteğin önbellekten
+  gelip gelmediği ölçülmedi. Yayın öncesi risk alınmadı.
 
 Model çağrısı toplamı: **12 deneme, 9 başarılı**.
 
