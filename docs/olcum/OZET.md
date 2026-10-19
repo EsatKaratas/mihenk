@@ -346,8 +346,9 @@ gerekçesi doğru değeri buldu, ama BAŞKA bir harf seçti. Örnek K001: gerek�
 **Kök neden.**
 - Şık sırası, harf eşlemesi ve yanıt ayrıştırması doğruydu (ham kayıt ve
   yeniden kurulan istemle denetlendi).
-- Hata çıktı şablonundaydı: `{"secilenSik", "gerekce", …}`. Model harfi hesap
-  yapmadan yazmaya zorlanıyordu.
+- En olası neden çıktı şablonu: `{"secilenSik", "gerekce", …}` modeli harfi
+  hesap yapmadan yazmaya yöneltiyordu. Aşağıdaki deney bunu destekliyor, ama
+  tek soruda ve n=3'tür; genellenmez.
 
 **Kontrollü deney** (K001 istemi, llama-3.3-70b, Workers AI REST, sıcaklık 0,2):
 
@@ -377,8 +378,9 @@ gerekçesi doğru değeri buldu, ama BAŞKA bir harf seçti. Örnek K001: gerek�
 - W4'ün 9 "harf kayması" maddesinin **8'i** v2'de anahtarla uyuşuyor (K169 hariç).
 - A1 bayrağı 53 maddede değişti: v1 bayraklı → v2 bayraksız 36, tersi 17.
 - Kaçırılan kusurlu (A1 ∪ A2): v1 ≈64 → v2 **≈57** / ≈146.
-- **Yanlış alarm 13,4 → 2,9 puan.** A1 artık A2 gibi düşük yanlış alarmlı bir
-  sinyal; yakalama da arttı.
+- **Yanlış alarm 13,4 → 2,9 puan** (nokta tahminleri; v2 için %95 GA
+  [0,8–5,4], §9.7; v1 için GA hesaplanmadı). Yakalama 43,1 → 52,2 (v2 GA
+  [42,3–64,8]).
 
 **Sınır.** Tasarım ağırlıkları v1 bayraklarıyla kuruldu. v2'nin bayrakladığı
 ama v1'in bayraklamadığı maddeler bayraksız tabakadan ağırlıkla temsil
@@ -386,7 +388,8 @@ ediliyor; bu tahmin s0,2 hücrelerinde gürültülü (tabaka başına 10 etiketl
 
 **Araştırma için genel bulgu.** Bir dil modelinden yapılandırılmış çıktıyla
 karar istenirken, karar alanının akıl yürütme alanından ÖNCE gelmesi kararı
-hesaptan bağımsızlaştırabilir. Bu deneyde etki tamdı (3/3 → 3/3). Ürünün
+hesaptan bağımsızlaştırabilir: tek soruda 3/3 [GA 43,8–100]; genellenmez;
+ön kayıtlı deney planda (ARASTIRMA §7.1, Ay 3). Ürünün
 diğer istemlerindeki alan sırası da bu açıdan gözden geçirilmeli.
 **Açık aday (ÖLÇÜLMEDİ):** açık uçlu değerlendirme isteminde her kriterin
 içinde `"points"`, `"reason"`dan ÖNCE geliyor (`src/lib/prompts.ts`,
