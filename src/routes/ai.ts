@@ -18,6 +18,7 @@ import {
   buildAlignmentPrompt,
   buildSolvePrompt,
   ISTEM_SURUMU,
+  COZUCU_ISTEM_SURUMU,
 } from '../lib/prompts';
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
@@ -1003,7 +1004,8 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
          verilmedi ya da çözücü bir şık belirleyemedi (karşılaştırma yok). */
       anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
       dilUyarisi: metinDilUyarisi(gerekce),
-      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack },
+      // §56: çözücü isteminin sürümü (2 = gerekçe önce, harf sonra). Ölçümler buna göre ayrılmalı.
+      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU },
     });
   } catch (e) {
     return c.json(modelHatasiGovdesi(e, c.req.path), 502);

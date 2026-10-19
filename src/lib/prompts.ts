@@ -880,6 +880,18 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
 // Soru ve şıklar kullanıcı girdisidir (uzman düzenleyebilir); kaynak metinle
 // aynı sınır belirteci korumasına alınır.
 // ---------------------------------------------------------------------------
+/**
+ * §56 — ÇÖZÜCÜ İSTEMİNİN SÜRÜMÜ (yanıtta meta.cozucuIstemSurumu).
+ *   1: çıktı şablonu {"secilenSik", "gerekce", …} — HARF ÖNCE.
+ *      ÖLÇÜLDÜ (A5, W4 Aşama 2): A1'in 15 yanlış alarmının 9'unda gerekçe
+ *      doğru değeri bulup BAŞKA harf seçti. Kök: model harfi hesap yapmadan
+ *      yazmaya zorlanıyordu. Deney (K001, 70b, 6 çağrı): harf önce 3/3 yanlış
+ *      (B=60, gerekçe "40"), gerekçe önce 3/3 doğru (A=40).
+ *   2: GEREKÇE ÖNCE, sonra harf (Kural 1 + şablon sırası).
+ * Üretim istemi (ISTEM_SURUMU) ve MEB parmak izi bundan ETKİLENMEZ.
+ */
+export const COZUCU_ISTEM_SURUMU = 2;
+
 export type SolveSpec = {
   questionBody: string;
   options: Array<{ key: string; text: string }>;
@@ -909,7 +921,9 @@ ${siklar}
 </${sinir}>
 
 Kurallar:
-1. Soruyu adım adım, kendi içinde çöz; hesap varsa işlemi bir kez daha doğrula.
+1. ÖNCE "gerekce" alanında soruyu çöz: hesap varsa işlemi ve bulduğun değeri
+   yaz, bir kez daha doğrula. SONRA bulduğun sonuca uyan şıkkın HARFİNİ
+   "secilenSik" alanına yaz. Harfi, çözümü yazmadan önce seçme.
 2. Yalnızca şu harflerden BİRİNİ seç: ${harfler}.
 3. Soru eksik, çelişkili ya da birden fazla şık doğruysa ya da emin olamıyorsan
    "cozulemedi": true yaz ve en olası şıkkı yine de "secilenSik" alanına koy.
@@ -917,6 +931,6 @@ Kurallar:
 5. "guven" 0 ile 1 arasında bir sayı: seçtiğin şıkkın doğru olduğundan ne kadar
    eminsin.
 
-YALNIZCA şu biçimde geçerli JSON döndür, başka hiçbir şey yazma:
-{"secilenSik": "A", "gerekce": "...", "guven": 0.8, "cozulemedi": false}`;
+YALNIZCA şu biçimde geçerli JSON döndür, alanların SIRASI bu olsun, başka hiçbir şey yazma:
+{"gerekce": "çözüm: işlem ve bulunan değer", "secilenSik": "A", "guven": 0.8, "cozulemedi": false}`;
 }

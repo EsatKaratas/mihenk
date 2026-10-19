@@ -773,3 +773,15 @@ describe('yabanciAlfabeVarMi — Latin Extended-A (§51b)', () => {
     expect(alarm).toEqual([]);
   });
 });
+
+// §56 — Latin Extended-B: Vietnamca ơ / ư (A5'te "ngược" yalnız ợ sayesinde yakalanmıştı).
+describe('yabanciAlfabeVarMi — Latin Extended-B (§56)', () => {
+  it('"thư", "sư", "ơ", "ư", Ơ, Ư yakalanır', () => {
+    for (const s of ['thư', 'sư', 'ơ', 'ư', '\u01A0', '\u01AF']) expect(yabanciAlfabeVarMi(s)).toBe(true);
+  });
+  it('blok sınırları yakalanır; Türkçe harfler yine temiz', () => {
+    expect(yabanciAlfabeVarMi('\u0180')).toBe(true);
+    expect(yabanciAlfabeVarMi('\u024F')).toBe(true);
+    expect(yabanciAlfabeVarMi('Ağaçtaki İğne, ışık, Şule, ĞÜŞİÖÇ ğüşıöç âîû')).toBe(false);
+  });
+});
