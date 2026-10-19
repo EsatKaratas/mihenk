@@ -4449,7 +4449,10 @@ function renderPendingQuestionCard(q) {
       '<span class="opt-key">' + o.key + '</span>' +
       '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
       '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
-      '<input type="radio" name="correct-' + q.id + '" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label>' +
+      /* §58: dört radyonun dördü de erişilebilirlik ağacında yalnız "doğru"
+         adını taşıyordu (hangi şık olduğu belli değildi), değerleri "on"du. */
+      '<input type="radio" name="correct-' + q.id + '" value="' + escapeHtml(o.key) + '" aria-label="' + escapeHtml(o.key) +
+        ' şıkkı doğru cevap" data-qid="' + q.id + '" data-okey="' + o.key + '" class="correct-radio" ' + (o.key === q.correctKey ? "checked" : "") + '> doğru</label>' +
       '<span class="opt-reorder-btns">' +
       '<button type="button" class="opt-move-btn" data-qid="' + q.id + '" data-index="' + i + '" data-dir="-1" aria-label="Şıkkı yukarı taşı"' + (i === 0 ? " disabled" : "") + '>▲</button>' +
       '<button type="button" class="opt-move-btn" data-qid="' + q.id + '" data-index="' + i + '" data-dir="1" aria-label="Şıkkı aşağı taşı"' + (i === q.options.length - 1 ? " disabled" : "") + '>▼</button>' +
