@@ -7832,6 +7832,42 @@ rubriği olan tarayıcıda, ilgili sınav "rubrik bekliyor" rozetini gösterir;
 | Türkçe karakter (U+FFFD) | 0 |
 | HITL değişmezi | `"approved"` atayan satır sayısı `e4a4024` ile aynı (2); yeni otomatik kabul yok |
 
+### 51.7 Deneyap — bağımsız tarayıcı testi (W1, main `0a300b0`)
+
+Servis edilen `app.js` diskle eş (`a3db3b69`); öz-kontrol 355 ad %100.
+Hem eski app.js'ten kalma bayat `localStorage` hem temiz durumla açıldı.
+
+| Kontrol | Sonuç |
+|---|---|
+| Bayat kayıtla açılış | "Deneyap Atölyeleri" dersi ve "Deneyap" sınıfı eski kayda da eklendi (göç çalışıyor); konsol JS hatası 0, yinelenen `id` 0 |
+| 12 atölye | 12'si de yüklendi; seçici sayıları katalog dosyalarındaki `uygunluk: "yazili"` sayısıyla tutarlı (ör. İleri Robotik 27 kazanımdan 6'sı yazılı). Her atölyede dayanak metni "TÜBİTAK Deneyap kitabındaki kazanım" |
+| Katalog modalı | kitap adı, yayıncı, ISBN, satır başına basılı sayfa; uygunluk filtresi (42 → Tümü 48) çalışıyor; "Seçilenleri Ekle" kazanımı `kaynak` künyesiyle okulun listesine ekledi |
+| W1 düzeltmeleri Deneyap'ta | tekrar sorusu yönlendirmesi Fen'den DNY.MB.1.2.1'e ders/sınıf/atölye/kazanımı doğru ayarladı; soru düzenlemede kazanım seçici 32 kazanımdan yalnız 11 Deneyap kazanımını listeledi; rubrik kabul kodu birleştirmede bozulmadı |
+| MEB/Keşif'e dönüş | Keşif → kendi 3 atölyesi + "bağlı ders belgesi"; Türkçe → atölye seçici yok, "MEB öğretim programından … (39)" |
+| **Gerçek Deneyap üretimi** (1 çağrı) | DNY.MB.1.2.1, kazanım modu → 200, 3 soru, `dilUyarisi` false. İstek gövdesi (aynı girdiyle `fetch` kaydedicisinden): `kaynakTuru: "deneyap"`, `grade: "Ortaokul (5–8. sınıf)"`, `subject: "Deneyap Atölyeleri"`, `mode: "kazanim"` |
+
+**Bulgular (P2, P0/P1 yok):**
+1. Deneyap indeksi gelene kadar kazanım seçici "— bu ders/sınıf için hazır
+   katalog yok; '+' ile kendiniz yazın —" diyor. Kök neden: anahtar
+   `MUFREDAT_KATALOGLARI`'na indeks yüklenince yazılıyor, o ana kadar "katalog
+   yok" sayılıyor. §51'de MEB için düzeltilen yanlış ifadenin aynı sınıfı.
+   Not satırı aynı anda doğru biçimde "Atölye listesi yükleniyor…" diyor.
+   Ölçüm: istekler 2 sn geciktirildi; gerçek ağda süre kısadır.
+2. `deneyap-tasarim-uretim.json` ilk geçişte iki kez isteniyor.
+3. Katalog modalı (MEB ve Deneyap ortak `.modal`) `max-height`/`overflow`
+   taşımıyor. ~580 px'ten kısa pencerede başlık ve "Seçilenleri Ekle" görünür
+   alanın dışında kalıyor (ölçüldü: 455 px yükseklikte modal 579 px, üstü
+   −62 px). Önceden vardı; Deneyap'ın uzun künye başlığı sınıra daha çabuk
+   ulaştırıyor. Önerilen düzeltme: `.modal { max-height: calc(100vh - 40px);
+   overflow-y: auto; }`.
+4. İçerik gözlemi (kod değil): üretilen 2. soruda "yüksek gerilme dayanımı"
+   için Metaller işaretli; Kompozitler de savunulabilir (çok doğrulu soru
+   sınıfı, İçerik Uzmanı onayında yakalanmalı).
+
+Model çağrısı toplamı: **12 deneme, 9 başarılı**.
+
+---
+
 ## 52. DENEYAP ATÖLYELERİ — 12 atölye, 622 kazanım, arayüze bağlandı (19 Ekim 2026, W3)
 
 **İstek (Orchestrator, Rehber §3 madde 2):** Deneyap atölye müfredatını Mihenk'e
