@@ -1,0 +1,124 @@
+{
+  "zaman": "2026-10-19T04:49:21.550Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "5",
+    "outcomeCode": "T.Y.5.15",
+    "outcomeLabel": "Uygun bağlantı ifadelerini kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-T.Y.5.15"
+  },
+  "http": 200,
+  "sureMs": 43811,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Öğretmen, öğrencilerin sınıf içi tartışmalarında fikirlerini açıkça ifade etmelerini istiyor. Uygun bağlantı ifadelerini kullanarak konuşmalarını istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu nedenle, yani, sonuç olarak"
+          },
+          {
+            "key": "B",
+            "text": "Bence, ayrıca, örneğin"
+          },
+          {
+            "key": "C",
+            "text": "Özetle, buna göre, bundan dolayı"
+          },
+          {
+            "key": "D",
+            "text": "Her neyse, aslında, gerçekten"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "İki cümle arasındaki nedensel ilişkiyi belirtmek için uygun bağlantı ifadelerini öneriyor; oysa tartışmada fikirleri bağlamaya yarar.",
+          "C": "Sonuç veya özetleme ifadelerini öneriyor; oysa burada örnekleme ve açıklama isteniyor.",
+          "D": "Düşüncelerini özetlemek için kullanılan ifadeleri öneriyor; oysa burada fikirleri genişletmek isteniyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "tartışma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir grup öğrenci, okul gazetesi için bir makale yazmak istiyor. Yazılarını daha ilgi çekici hale getirmek için uygun bağlantı ifadelerini kullanmaya karar veriyorlar.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bu durumda, bundan dolayı, sonuç olarak"
+          },
+          {
+            "key": "B",
+            "text": "Yani, gerçekten, aslında"
+          },
+          {
+            "key": "C",
+            "text": "Örneğin, buna ek olarak, ayrıca"
+          },
+          {
+            "key": "D",
+            "text": "Her zaman, genellikle, çoğu kez"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Nedensel ilişki ifadelerini öneriyor; oysa burada örnekleme ve ekleme isteniyor.",
+          "B": "Düşünceyi vurgulama ifadelerini öneriyor; oysa burada örnekleme ve açıklama isteniyor.",
+          "D": "Sıklık ifadelerini öneriyor; oysa burada fikirleri bağlama isteniyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "bağlantı ifadeleri",
+          "yazı yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 2,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

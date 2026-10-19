@@ -1,0 +1,129 @@
+{
+  "zaman": "2026-10-19T05:03:47.923Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Tasarım ve Üretim",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.TU.4.3",
+    "outcomeLabel": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+    "topicArea": "Uygulama: Oyuncak Araba",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap-DNY.TU.4.3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 35288,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak bir araba tasarımı yapıyor. Daha sonra bu tasarımı üç boyutlu çizim programına aktarıp arabanın 3D modelini oluşturmak istiyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istemesi hangi durumda işine yarayabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Arabanın sadece iki boyutlu çizimini paylaşması gerektiğinde"
+          },
+          {
+            "key": "B",
+            "text": "Tasarladığı arabanın sadece ön görünümünü çizmesi gerektiğinde"
+          },
+          {
+            "key": "C",
+            "text": "Arabanın 3D modelini doğru bir şekilde oluşturabilmek için"
+          },
+          {
+            "key": "D",
+            "text": "Tasarım için hangi çizim programını kullanacağına karar vermek için"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece iki boyutlu çizimi paylaşması gerektiğinde üç boyutlu çizimin farkını anlamanın önemli olmadığını düşünüyor",
+          "B": "Sadece ön görünümü çizmesi gerektiğinde iki boyutlu çizim yeterli sanıyor",
+          "D": "Hangi programı kullanacağına karar vermek için farkları anlamanın gerekli olmadığını düşünüyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "farkları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizim tekniklerini öğreniyorlar. İki boyutlu çizimde sadece uzunluk ve genişlik ölçüt alınırken, üç boyutlu çizimde uzunluk, genişlik ve yükseklik ölçüt alınır. Aşağıdaki ifadelerden hangisi bu farkı doğru bir şekilde açıklar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Üç boyutlu çizimde sadece uzunluk ölçütü vardır"
+          },
+          {
+            "key": "B",
+            "text": "İki boyutlu çizimde sadece uzunluk ve genişlik varken, üç boyutlu çizimde uzunluk, genişlik ve yükseklik vardır"
+          },
+          {
+            "key": "C",
+            "text": "İki boyutlu çizimde renk seçeneği yoktur"
+          },
+          {
+            "key": "D",
+            "text": "İki boyutlu çizimde yükseklik ölçütü yoktur"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Sadece uzunluk ölçütünün olduğunu söyleyerek üç boyutlu çizimi yanlış tanımlıyor",
+          "C": "İki boyutlu çizimin renk seçeneği ile ilgili yanlış bir bilgi veriyor",
+          "D": "Yükseklik ölçütünün olmadığını söyleyerek farkı eksik açıklıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "iki boyutlu çizim",
+          "üç boyutlu çizim",
+          "ölçütler"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

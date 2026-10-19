@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:50:51.580Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 29416,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmaya karar verdi. Hikayesinde açık ve örtük ifadeleri kullanmak istiyor. Açık ifadelerle neyi kastediyor olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hikaye anlatıcısının düşünceleri"
+          },
+          {
+            "key": "B",
+            "text": "Okuyucunun kendisi tarafından çıkarılması gereken cümleler"
+          },
+          {
+            "key": "C",
+            "text": "Karakterlerin konuşmaları"
+          },
+          {
+            "key": "D",
+            "text": "Direkt olarak ifade edilen cümleler"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hikaye anlatıcısının düşüncelerini karakterlerin düşünceleriyle karıştırıyor",
+          "B": "Örtük ifadeleri açık ifade sanıyor",
+          "C": "Karakterlerin konuşmalarını açık ifadelerle eşleştiriyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Emre, bir şiir yazdı. Şiirinde örtük bir ifade kullanarak okuyucunun düşüncelerine hitap etmek istiyor. Aşağıdakilerden hangisi örtük bir ifade örneği olabilir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Üşüyorum"
+          },
+          {
+            "key": "B",
+            "text": "Seni düşünüyorum"
+          },
+          {
+            "key": "C",
+            "text": "Güneş batıyor"
+          },
+          {
+            "key": "D",
+            "text": "Odanın sıcaklığı 20 derece"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hissiyatı doğrudan ifade ediyor",
+          "C": "Doğrudan bir gözlemi örtük ifade sanıyor",
+          "D": "Sayısal bir değeri örtük ifade sanıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "örtük ifade",
+          "şiir"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir hikaye yazarken açık ve örtük ifadeleri nasıl kullanabilir? Önerinizi yazın ve bir örnek vererek açıklayın.",
+        "difficulty": "hard",
+        "bloom": "yaratma",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ifade",
+          "örtük ifade",
+          "hikaye yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

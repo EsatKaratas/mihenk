@@ -1,0 +1,129 @@
+{
+  "zaman": "2026-10-19T05:04:38.079Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap-DNY.EP.1.3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 37091,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir elektronik devre projesi için 10 ohm dirençli bir devre elemanı ve 2 amper akım kullanıyor. Akım ve direnç arasındaki ilişkiyi test etmek istiyor.",
+        "options": [
+          {
+            "key": "A",
+            "text": "20 ohm"
+          },
+          {
+            "key": "B",
+            "text": "10 ohm"
+          },
+          {
+            "key": "C",
+            "text": "15 ohm"
+          },
+          {
+            "key": "D",
+            "text": "5 ohm"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Direnci 2 ile çarpıyor; ters orantı bilgisi eksik",
+          "C": "Rastgele yüksek bir değer seçiyor; hesaplama yapmıyor",
+          "D": "Direnci 2'ye bölerek hesaplıyor; Ohm kanunu ile ilgili eksik bilgi"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "ilişki"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir elektrik devresinde akım 3 amper, direnç 4 ohm ise, direnç 2 ohma düşürülürse akım ne olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "3 amper"
+          },
+          {
+            "key": "B",
+            "text": "2 amper"
+          },
+          {
+            "key": "C",
+            "text": "4 amper"
+          },
+          {
+            "key": "D",
+            "text": "6 amper"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Eski akım değerini alıyor; yeni direnç değerini dikkate almıyor",
+          "B": "Akımı yarıya indiriyor; direnç-akım ters orantısını uygulamıyor",
+          "C": "Akımın değişmediğini düşünüyor; direnç-akım ilişkisi hakkında bilgi eksikliği"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "ilişki"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

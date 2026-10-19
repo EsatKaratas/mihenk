@@ -1,0 +1,749 @@
+{
+  "amac": "Cevap anahtarı için BAĞIMSIZ ikinci kontrol (kör). İlk kontrolün kararları bu dosyada yok. Lütfen docs/olcum/elle-kontrol.json dosyasını AÇMADAN çöz.",
+  "yonerge": "Her madde için: karar = 'dogru' (işaretli şık savunulabilir tek doğru) | 'yanlis' (işaretli şık yanlış; doğru cevap başka şıkta ya da hiçbir şıkta yok) | 'belirsiz' (soru tek doğruyu belirlemiyor: birden çok savunulabilir doğru şık, eksik veri, soru kökü yok ya da kurgu tutarsız). Kısa gerekçe ve hesap yaz.",
+  "maddeSayisi": 37,
+  "maddeler": [
+    {
+      "id": "K01",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.8.1.1",
+      "ders": "Matematik",
+      "sinif": "8",
+      "govde": "Bir öğrenci, 15 dakika süren bir sınavda 20 sorudan 12'sini doğru cevaplamış ve her doğru cevap 2 puan getirmiştir. Her yanlış cevap ise 0,5 puan düşürmüştür. Öğrencinin sınavdan aldığı toplam puan nedir?",
+      "siklar": [
+        "A) 26 puan",
+        "B) 20 puan",
+        "C) 24 puan",
+        "D) 22 puan"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K02",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "MAT.8.3.5",
+      "ders": "Matematik",
+      "sinif": "8",
+      "govde": "Bir matematik öğretmeni, öğrencilerine dik üçgenler hakkında bir örnek veriyor. Öğretmen, bir dik üçgenin dik kenarlarının uzunluklarının 5 cm ve 12 cm olduğunu söylüyor. Öğrencilerden hipotenüs uzunluğunun karesini bulmalarını istiyor. Aşağıdaki seçeneklerden hangisi doğrudur?",
+      "siklar": [
+        "A) 5² × 12² = 3600",
+        "B) 5² + 12² = 169",
+        "C) 5² - 12² = 119",
+        "D) 5² ÷ 12² = 0,25"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K03",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "T.O.8.9",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "govde": "Bir kütüphanede bulunan iki kitaptan ilkinin 150 sayfası, ikincisinin 250 sayfası vardır. Bir öğrenci ilk kitabın 2/3'ünü, ikinci kitabın 3/5'ini okumuştur. Bu öğrenci kaç sayfa okumuştur?",
+      "siklar": [
+        "A) 200 sayfa",
+        "B) 210 sayfa",
+        "C) 190 sayfa",
+        "D) 220 sayfa"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K04",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "T.Y.7.17",
+      "ders": "Türkçe",
+      "sinif": "7",
+      "govde": "Emre, bir şiir yazdı. Şiirinde örtük bir ifade kullanarak okuyucunun düşüncelerine hitap etmek istiyor. Aşağıdakilerden hangisi örtük bir ifade örneği olabilir?",
+      "siklar": [
+        "A) Üşüyorum",
+        "B) Seni düşünüyorum",
+        "C) Güneş batıyor",
+        "D) Odanın sıcaklığı 20 derece"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K05",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "T.Y.5.15",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "govde": "Ayşe, okula gitmek için her gün aynı yolu kullanıyor. Bir gün, okuluna gitmek için farklı bir yol deniyor ve bu yolun daha kısa olduğunu fark ediyor. Ayşe, arkadaşlarına bu yeni yolu anlatmak istiyor. Ayşe'nin arkadaşlarına bu yeni yolu anlatırken kullanabileceği uygun bağlantı ifadelerinden hangisi doğru olur?",
+      "siklar": [
+        "A) çünkü",
+        "B) fakat",
+        "C) ancak",
+        "D) sonra"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K06",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "FB.7.5.8",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "govde": "Ayşe, evindeki mutfak malzemelerini整理 etmeye karar vermiştir. Mutfakta bulunan şeker, un, tuz ve baharatları karıştırmadan ayrı ayrı poşetlere koyacaktır. Karışımları homojen ve heterojen olarak sınıflandırabilme becerisini kullanarak, şeker ve un karışımını nasıl sınıflandırabilir?",
+      "siklar": [
+        "A) Homojen karışım",
+        "B) Heterojen karışım",
+        "C) Sadece un",
+        "D) Sadece şeker"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K07",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "govde": "Bir araba, ilk 10 saniyede 20 metre ilerler, sonraki 10 saniyede 30 metre ilerler. Arabanın bu süre zarfında ortalama hızı ve sürati nasıl hesaplanır? Arabanın süratini ve hızını karşılaştırabilir misiniz? Hangi durumda sürati ve hızı aynı yönde ve aynı büyüklükte olur?",
+      "siklar": [
+        "A) Sürati her iki durumda da aynı kalır ancak hızı değişir",
+        "B) Sürati ve hızı ilk 10 saniyede aynı yönde ve aynı büyüklükte, sonraki 10 saniyede farklı yönde olur",
+        "C) Sürati ve hızı her iki durumda da aynı yönde ve aynı büyüklükte olur",
+        "D) Sürati ve hızı her iki durumda da farklı yönde olur"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K08",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.TU.4.3",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "govde": "Ayşe, Deneyap Teknoloji Atölyesi'nde iki boyutlu çizim programı kullanarak bir araba tasarımı yapıyor. Daha sonra bu tasarımı üç boyutlu çizim programına aktarıp arabanın 3D modelini oluşturmak istiyor. Ayşe'nin iki boyutlu çizim ile üç boyutlu çizim arasındaki farkları anlamak istemesi hangi durumda işine yarayabilir?",
+      "siklar": [
+        "A) Arabanın sadece iki boyutlu çizimini paylaşması gerektiğinde",
+        "B) Tasarladığı arabanın sadece ön görünümünü çizmesi gerektiğinde",
+        "C) Arabanın 3D modelini doğru bir şekilde oluşturabilmek için",
+        "D) Tasarım için hangi çizim programını kullanacağına karar vermek için"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K09",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "govde": "Ahmet, bisikletiyle 10 km uzaklıktaki parka gitmek istiyor. Bisikletinin hızı 20 km/saat olduğuna göre, Ahmet'in parkı kaç dakika içinde ulaşacağı?",
+      "siklar": [
+        "A) 60 dakika",
+        "B) 20 dakika",
+        "C) 30 dakika",
+        "D) 45 dakika"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K10",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "FB.5.5.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "govde": "Bir mutfakta, 20°C sıcaklığa sahip 500 mL su ve 80°C sıcaklığa sahip 200 mL su karıştırılmaktadır. Karışımın sıcaklığı kaç °C olur? Bu verilere göre, karışımın sıcaklığını hesaplayabilir misiniz?",
+      "siklar": [
+        "A) 50°C",
+        "B) 40°C",
+        "C) 60°C",
+        "D) 30°C"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K11",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.RK.4.7",
+      "ders": "Deneyap · Robotik ve Kodlama",
+      "sinif": "Ortaokul",
+      "govde": "Deneyap robotumuzun kuvvet sensöründen aldığı değerleri bir grafik üzerinde izliyoruz. Grafikte, robotun uyguladığı kuvvetin zamanla nasıl değiştiği görülüyor. Kuvvetin maksimum değerine ulaştığı anda grafikteki diğer bir değişken olan hızın ne olduğu soruluyor. Grafikte kuvvetin maksimum değerine ulaştığı anda hızın 5 m/s olduğu görülüyor. Buna göre, kuvvetin maksimum değerine ulaştığı anda hızın değerini yorumlayınız. Hangi şık doğru?",
+      "siklar": [
+        "A) Hız maksimum değerine ulaşmıştır",
+        "B) Hız sabit kalmıştır",
+        "C) Hız azalmaktadır",
+        "D) Hız 0 m/s dir"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K12",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "govde": "Ayşe, evinden okula 5 km uzaklıkta yaşıyor. Ayşe'nin yürüme süratı 5 km/saat, bisikletle süratı ise 15 km/saat olduğuna göre, Ayşe okula bisikletle kaç dakikada ulaşır?",
+      "siklar": [
+        "A) 30 dakika",
+        "B) 20 dakika",
+        "C) 25 dakika",
+        "D) 15 dakika"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K13",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "MAT.7.1.7",
+      "ders": "Matematik",
+      "sinif": "7",
+      "govde": "Bir otobüs 250 kilometre yolculuk için 15 litre benzin tüketiyor. Eğer 1 litre benzin 25 TL ise, 500 kilometre yolculuk için otobüsün benzin masrafı kaç TL olacaktır?",
+      "siklar": [
+        "A) 300 TL",
+        "B) 500 TL",
+        "C) 450 TL",
+        "D) 375 TL"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K14",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "MAT.6.4.1",
+      "ders": "Matematik",
+      "sinif": "6",
+      "govde": "Bir inşaat projesinde, 15 metre uzunluğundaki bir duvarın çevresi için 120 metre uzunluğunda çit kullanılmıştır. Duvarın genişliği 5 metre olduğuna göre, çitin uzunluğu doğru ölçülmüş müdür?",
+      "siklar": [
+        "A) Hayır, 10 metre eksik ölçülmüştür",
+        "B) Evet, doğru ölçülmüştür",
+        "C) Hayır, 5 metre eksik ölçülmüştür",
+        "D) Hayır, 10 metre fazla ölçülmüştür"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K15",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.6.4.1",
+      "ders": "Matematik",
+      "sinif": "6",
+      "govde": "Bir öğrenci, 5 litre su ile doldurulmuş bir kaba 2 litre daha su ekliyor. Daha sonra, 1 litre su alan bir bardağı doldurup, kabın içindeki suyun hacmini ölçmek istiyor. Öğrenci, bu işlemi yaparken hangi birimi kullanmalıdır?",
+      "siklar": [
+        "A) Mililitre",
+        "B) Litreyi kullanmalı ve 5 L + 2 L - 1 L = 6 L hesabını yapmalıdır",
+        "C) Santilitre",
+        "D) Desilitre"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K16",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.YZ.3.5",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "govde": "Bir spam filtresi, Bayes teoremini kullanarak e-postaların spam olma olasılığını hesaplamaktadır. Filtre, belirli bir kelimenin spam e-postalarda görünme olasılığını %50, normal e-postalarda görünme olasılığını %10 olarak belirlemiştir. Eğer bir e-postada bu kelime görünüyorsa, spam olma olasılığını hesaplayınız.",
+      "siklar": [
+        "A) Olasılık %20",
+        "B) Olasılık %30",
+        "C) Olasılık %60",
+        "D) Olasılık %40"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K17",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "DNY.TU.4.3",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "govde": "Bir mühendis, bir oyuncak araba tasarlamak istiyor. İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları bilmesi gerekiyor. İki boyutlu çizim, nesnenin sadece uzunluk ve genişlik ölçülerini gösterirken, üç boyutlu çizim, nesnenin uzunluk, genişlik ve yükseklik ölçülerini gösterir. Mühendis, oyuncak arabanın tasarımını hangi çizim türüyle yapmalıdır?",
+      "siklar": [
+        "A) İki boyutlu çizim",
+        "B) Hem iki boyutlu hem de üç boyutlu çizim",
+        "C) Üç boyutlu çizim",
+        "D) Hiçbiri"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K18",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "FB.6.2.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "6",
+      "govde": "Bir bisikletçi, düzlükte 10 metre/saat süratle pedal çevirerek ilerlerken, ani bir frenleme ile 5 metre/saat hıza düşer. Bu durumda bisikletçinin sürati ve hızı nasıl değişir? Bisikletçinin sürati ve hızı arasındaki ilişkiyi değerlendirebilir misiniz? Bisikletçinin hızı 5 metre/saat olduğunda, süratinin ne olacağını düşünürsünüz?",
+      "siklar": [
+        "A) Sürati ve hızı aynı yönde ve aynı büyüklükte azalır",
+        "B) Sürati aynı kalır ancak hızı azalır",
+        "C) Sürati artar ancak hızı azalır",
+        "D) Sürati ve hızı farklı yönlere doğru değişir"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K19",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "DNY.EP.1.3",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "govde": "Bir elektrik devresinde, 5 ohm dirençli bir bileşen 10 voltluk bir gerilim altında çalıştırılmaktadır. Direnç ve gerilim arasındaki ilişkiye dayanarak, bu devrede akımın ne olacağını söyleyebiliriz? Buna göre hangi şık doğru olur?",
+      "siklar": [
+        "A) Akım sıfır olur",
+        "B) Akım azalır",
+        "C) Akım artar",
+        "D) Akım değişmez"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K20",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.YT.4.5",
+      "ders": "Deneyap · Yazılım Teknolojileri",
+      "sinif": "Ortaokul",
+      "govde": "Ahmet, C++ dilinde bir algoritma yazarak iki sayının toplamını hesaplamaktadır. Toplamı 10 olan iki sayıdan birincisi x, ikincisi y olsun. Ahmet, x ve y'nin değerlerini değiştirmek istemektedir. x ve y'nin yeni değerlerini, x+y = 10 eşitliğini kullanarak hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi x ve y'nin yeni değerlerini doğru bir şekilde hesaplar?",
+      "siklar": [
+        "A) x = 3; y = 7",
+        "B) x = 5; y = 5",
+        "C) x = 2 * y",
+        "D) x = y + 2"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K21",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "FB.7.5.8",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "govde": "Bir evde kullanılan su, 10 gün boyunca 500 litre olarak ölçülür. Bu suyun 300 litresi içme ve pişirme, 200 litresi ise temizlik amacıyla kullanılır. Bu durumun bir karışım olarak sınıflandırılması nasıl olur?",
+      "siklar": [
+        "A) Homojen karışım",
+        "B) Her ikisi de",
+        "C) Heterojen karışım",
+        "D) Hiçbiri"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K22",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.TU.4.3",
+      "ders": "Deneyap · Tasarım ve Üretim",
+      "sinif": "Ortaokul",
+      "govde": "Deneyap Teknoloji Atölyesi'nde öğrenciler, oyuncak araba tasarımı için iki boyutlu ve üç boyutlu çizim tekniklerini öğreniyorlar. İki boyutlu çizimde sadece uzunluk ve genişlik ölçüt alınırken, üç boyutlu çizimde uzunluk, genişlik ve yükseklik ölçüt alınır. Aşağıdaki ifadelerden hangisi bu farkı doğru bir şekilde açıklar?",
+      "siklar": [
+        "A) Üç boyutlu çizimde sadece uzunluk ölçütü vardır",
+        "B) İki boyutlu çizimde sadece uzunluk ve genişlik varken, üç boyutlu çizimde uzunluk, genişlik ve yükseklik vardır",
+        "C) İki boyutlu çizimde renk seçeneği yoktur",
+        "D) İki boyutlu çizimde yükseklik ölçütü yoktur"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K23",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.EP.1.3",
+      "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+      "sinif": "Ortaokul",
+      "govde": "Ayşe, bir elektronik devre projesi için 10 ohm dirençli bir devre elemanı ve 2 amper akım kullanıyor. Akım ve direnç arasındaki ilişkiyi test etmek istiyor.",
+      "siklar": [
+        "A) 20 ohm",
+        "B) 10 ohm",
+        "C) 15 ohm",
+        "D) 5 ohm"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K24",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.8.3.5",
+      "ders": "Matematik",
+      "sinif": "8",
+      "govde": "Bir inşaat firması, yeni bir bina için 3 metre, 4 metre ve 5 metre uzunluklarında üçgenler kullanmak istiyor. Bu üçgenlerin hangisinin dik üçgen olacağını tespit etmek istiyorlar. 3² + 4² = 9 + 16 = 25 ve 5² = 25 olduğuna göre, bu üçgenler hangisi dik üçgendir?",
+      "siklar": [
+        "A) 3-4-5 üçgeni",
+        "B) 2-3-4 üçgeni",
+        "C) 5-12-13 üçgeni",
+        "D) 6-8-10 üçgeni"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K25",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "DNY.YZ.3.5",
+      "ders": "Deneyap · Yapay Zekâ",
+      "sinif": "Ortaokul",
+      "govde": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanmaktadır. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirlemiştir. Bir hasta testte pozitif sonuç alırsa, gerçekten hastalığa yakalanmış olma olasılığı nedir? Buna göre, Bayes teoremini kullanarak olasılığı hesaplayınız ve doğru şıkkı seçiniz.",
+      "siklar": [
+        "A) Olasılık %30",
+        "B) Olasılık %45",
+        "C) Olasılık %60",
+        "D) Olasılık %75"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K26",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.8.1.1",
+      "ders": "Matematik",
+      "sinif": "8",
+      "govde": "Bir markette 2 kg'lık ve 5 kg'lık iki farklı paket meyve suyu satılmaktadır. 2 kg'lık paket 30 TL, 5 kg'lık paket 65 TL'dir. Hangi paket daha ucuzdur?",
+      "siklar": [
+        "A) Fiyata göre değil, paket ağırlığına göre karar verilir",
+        "B) İkisi de aynı fiyata gelmektedir",
+        "C) 5 kg'lık paket",
+        "D) 2 kg'lık paket"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K27",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "T.O.8.9",
+      "ders": "Türkçe",
+      "sinif": "8",
+      "govde": "Ayşe ve Mehmet aynı kitapları okumaktadır. Ayşe, ilk kitabın 50 sayfasını okumuştur. İkinci kitabın 200 sayfası vardır ve Ayşe bunun 3/4'ünü okumuştur. Mehmet ise ilk kitabın 2/5'ini ve ikinci kitabın 1/2'sini okumuştur. Ayşe ve Mehmet'in okudukları sayfa sayılarını karşılaştırdığımızda, hangisi daha fazla sayfa okumuştur?",
+      "siklar": [
+        "A) İkisi de aynı sayıda sayfa okumuştur",
+        "B) Karşılaştırmaya yetecek bilgi yoktur",
+        "C) Mehmet daha fazla sayfa okumuştur",
+        "D) Ayşe daha fazla sayfa okumuştur"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K28",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.7.1.7",
+      "ders": "Matematik",
+      "sinif": "7",
+      "govde": "Bir bisikletçi, 20 km'lik bir mesafeyi 1 saatte kat etmek istiyor. Bisikletçi saatte kaç km'ye ulaşmalıdır?",
+      "siklar": [
+        "A) 15 km",
+        "B) 20 km",
+        "C) 25 km",
+        "D) 30 km"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K29",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "T.Y.6.18",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "govde": "Bir yazar, kitabında bir karakterin sözlerini aktarmak için tırnak işareti kullanıyor. Ancak, tırnak işaretlerini yanlış yerleştiriyor. Hangi noktalama işareti hatası yapılmıştır?",
+      "siklar": [
+        "A) Tırnak işaretlerinin yanlış yerleştirilmesi",
+        "B) Tırnak işareti kullanmama",
+        "C) Virgül kullanmama",
+        "D) Nokta kullanmama"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K30",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "MAT.7.1.7",
+      "ders": "Matematik",
+      "sinif": "7",
+      "govde": "Ayşe Hanım, 5 kilogramlık bir paket un alarak fiyatı 120 TL olan 3 kilogramlık paket unu geri iade ediyor. Eğer 1 kilogram un 15 TL ise, Ayşe Hanım kaç TL geri alacaktır?",
+      "siklar": [
+        "A) 45 TL",
+        "B) 30 TL",
+        "C) 15 TL",
+        "D) 60 TL"
+      ],
+      "modelinIsaretledigi": "B"
+    },
+    {
+      "id": "K31",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "FB.5.5.3",
+      "ders": "Fen Bilimleri",
+      "sinif": "5",
+      "govde": "Ayşe, sıcaklığı 90°C olan 200 mL sıcak su ve sıcaklığı 20°C olan 200 mL ılık su ile karıştırarak yeni bir karışım elde ediyor. Bu karıştırma işlemi sırasında ısı alışverişi olur. Karışımın son sıcaklığı hangi seçenekte doğru verilmiştir?",
+      "siklar": [
+        "A) 60°C",
+        "B) 70°C",
+        "C) 45°C",
+        "D) 80°C"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K32",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "T.Y.5.15",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "govde": "Bir grup öğrenci, okul gazetesi için bir makale yazmak istiyor. Yazılarını daha ilgi çekici hale getirmek için uygun bağlantı ifadelerini kullanmaya karar veriyorlar.",
+      "siklar": [
+        "A) Bu durumda, bundan dolayı, sonuç olarak",
+        "B) Yani, gerçekten, aslında",
+        "C) Örneğin, buna ek olarak, ayrıca",
+        "D) Her zaman, genellikle, çoğu kez"
+      ],
+      "modelinIsaretledigi": "C"
+    },
+    {
+      "id": "K33",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.5.4.4",
+      "ders": "Matematik",
+      "sinif": "5",
+      "govde": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacak ve bu yolun genişliği 2 metre olarak belirlenmiştir. Bahçenin çevre uzunluğu yolun da dahil olduğu durumda kaç metre olur? Bu verilere göre bahçenin çevre uzunluğu kaç metredir?",
+      "siklar": [
+        "A) 70 metre",
+        "B) 50 metre",
+        "C) 80 metre",
+        "D) 60 metre"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K34",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "FB.7.5.8",
+      "ders": "Fen Bilimleri",
+      "sinif": "7",
+      "govde": "Bir laboratuvar deneyinde, 200 mL su ve 50 mL yağ karıştırılır. Bu karışımın türünü belirlemek için hangi özelliklere dikkat edilmelidir?",
+      "siklar": [
+        "A) Karışımın bileşenlerinin ayrılmaya karşı dirençleri",
+        "B) Karışımın viskozitesi",
+        "C) Karışımın rengi",
+        "D) Karışımın kokusu"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K35",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "T.Y.6.18",
+      "ders": "Türkçe",
+      "sinif": "6",
+      "govde": "Ayşe, bir mektup yazıyor. Mektubunun sonunda tarih ve imza bilgilerini ekleyecek. Doğru yazım şekli aşağıdakilerden hangisidir?",
+      "siklar": [
+        "A) 10.02.2024 Ayşe",
+        "B) 10/02/2024 Ayşe",
+        "C) 10 Şubat 2024, Ayşe",
+        "D) 10 Şubat 2024 Ayşe"
+      ],
+      "modelinIsaretledigi": "D"
+    },
+    {
+      "id": "K36",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "kazanim": "MAT.6.4.1",
+      "ders": "Matematik",
+      "sinif": "6",
+      "govde": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu 2 metre genişliğinde ve 5 santimetre derinliğinde kumla kaplamak istiyor. Kumun hacmini hesaplamak için hangi birimi kullanmalıdır? Bahçıvanın kum ihtiyacı kaç metreküptür?",
+      "siklar": [
+        "A) Metreküp",
+        "B) Litreyi kullanmalı ve 15 m * 2 m * 0,05 m = 1,5 m³ hesabını yapmalıdır",
+        "C) Santimetreküp",
+        "D) Kumun ağırlığını hesaplayarak kilogram cinsinden bulmalıdır"
+      ],
+      "modelinIsaretledigi": "A"
+    },
+    {
+      "id": "K37",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "kazanim": "T.Y.5.15",
+      "ders": "Türkçe",
+      "sinif": "5",
+      "govde": "Öğretmen, öğrencilerin sınıf içi tartışmalarında fikirlerini açıkça ifade etmelerini istiyor. Uygun bağlantı ifadelerini kullanarak konuşmalarını istiyor.",
+      "siklar": [
+        "A) Bu nedenle, yani, sonuç olarak",
+        "B) Bence, ayrıca, örneğin",
+        "C) Özetle, buna göre, bundan dolayı",
+        "D) Her neyse, aslında, gerçekten"
+      ],
+      "modelinIsaretledigi": "B"
+    }
+  ],
+  "cevapSablonu": {
+    "K01": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K02": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K03": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K04": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K05": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K06": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K07": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K08": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K09": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K10": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K11": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K12": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K13": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K14": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K15": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K16": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K17": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K18": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K19": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K20": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K21": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K22": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K23": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K24": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K25": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K26": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K27": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K28": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K29": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K30": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K31": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K32": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K33": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K34": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K35": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K36": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    },
+    "K37": {
+      "karar": "",
+      "dogruCevap": "",
+      "gerekce": ""
+    }
+  }
+}

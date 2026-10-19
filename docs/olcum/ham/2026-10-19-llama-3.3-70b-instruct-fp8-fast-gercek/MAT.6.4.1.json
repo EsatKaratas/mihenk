@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:43:36.009Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "6",
+    "outcomeCode": "MAT.6.4.1",
+    "outcomeLabel": "Uzunluk ve alan ölçme birimleri arasındaki ilişkilerle ilgili analojik akıl yürütebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-MAT.6.4.1"
+  },
+  "http": 200,
+  "sureMs": 21298,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bahçıvan, 15 metre uzunluğundaki bir bahçe yolunu 2 metre genişliğinde ve 5 santimetre derinliğinde kumla kaplamak istiyor. Kumun hacmini hesaplamak için hangi birimi kullanmalıdır? Bahçıvanın kum ihtiyacı kaç metreküptür?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Metreküp"
+          },
+          {
+            "key": "B",
+            "text": "Litreyi kullanmalı ve 15 m * 2 m * 0,05 m = 1,5 m³ hesabını yapmalıdır"
+          },
+          {
+            "key": "C",
+            "text": "Santimetreküp"
+          },
+          {
+            "key": "D",
+            "text": "Kumun ağırlığını hesaplayarak kilogram cinsinden bulmalıdır"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Hesabın doğru olduğunu ancak birimi yanlış seçiyor.",
+          "C": "Küçük hacimleri ölçmek için kullanılan birimi, büyük hacim ölçmelerinde de kullanıyor.",
+          "D": "Hacim yerine ağırlık birimi kullanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "birimler",
+          "kum"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, 5 litre su ile doldurulmuş bir kaba 2 litre daha su ekliyor. Daha sonra, 1 litre su alan bir bardağı doldurup, kabın içindeki suyun hacmini ölçmek istiyor. Öğrenci, bu işlemi yaparken hangi birimi kullanmalıdır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Mililitre"
+          },
+          {
+            "key": "B",
+            "text": "Litreyi kullanmalı ve 5 L + 2 L - 1 L = 6 L hesabını yapmalıdır"
+          },
+          {
+            "key": "C",
+            "text": "Santilitre"
+          },
+          {
+            "key": "D",
+            "text": "Desilitre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Büyük hacimleri ölçmek için kullanılan birimi, küçük hacim ölçmelerinde de kullanıyor.",
+          "C": "Santilitreyi litreye çevirmeden kullanıyor.",
+          "D": "Desilitreyi litreye çevirmeden kullanıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "hatirlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "birimler",
+          "su"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir inşaat şantiyesinde, 10 metre uzunluğundaki bir duvarda, her 2 metrede bir 0,5 metre çapındaki delikler açılması gerekiyor. Duvarın Delinmesi için gereken toplam delik hacmini hesaplamak için hangi adımları takip etmelisiniz? Gerekçenizi ve hesaplamalarınızı açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "delik",
+          "inşaat"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

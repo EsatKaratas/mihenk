@@ -1,0 +1,143 @@
+{
+  "zaman": "2026-10-19T05:05:29.000Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yazılım Teknolojileri",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YT.4.5",
+    "outcomeLabel": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+    "topicArea": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap-DNY.YT.4.5",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 37865,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, C++ dilinde bir algoritma yazarak iki sayının toplamını hesaplamaktadır. Toplamı 10 olan iki sayıdan birincisi x, ikincisi y olsun. Ahmet, x ve y'nin değerlerini değiştirmek istemektedir. x ve y'nin yeni değerlerini, x+y = 10 eşitliğini kullanarak hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi x ve y'nin yeni değerlerini doğru bir şekilde hesaplar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "x = 3; y = 7"
+          },
+          {
+            "key": "B",
+            "text": "x = 5; y = 5"
+          },
+          {
+            "key": "C",
+            "text": "x = 2 * y"
+          },
+          {
+            "key": "D",
+            "text": "x = y + 2"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "X ve y'nin değerlerini doğru oranda değiştirmedi",
+          "C": "X ve y arasındaki ilişkiyi yanlış tanımladı",
+          "D": "X ve y arasındaki ilişkiyi ters tanımladı"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "algoritma",
+          "değişken"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "C++ dilinde bir program yazan öğrenci, iki sayının çarpımını hesaplamak istiyor. Programda, int türünden a ve b değişkenleri tanımlanmıştır. Öğrenci, a ve b'nin çarpımını sonuc değişkenine atamak istiyor. Aşağıdaki seçeneklerden hangisi doğru bir şekilde çarpımı hesaplar?",
+        "options": [
+          {
+            "key": "A",
+            "text": "sonuc = a - b;"
+          },
+          {
+            "key": "B",
+            "text": "sonuc = a * b;"
+          },
+          {
+            "key": "C",
+            "text": "sonuc = a + b;"
+          },
+          {
+            "key": "D",
+            "text": "sonuc = a / b;"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Çarpım yerine çıkarma işlemi kullandı",
+          "C": "Çarpım yerine toplama işlemi kullandı",
+          "D": "Çarpım yerine bölme işlemi kullandı"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "değişken",
+          "çarpım"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, C++ dilinde bir algoritma yazarak bir sayının karesini hesaplamaktadır. Öğrenci, sayının karesini hesaplamak için hangi operatörü kullanmalıdır? Kararınızı verilerle savun.",
+        "difficulty": "medium",
+        "bloom": "analiz",
+        "aiTime": 180,
+        "needsSource": false,
+        "refKeywords": [
+          "operatör",
+          "algoritma",
+          "kare"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

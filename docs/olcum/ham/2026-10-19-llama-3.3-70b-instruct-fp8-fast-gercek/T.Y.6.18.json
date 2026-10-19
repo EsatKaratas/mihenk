@@ -1,0 +1,138 @@
+{
+  "zaman": "2026-10-19T04:54:27.314Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "6",
+    "outcomeCode": "T.Y.6.18",
+    "outcomeLabel": "Yazım ve noktalama işaretleriyle ilgili kuralları uygulayabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-T.Y.6.18"
+  },
+  "http": 200,
+  "sureMs": 14386,
+  "denemeler429": 0,
+  "denemeler503": 1,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir öğrenci, okul gazetesi için bir makale yazıyor. Makalede, okulun yeni kütüphanesinin açılış tarihini belirtmek istiyor. Ancak, tarihleri karıştırarak 12 Mayıs yerine 12 Mayis yazıyor. Hangi yazım kuralı hatası yapılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Büyük harf kullanmama"
+          },
+          {
+            "key": "B",
+            "text": "Tarihleri yanlış yazma"
+          },
+          {
+            "key": "C",
+            "text": "Ay adının yanlış yazılması"
+          },
+          {
+            "key": "D",
+            "text": "Noktalama işaretleri kullanmama"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Büyük harf kullanımını tarih yazımıyla karıştırıyor.",
+          "B": "Tarihlerin yanlış yazılmasının yazım kuralı hatası olmadığını düşünüyor.",
+          "D": "Noktalama işaretlerinin tarih yazımındaki önemini anlamıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım kuralları",
+          "tarih yazımı"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir yazar, kitabında bir karakterin sözlerini aktarmak için tırnak işareti kullanıyor. Ancak, tırnak işaretlerini yanlış yerleştiriyor. Hangi noktalama işareti hatası yapılmıştır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Tırnak işaretlerinin yanlış yerleştirilmesi"
+          },
+          {
+            "key": "B",
+            "text": "Tırnak işareti kullanmama"
+          },
+          {
+            "key": "C",
+            "text": "Virgül kullanmama"
+          },
+          {
+            "key": "D",
+            "text": "Nokta kullanmama"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Tırnak işaretlerinin gerekliliğini anlamıyor.",
+          "C": "Virgül kullanımını tırnak işaretiyle karıştırıyor.",
+          "D": "Nokta kullanımının tırnak işaretiyle ilgisi olmadığını anlamıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "noktalama işaretleri",
+          "tırnak işareti"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir metinde yazım ve noktalama işaretleriyle ilgili hatalar yapıyor. Metinde, cümleler arasında yanlış noktalama işaretleri kullanıyor ve bazı kelimelerin yazımını yanlış yapıyor. Bu hataların neden olduğu sorunları açıklar mısınız?",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "yazım hataları",
+          "noktalama işaretleri",
+          "anlam bütünlüğü"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

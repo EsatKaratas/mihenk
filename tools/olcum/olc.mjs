@@ -25,6 +25,9 @@
 //   --sadece  virgülle ayrılmış kazanım kodları (yalnızca bunlar koşulur)
 //   --bekle   iki çağrı arası saniye (varsayılan 13 → dakikada en çok ~4-5)
 //   --kuru    model ÇAĞIRMAZ; yalnızca istek gövdelerini yazdırır
+//   --src-kok  sunucunun çalıştığı ağaç (ör. ayrı bir git worktree); src özeti ve
+//             src commit'i oradan okunur. Verilmezse bu depo.
+//   --kosum-ek  koşum adına ek (ör. deneyap) → ayrı CSV dosyası
 //   --kaynak-turu  Deneyap maddelerine kaynakTuru:"deneyap" ekler (W2'nin alanı
 //             sunucuya girdikten sonra kullanılır; yoksa istem kazanımı "MEB" diye sunar)
 //
@@ -54,10 +57,12 @@ function argumanlar(argv) {
     if (k === '--kaynak-turu') { a.kaynakTuru = true; continue; }
     const v = argv[i + 1];
     if (k === '--url') a.url = v;
+    else if (k === '--src-kok') a.srcKok = path.resolve(v);
     else if (k === '--set') a.set = v;
     else if (k === '--etiket') a.etiket = v;
     else if (k === '--sadece') a.sadece = v.split(',').map((s) => s.trim()).filter(Boolean);
     else if (k === '--bekle') a.bekle = Number(v);
+    else if (k === '--kosum-ek') a.kosumEk = String(v).replace(/[^a-z0-9]/gi, '');
     else throw new Error(`Bilinmeyen seçenek: ${k}`);
     i++;
   }
@@ -93,13 +98,14 @@ function betikSurumu() {
    değişebilir. Her çağrıya istem/denetim dosyalarının özeti ve src/'ye
    dokunan son commit yazılır ki hangi satırın hangi kodla üretildiği bilinsin. */
 const SRC_DOSYALARI = ['src/lib/prompts.ts', 'src/lib/guards.ts', 'src/lib/ai.ts', 'src/routes/ai.ts', 'src/schemas/ai.ts'];
-function srcDurumu() {
+function srcDurumu(kok = KOK) {
   const h = createHash('sha256');
-  for (const f of SRC_DOSYALARI) h.update(fs.readFileSync(path.join(KOK, f)));
+  // Satır sonu farkı (CRLF/LF) istemi değiştirmez; özet içerikten alınır.
+  for (const f of SRC_DOSYALARI) h.update(fs.readFileSync(path.join(kok, f), 'utf8').replace(/\r\n/g, '\n'));
   let commit = 'bilinmiyor';
   try {
-    commit = execSync('git log -1 --format=%h -- src', { cwd: KOK }).toString().trim();
-    if (execSync('git status --porcelain -- src', { cwd: KOK }).toString().trim()) commit += '+kaydedilmemis';
+    commit = execSync('git log -1 --format=%h -- src', { cwd: kok }).toString().trim();
+    if (execSync('git diff --ignore-cr-at-eol --stat HEAD -- src', { cwd: kok }).toString().trim()) commit += '+kaydedilmemis';
   } catch { /* git yoksa bilinmiyor kalır */ }
   return { src_commit: commit, src_ozet: h.digest('hex').slice(0, 12) };
 }
@@ -129,6 +135,8 @@ const CAGRI_SUTUNLARI = [
   'src_commit', 'src_ozet', 'kazanim', 'mufredat', 'kaynak_turu', 'http', 'hata_sinifi', 'hata_kodu', 'hata_mesaji', 'sure_ms', 'denemeler_429', 'denemeler_503',
   'istenen', 'istenen_mc', 'istenen_open', 'uretilen', 'donen_mc', 'donen_open',
   'elenenTekrar', 'elenenAyniSik', 'elenenGecersiz', 'eksik_uretim', 'kisiltmaNotu',
+  // §51b (e35628f) sonrası sunucu sayaçları; eski sunucuda boş kalır.
+  'sadelestirilenGerekce', 'toplamGerekce',
 ];
 
 // wrangler dev yeniden yüklenirken uçuştaki istek bu metinlerle düşer.
@@ -187,7 +195,9 @@ async function main() {
   const modelSunucu = durum.model;
   const tarih = bugun();
   const betik = betikSurumu();
-  const kosum = `${tarih}-${modelKisaAd(modelSunucu)}-${a.etiket}`;
+  // --kosum-ek: aynı gün aynı etiketle FARKLI sunucu koduyla koşulan parça ayrı dosyaya
+  // yazılır (ör. "deneyap"); sütunları farklı eski dosyaya eklenmez.
+  const kosum = `${tarih}-${modelKisaAd(modelSunucu)}-${a.etiket}${a.kosumEk ? '-' + a.kosumEk : ''}`;
   console.log(`Koşum ${kosum} · sunucu ${a.url} · model ${modelSunucu} · yedek ${durum.fallback ? durum.fallback.model : 'yok'} · betik ${betik}`);
   console.log(`${maddeler.length} kazanım, çağrılar arası ${a.bekle} sn.`);
 
@@ -224,7 +234,7 @@ async function main() {
     if (a.kuru) { console.log(JSON.stringify(govde)); continue; }
 
     console.log(`[${i + 1}/${maddeler.length}] ${m.kod} …`);
-    const src = srcDurumu();
+    const src = srcDurumu(a.srcKok);
     const { http, yanit, sureMs, denemeler429, denemeler503, agHatasi } = await istekGonder(a.url, govde);
     const meta = (yanit && yanit.meta) || {};
     const sorular = (yanit && Array.isArray(yanit.questions)) ? yanit.questions : [];
@@ -252,6 +262,7 @@ async function main() {
       uretilen: meta.uretilen ?? '', donen_mc: donenMc, donen_open: donenOpen,
       elenenTekrar: meta.elenenTekrar ?? '', elenenAyniSik: meta.elenenAyniSik ?? '',
       elenenGecersiz: meta.elenenGecersiz ?? '', eksik_uretim: eksikUretim, kisiltmaNotu: meta.kisiltmaNotu || '',
+      sadelestirilenGerekce: meta.sadelestirilenGerekce ?? '', toplamGerekce: meta.toplamGerekce ?? '',
     };
     fs.appendFileSync(cagriCsv, csvSatir(CAGRI_SUTUNLARI.map((k) => cagri[k])) + '\n', 'utf8');
 

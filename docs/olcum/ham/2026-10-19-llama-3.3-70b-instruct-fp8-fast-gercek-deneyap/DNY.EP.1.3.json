@@ -1,0 +1,129 @@
+{
+  "zaman": "2026-10-19T05:03:25.902Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.EP.1.3",
+    "outcomeLabel": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+    "topicArea": "1. Bölüm · Elektronik Programlamaya Giriş",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap-DNY.EP.1.3",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 14705,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir evde kullanılan elektrik devresinde, 10 ohm dirençli bir lamba 12 voltluk bir pil ile çalıştırılmaktadır. Lambanın akımını hesaplamak için hangi formülü kullanmalıyız? Buna göre lambanın akımını hesaplayabilir miyiz?",
+        "options": [
+          {
+            "key": "A",
+            "text": "I = V - R"
+          },
+          {
+            "key": "B",
+            "text": "I = V/R"
+          },
+          {
+            "key": "C",
+            "text": "I = V*R"
+          },
+          {
+            "key": "D",
+            "text": "I = V + R"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Akım ve gerilim arasındaki ilişkiyi yanlış olarak çıkarma işlemi olarak görmektedir.",
+          "C": "Akım ve direnç arasındaki ilişkiyi tersine çevirmektedir.",
+          "D": "Akım ve gerilim arasındaki ilişkiyi yanlış olarak toplama işlemi olarak görmektedir."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir elektrik devresinde, 5 ohm dirençli bir bileşen 10 voltluk bir gerilim altında çalıştırılmaktadır. Direnç ve gerilim arasındaki ilişkiye dayanarak, bu devrede akımın ne olacağını söyleyebiliriz? Buna göre hangi şık doğru olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Akım sıfır olur"
+          },
+          {
+            "key": "B",
+            "text": "Akım azalır"
+          },
+          {
+            "key": "C",
+            "text": "Akım artar"
+          },
+          {
+            "key": "D",
+            "text": "Akım değişmez"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Akımın sıfır olacağını düşünmektedir, oysa gerilim ve direnç varsa akım vardır.",
+          "B": "Direnç ve akım arasındaki ilişkiyi yanlış olarak ters orantılı olarak görmektedir.",
+          "D": "Direnç ve akım arasındaki ilişkiyi yanlış olarak hiçbir ilişki olmadığını düşünmektedir."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 60,
+        "needsSource": false,
+        "refKeywords": [
+          "akım",
+          "direnç",
+          "gerilim"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

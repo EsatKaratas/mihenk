@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:47:13.648Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Fen Bilimleri",
+    "grade": "6",
+    "outcomeCode": "FB.6.2.3",
+    "outcomeLabel": "Sürat ve hız kavramlarını karşılaştırabilme",
+    "topicArea": "2. Ünite · KUVVETİN ETKİSİNDE HAREKET",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-FB.6.2.3"
+  },
+  "http": 200,
+  "sureMs": 21974,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ahmet, bisikletiyle 10 km uzaklıktaki parka gitmek istiyor. Bisikletinin hızı 20 km/saat olduğuna göre, Ahmet'in parkı kaç dakika içinde ulaşacağı?",
+        "options": [
+          {
+            "key": "A",
+            "text": "60 dakika"
+          },
+          {
+            "key": "B",
+            "text": "20 dakika"
+          },
+          {
+            "key": "C",
+            "text": "30 dakika"
+          },
+          {
+            "key": "D",
+            "text": "45 dakika"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hızı sabit kabul edip, mesafeyi zamanla ilişkilendiremiyor",
+          "B": "Zamansal bağımlılığı göz ardı edip hızı direkt mesafeye bölüyor",
+          "D": "Hızı km/dakika cinsinden yanlış çeviriyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "hız",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Ayşe, evinden okula 5 km uzaklıkta yaşıyor. Ayşe'nin yürüme süratı 5 km/saat, bisikletle süratı ise 15 km/saat olduğuna göre, Ayşe okula bisikletle kaç dakikada ulaşır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30 dakika"
+          },
+          {
+            "key": "B",
+            "text": "20 dakika"
+          },
+          {
+            "key": "C",
+            "text": "25 dakika"
+          },
+          {
+            "key": "D",
+            "text": "15 dakika"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Yürüme süratini bisiklet süratiyle karıştırıyor",
+          "B": "Sürat değerini mesafeye bölüp, zaman dönüşümünü yanlış yapıyor",
+          "C": "Zamansal hesaplamada hata yapıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "mesafe",
+          "zaman"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Sürat ve hız kavramları arasındaki farkı açıklayınız. Bir aracın süratini bildiren bir tabela örneği veriniz.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "sürat",
+          "hız",
+          "kavram"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

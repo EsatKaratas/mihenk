@@ -1,0 +1,137 @@
+{
+  "zaman": "2026-10-19T04:53:39.684Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "371842f+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "8",
+    "outcomeCode": "MAT.8.1.1",
+    "outcomeLabel": "Farklı bağlamlardaki üslü ifadelere, özelliklerine ve üslü ifadelerle yapılan işlemlere ilişkin çıkarım yapabilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-MAT.8.1.1"
+  },
+  "http": 200,
+  "sureMs": 24271,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir bakteri türü her 20 dakikada 2 katına artmaktadır. Başlangıçta 5 bakteri varsa, 1 saat sonra kaç bakteri olur?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30"
+          },
+          {
+            "key": "B",
+            "text": "60"
+          },
+          {
+            "key": "C",
+            "text": "45"
+          },
+          {
+            "key": "D",
+            "text": "40"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Üstel artış yerine doğrusal artış uyguluyor",
+          "B": "Başlangıçtaki bakteri sayısını 1 saatteki dakikalarla çarpıyor",
+          "C": "20 dakika sonunda sayıyı 2 ile çarpıyor, 1 saat için 3 kez 2 katına artırmıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "üslü ifade",
+          "büyüme"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir küpün hacmi 8 cm³ ise, küpün bir kenarının uzunluğu kaç cm'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "1"
+          },
+          {
+            "key": "B",
+            "text": "2"
+          },
+          {
+            "key": "C",
+            "text": "8"
+          },
+          {
+            "key": "D",
+            "text": "4"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Küpün hacmini yanlış hatırlıyor, kenar uzunluğunu hacmin 1/3'üne eşitliyor",
+          "C": "Hacmi direkt kenar uzunluğu sanıyor",
+          "D": "Hacmi 2'nin karesi sanıyor, oysa 2'nin küpü"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "easy",
+        "bloom": "anlama",
+        "aiTime": 45,
+        "needsSource": false,
+        "refKeywords": [
+          "hacim",
+          "küp"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir su tankı 10 litre su ile doludur. Her 5 dakikada 2 litre su tüketilmektedir. 20 dakika sonra tankta kaç litre su kalır? Bu sonucu nasıl buldunuz?",
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 180,
+        "needsSource": false,
+        "refKeywords": [
+          "doğrusal azalma",
+          "zaman içinde değişim"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

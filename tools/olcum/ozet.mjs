@@ -65,9 +65,10 @@ function yinelemeAdayi(govde) {
 
 function main() {
   const a = argumanlar(process.argv);
-  const ekler = `-${a.etiket}.csv`;
-  const soruDosyalari = fs.readdirSync(DIZIN).filter((f) => f.endsWith(ekler) && !f.endsWith(`-cagrilar${ekler}`));
-  if (!soruDosyalari.length) throw new Error(`docs/olcum altında *${ekler} yok.`);
+  // <tarih>-<model>-<etiket>[-<ek>].csv — ek: aynı gün farklı sunucu koduyla koşulan parça.
+  const desen = new RegExp(`-${a.etiket}(-[a-z0-9]+)?\\.csv$`, 'i');
+  const soruDosyalari = fs.readdirSync(DIZIN).filter((f) => desen.test(f) && !/-cagrilar\.csv$/.test(f));
+  if (!soruDosyalari.length) throw new Error(`docs/olcum altında -${a.etiket} koşumu yok.`);
 
   const elleYol = path.join(DIZIN, 'elle-kontrol.json');
   const elle = fs.existsSync(elleYol) ? JSON.parse(fs.readFileSync(elleYol, 'utf8')) : { etiketler: {} };
@@ -89,19 +90,34 @@ function main() {
     modeller.push({ kosum, sorular, cagrilar });
   }
 
-  for (const { kosum, sorular, cagrilar } of modeller) {
+  // MEB ve Deneyap satırları ayrı bölümde raporlanır (müfredat sütunu yoksa MEB).
+  const gruplar = [];
+  for (const m of modeller) {
+    for (const muf of ['MEB', 'Deneyap']) {
+      const ayni = (x) => (x.mufredat || 'MEB') === muf;
+      const c = m.cagrilar.filter(ayni);
+      if (!c.length) continue;
+      gruplar.push({ kosum: m.kosum, baslik: `${m.kosum} · ${muf}`, sorular: m.sorular.filter(ayni), cagrilar: c });
+    }
+  }
+
+  for (const { kosum, baslik, sorular, cagrilar } of gruplar) {
     const ilk = cagrilar[0] || sorular[0] || {};
     const mc = sorular.filter((q) => q.tur === 'mc');
     const acik = sorular.filter((q) => q.tur === 'open');
     const basarili = cagrilar.filter((c) => c.http === '200');
-    const topla = (k) => cagrilar.reduce((t, c) => t + (Number(c[k]) || 0), 0);
-    const istenen = cagrilar.reduce((t, c) => t + (Number(c.istenen_mc) || 0) + (Number(c.istenen_open) || 0), 0);
+    // Eleme oranlarının paydası yalnızca BAŞARILI çağrıların istediği sorulardır;
+    // düşen çağrıda model hiç soru üretmedi, oraya eleme yazılamaz.
+    const topla = (k, dizi = basarili) => dizi.reduce((t, c) => t + (Number(c[k]) || 0), 0);
+    const istenen = basarili.reduce((t, c) => t + (Number(c.istenen_mc) || 0) + (Number(c.istenen_open) || 0), 0);
     const sureler = cagrilar.map((c) => Number(c.sure_ms) || 0);
     const yedek = cagrilar.filter((c) => bir(c.fellBack)).length;
-    const turUyusmaz = basarili.filter((c) => Number(c.donen_mc) + Number(c.elenenGecersiz || 0) > Number(c.istenen_mc)
+    const turUyusmaz = basarili.filter((c) => Number(c.donen_mc) > Number(c.istenen_mc)
       || Number(c.donen_open) > Number(c.istenen_open)).length;
+    // Tekrar elemesi açık uçlu soruyu da düşürebilir (ÇSS ile karşılaştırılıyor).
+    const acikKalmadi = basarili.filter((c) => Number(c.istenen_open) > 0 && Number(c.donen_open) === 0).length;
 
-    yaz(`## ${kosum}`);
+    yaz(`## ${baslik}`);
     yaz();
     yaz(`Model (sunucu): \`${ilk.model_sunucu}\` · tarih ${ilk.tarih} · set ${ilk.set_surum} · betik \`${ilk.betik_surum}\``);
     yaz();
@@ -111,12 +127,17 @@ function main() {
     yaz('|---|---|');
     yaz(`| Çağrı | ${cagrilar.length} (HTTP 200: ${basarili.length}, hata: ${cagrilar.length - basarili.length}) |`);
     const hatalar = cagrilar.filter((c) => c.http !== '200');
-    if (hatalar.length) yaz(`| Hatalar | ${hatalar.map((c) => `${c.kazanim}: ${c.http} ${c.hata_kodu}`).join(' · ')} |`);
-    yaz(`| 429 (hız sınırı) beklemesi | ${topla('denemeler_429')} |`);
+    const ortam = hatalar.filter((c) => c.hata_sinifi === 'ortam');
+    const modelHata = hatalar.filter((c) => c.hata_sinifi !== 'ortam');
+    yaz(`| Ortam hatası (wrangler yeniden yükleme, 503) | ${ortam.length}${ortam.length ? ' — ' + ortam.map((c) => c.kazanim).join(', ') + ' (yeniden koşuldu)' : ''} |`);
+    yaz(`| Sunucu/model hatası | ${modelHata.length}${modelHata.length ? ' — ' + modelHata.map((c) => `${c.kazanim}: ${c.http} ${c.hata_kodu} (${c.hata_mesaji.slice(0, 80)})`).join(' · ') : ''} |`);
+    const kapsam = new Set(basarili.map((c) => c.kazanim));
+    yaz(`| Başarılı çağrısı olan kazanım | ${kapsam.size} / ${new Set(cagrilar.map((c) => c.kazanim)).size} |`);
+    yaz(`| 429 (hız sınırı) beklemesi | ${topla('denemeler_429', cagrilar)} |`);
     yaz(`| Yedek modele düşen | ${yedek} |`);
     yaz(`| Model içi yeniden deneme (attempts > 1) | ${cagrilar.filter((c) => Number(c.attempts) > 1).length} |`);
     yaz(`| Süre (sn) ort · en kısa · en uzun · toplam | ${(sureler.reduce((x, y) => x + y, 0) / 1000 / (sureler.length || 1)).toFixed(1)} · ${(Math.min(...sureler) / 1000).toFixed(1)} · ${(Math.max(...sureler) / 1000).toFixed(1)} · ${(sureler.reduce((x, y) => x + y, 0) / 1000).toFixed(0)} |`);
-    yaz(`| İstenen soru | ${istenen} (ÇSS ${cagrilar.reduce((t, c) => t + Number(c.istenen_mc || 0), 0)}, açık ${cagrilar.reduce((t, c) => t + Number(c.istenen_open || 0), 0)}) |`);
+    yaz(`| İstenen soru (başarılı çağrılarda) | ${istenen} (ÇSS ${topla('istenen_mc')}, açık ${topla('istenen_open')}) |`);
     yaz(`| Kullanıcıya dönen | ${sorular.length} (ÇSS ${mc.length}, açık ${acik.length}) |`);
     yaz();
 
@@ -130,7 +151,10 @@ function main() {
     yaz(`| \`ANH-GECERSIZ\` | bayrak | ${hucre(mc.filter((q) => bir(q.anahtarBelirsiz)).length, mc.length)} | dönen ÇSS |`);
     yaz(`| \`GRK-TEKRAR\` | bayrak | ${hucre(mc.filter((q) => bir(q.gerekceTekrari)).length, mc.length)} | dönen ÇSS |`);
     yaz(`| \`DIL-ALFABE\` | bayrak | ${hucre(sorular.filter((q) => bir(q.dilUyarisi)).length, sorular.length)} | dönen soru |`);
-    yaz(`| \`GRK-KALIP\` | düzelt | **ölçülemedi** — API yalnızca temizlik SONRASI gerekçeyi döndürüyor; ham çıktı yanıtta yok. Temizlik sonrası kalan: ${hucre(mc.reduce((t, q) => t + (Number(q.kalip_gerekce) || 0), 0), mc.reduce((t, q) => t + (Number(q.gerekce_sayisi) || 0), 0))} | gerekçe |`);
+    const sayacli = basarili.filter((c) => c.toplamGerekce !== undefined && c.toplamGerekce !== '');
+    if (sayacli.length) {
+      yaz(`| \`GRK-KALIP\` | düzelt | ${hucre(topla('sadelestirilenGerekce', sayacli), topla('toplamGerekce', sayacli))} (meta.sadelestirilenGerekce / toplamGerekce, tekrar elemesinden önce; ${sayacli.length} çağrı) | ham gerekçe |`);
+    } else yaz(`| \`GRK-KALIP\` | düzelt | **ölçülemedi** — API yalnızca temizlik SONRASI gerekçeyi döndürüyor; ham çıktı yanıtta yok. Temizlik sonrası kalan: ${hucre(mc.reduce((t, q) => t + (Number(q.kalip_gerekce) || 0), 0), mc.reduce((t, q) => t + (Number(q.gerekce_sayisi) || 0), 0))} | gerekçe |`);
     yaz();
 
     yaz('### Otomatik sayılan kodlar (denetimden KAÇAN — sunucu işaretlemiyor, betik sayıyor)');
@@ -141,8 +165,9 @@ function main() {
     yaz(`| \`GVD-KISA\` (< 40 kelime) | ${hucre(sorular.filter((q) => Number(q.govde_kelime) < 40).length, sorular.length)} | ÇSS: ${hucre(mc.filter((q) => Number(q.govde_kelime) < 40).length, mc.length)} · açık: ${hucre(acik.filter((q) => Number(q.govde_kelime) < 40).length, acik.length)} · ort ${(sorular.reduce((t, q) => t + Number(q.govde_kelime), 0) / (sorular.length || 1)).toFixed(1).replace('.', ',')} kelime |`);
     yaz(`| \`GVD-KALIP\` adayı (yarı) | ${hucre(sorular.filter((q) => GVD_KALIP.test(q.govde)).length, sorular.length)} | aday; karar elle |`);
     yaz(`| \`GVD-YINELEME\` adayı (yarı) | ${hucre(sorular.filter((q) => yinelemeAdayi(q.govde)).length, sorular.length)} | aday; karar elle |`);
-    yaz(`| (taksonomide yok) eksik üretim | ${hucre(cagrilar.reduce((t, c) => t + (Number(c.eksik_uretim) || 0), 0), istenen)} | model istenenden az soru döndürdü; meta'da sayacı YOK |`);
-    yaz(`| (taksonomide yok) tür uyuşmazlığı | ${hucre(turUyusmaz, basarili.length)} çağrı | istenen ÇSS/açık dağılımı tutmadı |`);
+    yaz(`| (taksonomide yok) açık uçlu istendi, hiç dönmedi | ${hucre(acikKalmadi, basarili.length)} çağrı | eleme ya da model; ham JSON'dan ayrıştırılır |`);
+    yaz(`| (taksonomide yok) eksik üretim | ${hucre(topla('eksik_uretim'), istenen)} | model istenenden az soru döndürdü; meta'da sayacı YOK |`);
+    yaz(`| (taksonomide yok) istenenden fazla tür | ${hucre(turUyusmaz, basarili.length)} çağrı | ör. 2 ÇSS istendi, 3 döndü |`);
     yaz(`| (taksonomide yok) eksik çeldirici gerekçesi | ${hucre(mc.reduce((t, q) => t + (Number(q.eksik_gerekce) || 0), 0), mc.reduce((t, q) => t + Math.max(0, Number(q.sik_sayisi) - 1), 0))} | çeldirici |`);
     yaz();
 

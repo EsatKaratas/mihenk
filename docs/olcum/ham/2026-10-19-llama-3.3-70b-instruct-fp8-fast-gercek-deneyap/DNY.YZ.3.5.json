@@ -1,0 +1,102 @@
+{
+  "zaman": "2026-10-19T05:01:53.713Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-deneyap-DNY.YZ.3.5",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 36323,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir doktor, bir hastanın belirli bir hastalığa sahip olma olasılığını hesaplamak istiyor. Doktor, hastanın belirli bir semptomu gösterme olasılığını %80 olarak belirlemiştir. Ayrıca, hastalığın genel popülasyondaki görülme sıklığı %10'dur. Doktor, Bayes Teoremini kullanarak hastanın hastalığa sahip olma olasılığını hesaplamak istiyor. Aşağıdaki seçeneklerden hangisi, doktorun kullanacağı doğru formüldür?",
+        "options": [
+          {
+            "key": "A",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom)"
+          },
+          {
+            "key": "B",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) / P(Hastalık) + P(Semptom)"
+          },
+          {
+            "key": "C",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) + P(Hastalık) - P(Semptom)"
+          },
+          {
+            "key": "D",
+            "text": "P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) * P(Semptom)"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Bayes Teoreminin paydasında P(Semptom) yerine P(Hastalık) + P(Semptom) olduğunu yanlış varsayıyor.",
+          "C": "Olasılık hesaplarını toplama ve çıkarma işlemleri olarak yanlış yorumluyor.",
+          "D": "Bayes Teoreminin paydasında P(Semptom) yerine P(Semptom) * P(Hastalık) olduğunu yanlış varsayıyor."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesapları"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir araştırma ekibi, bir yeni ilaçın etkinliğini test ediyor. İlaç, belirli bir hastalığın tedavisinde %80 başarılı olduğu belirlenmiştir. Ancak, ekibin verileri, ilacın belirli bir yan etkiyi tetikleme olasılığının %20 olduğunu gösteriyor. Ekibin amacı, ilacın genel olarak hasta sağlığına faydalı olup olmadığını belirlemektir. Bayes Teoremini kullanarak, ilacın hasta sağlığına genel olarak faydalı olma olasılığını hesaplayınız ve bu sonucu neden böyle çıktığını açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes Teoremi",
+          "olasılık hesapları",
+          "sağlık araştırması"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

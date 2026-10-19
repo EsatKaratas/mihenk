@@ -1,0 +1,99 @@
+{
+  "zaman": "2026-10-19T05:07:44.987Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "82fc014+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Türkçe",
+    "grade": "7",
+    "outcomeCode": "T.Y.7.17",
+    "outcomeLabel": "Yazısında açık ve örtük ifadeleri kullanabilme",
+    "topicArea": "Yazma",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac-T.Y.7.17"
+  },
+  "http": 200,
+  "sureMs": 28522,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, bir hikaye yazmak istiyor. Hikayesinde açık ve örtük ifadeleri kullanarak okuyucuların dikkatini çekmek istiyor. Aşağıdaki ifadelerden hangisi örtük bir ifade örneğidir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Karakterin gözleri çok güzeldi"
+          },
+          {
+            "key": "B",
+            "text": "Karakterin adı Ayşe idi"
+          },
+          {
+            "key": "C",
+            "text": "Karakterin gülümsemesi bütün yüzünü kapladı"
+          },
+          {
+            "key": "D",
+            "text": "Karakter 20 yaşındaydı"
+          }
+        ],
+        "correctKey": "C",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Karakterin fiziksel özelliklerini açıklar.",
+          "B": "Örtük ifade yerine açık bir ifade örneği veriyor.",
+          "D": "Karakterin yaşını açıklar."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "anlama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir öğrenci, bir hikaye yazarken açık ve örtük ifadeleri nasıl kullanabilir? Örnek vererek açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "açık ve örtük ifadeler",
+          "hikaye yazma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 2,
+      "elenenTekrar": 1,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 6,
+      "toplamGerekce": 6
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "zaman": "2026-10-19T04:43:01.656Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "f61a628",
+  "model_sunucu": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "src_commit": "fc1750c+kaydedilmemis",
+  "src_ozet": "d384c3177df2",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "5",
+    "outcomeCode": "MAT.5.4.4",
+    "outcomeLabel": "Dikdörtgenin çevre uzunluğu ve alanı ile ilgili problemleri çözebilme",
+    "topicArea": "4. Ünite · GEOMETRİK NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-3.3-70b-instruct-fp8-fast-gercek-MAT.5.4.4"
+  },
+  "http": 200,
+  "sureMs": 18076,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe, 10 cm uzunluğunda ve 5 cm genişliğinde bir dikdörtgen bir resim çerçevesi satın aldı. Çerçeveyi süslemek için etrafına bir şerit koyacak. Ayşe'nin şerit için kaç cm şerit alması gerekiyor? Bu verilere göre Ayşe'nin alması gereken şerit uzunluğu kaç cm'dir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "30 cm"
+          },
+          {
+            "key": "B",
+            "text": "50 cm"
+          },
+          {
+            "key": "C",
+            "text": "40 cm"
+          },
+          {
+            "key": "D",
+            "text": "20 cm"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Dikdörtgenin ölçülerini birbirinin yerine kullanmış ve yanlış hesaplamıştır.",
+          "C": "Dikdörtgenin her bir tarafına 10 cm eklemiş, ancak bu şerit uzunluğu için gereksizdir.",
+          "D": "Dikdörtgenin sadece iki tarafının ölçüsünü dikkate almış, diğer iki tarafı hesaba katmamıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "şerit"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir bahçe 15 metre uzunluğunda ve 8 metre genişliğindedir. Bahçenin etrafına bir yol yapılacak ve bu yolun genişliği 2 metre olarak belirlenmiştir. Bahçenin çevre uzunluğu yolun da dahil olduğu durumda kaç metre olur? Bu verilere göre bahçenin çevre uzunluğu kaç metredir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "70 metre"
+          },
+          {
+            "key": "B",
+            "text": "50 metre"
+          },
+          {
+            "key": "C",
+            "text": "80 metre"
+          },
+          {
+            "key": "D",
+            "text": "60 metre"
+          }
+        ],
+        "correctKey": "A",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "B": "Yolun genişliğini hesaba katmamış ve sadece bahçenin kendi ölçülerini dikkate almıştır.",
+          "C": "Yolun genişliğini iki katına çıkararak hesaplamış ve yanlış sonuca ulaşmıştır.",
+          "D": "Yolun genişliğini sadece bir tarafına eklemiş, diğer tarafları hesaba katmamıştır."
+        },
+        "gerekceTekrari": false,
+        "difficulty": "hard",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "çevre",
+          "yol"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir dikdörtgen odanın uzunluğu 12 metre, genişliği 9 metredir. Odanın boyası için kaç metrekare boyaya ihtiyaç duyulur? Boya fiyatı ise metrekare başına 25 TL'dir. Bu verilere göre odanın boyası için kaç TL'ye ihtiyaç duyulur ve bu durumu gerekçelendirin.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "dikdörtgen",
+          "alan",
+          "boya"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "zaman": "2026-10-19T05:06:13.700Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "82fc014+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Matematik",
+    "grade": "7",
+    "outcomeCode": "MAT.7.1.7",
+    "outcomeLabel": "Gerçek yaşam durumları üzerinden doğru orantılı durumlara ilişkin problemleri çözebilme",
+    "topicArea": "1. Ünite · SAYILAR VE NİCELİKLER",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-mebsayac-MAT.7.1.7"
+  },
+  "http": 200,
+  "sureMs": 44460,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Ayşe Hanım, 5 kilogramlık bir paket unu 120 TL'ye almıştır. Aynı gün, 2 kilogramlık paket unu 48 TL'ye almıştır. Ayşe Hanım'ın aldığı unların kilogram fiyatını karşılaştırınız. Hangisi daha ekonomiktir?",
+        "options": [
+          {
+            "key": "A",
+            "text": "2 kilogramlık paket, kilogramı 24 TL"
+          },
+          {
+            "key": "B",
+            "text": "İki paket de aynı fiyata gelmektedir"
+          },
+          {
+            "key": "C",
+            "text": "5 kilogramlık paket, kilogramı 20 TL"
+          },
+          {
+            "key": "D",
+            "text": "5 kilogramlık paket, kilogramı 24 TL"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "2 kilogramlık paketin fiyatını yanlış hesaplıyor; 48 / 2 = 24 TL",
+          "B": "İki paketin fiyatını yanlış karşılaştırıyor; aritmetik hata",
+          "C": "5 kilogramlık paketin fiyatını yanlış hesaplıyor; 120 / 5 = 24, doğru fakat B şıkkı ile aynı gerekçe veriyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "oran",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir kamyon, 5 saatte 300 kilometre yol alırsa, 8 saatte kaç kilometre yol alır?",
+        "options": [
+          {
+            "key": "A",
+            "text": "360 kilometre"
+          },
+          {
+            "key": "B",
+            "text": "480 kilometre"
+          },
+          {
+            "key": "C",
+            "text": "600 kilometre"
+          },
+          {
+            "key": "D",
+            "text": "400 kilometre"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Orantı kurmayı unutuyor; 5 saat 300 km ise 1 saat 60 km, 8 saat 480 km, fakat 360 çıkıyor",
+          "C": "Zamana bağlı olarak kat edilen mesafeyi yanlış orantılıyor; 5 saatte 300 km, 10 saatte 600 km olmalı",
+          "D": "Hareketin hızını yanlış hesaplıyor; 300 km / 5 saat = 60 km/saat, 60 * 8 = 480, fakat 400 çıkıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 120,
+        "needsSource": false,
+        "refKeywords": [
+          "doğru orantı",
+          "problem"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir restoranda, 4 kişilik bir masa için servis ücreti 20 TL'dir. Aynı restoranda, 6 kişilik bir masa için servis ücreti 30 TL'dir. Hangisini seçerdiniz, neden? Verilerinizi kullanarak kararınızı savun.",
+        "difficulty": "hard",
+        "bloom": "degerlendirme",
+        "aiTime": 300,
+        "needsSource": false,
+        "refKeywords": [
+          "ekonomik",
+          "karşılaştırma"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}

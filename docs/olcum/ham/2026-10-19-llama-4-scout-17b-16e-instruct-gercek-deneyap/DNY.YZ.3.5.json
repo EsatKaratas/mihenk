@@ -1,0 +1,143 @@
+{
+  "zaman": "2026-10-19T05:02:08.568Z",
+  "tarih": "2026-10-19",
+  "kosum": "2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap",
+  "etiket": "gercek",
+  "set_surum": "set-v1.1",
+  "betik_surum": "bfbfd2d+degisiklik",
+  "model_sunucu": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "src_commit": "bbe8205",
+  "src_ozet": "bc7f5fb8c7cb",
+  "istek": {
+    "mode": "kazanim",
+    "mcCount": 2,
+    "openCount": 1,
+    "optionCount": 4,
+    "bloomFocus": "dengeli",
+    "excludeQuestions": [],
+    "subject": "Deneyap · Yapay Zekâ",
+    "grade": "Ortaokul",
+    "outcomeCode": "DNY.YZ.3.5",
+    "outcomeLabel": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+    "topicArea": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+    "docKey": "olcum-set-v1.1-2026-10-19-llama-4-scout-17b-16e-instruct-gercek-deneyap-DNY.YZ.3.5",
+    "kaynakTuru": "deneyap"
+  },
+  "http": 200,
+  "sureMs": 48559,
+  "denemeler429": 0,
+  "denemeler503": 0,
+  "agHatasi": null,
+  "yanit": {
+    "questions": [
+      {
+        "type": "mc",
+        "body": "Bir makine öğrenmesi modeli, bir hastalığın teşhisinde Bayes teoremini kullanmaktadır. Model, hastalığa yakalanma olasılığını %10, testin pozitif sonuç verme olasılığını %90, testin yanlış pozitif sonuç verme olasılığını %20 olarak belirlemiştir. Bir hasta testte pozitif sonuç alırsa, gerçekten hastalığa yakalanmış olma olasılığı nedir? Buna göre, Bayes teoremini kullanarak olasılığı hesaplayınız ve doğru şıkkı seçiniz.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Olasılık %30"
+          },
+          {
+            "key": "B",
+            "text": "Olasılık %45"
+          },
+          {
+            "key": "C",
+            "text": "Olasılık %60"
+          },
+          {
+            "key": "D",
+            "text": "Olasılık %75"
+          }
+        ],
+        "correctKey": "B",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Hastalığa yakalanma olasılığını testin pozitif sonuç verme olasılığına bölerek hesaplıyor",
+          "C": "Testin yanlış pozitif sonuç verme olasılığını dikkate almıyor",
+          "D": "Bayes teoremini uygularken hastalığa yakalanma olasılığını yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "makine öğrenmesi",
+          "olasılık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "mc",
+        "body": "Bir spam filtresi, Bayes teoremini kullanarak e-postaların spam olma olasılığını hesaplamaktadır. Filtre, belirli bir kelimenin spam e-postalarda görünme olasılığını %50, normal e-postalarda görünme olasılığını %10 olarak belirlemiştir. Eğer bir e-postada bu kelime görünüyorsa, spam olma olasılığını hesaplayınız.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Olasılık %20"
+          },
+          {
+            "key": "B",
+            "text": "Olasılık %30"
+          },
+          {
+            "key": "C",
+            "text": "Olasılık %60"
+          },
+          {
+            "key": "D",
+            "text": "Olasılık %40"
+          }
+        ],
+        "correctKey": "D",
+        "anahtarBelirsiz": false,
+        "distractorRationale": {
+          "A": "Kelimenin spam e-postalarda görünme olasılığını dikkate almıyor",
+          "B": "Normal e-postalarda görünme olasılığını yanlış hesaplıyor",
+          "C": "Bayes teoremini uygularken kelimenin görünme olasılığını yanlış hesaplıyor"
+        },
+        "gerekceTekrari": false,
+        "difficulty": "medium",
+        "bloom": "uygulama",
+        "aiTime": 90,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "spam filtresi",
+          "olasılık"
+        ],
+        "dilUyarisi": false
+      },
+      {
+        "type": "open",
+        "body": "Bir şirket, müşteri siparişlerini analiz etmek için Bayes teoremini kullanmaktadır. Şirket, belirli bir ürünün sipariş edilme olasılığını %20, ürünün iade edilme olasılığını %10 olarak belirlemiştir. Eğer bir müşteri bu ürünü sipariş ederse, iade etme olasılığını hesaplayınız ve sonucun nedenini açıklayınız.",
+        "difficulty": "hard",
+        "bloom": "analiz",
+        "aiTime": 240,
+        "needsSource": false,
+        "refKeywords": [
+          "Bayes teoremi",
+          "müşteri siparişleri",
+          "olasılık"
+        ],
+        "dilUyarisi": false
+      }
+    ],
+    "meta": {
+      "provider": "workers-ai",
+      "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "attempts": 1,
+      "fellBack": false,
+      "istenen": 3,
+      "uretilen": 3,
+      "elenenTekrar": 0,
+      "elenenAyniSik": 0,
+      "elenenGecersiz": 0,
+      "kisiltmaNotu": null,
+      "sadelestirilenGerekce": 0,
+      "toplamGerekce": 6
+    }
+  }
+}
