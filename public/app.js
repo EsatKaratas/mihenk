@@ -4172,6 +4172,10 @@ function denetimDurumHtml(q) {
   if (!q || q.type !== "mc") return "";
   const p = [];
   if (q.hesapUyusmazligi === undefined) p.push("hesap denetimi: <b>denetlenmedi</b>");
+  /* null = denetim çalıştı ama uygulanamadı (W2: hesap ifadesi yok ya da
+     çözümlenemedi). Sessiz bırakmak "temiz" gibi okunurdu (ölçüldü: gerçek
+     üretimde 2/2 ÇSS null geldi). */
+  else if (q.hesapUyusmazligi === null) p.push("hesap denetimi: <b>sonuç yok</b> (sunucu bu soruda hesabı denetleyemedi)");
   const c = q.bagimsizCozum;
   const yuk = !!((state.cozuluyor || {})[q.id]);
   if (yuk) p.push("bağımsız çözüm: <b>çözülüyor…</b>");
