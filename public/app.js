@@ -5665,7 +5665,13 @@ function poolEditHtml(q) {
       return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
-    OUTCOMES_LIST().map(function (o) {
+    /* §51: tüm derslerin kazanımları karışık listeleniyordu; bir Fen sorusuna
+       Matematik kazanımı atanabiliyordu. Sorunun dersine ait olanlar + mevcut
+       kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
+    OUTCOMES_LIST().filter(function (o) {
+      const ders = soruDersSinif(q).subject;
+      return o.code === q.outcome || !ders || (o.subject || kodDanDers(o.code)) === ders;
+    }).map(function (o) {
       return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Süre (sn)</label>' +
@@ -5971,6 +5977,31 @@ function wireTeacherTab1() {
    tanımladığı gerçek rubrikle yapılır — sınıf ortalamaları uydurma sabit
    veriden değil, bu gerçek değerlendirmelerden hesaplanır.            */
 const SIM_ISIMLER = ["Ada Y.", "Deniz K.", "Ege T.", "Mira S.", "Poyraz A.", "Zeynep D.", "Kerem B.", "Elif N."];
+
+/* §51 (U3/U6) — Simüle öğrenci adı, sınıfta zaten bulunan bir öğrencinin
+   ADIYLA aynı başlamaz ve kendini tekrar etmez. Ölçüldü: varsayılan sınıfta
+   gerçek "Ada Yılmaz" varken simülasyon aynı şubeye "Ada Y." ekliyordu; ikinci
+   basışta aynı beş ad yeniden geliyordu ("Ada Y." ×2). Liste tükenirse ada
+   sıra numarası eklenir. Demo tohumu bunu kullanmaz (demoSinifOturumlari),
+   yani demo analitiği kaymaz. */
+function simIsmiSec() {
+  const ilkAd = function (ad) { return String(ad || "").split(" ")[0].toLocaleLowerCase("tr"); };
+  const mevcut = state.students.map(function (s) { return s.name; });
+  const mevcutIlk = mevcut.map(ilkAd);
+  const aday = SIM_ISIMLER.filter(function (ad) { return mevcutIlk.indexOf(ilkAd(ad)) < 0; })[0];
+  if (aday) return aday;
+  /* Yedek yol: gerçek (simüle olmayan) öğrencinin adıyla başlayan ad yine
+     kullanılmaz; simüle adların tekrarı sıra numarasıyla ayrışır. */
+  const gercekIlk = state.students.filter(function (s) { return !s.demo; }).map(function (s) { return ilkAd(s.name); });
+  const suzulmus = SIM_ISIMLER.filter(function (ad) { return gercekIlk.indexOf(ilkAd(ad)) < 0; });
+  const havuz = suzulmus.length ? suzulmus : SIM_ISIMLER;   // boş havuz → sonsuz döngü olmasın
+  for (let n = 2; ; n++) {
+    for (let i = 0; i < havuz.length; i++) {
+      const ad = havuz[i] + " " + n;
+      if (mevcut.indexOf(ad) < 0) return ad;
+    }
+  }
+}
 const SIM_DUZEYLER = [
   "kavramı doğru ve örnekle açıklayan güçlü bir yanıt",
   "kavramı büyük ölçüde doğru açıklayan ama örnek vermeyen orta düzey yanıt",
@@ -5993,8 +6024,10 @@ async function simulateClass(adet) {
   if (!items.length) { state.poolError = "Önce sınava soru ekleyin."; renderAll(); return; }
   if (state.exam.status !== "published") { state.poolError = "Sınıfı simüle etmeden önce sınavı yayınlayın."; renderAll(); return; }
   const opens = items.filter(function (q) { return q.type === "open"; });
-  if (opens.some(function (q) { return !state.rubrics[q.id] || totalWeight(state.rubrics[q.id]) !== 100; })) {
-    state.poolError = "Açık uçlu sorular için puanlama anahtarını tamamlayın (%100).";
+  /* §51: ikiz koşul (totalWeight === 100) yerine tek ölçüt — kabul
+     edilmemiş AI rubrik taslağıyla da simülasyon yapılabiliyordu (tuzak 7). */
+  if (opens.some(function (q) { return !rubrikGecerliMi(state.rubrics[q.id]); })) {
+    state.poolError = "Açık uçlu sorular için puanlama anahtarını tamamlayın (%100) ve yapay zekâ taslağıysa kabul edin.";
     renderAll();
     return;
   }
@@ -6010,7 +6043,7 @@ async function simulateClass(adet) {
       // Simüle öğrenciler mevcut şubelere sırayla dağıtılır ki şube
       // karşılaştırması anlamlı olsun.
       const subeler = siniflar();
-      const s = { id: studentIdSeq++, name: SIM_ISIMLER[i % SIM_ISIMLER.length], demo: true,
+      const s = { id: studentIdSeq++, name: simIsmiSec(), demo: true,
                   sinif: subeler.length ? subeler[i % subeler.length] : "7-A",
                   ability: 0.35 + (i / Math.max(1, adet - 1)) * 0.55 };
       state.students.push(s);
@@ -8462,7 +8495,9 @@ function renderAdmin() {
     (rate == null ? "—" : "%" + rate) + '</div>' +
     '<div class="s-sub tabular">' +
     (durum.atanan
-      ? durum.tamamlanan + '/' + durum.atanan + ' sınav tamamlandı'
+      /* §51: "4/4 sınav" diyordu, oysa 1 sınav × 4 öğrenci idi; sayılan şey
+         (alttaki notta yazdığı gibi) öğrenci-sınav atamasıdır. */
+      ? durum.tamamlanan + '/' + durum.atanan + ' sınav ataması tamamlandı'
       : 'henüz yayınlanmış sınav yok') + '</div>' +
     '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı ' +
     '(yayınlanmış her sınav × her öğrenci bir atama sayılır)</div></div>' +
@@ -10005,7 +10040,7 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
-    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "retryEvaluation",
+    "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
     "rubrikGecerliMi", "acikUcluSorular", "yayinEngeliMetni",
