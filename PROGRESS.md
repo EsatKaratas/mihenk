@@ -7882,6 +7882,20 @@ Deneyap) ve demo sorularında yanlış alarm **0** (`test/guards.test.ts`).
   arka plan `wrangler dev`'i durdurduktan sonra portun boşaldığı ölçülmeden
   yeni sunucuya güvenilmez.
 
+### 51.8 Kazanım grafiğinde eşik etiketi sütunlarla çakışıyordu (W1)
+
+**Kusur:** "kritik eşik %55" etiketi çizim alanının içinde, sağa yaslı
+duruyordu; son sütun grubunun sütunları ve yüzde yazılarıyla üst üste
+biniyordu (canlı ekran görüntüsü 04). **Düzeltme:** `kazanimGrafigiSvg`
+sağına 58 birimlik ayrı bir etiket boşluğu eklendi. Izgara ve çizgiler
+çizim alanında (`cizimSag`) bitiyor; etiket eşik çizgisinin sağ ucunda, iki
+satır ("kritik eşik" / "%55"). Renk ve eşik değeri değişmedi.
+
+**Ölçüm (DOM `getBBox`, sentetik %100 sütunlar, ekran görüntüsü yok):**
+etiketin sütun, yüzde, eksen etiketi ve kodlarla kesişimi **0**; 1×1,
+3×4 ve 22×4 (sütun × şube) durumlarında etiket SVG içinde kalıyor.
+375 px'te grafik eskisi gibi yatay kayıyor, 1280 px'te 3 gruplu grafik
+kaymıyor. 302/302 · öz-kontrol %100 · servis = disk. Model çağrısı yok.
 
 ---
 

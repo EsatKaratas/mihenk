@@ -8491,12 +8491,18 @@ function kazanimKisaAd(o) {
  */
 function kazanimGrafigiSvg(rows, cols) {
   const SOL = 48, SAG = 16, UST = 30, ALT = 74;
+  /* §51.8 — Eşik etiketi için çizim alanının SAĞINDA ayrı boşluk. Etiket
+     eskiden çizim alanının içinde, son sütun grubunun üstündeydi ve onun
+     sütunları/yüzde yazılarıyla çakışıyordu (canlı ekran görüntüsü 04).
+     Artık eşik çizgisinin sağ ucunda, sütun çizilemeyen bölgede durur. */
+  const ETIKET_GEN = 58;
   const YUK = 210;                       // çizim alanı yüksekliği (0-100%)
   const BAR = 26, BAR_ARA = 6, GRUP_ARA = 34;
 
   const grupGen = rows.length * BAR + (rows.length - 1) * BAR_ARA;
   const cizimGen = cols.length * grupGen + (cols.length + 1) * GRUP_ARA;
-  const W = SOL + cizimGen + SAG;
+  const W = SOL + cizimGen + SAG + ETIKET_GEN;
+  const cizimSag = SOL + cizimGen + SAG;   // ızgara ve çizgilerin bittiği x
   const H = UST + YUK + ALT;
   const y = function (v) { return UST + YUK * (1 - v / 100); };
 
@@ -8504,7 +8510,7 @@ function kazanimGrafigiSvg(rows, cols) {
 
   /* Yatay ızgara + yüzde ekseni. */
   [0, 25, 50, 75, 100].forEach(function (v) {
-    p += '<line x1="' + SOL + '" y1="' + y(v) + '" x2="' + (W - SAG) + '" y2="' + y(v) +
+    p += '<line x1="' + SOL + '" y1="' + y(v) + '" x2="' + cizimSag + '" y2="' + y(v) +
       '" class="kg-izgara"/>' +
       '<text x="' + (SOL - 8) + '" y="' + (y(v) + 4) + '" class="kg-eksen kg-sag">%' + v + '</text>';
   });
@@ -8538,11 +8544,12 @@ function kazanimGrafigiSvg(rows, cols) {
 
   /* Taban çizgisi ve KRİTİK EŞİK. Eşik en sona çizilir ki sütunların
      üstünde kalsın; altında kalırsa okunmaz. */
-  p += '<line x1="' + SOL + '" y1="' + y(0) + '" x2="' + (W - SAG) + '" y2="' + y(0) + '" class="kg-taban"/>';
-  p += '<line x1="' + SOL + '" y1="' + y(KRITIK_ESIK) + '" x2="' + (W - SAG) + '" y2="' +
+  p += '<line x1="' + SOL + '" y1="' + y(0) + '" x2="' + cizimSag + '" y2="' + y(0) + '" class="kg-taban"/>';
+  p += '<line x1="' + SOL + '" y1="' + y(KRITIK_ESIK) + '" x2="' + cizimSag + '" y2="' +
     y(KRITIK_ESIK) + '" class="kg-esik"/>' +
-    '<text x="' + (W - SAG) + '" y="' + (y(KRITIK_ESIK) - 6) + '" class="kg-esik-yazi kg-sag">' +
-    "kritik eşik %" + KRITIK_ESIK + "</text>";
+    '<text x="' + (cizimSag + 6) + '" y="' + (y(KRITIK_ESIK) - 2) + '" class="kg-esik-yazi">' +
+    '<tspan x="' + (cizimSag + 6) + '">kritik eşik</tspan>' +
+    '<tspan x="' + (cizimSag + 6) + '" dy="12">%' + KRITIK_ESIK + "</tspan></text>";
 
   return '<div class="heatmap-wrap"><svg class="kazanim-grafik" viewBox="0 0 ' + W + " " + H +
     '" width="' + W + '" height="' + H + '" role="img" ' +
