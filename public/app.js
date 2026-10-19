@@ -4186,6 +4186,11 @@ function denetimDurumHtml(q) {
   else if (c.imza !== cozumImzasi(q)) p.push("bağımsız çözüm: <b>soru sonradan değişti, yeniden çözün</b>");
   else if (c.cozulemedi) p.push("bağımsız çözüm: <b>model çözemedi</b> (şüphe değil, bilgi)");
   else if (c.anahtarUyusmazligi === false) p.push("bağımsız çözüm: <b>anahtarla aynı (" + escapeHtml(c.secilenSik) + ")</b>");
+  /* §58: uyuşmazlık dalı yoktu — durum satırı en önemli sonucu hiç yazmıyordu
+     (rozet çıkıyordu ama satır sessizdi). */
+  else if (c.anahtarUyusmazligi === true) p.push('bağımsız çözüm: <b class="durum-farkli">FARKLI (' + escapeHtml(c.secilenSik) +
+    ")</b> — işaretli anahtar " + escapeHtml(q.correctKey) + ", kontrol edin");
+  else p.push("bağımsız çözüm: <b>" + escapeHtml(c.secilenSik || "?") + " seçti</b> (anahtarla karşılaştırılamadı)");
   return '<div class="denetim-durum">' + p.join(" · ") +
     ' <button type="button" class="btn btn-secondary btn-sm js-coz" data-qid="' + q.id + '"' + (yuk ? " disabled" : "") + ">" +
     (c && !c.hata ? "🔍 Yeniden çöz" : "🔍 Bağımsız çöz") + "</button></div>";
