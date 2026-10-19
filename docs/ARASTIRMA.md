@@ -453,6 +453,37 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 Kapsam şunlardır: pilotun büyütülmesi, Deneyap atölyeleriyle ikinci bir
 uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
 
+### 7.1 Gelecek plan — öğrenci çalışma modu: soru fotoğrafından çözüm
+
+*Kaynak: Creathon mentor önerisi. Bu bir **plandır**; hiçbiri yapılmadı ve ölçülmedi.*
+
+- **Hedef:** sınav dışında, öğrenci çalışırken bir sorunun fotoğrafını
+  çeker, adım adım çözüm görür.
+- **Engel — görsel model:** Workers AI'daki
+  [`llama-3.2-11b-vision-instruct`](https://developers.cloudflare.com/workers-ai/models/llama-3.2-11b-vision-instruct/)
+  için Meta'nın model kartı açıkça şunu söylüyor: görsel+metin görevlerinde
+  desteklenen tek dil İngilizcedir; MathVista (testmini) başarısı 51,5
+  ([model kartı](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct),
+  19 Ekim 2026'da açılıp doğrulandı). Llama 4 Scout, Gemma 3 ve Mistral Small
+  3.1'in Türkçe görsel başarısı **doğrulanamadı**.
+- **Alternatif yol:** fotoğraf cihazda OCR'dan (Tesseract; ürünün OCR yolu,
+  PROGRESS §40) geçer, çıkan metin metin modeline verilir. Matematik
+  gösteriminde (kesir, üs, kök, şekil) bu yolun başarısı **ölçülmedi**.
+- **Neden önce ölçüm:** ilk gerçek ölçümde, kaynak metin olmadan üretilen
+  sorularda cevap anahtarının doğruluğu Llama 3.3 70B'de **%48**, Llama 4
+  Scout'ta **%62** idi (§6, PROGRESS §54; ön bulgu). Bir öğrenciye yanlış
+  çözümü doğru diye göstermek, öğretmen onayı olmadığı için bu üründeki en
+  pahalı hata olur. Bu yüzden mod, elle doğrulanmış bir Türkçe set ve
+  fotoğraflarla bir "emin olma" ölçümü (doğruluk ve "emin değilim" deme
+  isabeti) yapılmadan **öğrenciye açılmaz**.
+- **İlk adım:** öğretmen aracı olarak *cevap anahtarı çapraz çözümü*. Aynı
+  model, ürettiği soruyu anahtarı görmeden ayrı bir çağrıyla çözer;
+  uyuşmazlık öğretmene işaretlenir. Bu hem öğretmenin işine yarar hem de
+  öğrenci modunun dayanacağı çözme doğruluğunu ölçer.
+- **Veri ve izin:** LGS örnek soruları yalnız iç ölçümde kullanılır.
+  Yayımlanacak herhangi bir sette kullanılmadan önce MEB Ölçme, Değerlendirme
+  ve Sınav Hizmetleri Genel Müdürlüğü'nden (ÖDSGM) izin alınır.
+
 ---
 
 ## 8. Etik, KVKK ve sınırlamalar
