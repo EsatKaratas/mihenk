@@ -3,7 +3,7 @@
  "sinif": "Deneyap",
  "kaynak": "TÜBİTAK Deneyap Kitapları (ortaokul) — https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
  "not": "Atölye listesi bu dosyadan okunur; yeni atölye eklemek için katalog JSON'u eklenip indeks yeniden üretilir, app.js değişmez. Kaynak, yöntem ve doğrulama: docs/DENEYAP_KAYNAK.md.",
- "toplamKazanim": 574,
+ "toplamKazanim": 622,
  "atolyeler": [
   {
    "ad": "Tasarım ve Üretim",
@@ -156,6 +156,20 @@
    "uygunluk": {
     "yazili": 34,
     "performans": 27,
+    "surec": 0
+   }
+  },
+  {
+   "ad": "Malzeme Bilimi ve Nanoteknoloji",
+   "kod": "MB",
+   "dosya": "/mufredat/deneyap-malzeme-nanoteknoloji.json",
+   "kitapNo": 27,
+   "kitap": "TÜBİTAK Deneyap Kitapları 27 — Malzeme Bilimi ve Nanoteknoloji (Ortaokul)",
+   "isbn": "978-605-312-607-2",
+   "kazanimSayisi": 48,
+   "uygunluk": {
+    "yazili": 42,
+    "performans": 6,
     "surec": 0
    }
   }
