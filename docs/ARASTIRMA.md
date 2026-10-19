@@ -368,7 +368,7 @@ yapılacak ve bu sınırlama raporda açıkça yazılacak.
 | Kod | Ölçüm | A · llama-3.3-70b | B · llama-4-scout |
 |---|---|---:|---:|
 | ÇSS sayısı (N) | — | 25 | 26 |
-| **Cevap anahtarı doğru** | elle | **12 (%48)** | **16 (%62)** |
+| **Cevap anahtarı doğru** [%95 GA, Wilson] | elle | **12 (%48)** [30,0–66,5] | **16 (%62)** [42,5–77,6] |
 | **Cevap anahtarı yanlış** (`ANH-OLGU`) | elle | **8 (%32)** | **5 (%19)** |
 | Cevap anahtarı belirsiz | elle | 5 (%20) | 5 (%19) |
 | `GRK-TUTARSIZ` | elle | 7 | 3 |
@@ -438,7 +438,8 @@ tutarlıdır: o katman insan onayıdır (`agents.md` §1). Bu sayı "insan onay�
 hataları şu kadar azaltıyor" **demez**. Öğretmenle pilot yapılmadı (plan, 4. ay).
 
 Model farkı (yanlış anahtar A %32, B %19) bu N'de güven aralığı geniş bir
-gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
+gözlemdir: anahtar doğruluğunun %95 GA'ları [30,0–66,5] ve [42,5–77,6]
+**örtüşüyor; fark iddia edilmez.** "B daha iyi" sonucu çıkarılmaz.
 
 ### 6.6 Ölçümde bulunan denetim açıkları (taksonomi v0.2'ye girdi)
 
@@ -468,6 +469,24 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 - Ölçüm yerel `wrangler dev` ile, Workers AI'a uzak çağrıyla yapıldı; canlı
   adres ölçülmedi.
 
+**İki ölçüm için ortak sınırlar (20 Ekim'de eklendi):**
+
+- **Tüm etiketleyiciler aynı aileden yapay zekâdır** (birincil etiketler W1,
+  W4, W5; ikinci kontroller W1, W3; hepsi Claude). Bu yüzden kör ikinci
+  kontrolün κ değeri (0,79 ve 0,81) etiketleyiciler arası **ortak bir
+  yanılgıyı ölçmez**; yalnız aynı modelin iki bağımsız oturumunun uyumunu
+  ölçer. İnsan–insan ve insan–YZ uyumu ölçülmedi.
+- **Üretici ve çözücü aynı model ailesindendir** (Meta Llama: 3.3 70B ve 4
+  Scout). A1 "çapraz model" kullansa da iki modelin hataları ilişkili
+  olabilir; aynı yanlışı ikisi birden yaparsa A1 yakalayamaz. Bu etki
+  ölçülmedi.
+- **Sıcaklık 0,2 tabakası** ağırlıklandırmada tabaka başına yalnız 10
+  etiketli bayraksız maddeye dayanır; bu hücrelerdeki oranlar gürültülüdür.
+- **"Belirsiz" sınıfı heterojendir:** birden çok doğru şık, eksik veri, soru
+  kökünün olmaması ve tutarsız kurgu aynı sınıfta toplanmıştır. "Kusurlu =
+  yanlış ∪ belirsiz" tanımı bu heterojenliği taşır; bu yüzden manşet
+  sayılar yalnız "yanlış" tanımıyla da verilir.
+
 
 ### 6.8 İkinci ölçüm (A5, 19–20 Ekim 2026) · ÖN BULGU
 
@@ -492,29 +511,44 @@ gözlemdir. **"B daha iyi" sonucu çıkarılmaz.**
 
 **Anahtar doğruluğu — taban küme (tekrar 1 · sıcaklık 0,5 · tüm ÇSS):**
 
-| Model | n | doğru | yanlış | belirsiz |
+| Model | n | doğru [%95 GA, Wilson] | yanlış | belirsiz |
 |---|---:|---:|---:|---:|
-| A (llama-3.3-70b) | 32 | **22 (%68,8)** | 3 | 7 |
-| B (llama-4-scout) | 36 | **22 (%61,1)** | 5 | 9 |
+| A (llama-3.3-70b) | 32 | **22 (%68,8)** [51,4–82,0] | 3 | 7 |
+| B (llama-4-scout) | 36 | **22 (%61,1)** [44,9–75,2] | 5 | 9 |
 
-İlk ölçümle (§6.2; A %48, B %62) karşılaştırma **istem değişikliğiyle
-karışıktır** (sürüm 1 → 2) ve iki örneklem de küçüktür. "İyileşti" sonucu
+**Aralıklar örtüşüyor; ne model farkı ne de ilk ölçüme göre fark iddia
+edilir.** A'nın ilk ölçümdeki %48'i [30,0–66,5] ile buradaki %68,8'i
+[51,4–82,0] örtüşüyor. Ayrıca iki ölçüm arasında istem (sürüm 1 → 2),
+kazanım alt kümesi ve etiketleyiciler değişti. "İyileşti" sonucu
 çıkarılmaz.
 
 **Denetimlerin başarımı** — ağırlıklı, 392 birincil ÇSS'ye genellenmiş.
-Kusurlu = yanlış ya da belirsiz (≈146, yani ≈%37); sağlam ≈246.
+Nokta tahmin ve %95 güven aralığı: tabakalı bootstrap, 1000 tekrar, tohum
+20261019 (OZET §9.7, `c7e33c0`). **Manşet yakalama yalnız "yanlış"
+anahtarlı ÇSS'ler üzerindendir;** "kusurlu" (yanlış ∪ belirsiz, ≈146 ÇSS,
+≈%37) ikinci satırdır, çünkü belirsiz sınıfı heterojendir (§6.7).
 
-| Denetim | Yakalama | Yanlış alarm |
-|---|---:|---:|
-| A1 bağımsız çözüm, istem sürüm 2 | **%52,2** | **%2,9** |
-| A2 sayısal hesap | %30,8 | %2,4 |
-| **A1 (v2) ∪ A2** | **%61,1** | **%5,3** |
-| A3 "doğru şık en uzun" | %1,4 | %10,6 |
+| Denetim | **Yakalama — yanlış** | Yakalama — kusurlu | Yanlış alarm |
+|---|---:|---:|---:|
+| A1 bağımsız çözüm, istem sürüm 2 | **%62,9** [47,9–82,2] | %52,2 [42,3–64,8] | %2,9 [0,8–5,4] |
+| A2 sayısal hesap | **%53,5** [39,1–73,5] | %30,8 [23,3–39,6] | %2,4 [0,8–4,4] |
+| **A1 (v2) ∪ A2** | **%77,7** [60,6–98,4] | **%61,1** [51,2–74,6] | **%5,3** [2,6–8,4] |
+| A3 "doğru şık en uzun" | %0 [0–0] | %1,4 [0–3,4] | %10,6 [4,2–18,0] |
+
+**Okuma uyarıları.** (i) Model A'da hiç "yanlış" anahtar kaçırılmadı (13/13
+ve 17/17); bu tabakalarda bootstrap aralığı [100–100]'e **çöker** ve
+belirsizliği gösteremez. Ağırlıksız Wilson aralığı toplamda 55/59 için
+[83,8–97,3]'tür. (ii) Ağırlıksız %93 ile ağırlıklı %77,7 arasındaki fark,
+B'nin sıcaklık 0,2 tabakasında kaçırılan 3 "yanlış" maddeden gelir; her
+birinin ağırlığı 6,8'dir. Bu yüzden ağırlıklı manşet 0,2 tabakasının
+gürültüsüne duyarlıdır. (iii) A1 v1 ile v2 farkının ve model farklarının
+aralıkları geniştir; tabaka düzeyinde fark iddia edilmez.
 
 **Araştırma sorusunun ikinci yarısı için ölçüm:** iki denetim birlikte
 kusurlu ≈146 ÇSS'nin ≈%61'ini işaretliyor; **≈57'si hiçbir otomatik uyarı
-almadan geçiyor.** Bu, ilk ölçümdeki "31 hatalı anahtardan yalnız 1'i
-yakalandı" durumundan belirgin bir değişiktir. Ama kaçanların varlığı,
+almadan geçiyor.** İlk ölçümde bu denetimler yoktu ("31 hatalı anahtardan
+yalnız 1'i bir uyarı aldı"); iki ölçüm aynı denetimleri ölçmediği için bu
+bir önce/sonra karşılaştırması değildir. Kaçanların varlığı,
 insan onayının hâlâ tek tam savunma olduğunu gösterir (`agents.md` §1).
 İnsan onayının hataları ne kadar azalttığı **ölçülmedi** (plan, 4. ay).
 
@@ -524,12 +558,15 @@ insan onayının hâlâ tek tam savunma olduğunu gösterir (`agents.md` §1).
    seçtiği harfi gerekçeden **önce** istiyordu. W4'ün kör karşılaştırmasında
    A1'in 15 yanlış alarmının 9'unda gerekçe doğru değeri bulup başka harf
    seçmişti. Kontrollü deney (aynı soru, llama-3.3-70b, sıcaklık 0,2):
-   harf önce **3/3 yanlış**, gerekçe önce **3/3 doğru**. Düzeltmeden sonra
+   harf önce **3/3 yanlış**, gerekçe önce **3/3 doğru** — **tek bir soruda**,
+   3+3 deneme; 3/3 için %95 güven aralığı (Wilson) [%43,8–%100]. Düzeltmeden sonra
    (`1b8f611`) aynı 225 ÇSS yeniden çözüldü: A1 yanlış alarmı %13,4 → %2,9,
-   yakalaması %43,1 → %52,2. Bu, [11] self-consistency ve [14] doğrulayıcı
-   çalışmalarının dayandığı düşünce zinciri fikriyle tutarlıdır: model önce
-   akıl yürütürse kararı hesaba dayanır. Deney 3+3 denemedir; genelleme
-   yapılmaz. **Açık aday (ölçülmedi):** açık uçlu değerlendirme isteminde de
+   yakalaması %43,1 → %52,2. Bu gözlem, [11] self-consistency ve [14] doğrulayıcı
+   çalışmalarının dayandığı düşünce zinciri fikriyle **uyumludur**; ama tek
+   soruda yapılmış bir denemedir, nedensel bir genelleme **değildir**. Yeniden
+   çözümdeki iyileşme de aynı 225 ÇSS üzerindedir ve düzeltmeden bağımsız
+   ölçülmedi. Birden çok soru, model ve şablon sırasıyla **ön kayıtlı** bir
+   kontrollü deney 6 aylık plandadır (§7.1, Ay 3). **Açık aday (ölçülmedi):** açık uçlu değerlendirme isteminde de
    her kriterin puanı (`points`) gerekçeden (`reason`) önce isteniyor. Aynı
    riski taşıyabilir; ayrı bir kontrollü deney olmadan değiştirilmeyecek.
 2. **Tür içi tekrar (A4) açık uçlu kaybını kapattı:** istenen 216 açık uçlu
@@ -560,15 +597,27 @@ insan onayının hâlâ tek tam savunma olduğunu gösterir (`agents.md` §1).
 | 5 | Bulguların raporlanması, mentor geri bildirimi | Ara rapor |
 | 6 | Makale taslağı ve açık değerlendirme setinin yayımı | Makale taslağı + GitHub sürümü |
 
+### 7.1 Ölçülebilir hedefler
+
+| Ay | Hedef | Ölçüt |
+|---|---|---|
+| 1 | İnsan etiketi | En az **2 öğretmen**; insan–insan ve insan–YZ uyumu (Cohen κ) raporlanır |
+| 1 | Değerlendirme seti | En az **600 madde**; kaynak metin modu dahil (bugünkü ölçümler yalnız kazanım modunda) |
+| 1 | Analiz planı | Hipotezler, birincil ölçütler ve dışlama kuralları ölçümden **önce** yazılıp zaman damgalı yayımlanır (ön kayıt) |
+| 2 | Model çeşitliliği | En az **3 model ailesi**: Meta Llama + Mistral, Qwen ya da Gemma'dan en az biri + erişim olursa T3 AI |
+| 3 | Kontrollü deney | "Harf önce / gerekçe önce" etkisi birden çok soru, model ve şablonla, ön kayıtlı planla |
+| 4 | Pilot | Öğretmenlerle pilot öncesi kurumun **etik kurul onayı**; öğrenci verisi kullanılmaz |
+| 6 | Yayın | Hedef mekân: **BEA** (ACL atölyesi), **AIED** ya da **EDM**; açık set + **datasheet** (veri setinin kaynağı, etiketleme süreci ve sınırları) |
+
 **6. aydan sonra:** çalışma lisans bitirme projesi olarak sürdürülür.
 Kapsam şunlardır: pilotun büyütülmesi, Deneyap atölyeleriyle ikinci bir
 uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
 
-### 7.1 Geliştirilebilir yönler
+### 7.2 Geliştirilebilir yönler
 
 İki yön aynı ağırlıktadır. İkisi de **plandır**; hiçbiri yapılmadı ve ölçülmedi.
 
-#### 7.1.1 Soru fotoğrafından çözüm (öğrenci çalışma modu)
+#### 7.2.1 Soru fotoğrafından çözüm (öğrenci çalışma modu)
 
 *Kaynak: Creathon mentor önerisi.*
 
@@ -599,7 +648,7 @@ uygulama alanı, set ve betiğin yeni model sürümleriyle yeniden koşulması.
   Yayımlanacak herhangi bir sette kullanılmadan önce MEB Ölçme, Değerlendirme
   ve Sınav Hizmetleri Genel Müdürlüğü'nden (ÖDSGM) izin alınır.
 
-#### 7.1.2 T3 AI ile çalışma
+#### 7.2.2 T3 AI ile çalışma
 
 *Bu bir **plandır**; bugün erişim yok ve T3 AI ile hiçbir şey ölçülmedi.
 Erişim durumunun ayrıntısı ve kaynakları: §5.2.*
@@ -650,7 +699,9 @@ Erişim durumunun ayrıntısı ve kaynakları: §5.2.*
 | OCR | Yalnızca sentetik taramayla (metin katmanı olmayan, üretilmiş PDF) denendi (PROGRESS §40); iki sütunlu sayfada sütunları karıştırıyor (`DEVIR_MUDUR_2026-09-27.md` §5) |
 | Token bütçesi | `700 + soru×700` (tavan 5600) modelin sayacıyla doğrulanmadı; yalnızca kesilme olmadığı ölçüldü (§48.7) |
 | Demo soruları | **Elle yazıldı** (§48b.2); canlı üretim "AI ile Soru Üret" ile gösterilir |
-| Ön bulguların örneklemi | Küçük (2-24 madde); sabit set ve büyük N ile tekrarlanacak |
+| Ön bulguların örneklemi | İlk ölçüm model başına 25-26 ÇSS, ikinci ölçüm 225 etiketli ÇSS; güven aralıkları geniş ve çoğu karşılaştırmada örtüşüyor (§6.8). Ay 1 hedefi ≥600 madde (§7.1) |
+| Etiketleyiciler | Hepsi aynı aileden yapay zekâ (Claude); κ ortak yanılgıyı ölçmez. İnsan etiketi yok (§6.7) |
+| Model ailesi | Üretici ve çözücü ikisi de Meta Llama; ilişkili hata riski ölçülmedi (§6.7) |
 | Dil denetiminin kapsamı | Latin dışı alfabeler, Latin Extended Additional ve (Türkçe ğ ı İ ş harfleri hariç) Latin Extended-A taranıyor; son eklenen aralık "tăngdı" (ă) vakasından sonra geldi. 1.228 kazanımda (606 MEB + 622 Deneyap) ve demo sorularında yanlış alarm **0** (PROGRESS §51b.6). Latin-1'deki é, ñ, ã, ß ile Latin harfli yabancı kelimeler ("necessary") **bilerek yakalanmıyor**: Türkçenin ç ö ü â î û harfleriyle aynı blokta yaşıyorlar ve ayıklamak sözlük ister (§48b.3, §51b.6) |
 | Hız sınırı | Kaba kullanıma karşı istemci adresi (IP) başına tüm yapay zekâ uçlarında toplam **dakikada 60 istek** tavanı var. Amaç maliyet güvenliği, kalite eşiği değil; değer mevcut sınırlardan türetildi (45 + 3×5). Bellek içi ve isolate başına, dağıtık garanti değil (§51b.6). Okul ağı NAT arkasındaysa aynı dış adresi paylaşan öğretmenler bu tavanı birlikte tüketir. Bugün ürün tek cihazda çalıştığı için etkisiz; çok kullanıcıya geçişte sayaç **kullanıcı başına** anahtara dönülmeli |
 | Yedek model | Aynı Cloudflare Neuron havuzunu kullanır; hesap kotası bitince kurtarmaz |
@@ -701,6 +752,41 @@ flaws) arar. Kural tabanlı yöntem insan etiketleyicilerin bulduğu kusurların
 üretiminde* gözlenen kusurlardan çıktı. Kendi denetimlerinin yakalama oranı
 ilk kez 20 Ekim'de ölçüldü (§6.8, ön bulgu); büyük örneklemle ölçüm planın
 3. ayıdır.
+
+**[15] Doughty, J., Wan, Z., Bompelli, A., … (15 yazar) (2024).** *A
+Comparative Study of AI-Generated (GPT-4) and Human-crafted MCQs in
+Programming Education.* ACE 2024 (26th Australasian Computing Education
+Conference), s. 114-123. <https://doi.org/10.1145/3636243.3636256>
+6 Python dersinin 246 öğrenme çıktısına bağlı 651 GPT-4 ve 449 insan
+yapımı çoktan seçmeli soruyu karşılaştırır. Özete göre GPT-4 soruları açık
+dilli, tek doğru şıklı ve kaliteli çeldiricili bulunur.
+**Mihenk'in farkı / boşluk:** yükseköğretim, İngilizce ve kapalı bir
+model. Mihenk ortaokul düzeyinde, Türkçe ve açık ağırlıklı modellerle
+ölçüyor; ölçtüğü anahtar doğruluğu (§6.8) bu çalışmanın raporladığından
+belirgin biçimde düşük. Koşullar farklı olduğu için iki sonuç doğrudan
+karşılaştırılmaz.
+
+**[16] Moore, S., Costello, E., Nguyen, H. A., Stamper, J. (2024).** *An
+Automatic Question Usability Evaluation Toolkit.* AIED 2024, LNCS, s.
+31-46. <https://doi.org/10.1007/978-3-031-64299-9_3>
+[3]'ün devamı: madde yazım kusurları rubriğine dayanan açık kaynaklı bir
+araç (SAQUET). Özete göre beş alanda insanların bulduğu kusurların %94'ten
+fazlasını tespit eder.
+**Mihenk'in farkı / boşluk:** kusur tespiti İngilizce sorular üzerinde
+doğrulanmış. Mihenk'in denetimleri Türkçe ve anahtar doğruluğuna odaklı;
+SAQUET'in Türkçeye uyarlanıp aynı setle karşılaştırılması bir aday.
+
+**[17] Scaria, N., Chenna, S. D., Subramani, D. (2024).** *Automated
+Educational Question Generation at Different Bloom's Skill Levels Using
+Large Language Models: Strategies and Evaluation.* AIED 2024, LNCS, s.
+165-179. <https://doi.org/10.1007/978-3-031-64299-9_12>
+Beş LLM'e Bloom düzeylerine göre soru ürettirir; uzman ve LLM tabanlı
+değerlendirme yapar. Özete göre yeterli bilgi verilince ilgili ve nitelikli
+sorular üretilir, ama başarı modeller arasında belirgin farklıdır ve
+otomatik değerlendirme insan değerlendirmesiyle aynı düzeyde değildir.
+**Mihenk'in farkı / boşluk:** "otomatik değerlendirme insana denk değil"
+bulgusu, Mihenk'in insan onayını zorunlu tutmasıyla örtüşüyor. Mihenk bu
+farkı kendi denetimleri için sayısal olarak ölçüyor (§6.8).
 
 ### 9.2 Çeldirici üretimi
 
@@ -868,5 +954,10 @@ kalitesine ([1], [2], [4]) ya da LLM puanlamasının insanla uyumuna
 hataların sıklığı, ve kural tabanlı denetimler ile insan onayının bunları
 ne kadar yakaladığı.** Mihenk'in araştırma sorusu bu boşluğa yöneliktir.
 Cevap doğrulama yöntemleri ([11]-[14]) bu boşluğu kapatmak için önerilen
-denetimlerin dayanağıdır. Tarama 14 kaynakla sınırlıdır ve sistematik bir
-literatür taraması değildir; 1. ayda genişletilecek.
+denetimlerin dayanağıdır.
+
+**Tarama sınırı:** bu bölüm 17 kaynakla sınırlıdır ve **sistematik bir
+literatür taraması değildir.** Ay 1'in ilk işi, tanımlı arama terimleri ve
+dahil etme ölçütleriyle sistematik bir taramadır; özellikle 2024–2025'te
+LLM ile üretilen çoktan seçmeli soruların kalitesi üzerine çalışmalar
+hızla artıyor ve bu liste onları tam kapsamıyor.
