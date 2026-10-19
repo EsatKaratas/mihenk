@@ -1,0 +1,945 @@
+{
+ "ders": "Deneyap · Yapay Zekâ",
+ "sinif": "Ortaokul",
+ "atolye": "Yapay Zekâ",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-517-4",
+ "kunye": {
+  "isbn": "978-605-312-517-4",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2023",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf",
+  "sha256": "e71a4cb53869a86d0860af205729389e1f45f2ca7ed75b78936dd328bf1102e7"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok haftada geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.YZ.1.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler “yapay zekâ” kavramını temel düzeyde açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Python ile Yapay Zekâ",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.1.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler algoritma kavramını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Python ile Yapay Zekâ",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.1.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler basit bir yapay zekâ örneği oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Python ile Yapay Zekâ",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.1.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python ile yapay zekâ temel kütüphanesi ile giriş seviyesinde uygulamalar yapar.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Python ile Yapay Zekâ",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.1.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Github platformu ile yapay zekâ örnekleri üzerinden karar vermeyi öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Python ile Yapay Zekâ",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 16,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.2.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler “yapay zekâ” ekseninde bulanık mantık tabanlı matematiksel işlemleri gerçekleştirir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.2.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, yaya geçiti trafik sinyalizasyonuna ait parametrelere göre üyelik fonksiyon sayıları, isimleri, alt ve üst limitleri belirler.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.YZ.2.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilinde scikit-fuzzy kütüphanesindeki bulanık mantık modellemesi için gerekli olan “antecedent”,”arrange”,”consequent”, “ControlSystem”, “ControlSystemSimulation” ve “compute” komutlarını uygulayarak öğrenir.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   },
+   "uygunlukNotu": "'uygulayarak öğrenir': öğrenme fiili uygulamayla birlikte, Python'da komut uygulatır"
+  },
+  {
+   "kod": "DNY.YZ.2.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, yaya geçidi trafik sinyalizasyonunda yaya sayısı değerini bulanık mantık modeli ile (“az”, “orta” ve “yüksek” şeklinde) organize eder ve ilgili kurallar yardımıyla desteklenen sistemi Python programlama dilinde oluşturur.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.2.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yaya geçidi trafik sinyalizasyonu örneğinde öğrendiği bulanık mantık komutlarını kullanarak “otomatik fren sistemi” örneğini uygulayarak sentezler.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.2.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python ile bulanık mantık modelleme ve çözüm üretmeyi uygular.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Yapay Zekâ Matematiği ve Bulanık Mantık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 34,
+    "pdfSayfa": 37,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, makine öğrenmesi kavramını ve Bayes öğrenmesi algoritmasını kullanır.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, verileri makine öğrenme algoritmaları ile gerçek hayat problemlerine uygular.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler makine öğrenmesindeki temel aşamaları bilir ve uygulamalarda kullanır.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler regresyon, sınıflandırma ve kümeleme yöntemlerini uygular.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, sonucun sebebini bulurken sonucun hangi olasılıkla hangi sebepten kaynaklandığını veren Bayes Teoremini örneklerle kavrar.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.3.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak aracın özelliklerine göre satış durumunu tahminleme etkinliği için program kodunu yazabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Makine Öğrenmesi Kavramı ve Olasılıklı Çözümler İçin Bayes Öğrenmesi",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 46,
+    "pdfSayfa": 49,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.4.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, karar ağaçları algoritmasının temel yapısını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Karar Ağaçları ile Tutarlı Kararlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 64,
+    "pdfSayfa": 67,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.4.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, verileri karar ağaçları ile gerçek hayat problemlerine uygular.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Karar Ağaçları ile Tutarlı Kararlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 64,
+    "pdfSayfa": 67,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.4.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler karar ağaçları algoritmaları ile tahmin, sınıflandırma yöntemlerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Karar Ağaçları ile Tutarlı Kararlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 64,
+    "pdfSayfa": 67,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.4.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, Karar ağaçları üzerindeki koşul ifadeleri için ‘düğüm’ ve ‘kök düğüm’, Düğümler arası bağlantı için ‘kenar’ ve koşul belirtmeyen ifadeler için ise ‘Yaprak’ kavramlarını bilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Karar Ağaçları ile Tutarlı Kararlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 64,
+    "pdfSayfa": 67,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.4.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak aracın özelliklerine göre pirinç yaprağı hastalıklarının teşhisi için program kodunu oluşturur.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Karar Ağaçları ile Tutarlı Kararlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 64,
+    "pdfSayfa": 67,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağları temel yapısını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağları ile insan beyninin öğrenme yapısını modelleyerek uygular.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağları ile matematiksel modelleme denklemlerini yorumlamayı kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağları ile pamuk tarlasına ait sulama sistemini modelleme ve çözüm üretme yetenekleri kazanır.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağları üzerindeki bağımlı değişken, bağımsız değişken, ağırlık değeri ve bias terimlerini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak pamuk tarlasına ait akıllı sulama için program kodunu yazabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.7",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilinde yapay zekâ modelleri için hazırlanan keras kütüphanesinin fonksiyonlarını kullanma yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.8",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler pamuk tarlasına ait verileri giriş ve çıkış parametresine göre belirler.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.9",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay sinir ağlarında veriye uygun model tasarlar, analiz eder ve modeli eğitir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.10",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler test verileri üzerinde modeli değerlendirerek yorumlar.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.11",
+   "alan": "Yapay Zekâ",
+   "metin": "YSA modeli ile pamuk tarlası sulama sistemi için konsol ekranında %95 olarak yüksek bir başarım oranı ile model oluşturma yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.12",
+   "alan": "Yapay Zekâ",
+   "metin": "Yapay Sinir Ağları ile farklı verilerle yanlış öğrenmenin gerçekleşip gerçekleşmeyeceğini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.5.13",
+   "alan": "Yapay Zekâ",
+   "metin": "Türkiye’de 2021-2025 Ulusal Yapay Zekâ Stratejisi’nin yürürlüğe girdiğini öğrenir.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Yapay Sinir Hücresi ve Yapay Sinir Ağları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 95,
+    "pdfSayfa": 98,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler etmen tabanlı modelleme kavramını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, etmen modelleme üzerine problem çözümleri tasarlayarak uygular.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler etmen tabanlı modellemenin çözüm süreçlerini yorumlamayı kavrar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler birbirleriyle etkileşen etmenlerle problem çözümü üretme yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, etmen, çevre, dönüt, çoklu-etmen gibi kavramları anlar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak tipik bir etmen tabanlı çözüme yönelik program kodunu yazabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.7",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilinde etmen tabanlı modelleme için kullanılan kütüphane fonksiyonlarını kullanma yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.8",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, örnek bir probleme göre etmen tabanlı modelleme yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.9",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler etmen tabanlı çözüm gerektiren problem için model tasarlar ve bu modeli çözüm yönünde uygular.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.10",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler modelin davranışlarını değerlendirerek yorumlar.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.11",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler etmen modelli programlamanın Yapay Zekâ alanı açısından önemini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.6.12",
+   "alan": "Yapay Zekâ",
+   "metin": "Bir sonraki zeki optimizasyon konusuna temel olan bilgiyi (etmen mantığı) kazanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Etmen Tabanlı Modelleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 119,
+    "pdfSayfa": 122,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler optimizasyon kavramını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler optimizasyon tabanlı problem modelleri tasarlayarak uygular.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler optimizasyona dayanan çözüm süreçlerini yorumlamayı kavrar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler yapay zekâ alanı kapsamındaki zeki optimizasyon yöntemini anlar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak genetik algoritma program kodunu yazabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilini kullanarak karınca koloni optimizasyonu program kodunu yazabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.7",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, örnek bir probleme göre zeki optimizasyon çözümü gerçekleştirme yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.8",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler zeki optimizasyon algoritmalarının davranışlarını değerlendirerek yorumlar.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.7.9",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler zeki optimizasyon süreçlerinin Yapay Zekâ alanı açısından önemini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Zeki Optimizasyon",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 138,
+    "pdfSayfa": 141,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.1",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler derin öğrenme model kavramını anlar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.2",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, derin öğrenme modellerini büyük veri setlerine tasarlayarak uygular.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.3",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, derin öğrenme modellerinden elde edilen sonuçları yorumlayarak kavrar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.4",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, derin öğrenme tabanlı problem çözebilme yetenekleri kazanır.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.5",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Python programlama dilinde derin öğrenme mimarileri için kullanılan kütüphane fonksiyonlarını kullanma yeteneği kazanır.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.6",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler, Konvolüsyonel sinir ağları (CNN) derin öğrenme modelinin çalışma yöntemini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.7",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler CNN tabanlı AlexNet, ResNet, GoogleNet gibi mimarilerin yapısını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.8",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler ResNet tabanlı örnek bir problem üzerinde modeli tasarlar ve bu modeli çözüm yönünde uygular.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.9",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler ResNet modelinden elde edilen sonuçları değerlendirerek yorumlar.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YZ.8.10",
+   "alan": "Yapay Zekâ",
+   "metin": "Öğrenciler Yapay Zekâ alanı açısından derin öğrenme tekniğinin önemini kavrar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Derin Öğrenme ile İleri Düzey Çözümler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 13 — Yapay Zekâ (Ortaokul)",
+    "sayfa": 158,
+    "pdfSayfa": 161,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/13_yapay_zeka_ortaokul_16022024.pdf"
+   }
+  }
+ ]
+}

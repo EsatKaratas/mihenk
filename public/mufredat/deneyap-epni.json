@@ -1,0 +1,966 @@
+{
+ "ders": "Deneyap · Elektronik Programlama ve Nesnelerin İnterneti",
+ "sinif": "Ortaokul",
+ "atolye": "Elektronik Programlama ve Nesnelerin İnterneti",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-537-2",
+ "kunye": {
+  "isbn": "978-605-312-537-2",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2023",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf",
+  "sha256": "b94433c6806fdbced6a549fa2be20269ec750b8f905abf9d3166463c88f76625"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok haftada geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.EP.1.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler gerilim, akım ve direnç tanımını yapabilir.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler direncin çalışma prensiplerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler akım ve direnç arasındaki ilişkiyi açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Blok geliştirme ortamına giriş yapabilir.",
+   "uygunluk": "performans",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Blok geliştirme ortamında basit kodlama yapabilir.",
+   "uygunluk": "performans",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Kart pinlerinin ne işe yaradığını açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler devre tahtası (breadboard) çalışma prensiplerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.1.8",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler LED ve direnç devre elemanlarının breadboard bağlantılarını yapabilir.",
+   "uygunluk": "performans",
+   "grup": "1. Bölüm · Elektronik Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 10,
+    "pdfSayfa": 19,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Kart’ın özelliklerini tanımlayabilir.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Kart üzerindeki Giriş-Çıkış pinleri hakkında bilgi sahibidir.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler “Analog/Dijital veri” ve “pinler” hakkında bilgi sahibidir.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler “buzzer” devre elemanının çalışma prensiplerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler aktif ve pasif buzzer kullanarak elektronik devreler kurabilir ve Deneyap Blok geliştirme ortamı’nda tasarlanan devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Blok geliştirme ortamı’nda değişken tanımlayıp kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Blok geliştirme ortamı’nda döngüleri ve fonksiyonları kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.2.8",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler LED küpü tasarlayabilir ve tasarlanan LED küpünü Deneyap Blok Geliştirme ortamı’nda döngü, fonksiyon ve değişkenler kullanarak programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "2. Bölüm · Temel Devre Elemanları ile Deneyap Kart ve Deneyap Blok Geliştirme Ortamı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 32,
+    "pdfSayfa": 41,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler iletken, yalıtkan ve yarı-iletken kavramlarını açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler diyot içeren elektronik devreler oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler diyot kullanarak VE/VEYA kapısı içeren devreler oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler VE/VEYA mantıksal ifadelerini kullanarak program yazabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Deneyap Kart kartın dijital girdi pinlerini kullanarak program yazabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.EP.3.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler RGB LED için gerekli elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler RGB LED içeren elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.3.8",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler if/else karar yapısını kullanarak programlama yapabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Bölüm · Deneyap Blok’ta Diyot, Kapılar ve RGB LED Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 53,
+    "pdfSayfa": 62,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler dijital ve analog girdi arasındaki farkları ve benzerlikleri açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler potansiyometre içeren elektronik devreler kurup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler LDR içeren elektronik devreler kurup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler PWM ile voltajı ayarlanabilen devreler kurup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler transistör içeren elektronik devreler kurup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler kondansatör ve akım ilişkisini açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.4.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler transistörü ve kondansatörü birlikte kullanan elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Bölüm · Dijital ve Analog Girdiler, Potansiyometre, Transistör ve Kondansatörler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 77,
+    "pdfSayfa": 86,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler seri portun nasıl çalıştığını açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler seri port ile devreden gelen veriye göre Deneyap Blok ortamında programlar geliştirebilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler kondansatörü elektronik devrelerde kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrencileri ihtiyaçlarına göre multimetreyi uygun şekilde kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.EP.5.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler rastgele değer oluşturup buna uygun kod bloğu oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler step motor içeren elektronik devreler oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler step motor içeren elektronik devrelerin programlamasını gerçekleştirebilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.8",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler joystick içeren elektronik devreler oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.9",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler joystick içeren elektronik devrelerin programlamasını gerçekleştirebilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.10",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler robot kolun elektronik devrelerini gerçekleştirebilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.5.11",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler robot kolun elektronik programlamasını oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Bölüm · Seri Portlar, Multimetre Kullanımı, Step Motor ve Joystick Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 102,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "DC motor sürmek için gerekli elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "DC motor içeren elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "2 DC motor içeren araba oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "2 DC motor içeren araba oluşturabilir programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.EP.6.5",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Mesafe sensörünü kullanabilmek için gerekli elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.6",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Mesafe sensörü içeren elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.7",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Kızılötesi sensörü kullanabilmek için gerekli elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.6.8",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Kızılötesi sensörü içeren elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "6. Bölüm · DC Motor Sürücü Devresi, Ultrasonik Mesafe ve Kızıl Ötesi Sensör Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 146,
+    "pdfSayfa": 155,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.7.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler LCD, DTH11 sıcaklık ve nem sensörü, RTC DS3231 saat modülü, PIR sensörü, mikrofon, manyetik alan sensörü, ses sensörü, alev sensörü, yanıcı gaz sensörü, toprak nem sensörü, yağmur sensörü, tilt sensörü ve tuş takımı kullanılan elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Bölüm · Akıllı Ev Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 173,
+    "pdfSayfa": 182,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.7.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler DTH11 sıcaklık ve nem sensörü, RTC DS3231 saat modülü, PIR sensörü, mikrofon, manyetik alan sensörü, alev sensörü, yanıcı gaz sensörü, toprak nem sensörü, yağmur sensörü, tilt sensörü ve tuş takımı kullanılan elektronik devreleri programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Bölüm · Akıllı Ev Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 173,
+    "pdfSayfa": 182,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.7.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler sensörlerden alınan verileri LCD’de görebilmek için gerekli elektronik devreleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Bölüm · Akıllı Ev Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 173,
+    "pdfSayfa": 182,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.7.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler sensörlerden alınan verileri LCD’de görebilmek için gerekli programları oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "7. Bölüm · Akıllı Ev Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 173,
+    "pdfSayfa": 182,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.8.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler “RC522 RFID NFC” kiti kullanılan elektronik devreleri oluşturabilir ve programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "8. Bölüm · Nesnelerin İnternetine Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 197,
+    "pdfSayfa": 206,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.8.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Nesnelerin interneti (IOT) ile ilgili elektronik devreler oluşturup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "8. Bölüm · Nesnelerin İnternetine Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 197,
+    "pdfSayfa": 206,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.8.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler sensörlerden alınan verilerin internete aktarımını sağlamak için gerekli elektronik devreleri oluşturup programlayabilir.",
+   "uygunluk": "performans",
+   "grup": "8. Bölüm · Nesnelerin İnternetine Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 197,
+    "pdfSayfa": 206,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.8.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Nesnelerin interneti (IOT) ile ilgili internet tabanlı uygulamaları düzenleyebilir ve geliştirdikleri devrelere entegre edebilir.",
+   "uygunluk": "performans",
+   "grup": "8. Bölüm · Nesnelerin İnternetine Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 197,
+    "pdfSayfa": 206,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.9.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "TP 223 dokunma sensörü, TCS34725 renk sensörü ve Deneyap Kart üzerinde bulunan Bluetooth modülü kullanılan elektronik devreleri oluşturup gerekli kodları Deneyap Blok ortamında oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "9. Bölüm · Bluetooth ile Bonibon Sayıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 220,
+    "pdfSayfa": 229,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.10.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Öğrenciler Arduino IDE kodlama ortamını kullanarak temel seviyede program yazıp çalıştırabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Bölüm · Metin Tabanlı Ortamda Elektronik Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 249,
+    "pdfSayfa": 258,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf",
+    "tekrarSayfalari": [
+     279
+    ]
+   }
+  },
+  {
+   "kod": "DNY.EP.10.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Değişkenleri, koşul ifadelerini, döngüleri ve iç içe döngüleri Arduino IDE kodlama ortamında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Bölüm · Metin Tabanlı Ortamda Elektronik Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 249,
+    "pdfSayfa": 258,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf",
+    "tekrarSayfalari": [
+     279
+    ]
+   }
+  },
+  {
+   "kod": "DNY.EP.10.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında buzzer ve LCD kullanımı ile ilgili komutları kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Bölüm · Metin Tabanlı Ortamda Elektronik Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 249,
+    "pdfSayfa": 258,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.10.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında buzzer ve LCD kullanarak açık uçlu problemleri çözebilir.",
+   "uygunluk": "performans",
+   "grup": "10. Bölüm · Metin Tabanlı Ortamda Elektronik Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 249,
+    "pdfSayfa": 258,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.11.1",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında joystick verilerini seri port ekranına aktarabilir ve programlarında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Joystick ve LCD ile Kendi Oyunumu Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 279,
+    "pdfSayfa": 288,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.11.2",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında LCD kullanımı ile ilgili komutları kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Joystick ve LCD ile Kendi Oyunumu Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 279,
+    "pdfSayfa": 288,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.11.3",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında dizileri kullanarak LCD ekran görünümlerini biçimlendirebilir.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Joystick ve LCD ile Kendi Oyunumu Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 279,
+    "pdfSayfa": 288,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.EP.11.4",
+   "alan": "Elektronik Programlama ve Nesnelerin İnterneti",
+   "metin": "Arduino IDE kodlama ortamında joystickten gelen verileri kullanarak LCD ekran görünümlerini biçimlendirebilir.",
+   "uygunluk": "performans",
+   "grup": "11. Bölüm · Joystick ve LCD ile Kendi Oyunumu Tasarlıyorum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 21 — Elektronik Programlama ve Nesnelerin İnterneti (EPNİ): Ortaokul EPNİ Modülleri",
+    "sayfa": 279,
+    "pdfSayfa": 288,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/21_Elektronik_Programlama_ve_Nesnelerin_İnterneti_EPNI_ortaokulY_1602024.pdf"
+   }
+  }
+ ]
+}

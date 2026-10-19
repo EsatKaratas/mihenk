@@ -1,0 +1,969 @@
+{
+ "ders": "Deneyap · Tasarım ve Üretim",
+ "sinif": "Ortaokul",
+ "atolye": "Tasarım ve Üretim",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-437-5",
+ "kunye": {
+  "isbn": "978-605-312-437-5",
+  "yayimTarihi": "2023",
+  "guncellenme": "Ocak 2025",
+  "telif": "© TÜBİTAK, 2021",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+  "sha256": "0bccf30fc62c939cd701fcbd2ba7a22b489c0dbc7e3d3e3a0bb220c15ca818d1"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok haftada geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.TU.1.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Malzeme çeşitlerini ve prototip yöntemlerinin tanımlarını söyler.",
+   "uygunluk": "yazili",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.1.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Malzeme ve prototip yöntemleri arasındaki ilişkiyi kavrar.",
+   "uygunluk": "yazili",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.1.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Gündelik hayatta karşılaşılabilecek ürünlerde kullanılan malzemelere ve üretim yöntemlerine dönük çıkarımda bulunur.",
+   "uygunluk": "yazili",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.1.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Malzeme çeşitlerine ve prototip yöntemlerine ilişkin edindiği bilgileri ödül heykelciği yapımında kullanır.",
+   "uygunluk": "performans",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.1.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Malzeme ve prototip yöntemlerinin tasarım ve üretim dersi kapsamında öneminin farkında olur.",
+   "uygunluk": "surec",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.1.6",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üretim çalışmalarında hedeflenen tasarıma ulaşmak için sebatla çalışmada kararlılık gösterir.",
+   "uygunluk": "surec",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     58,
+     69,
+     209,
+     218
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.1.7",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üretim sürecindeki çeşitliliğin farkında olur.",
+   "uygunluk": "surec",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.1.8",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Projenin temel amacını gerçekleştirebilmek üzere, gerekli makineleri kendi becerilerine göre en uygun düzeyde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     209
+    ]
+   },
+   "boyut": "psikomotor"
+  },
+  {
+   "kod": "DNY.TU.1.9",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Motor görevleri içeren gerekli makine ve malzemeleri kullanmayı gerektiren aktiviteler yaparken görsel-motor becerileri etkili bir şekilde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Üretim ve Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 43,
+    "pdfSayfa": 53,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "psikomotor"
+  },
+  {
+   "kod": "DNY.TU.2.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki boyutlu modelleme yöntemlerini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "CAD Uygulamalarına Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 58,
+    "pdfSayfa": 68,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.2.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki boyutlu modelleme yöntemlerinin kullanımını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "CAD Uygulamalarına Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 58,
+    "pdfSayfa": 68,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.2.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki boyutlu modelleme yöntemine ilişkin edindiği bilgileri ödül heykelciği kutu modellemesinde kullanır.",
+   "uygunluk": "performans",
+   "grup": "CAD Uygulamalarına Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 58,
+    "pdfSayfa": 68,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.3.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üç boyutlu modelleme yöntemlerini tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "CAD ile Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 69,
+    "pdfSayfa": 79,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.3.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üç boyutlu modelleme yöntemlerinin kullanımını kavrar.",
+   "uygunluk": "yazili",
+   "grup": "CAD ile Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 69,
+    "pdfSayfa": 79,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.3.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üç boyutlu modelleme yöntemine ilişkin edindiği bilgileri satranç parçalarının üç boyutlu modellemesinde kullanır.",
+   "uygunluk": "performans",
+   "grup": "CAD ile Prototipleme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 69,
+    "pdfSayfa": 79,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.4.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki boyutlu çizim uygulamalarını bilir.",
+   "uygunluk": "yazili",
+   "grup": "Uygulama: Oyuncak Araba",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 78,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.4.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üç boyutlu modelleme yöntemlerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "Uygulama: Oyuncak Araba",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 78,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.4.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki boyutlu çizim ile üç boyutlu çizim arasındaki farkları açıklar.",
+   "uygunluk": "yazili",
+   "grup": "Uygulama: Oyuncak Araba",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 78,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.4.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "İki ve üç boyutlu çizim uygulamaları yapar.",
+   "uygunluk": "performans",
+   "grup": "Uygulama: Oyuncak Araba",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 78,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.4.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üç boyutlu modelleme yöntemine ilişkin edindiği bilgileri oyuncak arabanın üç boyutlu modellemesinde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Uygulama: Oyuncak Araba",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 78,
+    "pdfSayfa": 88,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.5.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarımın temel kavramlarını bilir.",
+   "uygunluk": "yazili",
+   "grup": "Tasarım Odaklı Düşünmeye (TOD) Giriş ve Empati",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 167,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.5.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarım odaklı düşünmeyi bir süreç olarak kavrar.",
+   "uygunluk": "yazili",
+   "grup": "Tasarım Odaklı Düşünmeye (TOD) Giriş ve Empati",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 167,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.5.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarım odaklı düşünmenin basamaklarını örnek bir proje tasarlamak üzere kullanır.",
+   "uygunluk": "performans",
+   "grup": "Tasarım Odaklı Düşünmeye (TOD) Giriş ve Empati",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 167,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.5.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarım odaklı düşünmenin öneminin farkında olur.",
+   "uygunluk": "surec",
+   "grup": "Tasarım Odaklı Düşünmeye (TOD) Giriş ve Empati",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 167,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.5.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarımın doğasında var olan karmaşıklığın farkında olur.",
+   "uygunluk": "surec",
+   "grup": "Tasarım Odaklı Düşünmeye (TOD) Giriş ve Empati",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 167,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     166,
+     175
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.6.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Gerçek hayatta karşılaştığı problemleri fark eder.",
+   "uygunluk": "performans",
+   "grup": "TOD: Tanımlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 166,
+    "pdfSayfa": 176,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.6.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Probleme insan odaklı yaklaşır.",
+   "uygunluk": "performans",
+   "grup": "TOD: Tanımlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 166,
+    "pdfSayfa": 176,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     175,
+     189
+    ]
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.6.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Hedef kitlenin ihtiyaçlarına ve beklentilerine yönelik içgörü geliştirerek empati kazanır.",
+   "uygunluk": "performans",
+   "grup": "TOD: Tanımlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 166,
+    "pdfSayfa": 176,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.6.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tespit ettiği problem durumlarını çok boyutlu (ekonomik, toplumsal, çevresel, vb.) bir tasarım problemi olarak tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "TOD: Tanımlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 166,
+    "pdfSayfa": 176,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     175
+    ]
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.6.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarımda insan odaklı düşünmenin önemini benimser.",
+   "uygunluk": "surec",
+   "grup": "TOD: Tanımlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 166,
+    "pdfSayfa": 176,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     175,
+     189
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Yaratıcı fikir üretme yöntemlerini bilir.",
+   "uygunluk": "yazili",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.7.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Yaratıcı fikir üretme yöntemlerini probleme uygun şekilde uygular.",
+   "uygunluk": "performans",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.7.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tanımladığı tasarım problemine yönelik çeşitli çözüm önerileri geliştirir.",
+   "uygunluk": "performans",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.7.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Çözüm önerisinin etkililiğini değerlendirir, iyileştirmeye yönelik saptamalar yapar.",
+   "uygunluk": "performans",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     189
+    ]
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.7.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarım sürecinde karşılaştığı karmaşık olaylarla baş etmeye isteklilik gösterir.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     189
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.6",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarım çalışmalarında hedeflenen çözüme ulaşmak için sebatla çalışmada kararlılık gösterir.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     189
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.7",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Kendi yetenek ve yeterliklerinin farkına varır.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.8",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Ekip çalışmasında farklı fikirlere açık olur.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.9",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Bir problemin birden fazla şekilde çözülebileceğini takdir eder.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.7.10",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarımda yenilikçi ve özgün çözümlere değer verir.",
+   "uygunluk": "surec",
+   "grup": "TOD: Fikir Üretme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 175,
+    "pdfSayfa": 185,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     189
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.8.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Geliştirdiği çözüm önerilerini değerlendirip nihai bir çözüm önerisi oluşturur.",
+   "uygunluk": "performans",
+   "grup": "TOD: Prototipleme ve Test Etme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 189,
+    "pdfSayfa": 199,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.8.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Çözüm önerisini var olan malzemeleri ve araçları kullanarak üç boyutlu hâle getirir.",
+   "uygunluk": "performans",
+   "grup": "TOD: Prototipleme ve Test Etme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 189,
+    "pdfSayfa": 199,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.8.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Bir problemin birden fazla şekilde çözülebileceğini kavrar.",
+   "uygunluk": "surec",
+   "grup": "TOD: Prototipleme ve Test Etme",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 189,
+    "pdfSayfa": 199,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.9.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Kullanıcı test sonuçlarını tasarım hedefleri ışığında değerlendirip, en güçlü ürün önerisini seçer.",
+   "uygunluk": "performans",
+   "grup": "TOD: Değerlendirme ve Üretimi Planlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 203,
+    "pdfSayfa": 213,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.9.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarladığı ürünün üretim planlamasını yapmak için gereken malzeme ve yöntemleri söyler.",
+   "uygunluk": "yazili",
+   "grup": "TOD: Değerlendirme ve Üretimi Planlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 203,
+    "pdfSayfa": 213,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     209,
+     218
+    ]
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.9.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Malzeme ve üretim yöntemlerinin tasarım ve üretim dersi kapsamında öneminin farkında olur.",
+   "uygunluk": "surec",
+   "grup": "TOD: Değerlendirme ve Üretimi Planlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 203,
+    "pdfSayfa": 213,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.10.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Tasarladığı ürünün yüksek hassasiyetli prototipini yapabilmek için gerekli malzeme ve yöntemleri etkili bir şekilde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Üretim",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 209,
+    "pdfSayfa": 219,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     218
+    ]
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.10.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Üretim planlamanın önemini benimser.",
+   "uygunluk": "surec",
+   "grup": "Üretim",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 209,
+    "pdfSayfa": 219,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     218
+    ]
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.10.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Motor görevleri içeren gerekli makine ve malzemeleri kullanmayı gerektiren etkinlikler yaparken görsel-motor becerileri etkili bir şekilde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Üretim",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 209,
+    "pdfSayfa": 219,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf",
+    "tekrarSayfalari": [
+     218
+    ]
+   },
+   "boyut": "psikomotor"
+  },
+  {
+   "kod": "DNY.TU.11.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Projenin temel amacını gerçekleştirebilmek üzere, gerekli makineleri kendi becerilerine göre en uygun düzeyde kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "B Planı ve Sunuma Hazırlık",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 218,
+    "pdfSayfa": 228,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "psikomotor"
+  },
+  {
+   "kod": "DNY.TU.12.1",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Eleştiri yaparken dikkat edilmesi gereken hususları söyler.",
+   "uygunluk": "yazili",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.2",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Eleştiri yaparken uygun ifadeleri kullanır.",
+   "uygunluk": "performans",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.3",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Proje sunumunu verilen ilkeler kapsamında hazırlar.",
+   "uygunluk": "performans",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.4",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Etkili sunum yapma tekniklerini kullanır.",
+   "uygunluk": "performans",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.5",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Kendini doğru ve etkin bir biçimde ifade eder.",
+   "uygunluk": "performans",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "uygunlukNotu": "Sunum haftası: 'kendini ifade eder' sözlü sunum becerisidir",
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.6",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Proje değerlendirme sürecinde hazırlanan değerlendirme aracını doğru bir şekilde kullanır.",
+   "uygunluk": "performans",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "bilişsel"
+  },
+  {
+   "kod": "DNY.TU.12.7",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Proje sunumu yapmaya, fikirlerini paylaşmaya isteklilik gösterir.",
+   "uygunluk": "surec",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.12.8",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Eleştirinin tasarım ve üretim dersi için önemini benimser.",
+   "uygunluk": "surec",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.12.9",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Her türlü eleştiri ve değerlendirmeye açık olur.",
+   "uygunluk": "surec",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  },
+  {
+   "kod": "DNY.TU.12.10",
+   "alan": "Tasarım ve Üretim",
+   "metin": "Değerlendirmesinde tarafsız olmak, geçerli ve güvenilir bir değerlendirme yapmak için istekli olur.",
+   "uygunluk": "surec",
+   "grup": "Sunum",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 1 — Tasarım ve Üretim (Ortaokul)",
+    "sayfa": 230,
+    "pdfSayfa": 240,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/1_Tasarım_ve_Tasarım_ve_uretim_Ortaokul_17_1_2025.pdf"
+   },
+   "boyut": "duyuşsal"
+  }
+ ]
+}

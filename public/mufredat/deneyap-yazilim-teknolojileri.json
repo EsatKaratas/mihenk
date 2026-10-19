@@ -1,0 +1,719 @@
+{
+ "ders": "Deneyap · Yazılım Teknolojileri",
+ "sinif": "Ortaokul",
+ "atolye": "Yazılım Teknolojileri",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-442-9",
+ "kunye": {
+  "isbn": "978-605-312-442-9",
+  "yayimTarihi": "2023",
+  "guncellenme": null,
+  "telif": "© TÜBİTAK, 2021",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf",
+  "sha256": "f4b1d45c16cda684929caa4029d1dcdf9313977995cdc1b529a29a6ab2453f5b"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok haftada geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.YT.1.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Temel programlama terimlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.1.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bilgisayarın temel birimlerini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.1.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Veri saklama birimlerini ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.1.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Problem çözme sürecinde aritmetik, mantıksal ve karşılaştırmalı işleçleri kullanır.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.1.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Değişkenlere farklı türlerde değer ataması yapar.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.1.6",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "İkili ve onlu sayı sistemlerini kullanır.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Programlamaya Giriş",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 18,
+    "pdfSayfa": 26,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.2.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen algoritmanın temel özelliklerini analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · Algoritma Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 51,
+    "pdfSayfa": 59,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.2.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bir problemin çözümüne uygun farklı algoritmalar tasarlar.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Algoritma Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 51,
+    "pdfSayfa": 59,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.2.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bir problemin çözümüne uygun algoritmanın akış şemasını oluşturur.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Algoritma Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 51,
+    "pdfSayfa": 59,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.2.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bir problemin çözümüne uygun algoritmanın akış şemasını bilgisayar ortamında çizer.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Algoritma Tasarımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 51,
+    "pdfSayfa": 59,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.3.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen algoritmada temel kavramları analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Algoritmada Değişkenler ve Değerleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 83,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.3.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "İhtiyaç duyulan algoritmayı tasarlar.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Algoritmada Değişkenler ve Değerleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 83,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.3.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bir problemin çözümünde değişkenleri kullanır.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Algoritmada Değişkenler ve Değerleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 83,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.3.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen algoritmanın akış diyagramını sözde koda dönüştürür.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Algoritmada Değişkenler ve Değerleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 83,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.3.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen algoritmanın akış diyagramındaki değişkenleri ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Algoritmada Değişkenler ve Değerleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 75,
+    "pdfSayfa": 83,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.4.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Değişken isimlendirirken uyulması gereken kuralları uygular.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.4.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Bir algoritmadaki sabitleri ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.4.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Veri tipine uygun veri tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.4.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ temel giriş/çıkış akışlarını analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.4.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Operatörleri bir algoritma içinde kullanarak sonucunu yordar.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · C++ Dilinde Değişken ve Veri Tipleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 98,
+    "pdfSayfa": 106,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.5.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlama dilinde tekli karar yapısını kullanarak programı test eder.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Karar Mantık Yapıları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 128,
+    "pdfSayfa": 136,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.5.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlama dilinde çoklu karar yapısını kullanarak programı test eder.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Karar Mantık Yapıları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 128,
+    "pdfSayfa": 136,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.5.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlama dilinde iç içe karar yapısını kullanarak programı test eder.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Karar Mantık Yapıları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 128,
+    "pdfSayfa": 136,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.6.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Problem çözme süreçlerinde döngü yapılarını kullanarak algoritma tasarlar.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Döngü Yapıları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 142,
+    "pdfSayfa": 150,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.6.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Problem çözümünde döngü yapısını kullanır.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Döngü Yapıları",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 142,
+    "pdfSayfa": 150,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlamada dizi kavramını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlamada tek boyutlu ve çok boyutlu dizileri kullanır.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlamada dizilere farklı türde değerler atar.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Dizileri döngü içinde kullanır.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Karşılaşılan problemlere dizileri kullanarak çözüm üretir.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.7.6",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Diziler ve katarlar arasındaki farkı ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Diziler ve Katarlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 157,
+    "pdfSayfa": 165,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.8.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen problemin çözümü için fonksiyon tanımlar.",
+   "uygunluk": "yazili",
+   "grup": "8. Hafta · Fonksiyonlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 185,
+    "pdfSayfa": 193,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.8.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen problemin çözümü için fonksiyon içeren programlar geliştirir.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Fonksiyonlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 185,
+    "pdfSayfa": 193,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.8.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Verilen problemin çözümünde fonksiyon çağırma kodunu geliştirir.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Fonksiyonlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 185,
+    "pdfSayfa": 193,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlama dilinde nesne yönelimli programlama mantığını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Nesne yönelimli programlamayı prosedürel programlamadan ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Nesne yönelimli programlamanın avantaj ve dezavantajlarını ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Nesne ve sınıf kavramlarını analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Nesne yönelimli programlamada erişim belirteçlerini analiz eder.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.6",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Günlük hayatta karşılaştığı problemlerle ilgili fonksiyon oluşturma işlemini gerçekleştirir.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.9.7",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "C++ programlamada sınıf ve nesne tanımlamasını farklı durumlarda uygular.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Nesneler",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 201,
+    "pdfSayfa": 209,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.10.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Yapıcı ve yıkıcı fonksiyon arasındaki farkı ayırt eder.",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Nesne Yönelimli Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 220,
+    "pdfSayfa": 228,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.10.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Yapıcı fonksiyonları kullanarak program geliştirir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Nesne Yönelimli Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 220,
+    "pdfSayfa": 228,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.10.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Yıkıcı fonksiyonları kullanarak program geliştirir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Nesne Yönelimli Programlama",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 220,
+    "pdfSayfa": 228,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.1",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Program içinde karakter kütüphanesi kullanarak sonucu test eder.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.2",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Program içinde katar kütüphanesi kullanarak sonucu test eder.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.3",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Dosyalama işleminin gerekliliğini açıklar.",
+   "uygunluk": "yazili",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.4",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Dosya kütüphanesi kullanarak program geliştirir.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.5",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Dosya okuma işlemlerini içeren program tasarlar.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  },
+  {
+   "kod": "DNY.YT.11.6",
+   "alan": "Yazılım Teknolojileri",
+   "metin": "Dosya yazma işlemlerini içeren program tasarlar.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · C++ Programlama Dilinde Kütüphane Kullanımı ve Dosyalama İşlemleri",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 7 — Yazılım Teknolojileri (Ortaokul)",
+    "sayfa": 242,
+    "pdfSayfa": 250,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/7_yazilim_teknolojileri_ortaokul_16022024.pdf"
+   }
+  }
+ ]
+}

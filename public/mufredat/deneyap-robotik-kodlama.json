@@ -1,0 +1,797 @@
+{
+ "ders": "Deneyap · Robotik ve Kodlama",
+ "sinif": "Ortaokul",
+ "atolye": "Robotik ve Kodlama",
+ "kaynak": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul) · TÜBİTAK Bilim ve Toplum Başkanlığı · ISBN 978-605-312-535-8",
+ "kunye": {
+  "isbn": "978-605-312-535-8",
+  "yayimTarihi": "2023",
+  "guncellenme": "Ocak 2025",
+  "telif": "© TÜBİTAK, 2023",
+  "yayinci": "TÜBİTAK Bilim ve Toplum Başkanlığı",
+  "sayfaUrl": "https://yayinlar.tubitak.gov.tr/deneyap-atolyesi",
+  "pdfUrl": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf",
+  "sha256": "4146c8ea9092031ab1975afa4f1f7669b7f39d73b38b12f4cd065eea24af7d9c"
+ },
+ "not": "Kazanım metinleri kitabın kendi kazanım bölümlerinden BİREBİR alınmıştır (tur: alinti); kaynaktaki yazım biçimi, yazım hataları dahil, değiştirilmemiştir. Aynı cümle birden çok haftada geçiyorsa bir kez kaydedilmiş, diğer sayfalar kaynak.tekrarSayfalari'nda verilmiştir. Kitap sınıf düzeyi ayırmaz: ortaokulun tamamı (5-8) için yazılmıştır. uygunluk alanı ürünün kendi sınıflandırmasıdır, müfredatın parçası değildir.",
+ "kazanimlar": [
+  {
+   "kod": "DNY.RK.1.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robot kavramını temel düzeyde açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Robot ve Algoritma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 6,
+    "pdfSayfa": 14,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.1.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler algoritma kavramını açıklar.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Robot ve Algoritma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 6,
+    "pdfSayfa": 14,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.1.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler basit algoritma örnekleri oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Robot ve Algoritma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 6,
+    "pdfSayfa": 14,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.1.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robot setini tanır.",
+   "uygunluk": "yazili",
+   "grup": "1. Hafta · Robot ve Algoritma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 6,
+    "pdfSayfa": 14,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.1.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robot setiyle yönergeye uygun robot oluşturur.",
+   "uygunluk": "performans",
+   "grup": "1. Hafta · Robot ve Algoritma",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 6,
+    "pdfSayfa": 14,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.2.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robot setini programlamak için SPIKE Prime yazılımının grafik arayüzünü kullanır.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Robotlar ile Hareket",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 21,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.2.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler orta ve büyük motoru tanır.",
+   "uygunluk": "yazili",
+   "grup": "2. Hafta · Robotlar ile Hareket",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 21,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.2.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler açı, tur sayısı, uzunluk ve çevre kavramlarını robotun hareketini sağlarken kullanır.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Robotlar ile Hareket",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 21,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.2.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robotun hareket etmesi için gerekli programlama adımlarını oluşturur.",
+   "uygunluk": "performans",
+   "grup": "2. Hafta · Robotlar ile Hareket",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 13,
+    "pdfSayfa": 21,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.3.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Hub ekranının özelliklerini ifade edebilir.",
+   "uygunluk": "yazili",
+   "grup": "3. Hafta · Işık, Ses ve Müzik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 31,
+    "pdfSayfa": 39,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.3.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Hub ekranının istenilen şekilde görünmesi için gerekli blokları program akışında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Işık, Ses ve Müzik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 31,
+    "pdfSayfa": 39,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.3.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "İstenilen seslerin oluşturulması için gerekli blokları program akışında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Işık, Ses ve Müzik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 31,
+    "pdfSayfa": 39,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.3.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "İstenilen müziklerin oluşturulması için gerekli blokları program akışında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Işık, Ses ve Müzik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 31,
+    "pdfSayfa": 39,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.3.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Hub ekranın görüntüsünün düzenlenmesi, ilgili seslerin/müziğin oluşturulması ve robotun senkronize bir şekilde hareket edebilmesi için gerekli blokları program akışında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "3. Hafta · Işık, Ses ve Müzik",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 31,
+    "pdfSayfa": 39,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler kuvvet kavramını ifade edebilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler kuvvet sensörünün basılma, sert basılma ve bırakılma durumlarını, program akışında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler kuvvet sensörü kullanarak, kuvvet ölçümü yapabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler kuvvet sensörü ile ölçülen değerleri, robotun motor gücü girdisi olarak kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler sensörlerden aktarılan verilerin grafiğini çizdirebilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.6",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler farklı hızlarda ilerleyen robotun, çarpışma anında oluşturduğu kuvveti inceleyebilir.",
+   "uygunluk": "performans",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.4.7",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler birden fazla değişkenin grafiklerini yorumlayabilir.",
+   "uygunluk": "yazili",
+   "grup": "4. Hafta · Kuvvet Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 47,
+    "pdfSayfa": 55,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.5.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler, mesafe sensörünün çalışma mantığını ve kullanma yöntemlerini ifade eder.",
+   "uygunluk": "yazili",
+   "grup": "5. Hafta · Mesafe Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 63,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.5.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler, mesafe sensörünü farklı amaçlar için programlama adımlarını oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Mesafe Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 63,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.5.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler, robotun farklı mesafelerdeki nesnelere göre davranması (hareket etmesi, ses çıkarması, hızını ayarlaması, Hub ekranında farklı simgeler göstermesi) için gerekli programlama adımlarını oluşturabilir.",
+   "uygunluk": "performans",
+   "grup": "5. Hafta · Mesafe Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 63,
+    "pdfSayfa": 71,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.6.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler hareket sensörünün nasıl çalıştığını ifade edebilirler.",
+   "uygunluk": "yazili",
+   "grup": "6. Hafta · Hareket Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 81,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.6.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler hareket sensörü ile farklı eksenlerdeki dönme açısını tespit ederek program içerisinde kullanabilirler.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Hareket Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 81,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.6.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robotun herhangi bir eksende istenilen açı miktarında dönmesini sağlayabilirler.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Hareket Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 81,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.6.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler Hub’ın herhangi bir yönünün yukarıda olması koşulunu mantık işlemlerinde ve program yığıtlarının başlatılmasında kullanabilirler.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Hareket Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 81,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.6.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler Hub’ın sallanama, tıklatılma ve düşme durumlarını koşullarda ve yığıtların başlatılmasında kullanabilirler.",
+   "uygunluk": "performans",
+   "grup": "6. Hafta · Hareket Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 73,
+    "pdfSayfa": 81,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.RK.7.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler renk sensörünün nasıl çalıştığını anlatabilirler.",
+   "uygunluk": "yazili",
+   "grup": "7. Hafta · Renk Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 100,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.7.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler renk algılama ve yansıyan ışığı ölçme özelliklerinin nasıl kullanıldığını gösterebilirler.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Renk Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 100,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.7.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robotun sensörün önündeki renge göre işlem yapması için gerekli program bloklarını oluşturabilirler.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Renk Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 100,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.7.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler yansıyan ışığa göre robotun hareketlerini düzenlemeyi, yerdeki izleri takip edebilmesini veya renklerine göre nesneleri sayabilmesini sağlamak için gerekli programları oluşturabilirler.",
+   "uygunluk": "performans",
+   "grup": "7. Hafta · Renk Sensörü",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 92,
+    "pdfSayfa": 100,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.8.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler farklı sensörleri bir arada kullanabilirler.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Sensörlerin Birlikte Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 103,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.8.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler farklı sensörlerden alınan verileri kullanarak çözümler üretebilirler.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Sensörlerin Birlikte Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 103,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.8.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler “Ve”, “Veya” ve “Değil” mantık operatörlerini kullanabilirler.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Sensörlerin Birlikte Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 103,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.8.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler mesaj bloklarını kullanarak program akışını düzenleyebilirler.",
+   "uygunluk": "performans",
+   "grup": "8. Hafta · Sensörlerin Birlikte Kullanımı",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 103,
+    "pdfSayfa": 111,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.9.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler sensörler aracılığıyla okunan veriler üzerinde işlemler gerçekleştirebilirler.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.9.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler hata kavramını açıklayabilirler.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.9.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler belirlenen bir koşul için hatayı hesaplayabilirler.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.9.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler hesaplanan hata için düzetmeyi belirleyebilirler.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.RK.9.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler oransal algoritmayı kendi cümleleri ile ifade edebilirler.",
+   "uygunluk": "yazili",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.9.6",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler uygun problemler için oransal programlar hazırlayabilirler.",
+   "uygunluk": "performans",
+   "grup": "9. Hafta · Oransal Programlar",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 122,
+    "pdfSayfa": 130,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.10.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler blok kavramını açıklayabilir.",
+   "uygunluk": "yazili",
+   "grup": "10. Hafta · Bloklarım",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 134,
+    "pdfSayfa": 142,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.10.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler blok oluşturup programların kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Bloklarım",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 134,
+    "pdfSayfa": 142,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.RK.10.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler bloklara veri gönderme işlemini tanımlayıp bu blokları programlarında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Bloklarım",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 134,
+    "pdfSayfa": 142,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.10.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrencilere bloklara birden fazla veri gönderme işlemini tanımlayıp bu blokları programlarında kullanabilir.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Bloklarım",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 134,
+    "pdfSayfa": 142,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.RK.10.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Öğrenciler robota sayı girişi için gerekli programı oluşturabilirler.",
+   "uygunluk": "performans",
+   "grup": "10. Hafta · Bloklarım",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 134,
+    "pdfSayfa": 142,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.11.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Proje ekibini oluşturur.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 143,
+    "pdfSayfa": 151,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.11.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Gerçek hayat problemlerini belirler.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 143,
+    "pdfSayfa": 151,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.11.3",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Yenilikçi fikirler üretir.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 143,
+    "pdfSayfa": 151,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.11.4",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Seçilen probleme tasarlanan robotlar ile çözüm üretir.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 143,
+    "pdfSayfa": 151,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  },
+  {
+   "kod": "DNY.RK.11.5",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Bir probleme yönelik çözüm önerilerini prototipe dönüştürür.",
+   "uygunluk": "performans",
+   "grup": "11. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 143,
+    "pdfSayfa": 151,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf",
+    "tekrarSayfalari": [
+     145
+    ]
+   }
+  },
+  {
+   "kod": "DNY.RK.12.1",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Prototipe çalışmasını test eder.",
+   "uygunluk": "performans",
+   "grup": "12. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 153,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   },
+   "not": "Kaynaktaki yazım aynen korunmuştur (kitapta böyle basılmış)."
+  },
+  {
+   "kod": "DNY.RK.12.2",
+   "alan": "Robotik ve Kodlama",
+   "metin": "Projenin aşamalarını sunar.",
+   "uygunluk": "performans",
+   "grup": "12. Hafta · Proje Hazırlıyoruz",
+   "tur": "alinti",
+   "kaynak": {
+    "kitap": "TÜBİTAK Deneyap Kitapları 19 — Robotik ve Kodlama: Sözcük Blokları (Ortaokul)",
+    "sayfa": 145,
+    "pdfSayfa": 153,
+    "url": "https://yayinlar.tubitak.gov.tr/themes/classic/assets/img/dummies/pdf/19_Robotik_ve_Kodlama_Ortaokul_sozcuk_2025_01_15_Kitap.pdf"
+   }
+  }
+ ]
+}
