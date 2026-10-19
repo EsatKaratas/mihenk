@@ -1439,6 +1439,21 @@
   .suphe-aciklama.suphe-yuksek { background: var(--critical-soft); border-left-color: var(--critical); }
   .suphe-aciklama.suphe-orta { background: var(--warning-soft); border-left-color: var(--warning); }
   .suphe-sayac { align-self: center; font-size: 11.5px; color: var(--text-muted); }
+  /* §56 (A7) — YZ önerisi ↔ nihai puan raporu. */
+  .karar-rapor { margin-top: 16px; }
+  .karar-ozet { font-size: 13px; margin-bottom: 10px; line-height: 1.6; }
+  .karar-tablo { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .karar-tablo th, .karar-tablo td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+  .karar-tablo th { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+  .karar-tablo td.tabular { text-align: right; white-space: nowrap; }
+  .karar-dagilim-bas { margin: 14px 0 4px; font-size: 12px; font-weight: 700; }
+  .karar-dagilim { width: 100%; max-width: 360px; height: auto; display: block; }
+  .karar-dagilim .kd-etiket { font-size: 11px; fill: var(--text-muted); text-anchor: end; }
+  .karar-dagilim .kd-deger { font-size: 11px; fill: var(--text); font-weight: 600; }
+  .karar-dagilim .kd-cubuk { fill: var(--accent); }
+  .karar-dagilim .kd-cubuk.kd-aynen { fill: var(--success); }
+  .karar-sinir { margin: 10px 0; padding: 8px 11px; border-radius: 8px; font-size: 12px; line-height: 1.55;
+    background: var(--surface-2); border-left: 3px solid var(--border-strong); }
   /* "denetlenmedi" ≠ "temiz": denetim durumu nötr bilgi satırı, şüphe değil. */
   .denetim-durum { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0 8px;
     font-size: 11.5px; color: var(--text-muted); }

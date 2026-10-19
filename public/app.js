@@ -7632,7 +7632,13 @@ function calibrationFromRecords(hamKayitlar) {
 // Öğretmenin KENDİ ekranı (Analitik sekmesi): yalnızca aktif sınavın gönderen
 // öğrencileri. Davranış §17'den bu yana DEĞİŞMEDİ — yalnızca hesap motoru
 // artık `calibrationFromRecords()` ile paylaşılıyor.
+/* §56 (A7): kayıt toplama ayrı fonksiyon — Uyum kartı ve Karar Raporu
+   AYNI kayıtları okur (ikiz toplayıcı yok). */
 function calibration() {
+  return calibrationFromRecords(calibrationKayitlari());
+}
+
+function calibrationKayitlari() {
   const gonderenler = submittedStudents();
   const kayitlar = [];
 
@@ -7655,7 +7661,7 @@ function calibration() {
     });
   });
 
-  return calibrationFromRecords(kayitlar);
+  return kayitlar;
 }
 
 /* ===========================================================================
@@ -7686,7 +7692,7 @@ function teacherExamRecords(teacherName) {
         const rub = state.rubrics[qid];
         const evq = ev[qid];
         kayitlar.push({
-          ogrenci: (ogr && ogr.name) || "öğrenci",
+          ogrenci: (ogr && ogr.name) || "öğrenci", sid: sid, qid: qid,   // §56: rapor için
           soru: q ? q.body : "(soru bulunamadı)",
           maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
           ai: Number(r.aiScore), nihai: Number(r.finalScore),
@@ -7719,6 +7725,132 @@ function teacherRoster() {
     liste.push({ name: t.name, subject: t.subject, records: t.records, demo: true });
   });
   return liste;
+}
+
+/* ===========================================================================
+   §56 (A7) — YZ ÖNERİSİ ↔ NİHAİ PUAN RAPORU
+   ===========================================================================
+   Ne YENİ: soru bazında tablo, fark dağılımı grafiği, rapor CSV'si. Ortalama
+   yön/sapma ve aynen onay ZATEN calibrationFromRecords'ta; burada yeniden
+   hesaplanmaz, aynı motor çağrılır (iki ekran birbirini yalanlayamaz).
+   DÜRÜST SINIR: öğretmen yalnız TOPLAM puan verir; kriter bazında nihai puan
+   state'te yoktur. Bu yüzden "kriter bazında fark" HESAPLANMAZ ve rapor bunu
+   açıkça yazar. Öğrenci ADI CSV'ye yazılmaz (öğrenci no) — Karar Günlüğü
+   CSV'siyle aynı ilke. */
+var kararRaporuKayitlari = {};   // rapor id -> kayıtlar (CSV düğmesi için)
+
+/** Kayıtlardan rapor: soru bazlı satırlar + fark dağılımı + genel özet. */
+function kararRaporu(kayitlar) {
+  const genel = calibrationFromRecords(kayitlar);
+  if (!genel.n) return { genel: genel, sorular: [], dagilim: [] };
+  const gruplar = {}, sira = [];
+  kayitlar.forEach(function (k) {
+    const anahtar = k.qid != null ? String(k.qid) : k.soru;
+    if (!gruplar[anahtar]) { gruplar[anahtar] = []; sira.push(anahtar); }
+    gruplar[anahtar].push(k);
+  });
+  const ort = function (d) { return d.reduce(function (a, b) { return a + b; }, 0) / d.length; };
+  const sorular = sira.map(function (a) {
+    const g = gruplar[a];
+    const farklar = g.map(function (k) { return Number(k.nihai) - Number(k.ai); });
+    const aynen = farklar.filter(function (f) { return Math.abs(f) <= 0.001; }).length;
+    return { soru: g[0].soru, maxScore: g[0].maxScore, n: g.length,
+      ortAi: ort(g.map(function (k) { return Number(k.ai); })),
+      ortNihai: ort(g.map(function (k) { return Number(k.nihai); })),
+      ortFark: ort(farklar), aynen: aynen, revize: g.length - aynen };
+  });
+  /* Dağılım kutuları puan cinsinden; sınır değerleri tahmin değil, okunurluk
+     için sabit tamsayı aralıklarıdır (eşik/karar YOK, yalnız gösterim). */
+  const kutular = [
+    { ad: "≤ −3", f: function (x) { return x <= -3; } },
+    { ad: "−2 … −1", f: function (x) { return x > -3 && x < -0.001; } },
+    { ad: "0 (aynen)", f: function (x) { return Math.abs(x) <= 0.001; } },
+    { ad: "+1 … +2", f: function (x) { return x > 0.001 && x < 3; } },
+    { ad: "≥ +3", f: function (x) { return x >= 3; } },
+  ];
+  const farklar = kayitlar.map(function (k) { return Number(k.nihai) - Number(k.ai); });
+  const dagilim = kutular.map(function (b) { return { ad: b.ad, adet: farklar.filter(b.f).length }; });
+  return { genel: genel, sorular: sorular, dagilim: dagilim };
+}
+
+/** Fark dağılımı: basit yatay çubuk SVG (renk = mevcut belirteçler). */
+function kararDagilimSvg(dagilim) {
+  const enCok = Math.max.apply(null, dagilim.map(function (d) { return d.adet; }).concat([1]));
+  const SOL = 74, GEN = 220, SATIR = 22;
+  const H = dagilim.length * SATIR + 6;
+  return '<svg class="karar-dagilim" viewBox="0 0 ' + (SOL + GEN + 40) + " " + H + '" role="img" ' +
+    'aria-label="Öğretmen nihai puanı eksi yapay zekâ önerisi: fark dağılımı">' +
+    dagilim.map(function (d, i) {
+      const y = i * SATIR + 3, w = Math.round(d.adet / enCok * GEN);
+      return '<text x="' + (SOL - 6) + '" y="' + (y + 14) + '" class="kd-etiket">' + escapeHtml(d.ad) + "</text>" +
+        '<rect x="' + SOL + '" y="' + y + '" width="' + Math.max(w, d.adet ? 2 : 0) + '" height="16" rx="3" class="kd-cubuk' +
+        (/aynen/.test(d.ad) ? " kd-aynen" : "") + '"><title>' + escapeHtml(d.ad + ": " + d.adet) + "</title></rect>" +
+        '<text x="' + (SOL + w + 6) + '" y="' + (y + 13) + '" class="kd-deger">' + d.adet + "</text>";
+    }).join("") + "</svg>";
+}
+
+/** Rapor kartı. id: "ogretmen" | "yonetici"; kapsam: başlık altı açıklaması. */
+function kararRaporuHtml(id, kayitlar, kapsam) {
+  kararRaporuKayitlari[id] = kayitlar;
+  const r = kararRaporu(kayitlar);
+  const g = r.genel;
+  const bas = '<div class="card karar-rapor"><div class="card-head"><h3>YZ Önerisi ↔ Nihai Puan Raporu</h3>' +
+    '<span class="hint">' + escapeHtml(kapsam) + "</span></div>";
+  if (!g.n) {
+    return bas + '<div class="empty-state">Henüz öğretmen onayından geçmiş bir yapay zekâ puan önerisi yok.</div></div>';
+  }
+  const yuzde = function (a, n) { return n ? Math.round(a / n * 100) : 0; };
+  const tablo = '<div class="table-wrap"><table class="karar-tablo"><thead><tr>' +
+    "<th>Soru</th><th>n</th><th>Ort. YZ</th><th>Ort. nihai</th><th>Ort. fark</th><th>Aynen</th><th>Revize</th>" +
+    "</tr></thead><tbody>" + r.sorular.map(function (s) {
+      return "<tr><td>" + escapeHtml(truncate(s.soru, 70)) + (s.maxScore ? ' <span class="lbl-hint">/ ' + s.maxScore + "</span>" : "") + "</td>" +
+        '<td class="tabular">' + s.n + '</td><td class="tabular">' + ondalikTr(s.ortAi, 1) + '</td><td class="tabular">' +
+        ondalikTr(s.ortNihai, 1) + '</td><td class="tabular">' + (s.ortFark > 0.001 ? "+" : "") + ondalikTr(s.ortFark, 1) +
+        '</td><td class="tabular">' + s.aynen + '</td><td class="tabular">' + s.revize + "</td></tr>";
+    }).join("") + "</tbody></table></div>";
+  return bas +
+    (g.guvenilir ? "" : '<div class="pill pill-warning" style="margin-bottom:10px;">Gösterge: ' + g.n +
+      " karar var; oranlar en az 5 kararda anlamlı olur.</div>") +
+    '<div class="karar-ozet tabular">' + g.n + " karar · aynen onay <b>" + g.aynenOnay + "</b> (" +
+      (g.guvenilir ? "%" + yuzde(g.aynenOnay, g.n) : "oran için az veri") + ") · revize <b>" + g.degistirilen +
+      "</b> · ortalama fark <b>" + (g.yon > 0.001 ? "+" : "") + ondalikTr(g.yon, 1) + "</b> puan (nihai − YZ)</div>" +
+    tablo +
+    '<div class="karar-dagilim-bas">Fark dağılımı <span class="lbl-hint">nihai − YZ, puan</span></div>' +
+    kararDagilimSvg(r.dagilim) +
+    '<div class="karar-sinir"><b>Ölçülemeyen:</b> kriter bazında fark. Öğretmen yalnız toplam puan veriyor; ' +
+      "kriter bazında nihai puan kaydı yok. Yapay zekânın kriter kırılımı değerlendirme kartlarında görülebilir.</div>" +
+    '<button type="button" class="btn btn-secondary btn-sm js-karar-csv" data-rapor="' + id + '">Rapor CSV indir</button>' +
+    "</div>";
+}
+
+/** Rapor CSV'si: satır satır karar (öğrenci adı YOK, öğrenci no). */
+function kararRaporuCsv(kayitlar) {
+  const bas = ["ogrenciNo", "soru", "tavan", "yzPuan", "nihaiPuan", "fark", "aynenMi", "guven"];
+  const satir = kayitlar.map(function (k) {
+    const fark = Number(k.nihai) - Number(k.ai);
+    return [k.sid != null ? k.sid : "", k.soru || "", k.maxScore != null ? k.maxScore : "", k.ai, k.nihai,
+      Math.round(fark * 100) / 100, Math.abs(fark) <= 0.001 ? "evet" : "hayır", k.confidence != null ? k.confidence : ""
+    ].map(function (h) {
+      h = String(h == null ? "" : h);
+      return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
+    }).join(";");
+  });
+  return "﻿" + bas.join(";") + "\n" + satir.join("\n");
+}
+
+function wireKararRaporu() {
+  document.querySelectorAll(".js-karar-csv").forEach(function (b) {
+    b.onclick = function () {
+      const k = kararRaporuKayitlari[b.dataset.rapor] || [];
+      auditIndir(kararRaporuCsv(k), "mihenk-yz-nihai-rapor-" + b.dataset.rapor + ".csv", "text/csv;charset=utf-8");
+    };
+  });
+}
+
+/** Yönetici: kurumdaki GERÇEK öğretmen kayıtları (örnek satırlar hariç). */
+function kurumKararKayitlari() {
+  return teacherRoster().filter(function (t) { return !t.demo; })
+    .reduce(function (a, t) { return a.concat(t.records); }, []);
 }
 
 function calibrationHtml() {
@@ -7992,6 +8124,7 @@ function teacherTab4Html() {
     '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">şubeler yan yana · kritik eşik %55</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
     calibrationHtml() +
+    kararRaporuHtml("ogretmen", calibrationKayitlari(), "bu sınav · onaylanan açık uçlu kararlar") +
     misconceptionHtml() +
     trendHtml();
 }
@@ -8125,7 +8258,7 @@ function renderTeacher() {
   if (state.teacherTab === 3) { content.innerHTML = teacherWhoamiHtml() + teacherTab3Html(); wireTeacherWhoami(); wireTeacherTab3(); }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); wireKararRaporu(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -8993,6 +9126,10 @@ function renderAdmin() {
   // SONRA (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası),
   // denetim izinden ÖNCE (karne, "bugün ne yapmalıyım" sorusuna en yakın kart).
   root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml());
+  /* §56 (A7): aynı rapor, kurum geneli. "örnek" öğretmen verisi KATILMAZ. */
+  root.insertAdjacentHTML("beforeend", kararRaporuHtml("yonetici", kurumKararKayitlari(),
+    "kurum geneli · yalnız bu sistemde gerçekten verilen kararlar (örnek öğretmen verisi hariç)"));
+  wireKararRaporu();
   wireTeacherAnalytics();
   // Yapay zeka karar gunlugu (denetim izi) — Egitim Yoneticisi gozetim rolu
   // oldugu icin buraya konuldu. Isi haritasindan SONRA eklenir cunku
@@ -10585,7 +10722,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
