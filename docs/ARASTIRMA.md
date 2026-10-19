@@ -83,7 +83,7 @@ Kaynağa karşı doğrulanıp belgelendiğinde bu bölüme ders/atölye adı, ka
 sayısı ve kaynak bağlantısıyla yazılacak. O zamana kadar Deneyap için hiçbir
 sayı verilmez.
 
-> Not: Üründe bugün bulunan 14 "Keşif" atölye kazanımı (PROGRESS §50b, §50f)
+> Not: Üründe bugün bulunan 18 "Keşif" atölye kazanımı (PROGRESS §50b'de 14, §50f'de Fizik eklenince 18)
 > kullanıcının verdiği dört ders belgesinden alındı. Bunlar resmî Deneyap
 > müfredatı **değildir** ve öyle sunulmaz.
 
