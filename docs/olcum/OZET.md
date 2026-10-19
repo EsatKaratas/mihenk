@@ -248,6 +248,11 @@ gerçek değer daha yüksek çıktı.
 
 ## 9. A5 etiketli sonuçlar — denetimlerin yakalama ve yanlış alarmı (19 Ekim 2026, W2)
 
+> **§56 güncellemesi:** aşağıdaki (2) tablosundaki **A1** ve **A1 ∪ A2** sayıları
+> ÇÖZÜCÜ İSTEMİ SÜRÜM 1'e aittir (harf önce, gerekçe sonra). Sürüm 1'in bir
+> istem tasarım hatası vardı; düzeltilmiş sürüm 2'nin sonuçları **§9.6**'da.
+> Ürünün bugünkü çözücüsü sürüm 2'dir. A2, A3, (1), (3), (4) değişmedi.
+
 **Etiketler.**
 - Birincil: W4 tek K, 113 madde (`etiket-W4.json`, `6c83bcf`) + W1 çift K, 112 madde
   (`etiket-W1.json`, `0387114`). Toplam 225 tekil ÇSS, iki aşamalı kör.
@@ -331,3 +336,59 @@ karşılaştırma istem değişikliğiyle **karışıktır**. Örneklem küçük
 - **Kapsam açığı (ürün kodu değiştirilmedi):** "ư" (U+01B0) ve "ơ" (U+01A1)
   Latin Extended-B'de; `YABANCI_ALFABE` bu bloğu kapsamıyor. Yalnız bu harfleri
   içeren bir kelime ("thư", "sư") yakalanmaz. Ayrı karar konusu.
+
+### 9.6 A1 çözücü istemi sürüm 2 — "harf önce, akıl yürütme sonra" etkisi (§56)
+
+**Bulgu (W4, Aşama 2).** A1 v1'in 15 yanlış alarmının 9'unda çözücünün
+gerekçesi doğru değeri buldu, ama BAŞKA bir harf seçti. Örnek K001: gerekçe
+"…3 saat sonra 40 bakteri", seçilen B = 60, doğru A = 40.
+
+**Kök neden.**
+- Şık sırası, harf eşlemesi ve yanıt ayrıştırması doğruydu (ham kayıt ve
+  yeniden kurulan istemle denetlendi).
+- Hata çıktı şablonundaydı: `{"secilenSik", "gerekce", …}`. Model harfi hesap
+  yapmadan yazmaya zorlanıyordu.
+
+**Kontrollü deney** (K001 istemi, llama-3.3-70b, Workers AI REST, sıcaklık 0,2):
+
+| Çıktı şablonu | Seçilen harf (3 deneme) | Sonuç |
+|---|---|---|
+| harf önce (v1) | B, B, B (60) | **3/3 yanlış**; gerekçe her seferinde "40" |
+| gerekçe önce (v2) | A, A, A (40) | **3/3 doğru**, güven 1 |
+
+**Düzeltme** (`1b8f611`, merge `3af821b`):
+- Kural 1 "önce gerekçede çöz, sonra harfi seç"; şablon sırası gerekce →
+  secilenSik → guven → cozulemedi.
+- `meta.cozucuIstemSurumu = 2`.
+- Üretim istemi ve MEB parmak izi değişmedi.
+
+**Yeniden ölçüm** (`tools/olcum/a5-cozucu-v2.mjs` → `a5/cozucu-v2.json`):
+- Aynı 225 etiketli ÇSS yeniden çözüldü (225/225 HTTP 200, 225 çapraz).
+- Üretim yeniden YAPILMADI; etiketler ve tasarım ağırlıkları aynı.
+
+| | A1 v1 yak. / y.a. | **A1 v2 yak. / y.a.** | A1∪A2 v1 | **A1v2∪A2** |
+|---|---|---|---|---|
+| **Toplam** | %43,1 / %13,4 | **%52,2 / %2,9** | %56,2 / %15,4 | **%61,1 / %5,3** |
+| A s0,5 | %42,8 / %19,1 | %50,0 / %7,7 | %55,4 / %24,9 | %60,1 / %13,4 |
+| A s0,2 | %53,3 / %8,3 | %50,3 / %1,7 | %65,1 / %11,6 | %65,1 / %5,0 |
+| B s0,5 | %39,6 / %12,7 | %59,0 / %3,3 | %44,8 / %12,7 | %61,6 / %4,9 |
+| B s0,2 | %37,6 / %14,2 | %49,1 / %0,0 | %60,7 / %14,2 | %57,8 / %0,0 |
+
+- W4'ün 9 "harf kayması" maddesinin **8'i** v2'de anahtarla uyuşuyor (K169 hariç).
+- A1 bayrağı 53 maddede değişti: v1 bayraklı → v2 bayraksız 36, tersi 17.
+- Kaçırılan kusurlu (A1 ∪ A2): v1 ≈64 → v2 **≈57** / ≈146.
+- **Yanlış alarm 13,4 → 2,9 puan.** A1 artık A2 gibi düşük yanlış alarmlı bir
+  sinyal; yakalama da arttı.
+
+**Sınır.** Tasarım ağırlıkları v1 bayraklarıyla kuruldu. v2'nin bayrakladığı
+ama v1'in bayraklamadığı maddeler bayraksız tabakadan ağırlıkla temsil
+ediliyor; bu tahmin s0,2 hücrelerinde gürültülü (tabaka başına 10 etiketli madde).
+
+**Araştırma için genel bulgu.** Bir dil modelinden yapılandırılmış çıktıyla
+karar istenirken, karar alanının akıl yürütme alanından ÖNCE gelmesi kararı
+hesaptan bağımsızlaştırabilir. Bu deneyde etki tamdı (3/3 → 3/3). Ürünün
+diğer istemlerindeki alan sırası da bu açıdan gözden geçirilmeli.
+**Açık aday (ÖLÇÜLMEDİ):** açık uçlu değerlendirme isteminde her kriterin
+içinde `"points"`, `"reason"`dan ÖNCE geliyor (`src/lib/prompts.ts`,
+`breakdown` şablonu) — aynı "karar önce" riskini taşıyabilir. Etkisi ayrı bir
+kontrollü deneyle ölçülmeden değiştirilmemeli.

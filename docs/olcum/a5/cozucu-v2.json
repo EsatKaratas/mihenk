@@ -1,0 +1,3831 @@
+{
+  "cozucuIstemSurumu": 2,
+  "uretim": "2026-10-19T10:56:17.437Z",
+  "maddeler": {
+    "K003": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Küpün hacmi 27 cm³, küpün hacmi kenar³ ile hesaplanır, 27 = 3³",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K001": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Başlangıçta 5 bakteri varsa ve her saat 2 katına artıyorsa, 1 saat sonra 5*2=10, 2 saat sonra 10*2=20, 3 saat sonra 20*2=40 bakteri olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K002": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ohm Kanunu'na göre direnç (R), akım (I) ve gerilim (V) arasında V = R * I ilişkisi vardır. Direnç arttıkça, aynı gerilimde akım azalır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K005": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanunu kullanılarak akım hesaplanır: Akım = Gerilim / Direnç. Verilen değerlerle akım = 12V / 10 ohm = 1.2 A.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K004": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "pH 3,5 olan asit çözeltisinde hidrojen iyonu konsantrasyonu 10^(-3,5) M, pH 12,5 olan baz çözeltisinde hidrojen iyonu konsantrasyonu 10^(-12,5) M. 10^(-3,5) > 10^(-12,5).",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K006": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Yazarın okuyucularının dikkatini çekmek için kullandığı yöntemlerden biri örtük ifadelerdir. Bu durumda, okuyucularının zihninde bir sahne canlandırmasını sağlayarak onların dikkatini çekiyor.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K007": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ahmet'in bisikletinin hızını bulmak için, mesafeyi (10 km) süreye (2 saat) bölüyoruz. Hız = 10 km / 2 saat = 5 km/sa.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K008": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bahçenin alanı 15m x 8m = 120m². Her metrekareye 2 litre su verilecekse, 120m² x 2 litre/m² = 240 litre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K011": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bisikletle kat edilen mesafe 10 m/s * 20 s = 200 m, koşarak kat edilen mesafe 5 m/s * t = 200 m, t = 200 / 5 = 40 s",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K010": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin çevre uzunluğu = 2*(8+5) = 26 cm. Öğrenci uzun kenarın iki katına kısa kenarın iki katını eklemiş: 2*8 + 2*5 = 16 + 10 = 26 cm.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K009": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İlk kitaptan okunan sayfa sayısı, ikinci kitaptan okunan sayfa sayısının 1,5 katıdır. İkinci kitaptan okunan sayfa sayısını x olarak kabul edersek, ilk kitaptan okunan sayfa sayısı 1,5x'dir. Ayşe'nin okuduğu toplam sayfa sayısı 120 + 80 = 200 sayfadır. x + 1,5x = 200 eşitliğini kurup x'i çözersek, x = 80 / 2,5 = 32 sayfa olur. Ancak bu değer verilen şıklarla uyuşmuyor. Deneyerek B şıkkını kontrol edelim: 60 sayfa * 1,5 = 90 sayfa. 60 + 90 = 150 sayfa. Bu da toplam sayfa sayfasından az. Deneyerek D şıkkını kontrol edelim: 50 sayfa * 1,5 = 75 sayfa. 50 + 75 = 125 sayfa. Bu da toplam sayfa sayfasından az. Deneyerek C şıkkını kontrol edelim: 40 sayfa * 1,5 = 60 sayfa. 40 + 60 = 100 sayfa. Bu da toplam sayfa sayfasından az. Son olarak A şıkkını kontrol edelim: 70 sayfa * 1,5 = 105 sayfa. 70 + 105 = 175 sayfa. Bu da toplam sayfa sayfasından az. Ancak verilen şıklar arasında en yakın olanı 80 sayfa için 1,5 katının 120 sayfasına yakın olduğu D şıkkıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K012": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bahçenin alanı 150 metrekare, uzunluğu 15 metre ise genişliği 150 / 15 = 10 metredir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K013": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Öğretmen, 'kitapların, defterlerin' gibi kelimelerin sonuna gelen 'lerin' ekinin neden kullanıldığını soruyor. Bu ek, isimlerin çoğul ve genitif (veya iyelik) hallerinde kullanılır, ancak burada öğrencilerin cevap vermesi gereken durum, genellikle iyelik veya genitif durumudur. Genitif durumunu belirtmek daha doğru olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K015": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm Kanunu'na göre I = V/R, I = 12V / 4 ohm = 3 A",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K014": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes Teoremi uygulanarak hastanın test sonucunun pozitif çıkma olasılığı hesaplanır: P(Hastalıklı ve Pozitif) = P(Hastalıklı) * P(Pozitif|Hastalıklı) = 0.02 * 0.90 = 0.018, P(Healthy ve Pozitif) = P(Healthy) * P(Pozitif|Healthy) = 0.98 * 0.10 = 0.098, P(Pozitif) = P(Hastalıklı ve Pozitif) + P(Healthy ve Pozitif) = 0.018 + 0.098 = 0.116, olasılık = 0.018 / 0.116 = 0.155.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K016": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bisikletçi başlangıçta 10 km/sa hızla gidiyor. Hızını saatte 15 kilometre artırınca yeni hızı 10 + 15 = 25 km/sa olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K017": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Köşegenin uzunluğunu hesaplamak için Pisagor teoremi kullanılır: Köşegen = √(15² + 20²) = √(225 + 400) = √625 = 25.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K018": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": true,
+      "guven": 0.6,
+      "gerekce": "Grafikte kuvvet ve zaman değerleri görülüyor, ancak konkrét değerler verilmemiş. Doğru yorumlama için grafik verisi gerekli.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K021": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Hipotenüs uzunluğunu hesaplamak için Pisagor teoremi kullanılır. c^2 = 8^2 + 15^2 = 64 + 225 = 289, c = √289 = 17",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K020": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci 120 soru * 2 dakika = 240 dakika harcayacaktır. 5 saatlik sınav süresi 5 * 60 = 300 dakikadır. 240 - 300 = -60 dakika fark var, yani 60 dakika süresi vardır. Ancak soru süresi aşımı sorduğundan 240 > 300 yanlısı ama 240 - 300 = 60 dakika yani 60 dakika aşmayacak, 60 dakika eksik.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K019": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes Teoremi formülü P(H|S) = P(S|H) * P(H) / P(S) şeklinde uygulanır. Burada P(S|H) semptom olasılığı (%80), P(H) hastalığa sahip olma olasılığı (%10) ve P(S) ise semptom olasılığıdır. P(S) = P(S|H)*P(H) + P(S|H')*P(H') olarak hesaplanır, fakat soruda verilenlere göre P(S) doğrudan verilmemiştir, bu nedenle genel form P(H|S) = (Semptom olasılığı x Hastalık olasılığı) / Semptom gösterenlerin oranı olarak anlaşılabilir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K022": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ahmet'in hızı 10 m/s, kardeşinin hızı 5 m/s'dir. Dolayısıyla Ahmet daha hızlıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K023": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "1'den 9'a kadar olan sayfalar için 9 rakam, 10'dan 99'a kadar olan sayfalar için 180 rakam ve 100'den 200'e kadar olan sayfalar için 101 rakam kullanılır, toplam 9 + 180 + 101 = 290 rakam",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K026": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanunu kullanılarak akım hesaplanır: I = V/R = 12/4 = 3 amper",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K024": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "500 mL su 20°C'de, 200 mL su 80°C'dedir. Karışımın sıcaklığı = (500*20 + 200*80) / (500 + 200) = (10000 + 16000) / 700 = 26000 / 700 = 37,14 ≈ 40°C",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K027": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki sayının değerini karşılaştırmak için eşitlik operatörü kullanılır. Bu operatör iki değerin eşit olup olmadığını kontrol eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K025": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Isı miktarı korunur. Q1 + Q2 = Qkarışım, m1*c*ΔT1 + m2*c*ΔT2 = (m1+m2)*c*ΔTkarışım, 500*20 + 200*50 = (500+200)*Tkarışım, 10000 + 10000 = 700*Tkarışım, 20000 = 700*Tkarışım, Tkarışım = 20000/700 = 28.57°C ≈ 28°C",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K028": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ayşe Hanım 3 çocuğu için 45 TL harçlık veriyor, her çocuğa 15 TL veriyor. 5 çocuğu için aynı miktarda harçlık verirse 15 TL * 5 = 75 TL verecektir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K030": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Havuzun uzunluğu 6 metre, taş yolun uzunluğu 20 metre, dikdörtgenin çevresinin toplamı 2*(uzunluk + genişlik) = 20 metre, 2*(6 + genişlik) = 20, 12 + 2*genişlik = 20, 2*genişlik = 8, genişlik = 4 metre",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K032": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik üçgenin kenar uzunlukları 8 cm ve 15 cm. Hipotenüs uzunluğu Pisagor teoremine göre sqrt(8^2 + 15^2) = sqrt(64 + 225) = sqrt(289) = 17 cm. Dolayısıyla, 8^2 + 15^2 = 17^2.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K033": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bahçenin alanı 15m x 8m = 120m². Her metrekareye 2 litre su, toplam 120m² x 2 litre/m² = 240 litre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K034": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki boyutlu çizimlerde genişlik ve yükseklik kullanılır, üç boyutlu çizimlerde ise genişlik, yükseklik ve derinlik kullanılır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K031": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre, dik üçgenin iki kısa kenarının karesi uzun kenarın karesine eşittir, 6^2 + 8^2 = 36 + 64 = 100 ve 10^2 = 100",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K036": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpımı ile bulunur. 12 * 8 = 96",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K035": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bahçenin uzunluğu 15m, genişliği 8m'dir. Yolun genişliği 2m ise yeni uzunluk 15+2*2=19m, yeni genişlik 8+2*2=12m olur. Yeni alan 19*12=228 metrekaredir, verilen şıklar arasında en yakın olanı 272-238-306-204= en yakın 238 değil,  ancak  272 metrekare.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K037": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre, dik üçgenin iki kısa kenarının karesi uzun kenarın karesine eşittir, 6^2 + 8^2 = 36 + 64 = 100 ve 10^2 = 100",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K029": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanunu kullanılarak akım şiddeti hesaplanır, I = V/R = 12/4 = 3 A",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 2,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K039": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Grafikte her bir kuvvet değeri belirli bir süre sabit kalmıştır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K040": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Doğru başlık yazımında büyük harf ve iki nokta üst üste kullanılır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K038": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "50 mililitre su 20 derece santigrat sıcaklıkta, 150 mililitre su 40 derece santigrat sıcaklıkta iken karıştırılırsa, ortalama sıcaklık (50*20 + 150*40) / 200 = 35 derece santigrat olur, en yakın şık seçildi.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K041": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "pH değeri en yüksek olan madde nötr veya bazik olur, içme suyu nötr pH değerine sahiptir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K042": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "1 kg şeker 20 / 5 = 4 TL. 2 kg şeker 4 * 2 = 8 TL.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K043": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ahmet 'a' ve 'b' değişkenlerinin toplamını ekrana yazdırmak istiyor, bu nedenle 'a + b' işlemini kullanmalıdır, sonuç 15 olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K044": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "5 kg pirinç 120 TL ise 1 kg pirinç 120/5 = 24 TL'dir, 2 kg pirinç 24 * 2 = 48 TL'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K045": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ahmet 10 km/h süratle 2 saatte gittiği yolu, aynı mesafeyi 15 km/h süratle gitmek isterse, süre = mesafe / hız formülünü kullanır. Mesafe = 10 km/h * 2 saat = 20 km, süre = 20 km / 15 km/h = 1,33 saat, yani yaklaşık 1,5 saat",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K046": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Aracın hızı 72 km/h'dir, bunu m/s'ye çevirmek için 1000 ile çarpıp 3600'e bölüyoruz, 72 * 1000 / 3600 = 20 m/s",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K049": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "8'e çeyrek kala 7.45'e denk gelir",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K047": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanunu kullanılarak lambanın çektiği akım I = V/R = 12/10 = 1,2 amper olarak hesaplanır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K048": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes Teoremi, yeni bir veri elde edildiğinde, bu verinin olasılığını güncelleyen bir teoremdir. İlacı etkili olma olasılığını hesaplamak için, ilacın etkili olma olasılığı (önceden verilen olasılık) ve ilacın etkili olmadığı halde etkili olduğu sonucunun çıkma olasılığı (testin yanlış pozitif oranı) kullanılmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K051": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bu tür ifadeler, okurların karakterin duygularını yorumlamalarına ve anlamalarına yardımcı olmak için kullanılır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K050": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "2 litre süt almak için 2 adet 1 litrelik sütün toplam fiyatı 6*2=12 TL, 2 litrelik sütün fiyatı 10 TL'dir. Ayrıca 2 adet 1 litrelik sütü 5 TL'ye almak daha ucuz.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K052": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "5 öğrenciye yetecek pizza 20 TL ise, 1 öğrenciye yetecek pizza 20 / 5 = 4 TL'dir. 3 öğrenciye yetecek pizza 4 * 3 = 12 TL'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K054": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Kuvvetsensörünün ölçtüğü değerler belirli noktalar olarak verilmiştir. Bu değerlerin grafiksel gösterimi için en uygun grafik türü nokta grafiktir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K053": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Havuzun çevresinin toplam uzunluğu 20 metre, dikdörtgenin uzun kenarları 6 metre. 2 * (6 + genişlik) = 20, 12 + 2 * genişlik = 20, 2 * genişlik = 8, genişlik = 4 metre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K055": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpılmasıyla bulunur, 12 * 4 = 48",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K057": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Örtük ifade, karakterin duygularını veya durumunu doğrudan söylemek yerine ima eder. Karakterin yüz ifadesi değişti ifadesi, karakterin duygularını ima eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K056": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Tarih ve rakam ifadelerinde nokta kullanımı sıfat bildiren sayılardan önce nokta konur. '50.' ifadesi okulun 50. yılını belirtmek için kullanılıyor.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K059": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki boyutlu çizim yalnızca genişlik ve yüksekliği olan çizimi temsil eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K058": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Dikdörtgenin çevresi 2*(10+5) = 30 cm'dir. 18 cm'lik şerit 30 cm çevreyi tam olarak saramaz.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K060": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki eşit hacimli kapta 50°C ve 10°C sıcaklığında su vardır, karıştırıldığında sıcaklık ortalaması alınır, (50+10)/2 = 30°C",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K061": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ayşe'nin hızı 5 m/s, Ela'nın hızı 3 m/s, aralarındaki mesafe 100 m, Ayşe'nin Ela'yı yakalama süresi (100 m) / (5 m/s - 3 m/s) = 100 / 2 = 50 saniye",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K063": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpılmasıyla bulunur, 12 * 4 = 48",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K062": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bisiklet 2 saatte 40 km yol alırsa, 1 saatte 40 / 2 = 20 km yol alır. 5 saatte 20 * 5 = 100 km yol alır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K066": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci tamsayı değerini atamak istiyor, bu nedenle int veri tipi uygun.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K065": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci okula gitmek için 30 dakika yürüyor. Arkadaşının evi okula 10 dakika daha yakın ise, öğrenci arkadaşının evine gitmek için 30 - 10 = 20 dakika harcar.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K064": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "2 kg elma 10 TL ise 1 kg elma 5 TL, 3 kg armut 15 TL ise 1 kg armut 5 TL. 4 kg elma 20 TL, 2 kg armut 10 TL, toplam 30 TL.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K068": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes teoremi kullanılarak e-postanın spam olma olasılığı hesaplanır, verilen olasılıklarla birlikte hesaplanan değer %60'a yakın çıkar.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K069": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Şekerin kütlesi 1 kg * 1000 gram/kg = 1000 gram, sütün kütlesi 500 mL * 1,03 g/cm³ = 500 * 1,03 gram = 515 gram, toplam kütle 1000 + 515 = 1515 gram",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K067": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Lambanın çektiği akım I = V/R = 12/10 = 1.2 amperdir. Lambanın direnci ve pilin voltajı arasındaki ilişki, direnç arttıkça akımın azalması, voltaj arttıkça akımın artmasıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K070": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Örtük ifadeler, okuyucunun düşündürmek ve hissettirmek için kullanılan ifadelerdir. 'Gözlerindeki ışık' ifadesi, direkt bir şey söylemek yerine hisleri etkilemeyi amaçlar.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K071": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre hipotenüs uzunluğunun karesi 15^2 + 8^2 = 225 + 64 = 289.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K072": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bayes Teoremi formülü P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom)'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K073": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ayşe'nin okuma hızı 200 sayfa / 4 gün = 50 sayfa/gün, Mehmet'in okuma hızı 250 sayfa / 5 gün = 50 sayfa/gün. Sayfa boyutları bilinmediğinden hızı karşılaştıramayız.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K075": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Okuyucunun zihninde görüntü oluşturmak için örtük ifadeler kullanılır. A şıkkında benzetme yoluyla örtük bir ifade kullanılmıştır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K074": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanununa göre akım (I) gerilimin (V) dirence (R) bölümüyle hesaplanır: I = V/R. Verilen değerlerle I = 10/5 = 2 amper.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K078": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanununa göre gerilim = direnç * akım, 5 ohm * 2 A = 10 V",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K077": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Okulumuzun sözcüğü, okulumuzun ait olduğu anlamına gelen bir iyelik eki içerir. Bu nedenle 'Okulumuzun' sözcüğünün doğru yazımı, aynı zamanda iyelik eki olan 'un' ile yazılmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K076": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes teoremi kullanılarak hasta olma olasılığı hesaplanır. Hasta olma olasılığı = (Pozitif test sonucu * Hastalığa yakalanma olasılığı) / (Pozitif test sonucu * Hastalığa yakalanma olasılığı + Yanlış pozitif test sonucu * Hastalığa yakalanmama olasılığı) = (0,9 * 0,1) / (0,9 * 0,1 + 0,2 * 0,9) = 0,45",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K079": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ahmet'in bisikletinin hızı 15 km/saat, sürati 10 km/saat, hızı daha yüksek olduğu için hızı kullanarak daha hızlı gidebilir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K081": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Oyuncak araba bir nesne olup, uzunluk, genişlik ve yükseklik ölçüleri vardır. Bu nedenle, tasarımını üç boyutlu çizim ile daha iyi gösterebilir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K080": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Birinci kitabın sayfa başına fiyatı 20 / 250 = 0.08 TL, ikinci kitabın sayfa başına fiyatı 25 / 300 = 0.0833 TL. Birinci kitabın sayfa başına fiyatı daha düşük.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K084": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "x > y işlemi 5 > 3 karşılaştırmasını yapar, sonuç doğrudur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K083": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpılmasıyla bulunur, 12 * 4 = 48",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K082": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bakteri sayısı her 20 dakikada ikiye katlanıyor, 1 saat 60 dakika olduğu için 3 kez katlanacak. Başlangıçta 5 bakteri varsa, 20 dakika sonra 10, 40 dakika sonra 20, 60 dakika sonra 40 bakteri olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K086": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Değişkenin veri tipi int olmalı ve 10 değerini alabilmeli, bu nedenle int deger = 10; doğru seçimdir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K087": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bugünkü kelimesi doğru yazım şekli",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K088": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ohm kanununa göre, akım iki katına çıkarsa ve direnç sabitse, voltaj da iki katına çıkarılmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K089": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "pH değeri 3 olan bir çözelti asidik özellik gösterir, çünkü pH değeri 7'nin altındadır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K085": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki boyutlu çizimler genişlik ve yükseklik içerir, üç boyutlu çizimler ise genişlik, yükseklik ve derinlik içerir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K092": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Küpün hacmi 8 cm³, küpün hacmi kenar³ ile hesaplanır, 8 cm³ = 2³",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K091": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Öğrenci, okulun başarılarını ve öğrencilerin katkılarını vurgulamak istiyor. Bu nedenle, okulun başarıları ile öğrencilerin katkıları arasında olumlu bir ilişki kurulmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K093": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Oyuncak araba tasarımı için hem genişlik, yükseklik hem de derinlik gösterilmesi gerekir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K090": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik üçgenin kenar uzunlukları a ve b, hipotenüs uzunluğu c ise, Pisagor teoremine göre a² + b² = c² dir. Bu durumda a ve b kenarlarının kareleri toplamı, c kenarının karesine eşittir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K094": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Karışımın her yerinde aynı oranda şeker ve su bulunuyorsa homojen bir karışımdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K097": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Başlangıçta 5 bakteri var, her saat 2 katına çıkıyor. 3 saat sonra 5 * 2^3 = 40 bakteri olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K095": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes teoremi kullanılarak hesaplanır: P(spam|kelime) = P(kelime|spam) * P(spam) / P(kelime), P(kelime) = P(kelime|spam) * P(spam) + P(kelime|degil) * P(degil), P(kelime) = 0,8 * 0,05 + 0,1 * 0,95 = 0,139, P(spam|kelime) = 0,8 * 0,05 / 0,139 = 0,2885, yaklaşık %29, ancak en yakın şık %30",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K098": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Karışım homojen bir karışımdır çünkü bileşenleri birbirine tamamen karışmış ve eşit oranda dağılmıştır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K096": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bakteri sayısı her 20 dakikada 2 katına çıkıyor, 1 saat 60 dakika olduğu için 3 kez 2 katına çıkacak, başlangıçta 1000 bakteri varsa 1 saat sonra 1000 * 2 * 2 * 2 = 8000 bakteri olacaktır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K099": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Okuma hızı, okunan kelime sayısının geçen süreye bölünmesiyle hesaplanır. Doğru formül: Kelime sayısı / dakika",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K101": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "5 öğrencilik pizza 15 TL, 3 öğrencilik pizza 9 TL. 4 öğrenci için 3 öğrencilik pizzayı iki kere almak 18 TL, 5 öğrencilik pizza alıp bir kişilik payı atmak 15 TL, 3 öğrencilik pizza alıp bir kişilik payı eklemek 12 TL.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K103": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Sürat, bir nesnenin ne kadar hızlı hareket ettiğini gösteren bir ölçüttür ve genellikle bir yönü yoktur. Hız ise bir nesnenin hem ne kadar hızlı hareket ettiğini hem de hangi yönde hareket ettiğini gösteren bir ölçüttür.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K100": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Başlangıçta 5 bakteri var, her saat 2 katına çıkıyor. 3 saat sonra 5 * 2^3 = 40 bakteri olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K104": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre, a² + b² = c² eşitliğinde a = 6, b = 8 değerlerini koyarsak, 6² + 8² = c², yani 36 + 64 = c², 100 = c², c = 10 metredir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K102": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Isı alışverişinde, sıcaklığı yüksek olan su sıcaklığı düşük olan suya ısı verir. Karışımın sıcaklığı (m1*c1*T1 + m2*c2*T2) / (m1*c1 + m2*c2) formülü ile bulunur, ancak sudan sudan söz edildiği için c1=c2 kabul edilir. Bu durumda formül (m1*T1 + m2*T2) / (m1 + m2) haline gelir. 500 mL suyun sıcaklığı 20°C, 200 mL suyun sıcaklığı 50°C ise, karışımın sıcaklığı (500*20 + 200*50) / (500 + 200) = (10000 + 10000) / 700 = 20000 / 700 = 28.57°C, yaklaşık 30°C.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K105": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İlk kitaptan okunan sayfa sayısı ikinci kitaptan okunan sayfa sayısından 40 fazla, diyelim ikinci kitaptan x sayfa okundu, o zaman ilk kitaptan x+40 sayfa okunmuş olur. x + (x+40) = 120 + 80 = 200 sayfa okundu, 2x + 40 = 200, 2x = 160, x = 80.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K106": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Özel isimler büyük harfle yazılır. 'Türkiye' ve 'Ankara' özel isimlerdir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K107": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Su ve tuz çözeltisi karışımı homojen bir karışım oluşturur. Elde edilen karışımın türünü belirlemek için bileşenlerin dağılımı dikkate alınmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K108": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Kuvvetsensörünün verdiği değerler 5 newton ve üzeri olduğunda robotun hareketinin yavaşlaması, sürtünme kuvvetinin artması veya robotun karşılaştığı direncin artması nedeniyle oluşur. Bu durum robotun hareketini zorlaştırır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K109": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.8,
+      "gerekce": "Bayes teoremi kullanılarak hasta olma olasılığı hesaplanır, P(H|+) = P(+|H) * P(H) / P(+). Veriler: P(H) = %10, P(+|H) = %90, P(+|H') = %20. P(+) = P(+|H) * P(H) + P(+|H') * P(H') = 0,9 * 0,1 + 0,2 * 0,9 = 0,09 + 0,18 = 0,27. P(H|+) = 0,9 * 0,1 / 0,27 = 0,333... yani %33,3. Yaklaşık olarak %30-40 arası, en yakın şık %30.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K110": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Homojen karışımlar bileşenlerinin her yerde eşit oranda dağıldığı karışımlardır. Salata heterojen bir karışım örneğidir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K111": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ayşe 15 dakika içinde 3 sayfalık metni 5 dakikada okuyabiliyorsa, 15 dakika içinde 3 sayfa * (15/5) = 9 sayfa okuyabilir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K112": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci kelimesi doğru şekilde yazıldığında 'öğrenci' olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K113": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bisiklet 2 saatte 40 km yol alırsa, 1 saatte 40 / 2 = 20 km yol alır. 5 saatte 20 * 5 = 100 km yol alır. Bu durumda doğru orantı 40 km * 5 saat / 2 saat olmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K115": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Üç boyutlu çizim için uzunluk, genişlik ve yükseklik ölçülerine ihtiyaç vardır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K116": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ahmet'in şiirinin teması doğa ve doğanın güzellikleri, cümle C bu tema ile uyumlu.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K117": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Küpün hacmi 8 cm³, küpün hacmi kenar³ ile hesaplanır, 8 cm³ = 2³ cm³, kenar uzunluğu 2 cm'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K119": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Karışımın sıcaklığı, iki suyun sıcaklıklarının ortalamasıdır, (50+10)/2 = 30°C",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K114": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Odanın çevresi 2*(6+4) = 20 metre. 20 metre perde için 20 * 0.5 = 10 litre boya gerekiyor, ancak 4 duvar var ve her duvarın 2 uzun kenarı ve 2 kısa kenarı var. Yani toplam perde uzunluğu 4*(6+4) = 40 metre. 40 * 0.5 = 20 litre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K118": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "1 kg elma 10/2 = 5 TL, 2 kg armut 15/3 * 2 = 10 TL, toplam 5 + 10 = 15 TL",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K120": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci 'a' ve 'b' değişkenlerine sırasıyla 5 ve 10 değerlerini atamış. İki sayının toplamını hesaplamak için toplama operatörü kullanmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K121": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "İlk metni okuma hızı: 150 sayfa / 3 gün = 50 sayfa/gün. İkinci metni okuma hızı: 200 sayfa / 4 gün = 50 sayfa/gün.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K122": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bahçenin çevresi 2*(15+20) = 70 metre, 2 sıra tel örgü için 70*2 = 140 metre tel örgü gerekir, maliyeti 140*5 = 700 TL",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K125": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Grafikte robotun en yüksek kuvveti 10 m/s hızında uygulandığı görülmektedir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K123": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "15 metre uzunluğundaki yol için 0,5 metrelik taşlardan 15 / 0,5 = 30 taş gerekir. Her iki tarafına da aynı sayıda taş döşeneceği için 30 / 2 = 15 taş.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K124": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Havuzun uzun kenarı 10m, kısa kenarı 5m. Yolun genişliği 1m. Yolun çevre uzunluğu = (10+2*1 + 5+2*1)*2 = (12+7)*2 = 38 metre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K126": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Saf su homojen, su ve yağ heterojen karışımdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K127": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik kenarların kareleri toplamı 5^2 + 12^2 = 25 + 144 = 169, hipotenüsün karesi de 13^2 = 169'dur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K129": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm kanununa göre, I = U/R = 12V / 4ohm = 3A",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K128": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre hipotenüsün karesi diğer iki kenarın karelerinin toplamına eşittir, bu nedenle c^2 = 5^2 + 12^2",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K130": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Sürat, bir cismin belirli bir yolun uzunluğunu ne kadar zamanda aldığı ile ilgilidir ve hızın büyüklüğüdür. Hız ise bir cismin belirli bir yolun uzunluğunu belirli bir yönde ne kadar zamanda aldığı ile ilgilidir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K132": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "2 litre süt 10 TL ise, 1 litre süt 10 / 2 = 5 TL'dir. 1,5 litre süt 5 * 1,5 = 7,5 TL'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K131": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Önceki cümleyle sonraki cümleyi bağlamak için kullanılan bağlantı ifadeleri, anlam ilişkisine göre değişir. 'Bununla birlikte' önceki cümleye zıt bir durum, 'Dolayısıyla' önceki cümleden çıkan bir sonuç, 'Örneğin' önceki cümleye bir örnek, 'Sonuç olarak' ise bir özetleme ifade eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K133": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik üçgenin dik kenar uzunlukları 6 metre ve 8 metre, hipotenüs uzunluğu 10 metre. Dik kenar uzunluklarının kareleri toplamı 6^2 + 8^2 = 36 + 64 = 100 metrekaredir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K134": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Araba farının direnci 4 ohm, akü 12 volt. Ohm kanunu: I = V/R = 12/4 = 3 amper.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K135": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci 2 litre su getirmiştir. 4 kişi 0,5 litre su içeceğinden toplam 4 * 0,5 = 2 litre su gerekir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K136": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "pH ölçüm aralığı 0,1 olduğuna göre, ölçümlerin doğruluğunu belirlemek için ölçüm aralığının büyüklüğü dikkate alınmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K138": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Isı transferi nedeniyle karışımın sıcaklığı 20°C ile 90°C arasında bir değer alır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K137": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Isı transferinde enerji korunur. 500 mL su 20°C'den ve 200 mL su 80°C'den karıştırıldığında, ortalama sıcaklık (500*20 + 200*80) / (500 + 200) = (10000 + 16000) / 700 = 26000 / 700 = 37,14°C, yaklaşık 40°C olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K140": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "pH değeri 3 olan bir çözelti asittir, çünkü pH 7'nin altındadır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K141": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm Kanunu kullanılarak akım hesaplanır, I = V/R = 12V / 4ohm = 3A",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K139": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci 12 soruyu doğru cevapladı, her doğru cevap 2 puan getiriyor. 20 - 12 = 8 soru yanlış, her yanlış cevap 0,5 puan düşürüyor. Doğru cevapların puanı: 12 * 2 = 24. Yanlış cevapların puan düşüşü: 8 * 0,5 = 4. Toplam puan: 24 - 4 = 20.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K144": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Önce evine gelme sonra parka gitme planı var, önce sonra zincirleme bir eylem sırası olduğu için 'Önce' ifadesi uygun",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K145": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpılmasıyla bulunur, 12 * 4 = 48 metrekaredir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K142": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Sürat, bir cismin belirli bir zaman aralığında kat ettiği yolun uzunluğudur. Hız ise bir cismin belirli bir yöndeki hareketinin hızı olarak tanımlanır. Bu nedenle, sürat ve hız farklı kavramlardır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K146": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ahmet 10 km/h süratle 2 saatte gittiği yolu, aynı mesafeyi 15 km/h süratle almak için gereken süre 10*2/15 = 4/3 saat, yani 1,33 saat",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K147": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Hikayenin başlığı 'Kışın İlk Günü' olduğu için kış mevsimiyle ilgili bir cümle seçilmelidir. Kışın ilk gününü anlatan seçenekler A, C ve D'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K148": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Şekerin kütlesi 1 kg * 1000 g/kg = 1000 g, sütün kütlesi 500 mL * 1,03 g/mL = 515 g, toplam kütle 1000 g + 515 g = 1515 g",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K143": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bahçenin ve yolun birlikte kapladığı alanı hesaplamak için, bahçenin ve yolun toplam uzunluk ve genişliklerini bulmalıyız. Bahçenin uzunluğu 15m, genişliği 8m, yolun genişliği 1m ise; toplam uzunluk 15+2*1=17m, toplam genişlik 8+2*1=10m olur. Alan 17*10=170m².",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K150": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik üçgenin hipotenüs uzunluğunu bulmak için Pisagor teoremi kullanılır, yani a^2 + b^2 = c^2. Bu durumda, 5^2 + 12^2 = c^2",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K149": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ece'nin amacına uygun giriş cümlesi, hikayenin başlangıcını ve mevsimi belirtmelidir. D şıkkı, kışın ilk gününde bir çocuğun sevincini anlatır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K151": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Karışımın sıcaklığı, sıcak çay ve soğuk sütün ısıl kapasiteleri ile hacimlerine bağlıdır. Isıl kapasite öz ısı ve kütle (veya hacim) ile ilişkili olduğundan, hacimleri eşit olan sıvıların karışım sıcaklığı, ısıl kapasitelerine bağlıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K153": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre 6² + 8² = 36 + 64 = 100 ve 10² = 100",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K152": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bisikletçi 1 saat boyunca lastiğini tamir etmek zorunda kaldı, yani 5 - 1 = 4 saat boyunca bisiklet sürdü. 4 saat boyunca saatte 25 kilometre hızla giderken 4 * 25 = 100 kilometre yol aldı.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K154": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Önce okulun kuralları, sonra gelenekleri hakkında bilgi vermek mantıklıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K157": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ayşe'nin hızı Emre'den 5 - 3 = 2 m/s daha fazla, 10 metrelik mesafeyi kapatmak için 10 / 2 = 5 saniye gerekir",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K156": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Öğrencinin amacı, ana karakterin duygularını ve düşüncelerini okuyucuya aktarmak için açık ve örtük ifadeler kullanarak okuyucunun zihninde canlandıracağı bir sahne yazmaktır. Bu amaca uygun ifade, karakterin duygularını doğrudan belirtmek yerine, okuyucunun hissetmesini sağlayacak şekilde betimlemeyi içerir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K155": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes Teoremi formülü P(E|Y) = P(Y|E) * P(E) / P(Y) şeklindedir. Burada P(E|Y), ilacın etkili olma olasılığı ve yan etkinin görülmesidir; P(Y|E), ilacın etkili olduğu durumlarda yan etkinin görülme olasılığı; P(E), ilacın etkili olma olasılığı; P(Y), yan etkinin görülme olasılığıdır. P(Y) = P(Y|E)*P(E) + P(Y|E')*P(E') = 0.3*0.6 + 0.1*0.4 = 0.18 + 0.04 = 0.22.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K159": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bağlantı ifadeleri 'fakat' ve 'ancak' karşıt anlamlı durumlar için kullanılır. A şıkkı bu durumu doğru ifade ediyor.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K161": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Eğimi yüksek olan çizgi daha hızlı hız artışını gösterir, birinci çizginin eğimi 2 m/s^2, ikinci çizginin eğimi 3 m/s^2'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K160": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Silindirin hacmi = π * r² * h = 3,14 * (0,5)² * 2 = 1,57 m³. 1 m³ = 1000 litre, yani 1,57 m³ = 1570 litre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K158": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki suyun sıcaklık ortalamasını almak için, ilk olarak her bir suyun ısı enerjisini hesaplarız. 300 mL su 10°C'de ve 100 mL su 80°C'de olsun. Karışımın sıcaklığı (300*10 + 100*80) / (300 + 100) = (3000 + 8000) / 400 = 11000 / 400 = 27,5°C.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K163": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Her iki suyun sıcaklık ve hacimlerinin eşit olması nedeniyle, son sıcaklık 90°C ve 20°C'nin ortalamasıdır, bu da (90 + 20) / 2 = 55°C'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K164": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Isı transferi nedeniyle karışımın sıcaklığı 20°C ile 90°C arasında bir değer alır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K162": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bayes Teoremi formülü P(Hastalık|Semptom) = P(Semptom|Hastalık) * P(Hastalık) / P(Semptom)'dur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K165": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Toplamı hesaplamak için artı operatörü kullanılır. Örneğin: 5 + 3 = 8",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K166": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Tırnak işareti yerine kullanılabilir olan noktalama işareti vurgu işaretidir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K168": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İlk kitaptan okunan sayfa sayısı, ikinci kitaptan okunan sayfa sayısının 1,5 katıdır. İkinci kitaptan okunan sayfa sayısı 40 ise, ilk kitaptan okunan sayfa sayısı 1,5 * 40 = 60 sayfa olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K170": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Kitabın adı büyük harfle başlamalı ve tırnak işareti içinde olmamalıdır, yazarın adı da büyük harfle başlamalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K167": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "3 kg portakal 15 TL, 2 kg elma 10 TL, toplam 25 TL; ancak 2 kg portakal 10 TL ise 1 kg 5 TL, 3 kg 15 TL, 1 kg elma 5 TL, 2 kg 10 TL, toplam 25 TL.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K169": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Asit çözeltisinin pH değeri 2,5, baz çözeltisinin pH değeri 12,8'dir. pH değeri 7'den ne kadar uzaklaşılırsa, asitlik veya bazlık o kadar şiddetlidir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K171": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ürünün fiyatı 25 TL'dir. %15 artışla 25 * 0.15 = 3.75 TL artış olur, yeni fiyatı 25 + 3.75 = 28.75 TL olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K172": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bisikletçi yokuşa çıkarken hızını değiştiriyor, yani yönü aynı olsa da hızı değişiyor. Sürat ise hızın büyüklüğüdür ve bu durumda sürat de değişiyor.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K173": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.8,
+      "gerekce": "Bahçenin çevresi 2*(uzunluk + genişlik) = 2*(15 + 8) = 2*23 = 46 metredir. 4 sıra tel örgü için 46*4 = 184 metre tel örgüye ihtiyacı vardır, ancak bu seçeneklerde yok, en yakın seçenek 92*4/4 = 92 metre",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K176": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı uzunluk ve genişliğin çarpılmasıyla bulunur, 12 * 4 = 48",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K174": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Kahve makinası 2 dakika içinde 100 santilitre su ısıtabilir. Isıtma kapasitesi dakikada 100 / 2 = 50 santilitre.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K175": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin çevre uzunluğu = 2 * (uzun kenar + kısa kenar) = 2 * (30 + 10) = 2 * 40 = 80 metre",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K177": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre 5^2 + 12^2 = c^2, c = √(5^2 + 12^2) = √(25 + 144) = √169 = 13 cm",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K178": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Değişken tanımlamak için atama operatörü kullanılır, Ahmet 10 değerini atamak istiyor.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K179": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Pisagor teoremine göre 6² + 8² = 36 + 64 = 100 ve 10² = 100, bu nedenle 6² + 8² = 10²",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K181": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İlk marketten 15 kg un almak için 3 paket un gerekir, bu da 3 * 250 = 750 TL'ye gelir. İkinci marketten 15 kg un almak için 7.5 paket un gerekir, bu da 7.5 * 100 = 750 TL'ye gelir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K180": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Oyuncak araba bir nesne olup, uzunluk, genişlik ve yükseklik ölçüleri vardır. Bu nedenle, tasarımını daha iyi göstermek için üç boyutlu çizim kullanmak gerekir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K182": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Öğrenci 30 sorudan 24'ünü doğru cevaplamış, her doğru cevap 2 puan getirmiştir. 24 * 2 = 48 puan",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K184": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "İlk kitaptan okunan sayfa sayısı, ikinci kitaptan okunan sayfa sayısının 1,5 katıdır. İkinci kitaptan okunan sayfa sayısı 40 ise, ilk kitaptan okunan sayfa sayısı 1,5 * 40 = 60 sayfa olur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K185": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "pH değeri 3 olan bir çözelti asidik özellik gösterir, çünkü pH değeri 7'den küçüktür.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K183": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Karakterin duygularını örtük bir şekilde ifade eden cümle, doğrudan duyguyu belirtmek yerine davranış veya fiziksel durumu tanımlar. A seçeneğinde karakterin gözleri yere düşmüştü ve suskundu, bu durum onun duygularını örtük olarak ifade eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K186": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Bahçenin alanı 15m x 8m = 120 metre kare.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K187": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.7,
+      "gerekce": "Bayes teoremi kullanılarak hasta olma olasılığı hesaplanır, P(H|+) = P(+|H) * P(H) / P(+). Veriler: P(H) = %10, P(+|H) = %90, P(+|H') = %20. P(+) = P(+|H) * P(H) + P(+|H') * P(H') = 0,9 * 0,1 + 0,2 * 0,9 = 0,09 + 0,18 = 0,27. P(H|+) = 0,9 * 0,1 / 0,27 = 0,333... yani %33,3. Yaklaşık olarak %30-40 arası olasılık vardır, en yakın şık %30.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K188": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "İlk mesajın karakter sayısı, ikinci mesajın karakter sayısının 1,5 katıdır. İlk mesaj 120 karakterden oluşmaktadır, ikinci mesajın karakter sayısını x olarak kabul edersek 1,5x = 120 olur. x = 120 / 1,5 = 80 karakterdir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K191": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İlk çizgi 10 saniye içinde 10 m/s artarken, ikinci çizgi aynı süre içinde 10 m/s artıyor. Bu, her iki çizginin de aynı miktarda hız artışı gösterdiğini belirtir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K189": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "pH değeri 2,0 olan limon suyu daha asidik iken, pH değeri 3,5 olan portakal suyu daha az asidiktir. Düşük asitlik, düşük pH değerine karşılık gelir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K192": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Yemek fiyatı 25 TL, kupon 10 TL, Ali'nin ödemesi gereken tutar 18 TL, servis ücreti 25 - 10 - 18 = 3 TL'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K190": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bitki yetiştirme için uygun pH aralığı genellikle 6,0-7,0 arasıdır. Verilen pH değeri 6,5 bu aralığa dahil.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K195": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Örtük ifade, okuyucunun hayal gücünü kullanarak anlam çıkarmasını sağlar. D şıkkı okuyucunun karakterin üşüdüğünü hissetmesini sağlar.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K194": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "İlk kuvvetsensör 0-10 N aralığında, ikinci kuvvetsensör 0-50 N aralığında ölçüm yapıyor. Daha geniş ölçüm aralığına sahip olan ikinci kuvvetsensördür.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K193": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Havuzun uzunluğu 6 metre, ışıklandırma sistemi 20 metre. Havuz dikdörtgen olduğu için 2 uzunluk ve 2 genişlik toplamı 20 metre olur. 2*6 + 2*x = 20, x = 4 metre",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K197": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Kompozisyon yazısında 'Kitap oku' cümlesi bir emir cümlesidir, emir cümleleri nokta ile değil ünlem işareti ile biter.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K196": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ilacın etkinliğini gösteren olasılık: (0.8 - 0.3) / (1 - 0.3) = 0.5 / 0.7 = 0.714, yaklaşık 0.70",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K198": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Araba kamyonu 10 saniyede geçecek, hız farkı yaratacak. 50 km/sa hızla 10 saniyede 50 * (10/3600) = 0.1389 km yol alır, bu sürede ek hızla fark yaratır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K200": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "24 öğrenciden 1/3'ü matematik kulübüne, 1/4'ü edebiyat kulübüne katıldığından, 24*(1/3) + 24*(1/4) = 8 + 6 = 14 öğrenci kulüplere katılıyor. Hiçbir kulübe katılmayan öğrenci sayısı 24 - 14 = 10",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K201": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": true,
+      "guven": 0.7,
+      "gerekce": "Okunan toplam kitap sayısı 20*5 + 15*3 + 10*4 = 100 + 45 + 40 = 185, okuyan öğrenci sayısı 20 + 15 + 10 = 45, ortalama kitap sayısı 185/45 = 4,11'dir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K199": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Doğrusal ilişki gösteren grafik, kuvvetsensörünün doğru çalıştığını gösterir çünkü doğrusal bir ilişki, sensörün ölçtüğü değerlerin robotun uyguladığı kuvvetteki değişimlere doğru orantılı olduğunu gösterir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K202": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Su ve yağ karışımı heterojen bir karışım oluşturur çünkü su ve yağ birbirinde çözünmez.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K204": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İvme, kuvvet ve kütle arasındaki ilişki F = m * a formülü ile verilir. Verilen değerler kullanılarak 10 N = 2 kg * a denklemi kurulur ve a = 10 N / 2 kg = 5 m/s^2 bulunur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K203": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Bayes teoremi kullanılarak hesaplanır: P(spam|kelime) = P(kelime|spam) * P(spam) / P(kelime), P(kelime) = P(kelime|spam) * P(spam) + P(kelime|degil) * P(degil), P(kelime) = 0.8 * 0.2 + 0.1 * 0.8 = 0.16 + 0.08 = 0.24, P(spam|kelime) = 0.8 * 0.2 / 0.24 = 0.666... ≈ %66.7, en yakın şık %64",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K205": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Araba saatte 60 + 20 = 80 kilometre hızla gidiyor. Arabanın hızı ve sürati aynı yönde ve büyüklükte ise eşit, farklı yönde veya büyüklükte ise farklıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K206": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Şekerin kütlesi 1 kg * 1000 g/kg = 1000 g, sütün kütlesi 500 mL * 1,03 g/cm³ = 500 * 1,03 g = 515 g, toplam kütle 1000 g + 515 g = 1515 g",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K207": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Otobüs 12 kilometreye 1 litre benzin tüketiyor, 96 kilometre için 96 / 12 = 8 litre benzin tüketir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K208": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "5 tur atan sporcu 5 * 400 = 2000 metre koşar, 2000 metre 2 kilometre eder.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K209": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ohm kanununa göre, akım şiddetini 2 katına çıkarmak için voltajı da 2 katına çıkarmalılar, çünkü V=I*R ve R sabit.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K212": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ohm Kanunu'na göre, I = V/R = 12V / 4ohm = 3A",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K213": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Karışımın hâlâ eşit görünümde olması homojen karışım olduğunu gösterir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K210": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Yazarın amacını gerçekleştirmek için okuyucularını düşünmeye sevk etmesi gerekiyor. Bu nedenle, okuyucuları bir sonuca götürmek yerine onları düşünmeye teşvik eden bir bağlantı ifadesi kullanmalı.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K214": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dikdörtgenin alanı 48 metrekaredir, uzunluğu 8 metredir. Genişliği = alan / uzunluk = 48 / 8 = 6 metredir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K211": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "D",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Üçgenin kenar uzunlukları 3 cm, 4 cm ve 5 cm. 3² + 4² = 9 + 16 = 25 = 5². Bu nedenle üçgen bir dik üçgendir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K215": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": true,
+      "guven": 0.7,
+      "gerekce": "Bahçenin çevresi 2*(15+8) = 46 metredir. 4 sıra tel örgü için 46*4 = 184 metre tel örgüye ihtiyaç vardır, ancak bu seçeneklerde yoktur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K216": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Ekip üyesinin görüşüne göre, iki boyutlu çizimler temel fikirleri göstermek için kullanılırken, üç boyutlu çizimler daha gerçekçi ve detaylıdır. Bu nedenle, iki boyutlu çizimler daha hızlı ve daha az detaylı olmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K217": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "pH değeri 7'den küçükse sıvı asidik, 7 ise nötr, 7'den büyükse baziktir. pH değeri 4 olan sıvı asidikdir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K218": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "Öğrenci, metinlerin konularını ve içeriklerini karşılaştırmalıdır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K221": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Ahmet'in istediği işlem bir değişkenin değerini 5 artırarak sonucu ekrana yazmaktır, bu işlemi A seçeneği doğru yapar: x = 5, x = x + 5 = 10, cout << x = 10",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K220": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Cümle sonunda soru işareti kullanılmıştır.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K222": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "C",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Hızı m/s'ye çevirmek için 72 km/h * (1000 m / 1 km) * (1 h / 3600 s) = 20 m/s, bulunan değer 20 m/s",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K223": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "2 kg elma 10 TL ise, 1 kg elma 10 / 2 = 5 TL. 3 kg elma 5 * 3 = 15 TL.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K224": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": false,
+      "cozulemedi": false,
+      "guven": 1,
+      "gerekce": "Dik üçgenin kenar uzunlukları Pisagor teoremine uymalıdır. 3^2 + 4^2 = 9 + 16 = 25 = 5^2",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K225": {
+      "model": "B",
+      "http": 200,
+      "secilenSik": "B",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki boyutlu çizimlerde uzunluk ve genişlik bulunurken, üç boyutlu çizimlerde uzunluk, genişlik ve yükseklik bulunur.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    },
+    "K219": {
+      "model": "A",
+      "http": 200,
+      "secilenSik": "A",
+      "anahtarUyusmazligi": true,
+      "cozulemedi": false,
+      "guven": 0.9,
+      "gerekce": "İki suyun sıcaklığını ortalamak için, ilk olarak her bir suyun ısı enerjisini hesaplarız. 300 mL suyun 15°C'den son sıcaklığa kadar ısınması gereken enerji ve 100 mL suyun 90°C'den son sıcaklığa kadar soğuması gereken enerji birbirine eşit olmalıdır. Isı enerjisi Q = mcΔT formülü ile hesaplanır, ancak burada m ve c sabit kabul edilebilir (suyun özgül ısı kapasitesi ve yoğunluğu yaklaşık sabit). Bu nedenle, Q1 = Q2 => m1*ΔT1 = m2*ΔT2. 300*(T-15) = 100*(90-T). Bu denklemi çözdüğümüzde: 300T - 4500 = 9000 - 100T, 400T = 13500, T = 33,75°C. Yakın bir değer olarak 35°C alınabilir.",
+      "meta": {
+        "provider": "workers-ai",
+        "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+        "capraz": true,
+        "attempts": 1,
+        "fellBack": false,
+        "cozucuIstemSurumu": 2
+      }
+    }
+  }
+}

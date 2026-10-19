@@ -6,12 +6,15 @@ Ağırlıklar (bayraksız): A|0.5 U=52 L=28 w=1.86 · A|0.2 U=59 L=10 w=5.90 · 
   B: n=36 · doğru 22 (61.1%) · yanlış 5 · belirsiz 9 · ANH-YOK 1
 
 [2] Yakalama (kusurlulardan işaretlenen) / yanlış alarm (sağlamlardan işaretlenen) — ağırlıklı:
-  Toplam kusurlu≈146.0 sağlam≈246.0 | A1 yak 43.1% / y.a. 13.4% · A2 yak 30.8% / y.a. 2.4% · A1∪A2 yak 56.2% / y.a. 15.4% · A3 yak 1.4% / y.a. 10.6%
-  A|0.5  kusurlu≈39.7 sağlam≈52.3 | A1 yak 42.8% / y.a. 19.1% · A2 yak 32.7% / y.a. 5.7% · A1∪A2 yak 55.4% / y.a. 24.9% · A3 yak 2.5% / y.a. 3.6%
-  A|0.2  kusurlu≈33.8 sağlam≈60.2 | A1 yak 53.3% / y.a. 8.3% · A2 yak 41.4% / y.a. 3.3% · A1∪A2 yak 65.1% / y.a. 11.6% · A3 yak 0.0% / y.a. 19.6%
-  B|0.5  kusurlu≈37.9 sağlam≈63.1 | A1 yak 39.6% / y.a. 12.7% · A2 yak 13.2% / y.a. 1.6% · A1∪A2 yak 44.8% / y.a. 12.7% · A3 yak 2.6% / y.a. 16.6%
-  B|0.2  kusurlu≈34.6 sağlam≈70.4 | A1 yak 37.6% / y.a. 14.2% · A2 yak 37.6% / y.a. 0.0% · A1∪A2 yak 60.7% / y.a. 14.2% · A3 yak 0.0% / y.a. 2.8%
+  Toplam kusurlu≈146.0 sağlam≈246.0 | A1 yak 43.1% / y.a. 13.4% · A2 yak 30.8% / y.a. 2.4% · A1∪A2 yak 56.2% / y.a. 15.4% · A3 yak 1.4% / y.a. 10.6% · A1v2 yak 52.2% / y.a. 2.9% · A1v2∪A2 yak 61.1% / y.a. 5.3%
+  A|0.5  kusurlu≈39.7 sağlam≈52.3 | A1 yak 42.8% / y.a. 19.1% · A2 yak 32.7% / y.a. 5.7% · A1∪A2 yak 55.4% / y.a. 24.9% · A3 yak 2.5% / y.a. 3.6% · A1v2 yak 50.0% / y.a. 7.7% · A1v2∪A2 yak 60.1% / y.a. 13.4%
+  A|0.2  kusurlu≈33.8 sağlam≈60.2 | A1 yak 53.3% / y.a. 8.3% · A2 yak 41.4% / y.a. 3.3% · A1∪A2 yak 65.1% / y.a. 11.6% · A3 yak 0.0% / y.a. 19.6% · A1v2 yak 50.3% / y.a. 1.7% · A1v2∪A2 yak 65.1% / y.a. 5.0%
+  B|0.5  kusurlu≈37.9 sağlam≈63.1 | A1 yak 39.6% / y.a. 12.7% · A2 yak 13.2% / y.a. 1.6% · A1∪A2 yak 44.8% / y.a. 12.7% · A3 yak 2.6% / y.a. 16.6% · A1v2 yak 59.0% / y.a. 3.3% · A1v2∪A2 yak 61.6% / y.a. 4.9%
+  B|0.2  kusurlu≈34.6 sağlam≈70.4 | A1 yak 37.6% / y.a. 14.2% · A2 yak 37.6% / y.a. 0.0% · A1∪A2 yak 60.7% / y.a. 14.2% · A3 yak 0.0% / y.a. 2.8% · A1v2 yak 49.1% / y.a. 0.0% · A1v2∪A2 yak 57.8% / y.a. 0.0%
   Kaçırılan kusurlu (A1∪A2 işaretlemedi), ağırlıklı tahmin: ≈64.0 / ≈146.0 ÇSS (392 içinde)
+  Kaçırılan kusurlu (A1v2∪A2 işaretlemedi): ≈56.8 / ≈146.0
+  W4'ün 9 "harf kayması" maddesinde v2 artık anahtarla uyuşuyor: 8/9 (K001, K067, K069, K097, K133, K139, K145, K171)
+  A1 bayrağı v1→v2 değişen madde: 53 (v1 bayraklı → v2 bayraksız 36, tersi 17)
 
   A2 bayraklı 51 ÇSS: doğru şıkta işlem ifadesi (SIKIFADE) 6 · bunlardan etiketi "doğru" (yanlış alarm) 4
 

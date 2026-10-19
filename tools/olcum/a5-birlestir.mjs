@@ -97,7 +97,18 @@ for (const m of ['A', 'B']) {
 }
 
 // (2) yakalama / yanlış alarm (ağırlıklı), model × sıcaklık ve toplam
-const dedektorler = { A1: (r) => r.A1, A2: (r) => r.A2, 'A1∪A2': (r) => r.A1 || r.A2, A3: (r) => r.A3 };
+/* §56: çözücü istemi v2 (gerekçe önce) sonuçları varsa A1 v2 ve A1v2∪A2 de hesaplanır.
+   Örneklem tasarımı ve ağırlıklar v1 bayraklarıyla kuruldu; tasarım ağırlıklarıyla
+   tahmin, v2 bayrağını yalnız ETİKETLİ maddelerde bilmeyi gerektirir. */
+const v2Dosya = path.join(D, 'cozucu-v2.json');
+const v2 = fs.existsSync(v2Dosya) ? JSON.parse(fs.readFileSync(v2Dosya, 'utf8')).maddeler : null;
+if (v2) for (const r of etiketli) {
+  const y = v2[r.kno];
+  if (!y || y.http !== 200) throw new Error(`${r.kno}: v2 çözüm yok ya da hatalı`);
+  r.A1v2 = y.anahtarUyusmazligi === true;
+}
+const dedektorler = { A1: (r) => r.A1, A2: (r) => r.A2, 'A1∪A2': (r) => r.A1 || r.A2, A3: (r) => r.A3,
+  ...(v2 ? { 'A1v2': (r) => r.A1v2, 'A1v2∪A2': (r) => r.A1v2 || r.A2 } : {}) };
 yaz('\n[2] Yakalama (kusurlulardan işaretlenen) / yanlış alarm (sağlamlardan işaretlenen) — ağırlıklı:');
 const tablo = [];
 for (const kap of ['Toplam', ...tabakalar]) {
@@ -116,6 +127,16 @@ for (const kap of ['Toplam', ...tabakalar]) {
 }
 const kacirma = tablo[0].kusurluTahmin - etiketli.filter((r) => kusurlu(r) && (r.A1 || r.A2)).reduce((t, r) => t + w(r), 0);
 yaz(`  Kaçırılan kusurlu (A1∪A2 işaretlemedi), ağırlıklı tahmin: ≈${kacirma.toFixed(1)} / ≈${tablo[0].kusurluTahmin.toFixed(1)} ÇSS (392 içinde)`);
+if (v2) {
+  const kacirma2 = tablo[0].kusurluTahmin - etiketli.filter((r) => kusurlu(r) && (r.A1v2 || r.A2)).reduce((t, r) => t + w(r), 0);
+  yaz(`  Kaçırılan kusurlu (A1v2∪A2 işaretlemedi): ≈${kacirma2.toFixed(1)} / ≈${tablo[0].kusurluTahmin.toFixed(1)}`);
+  // W4'ün işaretlediği 9 "gerekçe doğru, harf yanlış" maddesinde v2 ne seçti?
+  const dokuz = ['K001', 'K067', 'K069', 'K097', 'K133', 'K139', 'K145', 'K169', 'K171'];
+  const duzelen = dokuz.filter((k) => { const r = etiketli.find((x) => x.kno === k); return r && !r.A1v2; });
+  yaz(`  W4'ün 9 "harf kayması" maddesinde v2 artık anahtarla uyuşuyor: ${duzelen.length}/9 (${duzelen.join(', ')})`);
+  const degisen = etiketli.filter((r) => r.A1 !== r.A1v2);
+  yaz(`  A1 bayrağı v1→v2 değişen madde: ${degisen.length} (v1 bayraklı → v2 bayraksız ${degisen.filter((r) => r.A1).length}, tersi ${degisen.filter((r) => !r.A1).length})`);
+}
 
 // SIKIFADE: A2 bayraklarının ne kadarı doğru şıkta işlem ifadesi kaynaklı?
 const a2 = etiketli.filter((r) => r.A2);
@@ -157,10 +178,11 @@ yaz(`  uyuşmazlıklar: ${uyusmaz.join(' · ')}`);
 
 // --- etiketli CSV ----------------------------------------------------------
 const sut = ['kno', 'kumeler', 'model', 'sicaklik_kosum', 'kosum', 'kazanim', 'tekrar', 'sira', 'etiketleyen', 'karar', 'anhYok', 'dogruCevap', 'kodlar',
-  'A1', 'A2', 'A3', 'SIKIFADE', 'dilUyarisi', 'agirlik', 'dogru_sik', 'cozucu_sik', 'hesap', 'hesapBaskaSik'];
+  'A1', 'A2', 'A3', 'SIKIFADE', 'dilUyarisi', 'agirlik', 'dogru_sik', 'cozucu_sik', 'hesap', 'hesapBaskaSik', 'A1v2', 'cozucu_v2_sik'];
 const csv = (v) => { const s = v === null || v === undefined ? '' : typeof v === 'boolean' ? (v ? '1' : '0') : String(v); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const satirlar = etiketli.map((r) => [r.kno, r.kumeler, r.model, r.sicaklik_kosum, r.kosum, r.kazanim, r.tekrar, r.sira, r.et.etiketleyen, r.et.karar, r.et.anhYok, r.et.dogruCevap, r.et.kodlar || '',
-  r.A1, r.A2, r.A3, r.SIK, r.dilUyarisi, w(r).toFixed(3), r.dogru_sik, r.cozucu_sik, r.hesap, r.hesapBaskaSik].map(csv).join(','));
+  r.A1, r.A2, r.A3, r.SIK, r.dilUyarisi, w(r).toFixed(3), r.dogru_sik, r.cozucu_sik, r.hesap, r.hesapBaskaSik,
+  v2 ? r.A1v2 : '', v2 ? (v2[r.kno].secilenSik ?? '') : ''].map(csv).join(','));
 fs.writeFileSync(path.join(D, 'a5-etiketli.csv'), '﻿' + [sut.join(','), ...satirlar].join('\n') + '\n', 'utf8');
 fs.writeFileSync(path.join(D, 'a5-basarim.txt'), sonuc.join('\n') + '\n', 'utf8');
 console.log('\nyazıldı: docs/olcum/a5/a5-etiketli.csv, a5-basarim.txt');
