@@ -7,6 +7,20 @@ import { z } from 'zod';
 /** agents.md §7.4: kaynak metin 6.000 karakterle sınırlıdır. */
 export const MAX_SOURCE_CHARS = 6000;
 
+/**
+ * §51b — KAZANIM METNİ ÜST SINIRI.
+ * Eskiden her uçta 200 (aday listesinde 220) idi. Ölçüldü (19 Ekim, W5 gerçek
+ * istekle): MAT.8.3.5 kazanım metni 213 karakter → HTTP 400, model hiç
+ * çağrılmıyor ve arayüzde bu kazanımla soru ÜRETİLEMİYORDU. 606 MEB
+ * kazanımından en uzunu bu (213); ikincisi tam 200.
+ * İstemcide kırpılmaz — modele eksik kazanım gider. Sınır sunucuda
+ * yükseltildi ama AÇIKÇA var (agents.md §4). Bedeli: istem kazanım başına en
+ * çok ~200 karakter uzayabilir; kazanım denetiminde 60 adayla en kötü durum
+ * ~24.000 karakter (eskiden ~13.200). Gerçek kataloglarda aday metinleri
+ * ortalama ~100 karakter olduğu için pratikte değişmez.
+ */
+export const MAX_OUTCOME_LABEL_CHARS = 400;
+
 /** §31 — soru üretiminin dayanağı. */
 /* 'materyal': kazanıma KİLİTLİ ders belgesi. İki kuralı birleştirir —
    'kaynak' gibi verilen metnin dışına çıkılamaz, 'kazanim' gibi öğrenciye
@@ -59,7 +73,7 @@ export const generateQuestionsSchema = z.object({
      REDDEDİYORDU. 60, en uzun atölye adının iki katından fazla. */
   grade: z.union([z.number().int().min(1).max(12), z.string().min(1).max(60)]),
   outcomeCode: z.string().min(1).max(40),
-  outcomeLabel: z.string().min(1).max(200),
+  outcomeLabel: z.string().min(1).max(MAX_OUTCOME_LABEL_CHARS),
   mcCount: z.number().int().min(0).max(8).default(2),
   openCount: z.number().int().min(0).max(4).default(1),
   optionCount: z.number().int().min(3).max(5).default(4),
@@ -112,7 +126,7 @@ export const generateQuestionsSchema = z.object({
 
 export const rubricDraftSchema = z.object({
   questionBody: z.string().min(1).max(2000),
-  outcomeLabel: z.string().max(200).default(''),
+  outcomeLabel: z.string().max(MAX_OUTCOME_LABEL_CHARS).default(''),
   subject: z.string().max(80).default(''),
   grade: z.union([z.number().int().min(1).max(12), z.string().max(60)]).default(''),
   maxScore: z.number().min(1).max(100).default(20),
@@ -134,7 +148,7 @@ export const modelRubricSchema = z.object({
 
 export const sampleAnswersSchema = z.object({
   questionBody: z.string().min(1).max(2000),
-  outcomeLabel: z.string().max(200).default(''),
+  outcomeLabel: z.string().max(MAX_OUTCOME_LABEL_CHARS).default(''),
   grade: z.union([z.number().int().min(1).max(12), z.string().max(60)]).default(''),
   levels: z.array(z.string().min(1).max(120)).min(1).max(8),
 });
@@ -151,7 +165,7 @@ export const modelSampleAnswersSchema = z.object({
  */
 export const misconceptionsSchema = z.object({
   questionBody: z.string().min(1).max(2000),
-  outcomeLabel: z.string().max(200).default(''),
+  outcomeLabel: z.string().max(MAX_OUTCOME_LABEL_CHARS).default(''),
   // En az 2 yanıt: tek yanıtta "tekrarlayan" bir yanılgı olamaz.
   answers: z.array(z.string().max(3000)).min(2).max(40),
 });
@@ -180,7 +194,7 @@ export const modelMisconceptionsSchema = z.object({
  */
 export const alignmentSchema = z.object({
   outcomeCode: z.string().min(1).max(40),
-  outcomeLabel: z.string().min(1).max(200),
+  outcomeLabel: z.string().min(1).max(MAX_OUTCOME_LABEL_CHARS),
   questions: z
     .array(
       z.object({
@@ -191,7 +205,7 @@ export const alignmentSchema = z.object({
     .min(1)
     .max(12),
   candidates: z
-    .array(z.object({ kod: z.string().min(1).max(40), metin: z.string().min(1).max(220) }))
+    .array(z.object({ kod: z.string().min(1).max(40), metin: z.string().min(1).max(MAX_OUTCOME_LABEL_CHARS) }))
     .max(60)
     .optional(),
 });
@@ -218,7 +232,7 @@ export const evaluateSchema = z.object({
   questionBody: z.string().min(1).max(2000),
   // .min(1) YOK: Zod varsayılan değeri de doğrular, '' varsayılanı min(1)'e
   // takılıp alanı fiilen zorunlu hale getirirdi.
-  outcomeLabel: z.string().max(200).default(''),
+  outcomeLabel: z.string().max(MAX_OUTCOME_LABEL_CHARS).default(''),
   studentAnswer: z.string().max(6000).default(''),
   maxScore: z.number().min(1).max(100),
   criteria: z.array(rubricCriterionSchema).min(1).max(8),

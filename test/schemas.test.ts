@@ -17,7 +17,10 @@ import {
   modelQuestionSchema,
   modelEvaluationSchema,
   modelAlignmentSchema,
+  rubricDraftSchema,
+  sampleAnswersSchema,
   MAX_SOURCE_CHARS,
+  MAX_OUTCOME_LABEL_CHARS,
 } from '../src/schemas/ai';
 
 describe('generateQuestionsSchema', () => {
@@ -330,5 +333,55 @@ describe('generateQuestionsSchema — §31 üretim dayanağı', () => {
       mode: 'kazanim',
     });
     expect(r.success).toBe(false);
+  });
+});
+
+// §51b — MAT.8.3.5 (213 karakter) 200 sınırına takılıp HTTP 400 alıyordu;
+// bu kazanımla soru üretilemiyordu. Metin public/mufredat/matematik-8.json'dan
+// BİREBİR alındı — uydurma uzunlukta bir dize değil.
+describe('kazanım metni üst sınırı (§51b)', () => {
+  const MAT_8_3_5 =
+    'Kenar uzunlukları a²+ b²= c² eşitliğini sağlayan üçgenleri oluşturarak dik üçgen olduklarını; ' +
+    'dik üçgenlerde dik kenar uzunluklarının kareleri toplamının hipotenüs uzunluğunun karesine eşit olduğunu yorumlayabilme';
+  const uretim = {
+    mode: 'kazanim' as const,
+    subject: 'Matematik',
+    grade: 8,
+    outcomeCode: 'MAT.8.3.5',
+  };
+
+  it('gerçek 213 karakterlik MAT.8.3.5 metni kabul edilir', () => {
+    expect(MAT_8_3_5.length).toBe(213);
+    expect(MAX_OUTCOME_LABEL_CHARS).toBe(400);
+    expect(generateQuestionsSchema.safeParse({ ...uretim, outcomeLabel: MAT_8_3_5 }).success).toBe(true);
+    expect(evaluateSchema.safeParse({
+      questionBody: 'Soru', outcomeLabel: MAT_8_3_5, maxScore: 10, criteria: [{ label: 'Kavram', weight: 100 }],
+    }).success).toBe(true);
+    expect(rubricDraftSchema.safeParse({ questionBody: 'Soru', outcomeLabel: MAT_8_3_5 }).success).toBe(true);
+    expect(sampleAnswersSchema.safeParse({ questionBody: 'Soru', outcomeLabel: MAT_8_3_5, levels: ['orta'] }).success).toBe(true);
+    expect(misconceptionsSchema.safeParse({ questionBody: 'Soru', outcomeLabel: MAT_8_3_5, answers: ['a', 'b'] }).success).toBe(true);
+    expect(alignmentSchema.safeParse({
+      outcomeCode: 'MAT.8.3.5', outcomeLabel: MAT_8_3_5,
+      questions: [{ type: 'open', body: 'Soru' }],
+      candidates: [{ kod: 'MAT.8.3.5', metin: MAT_8_3_5 }],
+    }).success).toBe(true);
+  });
+
+  it('401 karakter her uçta reddedilir — sınır kalktı değil, yükseldi', () => {
+    const uzun = 'a'.repeat(MAX_OUTCOME_LABEL_CHARS + 1);
+    expect(generateQuestionsSchema.safeParse({ ...uretim, outcomeLabel: uzun }).success).toBe(false);
+    expect(evaluateSchema.safeParse({
+      questionBody: 'Soru', outcomeLabel: uzun, maxScore: 10, criteria: [{ label: 'Kavram', weight: 100 }],
+    }).success).toBe(false);
+    expect(rubricDraftSchema.safeParse({ questionBody: 'Soru', outcomeLabel: uzun }).success).toBe(false);
+    expect(sampleAnswersSchema.safeParse({ questionBody: 'Soru', outcomeLabel: uzun, levels: ['orta'] }).success).toBe(false);
+    expect(misconceptionsSchema.safeParse({ questionBody: 'Soru', outcomeLabel: uzun, answers: ['a', 'b'] }).success).toBe(false);
+    expect(alignmentSchema.safeParse({
+      outcomeCode: 'X', outcomeLabel: uzun, questions: [{ type: 'open', body: 'Soru' }],
+    }).success).toBe(false);
+    expect(alignmentSchema.safeParse({
+      outcomeCode: 'X', outcomeLabel: 'Kısa', questions: [{ type: 'open', body: 'Soru' }],
+      candidates: [{ kod: 'Y', metin: uzun }],
+    }).success).toBe(false);
   });
 });
