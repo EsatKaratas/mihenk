@@ -1553,7 +1553,7 @@ const DEMO_ADIMLARI = [
     hazir: function () { return !state.questions.some(function (q) { return q.status === "ai_generated"; }); },
     kilit: "Önce bekleyen soruyu onaylayın" },
   { no: 2, rol: "teacher", sekme: 1, roleAd: "Öğretmen",
-    aciklama: "Havuzdaki soruları sınava dönüştürüp sınavı yayınlayın.",
+    aciklama: "Sınıf kartına tıklayın, ardından sınavın kartında Yayınla'ya basın.",
     sonraki: "Sonraki Adım → Öğrenci",
     hazir: function () { return state.exam.status === "published"; },
     kilit: "Önce sınavı yayınlayın" },

@@ -9291,3 +9291,19 @@ tazelenip yeniden ölçüldü.
   `.correct-radio`, `.opt-move-btn`).
 - `state.role` temiz yüklemede varsayılan `content_expert` (giriş açıkken);
   görünür etkisi yok, eskiden de böyle.
+
+## 68. YAYIN ÖNCESİ — demo 2. adım metni ve önbellek kararı (23 Ekim 2026, W2)
+
+- **Demo 2. adım** (`DEMO_ADIMLARI`, ortak bölge): §62'den beri adım
+  Sınıflarım'ı açıyor (W1'in bilinçli tercihi), ama şerit "soruları sınava
+  dönüştürüp yayınlayın" diyordu; ekranda ne yapılacağı yazmıyordu (W5 buldu).
+  Yeni metin: "Sınıf kartına tıklayın, ardından sınavın kartında Yayınla'ya
+  basın." Gerçek tıklamalarla doğrulandı: 7-A kartı → sınav kartı "Yayınla" →
+  `state.exam.status = published`.
+- **Önbellek: değişiklik YOK, ölçüldü.** Canlıda statik varlıklar
+  `Cache-Control: public, max-age=0, must-revalidate` + `ETag` ile geliyor
+  (`/`, `app.css`); tarayıcı her açılışta dosyayı doğrular, bayat kabuk.css
+  kalamaz. W5'in yerelde gördüğü bayat dosya `python -m http.server`'dan:
+  o sunucu `Cache-Control` göndermez, tarayıcı `Last-Modified`'dan sezgisel
+  önbellek süresi türetir. Sürüm sorgusu (`?v=`) gereksiz; yerel denemede
+  sert yenileme (Ctrl+F5) yeterli.
