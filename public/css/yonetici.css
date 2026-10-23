@@ -13,3 +13,34 @@
    - Yazdırma kuralları app.css @media print'te kalır.
    Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
    aynı özgüllükte app.css'i ezer. */
+
+/* ===== §63 Yönetici paneli — tasarım turu (W4) ===== */
+#panel-admin .card { margin-bottom: var(--sp-4); }
+#panel-admin .yon-ozet { margin: 0 0 var(--sp-2); font-size: var(--fs-3); line-height: 1.6; color: var(--text); }
+#panel-admin .yon-kutular { margin-bottom: var(--sp-4); }
+
+/* ⓘ açıklama: varsayılan kapalı, metin silinmedi */
+#panel-admin .yon-bilgi { margin: var(--sp-1) 0 var(--sp-2); font-size: var(--fs-2); color: var(--text-muted); }
+#panel-admin .yon-bilgi summary { cursor: pointer; display: inline-flex; align-items: center; gap: var(--sp-1);
+  min-height: var(--hedef-min); color: var(--accent-strong); list-style: none; }
+#panel-admin .yon-bilgi summary::-webkit-details-marker { display: none; }
+#panel-admin .yon-bilgi summary span:last-child { text-decoration: underline; text-underline-offset: 2px; }
+#panel-admin .yon-bilgi-ikon { font-size: var(--fs-4); line-height: 1; }
+#panel-admin .yon-bilgi-metin { margin-top: var(--sp-1); padding: var(--sp-2) var(--sp-3); line-height: 1.6;
+  background: var(--surface-2); border-radius: var(--r-sm); }
+#panel-admin .stat-tile .yon-bilgi { margin-bottom: 0; }
+
+/* "Önce buraya bakın" eylem kartı */
+#panel-admin .yon-eylem { border-left: 4px solid var(--accent); }
+#panel-admin .yon-eylem-liste { margin: 0; padding-left: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2);
+  font-size: var(--fs-3); line-height: 1.6; }
+#panel-admin .yon-eylem-liste li { padding-left: var(--sp-1); }
+#panel-admin .yon-eylem-liste li::marker { font-weight: 700; color: var(--accent-strong); }
+#panel-admin .yon-eylem-kritik::marker { color: var(--critical); }
+#panel-admin .yon-eylem-uyari::marker { color: var(--warning); }
+
+/* Örnek veri bölümü: görsel olarak da gerçek bölümlerden ayrı */
+#panel-admin .yon-ornek { border-style: dashed; background: var(--surface-2); }
+#panel-admin .yon-alt-baslik { margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-3); }
+#panel-admin .ta-karne { margin-top: var(--sp-3); }
+#panel-admin .ta-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

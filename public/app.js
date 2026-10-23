@@ -8820,7 +8820,7 @@ function studentTab1Html() {
     return durum !== "not_started";
   });
   if (!yayindakiler.length) {
-    return bosDurumHtml("Şu anda size atanmış aktif ya da yaklaşan bir sınav yok.");
+    return bosDurumHtml("Şu anda sana atanmış aktif ya da yaklaşan bir sınav yok.");
   }
   return yayindakiler.map(function (x) {
     const c = examCardState(x);
@@ -8844,8 +8844,8 @@ function studentTab1Html() {
       (c.durum === "in_progress" || c.durum === "submitted" || c.durum === "graded"
         ? ' · <b>' + yanitlanan + '/' + items.length + '</b> soru yanıtlandı' : "") + '</div>' +
       (c.durum === "in_progress"
-        ? '<div class="resume-note">Bu sınavı yarım bıraktınız. Yanıtlarınız kaydedildi; devam ettiğinizde ' +
-          'kaldığınız sorudan başlayacaksınız.' + (kalanSn != null ? ' Kalan süre <b>' + formatTime(kalanSn) + '</b>.' : "") + '</div>'
+        ? '<div class="resume-note">Bu sınavı yarım bıraktın. Yanıtların kaydedildi; devam ettiğinde ' +
+          'kaldığın sorudan başlayacaksın.' + (kalanSn != null ? ' Kalan süre <b>' + formatTime(kalanSn) + '</b>.' : "") + '</div>'
         : "") +
       (c.bekliyor
         ? '<div class="wait-box"><b>Açılış: ' +
@@ -8890,7 +8890,7 @@ function openAnswerHtml(q) {
      bozar. Satır sayısı artırıldı, CSS'te min-height verildi ve altına
      canlı bir kelime/karakter sayacı kondu. Sayaç bir SINIR DEĞİLDİR —
      hiçbir yerde kesme/uyarı yapmaz, yalnızca bilgi verir. */
-  return '<textarea id="openAnswerInput" data-qid="' + q.id + '" rows="14" placeholder="Yanıtınızı buraya yazın...">' + escapeHtml(a.text || "") + '</textarea>' +
+  return '<textarea id="openAnswerInput" data-qid="' + q.id + '" rows="14" placeholder="Yanıtını buraya yaz…">' + escapeHtml(a.text || "") + '</textarea>' +
     '<div class="yanit-sayac" id="yanitSayac">' + yanitSayacMetni(a.text || "") + '</div>' +
     '<div class="autosave-status" id="autosaveMsg"><span class="dot-save"></span> ' + (a.text ? "Kaydedildi" : "Henüz yanıt verilmedi") + '</div>';
 }
@@ -8910,15 +8910,15 @@ function studentTab2Html() {
     });
     if (!hazir.length) {
       return bosDurumHtml(
-        state.examStatus === "submitted" ? "Yanıtlarınız gönderildi, öğretmen onayı bekleniyor."
-          : state.examStatus === "graded" ? "Bu sınav sonuçlandı. Karnenizi 3. sekmeden görebilirsiniz."
-          : "Şu anda çözebileceğiniz bir sınav yok."
+        state.examStatus === "submitted" ? "Yanıtların gönderildi, öğretmen onayı bekleniyor."
+          : state.examStatus === "graded" ? "Bu sınav sonuçlandı. Karneni «Karne» sekmesinden görebilirsin."
+          : "Şu anda çözebileceğin bir sınav yok."
       );
     }
     return '<div class="card"><div class="card-head"><h3>Çözülmeyi bekleyen sınav</h3>' +
       '<span class="pill pill-success">' + hazir.length + ' sınav</span></div>' +
       '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">' +
-      'Başlamak için aşağıdaki sınavı seçin. Tüm sınavlarınızı 2. sekmeden görebilirsiniz.</div>' +
+      'Başlamak için aşağıdaki sınavı seç. Tüm sınavlarını «Sınavlarım» sekmesinde görebilirsin.</div>' +
       hazir.map(function (x) {
         const c = examCardState(x);
         const items = c.ex.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
@@ -8933,44 +8933,115 @@ function studentTab2Html() {
      ve her hâlükârda dönüyor, dolayısıyla bu satırlara hiç ulaşılmıyordu.
      Aynı mesajlar yukarıdaki `bosDurumHtml()` çağrısında zaten üretiliyor.
      Ölü kod, sonraki okuyucuya "bu dal çalışıyor" diye yalan söyler. */
-  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const items = ogrSinavSorulari();
+  // §63: "Gözden geçir ve bitir" ayrı bir adımdır; Bitir düğmesi yalnız orada.
+  if (ogrGozdenGecir) return ogrGozdenHtml(items);
   const q = items[state.currentQIndex];
-  const answered = function (id) { const a = state.answers[id]; return !!a && (a.selectedKey || (a.text && a.text.trim().length > 0)); };
   const isFlagged = function (id) { return !!(state.flagged || {})[id]; };
-  // Madde 5: kalan süre görünürlüğü iki eşikli — 60 sn altı (mevcut "low",
-  // kırmızı) ve 5 dk altı (yeni "warn", uyarı rengi). Zaman hesaplama
-  // (endsAt/remainingSec) mantığına HİÇ dokunulmadı; yalnızca stil sınıfı.
-  const sureSinifi = state.remainingSec < 60 ? "low" : (state.remainingSec <= 300 ? "warn" : "");
-  return integrityNoticeHtml() +
-    '<div class="timer-bar"><div>Kalan süre</div><div class="t-value tabular ' + sureSinifi + '" id="timerValue">' + formatTime(state.remainingSec) + '</div>' +
-    '<div class="qnav">' + items.map(function (it, i) {
-      return '<div class="qnav-dot ' + (i === state.currentQIndex ? "current" : "") + " " + (answered(it.id) ? "answered" : "") +
-        (isFlagged(it.id) ? " flagged" : "") + '" data-idx="' + i + '" title="' +
-        (isFlagged(it.id) ? "İşaretli — gözden geçirilecek" : "") + '">' + (i + 1) +
-        (isFlagged(it.id) ? ' <span class="qnav-flag">🚩</span>' : "") + '</div>';
-    }).join("") + '</div></div>' +
+  return integrityNoticeHtml() + ogrSinavBaslikHtml(items) +
     '<div class="card exam-viewport"><div class="qv-meta"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
     '<span class="pill pill-neutral">Soru ' + (state.currentQIndex + 1) + '/' + items.length + '</span>' +
     /* Madde 5: "gözden geçir" işareti — yanıtlanma durumundan bağımsız,
        yalnızca öğrencinin kendi gezinmesine yardımcı olur, hiçbir puanı
        etkilemez (aynı sınav bütünlüğü kaydı gibi: bilgi amaçlı, karar
        öğrencinin/öğretmenin). */
-    '<button class="btn btn-secondary btn-sm' + (isFlagged(q.id) ? " flag-on" : "") + '" id="btnFlagQ" type="button" title="Bu soruyu daha sonra gözden geçirmek için işaretle">' +
-    (isFlagged(q.id) ? "🚩 İşaretli" : "🏳️ İşaretle") + '</button></div>' +
+    '<button class="btn btn-secondary btn-sm' + (isFlagged(q.id) ? " flag-on" : "") + '" id="btnFlagQ" type="button" aria-pressed="' + isFlagged(q.id) + '" title="Bu soruyu bitirmeden önce yeniden bakmak için işaretle">' +
+    (isFlagged(q.id) ? "⚑ İşaretli · kaldır" : "⚑ Sonra bak") + '</button></div>' +
     kaynakBlokHtml(q, "student") +
     '<div class="qv-body">' + escapeHtml(q.body) + '</div>' + (q.type === "mc" ? mcAnswerHtml(q) : openAnswerHtml(q)) +
     '<div class="exam-footer"><div><button class="btn btn-secondary" id="btnPrevQ" ' + (state.currentQIndex === 0 ? "disabled" : "") + '>← Önceki</button> ' +
     '<button class="btn btn-secondary" id="btnNextQ" ' + (state.currentQIndex === items.length - 1 ? "disabled" : "") + '>Sonraki →</button></div>' +
-    '<button class="btn btn-critical" id="btnFinishExam">Sınavı Bitir</button></div></div>';
+    '<button class="btn btn-primary" id="btnReviewExam" type="button">Gözden geçir ve bitir</button></div></div>';
+}
+
+/* §63 — ÖĞRENCİ SINAV EKRANI (tasarım turu, W4).
+   Gözden geçirme adımı oturuma YAZILMAZ: sayfa yenilenirse öğrenci soruya
+   döner; sınav durumu (süre, yanıtlar) bundan hiç etkilenmez. */
+let ogrGozdenGecir = false;
+
+function ogrSinavSorulari() {
+  return state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+}
+function ogrYanitliMi(q) {
+  const a = state.answers[q.id];
+  return !!a && !!(a.selectedKey || (a.text && a.text.trim().length > 0));
+}
+function ogrIsaretliMi(q) { return !!(state.flagged || {})[q.id]; }
+
+/** Yapışkan sınav başlığı: süre + soru gezgini + lejant.
+    Durum RENGE bırakılmaz: her nokta simge (✓ ⚑ ○) ve ekran okuyucu metni taşır. */
+function ogrSinavBaslikHtml(items) {
+  // Madde 5: 60 sn altı "low", 5 dk altı "warn" — yalnız stil sınıfı.
+  const sureSinifi = state.remainingSec < 60 ? "low" : (state.remainingSec <= 300 ? "warn" : "");
+  const yanitli = items.filter(ogrYanitliMi).length;
+  const isaretli = items.filter(ogrIsaretliMi).length;
+  return '<div class="timer-bar ogr-baslik">' +
+    '<div class="ogr-sure"><span class="ogr-sure-lbl">Kalan süre</span>' +
+    '<span class="t-value tabular ' + sureSinifi + '" id="timerValue">' + formatTime(state.remainingSec) + '</span></div>' +
+    '<div class="qnav" role="group" aria-label="Sorular">' + items.map(function (it, i) {
+      const y = ogrYanitliMi(it), f = ogrIsaretliMi(it);
+      const durum = (y ? "yanıtlandı" : "boş") + (f ? ", işaretli" : "");
+      return '<button type="button" class="qnav-dot' + (i === state.currentQIndex ? " current" : "") +
+        (y ? " answered" : "") + (f ? " flagged" : "") + '" data-idx="' + i + '"' +
+        (i === state.currentQIndex && !ogrGozdenGecir ? ' aria-current="step"' : "") +
+        ' aria-label="Soru ' + (i + 1) + ', ' + durum + '" title="Soru ' + (i + 1) + ' — ' + durum + '">' +
+        '<span class="ogr-nokta-simge" aria-hidden="true">' + (f ? "⚑" : (y ? "✓" : "○")) + '</span>' + (i + 1) + '</button>';
+    }).join("") + '</div>' +
+    '<div class="ogr-lejant" aria-live="polite">' +
+    '<span class="ogr-l ogr-l-yanit">✓ yanıtlandı <b class="tabular">' + yanitli + '</b></span>' +
+    '<span class="ogr-l ogr-l-isaret">⚑ işaretli <b class="tabular">' + isaretli + '</b></span>' +
+    '<span class="ogr-l ogr-l-bos">○ boş <b class="tabular">' + (items.length - yanitli) + '</b></span>' +
+    '</div></div>';
+}
+
+/** Başlığı yerinde tazeler (yanıt verilince). renderAll() ÇAĞRILMAZ — odak kaybı. */
+function ogrBaslikTazele() {
+  const eski = document.querySelector("#panel-student .ogr-baslik");
+  if (!eski || state.examStatus !== "in_progress") return;
+  eski.outerHTML = ogrSinavBaslikHtml(ogrSinavSorulari());
+  ogrNoktalariBagla();
+}
+function ogrNoktalariBagla() {
+  document.querySelectorAll("#panel-student .qnav-dot").forEach(function (d) {
+    d.onclick = function () { state.currentQIndex = Number(d.dataset.idx); ogrGozdenGecir = false; renderAll(); };
+  });
+}
+
+/** "Gözden geçir ve bitir" adımı: boş ve işaretli sorular, geri dönüş, tek Bitir. */
+function ogrGozdenHtml(items) {
+  const bos = [], isaretli = [];
+  items.forEach(function (q, i) {
+    if (!ogrYanitliMi(q)) bos.push(i);
+    if (ogrIsaretliMi(q)) isaretli.push(i);
+  });
+  const liste = function (dizin, bosMetin) {
+    if (!dizin.length) return '<div class="ogr-gg-tamam">' + bosMetin + '</div>';
+    return '<div class="ogr-gg-liste">' + dizin.map(function (i) {
+      return '<button type="button" class="ogr-gg-soru" data-idx="' + i + '"><span class="ogr-gg-no">Soru ' + (i + 1) + '</span>' +
+        '<span class="ogr-gg-govde">' + escapeHtml(truncate(items[i].body, 90)) + '</span><span class="ogr-gg-git" aria-hidden="true">→</span></button>';
+    }).join("") + '</div>';
+  };
+  const yanitli = items.length - bos.length;
+  return integrityNoticeHtml() + ogrSinavBaslikHtml(items) +
+    '<div class="card ogr-gozden"><div class="card-head"><h3>Gözden geçir ve bitir</h3>' +
+    '<span class="pill ' + (bos.length ? "pill-warning" : "pill-success") + ' tabular">' + yanitli + ' / ' + items.length + ' yanıtlandı</span></div>' +
+    '<p class="ogr-gg-giris">Bitirmeden önce son kez bak. Bir soruya dönmek için üzerine dokun; süre işlemeye devam ediyor.</p>' +
+    '<h4 class="ogr-gg-baslik">○ Boş bıraktığın sorular <span class="tabular">(' + bos.length + ')</span></h4>' +
+    liste(bos, "✓ Boş bıraktığın soru yok.") +
+    '<h4 class="ogr-gg-baslik">⚑ İşaretlediğin sorular <span class="tabular">(' + isaretli.length + ')</span></h4>' +
+    liste(isaretli, "İşaretlediğin soru yok.") +
+    '<div class="ogr-gg-uyari"><b>Bitirince yanıtlarını değiştiremezsin.</b> Açık uçlu yanıtların önce yapay zekâ ön ' +
+    'değerlendirmesine, sonra öğretmenine gider; puanını öğretmenin onaylar.</div>' +
+    '<div class="exam-footer"><button class="btn btn-secondary" id="btnBackToExam" type="button">← Sorulara dön</button>' +
+    '<button class="btn btn-critical btn-dolu" id="btnFinishExam" type="button">Sınavı bitir</button></div></div>';
 }
 function wireStudentTab2() {
   // Aktif sınav yokken bu sekme sınav başlatma kartlarını gösterir.
-  if (state.examStatus !== "in_progress") { wireStudentTab1(); return; }
+  if (state.examStatus !== "in_progress") { ogrGozdenGecir = false; wireStudentTab1(); return; }
   // Madde 5: gözden geçirme işareti — yanıtı değiştirmez, yalnızca toggle'lar.
   const flagBtn = document.getElementById("btnFlagQ");
   if (flagBtn) flagBtn.onclick = function () {
-    const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
-    const q = items[state.currentQIndex];
+    const q = ogrSinavSorulari()[state.currentQIndex];
     if (!q) return;
     state.flagged = state.flagged || {};
     if (state.flagged[q.id]) delete state.flagged[q.id]; else state.flagged[q.id] = true;
@@ -8995,8 +9066,7 @@ function wireStudentTab2() {
       state.answers[qid].savedAt = Date.now();
       saveSoon();
       flashAutosave();
-      const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
-      if (dot) dot.classList.add("answered");
+      ogrBaslikTazele();
       /* §30 — SEÇİLİ ŞIK VURGUSU: burada bilerek renderAll() ÇAĞRILMAZ
          (sınav ekranını komple yeniden çizmek gereksiz ve risklidir), ama
          .selected sınıfı da taşınmıyordu: radyo düğmesi yeni şıkka geçiyor,
@@ -9034,19 +9104,28 @@ function wireStudentTab2() {
     autosaveTimer = setTimeout(function () {
       const m = document.getElementById("autosaveMsg");
       if (m) m.innerHTML = '<span class="dot-save"></span> Kaydedildi ✓ ' + new Date(state.answers[qid].savedAt).toLocaleTimeString("tr-TR");
-      const dot = document.querySelectorAll(".qnav-dot")[state.currentQIndex];
-      if (dot && openEl.value.trim()) dot.classList.add("answered");
+      ogrBaslikTazele();
     }, 500);
   };
   const prev = document.getElementById("btnPrevQ"); if (prev) prev.onclick = function () { state.currentQIndex--; renderAll(); };
   const next = document.getElementById("btnNextQ"); if (next) next.onclick = function () { state.currentQIndex++; renderAll(); };
-  document.querySelectorAll(".qnav-dot").forEach(function (d) { d.onclick = function () { state.currentQIndex = Number(d.dataset.idx); renderAll(); }; });
+  ogrNoktalariBagla();
+  const bakBtn = document.getElementById("btnReviewExam");
+  if (bakBtn) bakBtn.onclick = function () { ogrGozdenGecir = true; renderAll(); window.scrollTo(0, 0); };
+  const donBtn = document.getElementById("btnBackToExam");
+  if (donBtn) donBtn.onclick = function () { ogrGozdenGecir = false; renderAll(); };
+  document.querySelectorAll("#panel-student .ogr-gg-soru").forEach(function (b) {
+    b.onclick = function () { state.currentQIndex = Number(b.dataset.idx); ogrGozdenGecir = false; renderAll(); };
+  });
+  const ayrinti = document.querySelector("#panel-student .ogr-butunluk-ayrinti");
+  if (ayrinti) ayrinti.ontoggle = function () { ogrButunlukAcik = ayrinti.open; };
+  // Bitir yalnız gözden geçirme adımında var; son onay modalda.
   const finishBtn = document.getElementById("btnFinishExam"); if (finishBtn) finishBtn.onclick = function () { openModal(finishExamModalHtml()); };
 }
 
 function studentTab3Html() {
   if (state.examStatus !== "graded") {
-    return '<div class="card"><div class="empty-state">' + (state.examStatus === "submitted" ? "Öğretmen henüz onaylamadı. Onaylandığında karneniz burada görünecek." : "Sınavı tamamladığınızda karneniz burada görünecek.") + '</div></div>';
+    return '<div class="card"><div class="empty-state">' + (state.examStatus === "submitted" ? "Öğretmenin henüz onaylamadı. Onaylandığında karnen burada görünecek." : "Sınavı tamamladığında karnen burada görünecek.") + '</div></div>';
   }
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   let totalScore = 0, totalMax = 0;
@@ -9059,10 +9138,10 @@ function studentTab3Html() {
       // öğrenciye haksızlıktır; puanlamaya da dahil edilmez.
       if (!res) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
-          '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
-          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtınız kaydedilmemiş — ' +
-          'soru siz sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanınıza eklenmedi; ' +
-          'öğretmeninize bildirin.</div></div>';
+          '</span><span class="pill pill-warning">puanlanmadı</span></div>' + kazanimAdKodHtml(q.outcome) +
+          '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru için yanıtın kaydedilmemiş — ' +
+          'soru sen sınavı bitirdikten sonra eklenmiş olabilir. Toplam puanına eklenmedi; ' +
+          'öğretmenine bildir.</div></div>';
       }
       /* PUAN GÖRÜNÜR OLMALI (ekip denemesi geri bildirimi): burada eskiden
          yalnızca "✓ Doğru" rozeti vardı; soru puanlanıyordu ama öğrenci o
@@ -9079,8 +9158,8 @@ function studentTab3Html() {
         return o && o.text ? key + ") " + o.text : (key || "—");
       };
       return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span>' +
-        '<span class="rr-score tabular">' + kazanilan + " / " + mcP + '</span></div>' +
-        '<div class="rr-answer"><div class="rr-answer-lbl">Sizin yanıtınız</div>' +
+        '<span class="rr-score tabular">' + kazanilan + " / " + mcP + '</span></div>' + kazanimAdKodHtml(q.outcome) +
+        '<div class="rr-answer"><div class="rr-answer-lbl">Senin yanıtın</div>' +
         '<div class="rr-answer-txt' + (res.correct ? " ok" : " no") + '">' + escapeHtml(sikMetni(a.selectedKey)) +
         ' <span class="pill ' + (res.correct ? "pill-success" : "pill-critical") + '">' +
         (res.correct ? "✓ Doğru" : "✕ Yanlış") + '</span></div>' +
@@ -9101,10 +9180,10 @@ function studentTab3Html() {
       // SAVUNMA: onay ya da rubrik kaydı yoksa çökmek yerine durumu söyle.
       if (!rv || !rub) {
         return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) +
-          '</span><span class="pill pill-warning">puanlanmadı</span></div>' +
+          '</span><span class="pill pill-warning">puanlanmadı</span></div>' + kazanimAdKodHtml(q.outcome) +
           '<div style="font-size:12.5px;color:var(--text-muted);">Bu soru ' +
-          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmeniniz tarafından onaylanmamış") +
-          '. Toplam puanınıza eklenmedi — öğretmeninize bildirin.</div></div>';
+          (!rub ? "için puanlama ölçütü hazırlanmamış" : "henüz öğretmenin tarafından onaylanmamış") +
+          '. Toplam puanına eklenmedi — öğretmenine bildir.</div></div>';
       }
       totalScore += rv.finalScore; totalMax += rub.maxScore;
       /* "Değiştirildi mi" sorusu ETİKETTEN DEĞİL, PUANDAN türetilir.
@@ -9123,10 +9202,10 @@ function studentTab3Html() {
          bir şey söylemez. Çoktan seçmelide "Yanıtınız: A" zaten vardı;
          açık uçluda hiç yoktu, yani ürün kendi içinde tutarsızdı. */
       const yanitMetni = String(((state.answers[q.id] || {}).text || "")).trim();
-      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' +
-        '<div class="rr-answer"><div class="rr-answer-lbl">Sizin yanıtınız</div>' +
+      return '<div class="report-row"><div class="rr-head"><span>' + escapeHtml(q.body) + '</span><span class="rr-score tabular">' + rv.finalScore + " / " + rub.maxScore + '</span></div>' + kazanimAdKodHtml(q.outcome) +
+        '<div class="rr-answer"><div class="rr-answer-lbl">Senin yanıtın</div>' +
         '<div class="rr-answer-txt' + (yanitMetni ? "" : " bos") + '">' +
-        (yanitMetni ? escapeHtml(yanitMetni) : "Bu soruya yanıt yazmamışsınız.") + '</div></div>' +
+        (yanitMetni ? escapeHtml(yanitMetni) : "Bu soruya yanıt yazmamışsın.") + '</div></div>' +
         '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
         /* DÜRÜSTLÜK: ortada hiç yapay zekâ önerisi yokken öğrenciye "yapay zekâ
            önerisi onaylandı" demek yanlış beyandır. Öğretmen elle puanladıysa
@@ -9134,10 +9213,10 @@ function studentTab3Html() {
            söyle. HITL tezinin gereği: öğrenci puanın nasıl oluştuğunu doğru
            bilmeli. */
         (aiOneri == null
-          ? 'Bu puanı öğretmeniniz kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
+          ? 'Bu puanı öğretmenin kendisi verdi; bu soruda yapay zekâ önerisi kullanılmadı.'
           : revize
-            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmeniniz yanıtınızı okuyup puanı ' + rv.finalScore + ' olarak belirledi.'
-            : 'Yapay zekâ bu puanı önerdi; öğretmeniniz yanıtınızı okuyup onayladı.') + '</div>' +
+            ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmenin yanıtını okuyup puanı ' + rv.finalScore + ' olarak belirledi.'
+            : 'Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı.') + '</div>' +
         ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
         /* §51 — ÖĞRENCİYE YALNIZCA ÖĞRETMENİN ONAYLADIĞI METİN GİDER.
            Eskiden karne `ev.justification` ile ölçüt `reason`larını da
@@ -9152,7 +9231,7 @@ function studentTab3Html() {
           return '<div class="rr-crit"><span>' + escapeHtml(b.label) + '</span><span class="tabular">' + ondalikTr(b.points) + ' / ' + ondalikTr(b.max) + '</span></div>';
         }).join("") +
         (rv.comment
-          ? '<div class="justification" style="margin-top:8px;"><b>Öğretmeninizin notu:</b> ' + escapeHtml(rv.comment) + '</div>'
+          ? '<div class="justification" style="margin-top:8px;"><b>Öğretmeninin notu:</b> ' + escapeHtml(rv.comment) + '</div>'
           : "") + '</div>';
     }
   }).join("");
@@ -9169,13 +9248,13 @@ function studentTab3Html() {
 
   return '<div class="card">' +
     '<div class="card-head"><h3>' + escapeHtml(state.exam.title || "Sınav Karnesi") + '</h3>' +
-    '<span class="hint">öğretmeniniz onayladı</span></div>' +
+    '<span class="hint">öğretmenin onayladı</span></div>' +
     '<div class="karne-toplam">' +
       '<div class="kt-sayi"><span class="kt-puan tabular">' + puan + '</span>' +
       '<span class="kt-tavan tabular">/ ' + totalMax + '</span></div>' +
       (yuzde == null ? "" : '<div class="kt-yuzde tabular">%' + yuzde + '</div>') +
-      '<div class="kt-not">Bu, sınavdan aldığınız <b>nihai puan</b>. ' +
-      'Aşağıda her soruda ne yazdığınızı, kaç puan aldığınızı ve puanın hangi ölçütlerden geldiğini görebilirsiniz.</div>' +
+      '<div class="kt-not">Bu, sınavdan aldığın <b>nihai puan</b>. ' +
+      'Aşağıda her soruda ne yazdığını, kaç puan aldığını, sorunun hangi kazanımı ölçtüğünü ve puanın hangi ölçütlerden geldiğini görebilirsin.</div>' +
     '</div>' + rows + '</div>';
 }
 
@@ -9196,9 +9275,9 @@ function renderStudent() {
   // Sıra bilinçli: öğrencinin ana işi sınav çözmek. "Sınavı Çöz" sekmesi
   // aktif sınav yokken de ÖLÜ DEĞİLDİR — başlatılabilecek sınavı gösterir.
   const tabs = [
-    { id: 2, label: "1 · Sınavı Çöz", pasif: false },
-    { id: 1, label: "2 · Sınavlarım", pasif: false },
-    { id: 3, label: "3 · Karne", pasif: state.examStatus !== "graded" }
+    { id: 2, label: "Sınavı Çöz", pasif: false },
+    { id: 1, label: "Sınavlarım", pasif: false },
+    { id: 3, label: "Karne", pasif: state.examStatus !== "graded" }
   ];
   root.innerHTML = studentPickerHtml() + '<div class="tabs" id="studentTabs">' +
     tabs.map(function (t) {
@@ -9208,7 +9287,7 @@ function renderStudent() {
     '</div><div id="studentTabContent"></div>';
   document.querySelectorAll("#studentTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.studentTab = Number(b.dataset.tab); renderAll(); }; });
   document.querySelectorAll(".sp-btn").forEach(function (b) {
-    b.onclick = function () { activateStudent(Number(b.dataset.sid)); };
+    b.onclick = function () { ogrGozdenGecir = false; activateStudent(Number(b.dataset.sid)); };
   });
   const content = document.getElementById("studentTabContent");
   if (state.studentTab === 1) { content.innerHTML = studentTab1Html(); wireStudentTab1(); }
@@ -9262,6 +9341,15 @@ function kazanimKisaAd(o) {
   const i = etiket.indexOf("—");
   const ad = i >= 0 ? etiket.slice(i + 1).trim() : etiket.replace(kod, "").trim();
   return { ad: ad || kod, kod: kod };
+}
+
+/** §63: kazanımın okunur adı önde, kodu ikincil (öğrenci karnesi, veli). */
+function kazanimAdKodHtml(kod) {
+  if (!kod || kod === "—") return "";
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === kod; }) || { code: kod, label: kod };
+  const k = kazanimKisaAd(o);
+  return '<div class="kz-etiket"><span class="kz-ad">' + escapeHtml(k.ad) + '</span>' +
+    (k.ad !== k.kod ? '<span class="kz-kod">' + escapeHtml(k.kod) + '</span>' : "") + '</div>';
 }
 
 /**
@@ -9342,7 +9430,7 @@ function kazanimGrafigiSvg(rows, cols) {
  * Kazanım başarı grafiğini çizer ve altına aksiyon bloklarını ekler.
  * Eski `renderHeatmap` ile AYNI veriyi alır; yalnızca gösterim değişti.
  */
-function renderKazanimGrafigi(targetId, rows) {
+function renderKazanimGrafigi(targetId, rows, bosMesaj) {
   const el = document.getElementById(targetId);
   if (!el) return;
   /* §51 — Yalnızca EN AZ BİR şubede verisi olan kazanımlar çizilir. Ölçüldü:
@@ -9355,7 +9443,7 @@ function renderKazanimGrafigi(targetId, rows) {
     return rows.some(function (r) { return r.scores && r.scores[c.code] != null; });
   });
   if (!rows.length || !cols.length) {
-    el.innerHTML = '<div class="empty-state">Karşılaştırma için henüz yeterli sonuç yok.</div>';
+    el.innerHTML = '<div class="empty-state">' + (bosMesaj || "Karşılaştırma için henüz yeterli sonuç yok.") + '</div>';
     return;
   }
 
@@ -9367,8 +9455,10 @@ function renderKazanimGrafigi(targetId, rows) {
     }).join("") +
     '<span class="kg-l-oge"><span class="kg-l-esik"></span>kritik eşik (%' + KRITIK_ESIK + ")</span>" +
     '</div>' +
-    '<div class="legend-live">Soluk ve kesik çerçeveli sütunlar “(örnek)” etiketli demo ' +
-    'verilerdir; diğerleri bu sistemde gerçekten çözülen sınavlardan hesaplanır.</div>';
+    (rows.some(function (r) { return r.ornek; })
+      ? '<div class="legend-live">Soluk ve kesik çerçeveli sütunlar “(örnek)” etiketli demo ' +
+        'verilerdir; diğerleri bu sistemde gerçekten çözülen sınavlardan hesaplanır.</div>'
+      : "");
 
   /* §37 — UYARI YALNIZCA GERÇEK SATIRLARDAN. Demo verisi bir aksiyon uyarısı
      doğuramaz; bu ayrım eski ısı haritasında da vardı ve korunuyor. */
@@ -9500,80 +9590,62 @@ function renderAdmin() {
      şubenin öğretmeniyle çalışma planlamaya yönlendiriliyordu. Artık önce
      gerçek şubelere bakılır; gerçek veri yoksa örneğe düşülür ve bunun örnek
      veri olduğu ekranda YAZAR (§6.3-5: simüle veri simüle olduğunu söyler). */
-  function enDusukKazanim(satirlar) {
-    let en = null;
-    satirlar.forEach(function (r) {
-      OUTCOMES_LIST().forEach(function (c) {
-        const v = r.scores[c.code];
-        if (v != null && (!en || v < en.v)) en = { sinif: r.name, kod: c.code, etiket: outcomeLabel(c.code), v: v };
-      });
+  /* §63 — "ÖNCE BURAYA BAKIN" YALNIZ GERÇEK VERİYE BAKAR. Eskiden gerçek
+     veri yokken örnek şubeye düşüyor ve yöneticiye var olmayan bir şube
+     gösteriliyordu (etiketli olsa bile eylem kartında örnek veri durmaz).
+     Örnek veri artık sayfanın sonundaki "Karşılaştırma (örnek)" bölümünde. */
+  const gercekSatirlar = yonGercekSatirlar();
+  let enZayif = null;
+  gercekSatirlar.forEach(function (r) {
+    OUTCOMES_LIST().forEach(function (c) {
+      const v = r.scores[c.code];
+      if (v != null && (!enZayif || v < enZayif.v)) enZayif = { sinif: r.sinif, kod: c.code, etiket: kazanimKisaAd(c).ad, v: v };
     });
-    return en;
-  }
-  let enZayif = enDusukKazanim(realClassRows());
-  const enZayifOrnek = !enZayif;
-  if (!enZayif) enZayif = enDusukKazanim(buildAdminHeatmapRows());
+  });
 
   root.innerHTML =
-    '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
+    '<div class="card yon-ust"><div class="card-head">' +
     '<h3>Okul Geneli Ölçme Durumu</h3><span class="hint">tüm sınıflar, bu dönem</span></div>' +
-    '<div style="font-size:13px;color:var(--text-muted);line-height:1.6;">' +
-    'Bu ekran, okuldaki ölçme sürecinin ne kadarının tamamlandığını ve hangi kazanımlarda ' +
-    'eksik kalındığını tek bakışta gösterir. Puanların hiçbiri yapay zekâ tarafından ' +
-    'kesinleştirilmemiştir; buradaki sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçları yansıtır. ' +
-    'Aşağıdaki üç kutu <b>yalnızca bu sistemde gerçekten yürütülen</b> sınavlardan hesaplanır. ' +
-    'Grafikteki <b>“(örnek)”</b> etiketli şubeler ise karşılaştırma için konmuş demo verisidir ' +
-    've bu kutulara dahil <b>edilmez</b>.' +
-    '</div></div>' +
+    '<p class="yon-ozet">Sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçlardan hesaplanır.</p>' +
+    yonBilgiHtml('Bu ekran, okuldaki ölçme sürecinin ne kadarının tamamlandığını ve hangi kazanımlarda ' +
+      'eksik kalındığını gösterir. Puanların hiçbiri yapay zekâ tarafından kesinleştirilmemiştir. ' +
+      'Kutular, eylem kartı, grafik ve risk listesi <b>yalnızca bu sistemde gerçekten yürütülen</b> sınavlardan ' +
+      'hesaplanır. Örnek (demo) veri sayfanın sonundaki <b>Karşılaştırma (örnek)</b> bölümündedir ve bunlara katılmaz.',
+      "Bu ekran neyi gösterir?") +
+    '</div>' +
 
-    '<div class="grid-3col" style="margin-bottom:18px;">' +
+    yonEylemKartiHtml(durum, enZayif) +
+
+    '<div class="grid-3col yon-kutular">' +
     '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">' +
-    (rate == null ? "—" : "%" + rate) + '</div>' +
+    (rate == null ? "—" : "%" + ondalikTr(rate)) + '</div>' +
     '<div class="s-sub tabular">' +
     (durum.atanan
       /* §51: "4/4 sınav" diyordu, oysa 1 sınav × 4 öğrenci idi; sayılan şey
-         (alttaki notta yazdığı gibi) öğrenci-sınav atamasıdır. */
-      ? durum.tamamlanan + '/' + durum.atanan + ' sınav ataması tamamlandı'
+         öğrenci-sınav atamasıdır. */
+      ? durum.tamamlanan + ' / ' + durum.atanan + ' atama tamamlandı'
       : 'henüz yayınlanmış sınav yok') + '</div>' +
-    '<div class="s-note">Atanan sınavların öğrenciler tarafından bitirilme oranı ' +
-    '(yayınlanmış her sınav × her öğrenci bir atama sayılır)</div></div>' +
+    yonBilgiHtml('Atanan sınavların öğrenciler tarafından bitirilme oranı. ' +
+      'Yayınlanmış her sınav × her öğrenci bir atama sayılır.') + '</div>' +
 
     '<div class="stat-tile"><div class="s-label">Öğretmen Onayı Bekleyen</div><div class="s-value tabular">' + durum.bekleyen + '</div>' +
     '<div class="s-sub">açık uçlu yanıt</div>' +
-    '<div class="s-note">AI puan önerdi, öğretmen henüz onaylamadı. Bu sayı büyürse sonuçlar gecikiyor demektir.</div></div>' +
+    yonBilgiHtml('Yapay zekâ puan önerdi, öğretmen henüz onaylamadı. Onaylanmayan sonucu öğrenci ve veli ' +
+      'göremez; bu sayı büyürse sonuçlar gecikiyor demektir.') + '</div>' +
 
     '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + siniflar().length + '</div>' +
     '<div class="s-sub">okul genelinde</div>' +
-    '<div class="s-note">Bu dönem en az bir ölçme süreci yürütülen sınıf sayısı</div></div></div>' +
-
-    (enZayif
-      ? '<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Önce Buraya Bakın</h3><span class="hint">' +
-        (enZayifOrnek ? "örnek veri — gerçek sonuç henüz yok" : "en düşük kazanım") + '</span></div>' +
-        '<div style="font-size:14px;line-height:1.65;"><b>' + escapeHtml(enZayif.sinif) + '</b> sınıfı, ' +
-        '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarı gösterdi. ' +
-        (enZayifOrnek
-          ? 'Bu satır <b>örnek karşılaştırma verisidir</b>; sistemde henüz öğretmen onayından geçmiş gerçek sonuç yok. ' +
-            'Gerçek sonuçlar girdikçe bu kutu onlara göre güncellenir.'
-          : 'Bu, okuldaki en düşük değer. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.') +
-        '</div></div>'
-      : "") +
+    yonBilgiHtml('Bu dönem en az bir ölçme süreci yürütülen sınıf sayısı.') + '</div></div>' +
 
     '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği</h3><span class="hint">grup: kazanım, sütun: şube</span></div>' +
-    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
-    /* ESKİ ISI HARİTASININ NOTU BURADAN KALDIRILDI ve NEDENİ ÖNEMLİ:
-       o not renk yoğunluğunun ne anlama geldiğini açıklıyordu ("koyu = yüksek
-       başarı") ve bir kez de TERS yazıldığı için düzeltilmişti. Gruplu sütun
-       grafiğinde böyle bir açıklamaya hiç gerek yok: yüzde zaten her sütunun
-       üzerinde SAYIYLA yazıyor. Yanlış okunabilecek bir kodlama kalmadığı için
-       yanlış açıklanabilecek bir şey de kalmadı. */
-    'Her sütun, o şubenin o kazanımdaki ortalama başarı yüzdesidir; değer ' +
-    'sütunun üzerinde yazar. Kesikli kırmızı çizgi <b>%55 kritik eşiği</b> ' +
-    'gösterir — altında kalan ölçümler aşağıda ayrıca listelenir.</div>' +
+    yonBilgiHtml('Her sütun, o şubenin o kazanımdaki ortalama başarı yüzdesidir; değer sütunun üzerinde yazar. ' +
+      'Şube adının yanındaki sayı, yüzdenin <b>kaç öğrencinin onaylı sonucundan</b> hesaplandığını söyler. ' +
+      'Kesikli kırmızı çizgi <b>%' + KRITIK_ESIK + ' kritik eşiği</b> gösterir — altında kalan ölçümler ayrıca listelenir.',
+      "Grafik nasıl okunur?") +
     '<div id="adminHeatmap"></div></div>' + trendHtml();
 
-  // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — ısı haritasından
-  // SONRA (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası),
-  // denetim izinden ÖNCE (karne, "bugün ne yapmalıyım" sorusuna en yakın kart).
+  // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — grafikten SONRA
+  // (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası).
   root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml());
   /* §56 (A7): aynı rapor, kurum geneli. "örnek" öğretmen verisi KATILMAZ. */
   root.insertAdjacentHTML("beforeend", kararRaporuHtml("yonetici", kurumKararKayitlari(),
@@ -9589,13 +9661,83 @@ function renderAdmin() {
      aktarmanın üstünde: müdürün "bugün ne yapmalıyım" sorusu, indirme
      düğmelerinden önce gelir. */
   root.insertAdjacentHTML("beforeend", riskListesiHtml());
+  // §63: örnek veri tek yerde, açıkça etiketli ve gerçek bölümlerden ayrı.
+  root.insertAdjacentHTML("beforeend", yonOrnekBolumHtml());
+  wireTeacherAnalytics();   // örnek öğretmen satırları da bağlansın
   // Dışa aktarma (§28d) — okullar sonuçları Excel'de ister.
   root.insertAdjacentHTML("beforeend", disaAktarHtml());
   wireDisaAktar();
-  /* Isı haritası GERÇEK + "(örnek)" satırların ikisini birden gösterir
-     (örnekler etiketli olduğu için yanıltmaz). "Önce Buraya Bakın" kutusu
-     ise yalnızca gerçek satırlara bakar — bkz. `enDusukKazanim` kullanımı. */
-  renderKazanimGrafigi("adminHeatmap", buildAdminHeatmapRows());
+  renderKazanimGrafigi("adminHeatmap", gercekSatirlar,
+    "Henüz öğretmen onayından geçmiş sonuç yok. İlk sınav onaylandığında grafik burada oluşur.");
+  renderKazanimGrafigi("adminOrnekGrafik", ornekSinifSatirlari(realClassRows()));
+}
+
+/* §63 — YÖNETİCİ PANELİ YARDIMCILARI (tasarım turu, W4). */
+
+/** Açıklamalar ⓘ ardında katlanır; metin silinmez, yalnız varsayılan kapalı. */
+function yonBilgiHtml(icerik, etiket) {
+  return '<details class="yon-bilgi"><summary><span class="yon-bilgi-ikon" aria-hidden="true">ⓘ</span>' +
+    '<span>' + (etiket || "Ne demek?") + '</span></summary><div class="yon-bilgi-metin">' + icerik + '</div></details>';
+}
+
+/** Gerçek şube satırları; ad "7-A · 2 öğrenciden" (yüzdenin dayandığı onaylı sonuç sayısı). */
+function yonGercekSatirlar() {
+  return realClassRows().map(function (r) {
+    const n = (state.students || []).filter(function (o) {
+      return o.sinif === r.sinif && readSession(o.id).examStatus === "graded";
+    }).length;
+    return Object.assign({}, r, { name: r.sinif + " · " + (n ? n + " öğrenciden" : "onaylı sonuç yok") });
+  });
+}
+
+/** "Önce buraya bakın": yöneticinin bugün yapabileceği en fazla üç iş, yalnız gerçek veriden. */
+function yonEylemKartiHtml(durum, enZayif) {
+  const maddeler = [];
+  if (durum.bekleyen) {
+    maddeler.push({ ton: "uyari", metin: '<b class="tabular">' + durum.bekleyen + '</b> açık uçlu yanıt öğretmen onayı bekliyor. ' +
+      'Onaylanmadan öğrenci ve veli sonucu göremez.' });
+  }
+  if (enZayif) {
+    maddeler.push({ ton: enZayif.v < KRITIK_ESIK ? "kritik" : "bilgi", metin: '<b>' + escapeHtml(enZayif.sinif) + '</b> şubesi ' +
+      '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarıda — okuldaki en düşük değer' +
+      (enZayif.v < KRITIK_ESIK ? ', kritik eşiğin (%' + KRITIK_ESIK + ') altında' : '') +
+      '. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.' });
+  }
+  if (durum.atanan && durum.tamamlanan < durum.atanan) {
+    maddeler.push({ ton: "bilgi", metin: '<b class="tabular">' + (durum.atanan - durum.tamamlanan) + '</b> sınav ataması henüz tamamlanmadı.' });
+  }
+  const govde = maddeler.length
+    ? '<ol class="yon-eylem-liste">' + maddeler.map(function (m) {
+        return '<li class="yon-eylem-' + m.ton + '">' + m.metin + '</li>';
+      }).join("") + '</ol>'
+    : '<div class="empty-state">' + (durum.atanan
+        ? "Şu an bekleyen bir iş yok: onay bekleyen yanıt kalmadı ve kritik eşiğin altında bir kazanım görünmüyor."
+        : "Henüz yayınlanmış sınav yok. İlk sınav yayınlanıp öğretmen onayından geçtiğinde yapılacak işler burada listelenir.") + '</div>';
+  return '<div class="card yon-eylem"><div class="card-head"><h3>Önce buraya bakın</h3>' +
+    '<span class="hint">yalnız bu sistemdeki gerçek veri</span></div>' + govde + '</div>';
+}
+
+/** Örnek (demo) veri bölümü: şube karşılaştırması + örnek öğretmenler. */
+function yonOrnekBolumHtml() {
+  const ornekOgretmen = teacherRoster().filter(function (t) { return t.demo; });
+  return '<div class="card yon-ornek"><div class="card-head"><h3>Karşılaştırma (örnek)</h3>' +
+    '<span class="pill pill-neutral">örnek veri</span></div>' +
+    '<p class="yon-ozet">Bu bölümdeki şubeler ve öğretmenler <b>gerçek değildir</b>; ekranın dolu hâlde nasıl ' +
+    'okunacağını göstermek için konmuştur. Yukarıdaki kutulara, eylem kartına ve risk listesine katılmaz.</p>' +
+    '<h4 class="yon-alt-baslik">Örnek şubeler</h4><div id="adminOrnekGrafik"></div>' +
+    (ornekOgretmen.length
+      ? '<h4 class="yon-alt-baslik">Örnek öğretmenler — yapay zekâ önerisi ile öğretmen kararı</h4>' +
+        '<div class="ta-list">' + ornekOgretmen.map(teacherSatirHtml).join("") + '</div>' +
+        '<div id="taDetayOrnek">' + (yonSeciliOgretmen(true) ? teacherReportCardHtml(yonSeciliOgretmen(true)) : "") + '</div>'
+      : "") +
+    '</div>';
+}
+
+/** Seçili öğretmen kaydı; demo=true ise yalnız örnek, false ise yalnız gerçek öğretmenlerden. */
+function yonSeciliOgretmen(demo) {
+  const ad = state.adminSelectedTeacher;
+  if (!ad) return null;
+  return teacherRoster().find(function (t) { return t.name === ad && !!t.demo === demo; }) || null;
 }
 
 /* ===========================================================================
@@ -9624,49 +9766,48 @@ function teacherOzetCumlesi(t) {
   const c = calibrationFromRecords(t.records);
   if (!c.n) return "henüz değerlendirme onayı yok";
   if (!c.guvenilir) return c.n + " onay — istatistiksel sapma için en az 5 onay gerekir";
-  if (Math.abs(c.yon) < 0.05) return "AI analizine kıyasla sistematik bir sapma yok";
-  const pct = teacherDeltaYuzde(c);
-  /* 🔴 KENAR DURUMU (ölçüldü — Mehmet Demir örneği): yon ham puanda 0,05'i
-     geçebilir ama yüzdeye çevrilip yuvarlanınca "%0" çıkabilir (ör. 0,07/20 ≈
-     %0,35 -> yuvarlanır 0). "%0 daha yüksek puan veriyor" bir çelişkidir —
-     bu durumda puan cinsinden ifadeye düşülür, sıfır yüzde YAZILMAZ. */
+  if (Math.abs(c.yon) < 0.05) return "yapay zekâ önerisine kıyasla sistematik bir sapma yok";
+  /* §63 — TEK BİRİM: PUAN. Eskiden bir satır "%8 daha düşük", yanındaki
+     "0,1 puan daha düşük" diyordu (yüzde 0'a yuvarlanınca puana düşülüyordu);
+     yönetici iki satırı karşılaştıramıyordu. Artık hep puan yazılır.
+     teacherDeltaYuzde() kalibrasyon için tanımlı kalır, burada kullanılmaz. */
   const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
-  return pct != null && pct > 0
-    ? "AI analizine kıyasla ortalama %" + pct + " " + yonKelime + " puan veriyor"
-    : "AI analizine kıyasla ortalama " + ondalikTr(Math.abs(c.yon), 1) + " puan " + yonKelime + " veriyor";
+  return "yapay zekâ önerisinden ortalama " + ondalikTr(Math.abs(c.yon), 1) + " puan " + yonKelime + " veriyor";
+}
+
+/** Öğretmen listesindeki tek satır (gerçek ve örnek listelerde ortak). */
+function teacherSatirHtml(t) {
+  const c = calibrationFromRecords(t.records);
+  const aktif = t.name === state.adminSelectedTeacher;
+  const rozet = t.demo
+    ? '<span class="pill pill-neutral">örnek</span>'
+    : (c.n ? '<span class="pill pill-accent2">canlı</span>' : '<span class="pill pill-neutral">veri yok</span>');
+  return '<div class="ta-row' + (aktif ? " ta-row-aktif" : "") + '" data-teacher="' + escapeHtml(t.name) + '" role="button" tabindex="0" aria-pressed="' + aktif + '">' +
+    '<div class="ta-row-ust"><span class="ta-row-ad">' + escapeHtml(t.name) +
+    (t.subject ? ' <span class="ta-row-ders">· ' + escapeHtml(t.subject) + '</span>' : "") + '</span>' + rozet + '</div>' +
+    '<div class="ta-row-ozet">' + teacherOzetCumlesi(t) + '</div>' +
+    '</div>';
 }
 
 function teacherAnalyticsHtml() {
-  const roster = teacherRoster();
-  const secili = state.adminSelectedTeacher;
+  // §63: örnek öğretmenler bu kartta değil, "Karşılaştırma (örnek)" bölümünde.
+  const roster = teacherRoster().filter(function (t) { return !t.demo; });
 
   const satirlar = !roster.length
     ? '<div class="empty-state">Henüz sınav kaydı yok; öğretmen listesi ilk sınav oluşturulunca dolar.</div>'
-    : roster.map(function (t) {
-        const c = calibrationFromRecords(t.records);
-        const aktif = t.name === secili;
-        const rozet = t.demo
-          ? '<span class="pill pill-neutral">örnek</span>'
-          : (c.n ? '<span class="pill pill-accent2">canlı</span>' : '<span class="pill pill-neutral">veri yok</span>');
-        return '<div class="ta-row' + (aktif ? " ta-row-aktif" : "") + '" data-teacher="' + escapeHtml(t.name) + '">' +
-          '<div class="ta-row-ust"><span class="ta-row-ad">' + escapeHtml(t.name) +
-          (t.subject ? ' <span class="ta-row-ders">· ' + escapeHtml(t.subject) + '</span>' : "") + '</span>' + rozet + '</div>' +
-          '<div class="ta-row-ozet">' + teacherOzetCumlesi(t) + '</div>' +
-          '</div>';
-      }).join("");
+    : roster.map(teacherSatirHtml).join("");
 
-  const seciliKayit = secili ? roster.find(function (t) { return t.name === secili; }) : null;
+  const seciliKayit = yonSeciliOgretmen(false);
   const detay = seciliKayit
     ? teacherReportCardHtml(seciliKayit)
-    : '<div class="empty-state">Karneyi görmek için yukarıdaki listeden bir öğretmen seçin.</div>';
+    : (roster.length ? '<div class="empty-state">Karneyi görmek için listeden bir öğretmen seçin.</div>' : "");
 
-  return '<div class="card" style="margin-top:18px;">' +
+  return '<div class="card yon-ogretmen">' +
     '<div class="card-head"><h3>Öğretmen Değerlendirme Analitiği &amp; Kalibrasyon</h3>' +
-    '<span class="hint">yapay zekâ önerisi ile öğretmen kararı arasındaki uyum, öğretmen bazında</span></div>' +
-    '<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">' +
-    'Bu liste yalnızca öğretmenin <b>onayladığı</b> açık uçlu değerlendirmelerden hesaplanır; hiçbir sayı sabit değildir. ' +
-    '<b>"canlı"</b> etiketi bu sistemde gerçekten yürütülmüş onayları, <b>"örnek"</b> etiketi henüz gerçek onayı ' +
-    'olmayan öğretmenler için gösterilen karşılaştırma verisini gösterir.</div>' +
+    '<span class="hint">yapay zekâ önerisi ile öğretmen kararı, öğretmen bazında</span></div>' +
+    yonBilgiHtml('Bu liste yalnızca öğretmenin <b>onayladığı</b> açık uçlu değerlendirmelerden hesaplanır; hiçbir sayı sabit değildir. ' +
+      'Sapma her yerde <b>puan</b> cinsindendir: artı, öğretmenin yapay zekâ önerisinden yüksek; eksi, düşük puan verdiği anlamına gelir. ' +
+      'Örnek öğretmenler sayfanın sonundaki Karşılaştırma (örnek) bölümündedir.', "Nasıl hesaplanır?") +
     '<div class="ta-list">' + satirlar + '</div>' +
     '<div id="taDetay">' + detay + '</div>' +
     '</div>';
@@ -9680,29 +9821,27 @@ function teacherReportCardHtml(t) {
 
   // ZERO-DATA: kesinlikle "%0" ya da "%100" gibi yanıltıcı bir sayı YAZILMAZ.
   if (!c.n) {
-    return '<div class="card" style="margin-top:12px;"><div class="card-head">' +
+    return '<div class="card ta-karne"><div class="card-head">' +
       '<h3>' + escapeHtml(t.name) + '</h3>' + kaynakRozet + '</div>' +
       '<div class="empty-state">Henüz değerlendirme onayı bulunmuyor.</div></div>';
   }
 
   const azVeriModu = !c.guvenilir;
-  const pct = teacherDeltaYuzde(c);
   const yonEtiket = Math.abs(c.yon) < 0.05 ? "dengeli değerlendirici"
     : (c.yon > 0 ? "cömert değerlendirici" : "katı değerlendirici");
   // §29: aynı "%0 çelişkisi" koruması — bkz. teacherOzetCumlesi yorumu.
   // §29: "%0 daha yüksek puan verdi" çelişkisine düşmemek için — yüzde 0'a
   // yuvarlanıyorsa puan cinsine düşülür ve "puan" kelimesi TEKRARLANMAZ.
   const yonKelime = c.yon > 0 ? "daha yüksek" : "daha düşük";
+  // §63: tek birim puan (bkz. teacherOzetCumlesi).
   const yonCumle = Math.abs(c.yon) < 0.05
-    ? escapeHtml(t.name) + ", AI analizine kıyasla sistematik bir sapma göstermiyor."
-    : (pct != null && pct > 0
-        ? escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>%" + pct + "</b> " + yonKelime + " puan verdi"
-        : escapeHtml(t.name) + ", AI analizine kıyasla ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan</b> " + yonKelime + " verdi")
-      + " / <b>" + yonEtiket + "</b>.";
+    ? escapeHtml(t.name) + ", yapay zekâ önerisine kıyasla sistematik bir sapma göstermiyor."
+    : escapeHtml(t.name) + ", yapay zekâ önerisinden ortalama <b>" + ondalikTr(Math.abs(c.yon), 1) + " puan</b> " + yonKelime + " verdi"
+      + " · <b>" + yonEtiket + "</b>.";
   const tamMutabakat = Math.round(c.aynenOnay / c.n * 100);
   const enFarkli = c.enFarkli;
 
-  return '<div class="card" style="margin-top:12px;"><div class="card-head">' +
+  return '<div class="card ta-karne"><div class="card-head">' +
     '<h3>' + escapeHtml(t.name) + (t.subject ? ' <span class="hint">' + escapeHtml(t.subject) + '</span>' : "") + '</h3>' +
     kaynakRozet + '</div>' +
 
@@ -9736,12 +9875,13 @@ function teacherReportCardHtml(t) {
 }
 
 function wireTeacherAnalytics() {
-  document.querySelectorAll(".ta-row").forEach(function (el) {
+  document.querySelectorAll("#panel-admin .ta-row").forEach(function (el) {
     el.onclick = function () {
       const ad = el.dataset.teacher;
       state.adminSelectedTeacher = ad === state.adminSelectedTeacher ? null : ad;
       renderAll();
     };
+    el.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); el.onclick(); } };
   });
 }
 
@@ -9827,16 +9967,21 @@ document.addEventListener("fullscreenchange", function () {
 
 function integrityNoticeHtml() {
   const g = state.integrity;
-  return '<div class="integrity-bar">' +
+  /* §63: tek satır + "ayrıntı". Metnin TAMAMI ayrıntıda aynen duruyor —
+     şeffaflık sözü (privacy-policy.html §2) kısaltılmadı, yalnız katlandı. */
+  return '<div class="integrity-bar ogr-butunluk">' +
     '<span class="ib-dot"></span>' +
-    '<span class="ib-text">Sınav bütünlüğü kaydı açık — sekme değişimi, pencere odağı kaybı, tam ekrandan çıkış ' +
-    've yanıta <b>metin yapıştırılması</b> öğretmeninize <b>bilgi olarak</b> iletilir. ' +
-    'Yapıştırdığınız metnin içeriği kaydedilmez, yalnızca uzunluğu tutulur. ' +
-    'Sistem sizi engellemez veya puanınızı otomatik düşürmez.</span>' +
+    '<span class="ib-text">Bütünlük kaydı açık: sekme değişimi ve yapıştırma öğretmenine <b>bilgi olarak</b> gider.</span>' +
     '<span class="ib-count">Kayıtlı olay: <b id="integrityCount" class="tabular">' + integrityTotal() + '</b></span>' +
     (g.fsGranted ? "" : '<button class="btn btn-secondary btn-sm" id="btnGoFullscreen">Tam ekrana geç</button>') +
+    '<details class="ogr-butunluk-ayrinti"' + (ogrButunlukAcik ? " open" : "") + '><summary>ayrıntı</summary>' +
+    '<div class="ogr-butunluk-metin">Sekme değişimi, pencere odağı kaybı, tam ekrandan çıkış ' +
+    've yanıta <b>metin yapıştırılması</b> öğretmenine <b>bilgi olarak</b> iletilir. ' +
+    'Yapıştırdığın metnin içeriği kaydedilmez, yalnızca uzunluğu tutulur. ' +
+    'Sistem seni engellemez, puanını otomatik düşürmez.</div></details>' +
     '</div>';
 }
+let ogrButunlukAcik = false;
 
 function integritySummaryHtml() {
   const g = state.integrity;
@@ -9887,13 +10032,13 @@ function finishExamModalHtml() {
   const yanitsizNo = items.map(function (it, i) { return { it: it, no: i + 1 }; })
     .filter(function (x) { return !answered(x.it); })
     .map(function (x) { return x.no; });
-  return '<h3>Sınavı bitirmek istediğinize emin misiniz?</h3>' +
-    "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladınız. Bitirdikten sonra yanıtlarınızı değiştiremezsiniz; açık uçlu yanıtlarınız AI ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
+  return '<h3>Sınavı bitirmek istediğine emin misin?</h3>' +
+    "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladın. Bitirdikten sonra yanıtlarını değiştiremezsin; açık uçlu yanıtların yapay zekâ ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
     (yanitsizNo.length
       ? '<p class="pill pill-warning" style="display:block;">Yanıtsız sorular: ' +
         yanitsizNo.map(function (n) { return "#" + n; }).join(", ") + '</p>'
       : "") +
-    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical" id="modalConfirmFinish">Evet, Bitir</button></div>';
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button><button class="btn btn-critical btn-dolu" id="modalConfirmFinish">Evet, bitir</button></div>';
 }
 /* ===========================================================================
    MÜFREDAT KAZANIM KATALOĞU
@@ -10839,11 +10984,11 @@ function riskListesiHtml() {
   const etiket = { basari: "pill-critical", devam: "pill-warning", davranis: "pill-accent2" };
   return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
     '<span class="pill pill-warning">' + liste.length + ' / ' + toplam + ' öğrenci</span></div>' +
-    '<p class="lbl-hint" style="margin-top:0;">Uluslararası erken uyarı standardı olan <b>ABC</b> ' +
-    'çerçevesine göre üç gösterge birlikte değerlendirilir: <b>devam</b> (girilmeyen sınav), ' +
-    '<b>davranış</b> (sınav bütünlüğü sinyali) ve <b>başarı</b> (onaylı sınav ortalaması). ' +
-    'Bu liste bir <b>tahmin değil, bir özettir</b>: sistem kimsenin başarısız olacağını söylemez, ' +
-    'yalnızca elindeki üç ölçütü tek yerde toplar. <b>Karar ve müdahale sizindir.</b></p>' +
+    '<p class="yon-ozet">Bu liste bir <b>tahmin değil, bir özettir</b>. Karar ve müdahale sizindir.</p>' +
+    yonBilgiHtml('Uluslararası erken uyarı standardı olan <b>ABC</b> ' +
+      'çerçevesine göre üç gösterge birlikte değerlendirilir: <b>devam</b> (girilmeyen sınav), ' +
+      '<b>davranış</b> (sınav bütünlüğü sinyali) ve <b>başarı</b> (onaylı sınav ortalaması). ' +
+      'Sistem kimsenin başarısız olacağını söylemez, yalnızca elindeki üç ölçütü tek yerde toplar.', "Nasıl hesaplanır?") +
     liste.map(function (r) {
       return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(r.ad) + '</b>' +
         (r.sinif ? ' <span class="pill pill-neutral">' + escapeHtml(r.sinif) + '</span>' : "") +
@@ -10952,31 +11097,15 @@ function renderParent() {
     return;
   }
 
-  /* 🔴 "SİMÜLASYON" DİLİ KALDIRILDI (3 Eylül, üçüncü tur — kullanıcı: "simülasyon
-     yazısı saçma onu kaldır"). Katlama korunuyor ama artık özür diler bir
-     <details> değil; öğrenci tarafındaki `.student-picker` ile AYNI görünen
-     sade bir seçicidir (§6.3-2 tutarlılığı). Diğer öğrencilerin adı yine de
-     yalnızca bu seçicide görünür — sonuç kartlarında hiç geçmez. */
-  const secici = '<div class="card"><div class="card-head"><h3>Veli Görünümü</h3></div>' +
-    '<p class="lbl-hint" style="margin-top:0;">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar ' +
-    'görünür. Yapay zekânın ham puan önerileri veliye gösterilmez. ' +
-    '<b>Diğer öğrencilerin bilgileri, sınıf ortalaması ve sıralama bu ekranda yer almaz.</b></p>' +
-    ((state.students || []).length > 1
-      ? '<div class="student-picker"><span class="sp-label">Görüntülenen veli</span>' +
-        state.students.map(function (o) {
-          return '<button class="sp-btn ' + (o.id === cocuk.id ? "active" : "") + '" data-vid="' + o.id + '">' +
-            escapeHtml(o.name || ("#" + o.id)) + '</button>';
-        }).join("") + '</div>' +
-        '<div class="lbl-hint" style="margin-top:6px;">Gerçek sürümde veli yalnızca kendi hesabıyla ' +
-        'giriş yapar ve bu seçici hiç görünmez.</div>'
-      : "") + '</div>';
-
+  /* 🔴 "SİMÜLASYON" DİLİ KALDIRILDI (3 Eylül). §63: seçici "Görüntülenen veli"
+     diyordu — oysa seçilen şey VELİ değil ÇOCUKTUR. Artık "Çocuğunuz:".
+     Diğer öğrencilerin adı yine yalnızca bu seçicide görünür — sonuç
+     kartlarında hiç geçmez. */
+  const secici = veliSeciciHtml(cocuk);
   const sonuclar = veliSonuclari(cocuk.id);
+  const kart = veliCocukKartiHtml(cocuk, sonuclar.length);
   if (!sonuclar.length) {
-    root.innerHTML = secici + bosDurumHtml(
-      escapeHtml(cocuk.name || "Öğrenci") + " için öğretmen onayından geçmiş bir sonuç henüz yok. " +
-      "Öğretmen sonuçları yayınladığında burada görünecek."
-    );
+    root.innerHTML = secici + kart + veliBosDurumHtml(cocuk);
     wireParent();
     return;
   }
@@ -10996,35 +11125,29 @@ function renderParent() {
   }).filter(function (x) { return x.yuzde != null; }).sort(function (a, b) { return b.yuzde - a.yuzde; });
 
   const onay = ensureDikkatOnay()[cocuk.id];
+  // Sınavlar oluşturulma sırasıyla tutulur (state.exams.push): sonuncusu en yenisi.
+  const son = sonuclar[sonuclar.length - 1];
+  const onceki = sonuclar.slice(0, -1).reverse();
 
-  root.innerHTML = secici +
-    '<div class="card"><div class="card-head"><h3>' + escapeHtml(cocuk.name) + ' — Sonuçlar</h3>' +
-    '<span class="pill pill-success">' + sonuclar.length + ' onaylı sınav</span></div>' +
-    sonuclar.map(function (s) {
-      return '<div class="report-row"><div class="rr-head"><span><b>' + escapeHtml(s.baslik) + '</b></span>' +
-        '<span class="rr-score tabular">' + s.puan + ' / ' + s.tam +
-        (s.yuzde != null ? ' &nbsp;(%' + s.yuzde + ')' : "") + '</span></div>' +
-        (s.yorumlar.length
-          ? '<div class="rr-answer"><div class="rr-answer-lbl">Öğretmenin notu</div>' +
-            s.yorumlar.map(function (y) {
-              return '<div class="rr-answer-txt">' + escapeHtml(y.yorum) + '</div>';
-            }).join("") + '</div>'
-          : "") +
-        '</div>';
-    }).join("") + '</div>' +
+  root.innerHTML = secici + kart + veliSonSonucHtml(son) +
+    (onceki.length
+      ? '<div class="card veli-onceki"><div class="card-head"><h3>Önceki onaylı sınavlar</h3>' +
+        '<span class="hint tabular">' + onceki.length + ' sınav</span></div>' +
+        onceki.map(function (s) {
+          return '<div class="report-row"><div class="rr-head"><span><b>' + escapeHtml(s.baslik) + '</b></span>' +
+            '<span class="rr-score tabular">' + ondalikTr(s.puan) + ' / ' + ondalikTr(s.tam) + ' puan' +
+            (s.yuzde != null ? ' · %' + s.yuzde : "") + '</span></div>' +
+            veliYorumlarHtml(s) + '</div>';
+        }).join("") + '</div>'
+      : "") +
 
-    '<div class="card"><div class="card-head"><h3>Kazanım Bazlı Durum</h3>' +
-    '<span class="hint">güçlü ve gelişime açık alanlar</span></div>' +
-    '<p class="lbl-hint" style="margin-top:0;">Yüzdeler <b>yalnızca çocuğunuzun kendi yanıtlarından</b> ' +
-    'hesaplanır; sınıfla karşılaştırma içermez.</p>' +
-    kazanimSatirlari.map(function (k) {
-      const renk = k.yuzde >= 70 ? "pill-success" : (k.yuzde >= 50 ? "pill-warning" : "pill-critical");
-      return '<div class="pool-item"><div class="p-body"><b>' + escapeHtml(veliKazanimEtiketi(k.kod)) + '</b>' +
-        '<div class="lbl-hint">' + escapeHtml(k.kod) + '</div></div>' +
-        '<span class="pill ' + renk + '">%' + k.yuzde + '</span></div>';
-    }).join("") +
-    '<div class="lbl-hint" style="margin-top:10px;">%70 üzeri güçlü, %50 altı üzerinde çalışılması ' +
-    'önerilen alanlardır. Bu bir not değil, <b>yol göstericidir</b>.</div></div>' +
+    '<div class="card veli-konular"><div class="card-head"><h3>Konulara göre durum</h3>' +
+    '<span class="hint">tüm onaylı sınavlar birlikte</span></div>' +
+    '<p class="veli-not">Yüzdeler <b>yalnızca çocuğunuzun kendi yanıtlarından</b> hesaplanır; ' +
+    'sınıfla karşılaştırma içermez.</p>' +
+    kazanimSatirlari.map(veliKonuSatiriHtml).join("") +
+    '<div class="veli-not">%70 ve üzeri güçlü, %50\'nin altı birlikte çalışılması önerilen konulardır. ' +
+    'Bu bir not değil, <b>yol göstericidir</b>.</div></div>' +
 
     (onay
       ? '<div class="card"><div class="card-head"><h3>Öğretmeninizden Bilgi</h3>' +
@@ -11040,8 +11163,81 @@ function renderParent() {
   wireParent();
 }
 
+/* §63 — VELİ PANELİ YARDIMCILARI (tasarım turu, W4). */
+
+/** "Çocuğunuz:" seçici. Tek çocukta görünmez. */
+function veliSeciciHtml(cocuk) {
+  if ((state.students || []).length < 2) return "";
+  return '<div class="card veli-secici-kart"><div class="veli-secici" role="group" aria-label="Çocuğunuz">' +
+    '<span class="veli-secici-lbl">Çocuğunuz:</span>' +
+    state.students.map(function (o) {
+      const aktif = o.id === cocuk.id;
+      return '<button type="button" class="chip' + (aktif ? " active" : "") + '" aria-pressed="' + aktif + '" data-vid="' + o.id + '">' +
+        escapeHtml(o.name || ("#" + o.id)) + '</button>';
+    }).join("") + '</div>' +
+    '<div class="veli-not">Gerçek sürümde veli yalnızca kendi hesabıyla giriş yapar ve bu seçici görünmez.</div></div>';
+}
+
+/** Çocuk kartı: ad, sınıf, onaylı sınav sayısı ve gizlilik sözü. */
+function veliCocukKartiHtml(cocuk, onayliSayi) {
+  const ad = cocuk.name || ("Öğrenci #" + cocuk.id);
+  const harf = ad.split(/\s+/).filter(Boolean).map(function (s) { return s.charAt(0); }).slice(0, 2).join("").toLocaleUpperCase("tr-TR");
+  return '<div class="card veli-cocuk"><div class="veli-cocuk-ust">' +
+    '<div class="veli-avatar" aria-hidden="true">' + escapeHtml(harf) + '</div>' +
+    '<div><h3 class="veli-cocuk-ad">' + escapeHtml(ad) + '</h3>' +
+    '<div class="veli-cocuk-alt">' + (cocuk.sinif ? escapeHtml(cocuk.sinif) + ' sınıfı · ' : "") +
+    '<span class="tabular">' + onayliSayi + '</span> onaylı sınav</div></div></div>' +
+    '<p class="veli-not">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar görünür. Yapay zekânın ham puan ' +
+    'önerileri, diğer öğrenciler, sınıf ortalaması ve sıralama bu ekranda <b>yer almaz</b>.</p></div>';
+}
+
+/** Öğretmenin onayladığı notlar (AI taslağı değil). */
+function veliYorumlarHtml(s) {
+  if (!s.yorumlar.length) return "";
+  return '<div class="rr-answer"><div class="rr-answer-lbl">Öğretmenin notu</div>' +
+    s.yorumlar.map(function (y) { return '<div class="rr-answer-txt">' + escapeHtml(y.yorum) + '</div>'; }).join("") + '</div>';
+}
+
+/** En yeni onaylı sonuç, büyük puanla. */
+function veliSonSonucHtml(s) {
+  return '<div class="card veli-son"><div class="card-head"><h3>Son onaylı sonuç</h3>' +
+    '<span class="pill pill-success">öğretmen onaylı</span></div>' +
+    '<div class="veli-son-baslik">' + escapeHtml(s.baslik) + '</div>' +
+    '<div class="veli-son-puan"><span class="veli-son-sayi tabular">' + ondalikTr(s.puan) + '</span>' +
+    '<span class="veli-son-tam tabular">/ ' + ondalikTr(s.tam) + ' puan</span>' +
+    (s.yuzde != null ? '<span class="veli-son-yuzde tabular">%' + s.yuzde + '</span>' : "") + '</div>' +
+    veliYorumlarHtml(s) + '</div>';
+}
+
+/** Bir konu (kazanım) satırı: sade ad önde, durum sözcükle + simgeyle + renkle; kod ikincil. */
+function veliKonuSatiriHtml(k) {
+  const d = k.yuzde >= 70 ? { ton: "guclu", simge: "✓", metin: "Güçlü" }
+    : (k.yuzde >= 50 ? { ton: "gelisiyor", simge: "◐", metin: "Gelişiyor" }
+      : { ton: "destek", simge: "!", metin: "Desteğe ihtiyaç var" });
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === k.kod; }) || { code: k.kod, label: k.kod };
+  const kk = k.kod === "—" ? { ad: "Kazanımı belirtilmemiş sorular", kod: "" } : kazanimKisaAd(o);
+  return '<div class="veli-kz veli-kz-' + d.ton + '"><div class="veli-kz-ust">' +
+    '<span class="veli-kz-ad">' + escapeHtml(kk.ad) + '</span>' +
+    '<span class="veli-kz-durum"><span aria-hidden="true">' + d.simge + '</span> ' + d.metin + '</span></div>' +
+    '<div class="veli-kz-cubuk" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, k.yuzde)) + '%"></span></div>' +
+    '<div class="veli-kz-alt"><span class="tabular">%' + k.yuzde + '</span>' +
+    (kk.kod && kk.kod !== kk.ad ? ' · <span class="veli-kz-kod">' + escapeHtml(kk.kod) + '</span>' : "") + '</div></div>';
+}
+
+/** Onaylı sonuç yokken: ne olacağını adım adım anlatan boş durum. */
+function veliBosDurumHtml(cocuk) {
+  return '<div class="card veli-bos"><div class="veli-bos-ikon" aria-hidden="true">✉</div>' +
+    '<h3>Henüz paylaşılan sonuç yok</h3>' +
+    '<p>' + escapeHtml(cocuk.name || "Çocuğunuz") + ' için öğretmen onayından geçmiş bir sınav sonucu henüz yok. ' +
+    'Sonuçlar öğretmen yanıtları okuyup onayladıktan sonra burada görünür.</p>' +
+    '<ol class="veli-bos-adimlar"><li>Çocuğunuz sınavı çözer.</li>' +
+    '<li>Öğretmeni yanıtları okur ve puanları onaylar.</li>' +
+    '<li>Onaylanan sonuç burada görünür.</li></ol>' +
+    '<p class="veli-not">Yapay zekânın puan önerileri size hiçbir zaman gösterilmez; yalnız öğretmenin kararı gelir.</p></div>';
+}
+
 function wireParent() {
-  document.querySelectorAll('[data-vid]').forEach(function (b) {
+  document.querySelectorAll('#panel-parent [data-vid]').forEach(function (b) {
     b.onclick = function () { state.parentStudentId = Number(b.dataset.vid); saveState(); renderAll(); };
   });
 }
@@ -11426,6 +11622,11 @@ function bosDurumHtml(mesaj) {
     "teacherExamRecords", "teacherRoster", "teacherWhoamiHtml",
     "teacherDeltaYuzde", "teacherOzetCumlesi", "teacherAnalyticsHtml",
     "teacherReportCardHtml", "wireTeacherAnalytics",
+    /* §63 — tasarım turu (W4): öğrenci sınav ekranı, yönetici ve veli yardımcıları. */
+    "ogrSinavSorulari", "ogrYanitliMi", "ogrIsaretliMi", "ogrSinavBaslikHtml", "ogrBaslikTazele",
+    "ogrNoktalariBagla", "ogrGozdenHtml", "kazanimAdKodHtml",
+    "yonBilgiHtml", "yonGercekSatirlar", "yonEylemKartiHtml", "yonOrnekBolumHtml", "yonSeciliOgretmen", "teacherSatirHtml",
+    "veliSeciciHtml", "veliCocukKartiHtml", "veliYorumlarHtml", "veliSonSonucHtml", "veliKonuSatiriHtml", "veliBosDurumHtml",
     /* §30 — final birleştirme denetimi: aşağıdaki altı ad üst düzeyde
        tanımlıydı ama bu listede yoktu. Dördü wire* — yani bir merge onları
        düşürürse ekran sorunsuz çizilir, sadece DÜĞMELER SESSİZCE ÖLÜR.
