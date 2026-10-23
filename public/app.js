@@ -4923,7 +4923,9 @@ function ceOzetHtml() {
     '<dl class="ce-ozet-liste">' +
     satir("Ders", escapeHtml(state.ceForm.subject) + " · " + escapeHtml(sinifEtiketi(state.ceForm.grade))) +
     satir("Kazanım", k
-      ? '<b>' + escapeHtml(k.code) + '</b> <span class="ce-ozet-ikincil">' + escapeHtml(k.label || "") + '</span>'
+      /* §61a: katalog etiketi kodla başlıyor ("FEN.7.1.2 — Kuvvet…"); kod iki kez yazılmasın. */
+      ? '<b>' + escapeHtml(k.code) + '</b> <span class="ce-ozet-ikincil">' +
+        escapeHtml(String(k.label || "").replace(k.code, "").replace(/^\s*[—–-]\s*/, "")) + '</span>'
       : '<span class="ce-ozet-ikincil">seçilmedi</span>') +
     satir("Dayanak", dayanak, "ceOzetDayanak") +
     satir("Sorular", state.ceForm.mcCount + " ÇSS + " + state.ceForm.openCount + " açık uçlu") +
