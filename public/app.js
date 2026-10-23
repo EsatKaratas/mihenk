@@ -8074,10 +8074,14 @@ function teacherTab3Html() {
 
   const acikUclu = opens.length
     ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
-      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
-      (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
-        done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
+      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>')
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
+  /* §62b: onaylananlar ayrı — "Sonuçları Yayınla" kutusu onların ÜSTÜNDE
+     durur (ölçüldü: altta kalınca 7270 px aşağıdaydı). */
+  const onaylanan = opens.length && done.length
+    ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
+      done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("")
+    : "";
 
   // §42: gövde tek yerde (bkz. sinifVerisiKutusuHtml) — boş durumda da çizilir.
   const simKutusu = sinifVerisiKutusuHtml(gonderenler.length);
@@ -8088,7 +8092,7 @@ function teacherTab3Html() {
   const katli = function (baslik, govde) {
     return govde ? '<details class="ogt-katli"><summary>' + baslik + '</summary>' + govde + '</details>' : "";
   };
-  return acikUclu + yayinKutusu + '<div class="ogt-ikincil">' + ozet +
+  return acikUclu + yayinKutusu + onaylanan + '<div class="ogt-ikincil">' + ozet +
     katli("Sınıf verisi", simKutusu) + katli("Sınav bütünlüğü kaydı", integritySummaryHtml()) +
     katli("Çoktan seçmeli sonuçlar", mcListesi) + '</div>';
 }
