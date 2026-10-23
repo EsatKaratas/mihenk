@@ -9154,3 +9154,28 @@ kullanıcı metinlerini değiştirir.
   - gorsel-fark: hata 0, yinelenen id 0.
 - **Kalan (bölüm 2b):** öğretmen aralığı metinleri. W1'in `ogretmen-puanlama`
   dalı main'e girdikten sonra, ona rebase edilerek yapılacak.
+
+
+---
+
+## 62b. ÖĞRETMEN — Puanlama'da onay kuyruğu en üstte + soru düzenleme erişilebilirliği (23 Ekim 2026, W1)
+
+§62a'da önerilen ve müdürün onayladığı iş. Dal `ogretmen-puanlama`, main
+`d28dfef` üstünde. Push yok.
+
+| Commit | Ne değişti | Ölçüm (demo verisi) |
+|---|---|---|
+| `621f74f` | Puanlama'da sıra: onay bekleyen kuyruk → Sonuçları Yayınla → onaylanmışlar → sınav özeti. Sınıf verisi, Sınav bütünlüğü kaydı ve ÇSS sonuçları katlı (`<details>`) | İlk `.eval-card` içerik başından 1327 px → 279 px |
+| `2c2f426` | Soru düzenleme alanlarına `aria-label` (W3 bulgusu: `.pe-body` adsızdı): Soru metni, "A şıkkının metni" (İçerik Uzmanı ile aynı ifade), "A şıkkı doğru cevap", Zorluk, Kazanım, Süre (saniye) | Erişilebilirlik ağacında 12 alanın 12'si adlı |
+| (son commit) | "Sonuçları Yayınla" kutusu onaylananların üstüne alındı; ilk düzende son onaydan sonra 7270 px aşağıda kalıyordu | Yayın kutusu 852 px |
+
+**Demo adım 4 ve ekran betiği (ölçüldü):** 5 adım gerçek düğmelerle uçtan
+uca geçti. Her adımın "ileri" kilidi koşulu sağlanana kadar kapalı kaldı.
+Adım 4: Puanlama'da 4 `.eval-card`, Tek Tıkla Onayla + Sonuçları
+Öğrenciye Yayınla → `graded` → Yönetici → Demoyu Bitir. Ekran betiğinin
+yolunda (`teacherTab=3`) 4 `.eval-card` var.
+
+**Doğrulama:** 346/346 test · öz-kontrol %100 (461 ad) · gorsel-fark
+öğretmen 10 ekran (1280 ve 390): hata 0, yinelenen id 0, <24px 0, taşma
+yok · servis = disk (app.js `988d9b6acf8a…`, ogretmen.css `7d6aba79efe3…`)
+· U+FFFD 0 · model çağrısı 0 (statik sunucu).

@@ -6996,24 +6996,24 @@ function poolEditHtml(q) {
   return '<div class="pool-edit">' +
     (kilitli ? '<div class="pill pill-warning" style="margin-bottom:9px;">Bu soru yayında olan bir sınavda kullanılıyor. Değişiklik, sınavı çözen öğrencilere de yansır.</div>' : "") +
     '<div class="field"><label>Soru metni</label>' +
-    '<textarea class="pe-body" data-qid="' + q.id + '" rows="3">' + escapeHtml(q.body) + '</textarea></div>' +
+    '<textarea class="pe-body" data-qid="' + q.id + '" rows="3" aria-label="Soru metni">' + escapeHtml(q.body) + '</textarea></div>' +
     (q.type === "mc"
       ? '<div class="field"><label>Şıklar — doğru olanı işaretleyin</label>' +
         (q.options || []).map(function (o) {
           return '<div class="opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
             '<span class="opt-key">' + o.key + '</span>' +
-            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
+            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkının metni" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
             '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);white-space:nowrap;">' +
-            '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '"' +
+            '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkı doğru cevap"' +
             (o.key === q.correctKey ? " checked" : "") + '> doğru</label></div>';
         }).join("") + '</div>'
       : "") +
     '<div class="field-row"><div class="field"><label>Zorluk</label>' +
-    '<select class="pe-diff" data-qid="' + q.id + '">' +
+    '<select class="pe-diff" data-qid="' + q.id + '" aria-label="Zorluk">' +
     [["easy", "Kolay"], ["medium", "Orta"], ["hard", "Zor"]].map(function (d) {
       return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
     }).join("") + '</select></div>' +
-    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
+    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '" aria-label="Kazanım">' +
     /* §51: tüm derslerin kazanımları karışık listeleniyordu; bir Fen sorusuna
        Matematik kazanımı atanabiliyordu. Sorunun dersine ait olanlar + mevcut
        kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
@@ -7030,7 +7030,7 @@ function poolEditHtml(q) {
       return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Süre (sn)</label>' +
-    '<input type="number" class="pe-time" data-qid="' + q.id + '" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
+    '<input type="number" class="pe-time" data-qid="' + q.id + '" aria-label="Süre (saniye)" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
     '<button class="btn btn-primary btn-sm pe-save" data-qid="' + q.id + '">Değişiklikleri Kaydet</button> ' +
     '<button class="btn btn-secondary btn-sm pe-cancel">Vazgeç</button></div>';
 }
@@ -8074,15 +8074,27 @@ function teacherTab3Html() {
 
   const acikUclu = opens.length
     ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
-      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') +
-      (done.length ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
-        done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("") : "")
+      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>')
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
+  /* §62b: onaylananlar ayrı — "Sonuçları Yayınla" kutusu onların ÜSTÜNDE
+     durur (ölçüldü: altta kalınca 7270 px aşağıdaydı). */
+  const onaylanan = opens.length && done.length
+    ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
+      done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("")
+    : "";
 
   // §42: gövde tek yerde (bkz. sinifVerisiKutusuHtml) — boş durumda da çizilir.
   const simKutusu = sinifVerisiKutusuHtml(gonderenler.length);
 
-  return ozet + simKutusu + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
+  /* §62b — Puanlama'nın asıl işi onay kuyruğu: en üstte. Özet ve ikincil
+     kartlar altta; uzun olanlar (Sınıf Verisi, Bütünlük Kaydı, ÇSS) katlı.
+     Ölçülmüştü: ilk .eval-card içerik başından 1327 px aşağıdaydı. */
+  const katli = function (baslik, govde) {
+    return govde ? '<details class="ogt-katli"><summary>' + baslik + '</summary>' + govde + '</details>' : "";
+  };
+  return acikUclu + yayinKutusu + onaylanan + '<div class="ogt-ikincil">' + ozet +
+    katli("Sınıf verisi", simKutusu) + katli("Sınav bütünlüğü kaydı", integritySummaryHtml()) +
+    katli("Çoktan seçmeli sonuçlar", mcListesi) + '</div>';
 }
 
 function wireTeacherTab3() {
