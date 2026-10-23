@@ -9631,7 +9631,10 @@ Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek
   (yönetici %0,01–0,02 gürültü). Konsol 0, yinelenen id 0, taşma 0. Tek
   <24 px hedef (`button.oc-link` 313×20, CE-1 1280) main'de de aynı; bu turla
   gelmedi.
-- **Ertelendi: `ceAdimHtml` → ortak `adimciHtml`.** Ortak adımcı yatay bir
-  adım şeridi; sihirbazın adımları ise açılır-kapanır başlık + tek satırlık
-  özet + "Değiştir". Geçiş görünümü ve kapalı adım özetini değiştirir;
-  ayrı bir tasarım kararı (W2 ile) olarak bırakıldı.
+- **Kapatıldı: `ceAdimHtml` → ortak `adimciHtml` birleştirmesi YAPILMAYACAK**
+  (Orchestrator 2 kararı, 23 Ekim). İki farklı etkileşim kalıbı ve ikisi de
+  meşru: ortak adımcı yatay bir adım şeridi (öğretmen sınav sihirbazı: ad →
+  sorular → yayın, sırayla ilerlenir); İçerik Uzmanı sihirbazı ise açılır-
+  kapanır başlık + kapalı adımın tek satırlık özeti + "Değiştir" (adımlar
+  serbestçe yeniden açılır, özet her zaman görünür). Birleştirmek, kapalı
+  adım özetini kaybettirirdi. İkinci tur listesinden düşürüldü.
