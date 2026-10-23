@@ -9572,3 +9572,29 @@ uyarır: "Bu metin ~N soru taşır; M istendi, fazlası düşer." Engellemez.
   belge metni (ilk 6.000 karakter, §51). Saf kazanım modunda uyarı yok (sunucu
   orada kısmaz). Uyarı, metin kutusundan çıkınca güncellenir (yazarken yeniden
   çizim odak kaybettirir).
+
+### 72b. Onay kartı sadeleşmesi
+
+Canlıda (§64 testi, 390 px) şık metni tek satırlık `<input>`ta kırpılıyordu
+("Zemin pürüzlendikçe sürtün…"); kartta çeldirici gerekçeleri ve kazanım
+denetimi her zaman açıktı.
+- **Şıklar satıra sarar:** şık girdisi `<textarea rows="1" class="opt-input">`;
+  sınıf, `data-qid`, `data-okey`, `aria-label` aynı. Bağlayıcı `.value`
+  okuduğu için değişmedi. Enter satır açmaz; yapıştırılan çok satırlı metin
+  tek satıra iner. Yükseklik CSS `field-sizing: content` (Chromium); desteklemeyen
+  tarayıcıda küçük bir JS yedeği yüksekliği içeriğe uydurur. Dar ekranda şık
+  satırı iki sıra: harf + metin, altında "doğru" ve taşıma düğmeleri.
+- **Ayrıntı katlanır:** çeldirici gerekçeleri ve kazanım denetimi tek
+  `<details class="q-detay">` içinde, **varsayılan kapalı**. Özet satırı ne
+  içerdiğini söyler ("Çeldirici gerekçeleri (3) · Kazanım denetimi: Ölçüyor").
+  Açıklık soru başına arayüz durumu (saklanmaz). **Şüphe şeridi katlanmaz**;
+  kazanım uyuşmazlığı da şeritte (`kazanimUyusmuyor`) görünmeye devam eder.
+- Onay/ret ve §71 ikinci onay değişmedi. `.q-card` ve `.distractor-box`
+  korundu. Ekran betiği 01 çekiminden önce `.q-detay`'ları açacak (W2 ekler).
+- Ölçüm (390 px, demo kartı): kapalı 769 px, açık 1053 px. Şık/gövde
+  kırpılması 0 (1366 ve 390).
+
+**72a eki:** kısa metin uyarısı ilk sürümde kutudan çıkınca `renderAll` ile
+güncelleniyordu; yazıp hemen "Belge yükle"ye tıklayınca yeniden çizim tıklamayı
+yutuyordu (ölçüldü: tarayıcı testinde belge kartı açılmadı). Artık uyarı listesi
+yazarken yerinde güncellenir (`ceUyarilariYenile`), yeniden çizim yok.

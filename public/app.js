@@ -4473,8 +4473,11 @@ function renderPendingQuestionCard(q) {
     return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
-      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
-      '<label class="dogru-etiket" style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
+      /* §72b: <input> tek satırdı; 390 px'te şık metni kırpılıyordu. textarea
+         satıra sarar (ce.css field-sizing). Sınıf/veri/ad aynı; bağlayıcı
+         .value okuduğu için değişmedi. */
+      '<textarea rows="1" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni">' + escapeHtml(o.text) + '</textarea>' +
+      '<label class="dogru-etiket">' +
       /* §58: dört radyonun dördü de erişilebilirlik ağacında yalnız "doğru"
          adını taşıyordu (hangi şık olduğu belli değildi), değerleri "on"du. */
       '<input type="radio" name="correct-' + q.id + '" value="' + escapeHtml(o.key) + '" aria-label="' + escapeHtml(o.key) +
@@ -4495,16 +4498,35 @@ function renderPendingQuestionCard(q) {
     '<span class="time-tag">⏱ YZ önerisi: ' + q.aiTime + ' sn</span></div>' +
     supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
-    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
-    '<div style="margin-top:8px;">' + optsHtml + '</div>' +
-    distractorHtml(q) +
-    alignmentRowHtml(q) +
+    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2">' + escapeHtml(q.body) + '</textarea>' +
+    '<div class="q-opts">' + optsHtml + '</div>' +
+    /* §72b: çeldirici gerekçeleri ve kazanım denetimi katlanır (varsayılan
+       KAPALI); özet satırı ne içerdiğini söyler. Şüphe şeridi yukarıda,
+       katlanmaz: şüpheli rozet her zaman görünür. */
+    kartDetayHtml(q) +
     '<div class="actions">' +
     '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
     '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button>' +
     /* §56: bilgi amaçlı sayaç — onay düğmesini ENGELLEMEZ (agents.md §1). */
     (soruSupheleri(q).length ? '<span class="suphe-sayac">' + soruSupheleri(q).length + ' şüphe işareti var</span>' : "") +
     '</div></div>';
+}
+
+/** §72b: onay kartının katlanır ayrıntısı. İçerik yoksa hiçbir şey çizilmez. */
+function kartDetayHtml(q) {
+  const ic = distractorHtml(q) + alignmentRowHtml(q);
+  if (!ic) return "";
+  const parca = [];
+  if (q.type === "mc" && q.distractorRationale) {
+    const n = Object.keys(q.distractorRationale).filter(function (k) { return k !== q.correctKey; }).length;
+    if (n) parca.push("Çeldirici gerekçeleri (" + n + ")");
+  }
+  const d = (state.alignment || {})[alignKey(q.id)];
+  if (d) parca.push(d.loading ? "kazanım denetimi yapılıyor…" : d.error ? "kazanım denetimi yapılamadı"
+    : "Kazanım denetimi: " + (ALIGN_ETIKET[d.karar] || ALIGN_ETIKET.belirsiz).ad);
+  const acik = !!((state.ceKartDetay || {})[q.id]);
+  return '<details class="q-detay" data-qid="' + q.id + '"' + (acik ? " open" : "") + '>' +
+    '<summary>' + escapeHtml(parca.join(" · ") || "Ayrıntılar") + '</summary>' + ic + '</details>';
 }
 
 // Model, her yanlis sik icin o sikki secen ogrencinin hangi kavram yanilgisina
@@ -4939,6 +4961,18 @@ function ceUyarilari() {
   return u;
 }
 
+function ceUyariOgeleriHtml(uyarilar) {
+  return uyarilar.map(function (x) {
+    return '<li class="ce-uyari ce-uyari-' + x.tur + '">' + escapeHtml(x.metin) + '</li>';
+  }).join("");
+}
+
+/** Özetteki uyarı listesini yeniden çizmeden günceller (metin yazılırken). */
+function ceUyarilariYenile() {
+  const ul = document.getElementById("ceUyarilar");
+  if (ul) ul.innerHTML = ceUyariOgeleriHtml(ceUyarilari());
+}
+
 /* §72 — METİN / SORU DENGESİ. Eşik UYDURULMADI: sunucunun uyguladığı kuralın
    (src/lib/guards.ts KARAKTER_BASINA_SORU + makulSoruSayisi, §41 Madde 5)
    birebir aynısıdır; ikisi ayrışırsa uyarı yalan söyler. Eşitlik
@@ -4987,11 +5021,9 @@ function ceOzetHtml() {
       ? satir("Düzey", state.ceForm.bloomFocus === "ust" ? "Üst düzey vurgulu" : "Temel düzey vurgulu") : "") +
     (state.ceForm.sube ? satir("Şube", escapeHtml(state.ceForm.sube)) : "") +
     '</dl>' +
-    (uyarilar.length
-      ? '<ul class="ce-uyarilar">' + uyarilar.map(function (x) {
-          return '<li class="ce-uyari ce-uyari-' + x.tur + '">' + escapeHtml(x.metin) + '</li>';
-        }).join("") + '</ul>'
-      : "") +
+    /* Liste boş da olsa çizilir: metin yazılırken (yeniden çizim olmadan)
+       ceUyarilariYenile() içini yerinde günceller. */
+    '<ul class="ce-uyarilar" id="ceUyarilar">' + ceUyariOgeleriHtml(uyarilar) + '</ul>' +
     (state.ceForm.error ? '<div class="pill pill-blok pill-critical">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
     /* §41: sunucunun soru sayısını neden düşürdüğü — hata değil bilgi. */
     (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
@@ -5083,6 +5115,35 @@ function wireCeSihirbaz() {
   document.querySelectorAll(".ce-bilgi").forEach(function (d) {
     d.ontoggle = function () { state.ceBilgiAcik = d.open; };
   });
+  // §72b: kart ayrıntısının açıklığı soru başına, yalnız arayüz durumu.
+  document.querySelectorAll("#panel-content_expert .q-detay").forEach(function (d) {
+    d.ontoggle = function () {
+      state.ceKartDetay = state.ceKartDetay || {};
+      state.ceKartDetay[d.dataset.qid] = d.open;
+    };
+  });
+  /* §72b: şık metni artık textarea; görünüşte satıra sarar ama tek satırlık
+     bir şıktır. Enter yeni satır açmasın. */
+  document.querySelectorAll("#panel-content_expert .opt-input").forEach(function (el) {
+    el.onkeydown = function (e) { if (e.key === "Enter") e.preventDefault(); };
+    // Yapıştırılan çok satırlı metin de tek satıra iner (W2 notu).
+    el.onpaste = function (e) {
+      const ham = e.clipboardData && e.clipboardData.getData("text");
+      if (!ham || !/[\r\n]/.test(ham)) return;
+      e.preventDefault();
+      el.setRangeText(ham.replace(/\s*[\r\n]+\s*/g, " ").trim(), el.selectionStart, el.selectionEnd, "end");
+      el.dispatchEvent(new Event("input"));
+    };
+  });
+  /* field-sizing:content desteklenmiyorsa (Firefox, eski Safari) yükseklik
+     içeriğe elle uydurulur; yoksa metin yine kırpılırdı. */
+  if (!(window.CSS && CSS.supports && CSS.supports("field-sizing", "content"))) {
+    document.querySelectorAll("#panel-content_expert .q-card textarea").forEach(function (el) {
+      const uydur = function () { el.style.height = "auto"; el.style.height = el.scrollHeight + 2 + "px"; };
+      uydur();
+      el.addEventListener("input", uydur);
+    });
+  }
 }
 
 function renderContentExpert() {
@@ -5167,10 +5228,11 @@ function renderContentExpert() {
     /* §61: renderAll yok (TUZAK 3); yalnız özetteki sayı yerinde güncellenir. */
     const oz = document.getElementById("ceOzetDayanak");
     if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
+    /* §72: kısa metin uyarısı da yazarken yerinde güncellenir. renderAll
+       DEĞİL: odak kaybolur (TUZAK 3) ve kutudan çıkarken yapılan yeniden
+       çizim, aynı anda tıklanan kartın tıklamasını yutuyordu (ölçüldü). */
+    ceUyarilariYenile();
   };
-  /* §72: kısa metin uyarısı yazarken değil, kutudan çıkınca güncellenir
-     (oninput'ta renderAll odak kaybettirir — TUZAK 3). */
-  if (ceTextEl) ceTextEl.onchange = function () { renderAll(); };
   const ceGuidanceEl = document.getElementById("ceGuidance");
   /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
      yeniden çizilir ve kullanıcı yazarken odak kaybeder. Karakter sayacı bir
@@ -12636,7 +12698,9 @@ function bosDurumHtml(mesaj) {
     // §70 şüpheli soruda ikinci onay (W3)
     "soruyuOnayla", "supheliOnayModali",
     // §72 kısa metin ön uyarısı (W3)
-    "ceMetinKapasitesi", "ceMetinUzunlugu",
+    "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
+    // §72b onay kartı sadeleşmesi (W3)
+    "kartDetayHtml",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
