@@ -4941,7 +4941,7 @@ function ceOzetHtml() {
   };
   const dayanak = g === "kazanim"
     ? (seciliMateryal() ? "🔒 Ders belgesi" : "Yalnız kazanım")
-    : (g === "belge" ? "Belge" : "Metin") + " · " + state.ceForm.text.trim().length.toLocaleString("tr") + " krk";
+    : (g === "belge" ? "Belge" : "Metin") + " · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
   const uyarilar = ceUyarilari();
   return '<aside class="card ce-ozet" aria-label="Üretim özeti">' +
     '<h3 class="ce-ozet-baslik">Özet</h3>' +
@@ -4965,7 +4965,7 @@ function ceOzetHtml() {
     /* §41: sunucunun soru sayısını neden düşürdüğü — hata değil bilgi. */
     (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
     '<button class="btn btn-primary btn-lg ce-uret" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
-    (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
+    (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 Yapay Zekâ ile Soru Üret") + '</button>' +
     /* §1 HITL burada da söylenir: üretilen her şey taslaktır. */
     '<p class="ce-uret-not">Sorular taslak gelir; onayınız olmadan havuza girmez. ' +
     '<span class="ce-ipucu" tabindex="0" title="Beceri temelli (yeni nesil): günlük hayat bağlamı + veri + çıkarım/karar isteyen sorular (MEB ÖGM · LGS/YKS · PISA-TIMSS çizgisi)">ⓘ</span></p>' +
@@ -5124,7 +5124,7 @@ function renderContentExpert() {
     state.ceForm.text = e.target.value.slice(0, 6000);
     /* §61: renderAll yok (TUZAK 3); yalnız özetteki sayı yerinde güncellenir. */
     const oz = document.getElementById("ceOzetDayanak");
-    if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " krk";
+    if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
   };
   const ceGuidanceEl = document.getElementById("ceGuidance");
   /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
@@ -9528,8 +9528,8 @@ function ogrGozdenHtml(items) {
     liste(bos, "✓ Boş bıraktığın soru yok.") +
     '<h4 class="ogr-gg-baslik">⚑ İşaretlediğin sorular <span class="tabular">(' + isaretli.length + ')</span></h4>' +
     liste(isaretli, "İşaretlediğin soru yok.") +
-    '<div class="ogr-gg-uyari"><b>Bitirince yanıtlarını değiştiremezsin.</b> Açık uçlu yanıtların önce yapay zekâ ön ' +
-    'değerlendirmesine, sonra öğretmenine gider; puanını öğretmenin onaylar.</div>' +
+    '<div class="ogr-gg-uyari"><b>Bitirince yanıtlarını değiştiremezsin.</b> Açık uçlu yanıtın için yapay zekâ ' +
+    'bir puan önerir; kararı öğretmenin verir.</div>' +
     '<div class="exam-footer"><button class="btn btn-secondary" id="btnBackToExam" type="button">← Sorulara dön</button>' +
     '<button class="btn btn-critical btn-dolu" id="btnFinishExam" type="button">Sınavı bitir</button></div></div>';
 }
@@ -9764,7 +9764,7 @@ function studentPickerHtml() {
     state.students.map(function (s) {
       return '<button class="sp-btn ' + (s.id === state.activeStudentId ? "active" : "") + '" data-sid="' + s.id + '">' +
         escapeHtml(s.name) + (s.sinif ? ' <span class="sc-class">' + escapeHtml(s.sinif) + '</span>' : "") +
-        (s.demo ? ' <span class="sc-tag">simüle</span>' : "") + '</button>';
+        (s.demo ? ' <span class="sc-tag">örnek</span>' : "") + '</button>';
     }).join("") + '</div>';
 }
 
@@ -10349,14 +10349,14 @@ function teacherReportCardHtml(t) {
       ? '<div class="pill pill-warning" style="margin-bottom:12px;">İstatistiksel sapma analizi için en az 5 onay gereklidir — şu an <b>' +
         c.n + '</b> onay var.</div>' +
         '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Bu ' + c.n + ' onayın ' +
-        c.degistirilen + ' tanesinde AI önerisi değiştirildi, ' + c.aynenOnay + ' tanesi aynen onaylandı.</div>'
+        c.degistirilen + ' tanesinde yapay zekâ önerisi değiştirildi, ' + c.aynenOnay + ' tanesi aynen onaylandı.</div>'
       : '<div style="font-size:13.5px;line-height:1.65;margin-bottom:14px;">' + yonCumle + '</div>') +
 
     '<div class="grid-3col">' +
     '<div class="stat-tile"><div class="s-label">Toplam Onay</div><div class="s-value tabular">' + c.n + '</div>' +
     '<div class="s-sub">açık uçlu değerlendirme</div></div>' +
     '<div class="stat-tile"><div class="s-label">Tam Mutabakat</div><div class="s-value tabular">%' + tamMutabakat + '</div>' +
-    '<div class="s-sub tabular">' + c.aynenOnay + '/' + c.n + ' onayda AI puanı aynen kabul edildi</div></div>' +
+    '<div class="s-sub tabular">' + c.aynenOnay + '/' + c.n + ' onayda yapay zekâ puanı aynen kabul edildi</div></div>' +
     '<div class="stat-tile"><div class="s-label">Ortalama Sapma</div><div class="s-value tabular">' + ondalikTr(c.sapma, 1) + '</div>' +
     '<div class="s-sub">puan (mutlak değer' + (c.ortTavan ? ", ortalama tam puan " + c.ortTavan.toFixed(0) : "") + ')</div></div>' +
     '</div>' +
@@ -10364,11 +10364,11 @@ function teacherReportCardHtml(t) {
     (enFarkli
       ? '<div class="cal-worst" style="margin-top:14px;"><span class="cal-worst-baslik">En çok ayrıştığı rubrik/soru</span>' +
         escapeHtml(enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(enFarkli.soru).slice(0, 90)) +
-        '<div class="cal-worst-sayi">AI önerisi <b>' + enFarkli.ai + "</b> &rarr; öğretmenin puanı <b>" +
+        '<div class="cal-worst-sayi">Yapay zekâ önerisi <b>' + enFarkli.ai + "</b> &rarr; öğretmenin puanı <b>" +
         enFarkli.nihai + "</b> (" + (enFarkli.fark > 0 ? "+" : "") + ondalikTr(enFarkli.fark, 1) + ")</div></div>"
       : "") +
-    '<div class="cal-limit">Bu ölçüm toplam puan üzerinden yapılır; öğretmen puanı kriter bazında değil toplam ' +
-    'olarak düzelttiği için "hangi kriterde ayrışıyoruz" sorusu bu veriyle yanıtlanamaz.</div>' +
+    '<div class="cal-limit">Öğretmen puanı ölçüt ölçüt değil toplam olarak düzelttiği için ' +
+    'hangi ölçütte ayrışıldığı bu veriden okunamaz.</div>' +
     '</div>';
 }
 
@@ -10487,8 +10487,8 @@ function integritySummaryHtml() {
   const seviye = toplam === 0 ? "pill-success" : (toplam <= 3 ? "pill-warning" : "pill-critical");
   const yorum = toplam === 0
     ? "Sınav boyunca sekme değişimi veya odak kaybı kaydedilmedi."
-    : "Bu kayıtlar tek başına kopya kanıtı değildir; bildirim gelmesi, sekmenin kazara değişmesi gibi masum " +
-      "nedenlerle de olabilir. Değerlendirmede bağlam olarak kullanın.";
+    : "Bu kayıtlar tek başına kopya kanıtı değildir; bildirim ya da kazara sekme değişimi gibi " +
+      "masum nedenlerle de oluşabilir. Bağlam olarak kullanın.";
   return '<div class="card" style="margin-bottom:16px;"><div class="card-head">' +
     '<h3>Sınav Bütünlüğü Kaydı</h3><span class="pill ' + seviye + '">' + toplam + ' olay</span></div>' +
     '<div class="grid-3col" style="margin-bottom:10px;">' +
@@ -10500,7 +10500,7 @@ function integritySummaryHtml() {
     '<div class="stat-tile' + (g.pasteCount ? ' tile-alert' : '') + '"><div class="s-label">Yanıta Yapıştırma</div>' +
     '<div class="s-value tabular">' + g.pasteCount + '</div>' +
     '<div class="s-sub">' + (g.pasteCount ? g.pasteChars + ' karakter yapıştırıldı' : 'yapıştırma yok') + '</div>' +
-    '<div class="s-note">Açık uçlu yanıtlar yapay zekâya okutulduğu için, dışarıdan hazır metin yapıştırılması bu üründeki en doğrudan bütünlük sinyalidir.</div></div>' +
+    '<div class="s-note">Açık uçlu yanıta dışarıdan hazır metin yapıştırılması en doğrudan bütünlük sinyalidir.</div></div>' +
     '<div class="stat-tile"><div class="s-label">Sınav Dışında Kalınan Süre</div>' +
     '<div class="s-value tabular">' + formatTime(g.awaySec || 0) + '</div>' +
     '<div class="s-sub">toplam</div>' +
@@ -10531,7 +10531,7 @@ function finishExamModalHtml() {
     .filter(function (x) { return !answered(x.it); })
     .map(function (x) { return x.no; });
   return '<h3>Sınavı bitirmek istediğine emin misin?</h3>' +
-    "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladın. Bitirdikten sonra yanıtlarını değiştiremezsin; açık uçlu yanıtların yapay zekâ ön değerlendirmesine, ardından öğretmen onayına gönderilir.</p>' +
+    "<p>" + answeredCount + "/" + items.length + ' soruyu yanıtladın. Bitirdikten sonra yanıtlarını değiştiremezsin. Açık uçlu yanıtın için yapay zekâ bir puan önerir; kararı öğretmenin verir.</p>' +
     (yanitsizNo.length
       ? '<p class="pill pill-warning" style="display:block;">Yanıtsız sorular: ' +
         yanitsizNo.map(function (n) { return "#" + n; }).join(", ") + '</p>'
@@ -11498,9 +11498,8 @@ function riskListesiHtml() {
         '<span class="pill ' + (r.sayi >= 2 ? "pill-critical" : "pill-warning") + '">' +
         r.sayi + ' gösterge</span></div>';
     }).join("") +
-    '<div class="lbl-hint" style="margin-top:10px;">İki ve üzeri göstergesi olan öğrenciler listenin ' +
-    'başındadır; literatürdeki tavsiye, tek göstergeye değil <b>göstergelerin birikmesine</b> ' +
-    'bakmaktır.</div></div>';
+    '<div class="lbl-hint" style="margin-top:10px;">İki ve üzeri göstergesi olanlar listenin başında. ' +
+    'Tek göstergeye değil, <b>göstergelerin birikmesine</b> bakın.</div></div>';
 }
 
 /* ==================== VELİ PANELİ (§28f) ====================
@@ -11685,8 +11684,8 @@ function veliCocukKartiHtml(cocuk, onayliSayi) {
     '<div><h3 class="veli-cocuk-ad">' + escapeHtml(ad) + '</h3>' +
     '<div class="veli-cocuk-alt">' + (cocuk.sinif ? escapeHtml(cocuk.sinif) + ' sınıfı · ' : "") +
     '<span class="tabular">' + onayliSayi + '</span> onaylı sınav</div></div></div>' +
-    '<p class="veli-not">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar görünür. Yapay zekânın ham puan ' +
-    'önerileri, diğer öğrenciler, sınıf ortalaması ve sıralama bu ekranda <b>yer almaz</b>.</p></div>';
+    '<p class="veli-not">Burada yalnızca <b>öğretmenin onayladığı</b> sonuçlar görünür. ' +
+    'Sıralama, sınıf ortalaması ve diğer öğrenciler <b>yer almaz</b>.</p></div>';
 }
 
 /** Öğretmenin onayladığı notlar (AI taslağı değil). */

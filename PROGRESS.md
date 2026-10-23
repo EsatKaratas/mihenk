@@ -8976,3 +8976,53 @@ README ekran görüntüleri yenilenmedi; tüm paneller birleşince yeniden
 - Sekme numaraları W1/W3/W4 dallarında kalkıyor; birleşince kontrol edilmeli.
 - Güzel olur (yapılmadı): adıma tıklayınca ilgili panele gitme, rol başına
   "ilk bakış" boş durum kartı.
+
+## 65. METİN CİLASI (23 Ekim 2026, W4)
+
+Kaynak: Gemini tarama raporu (`gemini-worker/ciktilar/mihenk-final_f1e7.md`).
+Öneriler tek tek değerlendirildi, olduğu gibi uygulanmadı. Sözlük kararları
+müdürün:
+
+- "Kazanım" tek biçim; "Soru havuzu".
+- Öğretmen sekmesi "Puanlama" (Gemini'nin "Değerlendirme onayı" önerisi
+  reddedildi).
+- Kullanıcı metninde "AI" yerine "yapay zekâ"; dar yerde "YZ".
+- "opsiyonel" → "isteğe bağlı"; "krk" → "karakter".
+- Öğrenci panelinde "simüle" → "örnek".
+- CSV sütun başlıkları **değişmez** (makine okuması, Excel uyumu).
+
+İki bölüm hâlinde ilerliyor, çünkü öğretmen (W1) ve ortak bölge (W2)
+düzeltmeleri main'e giriyor. Onlara güncel main'e rebase edildikten sonra
+geçilecek.
+
+### 65.1 Bölüm 1 — öğrenci, yönetici, veli, İçerik Uzmanı, index.html
+
+- **İçerik Uzmanı:**
+  - "🤖 AI ile Soru Üret" → "🤖 Yapay Zekâ ile Soru Üret".
+  - Metin uzunluğu "krk" → "karakter" (2 yer).
+- **index.html:** logo alt metni "Yapay Zekâ".
+- **Öğrenci:**
+  - Seçicideki "simüle" → "örnek".
+  - Açık uçlu yanıt için yapay zekâ **gizlenmedi** (şeffaflık), dil
+    sadeleşti. Gözden geçirme adımında ve son onay modalında artık
+    "Açık uçlu yanıtın için yapay zekâ bir puan önerir; kararı öğretmenin
+    verir." yazıyor.
+- **Öğretmene görünen bütünlük özeti:**
+  - "kopya kanıtı değildir" güvencesi korundu, cümle kısaldı.
+  - Yapıştırma notu kısaldı.
+- **Yönetici, öğretmen karnesi:**
+  - "AI önerisi" / "AI puanı" → "yapay zekâ önerisi" / "yapay zekâ puanı".
+  - Ölçüt sınırı notu 17 → 14 kelime, anlam aynı.
+  - Risk listesi dipnotu kısaldı.
+- **Veli:**
+  - Çocuk kartındaki gizlilik cümlesi 22 → 13 kelime.
+  - "Yapay zekâ önerisi size gösterilmez" bilgisi boş durumda duruyor.
+  - Kazanım kodu §63'ten beri ikincil; ad önde.
+- **Reddedilen öneriler:**
+  - Bütünlük çubuğunda "Kayıtlı olay" → "Uyarı sayısı" önerisi reddedildi;
+    "uyarı" yaptırım çağrıştırır, kayıt bilgi amaçlı.
+  - Velideki "disiplin bildirimi ya da kopya iddiası değildir" güvencesi
+    kısaltılmadı.
+- **Doğrulama:**
+  - 338/338 test, tsc temiz, öz-kontrol %100.
+  - gorsel-fark: konsol hatası 0, yinelenen id 0.
