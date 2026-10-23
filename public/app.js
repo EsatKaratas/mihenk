@@ -1558,7 +1558,7 @@ const DEMO_ADIMLARI = [
     hazir: function () { return state.exam.status === "published"; },
     kilit: "Önce sınavı yayınlayın" },
   { no: 3, rol: "student", sekme: 1, roleAd: "Öğrenci",
-    aciklama: "Yayınlanan sınavı çözün ve “Sınavı Bitir” ile gönderin.",
+    aciklama: "Yayınlanan sınavı çözün; “Gözden geçir ve bitir”e, ardından “Sınavı bitir”e basın.",
     sonraki: "Sonraki Adım → Öğretmen Onayı",
     hazir: function () { return state.examStatus === "submitted" || state.examStatus === "graded"; },
     kilit: "Önce sınavı bitirin" },
