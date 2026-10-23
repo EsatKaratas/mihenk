@@ -9620,3 +9620,18 @@ Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek
 - Ölçüm (1366 ve 390, 7 soruluk karışık havuz): 30/30. Durum, şüphe ve kaynak
   filtreleri, ağaç düğümü (2 soru, sayaç = liste), İncele → kart, Yeniden
   İncele → bekleyen, Sil, taşma 0, yinelenen id 0, konsol 0.
+
+### 75d. Toplu ölçüm ve ertelenen
+
+- `npm test` 372/372 (yeni: `test/ce-kapasite.test.ts`), lint temiz,
+  öz-kontrol %100. Tarayıcı paketleri (yerel statik sunucu): sihirbaz 27/27,
+  §71 ikinci onay 34/34, onay kartı 20/20, havuz 30/30. Konsol 0, taşma 0.
+- `tools/gorsel-fark.mjs`, taban main 978f3e1, 1280 ve 390: fark yalnız
+  İçerik Uzmanı ekranlarında (CE-1/CE-2 %12–24). Öteki 24 ekranda %0
+  (yönetici %0,01–0,02 gürültü). Konsol 0, yinelenen id 0, taşma 0. Tek
+  <24 px hedef (`button.oc-link` 313×20, CE-1 1280) main'de de aynı; bu turla
+  gelmedi.
+- **Ertelendi: `ceAdimHtml` → ortak `adimciHtml`.** Ortak adımcı yatay bir
+  adım şeridi; sihirbazın adımları ise açılır-kapanır başlık + tek satırlık
+  özet + "Değiştir". Geçiş görünümü ve kapalı adım özetini değiştirir;
+  ayrı bir tasarım kararı (W2 ile) olarak bırakıldı.
