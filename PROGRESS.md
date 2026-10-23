@@ -8976,3 +8976,29 @@ README ekran görüntüleri yenilenmedi; tüm paneller birleşince yeniden
 - Sekme numaraları W1/W3/W4 dallarında kalkıyor; birleşince kontrol edilmeli.
 - Güzel olur (yapılmadı): adıma tıklayınca ilgili panele gitme, rol başına
   "ilk bakış" boş durum kartı.
+
+
+---
+
+## 62a. ÖĞRETMEN — W3 bağımsız testinden düzeltmeler (23 Ekim 2026, W1)
+
+W3'ün §62 testi: P0 yok, 50 maddenin 48'i geçti. Düzeltmeler main `5b6d533`
+üstünde, `ogretmen-duzeltme` dalında, ayrı commit'ler hâlinde. Push yok.
+
+| Commit | Madde | Ne değişti | Ölçüm |
+|---|---|---|---|
+| `8c77c4a` | P1-1 e-Okul yapıştırma | Baştaki TÜM sayılar atılıyor. Sekmeli satırda sayısal sütunlar ve Kız/Erkek/K/E sütunu atılıyor. Harfsiz satır "geçersiz" sayılıyor. Önizlemede ilk 5 ad görünüyor. Yinelenen ad karşılaştırması Türkçe küçük harfle yapılıyor. Saf fonksiyonlar: `eokulSatiriAd`, `adAnahtari` | `test/ogretmen-toplu.test.ts`, 8 test: "4 1234 Deniz Kaya" → "Deniz Kaya"; sekmeli + cinsiyet; harfsiz satır; İREM IŞIK = İrem Işık, Irmak ≠ İrmak. Tarayıcı önizlemesi: "6 eklenecek (Deniz Kaya, Mert Can, …) · 1 boş · 1 geçersiz · 1 yinelenen" |
+| `73d3c97` | P1-2 taslakta "gönderildi" | Yayında: "N kâğıt gönderildi". Taslakta, kâğıtların hepsi örnek öğrenciye aitse: "N örnek kâğıt (örnek veri)". Gerçek kâğıt varsa: "N kâğıt var — sınav yayından kaldırıldı" | Dört durum ölçüldü: demo → yayın → kaldır → gerçek öğrenci |
+| `fea5c39` | P1-3 + P2-4 Puanlama/Analitik | Sınav yoksa YALNIZ boş durum + "Sınavlar sekmesine git". "Değerlendiren: Ad · Değiştir" katlanır satır, yalnız gönderim varken çiziliyor. Boş Analitik'te Dikkat Sinyali yok | Satır katlıyken 42 px, açıkken 205 px; eskiden hep açıktı |
+| `3191477` | P2-6 reddedilen havuz | Sihirbazın 2. adımına her girişte katlı | Açık bırakıp yeniden girince kapalı |
+| `1e03d4d` | P2-8 demo adım 2 | Demo adım 2'de bir kez Sınıflarım açılıyor: sınavın kartı vurgulu, "Demo:" yönlendirmesi var. Demo kodu ve kilitler değişmedi | 5 adım gerçek düğmelerle uçtan uca geçti; JS hatası 0 |
+
+**Not (P1-3, öneri, yapılmadı):** Puanlama'da `.eval-card`'ları artık ad
+seçici itmiyor. Ama sekmenin kendi kartları (sınav özeti, Sınıf Verisi,
+413 px'lik Sınav Bütünlüğü Kaydı, ÇSS sonuçları) onay kuyruğunun üstünde.
+"Onay bekleyen" kuyruğunu en üste almak ayrı bir iş olarak önerilir.
+
+**Doğrulama:** 346/346 test (+8) · öz-kontrol %100 · gorsel-fark öğretmen
+10 ekran (1280 ve 390): hata 0, yinelenen id 0, <24px 0, taşma yok · servis
+= disk (app.js `51413e5b452c…`, ogretmen.css `dce289885390…`) · U+FFFD 0 ·
+model çağrısı 0. P2-5 W2'de, P2-7 W4'ün dalında.
