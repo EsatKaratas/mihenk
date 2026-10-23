@@ -181,7 +181,7 @@ describe('yonetici filtre — sayılar', () => {
   });
 });
 
-/* §77 — W3 bulgusu: sınav yalnız hedef sınıfına atanır (targetClass). */
+/* §78 — W3 bulgusu: sınav yalnız hedef sınıfına atanır (targetClass). */
 function hedefliState() {
   const st = ornekState() as ReturnType<typeof ornekState> & { students: Array<{ id: number; name: string; sinif: string }> };
   // Matematik sınavı yalnız 7-B'ye açık; 7-A'dan kimse girmedi.
@@ -195,7 +195,7 @@ function hedefliState() {
   return st;
 }
 
-describe('yonetici — atama hedef sınıfa göre (§77, W3 P1)', () => {
+describe('yonetici — atama hedef sınıfa göre (§78, W3 P1)', () => {
   it('hedef sınıf boşsa herkese, doluysa yalnız o sınıfa; sınava giren öğrenci atanmış sayılır', () => {
     const st = hedefliState();
     const { yonSinavAtandiMi } = kur(st);
@@ -235,7 +235,7 @@ describe('yonetici — atama hedef sınıfa göre (§77, W3 P1)', () => {
   });
 });
 
-describe('yonetici — karar raporu yalnız yayındaki sınavlardan (§77, W3 P2)', () => {
+describe('yonetici — karar raporu yalnız yayındaki sınavlardan (§78, W3 P2)', () => {
   it('yayından kaldırılmış sınavın kararı düşer; aynı çift taslakta da varsa yalnız yayındaki kadar kalır', () => {
     const st = ornekState();
     st.exams[0].sessions = { 1: { examStatus: 'graded', reviews: { 12: { finalScore: 10, aiScore: 12 } } } };

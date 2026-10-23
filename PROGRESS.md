@@ -9743,7 +9743,7 @@ başka bir worktree'yi sunan port üzerinde ölçüm yapıldı).
 
 ## 78. YÖNETİCİ — atama sınavın hedef sınıfına göre + karar raporu yalnız yayındakiler (23 Ekim 2026, W4)
 
-*(Dalda §77 olarak yazılmıştı; W2'nin §77 onay penceresi bölümüyle çakıştığı için birleştirmede §78'e alındı. Kod ve test yorumlarındaki "§77" (yönetici) atıfları bu bölümü kastediyor.)*
+*(Dalda §77 olarak yazılmıştı; W2'nin §77 onay penceresi bölümüyle çakıştığı için birleştirmede §78'e alındı. Kod ve test yorumlarındaki atıflar da §78'e çevrildi.)*
 
 **Kaynak:** W3'ün §74 bağımsız doğrulaması (138 geçti, 8 kaldı; kalanlar 2 bulgudan).
 

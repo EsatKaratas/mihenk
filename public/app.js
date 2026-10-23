@@ -10571,7 +10571,7 @@ function okulGercekDurum(f) {
     const dersSorulari = {};
     yonSinavSorulari(yonSinavi(kayit)).forEach(function (q) { if (yonSoruUygunMu(q, f)) dersSorulari[q.id] = true; });
     ogrenciler.forEach(function (ogr) {
-      if (!yonSinavAtandiMi(kayit, ogr)) return;   // §77: hedef sınıf dışındaki öğrenci atama sayılmaz
+      if (!yonSinavAtandiMi(kayit, ogr)) return;   // §78: hedef sınıf dışındaki öğrenci atama sayılmaz
       atanan++;
       const ss = yonOturum(kayit, ogr.id);
       if (!ss) return;
@@ -10812,12 +10812,12 @@ function yonSinavUygunMu(kayit, f) {
   if (ex.status !== "published") return false;
   if (f.ogretmen && yonOgretmenAdi(ex) !== f.ogretmen) return false;
   if (f.ders && !yonSinavSorulari(ex).some(function (q) { return yonSoruDersi(q) === f.ders; })) return false;
-  // §77: sınıf seçiliyse sınav o sınıftan en az bir öğrenciye atanmış olmalı.
+  // §78: sınıf seçiliyse sınav o sınıftan en az bir öğrenciye atanmış olmalı.
   if (f.sinif && !yonOgrenciler(f).some(function (o) { return yonSinavAtandiMi(kayit, o); })) return false;
   return true;
 }
 
-/* §77 — ATAMA KURALI (W3 bulgusu, P1). Sınavın hedef sınıfı (targetClass, §28r)
+/* §78 — ATAMA KURALI (W3 bulgusu, P1). Sınavın hedef sınıfı (targetClass, §28r)
    boşsa sınav tüm öğrencilere, doluysa yalnız o sınıfın öğrencilerine atanmıştır.
    Öğrenci sınava ZATEN girdiyse (hedef sonradan değişse bile) atanmış sayılır —
    öğrenci panelindeki görünürlük kuralıyla (studentTab1Html) aynı ilke.
@@ -10925,7 +10925,7 @@ function yonCanliOgretmenler(f) {
     .map(function (t) { return Object.assign({}, t, { records: yonKayitlariSuz(yonYayindakiKayitlar(t.name, t.records, f), f) }); });
 }
 
-/* §77 (W3 bulgusu, P2): teacherExamRecords sınavın durumuna bakmaz; yayından
+/* §78 (W3 bulgusu, P2): teacherExamRecords sınavın durumuna bakmaz; yayından
    kaldırılmış sınavın kararları da gelir. Yönetici ekranının öteki bölümleri
    yalnız yayındaki sınavları saydığı için rapor da aynı alt kümeye indirilir.
    teacherExamRecords'a dokunulmadı (öğretmen ekranı kendi sınavlarının hepsini
@@ -12352,7 +12352,7 @@ function riskOgrencileri(f) {
   return yonOgrenciler(f).map(function (ogr) {
     let toplamPuan = 0, toplamTam = 0, girmedi = 0, onayli = 0;
     yayindaki.forEach(function (kayit) {
-      // §77: sınav bu öğrenciye atanmadıysa (başka sınıfa açık) devam göstergesine girmez.
+      // §78: sınav bu öğrenciye atanmadıysa (başka sınıfa açık) devam göstergesine girmez.
       if (!yonSinavAtandiMi(kayit, ogr)) return;
       const ex = kayit.id === state.activeExamId ? state.exam : kayit;
       const o = kayit.id === state.activeExamId && String(ogr.id) === String(state.activeStudentId)
@@ -13069,7 +13069,7 @@ function bosDurumHtml(mesaj) {
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
     "yonFiltreGecerli", "yonFiltreOzet", "yonPuanlar", "yonSinavGecmisi", "yonKayitlariSuz", "yonCanliOgretmenler",
     "yonKararKayitlari", "yonFiltreCubuguHtml", "wireYonFiltre",
-    /* §77 — atama kuralı ve yayındaki karar kayıtları (W4). */
+    /* §78 — atama kuralı ve yayındaki karar kayıtları (W4). */
     "yonSinavAtandiMi", "yonYayindakiKayitlar",
     /* §30 — final birleştirme denetimi: aşağıdaki altı ad üst düzeyde
        tanımlıydı ama bu listede yoktu. Dördü wire* — yani bir merge onları
