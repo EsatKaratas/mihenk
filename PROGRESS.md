@@ -9598,3 +9598,25 @@ denetimi her zaman açıktı.
 güncelleniyordu; yazıp hemen "Belge yükle"ye tıklayınca yeniden çizim tıklamayı
 yutuyordu (ölçüldü: tarayıcı testinde belge kartı açılmadı). Artık uyarı listesi
 yazarken yerinde güncellenir (`ceUyarilariYenile`), yeniden çizim yok.
+
+### 73c. Soru Havuzu — ders → sınıf → kazanım ağacı + filtreler
+
+Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek kart:
+- **Filtreler:** durum (Onaylı · Bekleyen · Reddedilmiş · Tümü; varsayılan
+  Onaylı, yani eski görünüm), **⚠ Yalnız şüpheli** (şüphe tablosunda en az bir
+  işaret) ve kaynak türü (Metinden · Yalnız kazanım · Deneyap kitabı · Demo örneği).
+- **Ağaç:** ders → sınıf → kazanım, her düğümde filtreden geçen soru sayısı.
+  Yalnız seçili dalın alt düğümleri açılır. Dar ekranda ağaç listenin üstüne iner.
+- **Eylemler:** onaylı → Sil; reddedilmiş → ↩ Yeniden İncele + Sil (ortak
+  bağlayıcı `wireRejectedPool` aynen); bekleyen → **İncele →** (Soru Üret
+  sekmesinde o kartın üstüne götürür). **Havuzda onay düğmesi yok:** karar
+  yalnız onay kartında, §71 ikinci onayıyla birlikte (agents.md §1).
+- **State şekli değişmedi, göç yok.** Her şey var olan alanlardan türetilir:
+  ders/sınıf kazanımın kaydından (`subject`/`grade`). Kazanım okul listesinden
+  silinmişse koddan çıkarılır; katalog önekleri ölçüldü (DNY 622, FB 141,
+  MAT 100, T 365), Deneyap'ın sınıf ekseni "Deneyap". Kaynak türü: `demo` →
+  demo, `srcId` → metinden, `DNY.` kodu → Deneyap, değilse yalnız kazanım.
+  Filtre seçimi (`state.cePool`) yalnız arayüz durumu.
+- Ölçüm (1366 ve 390, 7 soruluk karışık havuz): 30/30. Durum, şüphe ve kaynak
+  filtreleri, ağaç düğümü (2 soru, sayaç = liste), İncele → kart, Yeniden
+  İncele → bekleyen, Sil, taşma 0, yinelenen id 0, konsol 0.
