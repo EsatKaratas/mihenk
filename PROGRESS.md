@@ -9661,11 +9661,13 @@ Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek
   (yönetici %0,01–0,02 gürültü). Konsol 0, yinelenen id 0, taşma 0. Tek
   <24 px hedef (`button.oc-link` 313×20, CE-1 1280) main'de de aynı; bu turla
   gelmedi.
-- **`adimciHtml` birleştirmesi KAPATILDI (iki meşru kalıp; Orchestrator 2
-  kararı).** Ortak adımcı yatay bir adım şeridi; İçerik Uzmanı sihirbazının
-  adımları ise açılır-kapanır başlık + tek satırlık özet + "Değiştir". İkisi
-  farklı işlere hizmet eden iki ayrı kalıp olarak kalır; `ceAdimHtml` ortak
-  adımcıya taşınmaz.
+- **Kapatıldı: `ceAdimHtml` → ortak `adimciHtml` birleştirmesi YAPILMAYACAK**
+  (Orchestrator 2 kararı, 23 Ekim). İki farklı etkileşim kalıbı ve ikisi de
+  meşru: ortak adımcı yatay bir adım şeridi (öğretmen sınav sihirbazı: ad →
+  sorular → yayın, sırayla ilerlenir); İçerik Uzmanı sihirbazı ise açılır-
+  kapanır başlık + kapalı adımın tek satırlık özeti + "Değiştir" (adımlar
+  serbestçe yeniden açılır, özet her zaman görünür). Birleştirmek, kapalı
+  adım özetini kaybettirirdi. İkinci tur listesinden düşürüldü.
 
 ## 76. AKSANSIZ YABANCI SÖZCÜK SIZINTISI — ölçüldü, EKLENMEDİ (ikinci tur, 23 Ekim 2026, W2)
 
