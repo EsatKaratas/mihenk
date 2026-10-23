@@ -4660,8 +4660,9 @@ function ceTabsHtml() {
   const bekleyen = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
   const onayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
   const tabs = [
-    { id: 1, label: "1 \u00b7 Soru \u00dcret", rozet: bekleyen },
-    { id: 2, label: "2 \u00b7 Soru Havuzu", rozet: onayli }
+    // \u00a761: sekme numaralar\u0131 kalkt\u0131 (W5 kabuk karar\u0131); data-tab/ceTab ayn\u0131.
+    { id: 1, label: "Soru \u00dcret", rozet: bekleyen },
+    { id: 2, label: "Soru Havuzu", rozet: onayli }
   ];
   return '<div class="tabs" id="ceTabs">' + tabs.map(function (x) {
     return '<button class="tab-btn ' + (state.ceTab === x.id ? "active" : "") + '" data-tab="' + x.id + '">' +
@@ -4675,23 +4676,86 @@ function wireCeTabs() {
   });
 }
 
-// 1. sekme: kaynak icerik + AI ciktilarinin incelenmesi
-function ceCreateHtml() {
-  const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
-  return remedialBannerHtml() +
-    '<div class="ce-layout">' +
-    '<div class="card ce-source"><div class="card-head"><h3>1 · Kaynak İçerik</h3><span class="hint">sorular buradan üretilir</span></div>' +
-    '<div class="ce-meta-grid">' +
-    /* DERS — SEKME LİSTESİ (kullanıcı isteği).
-       Önce <datalist>'li serbest metindi, sonra <select> oldu; ikisi de tek
-       bir şeyi yapamıyordu: içerik üreticisinin KENDİ dersini eklemesi ve
-       fazlalığı SİLMESİ. Bir <option>'ın yanına silme düğmesi konulamaz. Bu
-       yüzden ders artık sekme listesidir: en baştaki "+" ekler, her sekmenin
-       sağındaki "×" kalıcı olarak siler. Liste `state.subjects` -> localStorage.
-       Ders satırı Başlık'tan ÖNCE ve tam genişlikte durur: kazanım listesini,
-       kataloğu ve soru üretimini belirleyen ilk karar odur. */
+/* §61 — SORU ÜRET SİHİRBAZI (W3, tasarım turu 1).
+   Eski "1 · Kaynak İçerik" kartı tek uzun formdu: 985 px yükseklik, 26 kontrol,
+   9 ayrı yazı boyutu; "AI ile Soru Üret" ilk ekranın dışında kalıyordu
+   (ölçüldü, 1366×768). Şimdi üç adım aynı sayfada — ① Ne için? ② Neye
+   dayansın? ③ Kaç soru? — ve sağda her zaman görünen bir özet + üret düğmesi.
+   Kapalı adımın gövdesi `hidden` ile GİZLENİR, DOM'dan ÇIKARILMAZ: aşağıdaki
+   bağlama kodu ceGrade/ceSube/ceTitle/ceOutcome/ceMcCount'u koşulsuz bağlıyor
+   (§31 dersi: eksik düğüm formun altını öldürüyordu).
+   Adım, giriş türü ve "Gelişmiş" açıklığı yalnız arayüz durumudur; saklanmaz,
+   bu yüzden göç gerekmez (`??` ile varsayılan). */
+function ceAdimi() {
+  const a = state.ceAdim ?? 1;
+  return a === 2 || a === 3 ? a : 1;
+}
+
+/* Kaynak modunda iki giriş yolu vardır (metin yapıştır / belge yükle); ikisi de
+   state.ceForm.text'e yazar, sunucuya giden istek aynıdır. Tercih saklanmaz:
+   açık bir belge varsa "belge", yoksa "metin" varsayılır. */
+function ceGirisi() {
+  if (uretimModu() === "kazanim") return "kazanim";
+  const g = state.ceGiris ?? (state.pdf || state.ceForm.fileName ? "belge" : "metin");
+  return g === "belge" ? "belge" : "metin";
+}
+
+function ceSeciliKazanim() {
+  return OUTCOMES_LIST().filter(function (o) { return o.code === state.ceForm.outcomeCode; })[0] || null;
+}
+
+/** Kapalı adımın başlığında görünen tek satırlık özet. */
+function ceAdimOzeti(no) {
+  if (no === 1) {
+    const k = ceSeciliKazanim();
+    return escapeHtml(state.ceForm.subject) + " · " + escapeHtml(sinifEtiketi(state.ceForm.grade)) +
+      (k ? " · " + escapeHtml(k.code) : " · kazanım seçilmedi");
+  }
+  if (no === 2) {
+    const g = ceGirisi();
+    if (g === "kazanim") return seciliMateryal() ? "Kazanım · ders belgesine kilitli" : "Yalnız kazanım";
+    return (g === "belge" ? "Belge" : "Metin") + " · " +
+      state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
+  }
+  return state.ceForm.mcCount + " çoktan seçmeli + " + state.ceForm.openCount + " açık uçlu";
+}
+
+/** Bir sihirbaz adımı: başlık her zaman görünür, gövde yalnız açık adımda. */
+function ceAdimHtml(no, baslik, govde, devam) {
+  const acik = ceAdimi() === no;
+  return '<section class="ce-adim' + (acik ? " acik" : "") + '">' +
+    '<button type="button" class="ce-adim-bas" data-ce-adim="' + no + '" aria-expanded="' + acik + '">' +
+    '<span class="ce-adim-no">' + no + '</span>' +
+    '<span class="ce-adim-ad">' + baslik + '</span>' +
+    '<span class="ce-adim-ozet">' + (acik ? "" : ceAdimOzeti(no)) + '</span>' +
+    '<span class="ce-adim-ok">' + (acik ? "" : "Değiştir") + '</span></button>' +
+    '<div class="ce-adim-govde"' + (acik ? "" : " hidden") + '>' + govde +
+    (devam
+      ? '<div class="ce-adim-alt"><button type="button" class="btn btn-secondary btn-sm" data-ce-adim="' +
+        (no + 1) + '">Devam →</button></div>'
+      : "") +
+    '</div></section>';
+}
+
+/* Kazanım notu (kazanimNotuHtml, ortak bölge) olağan durumda 27 kelimeye
+   uzuyor. Liste hazırsa ⓘ altına katlanır; yükleniyor / hata / 0 kazanım /
+   "tümü gösteriliyor" durumları YÖNLENDİRME taşıdığı için açık kalır. */
+function ceKazanimNotuHtml() {
+  const not = kazanimNotuHtml();
+  const olagan = / kazanım seçilebilir /.test(not) && !/yükleniyor|yüklenemedi/.test(not) &&
+    !state.ceForm.showAllOutcomes;
+  if (!olagan) return not;
+  return '<details class="ce-bilgi"' + (state.ceBilgiAcik ? " open" : "") + '>' +
+    '<summary>ⓘ Bu liste nereden geliyor?</summary>' + not + '</details>';
+}
+
+// ① Ne için? — ders, sınıf, (atölye), kazanım
+function ceAdim1Html() {
+  const kaynakAd = mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından");
+  return '<div class="ce-meta-grid">' +
+    /* Ders sekme listesi (ekle "+", sil "×") ilk karardır: kazanım listesini,
+       kataloğu ve üretimi belirler. */
     dersSecicisiHtml() +
-    '<div class="field"><label>Başlık</label><input id="ceTitle" type="text" value="' + escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite Özeti"></div>' +
     '<div class="field"><label for="ceGrade">Sınıf</label><select id="ceGrade">' +
     GRADES.map(function (g) {
       return '<option value="' + escapeHtml(String(g)) + '"' +
@@ -4699,36 +4763,21 @@ function ceCreateHtml() {
         escapeHtml(sinifEtiketi(g)) + "</option>";
     }).join("") +
     '</select></div>' +
-    /* KEŞİF — SINIF İLE ŞUBE ARASINDA (kullanıcı isteği, §50d).
-       Yeri rastgele değil: sınıf "Keşif" seçildiği anda bir sonraki karar
-       hangi atölyede çalışılacağıdır. Şubenin arkasına konursa kullanıcı
-       kazanım listesinin neden süzüldüğünü göremiyordu. Sınıf Keşif değilse
-       bu alan hiç çizilmez. */
+    // Keşif/Deneyap: sınıftan hemen sonra atölye (§50d); değilse çizilmez.
     atolyeSecicisiHtml() +
-    /* MADDE 1: Şube (bölüm) — yalnızca ORGANİZASYON/RAPORLAMA etiketidir,
-       kazanım filtrelemesini ETKİLEMEZ (MEB müfredatı şubeye göre değişmez)
-       ve AI istemine hiç girmez. Serbest metin: okulların şube adlandırması
-       (7-A, 7/A, 7-B1 ...) tek bir listeye sığmaz; <select> bunu kısıtlardı. */
-    '<div class="field"><label for="ceSube">Şube <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
-    '<input id="ceSube" type="text" maxlength="20" value="' + escapeHtml(state.ceForm.sube || "") + '" ' +
-    'placeholder="örn. ' + escapeHtml(siniflar()[0] || "7-A") + ' — boş bırakılabilir" title="Bu içerik hangi şube için üretiliyor? Yalnızca etiket amaçlıdır, kazanım listesini değiştirmez."></div>' +
-    /* KAZANIM — DERSLE AYNI SİSTEM (kullanıcı isteği).
-       Üstte sekmeler: "+" kendi kazanımını yazdırır, her sekmenin "×"i o
-       kazanımı kalıcı siler. Altta seçici: MEB kataloğundan EKLEME kanalı —
-       606 kazanımı sekmeye çevirmek ekranı kullanılamaz hale getirirdi, bu
-       yüzden katalog seçicide kalır ve seçilen kazanım yukarıya sekme olarak
-       düşer. */
-    '<div class="field field-outcome"><label>Konu ve Kazanım</label>' +
+    /* Kazanım seçici YENİDEN YAZILMADI (tur 1 kapsamı): sekmeler + açılır
+       liste + katalog modalı aynen. Yalnız etiketler sadeleşti. */
+    '<div class="field field-outcome"><label>Kazanım</label>' +
     kazanimSecicisiHtml() +
     '<div class="input-with-actions kazanim-ekle-satiri">' +
-    '<select id="ceOutcome" aria-label="' + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + ' kazanım ekle"' +
+    '<select id="ceOutcome" aria-label="' + kaynakAd + ' kazanım ekle"' +
     (katalogKazanimlari().length ? "" : " disabled") + ">" +
     kazanimSecenekleriHtml() +
     '</select>' +
-    '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="' + mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + ' kazanım seç">Katalog</button></div>' +
-    kazanimNotuHtml() + kazanimKaynakHtml() + '</div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="' + kaynakAd +
+    ' kazanım seç">Tüm listeyi aç</button></div>' +
+    ceKazanimNotuHtml() + kazanimKaynakHtml() + '</div>' +
     outcomeUyusmazlikHtml() +
-    '<!--meta-grid-end-->' +
     (state.newOutcome.open
       ? '<div class="new-outcome"><div class="field-row">' +
         '<div class="field"><label>Kazanım kodu</label><input id="noCode" value="' + escapeHtml(state.newOutcome.code) + '" placeholder="örn. FEN.7.3.1"></div>' +
@@ -4736,78 +4785,214 @@ function ceCreateHtml() {
         (state.newOutcome.error ? '<div class="pill pill-critical" style="margin-bottom:8px;">' + escapeHtml(state.newOutcome.error) + '</div>' : "") +
         '<button class="btn btn-primary btn-sm" id="btnSaveOutcome">Kazanımı Ekle</button> ' +
         '<button class="btn btn-secondary btn-sm" id="btnCancelOutcome">Vazgeç</button>' +
-        /* Kazanımın HANGİ ders/sınıfa yazılacağı açıkça söylenir: artık koddan
-           tahmin edilmiyor, o anki seçim kullanılıyor (bkz. btnSaveOutcome). */
+        // Kazanımın HANGİ ders/sınıfa yazılacağı açıkça söylenir (bkz. btnSaveOutcome).
         '<div class="field-note">Bu kazanım <b>' + escapeHtml(state.ceForm.subject) + " · " +
-        escapeHtml(sinifEtiketi(state.ceForm.grade)) + "</b> altına eklenecek ve " +
-        "panelinizde kalıcı olarak duracak.</div></div>"
-      : "") + '</div>' +
-    uretimModuSecHtml() +
-    (uretimModu() === "kazanim" ? (materyalSeridiHtml() + yonergeAlaniHtml()) :
-    '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
-    /* §28q: "öğretmen kendi ders oluşturabilsin, notlar kayıtlı dursun." Bu
-       düğüm mevcut Kitaplık altyapısını (IndexedDB, kalıcı, ad+tarih+boyutla
-       listelenen) YAPIŞTIRILAN METNE de açar — eskiden yalnızca YÜKLENEN
-       PDF'ler kaydediliyordu. Metni "1 sayfalık kitap" olarak kaydeder;
-       kitapAc()/kitapKaldir() birebir aynı akışla çalışır. */
+        escapeHtml(sinifEtiketi(state.ceForm.grade)) + "</b> altına eklenecek.</div></div>"
+      : "") +
+    '</div>';
+}
+
+/* ② Neye dayansın? — üç kart. "Metin" ve "Belge" ikisi de kaynak modudur
+   (uretimModu() === "kaynak"); "Yalnız kazanım" kazanım modudur ve kazanım
+   bir ders belgesine bağlıysa belge kilidi (materyalSeridiHtml) burada görünür. */
+function ceGirisKartlariHtml() {
+  const g = ceGirisi();
+  const kart = function (deger, ad, not) {
+    return '<button type="button" class="mod-kart' + (g === deger ? " secili" : "") + '" ' +
+      'data-ce-giris="' + deger + '" aria-pressed="' + (g === deger) + '">' +
+      '<span class="mod-ad">' + ad + '</span><span class="mod-not">' + not + '</span></button>';
+  };
+  return '<div class="mod-secici ce-giris-secici" role="group" aria-label="Soru neye dayansın?">' +
+    kart("metin", "📋 Metin yapıştır", "Ders notu sınavda öğrenciye de gösterilir.") +
+    kart("belge", "📄 Belge yükle", "PDF, Word ya da metin dosyası.") +
+    kart("kazanim", "🎯 Yalnız kazanım",
+      seciliMateryal()
+        ? "Metin gerekmez; kazanımın ders belgesine dayanır."
+        : mebYerine("Metin gerekmez; MEB kazanımına dayanır.", "Metin gerekmez; Deneyap kitabına dayanır.")) +
+    '</div>';
+}
+
+function ceMetinAlaniHtml() {
+  return '<div class="field ce-text-field"><div class="label-row"><label for="ceText">Ders notu / metin</label>' +
+    /* §28q: yapıştırılan metin de kitaplığa "1 sayfalık kitap" olarak kaydedilir. */
     (state.ceForm.text.trim().length >= 30
       ? '<button class="btn btn-secondary btn-sm" id="btnKaynakKaydet" type="button" ' +
         'title="Bu metni adlandırıp kitaplığa kaydet — bir daha yazmadan tekrar açabilirsiniz">📚 Kitaplığa kaydet</button>'
       : "") +
     '<span class="char-count' + (state.ceForm.text.length > 5500 ? " near" : "") + '">' + state.ceForm.text.length + ' / 6000</span></div>' +
-    '<input type="file" id="ceFile" accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">' +
+    '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' +
+    escapeHtml(state.ceForm.text) + '</textarea></div>';
+}
+
+function ceBelgeAlaniHtml() {
+  const n = state.ceForm.text.trim().length;
+  return '<input type="file" id="ceFile" accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">' +
     '<div class="dropzone' + (state.ceForm.pdfLoading ? " busy" : "") + '" id="dropzone">' +
     (state.ceForm.pdfLoading
       ? '<div class="dz-spin"></div><div class="dz-title">Dosya okunuyor…</div>' +
-        '<div class="dz-sub">İçerik çıkarılıyor, bu birkaç saniye sürebilir.</div>'
+        '<div class="dz-sub">İçerik çıkarılıyor, birkaç saniye sürebilir.</div>'
       : '<div class="dz-icon">📄</div>' +
         '<div class="dz-title">Dosyayı buraya sürükleyin<span class="dz-or"> veya </span>' +
         '<button class="dz-browse" id="btnUpload" type="button">bilgisayarınızdan seçin</button></div>' +
-        '<div class="dz-sub">PDF · TXT · MD · DOCX — dosya sunucuya gönderilmez, tarayıcınızda okunur. ' +
-        'PDF\'ler kitaplığa kaydedilir; aynı dosyayı tekrar yüklemeniz gerekmez.</div>' +
+        '<div class="dz-sub" title="Dosya sunucuya gönderilmez, tarayıcınızda okunur. PDF\'ler kitaplığa kaydedilir; aynı dosyayı tekrar yüklemeniz gerekmez.">' +
+        'PDF · DOCX · TXT · MD — dosya tarayıcınızda okunur, sunucuya gitmez.</div>' +
         (state.ceForm.fileName ? '<div class="dz-file">✓ ' + escapeHtml(state.ceForm.fileName) + '</div>' : "")) +
     '</div>' +
     ocrOneriHtml() +
     pdfPickerHtml() +
-    kitaplikHtml() +
-    '<div class="dz-divider"><span>veya metni doğrudan aşağıya yapıştırın</span></div>' +
-    '<textarea id="ceText" placeholder="Öğrencilere sunulacak ders notunu buraya yapıştırın...">' + escapeHtml(state.ceForm.text) + '</textarea></div>') +
-    (state.ceForm.error ? '<div class="pill pill-blok pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
-    /* §41: sunucunun soru sayısını neden düşürdüğü / kaç soruyu neden elediği.
-       Hata değil BİLGİdir; bu yüzden uyarı (warning) tonunda. */
-    (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning" style="margin-bottom:10px;">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
-    '<div class="gen-bar">' +
-    '<div class="field"><label>Çoktan seçmeli</label>' +
-    '<input id="ceMcCount" type="number" min="0" max="8" value="' + state.ceForm.mcCount + '"></div>' +
-    '<div class="field"><label>Açık uçlu</label>' +
-    '<input id="ceOpenCount" type="number" min="0" max="4" value="' + state.ceForm.openCount + '"></div>' +
-    /* MADDE 2: bilişsel düzey ağırlığı — tamamen opsiyonel bir YÖNLENDİRME.
-       "Dengeli" seçiliyken istem hiç değişmez (mevcut davranış). Zorunlu bir
-       oran dayatmaz; öğretmen/içerik uzmanı isterse kullanır. */
-    '<div class="field"><label for="ceBloomFocus">Bilişsel düzey <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    /* Belgeden çıkan metin görünmeden üretilmesin: kaç karakter alındığı
+       yazar, tek tıkla metin görünümüne geçip düzenlenebilir. */
+    (n ? '<div class="ce-belge-metin">✓ ' + n.toLocaleString("tr") + ' karakter metin alındı · ' +
+      '<button type="button" class="oc-link" data-ce-giris="metin">metni gör / düzenle</button></div>' : "") +
+    kitaplikHtml();
+}
+
+function ceAdim2Html() {
+  const g = ceGirisi();
+  return ceGirisKartlariHtml() +
+    '<div class="ce-giris-govde">' +
+    (g === "kazanim" ? materyalSeridiHtml() + yonergeAlaniHtml()
+      : g === "belge" ? ceBelgeAlaniHtml()
+      : ceMetinAlaniHtml()) +
+    '</div>';
+}
+
+function ceSayacHtml(id, ad, deger, ust) {
+  return '<div class="field ce-sayac"><label for="' + id + '">' + ad + '</label>' +
+    '<div class="sayac">' +
+    '<button type="button" class="sayac-btn" data-sayac="' + id + '" data-yon="-1" aria-label="' + ad + ' azalt"' +
+    (deger <= 0 ? " disabled" : "") + '>−</button>' +
+    '<input id="' + id + '" type="number" min="0" max="' + ust + '" value="' + deger + '">' +
+    '<button type="button" class="sayac-btn" data-sayac="' + id + '" data-yon="1" aria-label="' + ad + ' artır"' +
+    (deger >= ust ? " disabled" : "") + '>+</button></div></div>';
+}
+
+// ③ Kaç soru? — sayaçlar; bilişsel düzey, başlık ve şube "Gelişmiş"te katlı.
+function ceAdim3Html() {
+  const bf = state.ceForm.bloomFocus;
+  return '<div class="ce-sayaclar">' +
+    ceSayacHtml("ceMcCount", "Çoktan seçmeli", state.ceForm.mcCount, 8) +
+    ceSayacHtml("ceOpenCount", "Açık uçlu", state.ceForm.openCount, 4) +
+    '</div>' +
+    '<details class="ce-gelismis"' + (state.ceGelismisAcik ? " open" : "") + '>' +
+    '<summary>Gelişmiş: bilişsel düzey, başlık, şube</summary>' +
+    '<div class="ce-gelismis-govde">' +
+    /* MADDE 2: bilişsel düzey — opsiyonel YÖNLENDİRME; "Dengeli"de istem değişmez. */
+    '<div class="field"><label for="ceBloomFocus">Bilişsel düzey</label>' +
     '<select id="ceBloomFocus">' +
-    '<option value="dengeli"' + (state.ceForm.bloomFocus === "dengeli" ? " selected" : "") + '>Dengeli (varsayılan)</option>' +
-    '<option value="temel"' + (state.ceForm.bloomFocus === "temel" ? " selected" : "") + '>Temel düzeyi vurgula (hatırlama/anlama)</option>' +
-    '<option value="ust"' + (state.ceForm.bloomFocus === "ust" ? " selected" : "") + '>Üst düzeyi vurgula (analiz/değerlendirme)</option>' +
+    '<option value="dengeli"' + (bf === "dengeli" ? " selected" : "") + '>Dengeli (varsayılan)</option>' +
+    '<option value="temel"' + (bf === "temel" ? " selected" : "") + '>Temel düzeyi vurgula (hatırlama/anlama)</option>' +
+    '<option value="ust"' + (bf === "ust" ? " selected" : "") + '>Üst düzeyi vurgula (analiz/değerlendirme)</option>' +
     '</select></div>' +
-    '<div class="gen-action">' +
-    '<button class="btn btn-primary btn-lg" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
+    '<div class="field"><label for="ceTitle">Başlık</label><input id="ceTitle" type="text" value="' +
+    escapeHtml(state.ceForm.title) + '" placeholder="örn. Kuvvet ve Hareket — 3. Ünite"></div>' +
+    /* MADDE 1: şube yalnızca etikettir; kazanım listesini ve AI istemini etkilemez. */
+    '<div class="field"><label for="ceSube">Şube</label>' +
+    '<input id="ceSube" type="text" maxlength="20" value="' + escapeHtml(state.ceForm.sube || "") + '" ' +
+    'placeholder="örn. ' + escapeHtml(siniflar()[0] || "7-A") + '" title="Yalnızca etiket; kazanım listesini değiştirmez."></div>' +
+    '</div></details>';
+}
+
+/* Özet panelindeki uyarılar. Hiçbiri düğmeyi KİLİTLEMEZ: doğrulamanın tek
+   yeri onGenerateQuestions'tır (ortak bölge) — burada yalnız önceden söylenir.
+   tur: "eksik" = henüz yapılmamış adım (nötr), "blok" = gerçek engel (belge
+   okunamadı, kırmızı), "uyari" = üretilir ama dikkat, "kilit" = belge kilidi. */
+function ceUyarilari() {
+  const u = [];
+  const g = ceGirisi();
+  const k = ceSeciliKazanim();
+  if (!k) {
+    u.push(g === "kazanim"
+      ? { tur: "eksik", metin: "Kazanım seçin; bu modda dayanak kazanımdır." }
+      : { tur: "uyari", metin: "Kazanım seçilmedi; sorular kazanımsız kalır." });
+  } else if (!outcomeUyar(k, state.ceForm.subject, state.ceForm.grade)) {
+    u.push({ tur: "uyari", metin: "Seçili kazanım bu ders/sınıfa ait değil." });
+  }
+  if (g !== "kazanim" && state.ceForm.text.trim().length < 30) {
+    u.push({ tur: "eksik", metin: g === "belge"
+      ? "Belge yükleyin ya da metin yapıştırın."
+      : "En az 30 karakterlik metin gerekli." });
+  }
+  /* BELGE KİLİDİ görünür olmalı (§51): kazanım bir ders belgesine bağlıysa
+     sorular yalnız o belgeden üretilir, belge okunamazsa hiç üretilmez. */
+  const m = g === "kazanim" ? seciliMateryal() : null;
+  if (m) {
+    const d = materyalDurumu(m.id);
+    u.push(d.durum === "hazir"
+      ? { tur: "kilit", metin: "Yalnız “" + m.ad + "” belgesinden üretilir." }
+      : d.durum === "hata"
+      ? { tur: "blok", metin: "“" + m.ad + "” okunamadı; üretim yapılmaz." }
+      : { tur: "kilit", metin: "“" + m.ad + "” okunuyor…" });
+  }
+  if (state.ceForm.mcCount + state.ceForm.openCount < 1) {
+    u.push({ tur: "eksik", metin: "En az bir soru isteyin." });
+  }
+  return u;
+}
+
+/* Sağdaki yapışkan özet: seçimler + uyarılar + üret düğmesi. Üret düğmesi
+   (btnGenerate) yalnız burada çizilir; sayfa kaydırılsa da görünür kalır.
+   Dar ekranda alta yapışan çubuk olur (ce.css). */
+function ceOzetHtml() {
+  const k = ceSeciliKazanim();
+  const g = ceGirisi();
+  const satir = function (ad, deger, id) {
+    return '<div class="ce-ozet-satir"><dt>' + ad + '</dt><dd' + (id ? ' id="' + id + '"' : "") + '>' + deger + '</dd></div>';
+  };
+  const dayanak = g === "kazanim"
+    ? (seciliMateryal() ? "🔒 Ders belgesi" : "Yalnız kazanım")
+    : (g === "belge" ? "Belge" : "Metin") + " · " + state.ceForm.text.trim().length.toLocaleString("tr") + " krk";
+  const uyarilar = ceUyarilari();
+  return '<aside class="card ce-ozet" aria-label="Üretim özeti">' +
+    '<h3 class="ce-ozet-baslik">Özet</h3>' +
+    '<dl class="ce-ozet-liste">' +
+    satir("Ders", escapeHtml(state.ceForm.subject) + " · " + escapeHtml(sinifEtiketi(state.ceForm.grade))) +
+    satir("Kazanım", k
+      ? '<b>' + escapeHtml(k.code) + '</b> <span class="ce-ozet-ikincil">' + escapeHtml(k.label || "") + '</span>'
+      : '<span class="ce-ozet-ikincil">seçilmedi</span>') +
+    satir("Dayanak", dayanak, "ceOzetDayanak") +
+    satir("Sorular", state.ceForm.mcCount + " ÇSS + " + state.ceForm.openCount + " açık uçlu") +
+    (state.ceForm.bloomFocus && state.ceForm.bloomFocus !== "dengeli"
+      ? satir("Düzey", state.ceForm.bloomFocus === "ust" ? "Üst düzey vurgulu" : "Temel düzey vurgulu") : "") +
+    (state.ceForm.sube ? satir("Şube", escapeHtml(state.ceForm.sube)) : "") +
+    '</dl>' +
+    (uyarilar.length
+      ? '<ul class="ce-uyarilar">' + uyarilar.map(function (x) {
+          return '<li class="ce-uyari ce-uyari-' + x.tur + '">' + escapeHtml(x.metin) + '</li>';
+        }).join("") + '</ul>'
+      : "") +
+    (state.ceForm.error ? '<div class="pill pill-blok pill-critical">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
+    /* §41: sunucunun soru sayısını neden düşürdüğü — hata değil bilgi. */
+    (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
+    '<button class="btn btn-primary btn-lg ce-uret" id="btnGenerate"' + (state.ai.busy ? " disabled" : "") + '>' +
     (state.ai.busy ? '⏳ Model çalışıyor… <span id="busyTimer" class="tabular">0 sn</span>' : "🤖 AI ile Soru Üret") + '</button>' +
-    '<span class="gen-hint">' +
-    (uretimModu() === "kazanim"
-      ? escapeHtml(state.ceForm.outcomeCode || "seçili kazanım") + ' kazanımından '
-      : "Seçilen metinden ") +
-    state.ceForm.mcCount + ' çoktan seçmeli + ' + state.ceForm.openCount + ' açık uçlu soru taslağı üretilir' +
-    /* Söz verilen soru tipi kullanıcıya GÖRÜNÜR olmalı: aksi halde "neden
-       sorular bu kadar uzun?" sorusunun cevabı yalnızca kodda kalırdı. */
-    '<br><b>Beceri temelli (yeni nesil):</b> günlük hayat bağlamı + veri + ' +
-    'çıkarım/karar isteyen sorular (MEB ÖGM · LGS/YKS · PISA-TIMSS çizgisi)</span>' +
-    '</div></div></div>' +
-    '<div class="card ce-pending"><div class="card-head"><h3>2 · İncelemeyi Bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
+    /* §1 HITL burada da söylenir: üretilen her şey taslaktır. */
+    '<p class="ce-uret-not">Sorular taslak gelir; onayınız olmadan havuza girmez. ' +
+    '<span class="ce-ipucu" tabindex="0" title="Beceri temelli (yeni nesil): günlük hayat bağlamı + veri + çıkarım/karar isteyen sorular (MEB ÖGM · LGS/YKS · PISA-TIMSS çizgisi)">ⓘ</span></p>' +
+    '</aside>';
+}
+
+// 1. sekme: soru üretim sihirbazı + AI çıktılarının incelenmesi
+function ceCreateHtml() {
+  const pending = state.questions.filter(function (q) { return q.status === "ai_generated"; });
+  return remedialBannerHtml() +
+    '<div class="ce-layout">' +
+    '<div class="ce-sihirbaz">' +
+    '<div class="card ce-source"><div class="card-head"><h3>Yeni soru taslağı</h3>' +
+    '<span class="hint">3 adım</span></div>' +
+    ceAdimHtml(1, "Ne için?", ceAdim1Html(), true) +
+    ceAdimHtml(2, "Neye dayansın?", ceAdim2Html(), true) +
+    ceAdimHtml(3, "Kaç soru?", ceAdim3Html(), false) +
+    '</div>' +
+    ceOzetHtml() +
+    '</div>' +
+    '<div class="card ce-pending"><div class="card-head"><h3>İncelemeyi bekleyenler</h3><span class="hint">' + pending.length + ' soru</span></div>' +
     alignmentBarHtml(pending) +
     topluCozBarHtml(pending) +
     '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
-    (pending.length ? pending.map(renderPendingQuestionCard).join("") : '<div class="empty-state">Henüz AI çıktısı yok. Yukarıya bir metin yükleyip soru ürettirin.</div>') + '</div></div></div>';
+    (pending.length ? pending.map(renderPendingQuestionCard).join("")
+      : '<div class="empty-state">Henüz taslak yok. Üretilen sorular burada onayınızı bekler.</div>') +
+    '</div></div></div>';
 }
 
 // 2. sekme: onayli havuz + reddedilenler havuzu
@@ -4826,6 +5011,47 @@ function cePoolHtml() {
     }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
     (state.poolError ? '<div class="pill pill-blok pill-critical" style="margin-top:10px;">' + escapeHtml(state.poolError) + '</div>' : "") + '</div>' +
     rejectedPoolHtml("ce");
+}
+
+/* §61 — sihirbazın kendi olayları. Beş panel aynı anda DOM'da olduğu için id
+   değil data-* + querySelectorAll (TUZAK 1). */
+function wireCeSihirbaz() {
+  document.querySelectorAll("[data-ce-adim]").forEach(function (el) {
+    el.onclick = function () {
+      const no = Number(el.dataset.ceAdim);
+      if (ceAdimi() === no) return;
+      state.ceAdim = no;
+      renderAll();
+    };
+  });
+  document.querySelectorAll("[data-ce-giris]").forEach(function (el) {
+    el.onclick = function () {
+      const g = el.dataset.ceGiris;
+      if (g === "kazanim") state.ceForm.mode = "kazanim";
+      else { state.ceForm.mode = "kaynak"; state.ceGiris = g === "belge" ? "belge" : "metin"; }
+      // Mod değişince yazılan metin/yönerge SİLİNMEZ; yalnız eski moda ait hata temizlenir.
+      state.ceForm.error = "";
+      saveSoon();
+      renderAll();
+    };
+  });
+  // Sayaç düğmeleri, sayı kutularının onchange sınırlarıyla AYNI (0–8 / 0–4).
+  document.querySelectorAll("[data-sayac]").forEach(function (el) {
+    el.onclick = function () {
+      const alan = el.dataset.sayac === "ceMcCount" ? "mcCount" : "openCount";
+      const ust = alan === "mcCount" ? 8 : 4;
+      state.ceForm[alan] = Math.max(0, Math.min(ust, state.ceForm[alan] + Number(el.dataset.yon)));
+      saveSoon();
+      renderAll();
+    };
+  });
+  // <details> açıklığı yeniden çizimde kaybolmasın (yalnız arayüz durumu).
+  document.querySelectorAll(".ce-gelismis").forEach(function (d) {
+    d.ontoggle = function () { state.ceGelismisAcik = d.open; };
+  });
+  document.querySelectorAll(".ce-bilgi").forEach(function (d) {
+    d.ontoggle = function () { state.ceBilgiAcik = d.open; };
+  });
 }
 
 function renderContentExpert() {
@@ -4894,7 +5120,12 @@ function renderContentExpert() {
   /* §31: kazanım modunda #ceText hiç render edilmez; eski kod koşulsuz
      getElementById().oninput yazıyordu ve bu modda TypeError atardı. */
   const ceTextEl = document.getElementById("ceText");
-  if (ceTextEl) ceTextEl.oninput = function (e) { state.ceForm.text = e.target.value.slice(0, 6000); };
+  if (ceTextEl) ceTextEl.oninput = function (e) {
+    state.ceForm.text = e.target.value.slice(0, 6000);
+    /* §61: renderAll yok (TUZAK 3); yalnız özetteki sayı yerinde güncellenir. */
+    const oz = document.getElementById("ceOzetDayanak");
+    if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " krk";
+  };
   const ceGuidanceEl = document.getElementById("ceGuidance");
   /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
      yeniden çizilir ve kullanıcı yazarken odak kaybeder. Karakter sayacı bir
@@ -4914,6 +5145,7 @@ function renderContentExpert() {
       renderAll();
     };
   });
+  wireCeSihirbaz();
   // Madde 1: şube yalnızca etiket — değişimi kazanım listesini tetiklemez.
   document.getElementById("ceSube").oninput = function (e) { state.ceForm.sube = e.target.value.slice(0, 20); };
 
@@ -10978,6 +11210,10 @@ function bosDurumHtml(mesaj) {
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
+    // §61 soru üret sihirbazı (W3)
+    "ceAdimi", "ceGirisi", "ceSeciliKazanim", "ceAdimOzeti", "ceAdimHtml", "ceKazanimNotuHtml",
+    "ceAdim1Html", "ceGirisKartlariHtml", "ceMetinAlaniHtml", "ceBelgeAlaniHtml", "ceAdim2Html",
+    "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
