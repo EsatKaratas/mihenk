@@ -9981,7 +9981,221 @@ function openModal(html) {
 function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); }
 
 /* ============================== Üst çubuk & sayfa iskeleti ============================== */
+
+/* §64 — KABUK. Giriş ekranı ve üst çubuktaki "Panel" menüsü AYNI iki
+   grubu kullanır; bir yerde değişirse öteki ayrışmasın diye tek tanım. */
+const KABUK_GRUPLARI = [
+  { ad: "Okul", roller: ["content_expert", "teacher", "admin"] },
+  { ad: "Öğrenci ve aile", roller: ["student", "parent"] },
+];
+/* Kartta ve menüde "bu panelde ne yaparsınız" — fiilli. ROLES.hint
+   DEĞİŞTİRİLMEDİ: başka yerlerde (erişilebilir adlar) kullanılıyor. */
+const KABUK_ROL_EYLEM = {
+  content_expert: "Soru üretir, taslakları onaylar",
+  teacher: "Sınav kurar, puan önerisini onaylar",
+  admin: "Okul geneli sonuçları izler",
+  student: "Sınavı çözer, karnesini görür",
+  parent: "Çocuğunun onaylı sonuçlarını görür",
+};
+/* Açık menü: "rol" | "ek" | null. Yalnızca görünüm durumu — state'e
+   yazılmaz, kayıtlı şema (KALICI_ALANLAR) değişmedi. */
+var _kabukMenu = null;
+
+/** "okul" (içerik uzmanı, öğretmen, yönetici) · "aile" (öğrenci, veli) · "" (rol yok). */
+function kabukRolGrubu(rolId) {
+  if (!rolId) return "";
+  return rolId === "student" || rolId === "parent" ? "aile" : "okul";
+}
+
+/** Gruplara göre sıralı rol listesi; bir gruba yazılmamış rol olursa sona
+ *  "Diğer" grubu olarak eklenir — ROLES'a rol eklenince sessizce kaybolmaz. */
+function kabukGruplari() {
+  const yazili = {};
+  KABUK_GRUPLARI.forEach(function (g) { g.roller.forEach(function (id) { yazili[id] = true; }); });
+  const kalan = ROLES.filter(function (r) { return !yazili[r.id]; }).map(function (r) { return r.id; });
+  return kalan.length ? KABUK_GRUPLARI.concat([{ ad: "Diğer", roller: kalan }]) : KABUK_GRUPLARI;
+}
+
 function renderRoleNav() {
+  const badges = rolRozetleri();
+  const nav = document.getElementById("roleNav");
+  /* Kabuğun rol grubuna ve demoya göre görünümü CSS'te (css/kabuk.css):
+     aile rollerinde model çipi, süreç göstergesi ve Sıfırla görünmez. */
+  document.body.dataset.rolGrup = kabukRolGrubu(state.role);
+  document.body.classList.toggle("demo-acik", !!state.demoAdim);
+
+  /* §33 → §64 — ROL İZOLASYONU KORUNUR, GEÇİŞ KISALIR.
+     §33'te üst çubuk yalnızca içinde bulunulan rolü gösteriyordu ve rol
+     değiştirmenin tek yolu Çıkış → giriş kapısı idi (3 tıklama, sekmeler de
+     sıfırlanıyordu). §64'te bu karar BİLEREK değiştirildi: "Panel" menüsünden
+     tek tıkla geçilir. DEĞİŞMEYEN: her an yalnızca BİR panel etkindir
+     (renderAll içinde tek panele .active), roller birleşmez; menü kapalıyken
+     ekranda yine yalnızca etkin rolün adı görünür. Demo açıkken menü
+     kilitlidir — paneli rehber değiştirir. */
+  const aktif = ROLES.find(function (r) { return r.id === state.role; });
+  if (!aktif) {
+    // Rol yok (henüz seçilmedi ya da Çıkış yapıldı) — ekranı giriş kaplar.
+    _kabukMenu = null;
+    nav.innerHTML = "";
+    nav.classList.remove("tek-rol");
+    renderKabukEk();
+    return;
+  }
+  nav.classList.add("tek-rol");
+  const acik = _kabukMenu === "rol";
+  nav.innerHTML = '<div class="kb-menu">' +
+    '<button type="button" class="kb-rol-btn js-rol-menu" aria-haspopup="menu" aria-expanded="' + (acik ? "true" : "false") + '"' +
+    ' title="Paneli değiştir">' +
+    '<span class="kb-rol-on">Panel</span>' +
+    '<span class="r-label">' + escapeHtml(aktif.label) + '</span>' +
+    (badges[aktif.id] ? '<span class="badge">' + badges[aktif.id] + '</span>' : "") +
+    '<span class="kb-ok" aria-hidden="true">▾</span></button>' +
+    (acik ? panelMenuHtml(badges) : "") + '</div>';
+
+  /* id DEĞİL class + querySelectorAll (§32: yinelenen id ölü düğme üretti). */
+  document.querySelectorAll(".js-rol-menu").forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); kabukMenuAc("rol"); };
+  });
+  document.querySelectorAll(".js-rol-sec").forEach(function (b) {
+    b.onclick = function () { rolSec(b.dataset.role); };
+  });
+  document.querySelectorAll(".role-logout-btn").forEach(function (b) {
+    b.onclick = function () { _kabukMenu = null; rolCikisYap(); };
+  });
+  renderKabukEk();
+}
+
+/** "Panel" açılır menüsü: iki grup, her rol fiilli açıklama + bekleyen iş
+ *  rozeti; en altta giriş ekranına dönüş (eski Çıkış). */
+function panelMenuHtml(badges) {
+  const demo = !!state.demoAdim;
+  return '<div class="kb-acilir kb-rol-liste" role="menu" aria-label="Paneller">' +
+    (demo ? '<p class="kb-not">Demo sürüyor: paneli rehber değiştirir. Serbest geçiş için önce demoyu bitirin.</p>' : "") +
+    kabukGruplari().map(function (g) {
+      return '<div class="kb-grup"><span class="kb-grup-ad">' + escapeHtml(g.ad) + '</span>' +
+        g.roller.map(function (id) {
+          const r = ROLES.find(function (x) { return x.id === id; });
+          if (!r) return "";
+          const secili = id === state.role;
+          return '<button type="button" role="menuitemradio" aria-checked="' + (secili ? "true" : "false") + '"' +
+            ' class="kb-oge js-rol-sec' + (secili ? " aktif" : "") + '" data-role="' + id + '"' +
+            (demo && !secili ? " disabled" : "") + '>' +
+            '<span class="kb-oge-ad">' + escapeHtml(r.label) + '</span>' +
+            '<span class="kb-oge-not">' + escapeHtml(KABUK_ROL_EYLEM[id] || r.hint) + '</span>' +
+            (badges[id] ? '<span class="badge">' + badges[id] + '</span>' : "") +
+            '</button>';
+        }).join("") + '</div>';
+    }).join("") +
+    '<div class="kb-ayrac"></div>' +
+    '<button type="button" role="menuitem" class="kb-oge role-logout-btn"' + (demo ? " disabled" : "") +
+    ' title="Rolden çık — üretilen sorular, sınavlar ve tüm veriler korunur">' +
+    '<span class="kb-oge-ad">Giriş ekranına dön</span>' +
+    '<span class="kb-oge-not">Sorular, sınavlar ve sonuçlar korunur</span></button>' +
+    '</div>';
+}
+
+/** Menüden panel seçimi. Demo açıkken çalışmaz (adım kilidi rehberde). */
+function rolSec(id) {
+  if (state.demoAdim) return;
+  if (!ROLES.some(function (r) { return r.id === id; })) return;
+  _kabukMenu = null;
+  if (id !== state.role) { state.role = id; window.scrollTo(0, 0); }
+  renderAll();
+}
+
+/** Bir menüyü açar; aynısı açıksa kapatır. Yalnızca kabuk yeniden çizilir. */
+function kabukMenuAc(ad) {
+  _kabukMenu = _kabukMenu === ad ? null : ad;
+  renderRoleNav();
+}
+
+/** ⋯ menüsü: rehberli demo (herkes), okul rollerinde model durumu (dar
+ *  ekranda çip gizli olduğu için) ve ONAYLI sıfırlama. */
+function renderKabukEk() {
+  const yuva = document.getElementById("kbEkYuva");
+  if (!yuva) return;
+  if (!state.role) { yuva.innerHTML = ""; return; }
+  const okul = kabukRolGrubu(state.role) === "okul";
+  const acik = _kabukMenu === "ek";
+  /* Model metni yeniden HESAPLANMAZ, çipin kendisinden okunur: aynı durumu
+     iki yerde ayrı formülle yazmak ayrışma demek (tuzak 7). renderAiBadge
+     renderAll'da bundan ÖNCE çalışır. */
+  const cip = document.querySelector("#aiModeSlot .ai-metin");
+  const modelMetni = cip ? cip.textContent : "";
+  yuva.innerHTML =
+    '<button type="button" class="btn btn-secondary btn-sm kb-ek-btn js-ek-menu" aria-haspopup="menu"' +
+    ' aria-expanded="' + (acik ? "true" : "false") + '" aria-label="Diğer işlemler" title="Diğer işlemler">⋯</button>' +
+    (acik ? '<div class="kb-acilir kb-ek-liste" role="menu" aria-label="Diğer işlemler">' +
+      (okul && modelMetni ? '<div class="kb-oge-bilgi kb-yalniz-dar">' + escapeHtml(modelMetni) + '</div>' : "") +
+      '<button type="button" role="menuitem" class="kb-oge js-ek-demo">' +
+      '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
+      '<span class="kb-oge-not">Örnek veriyle soru onayından analize</span></button>' +
+      (okul ? '<div class="kb-ayrac"></div>' +
+        '<button type="button" role="menuitem" class="kb-oge kb-tehlike js-ek-sifirla">' +
+        '<span class="kb-oge-ad">Tüm verileri sıfırla…</span>' +
+        '<span class="kb-oge-not">Önce onay sorulur</span></button>' : "") +
+      '</div>' : "");
+  document.querySelectorAll(".js-ek-menu").forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); kabukMenuAc("ek"); };
+  });
+  document.querySelectorAll(".js-ek-demo").forEach(function (b) { b.onclick = demoBaslat; });
+  document.querySelectorAll(".js-ek-sifirla").forEach(function (b) { b.onclick = sifirlaOnayAc; });
+}
+
+/** §64 — SIFIRLAMA ARTIK ONAYLI. Eskiden üst çubuktaki "Sıfırla" düğmesi
+ *  Demo Akışı'nın hemen yanındaydı ve tek tıkla, onaysız resetState()
+ *  çalıştırıyordu (localStorage + kitaplık siliniyor, sayfa yenileniyordu). */
+function sifirlaOnayAc() {
+  _kabukMenu = null;
+  renderKabukEk();
+  openModal('<h3>Tüm veriler silinsin mi?</h3>' +
+    '<p>Bu tarayıcıdaki tüm veriler silinir: üretilen ve onaylanan sorular, sınavlar, öğrenci yanıtları, ' +
+    'puanlar ve kitaplığa kaydedilen ders belgeleri. Bu işlem <b>geri alınamaz</b>.</p>' +
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    '<button class="btn btn-critical js-sifirla-onay">Evet, tümünü sil</button></div>');
+  document.querySelectorAll(".js-sifirla-onay").forEach(function (b) {
+    b.onclick = function () { closeModal(); resetState(); };
+  });
+}
+
+/** Rehberli demoyu başlatır. loadDemoScenario soru havuzunu ve etkin sınavı
+ *  örnek veriyle DEĞİŞTİRİR; kullanıcının kendi sorusu varsa önce sorulur.
+ *  Kendi verisi yoksa (ilk açılış, ya da zaten demo verisi) doğrudan başlar. */
+function demoBaslat() {
+  _kabukMenu = null;
+  const kendi = (state.questions || []).filter(function (q) { return !q.demo; }).length;
+  if (!kendi) { loadDemoScenario(); return; }
+  openModal('<h3>Rehberli demo başlatılsın mı?</h3>' +
+    '<p>Demo örnek soruları, sınavı ve sınıfı yükler. Bu tarayıcıdaki <b>' + kendi + '</b> kendi sorunuz ve ' +
+    'etkin sınav örnek veriyle <b>değiştirilir</b>.</p>' +
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    '<button class="btn btn-primary js-demo-onay">Demoyu başlat</button></div>');
+  document.querySelectorAll(".js-demo-onay").forEach(function (b) {
+    b.onclick = function () { closeModal(); loadDemoScenario(); };
+  });
+}
+
+/** Menü dışına tıklama ve Esc açık menüyü kapatır. Bir kez kurulur. */
+function kabukDinleyicileriKur() {
+  document.addEventListener("click", function (e) {
+    if (!_kabukMenu) return;
+    if (e.target.closest && e.target.closest(".kb-acilir, .js-rol-menu, .js-ek-menu")) return;
+    _kabukMenu = null;
+    renderRoleNav();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !_kabukMenu) return;
+    const hangi = _kabukMenu;
+    _kabukMenu = null;
+    renderRoleNav();
+    // Odak menüyü açan düğmeye döner (klavye kullanıcısı kaybolmasın).
+    const btn = document.querySelector(hangi === "rol" ? ".js-rol-menu" : ".js-ek-menu");
+    if (btn) btn.focus();
+  });
+}
+
+/** Bekleyen iş rozetleri — rol başına sayı. */
+function rolRozetleri() {
   const pendingReview = state.questions.filter(function (q) { return q.status === "ai_generated"; }).length;
   /* §42: üst çubuktaki öğretmen rozeti de yalnızca AKTİF ÖĞRENCİNİN
      `state.aiEvals`/`state.reviews`'ini sayıyordu — sınıfın geri kalanı
@@ -9996,42 +10210,7 @@ function renderRoleNav() {
     const durum = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
     return ex.status === "published" && durum === "not_started" && (!ex.startsAt || Date.now() >= ex.startsAt);
   }).length;
-  const badges = { content_expert: pendingReview, teacher: pendingApproval, student: examReady, admin: 0 };
-  const nav = document.getElementById("roleNav");
-
-  /* §33 — ROL İZOLASYONU. Eskiden burada beş rolün düğmesi birden duruyordu
-     ve kullanıcı giriş kapısından bir rol seçtikten sonra bile diğer dört
-     role tek tıkla geçebiliyordu. Artık üst çubuk YALNIZCA içinde bulunulan
-     rolü gösterir; rol değiştirmenin tek yolu Çıkış → giriş kapısı.
-
-     Panellerin kendisi zaten izoleydi (aşağıda renderAll içinde tek bir
-     panele .active veriliyor); değişen şey NAVİGASYON görünürlüğü, panel
-     çizim mantığı değil.
-
-     Bekleyen iş sayacı (badge) kayboLMAdı: aktif rolün rozeti aynı .badge
-     bileşeniyle etiketin yanında durmaya devam ediyor. */
-  const aktif = ROLES.find(function (r) { return r.id === state.role; });
-  if (!aktif) {
-    // Rol yok (henüz seçilmedi ya da Çıkış yapıldı) — üst çubukta rol alanı
-    // hiç görünmez; ekranı giriş kapısı kaplar.
-    nav.innerHTML = "";
-    nav.classList.remove("tek-rol");
-    return;
-  }
-  nav.classList.add("tek-rol");
-  nav.innerHTML =
-    '<div class="role-btn active" aria-current="page"><span class="r-label">' + escapeHtml(aktif.label) + '</span>' +
-    '<span class="r-hint">' + escapeHtml(aktif.hint) + '</span>' +
-    (badges[aktif.id] ? '<span class="badge">' + badges[aktif.id] + '</span>' : "") + '</div>' +
-    /* id DEĞİL class: bu düğme tek örnek olsa da projede daha önce iki panelin
-       aynı id'yi üretmesinden kaynaklı ölü düğme hatası yaşandı (§32). Aynı
-       tuzağa düşmemek için bağlama querySelectorAll ile yapılır. */
-    '<button type="button" class="btn btn-secondary btn-sm role-logout-btn" ' +
-    'title="Rolden çık — üretilen sorular, sınavlar ve tüm veriler korunur">Çıkış</button>';
-
-  document.querySelectorAll(".role-logout-btn").forEach(function (b) {
-    b.onclick = rolCikisYap;
-  });
+  return { content_expert: pendingReview, teacher: pendingApproval, student: examReady, admin: 0 };
 }
 
 /* ===========================================================================
@@ -10069,29 +10248,27 @@ function rolCikisYap() {
   if (state.ceForm) state.ceForm.error = "";
 
   renderAll();       // saveState() burada çalışır: ürün verisi aynen kaydedilir
-  girisKapisiniAc(); // en baştaki Mihenk ekranı (1. aşama)
+  girisKapisiniAc(); // giriş ekranı
 }
 /* ===========================================================================
    GİRİŞ KAPISI (public/index.html #girisKapisi) — YALNIZCA GÖRSEL KATMAN
    ===========================================================================
-   İki aşamalı karşılama: (1) logo + slogan + giriş düğmesi, (2) kırmızı şerit
-   altında 3+2 düzeninde panel seçim kartları.
+   §64: TEK EKRAN. Logo + tez + "Kim olarak devam ediyorsunuz?" + iki grup
+   rol kartı (Okul · Öğrenci ve aile) + ikincil "Rehberli demo" düğmesi.
+   Eskiden iki aşamaydı (logo ekranı → "Panel seçimine geç" → kartlar).
 
-   YÖNLENDİRME MANTIĞI DEĞİŞMEDİ: kartlar ROLES dizisinden üretilir ve tıklama,
-   üst çubuktaki mevcut rol düğmesiyle BİREBİR aynı iki satırı çalıştırır
-   (bkz. renderRoleNav):
+   YÖNLENDİRME MANTIĞI DEĞİŞMEDİ: kartlar ROLES dizisinden üretilir ve tıklama
+   yalnızca şu iki satırı çalıştırır:
        state.role = <id>;  renderAll();
-   Yeni bir kimlik doğrulama, yetki kontrolü ya da yönlendirme kuralı YOKTUR;
-   bu katman kapandıktan sonra uygulama eskisi gibi davranır ve üst çubuktaki
-   rol düğmeleri çalışmaya devam eder.
+   Yeni bir kimlik doğrulama, yetki kontrolü ya da yönlendirme kuralı YOKTUR.
 
    KALICI DEĞİLDİR: kapının açık/kapalı durumu localStorage'a yazılmaz, yani
    kayıtlı durum şeması (KALICI_ALANLAR) hiç değişmedi. Sayfa her açıldığında
    karşılama ekranı görünür. */
 
-/** Panel seçim kartlarının HTML'i — kaynak ROLES, sıra da oradan gelir
- *  (üst sıra: İçerik Uzmanı, Öğretmen, Öğrenci · alt sıra: Eğitim Yöneticisi,
- *  Veli). Böylece rol eklenir/çıkarılırsa kartlar kendiliğinden uyar. */
+/** Rol kartlarının HTML'i — iki grup (KABUK_GRUPLARI, panel menüsüyle aynı).
+ *  Kart bilgisi ROLES'tan, açıklama KABUK_ROL_EYLEM'den gelir; bir gruba
+ *  yazılmamış rol "Diğer" grubunda çıkar (kabukGruplari). */
 function girisKapisiKartlariHtml() {
   /* Altın sarısı ÇİZGİ ikonlar. Dolgu yok; renk ve kalınlık CSS'ten gelir
      (.gk-ikon svg *), bu yüzden burada yalnızca geometri var. */
@@ -10102,23 +10279,34 @@ function girisKapisiKartlariHtml() {
     admin:          '<path d="M4 20h16"/><rect x="5.5" y="12" width="3.5" height="6"/><rect x="10.5" y="8" width="3.5" height="10"/><rect x="15.5" y="4.5" width="3.5" height="13.5"/>',
     parent:         '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16.5" cy="9" r="2.2"/><path d="M3 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M15 19c0-2.2 1.3-3.7 3-3.7s3 1.5 3 3.7"/>'
   };
-  return ROLES.map(function (r) {
+  const kart = function (id) {
+    const r = ROLES.find(function (x) { return x.id === id; });
+    if (!r) return "";
+    const eylem = KABUK_ROL_EYLEM[id] || r.hint;
     /* §56: erişilebilir ad AÇIKÇA verilir. Ölçüldü: içerikten türetilmesi
        beklenen ad erişilebilirlik ağacında BOŞ çıkıyordu (5 kartın 5'i). */
     return '<button class="gk-kart" type="button" data-role="' + r.id + '" aria-label="' +
-      escapeHtml(r.label + " — " + r.hint) + '">' +
+      escapeHtml(r.label + " — " + eylem) + '">' +
       '<span class="gk-ikon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
       (ikonlar[r.id] || "") + '</svg></span>' +
+      '<span class="gk-kart-metin">' +
       '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span>' +
-      '<span class="gk-kart-not">' + escapeHtml(r.hint) + '</span>' +
+      '<span class="gk-kart-not">' + escapeHtml(eylem) + '</span></span>' +
       '<span class="gk-kart-alt" aria-hidden="true">→</span>' +
       '</button>';
+  };
+  return kabukGruplari().map(function (g) {
+    return '<section class="gk-grup" aria-label="' + escapeHtml(g.ad) + '">' +
+      '<h2 class="gk-grup-ad">' + escapeHtml(g.ad) + '</h2>' +
+      '<div class="gk-kartlar">' + g.roller.map(kart).join("") + '</div></section>';
   }).join("");
 }
 
-/** Giriş kapısını kurar: kartları basar, iki aşama geçişini ve kart
- *  tıklamalarını bağlar. Açılışta bir kez çağrılır. */
+/** Giriş kapısını kurar: kartları basar, kart ve demo tıklamalarını bağlar.
+ *  Açılışta bir kez çağrılır. Kabuğun belge düzeyi dinleyicileri (menü
+ *  dışına tıklama, Esc) de burada bir kez kurulur. */
 function girisKapisiKur() {
+  kabukDinleyicileriKur();
   const kapi = document.getElementById("girisKapisi");
   if (!kapi) return;   // kapı HTML'den kaldırılırsa uygulama eskisi gibi açılır
 
@@ -10131,68 +10319,54 @@ function girisKapisiKur() {
      kendi içeriği uzarsa o kendi içinde kayar (overflow-y: auto). */
   document.body.style.overflow = "hidden";
 
-  const asama2 = document.getElementById("gkAsama2");
-  const girisBtn = document.getElementById("gkGirisBtn");
-  if (girisBtn) girisBtn.onclick = function () {
-    if (asama2) {
-      asama2.hidden = false;
-      /* Yeniden akış (reflow) ZORUNLU: hidden kalkar kalkmaz data-asama
-         değişirse tarayıcı iki durumu tek karede hesaplar ve geçiş hiç
-         oynamaz. Bu satır başlangıç durumunun hesaplanmasını garantiler. */
-      void kapi.offsetWidth;
-    }
-    kapi.dataset.asama = "2";
-    /* Odağı ilk karta taşı: klavye kullanıcısı geçişten sonra doğrudan
-       seçim yapabilsin. Geçiş süresi kadar beklenir. */
-    const ilkKart = kapi.querySelector(".gk-kart");
-    if (ilkKart) setTimeout(function () { ilkKart.focus(); }, 700);
-  };
-
   kapi.querySelectorAll(".gk-kart").forEach(function (k) {
     k.onclick = function () {
-      /* Üst çubuktaki rol düğmesiyle BİREBİR aynı iki satır. */
       state.role = k.dataset.role;
       renderAll();
       kapi.hidden = true;
       document.body.style.overflow = "";   // uygulamanın kaydırması geri gelsin
     };
   });
+  /* Rehberli demo: demoAdimaGit kapıyı kendisi kapatır. */
+  kapi.querySelectorAll("#gkDemoBtn").forEach(function (b) { b.onclick = demoBaslat; });
 }
 
-/* §33 — Giriş kapısını 1. AŞAMADAN yeniden açar (Çıkış sonrası).
+/* §33 — Giriş kapısını yeniden açar (giriş ekranına dönüş).
    Kartların HTML'i ve tıklama dinleyicileri girisKapisiKur() içinde BİR KEZ
    kuruldu ve DOM'da duruyor; burada yeniden üretilmez, yoksa dinleyiciler
-   düşer ve kartlar ölür. Yalnızca görünürlük/aşama durumu geri alınır —
-   animasyonun kendisi ve zamanlaması değişmez, ilk açılıştakiyle aynı
-   CSS geçişi yeniden oynar. */
+   düşer ve kartlar ölür. Yalnızca görünürlük geri alınır. */
 function girisKapisiniAc() {
   const kapi = document.getElementById("girisKapisi");
   if (!kapi) return;
-  const asama2 = document.getElementById("gkAsama2");
-  if (asama2) asama2.hidden = true;
-  kapi.dataset.asama = "1";
   kapi.hidden = false;
   kapi.scrollTop = 0;
   document.body.style.overflow = "hidden";   // arkadaki uygulama kaymasın
-  const girisBtn = document.getElementById("gkGirisBtn");
-  if (girisBtn) girisBtn.focus();            // klavye kullanıcısı akışa devam etsin
+  const ilkKart = kapi.querySelector(".gk-kart");
+  if (ilkKart) ilkKart.focus();              // klavye kullanıcısı akışa devam etsin
 }
 
 function renderPipeline() {
+  /* §64: her adım hangi panelde yapıldığını söyler (title + erişilebilir ad);
+     dar ekranda etiketler gizlenir, yalnızca noktalar kalır (css/kabuk.css). */
   const steps = [
-    { label: "Havuz", done: state.questions.some(function (q) { return q.status === "approved"; }) },
-    { label: "Sınav", done: state.exam.status === "published" },
-    { label: "Çözüm", done: state.examStatus === "submitted" || state.examStatus === "graded" },
-    { label: "Onay", done: state.examStatus === "graded" },
-    { label: "Analiz", done: state.examStatus === "graded" },
+    { label: "Havuz", rol: "İçerik Uzmanı", done: state.questions.some(function (q) { return q.status === "approved"; }) },
+    { label: "Sınav", rol: "Öğretmen", done: state.exam.status === "published" },
+    { label: "Çözüm", rol: "Öğrenci", done: state.examStatus === "submitted" || state.examStatus === "graded" },
+    { label: "Onay", rol: "Öğretmen", done: state.examStatus === "graded" },
+    { label: "Analiz", rol: "Eğitim Yöneticisi", done: state.examStatus === "graded" },
   ];
   let activeSet = false;
   const html = steps.map(function (s, i) {
     let cls = "dot";
-    if (s.done) cls += " done"; else if (!activeSet) { cls += " active"; activeSet = true; }
-    return '<span class="seg"><span class="' + cls + '"></span><span>' + s.label + "</span></span>" + (i < steps.length - 1 ? '<span class="bar"></span>' : "");
+    let durum = "bekliyor";
+    if (s.done) { cls += " done"; durum = "tamam"; } else if (!activeSet) { cls += " active"; activeSet = true; durum = "sıradaki adım"; }
+    return '<span class="seg" title="' + s.label + " · " + s.rol + " · " + durum + '"><span class="' + cls + '"></span>' +
+      '<span class="seg-ad">' + s.label + "</span></span>" + (i < steps.length - 1 ? '<span class="bar"></span>' : "");
   }).join("");
-  document.getElementById("pipelineStrip").innerHTML = html;
+  const el = document.getElementById("pipelineStrip");
+  el.innerHTML = html;
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", "Süreç: " + steps.map(function (s) { return s.label + " " + (s.done ? "tamam" : "bekliyor"); }).join(", "));
 }
 
 /* ===========================================================================
@@ -10980,6 +11154,10 @@ function bosDurumHtml(mesaj) {
        çıkış yolu; düşerse Çıkış düğmesi sessizce ölür (bu projede tam bu
        sınıftan hata yaşandı, bkz. §30/§32). */
     "rolCikisYap", "girisKapisiniAc",
+    /* §64 — kabuk: panel menüsü, ⋯ menüsü, onaylı sıfırlama ve demo.
+       Biri düşerse üst çubuk ya da giriş sessizce ölür. */
+    "kabukRolGrubu", "kabukGruplari", "rolRozetleri", "panelMenuHtml", "rolSec", "kabukMenuAc",
+    "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
        değerlendirme analitiği. (calibration zaten yukarıda listede;
        şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */
@@ -11092,8 +11270,9 @@ outcomeSeciminiTazele();
 ensureSources();
 ensureStudents();
 ensureExamList();
-document.getElementById("btnDemoSeed").onclick = loadDemoScenario;
-document.getElementById("btnReset").onclick = resetState;
+/* §64: demo kendi verisi olan kullanıcıya önce sorar (demoBaslat); Sıfırla
+   üst çubuktan ⋯ menüsüne taşındı ve onaylı (sifirlaOnayAc) — btnReset yok. */
+document.getElementById("btnDemoSeed").onclick = demoBaslat;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 girisKapisiKur();

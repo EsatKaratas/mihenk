@@ -15,6 +15,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="app.css">
+<!-- §64: kabuk (üst çubuk, panel menüsü, giriş) — app.css'ten SONRA yüklenir,
+     yalnızca kabuğun kendi sınıflarını ve eski kabuk kurallarını ezer. -->
+<link rel="stylesheet" href="css/kabuk.css">
 </head>
 <body>
 
@@ -39,68 +42,65 @@
      KALDIRILDI; aksi hâlde hem marka adı hem slogan ekranda İKİ KEZ
      görünürdü. Yalnızca simgeden oluşan bir logoya geçilirse bu iki satırın
      geri eklenmesi gerekir.                                                 -->
-<div class="giris-kapisi" id="girisKapisi" data-asama="1" role="dialog" aria-modal="true" aria-label="Mihenk giriş ekranı">
-
-  <!-- Üst şerit — yalnızca 2. aşamada görünür. Profil fotoğrafı ve bildirim
-       zili BİLEREK yok (istenmedi). -->
-  <div class="gk-serit" aria-hidden="true"></div>
-
-  <!-- Logo kilidi: iki aşamada da AYNI düğümdür; 2. aşamada küçülüp sol üste
-       kayar (bkz. .giris-kapisi[data-asama="2"] .gk-logo). -->
-  <div class="gk-logo" id="gkLogo">
-    <img class="gk-gorsel" src="mihenk-logo.png" width="505" height="448"
-         alt="Mihenk — Yapay Zeka Destekli Eğitim Sistemi">
-  </div>
-
-  <!-- ---------------- 1. AŞAMA: karşılama ---------------- -->
-  <div class="gk-asama1" id="gkAsama1">
-    <!-- §58: ürünün tezi ilk ekranda; "giriş" sözcüğü şifre beklentisi
-         yarattığı için düğme ne yaptığını söyler. "Demoyu başlat" denmedi:
-         üst çubuktaki rehberli "Demo Akışı" ile karışırdı. -->
+<!-- §64 — GİRİŞ TEK EKRAN. Eskiden iki aşamaydı (logo + "Panel seçimine geç"
+     → ayrı panel seçim ekranı); rol seçmek için fazladan bir tıklama ve bir
+     ekran geçişi gerekiyordu. Artık logo, tez, rol kartları (iki grup) ve
+     rehberli demo aynı ekranda. Kartlar ROLES dizisinden JS ile üretilir
+     (girisKapisiKartlariHtml); tıklama yine yalnızca state.role = <id>;
+     renderAll() çalıştırır — kimlik doğrulama yoktur. -->
+<div class="giris-kapisi gk-tek" id="girisKapisi" role="dialog" aria-modal="true" aria-label="Mihenk giriş ekranı">
+  <div class="gk-icerik">
+    <div class="gk-logo" id="gkLogo">
+      <img class="gk-gorsel" src="mihenk-logo.png" width="505" height="448"
+           alt="Mihenk — Yapay Zeka Destekli Eğitim Sistemi">
+    </div>
     <p class="gk-tez">Yapay zekâ önerir, öğretmen karar verir.</p>
-    <button class="gk-giris-btn" id="gkGirisBtn" type="button">
-      Panel seçimine geç
-      <span class="gk-ok" aria-hidden="true">→</span>
-    </button>
+    <h1 class="gk-baslik">Kim olarak devam ediyorsunuz?</h1>
+    <div class="gk-gruplar" id="gkKartlar"></div>
+    <div class="gk-demo-satir">
+      <button class="gk-demo-btn" id="gkDemoBtn" type="button">
+        <span aria-hidden="true">▶</span> Rehberli demo (5 adım)
+      </button>
+      <span class="gk-demo-not">Örnek veriyle soru onayından analize kadar tüm akışı adım adım gezdirir.</span>
+    </div>
     <p class="gk-not">Demo sürümü: kimlik doğrulama yoktur, roller bir panel seçimidir. Veriler yalnızca bu tarayıcıda saklanır.</p>
-    <svg class="gk-dalga" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <path fill="#6B7177" fill-opacity=".16" d="M0,224 C240,288 480,160 720,192 C960,224 1200,288 1440,240 L1440,320 L0,320 Z"/>
-      <path fill="#F2994A" fill-opacity=".34" d="M0,256 C260,304 520,208 780,240 C1040,272 1240,304 1440,272 L1440,320 L0,320 Z"/>
-      <path fill="#0d3db0" d="M0,288 C280,320 560,256 840,280 C1100,302 1280,318 1440,300 L1440,320 L0,320 Z"/>
-    </svg>
   </div>
-
-  <!-- ---------------- 2. AŞAMA: panel seçimi ---------------- -->
-  <div class="gk-asama2" id="gkAsama2" hidden>
-    <h1 class="gk-baslik">Lütfen giriş yapmak istediğiniz paneli seçiniz</h1>
-    <!-- Kartlar ROLES dizisinden JS ile üretilir (girisKapisiKartlariHtml). -->
-    <div class="gk-kartlar" id="gkKartlar"></div>
-  </div>
+  <svg class="gk-dalga" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path fill="#6B7177" fill-opacity=".16" d="M0,224 C240,288 480,160 720,192 C960,224 1200,288 1440,240 L1440,320 L0,320 Z"/>
+    <path fill="#F2994A" fill-opacity=".34" d="M0,256 C260,304 520,208 780,240 C1040,272 1240,304 1440,272 L1440,320 L0,320 Z"/>
+    <path fill="#0d3db0" d="M0,288 C280,320 560,256 840,280 C1100,302 1280,318 1440,300 L1440,320 L0,320 Z"/>
+  </svg>
 </div>
 
 <div class="app">
-  <div class="topbar">
-    <div class="brand-row">
-      <div class="brand">
-        <span class="mark">T3</span>
+  <!-- §64 — TEK SATIR ÜST ÇUBUK: marka · panel menüsü · süreç · model · demo · ⋯
+       Eskiden üç katmandı (marka satırı, rol kartı + Çıkış satırı, sekmeler);
+       ilk içerik 1366×820'de 243. pikseldeydi. Rol kartı satırı kalktı, rol
+       artık "Panel" menüsünde. Sıfırla ⋯ menüsünde ve onaylı (eskiden tek
+       tıkla, onaysız tüm veriyi siliyordu). -->
+  <header class="topbar kabuk-ust">
+    <div class="brand-row kb-satir">
+      <div class="brand kb-marka">
+        <img class="kb-isaret" src="mihenk-isaret.png" width="44" height="32" alt="">
         <span class="titles">
           <span class="name">Mihenk</span>
           <span class="sub">Yapay zekâ önerir, öğretmen karar verir.</span>
         </span>
+        <span class="mark kb-t3" title="T3 Vakfı Bursiyer Yapay Zekâ Creathon 2026 · Problem 2">T3</span>
       </div>
+      <nav class="role-nav" id="roleNav" aria-label="Panel"></nav>
       <div class="pipeline" id="pipelineStrip"></div>
       <div class="ai-mode" id="aiModeBadge">
         <span id="aiModeSlot"></span>
-        <button class="btn btn-secondary btn-sm" id="btnDemoSeed" title="Mihenk'in uçtan uca sürecini adım adım gezdiren rehberli demoyu başlatır">Demo Akışı</button>
-        <button class="btn btn-secondary btn-sm" id="btnReset" title="Tüm durumu sıfırlar">Sıfırla</button>
+        <button class="btn btn-secondary btn-sm kb-demo-btn" id="btnDemoSeed" title="Mihenk'in uçtan uca sürecini adım adım gezdiren rehberli demoyu başlatır">Demo</button>
+        <span class="kb-ek" id="kbEkYuva"></span>
       </div>
     </div>
     <!-- §38: Demo Akışı şeridi. Panellerin İÇİNDE değil, paylaşılan üst
          çubukta TEK örnek olarak durur; roller birleşmez, her an yalnızca
          bir panel etkindir. Demo kapalıyken bu yuva boştur. -->
     <div id="demoSeritYuva"></div>
-    <nav class="role-nav" id="roleNav"></nav>
-  </div>
+  </header>
 
   <main id="panels"></main>
 
