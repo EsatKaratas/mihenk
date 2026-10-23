@@ -9307,3 +9307,31 @@ tazelenip yeniden ölçüldü.
   o sunucu `Cache-Control` göndermez, tarayıcı `Last-Modified`'dan sezgisel
   önbellek süresi türetir. Sürüm sorgusu (`?v=`) gereksiz; yerel denemede
   sert yenileme (Ctrl+F5) yeterli.
+
+## 69. YAYIN 87dc965d — sonuç ve ikinci tur maddesi (23 Ekim 2026, W2)
+
+**Yayın:** `077a2f3`, Version `87dc965d-97a2-49a5-89c0-b2eaed7656fc`. Ö1 (test 346,
+lint, öz-kontrol %100, check:config, `node --check`), canlı↔disk SHA 10/10,
+`/api/health`, `/api/ai/status`, bozuk JSON → 400 `invalid_json`, `solve`
+geçersiz gövde → 400 `validation_failed`, canlıda 26 ekran (1280/390) konsol 0 ·
+kimlik 0 · taşma 0, demo 5 adım, 7 ekran görüntüsü (02 gerçek model). Sır
+taraması temiz.
+
+**Gözlenen sızıntı (README çekiminde):** modelin öğrenciye geri bildirim
+taslağı "…açıklaman **necessário** olabilir" yazdı; dil uyarısı çıkmadı.
+Görüntü yeniden çekildi (commit'teki temiz).
+
+- **Taslak denetleniyor mu? EVET** — `/api/ai/evaluate` `studentFeedback`'i
+  gerekçe ve kriter açıklamalarıyla birlikte `metinDilUyarisi`'ne veriyor
+  (§45, `src/routes/ai.ts`). Kaçmanın sebebi kapsama: `á` Latin-1 ekinde
+  (U+00C0–00FF); `YABANCI_ALFABE` bu aralığı **bilerek** kapsamaz, çünkü
+  â/î/û/ç/ö/ü Türkçede geçer.
+- **Karar (Orkestratör): şimdi değişiklik yok.** HITL korunuyor: taslak
+  öğretmen "Nota Aktar" demeden öğrenciye gitmez.
+- **İKİNCİ TUR MADDESİ — "Latin-1 aksan + sözlük sezgisi, ölçülerek":**
+  Türkçede olmayan Latin-1 harfleri (é è ê ë á à ã å ñ ó ò õ ø ú ù ì í ï ý ÿ
+  ß æ œ …) ayrı bir sınıf olarak işaretlenebilir; ama alıntı/özel ad (Café,
+  Müller-é) yanlış alarmı riski var. Önce A5 ve §54 ham çıktılarında sayılmalı
+  (yakalama ve yanlış alarm), sonra karar. Latin harfli yabancı sözcük
+  (aksansız: "however") yalnız sözlük/son ek sezgisiyle yakalanır; aynı
+  ölçümle değerlendirilir.
