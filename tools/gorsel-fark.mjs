@@ -79,7 +79,10 @@ const ROLLER = [
     ad: 'teacher',
     stateRole: 'teacher',
     tabAlani: 'teacherTab',
-    sekmeler: [1, 2, 3, 4], // 1: Sınav Oluştur, 2: Rubrik, 3: Değerlendirme Onayı, 4: Analitik
+    // §62 (W1): öğretmen Sınıflarım'dan (0, sekme çubuğu yok) başlar; 2 artık ayrı
+    // ekran değil, sınav sihirbazının rubrik adımına yönlenir. §62 öncesi bir
+    // kodda 0 ve 5 bulunamaz ve atlanır.
+    sekmeler: [0, 1, 5, 3, 4], // 0 Sınıflarım, 1 Sınavlar, 5 Öğrenciler, 3 Puanlama, 4 Analitik
     secici: '#teacherTabs'
   },
   {
@@ -386,11 +389,11 @@ for (const cozunurluk of COZUNURLUKLER) {
       const sekmeMevcutMu = await sayfa.evaluate(
         ({ stateRole, tabAlani, sekmeNo, secici }) => {
           state.role = stateRole;
-          renderAll();
-          if (secici && sekmeNo != null &&
-              !document.querySelector(`${secici} .tab-btn[data-tab="${sekmeNo}"]`)) return false;
           if (tabAlani && sekmeNo != null) state[tabAlani] = sekmeNo;
           renderAll();
+          // Sekme 0 bir giriş ekranıdır (sekme çubuğu yok); düğmesi aranmaz.
+          if (secici && sekmeNo &&
+              !document.querySelector(`${secici} .tab-btn[data-tab="${sekmeNo}"]`)) return false;
           window.scrollTo(0, 0);
           return true;
         },
