@@ -9246,10 +9246,61 @@ function renderTeacher() {
   const content = document.getElementById("teacherTabContent");
   if (state.teacherTab === 1 || state.teacherTab === 2) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 5) { content.innerHTML = sinifYonetimHtml(); wireSinifYonetim(); }
-  if (state.teacherTab === 3) { content.innerHTML = sinavSeciciHtml() + teacherWhoamiHtml() + teacherTab3Html(); wireSinavSecici(); wireTeacherWhoami(); wireTeacherTab3(); }
+  /* W3 P1-3 / P2-4: sınıfta sınav yoksa Puanlama ve Analitik YALNIZ boş
+     durumu gösterir (seçici, ad alanı, Dikkat kartı yok). */
+  const sinavYok = (state.teacherTab === 3 || state.teacherTab === 4) && !puanlanabilirSinavVar();
+  if (sinavYok) { content.innerHTML = sinavYokHtml(); wireSinavYok(); return; }
+  if (state.teacherTab === 3) {
+    content.innerHTML = sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") + teacherTab3Html();
+    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3();
+  }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
-  if (state.teacherTab === 4) { content.innerHTML = sinavSeciciHtml() + teacherTab4Html() + dikkatPanelHtml(); wireSinavSecici(); wireMisconceptions(); wireDikkat(); wireKararRaporu(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) {
+    const veriVar = state.exam.status === "published" && submittedStudents().length > 0;
+    /* P2-4: veri yokken "Dikkat Sinyali" kartı boş bir iddia gibi duruyordu. */
+    content.innerHTML = sinavSeciciHtml() + teacherTab4Html() + (veriVar ? dikkatPanelHtml() : "");
+    wireSinavSecici(); wireMisconceptions(); if (veriVar) wireDikkat(); wireKararRaporu();
+    if (veriVar) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows());
+  }
+}
+
+/** Sınıfın Puanlama/Analitik'te gösterilecek bir sınavı var mı? */
+function puanlanabilirSinavVar() {
+  if (sinifSinavlari(ogtSinif()).length) return true;
+  const a = aktifSinavKaydi();
+  return !!a && !sinavOzeti(a, ogtSinif()).yerTutucu;
+}
+
+function sinavYokHtml() {
+  return '<div class="empty-state empty-rich"><div class="es-baslik">Bu sınıfta henüz sınav yok</div>' +
+    '<div class="es-alt">' + (state.teacherTab === 3
+      ? "Puanlanacak kâğıtlar, bir sınav yayınlanıp öğrenciler gönderdikçe burada toplanır."
+      : "Sınıf analitikleri, bir sınav yayınlanıp öğrenciler tamamladıkça burada oluşur.") + '</div>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="ogtSinavaGit">Sınavlar sekmesine git</button></div>';
+}
+
+function wireSinavYok() {
+  const b = document.getElementById("ogtSinavaGit");
+  if (b) b.onclick = function () { ogtDurum().sihirbaz = null; state.teacherTab = 1; renderAll(); };
+}
+
+/** W3 P1-3: "Öğretmen adınız" seçicisi değerlendirme kartlarını aşağı
+    itiyordu (çipler + giriş + not ≈ bir ekran). Artık katlanır tek satır:
+    kapalıyken yalnız "Değerlendiren: Ad · Değiştir". Ad boşsa kendiliğinden
+    açık değildir; satır "seçilmedi" der (§29: alan isteğe bağlıdır). */
+function ogretmenKimHtml() {
+  const ad = state.activeTeacherName || "";
+  return '<details class="ogt-kim"' + (ogtDurum().kimAcik ? " open" : "") + '>' +
+    '<summary><span class="ogt-kim-etiket">Değerlendiren:</span> ' +
+    (ad ? '<b>' + escapeHtml(ad) + '</b>' : '<span class="ogt-kim-yok">ad seçilmedi</span>') +
+    ' <span class="ogt-kim-degistir">' + (ad ? "Değiştir" : "Seç") + '</span></summary>' +
+    teacherWhoamiHtml() + '</details>';
+}
+
+function wireOgretmenKim() {
+  const d = document.querySelector("#panel-teacher .ogt-kim");
+  if (d) d.ontoggle = function () { ogtDurum().kimAcik = d.open; };
 }
 
 /* ============================== Öğrenci ============================== */
@@ -12099,7 +12150,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",

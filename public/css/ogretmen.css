@@ -104,6 +104,16 @@
 #panel-teacher .ogt-ozet dt { font-size: var(--fs-1); color: var(--text-muted); font-weight: 600; }
 #panel-teacher .ogt-ozet dd { margin: var(--sp-1) 0 0; font-size: var(--fs-3); }
 
+/* Puanlama: katlanır "Değerlendiren" satırı (W3 P1-3) */
+#panel-teacher .ogt-kim { margin-bottom: var(--sp-4); background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); }
+#panel-teacher .ogt-kim > summary { cursor: pointer; font-size: var(--fs-3); min-height: var(--hedef-min);
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+#panel-teacher .ogt-kim-etiket, #panel-teacher .ogt-kim-yok { color: var(--text-muted); }
+#panel-teacher .ogt-kim-degistir { color: var(--accent-strong); font-weight: 600; margin-left: auto; }
+#panel-teacher .ogt-kim[open] > summary { margin-bottom: var(--sp-3); }
+#panel-teacher .ogt-kim .ta-whoami { margin: 0; }
+
 /* Öğrenciler: toplu ekleme */
 #panel-teacher .ogt-toplu { margin-top: var(--sp-4); border-top: 1px solid var(--border); padding-top: var(--sp-3); }
 #panel-teacher .ogt-toplu > summary { cursor: pointer; font-size: var(--fs-3); font-weight: 600; color: var(--accent-strong);
