@@ -9550,3 +9550,25 @@ dayanaksızdı → kullanılmadı.)
     - "Filtreleri temizle" seçimi sıfırladı.
     - 390 px'te üç seçici alt alta (41 px), taşma yok.
   - Model çağrısı yapılmadı.
+
+## 73. İÇERİK UZMANI — İKİNCİ TUR (23 Ekim 2026, W3)
+
+### 73a. Kısa metin ön uyarısı
+
+Metin, istenen soru sayısını taşımayacak kadar kısaysa özet **üretimden önce**
+uyarır: "Bu metin ~N soru taşır; M istendi, fazlası düşer." Engellemez.
+
+**Eşik uydurulmadı.** Sunucu bu kuralı zaten uyguluyor:
+`src/lib/guards.ts` → `makulSoruSayisi(n) = max(2, floor(n / 180))`
+(`KARAKTER_BASINA_SORU = 180`, §41 Madde 5). Fazlasını düşürüp bunu yalnız
+üretimden SONRA (`kisiltmaNotu`) söylüyordu. İstemci aynı formülü kullanır
+(`ceMetinKapasitesi`); farklı bir eşik, özetin sunucuyla çelişmesi demek olurdu.
+- Canlı doğrulama (§69): 484 karakterlik Fen metninden 3 soru istendi, sunucu
+  2 döndürdü = floor(484/180) = 2.
+- Eşitlik testte: `test/ce-kapasite.test.ts` istemci fonksiyonunu app.js'ten
+  alır, 0–6000 karakterin her birinde sunucu fonksiyonuyla karşılaştırır.
+  Sabit değişirse test kırılır.
+- Kapsam: metin ve belge girişinde metin uzunluğu; belge kilitli kazanımda
+  belge metni (ilk 6.000 karakter, §51). Saf kazanım modunda uyarı yok (sunucu
+  orada kısmaz). Uyarı, metin kutusundan çıkınca güncellenir (yazarken yeniden
+  çizim odak kaybettirir).

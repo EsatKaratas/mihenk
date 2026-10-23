@@ -4924,10 +4924,39 @@ function ceUyarilari() {
       ? { tur: "blok", metin: "“" + m.ad + "” okunamadı; üretim yapılmaz." }
       : { tur: "kilit", metin: "“" + m.ad + "” okunuyor…" });
   }
-  if (state.ceForm.mcCount + state.ceForm.openCount < 1) {
+  /* §72: kısa metin ön uyarısı. Sunucu, metnin taşıyabileceğinden fazla
+     soru istenince fazlasını düşürür ve bunu ÜRETİMDEN SONRA söyler
+     (routes/ai.ts kisiltmaNotu). Aynı kural burada ÖNCEDEN söylenir. */
+  const istenen = state.ceForm.mcCount + state.ceForm.openCount;
+  const uzunluk = ceMetinUzunlugu(g, m ? materyalDurumu(m.id) : null);
+  if (uzunluk >= 30 && istenen > ceMetinKapasitesi(uzunluk)) {
+    u.push({ tur: "uyari", metin: "Bu metin ~" + ceMetinKapasitesi(uzunluk) + " soru taşır; " +
+      istenen + " istendi, fazlası düşer." });
+  }
+  if (istenen < 1) {
     u.push({ tur: "eksik", metin: "En az bir soru isteyin." });
   }
   return u;
+}
+
+/* §72 — METİN / SORU DENGESİ. Eşik UYDURULMADI: sunucunun uyguladığı kuralın
+   (src/lib/guards.ts KARAKTER_BASINA_SORU + makulSoruSayisi, §41 Madde 5)
+   birebir aynısıdır; ikisi ayrışırsa uyarı yalan söyler. Eşitlik
+   test/ce-kapasite.test.ts'te denetlenir. Canlı doğrulama (§69): 484
+   karakterlik Fen metninden 3 soru istendi, sunucu 2 döndürdü = floor(484/180). */
+const KARAKTER_BASINA_SORU = 180;
+
+function ceMetinKapasitesi(uzunluk) {
+  return Math.max(2, Math.floor(uzunluk / KARAKTER_BASINA_SORU));
+}
+
+/** Sunucunun ölçeceği metin uzunluğu; ölçülecek metin yoksa 0.
+    Saf kazanım modunda metin yoktur (sunucu orada kısmaz). Belge kilidinde
+    sunucuya giden belge metnidir; ilk 6.000 karakteri kullanılır (§51). */
+function ceMetinUzunlugu(g, materyal) {
+  if (g !== "kazanim") return state.ceForm.text.trim().length;
+  if (!materyal || materyal.durum !== "hazir") return 0;
+  return Math.min(6000, materyal.uzunluk || 0);
 }
 
 /* Sağdaki yapışkan özet: seçimler + uyarılar + üret düğmesi. Üret düğmesi
@@ -5139,6 +5168,9 @@ function renderContentExpert() {
     const oz = document.getElementById("ceOzetDayanak");
     if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
   };
+  /* §72: kısa metin uyarısı yazarken değil, kutudan çıkınca güncellenir
+     (oninput'ta renderAll odak kaybettirir — TUZAK 3). */
+  if (ceTextEl) ceTextEl.onchange = function () { renderAll(); };
   const ceGuidanceEl = document.getElementById("ceGuidance");
   /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
      yeniden çizilir ve kullanıcı yazarken odak kaybeder. Karakter sayacı bir
@@ -12603,6 +12635,8 @@ function bosDurumHtml(mesaj) {
     "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
     // §70 şüpheli soruda ikinci onay (W3)
     "soruyuOnayla", "supheliOnayModali",
+    // §72 kısa metin ön uyarısı (W3)
+    "ceMetinKapasitesi", "ceMetinUzunlugu",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
