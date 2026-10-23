@@ -7,6 +7,12 @@
 > **Son durum: 19 Ekim 2026.** v2 (6 Eylül, `ac606cb`) §48b'de kalmıştı;
 > v3'te §49-§50n ve 19 Ekim'de başlayan araştırma çalışması eklendi, sayılar
 > 19 Ekim'de yeniden ölçüldü.
+>
+> **23 Ekim 2026:** tasarım turu yayında (canlı `87dc965d`). Arayüz yeni:
+> - Giriş tek ekran; rol değişimi üst çubuktaki Panel ▾ ile.
+> - Öğretmende Sınıflarım → sınıf sayfası.
+>
+> Sayılar aşağıda güncel. Ayrıntı PROGRESS §60–§69.
 
 ---
 
@@ -41,8 +47,8 @@ Hiçbir şeye dokunmadan önce şunları çalıştır ve **çıktılarını gös
 npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
-npm test                            # 338/338, 12 dosya
-node tools/ozkontrol-dogrula.mjs    # 380 ad · kapsama %100
+npm test                            # 346/346, 13 dosya
+node tools/ozkontrol-dogrula.mjs    # 468 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health
@@ -64,8 +70,9 @@ test/hesap.test.ts            11
 test/denetimler.test.ts       10
 test/cozucu.test.ts           12
 test/atolye-ve-materyal.test.ts 9
+test/ogretmen-toplu.test.ts    8
                              ---
-                             338
+                             346
 ```
 
 Beklenen canlı çıktı:

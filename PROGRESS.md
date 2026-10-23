@@ -9335,3 +9335,44 @@ Görüntü yeniden çekildi (commit'teki temiz).
   (yakalama ve yanlış alarm), sonra karar. Latin harfli yabancı sözcük
   (aksansız: "however") yalnız sözlük/son ek sezgisiyle yakalanır; aynı
   ölçümle değerlendirilir.
+
+## 70. BELGELER — README / DEVİR / ARAŞTIRMA tasarım turuna göre (23 Ekim 2026, W4)
+
+- **README:**
+  - Yeni "Tasarım turu — 23 Ekim 2026" bölümü. Kapsadığı konular: giriş tek
+    ekran, kabuk ve Panel ▾, onaylı Sıfırla, İçerik Uzmanı sihirbazı,
+    Sınıflarım ve 3 adımlı sınav sihirbazı, öğrenci, yönetici ve veli
+    panelleri, kırmızı hata rengi, erişilebilirlik, metin cilası.
+  - **7 ekran görüntüsünün alt yazısı** yeni görüntülere tek tek bakılarak
+    yeniden yazıldı; yalnız kadrajda görünen anlatıldı.
+    - `00` artık "tek düğme" değil: iki grupta rol kartları ve Rehberli demo.
+    - `04`'te örnek şubeler kadrajda yok; alt yazıdan "gerçek/örnek satır
+      ayrımı" çıktı, eylem kartı girdi.
+    - `02`, `03` ve `05` yeni öğeleriyle güncellendi.
+    - `01` ve `06` aynen doğru, dokunulmadı.
+  - "Hemen deneyin" ve §6 demo akışı yeni arayüzle yeniden yazıldı. Düğme
+    adı "Yapay Zekâ ile Soru Üret" oldu.
+  - Sayılar:
+    - rozet ve CI yorumu 346 test;
+    - test dökümü 13 dosya (`ogretmen-toplu` 8 eklendi);
+    - öz-kontrol 468 ad;
+    - son ölçüm satırı 23 Ekim, canlı `87dc965d`.
+- **DEVIR.md ve DEVRALAN_PROMPT.md:** 23 Ekim tasarım turu satırı eklendi.
+  Test (346, 13 dosya) ve öz-kontrol (468) sayıları güncellendi.
+- **ARASTIRMA.md:**
+  - Sınırlar tablosu değişmedi: tek cihaz, kimlik yok ve hız sınırı aynen
+    geçerli.
+  - Yalnız demo soruları satırındaki düğme adı güncellendi.
+  - §6'daki tarihli ölçüm kaydı (20 Ekim'de 338 test) tarih olduğu için
+    olduğu gibi kaldı.
+- **Depo dışı (Masaüstü burs klasörü):**
+  - Mülakat demo senaryosu yeni tıklama sırasına göre güncellendi: giriş
+    ekranında Rehberli demo, 2. adımda sınıf kartı, Gözden geçir ve bitir,
+    Demoyu Bitir → Panel ▾, sihirbaz adımları, ⋯ ile onaylı Sıfırla.
+    Süreler 19 Ekim provasından; yeni arayüzde canlı prova yapılmadı
+    (ücretli model çağrısı), belgede de böyle yazıyor.
+  - "Tanıtım ve Yol Haritası" PDF'inde son durum satırı (23 Ekim · `87dc965d`
+    · `077a2f3` · 346 test · 468 ad) ve düğme adı güncellendi. Hâlâ 8 sayfa.
+- **Bulgu (ortak bölge, W2'ye):** demo şeridinin 3. adımı "Sınavı Bitir ile
+  gönderin" diyor. Ekranda önce **Gözden geçir ve bitir**, sonra **Sınavı
+  bitir** var. Metin "Gözden geçir ve bitir ile gönderin" olmalı.

@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-338%2F338-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-346%2F346-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -46,6 +46,28 @@ rubrik **önerir**. Onaylayan her zaman insandır.
 > doğrulanmış ön bulgular, yöntem, 6 aylık plan ve etik/KVKK çerçevesi
 > bu belgededir. Gözlenen hata türleri: [docs/HATA_TAKSONOMISI.md](./docs/HATA_TAKSONOMISI.md).
 
+### Tasarım turu — 23 Ekim 2026
+
+Arayüz baştan sona yeniden düzenlendi; **insan onayı zinciri (HITL) ve
+gizlilik kuralları aynen korundu**. Ayrıntı: PROGRESS §60–§68.
+
+| Ne değişti | Nasıl |
+|---|---|
+| **Giriş tek ekran** | Rol kartları iki grupta (Okul · Öğrenci ve aile) ve bir **Rehberli demo (5 adım)** düğmesi aynı ekranda. Eskiden önce tek bir düğme, sonra ayrı bir rol ekranı vardı |
+| **Tek satır üst çubuk** | Marka · **Panel ▾** menüsü (1 tıkla rol değişimi, bekleyen iş rozeti) · süreç göstergesi · model çipi · Demo · ⋯. Demo sürerken diğer paneller kilitli ve nedeni menüde yazar. Öğrenci ve velide model çipi ve süreç gizli |
+| **Sıfırlama onaylı** | "Tüm verileri sıfırla" ⋯ menüsünde, yalnız okul rollerinde; önce onay sorulur. Eskiden Demo düğmesinin yanında tek tıkla siliyordu. Kendi sorusu olan kullanıcıya demo da önce sorar |
+| **İçerik Uzmanı: soru üret sihirbazı** | Tek uzun form yerine üç adım: **Ne için? → Neye dayansın? → Kaç soru?** Sağda yapışkan özet ve tek **Yapay Zekâ ile Soru Üret** düğmesi |
+| **Öğretmen: Sınıflarım → sınıf sayfası** | Önce şube seçilir. Sınıf sayfasında **Sınavlar · Öğrenciler · Puanlama · Analitik**. Yeni sınav **3 adımlı sihirbazla**: Ad ve süre → Sorular ve rubrik → Gözden geçir ve yayınla. Puanlama'da onay kuyruğu en üstte |
+| **Öğrenci** | Yapışkan sınav başlığı (süre + ✓ yanıtlandı · ⚑ işaretli · ○ boş). Ayrı **Gözden geçir ve bitir** adımı; Bitir yalnız orada. Karne "sen" dilinde, kazanım adıyla |
+| **Eğitim Yöneticisi** | **Önce buraya bakın** eylem kartı yalnız gerçek veriden. Örnek veri ayrı **Karşılaştırma (örnek)** bölümünde. Açıklamalar ⓘ ardında. Öğretmen sapması tek birimde (puan) |
+| **Veli** | **Çocuğunuz:** seçici, çocuk kartı, büyük **Son onaylı sonuç**, konular sade dille (Güçlü · Gelişiyor · Desteğe ihtiyaç var) |
+| **Kırmızı hata rengi** | Hata rengi maviydi ve ana renkle kontrastı 1,11 idi. Artık kırmızı (`#b42318`); WCAG AA ölçüldü, beyaz zeminde 6,57. Yalnız hata ve geri alınamaz eylemde kullanılır |
+| **Erişilebilirlik** | Ortak belirteçler (yazı, boşluk, köşe ölçeği). Tıklanabilir hedefler ≥24 px (WCAG 2.2 SC 2.5.8). Durum renge bırakılmaz, simge ve metin de var. Görünür odak, `aria-*` etiketleri. Menüler Esc ile kapanır ve odak geri döner |
+| **Metin cilası** | Kullanıcı metninde "AI" yerine "yapay zekâ" (dar yerde "YZ"). Çoktan seçmeli için "cevap anahtarıyla puanlandı". Öğrenciye: "yapay zekâ bir puan önerir; kararı öğretmenin verir" |
+
+Her panel 1280 ve 390 px'te `tools/gorsel-fark.mjs` ile denetlendi: konsol
+hatası 0, yinelenen kimlik 0, yatay taşma yok.
+
 ### Son değişiklikler — 6 Eylül 2026
 
 Proje günlüğü `PROGRESS.md`'dir ve **§54'e kadar** uzanır; her madde kök nedeni ve
@@ -71,20 +93,22 @@ kusurlar önce ölçülür, sonra kapatılır ve bedeli varsa bedeli de yazılı
 
 ### Ekranlar
 
-<img src="docs/ekran/00-giris.png" alt="Mihenk giriş ekranı — logo, lacivert ve turuncu palet, tek bir giriş düğmesi" width="100%">
+<img src="docs/ekran/00-giris.png" alt="Mihenk giriş ekranı — logo, 'Kim olarak devam ediyorsunuz?' sorusu, Okul (İçerik Uzmanı, Öğretmen, Eğitim Yöneticisi) ve Öğrenci ve aile (Öğrenci, Veli) gruplarında rol kartları, Rehberli demo (5 adım) düğmesi" width="100%">
 
-**Giriş ekranı** — jürinin gördüğü ilk ekran. Tek bir düğme var; rol seçimi
-düğmeye basıldıktan sonra gelir. Kimlik doğrulama yoktur, rol bir seçimdir
-(bkz. [§9](#9-bilinen-sınırlamalar-ve-yol-haritası)).
+**Giriş ekranı** — jürinin gördüğü ilk ekran. Rol seçimi aynı ekranda: üç
+okul rolü ve iki aile rolü, her kartta rolün ne yaptığı yazar. Altta
+**Rehberli demo (5 adım)** düğmesi ve *"Demo sürümü: kimlik doğrulama
+yoktur"* notu var. Rol bir seçimdir (bkz.
+[§9](#9-bilinen-sınırlamalar-ve-yol-haritası)).
 
 | | |
 |---|---|
-| <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — Kazanım Denetimi ve Bekleyenlerin hepsini çöz kutuları, onay bekleyen demo sorusu ve sunucu denetiminden geçmediğini söyleyen not, Bağımsız çöz düğmesi, çeldirici gerekçeleri ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli — AI'ın kriter bazında puan önerisi, güven skoru ve öğrenciye geri bildirim taslağı" width="100%"> |
-| **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Listenin üstünde **Kazanım Denetimi Yap** ve **Bekleyenlerin hepsini çöz** kutuları var. Kartta *"demo sorusu — elle yazıldı, sunucu denetiminden geçmedi"* notu ve **Bağımsız çöz** düğmesi duruyor; demo sorusu sunucudan geçmediği için hesap denetimi sonucu yoktur. Onaylanmadan havuza girmez. | **Öğretmen** — puan önerisi **kriter bazında** gelir, her kriter için gerekçesiyle. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen aktarmadan gitmez. |
-| <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan, her soruda öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — okul geneli tamamlanma, kazanım başarı grafiği ve gerçek/örnek satır ayrımı" width="100%"> |
-| **Öğrenci** — nihai puan, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"yapay zekâ bu puanı önerdi, öğretmenin okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — kazanım başarı grafiği ve okul geneli durum. Gerçek şubeler `●` ile, karşılaştırma verisi `(örnek)` etiketiyle ayrılır. |
-| <img src="docs/ekran/05-veli.png" alt="Veli paneli — yalnızca kendi çocuğunun onaylanmış sonuçları; sınıf ortalaması ve sıralama yok" width="100%"> | <img src="docs/ekran/06-deneyap.png" alt="Deneyap kazanım kataloğu — Yapay Zekâ atölyesi: kitap adı ve ISBN, her kazanım satırında kitabın basılı sayfası" width="100%"> |
-| **Veli** — yalnızca kendi çocuğunun **onaylanmış** sonucu. Sınıf ortalaması, sıralama ve AI'ın ham puan önerisi veliye **hiç gitmez**. | **Deneyap kataloğu** — İçerik Uzmanı, *Deneyap Atölyeleri* dersinde Yapay Zekâ atölyesinin kataloğunu açmış. Başlıkta TÜBİTAK Deneyap kitabı ve ISBN'i, *"Bu bir MEB öğretim programı değildir"* notu var. Her satırda kazanım kodu, kitaptaki metni, uygunluk etiketi ve kitabın basılı sayfası (*s.13* gibi) yazar. Liste varsayılan olarak yalnız **yazılı sınavla ölçülebilir** kazanımları gösterir. |
+| <img src="docs/ekran/01-icerik-uzmani.png" alt="İçerik Uzmanı paneli — Kazanım Denetimi ve Bekleyenlerin hepsini çöz kutuları, onay bekleyen demo sorusu ve sunucu denetiminden geçmediğini söyleyen not, Bağımsız çöz düğmesi, çeldirici gerekçeleri ve onay/red düğmeleri" width="100%"> | <img src="docs/ekran/02-ogretmen-degerlendirme.png" alt="Öğretmen paneli, Puanlama — öğrenci yanıtı, yapay zekânın kriter bazında puan önerisi ve gerekçeleri, YZ güveni, öğrenciye geri bildirim taslağı, nihai puan alanı ve onay düğmeleri" width="100%"> |
+| **İçerik Uzmanı** — yapay zekâ soru taslağı üretir; her çeldiricinin hangi kavram yanılgısını ölçtüğü yazılıdır. Listenin üstünde **Kazanım Denetimi Yap** ve **Bekleyenlerin hepsini çöz** kutuları var. Kartta *"demo sorusu — elle yazıldı, sunucu denetiminden geçmedi"* notu ve **Bağımsız çöz** düğmesi duruyor; demo sorusu sunucudan geçmediği için hesap denetimi sonucu yoktur. Onaylanmadan havuza girmez. | **Öğretmen → Puanlama** — solda öğrencinin yanıtı, sağda **Yapay Zekâ Puan Önerisi**: kriter bazında puan ve gerekçe, *YZ güveni* rozeti. Altta öğrenciye gidecek geri bildirim **taslağı** durur; öğretmen **Nota Aktar** demeden gitmez. Puan, öğretmen **Tek Tıkla Onayla** ya da **Puanı Güncelle ve Onayla** deyince kesinleşir. |
+| <img src="docs/ekran/03-ogrenci-karne.png" alt="Öğrenci karnesi — büyük nihai puan ve yüzde, her soruda kazanımın adı (kod ikincil), öğrencinin kendi yanıtı ve puanın hangi ölçütten geldiği" width="100%"> | <img src="docs/ekran/04-egitim-yoneticisi.png" alt="Eğitim Yöneticisi paneli — Okul Geneli Ölçme Durumu, gerçek veriden 'Önce buraya bakın' eylem kartı, üç durum kutusu ve kritik eşik çizgili kazanım başarı grafiği" width="100%"> |
+| **Öğrenci** — nihai puan, her soruda kazanımın adı, kendi yazdığı yanıt ve *"puanın nereden geldiği"*. Ekranda **"Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı"** yazar. | **Eğitim Yöneticisi** — en üstte **Önce buraya bakın**: en düşük kazanım, kritik eşiğin (%55) altında olup olmadığıyla. Altında üç durum kutusu (açıklamalar ⓘ ardında) ve kazanım başarı grafiği. Kadrajdaki her şey yalnız gerçek, onaylı sonuçtan gelir; örnek şubeler sayfanın altındaki ayrı **Karşılaştırma (örnek)** bölümündedir. |
+| <img src="docs/ekran/05-veli.png" alt="Veli paneli — Çocuğunuz seçici, çocuk kartı, büyük Son onaylı sonuç ve Konulara göre durum; sınıf ortalaması ve sıralama yok" width="100%"> | <img src="docs/ekran/06-deneyap.png" alt="Deneyap kazanım kataloğu — Yapay Zekâ atölyesi: kitap adı ve ISBN, her kazanım satırında kitabın basılı sayfası" width="100%"> |
+| **Veli** — **Çocuğunuz:** seçici, çocuk kartı, büyük **Son onaylı sonuç** ve **Konulara göre durum** (kazanım adı önde, kod ikincil, *Güçlü* gibi sözcükle). Yalnızca **öğretmen onaylı** sonuç görünür; sınıf ortalaması, sıralama ve yapay zekânın ham puan önerisi veliye **hiç gitmez**. | **Deneyap kataloğu** — İçerik Uzmanı, *Deneyap Atölyeleri* dersinde Yapay Zekâ atölyesinin kataloğunu açmış. Başlıkta TÜBİTAK Deneyap kitabı ve ISBN'i, *"Bu bir MEB öğretim programı değildir"* notu var. Her satırda kazanım kodu, kitaptaki metni, uygunluk etiketi ve kitabın basılı sayfası (*s.13* gibi) yazar. Liste varsayılan olarak yalnız **yazılı sınavla ölçülebilir** kazanımları gösterir. |
 
 ### İçindekiler
 
@@ -216,8 +240,9 @@ sistemin sessizce simülasyona düşüp gerçek yapay zekâ gibi görünmesini e
 ### Hemen deneyin
 
 **Kurulum gerekmez:** [canlı sistemi açın](https://mihenk.bies.workers.dev),
-üst çubuktaki **"Demo Akışı"** düğmesine basın. Rehber sizi beş adımda,
-beş rolün arasında sırayla gezdirir — hangi ekranda ne yapacağınızı yazar.
+giriş ekranındaki **"Rehberli demo (5 adım)"** düğmesine basın (uygulamanın
+içindeyken üst çubukta **Demo**). Rehber sizi beş adımda, beş rolün arasında
+sırayla gezdirir — hangi ekranda ne yapacağınızı yazar.
 Yüklenen sorular uydurma değil, modelin gerçekten ürettiği çıktılar;
 değerlendirme canlı çalışır.
 
@@ -440,7 +465,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 338 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 346 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -556,23 +581,28 @@ altındadır.
 ## 6. Demo akışı (jüri için önerilen sıra)
 
 Canlı sistemde (ya da `npm run dev:demo` ile yerelde) şu sıra izlenebilir.
-Üst çubuktaki **"Demo Akışı"** düğmesi hazır bir başlangıç noktası yükler ve
-sizi **beş adımda rehberli** olarak gezdirir; her adımda hangi rolde ne
-yapacağınız üst şeritte yazar. Yüklediği sorular uydurma değil, modelin
+Giriş ekranındaki **"Rehberli demo (5 adım)"** düğmesi (uygulamada üst
+çubuktaki **Demo**) hazır bir başlangıç noktası yükler ve sizi **beş adımda
+rehberli** olarak gezdirir; her adımda hangi rolde ne yapacağınız üst şeritte
+yazar. Rol değiştirmek için üst çubuktaki **Panel ▾** menüsü kullanılır. Yüklediği sorular uydurma değil, modelin
 gerçekten ürettiği çıktılardır; değerlendirme yine canlı çalışır.
 
-1. **İçerik Uzmanı** sekmesinde bir ders notu yapıştırıp "AI ile Soru Üret"e
-   basın; üretilen 2 çoktan seçmeli + 1 açık uçlu soruyu inceleyip onaylayın.
-2. **Öğretmen → 1. Sekme**'de onaylı sorulardan bir sınav oluşturun, süre
-   önerisini isterseniz değiştirin.
-3. **Öğretmen → 2. Sekme**'de açık uçlu soru için rubriği tamamlayın (ağırlıklar
-   %100 olmalı) ve sınavı yayınlayın.
-4. **Öğrenci** sekmesinde sınava girin, soruları yanıtlayıp "Sınavı Bitir"e
-   basın.
-5. **Öğretmen → 3. Sekme**'de AI'nin puan/gerekçe önerisini görün; tek tıkla
-   onaylayın veya puanı değiştirip onaylayın.
-6. **Öğrenci → 3. Sekme**'de karneyi, **Eğitim Yöneticisi** panelinde ise
-   kazanım başarı grafiğinin canlı güncellendiğini gösterin.
+1. **İçerik Uzmanı → Soru Üret** sihirbazında *Ne için?* (ders, sınıf,
+   kazanım), *Neye dayansın?* (ders notu yapıştırın) ve *Kaç soru?* adımlarını
+   doldurup **"Yapay Zekâ ile Soru Üret"**e basın; gelen 2 çoktan seçmeli +
+   1 açık uçlu taslağı inceleyip onaylayın.
+2. **Öğretmen → Sınıflarım**'da bir sınıf kartına girin, **Sınavlar**'da
+   **Yeni sınav** sihirbazını açın: *Ad ve süre → Sorular ve rubrik* (açık
+   uçlu soru için ağırlıklar %100 olmalı) *→ Gözden geçir ve yayınla*.
+3. **Öğrenci → Sınavı Çöz**'de sınava girin, soruları yanıtlayın, sonra
+   **Gözden geçir ve bitir** adımında boş ve işaretli soruları görüp
+   **Sınavı bitir**'e basın.
+4. **Öğretmen → Puanlama**'da yapay zekânın puan/gerekçe önerisini görün;
+   **Tek Tıkla Onayla** ya da puanı değiştirip **Puanı Güncelle ve Onayla**,
+   ardından **Sonuçları Öğrenciye Yayınla**.
+5. **Öğrenci → Karne**'de sonucu; **Eğitim Yöneticisi**'nde *Önce buraya
+   bakın* kartını ve kazanım başarı grafiğinin güncellendiğini; **Veli**'de
+   yalnız onaylı sonucun göründüğünü gösterin.
 
 > **Bu akıştaki yapay zekâ adımları simülasyon DEĞİLDİR.** Soru üretimi,
 > rubrik taslağı ve açık uçlu puan/gerekçe önerisi canlı sistemde
@@ -680,17 +710,17 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile **338 test**
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile 13 dosyada **346 test**
   koşar (`test/guards.test.ts` 112 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
-  `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/mufredat.test.ts` 11 ·
-  `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 · `test/cozucu.test.ts` 12 ·
-  `test/atolye-ve-materyal.test.ts` 9) —
+  `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/cozucu.test.ts` 12 ·
+  `test/mufredat.test.ts` 11 · `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 ·
+  `test/atolye-ve-materyal.test.ts` 9 · `test/ogretmen-toplu.test.ts` 8) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **380 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  dosya sonunda **468 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
@@ -830,7 +860,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 19 Ekim 2026 (test, öz-kontrol, canlı sağlık)
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 23 Ekim 2026, tasarım turu yayını (canlı sürüm `87dc965d` · 346 test · öz-kontrol 468 ad %100 · gorsel-fark 1280/390 temiz)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)

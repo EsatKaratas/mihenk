@@ -699,7 +699,7 @@ Erişim durumunun ayrıntısı ve kaynakları: §5.2.*
 | Veritabanı | Şema hazır (14 tablo) ve üretim yapılandırmasında bağlı; **demoda gizlilik kararıyla kapalı** (§43, §50n) |
 | OCR | Yalnızca sentetik taramayla (metin katmanı olmayan, üretilmiş PDF) denendi (PROGRESS §40); iki sütunlu sayfada sütunları karıştırıyor (`DEVIR_MUDUR_2026-09-27.md` §5) |
 | Token bütçesi | `700 + soru×700` (tavan 5600) modelin sayacıyla doğrulanmadı; yalnızca kesilme olmadığı ölçüldü (§48.7) |
-| Demo soruları | **Elle yazıldı** (§48b.2); canlı üretim "AI ile Soru Üret" ile gösterilir |
+| Demo soruları | **Elle yazıldı** (§48b.2); canlı üretim "Yapay Zekâ ile Soru Üret" düğmesiyle gösterilir (23 Ekim tasarım turunda adı değişti) |
 | Ön bulguların örneklemi | İlk ölçüm model başına 25-26 ÇSS, ikinci ölçüm 225 etiketli ÇSS; güven aralıkları geniş ve çoğu karşılaştırmada örtüşüyor (§6.8). Ay 1 hedefi ≥600 madde (§7.1) |
 | Etiketleyiciler | Hepsi aynı aileden yapay zekâ (Claude); κ ortak yanılgıyı ölçmez. İnsan etiketi yok (§6.7) |
 | Model ailesi | Üretici ve çözücü ikisi de Meta Llama; ilişkili hata riski ölçülmedi (§6.7) |
