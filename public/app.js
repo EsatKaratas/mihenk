@@ -11185,11 +11185,22 @@ function demoBaslat() {
 function kabukYuksekligiIzle() {
   const ust = document.querySelector(".topbar.kabuk-ust");
   if (!ust) return;
-  const yaz = function () {
-    document.documentElement.style.setProperty("--kabuk-yuk", Math.ceil(ust.getBoundingClientRect().height) + "px");
-  };
-  yaz();
-  if (typeof ResizeObserver === "function") new ResizeObserver(yaz).observe(ust);
+  kabukYuksekliginiYaz();
+  /* ResizeObserver TEK BAŞINA YETMEDİ (ölçüldü: demo açılınca kabuk 57 → 120
+     px oldu ama değişken ilk değerinde kaldı; sayfa arka plandayken gözlemci
+     tetiklenmedi). Bu yüzden asıl yazma renderAll sonunda yapılır (demo
+     şeridi orada çizilir); gözlemci ve resize yalnızca ek güvencedir. */
+  if (typeof ResizeObserver === "function") new ResizeObserver(kabukYuksekliginiYaz).observe(ust);
+  window.addEventListener("resize", kabukYuksekliginiYaz);
+}
+
+/** Kabuğun o anki yüksekliğini --kabuk-yuk'a yazar (değişmediyse dokunmaz). */
+function kabukYuksekliginiYaz() {
+  const ust = document.querySelector(".topbar.kabuk-ust");
+  if (!ust) return;
+  const deger = Math.ceil(ust.getBoundingClientRect().height) + "px";
+  const kok = document.documentElement.style;
+  if (kok.getPropertyValue("--kabuk-yuk") !== deger) kok.setProperty("--kabuk-yuk", deger);
 }
 
 /** Menü dışına tıklama ve Esc açık menüyü kapatır. Bir kez kurulur. */
@@ -11453,6 +11464,7 @@ function renderAll() {
   renderRoleNav();
   renderPipeline();
   renderDemoSerit();   // §38 — demo kapalıyken boş dize yazar
+  kabukYuksekliginiYaz();   // §64b — demo şeridi kabuğu büyütür; yapışkan paneller buna göre
   renderContentExpert();
   renderTeacher();
   renderStudent();
@@ -12230,7 +12242,7 @@ function bosDurumHtml(mesaj) {
     /* §64 — kabuk: panel menüsü, ⋯ menüsü, onaylı sıfırlama ve demo.
        Biri düşerse üst çubuk ya da giriş sessizce ölür. */
     "kabukRolGrubu", "kabukGruplari", "rolRozetleri", "panelMenuHtml", "rolSec", "kabukMenuAc",
-    "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur", "kabukYuksekligiIzle",
+    "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur", "kabukYuksekligiIzle", "kabukYuksekliginiYaz",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
        değerlendirme analitiği. (calibration zaten yukarıda listede;
        şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */

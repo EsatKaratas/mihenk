@@ -187,6 +187,16 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
   .kabuk-ust .pipeline .seg { gap: 0; }
   .kabuk-ust .pipeline .bar { width: var(--sp-1); }
   .kb-yalniz-dar { display: block; }
+  /* §64b — demo şeridi 390'da 150 px'ti (kabuk toplam 216 px, ekranın
+     ~%26'sı). Sıkıştırılır: rozet + adım + kilit bir satır, açıklama bir
+     satır, düğmeler bir satır. Kilit nedeni GİZLENMEZ — dokunmatikte
+     düğmenin title ipucu görünmez. */
+  .kabuk-ust #demoSeritYuva:not(:empty) { padding-bottom: var(--sp-2); }
+  .kabuk-ust .demo-serit { gap: var(--sp-1) var(--sp-2); padding: var(--sp-2); font-size: var(--fs-1); line-height: 1.35; }
+  .kabuk-ust .demo-serit .demo-metin { flex: 1 1 100%; order: 2; line-height: 1.35; }
+  .kabuk-ust .demo-serit .demo-kilit { order: 1; font-size: var(--fs-1); }
+  .kabuk-ust .demo-serit .demo-dugmeler { order: 3; flex: 1 1 100%; }
+  .kabuk-ust .demo-serit .demo-dugmeler .btn { flex: 1 1 auto; padding: var(--sp-1) var(--sp-2); }
   .kb-rol-liste { min-width: 0; width: min(calc(var(--sp-8) * 10), calc(100vw - var(--sp-6))); }
 }
 
