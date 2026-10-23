@@ -7100,7 +7100,7 @@ async function aiSuggestRubric(qid) {
   ensureRubric(qid);
   // §30 — ÜZERİNE YAZMA KORUMASI: öğretmen bu rubriği elle düzenlediyse
   // önce onay ister; onaylanmazsa AI çağrısı bile yapılmaz (kota israfı yok).
-  if (!rubricTemplateOverwriteGuard(state.rubrics[qid])) return;
+  if (!(await rubricTemplateOverwriteGuard(state.rubrics[qid]))) return;
   if (state.ai.mode !== "live") {
     state.rubricError = "Rubrik önerisi için gerçek model bağlantısı gerekiyor.";
     renderAll();
@@ -7207,15 +7207,22 @@ function ensureRubric(qid) {
 
    `rub.userEdited` her elle değişiklikte (etiket/ağırlık/açıklama/ekleme/
    silme/tavan puanı) true'ya çekilir (bkz. wireTeacherTab2). Şablon/AI
-   düğmesi bu bayrak true iken tıklanırsa native `confirm()` ile onay ister
-   — bu projede zaten yerleşik bir kalıptır (bkz. kitaplık silme, karar
-   günlüğü temizleme). Onaylanmazsa HİÇBİR ŞEY değişmez. */
-function rubricTemplateOverwriteGuard(rub) {
+   düğmesi bu bayrak true iken tıklanırsa onay ister. Onaylanmazsa (Vazgeç,
+   Escape) HİÇBİR ŞEY değişmez; AI yolunda model çağrısı bile yapılmaz.
+
+   §80: onay artık yerel confirm() değil, uygulamanın onay penceresi
+   (onaylaModal, §77): odak Vazgeç'te, kırmızı onay düğmesi — elle düzenlenmiş
+   ölçütler kaybolur, yani tehlikeli eylem. Dönüş Promise<boolean>; iki
+   çağıran (aiSuggestRubric, .rub-tpl) bekler. */
+async function rubricTemplateOverwriteGuard(rub) {
   if (!rub.userEdited) return true; // henüz elle dokunulmamış — sormaya gerek yok
-  return confirm(
-    "Bu sorunun ölçütlerini elle düzenlediniz. Yeni bir taslak uygularsanız " +
-    "mevcut ölçütleriniz ve ağırlıklarınız SİLİNİR. Devam edilsin mi?"
-  );
+  return onaylaModal({
+    baslik: "Ölçütleriniz değiştirilsin mi?",
+    metin: "Bu sorunun ölçütlerini elle düzenlediniz. Yeni bir taslak uygularsanız " +
+      "mevcut ölçütleriniz ve ağırlıklarınız SİLİNİR.",
+    onayEtiketi: "Evet, ölçütleri değiştir",
+    tehlikeli: true,
+  });
 }
 
 // Sınavın toplam puanı: her çoktan seçmeli `mcPuani()` kadar (öğretmen
@@ -8147,16 +8154,28 @@ function teacherTab2Html() {
 
 function wireTeacherTab2() {
   const aiRub = document.getElementById("btnAiRubric");
-  if (aiRub) aiRub.onclick = function () { aiSuggestRubric(state.rubricSelectedQ); };
+  /* §80: onay penceresi (ve ardından model çağrısı) sürerken aynı düğmeye
+     yeniden basmak ikinci pencere / ikinci çağrı açmaz. */
+  if (aiRub) aiRub.onclick = async function () {
+    if (aiRub.dataset.onayBekliyor) return;
+    aiRub.dataset.onayBekliyor = "1";
+    try { await aiSuggestRubric(state.rubricSelectedQ); }
+    finally { delete aiRub.dataset.onayBekliyor; }
+  };
   document.querySelectorAll(".js-rubrik-kabul").forEach(function (b) {
     b.onclick = function () { rubrikTaslaginiKabulEt(state.rubricSelectedQ); };
   });
 
   document.querySelectorAll(".rub-tpl").forEach(function (b) {
-    b.onclick = function () {
+    b.onclick = async function () {
+      if (b.dataset.onayBekliyor) return;   // §80: çift tıklama tek pencere
       const rub = state.rubrics[state.rubricSelectedQ];
       // §30 — ÜZERİNE YAZMA KORUMASI: bkz. rubricTemplateOverwriteGuard notu.
-      if (!rubricTemplateOverwriteGuard(rub)) return;
+      b.dataset.onayBekliyor = "1";
+      let tamam;
+      try { tamam = await rubricTemplateOverwriteGuard(rub); }
+      finally { delete b.dataset.onayBekliyor; }
+      if (!tamam) return;
       const s = RUBRIK_SABLONLARI[Number(b.dataset.tpl)];
       rub.criteria = JSON.parse(JSON.stringify(s.criteria));
       rub.aiDraft = false;

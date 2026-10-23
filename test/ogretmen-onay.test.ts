@@ -47,6 +47,24 @@ describe('Öğretmen onayları ortak pencereyle (§79)', () => {
     expect(g).toContain('"Evet, taslağı sil"');
   });
 
+  it('§80 rubrik üzerine yazma koruması: async onaylaModal, kırmızı; iki çağıran bekler', () => {
+    expect(app).toMatch(/^async function rubricTemplateOverwriteGuard\(/m);
+    const g = govde('rubricTemplateOverwriteGuard');
+    expect(g).not.toMatch(/\bconfirm\(/);
+    expect(g).toContain('onaylaModal(');
+    expect(g).toContain('tehlikeli: true');
+    expect(g).toContain('"Evet, ölçütleri değiştir"');
+    expect(govde('aiSuggestRubric')).toContain('await rubricTemplateOverwriteGuard(');
+    const w = govde('wireTeacherTab2');
+    expect(w).toContain('await rubricTemplateOverwriteGuard(');
+    expect((w.match(/dataset\.onayBekliyor = "1"/g) || []).length).toBeGreaterThanOrEqual(2);   // AI + şablon
+  });
+
+  it('app.js\'te yorum dışında yerel confirm( çağrısı kalmadı', () => {
+    const kod = app.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    expect(kod).not.toMatch(/(^|[^\w.])confirm\(/);
+  });
+
   it('kart menüsü çift tıklamada ikinci pencere açmaz', () => {
     expect(govde('wireExamSwitcher')).toContain('dataset.onayBekliyor');
     expect(govde('wireSinifYonetim')).toContain('onayliEylem(');
