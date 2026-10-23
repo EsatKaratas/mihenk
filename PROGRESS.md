@@ -8703,6 +8703,81 @@ bağlantısıyla yükleniyor. `adimciHtml` kullanılmadı: adımlar açılır-ka
 başlık + özet satırı istediği için kendi başlıkları var.
 **İkinci tur:** onay kartı sadeleşmesi, Soru Havuzu ağacı ve filtreleri.
 
+---
+
+## 62. ÖĞRETMEN PANELİ — SINIFLARIM → SINIF SAYFASI → SINAV SİHİRBAZI (23 Ekim 2026, W1)
+
+Esat: "Sınıfım kısmı daha profesyonel olsun. Kafa karışıklığı sağlayan çok
+şey var. Gerekirse böyle girmeli bir sistem yapılabilir." Araştırmada
+(Google Classroom, MS Teams Assignments, EBA, e-Okul) ortak desen şuydu:
+önce BAĞLAM (sınıf/şube) seçilir, iş onun içinde yapılır. Bizde öğrenci
+listesi, sınav listesi, soru havuzu ve yayın ayarları tek sekmede alt alta
+duruyordu. Müdür mimariyi onayladı. Commit `e93ca08`
+(`public/app.js` öğretmen bölgesi + `public/css/ogretmen.css`). Push yok.
+
+**Yeni düzen**
+
+| Ekran | İçerik |
+|---|---|
+| Sınıflarım (`teacherTab 0`) | Şube kartları + "Tüm sınıflar": öğrenci, sınav, yayında, onay bekleyen kâğıt. "+ Yeni sınıf": şube adı + yapıştırılan liste |
+| Sınıf sayfası | "‹ Sınıflarım" yolu; sekmeler **Sınavlar · Öğrenciler · Puanlama · Analitik** (numarasız) |
+| Sınavlar (`1`) | Sınav kartları (soru, süre, sınıf, gönderilen kâğıt) + ⋯ menü: düzenle, sınav kâğıdı, cevap anahtarı, yayından kaldır, sil |
+| Yeni sınav / Düzenle | Ortak `adimciHtml` ile 3 adım: **Ad ve süre → Sorular ve rubrik → Gözden geçir ve yayınla** |
+| Öğrenciler (`5`) | Sınıfın listesi, tekli ekleme, "Toplu ekle: listeyi yapıştır" |
+| Puanlama (`3`) / Analitik (`4`) | Eski içerik aynen (B1 rozetleri, A7 raporu, HITL); üstte sınıfın sınavları için seçici |
+
+**Kararlar ve nedenleri**
+- **Sınıf kodu ve davet yok.** Hesap ve ikinci cihaz yok; kod hiçbir işe
+  yaramaz, ölçülemeyen bir iddia olurdu.
+- **Boş sınıf varlığı yok, state şekli değişmedi, göç yok.** Sınıf =
+  `students[].sinif`, sınavın sınıfı = `exam.targetClass` (`""` = tüm
+  sınıflar). Bir sınıfın sınavları = hedefi o sınıf olanlar + tüm sınıflara
+  açık olanlar. Arayüz durumu `state.ogt` KALICI DEĞİL (`KALICI_ALANLAR`'da
+  yok); her sayfa açılışı Sınıflarım'dan başlar (`demoAdim` varsa dokunulmaz).
+- **Ad zorunlu.** Yeni sınavda kayıt, ad yazılıp "oluştur" denene kadar
+  açılmaz. İlk açılışta ya da son sınav silinince kendiliğinden oluşan boş
+  kayıt (`ensureExamList` / `deleteExam`, ortak bölge) listede
+  **gösterilmez**. "Yeni sınav" bu kaydı yeniden kullanır; kayıt yığılmaz.
+- **Taslak silme artık onaylı.** `deleteExam` yayındaki ya da başlanmış
+  sınavda soruyordu, taslağı sormadan siliyordu. Kart menüsü taslak için de
+  onay soruyor.
+- **Rubrik ayrı sekme değil, sihirbazın 2. adımı.** Teams'te de rubrik
+  ödevin içinde. `teacherTab=2` (rubrik derin bağlantısı, eski kayıtlar)
+  bu adıma yönleniyor.
+- **Toplu ekleme sessiz değil.** Boş satır, yinelenen ad (listede ya da
+  şubede zaten var) ve e-Okul'dan gelen baştaki sıra numarası ayıklanıyor.
+  Yazarken önizleme var, ekleyince sonuç cümlesi çıkıyor.
+
+**Uyumluluk (ölçüldü):** Demo adım 2 (`teacherTab 1`) seçili sınavın
+kartında **Yayınla** gösteriyor (`#btnPublishExam`, yalnız yayına hazırsa;
+değilse "Gözden geçir" engeli 3. adımda yazıyor). Ekran betiğinin yolu
+(`teacherTab=1` + tıklama) sınavı yayınladı. `teacherTab=3`'te `.eval-card`
+4 adet. `simulateClass`, yazdırma (§59) ve `sinavKatilim` dokunulmadan
+çalışıyor.
+
+**Ölçüm** — Ortam engeli (workerd) nedeniyle statik sunucuda (8793) yapıldı;
+`/api` yedeğe düştü, model çağrısı 0.
+- Boş adla "Sınavı oluştur": "adsız sınav oluşturulmaz" hatası çıktı, kayıt
+  sayısı 1'de kaldı. Adla oluşturunca boş kayıt yeniden kullanıldı, sihirbaz
+  2. adıma geçti.
+- Toplu ekleme girdisi `1. Zeynep Demir / boş / 2) Ada Yılmaz / Can Er /
+  can er` → "2 öğrenci eklendi · 1 boş satır atlandı · 2 yinelenen ad
+  eklenmedi (Ada Yılmaz, can er)".
+- Menü: kâğıt ve anahtar yazdırma çağrıldı; "yayından kaldır" → draft; taslak
+  silmede onay soruldu ve sınav sayısı 2 → 1.
+- 1366 ve 390 px'te 6 ekran (ana sayfa, liste + açık menü, 3 adım,
+  öğrenciler) ölçüldü: yatay taşma 0. 390'da "Taslak" rozeti ikiye
+  bölünüyordu, düzeltildi.
+- 338/338 test · öz-kontrol 409 ad %100 (+28 ad) · U+FFFD 0 · JS hatası 0 ·
+  servis = disk (app.js `53d73ed310a3…`, ogretmen.css `f181436e5eb5…`).
+
+**Açık kalanlar**
+- `yayinEngeliMetni` (ortak bölge) hâlâ "Rubrik sekmesinden düzeltin"
+  diyor; W2'ye iletildi.
+- Canlı model akışı yayından sonra ölçülecek.
+- `01`/`02` ekran görüntüleri ve README alt yazıları yeni düzene göre
+  yeniden çekilmeli.
+
 ## 63. ÖĞRENCİ, YÖNETİCİ VE VELİ PANELLERİ (tasarım turu 1) (23 Ekim 2026, W4)
 
 Taban T0 (§60), dal `tasarim-ogrenci`, main `9cdb1ef` üzerine rebase. Yalnız

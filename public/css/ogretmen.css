@@ -13,3 +13,109 @@
    - Yazdırma kuralları app.css @media print'te kalır.
    Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
    aynı özgüllükte app.css'i ezer. */
+
+/* ===========================================================================
+   §62 — SINIFLARIM → SINIF SAYFASI → SINAV SİHİRBAZI (W1)
+   1px yalnız ince kenar çizgisi içindir (app.css ile aynı); diğer ölçüler
+   belirteçlerden. Dar ekranda (≤600) kartlar tek sütun, eylemler sarar.
+   =========================================================================== */
+#panel-teacher .ogt-ust { display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-4); }
+#panel-teacher .ogt-baslik { font-size: var(--fs-6); line-height: 1.2; margin: 0; }
+#panel-teacher .ogt-bolum { font-size: var(--fs-4); margin: 0; }
+#panel-teacher .ogt-alt { font-size: var(--fs-2); color: var(--text-muted); margin-top: var(--sp-1); }
+#panel-teacher .ogt-sonuc { font-size: var(--fs-2); background: var(--success-soft); color: var(--text);
+  border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3); }
+
+/* Sınıf kartları */
+#panel-teacher .ogt-kartlar { display: grid; gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--sp-8) * 7), 1fr)); }
+#panel-teacher .ogt-kart { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2);
+  text-align: left; font: inherit; color: var(--text); cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: var(--sh-1); padding: var(--sp-5); min-height: calc(var(--sp-8) * 4);
+  transition: border-color .12s ease, box-shadow .12s ease; }
+#panel-teacher .ogt-kart:hover { border-color: var(--accent); box-shadow: var(--sh-2); }
+#panel-teacher .ogt-kart:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#panel-teacher .ogt-kart-tum { background: var(--surface-2); }
+#panel-teacher .ogt-kart-ad { font-size: var(--fs-5); font-weight: 700; }
+#panel-teacher .ogt-kart-alt { font-size: var(--fs-2); color: var(--text-muted); }
+#panel-teacher .ogt-kart-sayi { font-size: var(--fs-3); margin-top: auto; }
+#panel-teacher .ogt-kart-bos { font-size: var(--fs-1); color: var(--text-muted); }
+#panel-teacher .ogt-form { margin-bottom: var(--sp-4); }
+#panel-teacher .ogt-form-alt { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* Sınıf sayfası üstü */
+#panel-teacher .ogt-yol { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+#panel-teacher .ogt-geri { font: inherit; font-size: var(--fs-2); font-weight: 600; color: var(--accent-strong);
+  background: none; border: 0; padding: var(--sp-1) 0; min-height: var(--hedef-min); cursor: pointer; }
+#panel-teacher .ogt-geri:hover { text-decoration: underline; }
+#panel-teacher .ogt-sinif-ad { font-size: var(--fs-6); margin: 0; }
+#panel-teacher .ogt-sinav-secici { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-4); }
+#panel-teacher .ogt-sinav-secici label { font-size: var(--fs-2); font-weight: 600; color: var(--text-muted); }
+#panel-teacher .ogt-sinav-secici select { font: inherit; font-size: var(--fs-3); padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--surface); color: var(--text); max-width: 100%; }
+
+/* Sınav kartları */
+#panel-teacher .ogt-ust-ic { align-items: center; }
+#panel-teacher .ogt-sinavlar { display: grid; gap: var(--sp-3); max-width: calc(var(--sp-8) * 28); }
+#panel-teacher .ogt-sinav { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: var(--sh-1); padding: var(--sp-4); }
+#panel-teacher .ogt-sinav.aktif { border-color: var(--accent); box-shadow: var(--sh-2); }
+#panel-teacher .ogt-sinav-ust { display: flex; align-items: center; gap: var(--sp-2); }
+#panel-teacher .ogt-sinav-ust .pill { flex: none; white-space: nowrap; }   /* 390 px'te "Tasla/k" bölünüyordu */
+#panel-teacher .ogt-sinav-ust .ogt-sinav-ad { flex: 0 1 auto; min-width: 0; }
+#panel-teacher .ogt-sinav-ad { font: inherit; font-size: var(--fs-4); font-weight: 700; color: var(--text);
+  background: none; border: 0; padding: 0; text-align: left; cursor: pointer; min-height: var(--hedef-min); }
+#panel-teacher .ogt-sinav-ad:hover { color: var(--accent-strong); text-decoration: underline; }
+#panel-teacher .ogt-sinav-meta { font-size: var(--fs-2); color: var(--text-muted); margin: var(--sp-1) 0 var(--sp-3); }
+#panel-teacher .ogt-sinav-eylem { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* ⋯ menüsü (details: klavye ve ekran okuyucu desteği yerleşik) */
+#panel-teacher .ogt-menu { position: relative; margin-left: auto; }
+#panel-teacher .ogt-menu > summary { list-style: none; cursor: pointer; font-size: var(--fs-5); line-height: 1;
+  min-width: calc(var(--hedef-min) + var(--sp-2)); min-height: calc(var(--hedef-min) + var(--sp-2));
+  display: grid; place-items: center; border-radius: var(--r-md); color: var(--text-muted); }
+#panel-teacher .ogt-menu > summary::-webkit-details-marker { display: none; }
+#panel-teacher .ogt-menu > summary:hover, #panel-teacher .ogt-menu[open] > summary { background: var(--surface-2); color: var(--text); }
+#panel-teacher .ogt-menu-liste { position: absolute; right: 0; top: calc(100% + var(--sp-1)); z-index: 20;
+  display: flex; flex-direction: column; min-width: calc(var(--sp-8) * 6); padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--sh-2); }
+#panel-teacher .ogt-menu-liste button { font: inherit; font-size: var(--fs-3); text-align: left; color: var(--text);
+  background: none; border: 0; border-radius: var(--r-sm); padding: var(--sp-2) var(--sp-3); cursor: pointer; }
+#panel-teacher .ogt-menu-liste button:hover:not(:disabled) { background: var(--surface-2); }
+#panel-teacher .ogt-menu-liste button:disabled { opacity: .45; cursor: not-allowed; }
+#panel-teacher .ogt-menu-liste .ogt-menu-tehlike { color: var(--critical); border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--r-sm) var(--r-sm); }
+
+/* Sihirbaz */
+#panel-teacher .ogt-sh-ust { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+#panel-teacher .ogt-sihirbaz .adimci { margin-bottom: var(--sp-4); }
+#panel-teacher .ogt-sh-kart { max-width: calc(var(--sp-8) * 24); }
+#panel-teacher .ogt-sh-alt { display: flex; justify-content: space-between; gap: var(--sp-3); margin-top: var(--sp-5);
+  padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+#panel-teacher .ogt-zorunlu { font-weight: 400; }
+#panel-teacher .ogt-rubrik { margin-top: var(--sp-6); }
+#panel-teacher .ogt-rubrik > .ogt-bolum { margin-bottom: var(--sp-3); }
+#panel-teacher .ogt-rubrik-yok { display: block; margin-top: var(--sp-4); }
+#panel-teacher .ogt-ozet { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--sp-8) * 5), 1fr));
+  gap: var(--sp-3); margin: 0 0 var(--sp-5); }
+#panel-teacher .ogt-ozet div { background: var(--surface-2); border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); }
+#panel-teacher .ogt-ozet dt { font-size: var(--fs-1); color: var(--text-muted); font-weight: 600; }
+#panel-teacher .ogt-ozet dd { margin: var(--sp-1) 0 0; font-size: var(--fs-3); }
+
+/* Öğrenciler: toplu ekleme */
+#panel-teacher .ogt-toplu { margin-top: var(--sp-4); border-top: 1px solid var(--border); padding-top: var(--sp-3); }
+#panel-teacher .ogt-toplu > summary { cursor: pointer; font-size: var(--fs-3); font-weight: 600; color: var(--accent-strong);
+  min-height: var(--hedef-min); }
+#panel-teacher .ogt-toplu textarea { width: 100%; font: inherit; font-size: var(--fs-3); margin: var(--sp-2) 0;
+  padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border-strong); border-radius: var(--r-md);
+  background: var(--surface); color: var(--text); box-sizing: border-box; }
+#panel-teacher .ogt-toplu .sy-input { margin-bottom: var(--sp-2); }
+
+@media (max-width: 600px) {
+  #panel-teacher .ogt-kartlar { grid-template-columns: 1fr; }
+  #panel-teacher .ogt-kart { min-height: 0; padding: var(--sp-4); }
+  #panel-teacher .ogt-baslik, #panel-teacher .ogt-sinif-ad { font-size: var(--fs-5); }
+  #panel-teacher .ogt-sh-alt .btn { flex: 1 1 auto; }
+}
