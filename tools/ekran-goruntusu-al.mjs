@@ -99,7 +99,14 @@ async function cek(dosya, aciklama, secici) {
    anlatıyor) 01 numaralı görüntüde sürüyordu. Onay bekleyen kart `ceTab = 1`
    içindedir; hedef öğe `.q-card`, çeldirici gerekçeleri onun içindeki
    `.distractor-box`tur. */
-await sayfa.evaluate(() => { state.role = 'content_expert'; state.ceTab = 1; renderAll(); });
+/* §75b (W3): gerekçeler ve kazanım denetimi kartta <details class="q-detay">
+   içinde, varsayılan KAPALI. Alt yazı "çeldirici gerekçeleri" diyor; kadrajda
+   görünsünler diye ürünün kendi durumuyla (state.ceKartDetay) açılır. */
+await sayfa.evaluate(() => {
+  state.ceKartDetay = state.ceKartDetay || {};
+  state.questions.filter((q) => q.status === 'ai_generated').forEach((q) => { state.ceKartDetay[q.id] = true; });
+  state.role = 'content_expert'; state.ceTab = 1; renderAll();
+});
 await cek('01-icerik-uzmani.png', 'onay bekleyen soru taslağı + çeldirici gerekçeleri', '.q-card');
 
 // ---------------------------------------------------------------------------
