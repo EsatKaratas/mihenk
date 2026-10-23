@@ -119,7 +119,15 @@ html { scroll-padding-top: calc(var(--sp-8) * 2.5); }
 .kb-oge .badge { grid-column: 2; grid-row: 1 / span 2; }
 .kb-oge.aktif { background: var(--accent-soft); }
 .kb-oge.aktif .kb-oge-ad { color: var(--accent-strong); }
-.kb-oge:disabled { opacity: .5; cursor: not-allowed; }
+.kb-oge:disabled,
+.kb-oge[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.kb-oge[aria-disabled="true"]:hover { background: transparent; }
+/* §64b: ok tuşlarıyla gezinirken odaktaki öğe açıkça görünür. */
+.kb-oge:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.kb-oge-etiket { font-weight: 700; color: var(--text); }
+/* Rol seçilince odak panelin kendisine taşınır (etkinPaneleOdaklan);
+   programatik odak hedefi olduğu için panelin çevresine halka çizilmez. */
+.panel[tabindex="-1"]:focus { outline: none; }
 .kb-oge.kb-tehlike .kb-oge-ad { color: var(--critical); }
 .kb-ayrac { height: 1px; margin: var(--sp-2) var(--sp-1); background: var(--border); }
 .kb-not {

@@ -11021,6 +11021,13 @@ function kabukGruplari() {
 function renderRoleNav() {
   const badges = rolRozetleri();
   const nav = document.getElementById("roleNav");
+  /* §64b (P1-2) — Kabuk innerHTML ile yeniden çizilince odak BODY'ye
+     düşüyordu (klavyeyle Panel ▾ açan kullanıcı kayboluyordu). Odaktaki
+     kabuk öğesinin anahtarı (data-kb) çizimden önce alınır, sonra geri konur. */
+  const odakEl = document.activeElement && document.activeElement.closest
+    ? document.activeElement.closest(".kabuk-ust [data-kb]") : null;
+  const odakAnahtari = odakEl ? odakEl.dataset.kb : null;
+  girisInertEsitle();
   /* Kabuğun rol grubuna ve demoya göre görünümü CSS'te (css/kabuk.css):
      aile rollerinde model çipi, süreç göstergesi ve Sıfırla görünmez. */
   document.body.dataset.rolGrup = kabukRolGrubu(state.role);
@@ -11046,7 +11053,7 @@ function renderRoleNav() {
   nav.classList.add("tek-rol");
   const acik = _kabukMenu === "rol";
   nav.innerHTML = '<div class="kb-menu">' +
-    '<button type="button" class="kb-rol-btn js-rol-menu" aria-haspopup="menu" aria-expanded="' + (acik ? "true" : "false") + '"' +
+    '<button type="button" class="kb-rol-btn js-rol-menu" data-kb="rol-btn" aria-haspopup="menu" aria-expanded="' + (acik ? "true" : "false") + '"' +
     ' aria-label="' + escapeHtml("Panel: " + aktif.label + (badges[aktif.id] ? " (" + badges[aktif.id] + " bekleyen)" : "") + " — değiştir") + '"' +
     ' title="Paneli değiştir">' +
     '<span class="kb-rol-on">Panel</span>' +
@@ -11063,26 +11070,100 @@ function renderRoleNav() {
     b.onclick = function () { rolSec(b.dataset.role); };
   });
   document.querySelectorAll(".role-logout-btn").forEach(function (b) {
-    b.onclick = function () { _kabukMenu = null; rolCikisYap(); };
+    b.onclick = function () {
+      if (state.demoAdim) return;   // aria-disabled: odaklanır ama çalışmaz
+      _kabukMenu = null;
+      rolCikisYap();
+    };
   });
   renderKabukEk();
+  kabukOdagiKoy(odakAnahtari);
+}
+
+/** Yeniden çizimden sonra odağı yerine koyar. Menü yeni açıldıysa
+ *  (_kabukOdakMenuye) odak menünün seçili / ilk etkin öğesine gider
+ *  (WAI-ARIA menü düğmesi deseni). */
+var _kabukOdakMenuye = false;
+function kabukOdagiKoy(anahtar) {
+  if (_kabukOdakMenuye && _kabukMenu) {
+    _kabukOdakMenuye = false;
+    const liste = document.querySelector(".kabuk-ust .kb-acilir");
+    if (liste) {
+      const hedef = liste.querySelector('[aria-checked="true"]') ||
+        liste.querySelector('.kb-oge:not([aria-disabled="true"])') || liste.querySelector(".kb-oge");
+      if (hedef) { hedef.focus(); return; }
+    }
+  }
+  _kabukOdakMenuye = false;
+  if (!anahtar) return;
+  const el = document.querySelector('.kabuk-ust [data-kb="' + anahtar + '"]');
+  if (el) el.focus();
+}
+
+/** Menü içinde klavye: ↑↓ dolaşır (döngülü), Home/End uçlara gider, Tab
+ *  menüyü kapatıp normal sekme sırasına bırakır. Esc belge düzeyinde. */
+function kabukMenuKlavye(e) {
+  const liste = e.target.closest && e.target.closest(".kb-acilir");
+  if (!liste) return;
+  const ogeler = Array.prototype.slice.call(liste.querySelectorAll(".kb-oge"));
+  if (!ogeler.length) return;
+  const i = ogeler.indexOf(document.activeElement);
+  let hedef = null;
+  if (e.key === "ArrowDown") hedef = ogeler[(i + 1 + ogeler.length) % ogeler.length];
+  else if (e.key === "ArrowUp") hedef = ogeler[(i - 1 + ogeler.length) % ogeler.length];
+  else if (e.key === "Home") hedef = ogeler[0];
+  else if (e.key === "End") hedef = ogeler[ogeler.length - 1];
+  else if (e.key === "Tab") {
+    const hangi = _kabukMenu;
+    _kabukMenu = null;
+    renderRoleNav();
+    const btn = document.querySelector(hangi === "rol" ? ".js-rol-menu" : ".js-ek-menu");
+    if (btn) btn.focus();   // varsayılan Tab buradan bir sonraki öğeye geçer
+    return;
+  }
+  if (hedef) { e.preventDefault(); hedef.focus(); }
+}
+
+/** §64b (P1-1) — Giriş kapısı role="dialog" aria-modal ama arkadaki uygulama
+ *  odaklanabiliyordu (Tab üst çubuğa kaçıyordu). Kapı açıkken .app inert.
+ *  Modal (#modalOverlay) .app'in DIŞINDA: girişten açılan demo onayı çalışır.
+ *  Kapıyı kapatan her yol renderAll'dan geçtiği için eşitleme burada tek yerde. */
+function girisInertEsitle() {
+  const kapi = document.getElementById("girisKapisi");
+  const app = document.querySelector(".app");
+  if (!kapi || !app) return;
+  const acik = !kapi.hidden;
+  app.inert = acik;
+  if (acik) app.setAttribute("aria-hidden", "true"); else app.removeAttribute("aria-hidden");
 }
 
 /** "Panel" açılır menüsü: iki grup, her rol fiilli açıklama + bekleyen iş
  *  rozeti; en altta giriş ekranına dönüş (eski Çıkış). */
 function panelMenuHtml(badges) {
   const demo = !!state.demoAdim;
+  /* §64b (P2-6, P2-7): gruplar role="group" + aria-labelledby; demo
+     kilitli öğeler `disabled` DEĞİL aria-disabled — odaklanabilir kalır ve
+     kilit nedeni aria-describedby ile okunur (disabled öğe ok tuşlarıyla
+     atlanıyor, ekran okuyucu nedeni hiç duymuyordu). Öğeler tabindex=-1:
+     menü içi gezinme ok tuşlarıyla (kabukMenuKlavye). */
+  const kilit = demo ? ' aria-disabled="true" aria-describedby="kbDemoNot"' : "";
   return '<div class="kb-acilir kb-rol-liste" role="menu" aria-label="Paneller">' +
-    (demo ? '<p class="kb-not">Demo sürüyor: paneli rehber değiştirir. Serbest geçiş için önce demoyu bitirin.</p>' : "") +
-    kabukGruplari().map(function (g) {
-      return '<div class="kb-grup"><span class="kb-grup-ad">' + escapeHtml(g.ad) + '</span>' +
+    (demo ? '<p class="kb-not" id="kbDemoNot">Demo sürüyor: paneli rehber değiştirir. Serbest geçiş için önce demoyu bitirin.</p>' : "") +
+    kabukGruplari().map(function (g, gi) {
+      return '<div class="kb-grup" role="group" aria-labelledby="kbGrup' + gi + '">' +
+        '<span class="kb-grup-ad" id="kbGrup' + gi + '">' + escapeHtml(g.ad) + '</span>' +
         g.roller.map(function (id) {
           const r = ROLES.find(function (x) { return x.id === id; });
           if (!r) return "";
           const secili = id === state.role;
-          return '<button type="button" role="menuitemradio" aria-checked="' + (secili ? "true" : "false") + '"' +
-            ' class="kb-oge js-rol-sec' + (secili ? " aktif" : "") + '" data-role="' + id + '"' +
-            (demo && !secili ? " disabled" : "") + '>' +
+          /* §56 dersi: içerikten türetilen ad erişilebilirlik ağacında BOŞ
+             çıktı (ölçüldü) — ad açıkça verilir. */
+          const ad = r.label + " — " + (KABUK_ROL_EYLEM[id] || r.hint) +
+            (badges[id] ? " (" + badges[id] + " bekleyen)" : "");
+          return '<button type="button" role="menuitemradio" tabindex="-1" aria-label="' + escapeHtml(ad) + '"' +
+            ' aria-checked="' + (secili ? "true" : "false") + '"' +
+            ' class="kb-oge js-rol-sec' + (secili ? " aktif" : "") + '" data-role="' + id + '" data-kb="rol:' + id + '"' +
+            (!secili ? kilit : "") + '>' +
             '<span class="kb-oge-ad">' + escapeHtml(r.label) + '</span>' +
             '<span class="kb-oge-not">' + escapeHtml(KABUK_ROL_EYLEM[id] || r.hint) + '</span>' +
             (badges[id] ? '<span class="badge">' + badges[id] + '</span>' : "") +
@@ -11090,8 +11171,8 @@ function panelMenuHtml(badges) {
         }).join("") + '</div>';
     }).join("") +
     '<div class="kb-ayrac"></div>' +
-    '<button type="button" role="menuitem" class="kb-oge role-logout-btn"' + (demo ? " disabled" : "") +
-    ' title="Rolden çık — üretilen sorular, sınavlar ve tüm veriler korunur">' +
+    '<button type="button" role="menuitem" tabindex="-1" class="kb-oge role-logout-btn" data-kb="rol:cikis"' + kilit +
+    ' aria-label="Giriş ekranına dön — sorular, sınavlar ve sonuçlar korunur">' +
     '<span class="kb-oge-ad">Giriş ekranına dön</span>' +
     '<span class="kb-oge-not">Sorular, sınavlar ve sonuçlar korunur</span></button>' +
     '</div>';
@@ -11102,13 +11183,30 @@ function rolSec(id) {
   if (state.demoAdim) return;
   if (!ROLES.some(function (r) { return r.id === id; })) return;
   _kabukMenu = null;
-  if (id !== state.role) { state.role = id; window.scrollTo(0, 0); }
+  const degisti = id !== state.role;
+  if (degisti) { state.role = id; window.scrollTo(0, 0); }
   renderAll();
+  if (degisti) etkinPaneleOdaklan();
+  else { const btn = document.querySelector(".js-rol-menu"); if (btn) btn.focus(); }
 }
 
-/** Bir menüyü açar; aynısı açıksa kapatır. Yalnızca kabuk yeniden çizilir. */
+/** §64b (P2-3) — Rol seçilince odak yeni panelin kendisine taşınır; aksi
+ *  hâlde kapanan menüyle birlikte BODY'ye düşüyordu ve klavye/ekran okuyucu
+ *  kullanıcısı panelin değiştiğini duymuyordu. Kaydırma yapılmaz. */
+function etkinPaneleOdaklan() {
+  const p = document.getElementById("panel-" + state.role);
+  if (!p) return;
+  const r = ROLES.find(function (x) { return x.id === state.role; });
+  p.setAttribute("tabindex", "-1");
+  if (r) p.setAttribute("aria-label", r.label + " paneli");
+  p.focus({ preventScroll: true });
+}
+
+/** Bir menüyü açar; aynısı açıksa kapatır. Yalnızca kabuk yeniden çizilir.
+ *  Açılınca odak menünün içine gider (kabukOdagiKoy). */
 function kabukMenuAc(ad) {
   _kabukMenu = _kabukMenu === ad ? null : ad;
+  _kabukOdakMenuye = !!_kabukMenu;
   renderRoleNav();
 }
 
@@ -11126,15 +11224,20 @@ function renderKabukEk() {
   const cip = document.querySelector("#aiModeSlot .ai-metin");
   const modelMetni = cip ? cip.textContent : "";
   yuva.innerHTML =
-    '<button type="button" class="btn btn-secondary btn-sm kb-ek-btn js-ek-menu" aria-haspopup="menu"' +
+    '<button type="button" class="btn btn-secondary btn-sm kb-ek-btn js-ek-menu" data-kb="ek-btn" aria-haspopup="menu"' +
     ' aria-expanded="' + (acik ? "true" : "false") + '" aria-label="Diğer işlemler" title="Diğer işlemler">⋯</button>' +
     (acik ? '<div class="kb-acilir kb-ek-liste" role="menu" aria-label="Diğer işlemler">' +
-      (okul && modelMetni ? '<div class="kb-oge-bilgi kb-yalniz-dar">' + escapeHtml(modelMetni) + '</div>' : "") +
-      '<button type="button" role="menuitem" class="kb-oge js-ek-demo">' +
+      /* §64b (P2-8): dar ekranda çip gizli; model durumu menüde etiketli bir
+         satır. role="none": menü öğesi değil, bilgi satırı. */
+      (okul && modelMetni ? '<div class="kb-oge-bilgi kb-yalniz-dar" role="none">' +
+        '<span class="kb-oge-etiket">Model durumu</span> ' + escapeHtml(modelMetni) + '</div>' : "") +
+      '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-demo" data-kb="ek:demo"' +
+      ' aria-label="Rehberli demo, 5 adım — örnek veriyle soru onayından analize">' +
       '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
       '<span class="kb-oge-not">Örnek veriyle soru onayından analize</span></button>' +
-      (okul ? '<div class="kb-ayrac"></div>' +
-        '<button type="button" role="menuitem" class="kb-oge kb-tehlike js-ek-sifirla">' +
+      (okul ? '<div class="kb-ayrac" role="separator"></div>' +
+        '<button type="button" role="menuitem" tabindex="-1" class="kb-oge kb-tehlike js-ek-sifirla" data-kb="ek:sifirla"' +
+        ' aria-label="Tüm verileri sıfırla — önce onay sorulur">' +
         '<span class="kb-oge-ad">Tüm verileri sıfırla…</span>' +
         '<span class="kb-oge-not">Önce onay sorulur</span></button>' : "") +
       '</div>' : "");
@@ -11155,10 +11258,29 @@ function sifirlaOnayAc() {
     '<p>Bu tarayıcıdaki tüm veriler silinir: üretilen ve onaylanan sorular, sınavlar, öğrenci yanıtları, ' +
     'puanlar ve kitaplığa kaydedilen ders belgeleri. Bu işlem <b>geri alınamaz</b>.</p>' +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
-    '<button class="btn btn-critical js-sifirla-onay">Evet, tümünü sil</button></div>');
+    /* §64b (P2-4): geri alınamaz onay → T0'ın dolgulu kritik düğmesi. */
+    '<button class="btn btn-critical btn-dolu js-sifirla-onay">Evet, tümünü sil</button></div>');
   document.querySelectorAll(".js-sifirla-onay").forEach(function (b) {
     b.onclick = function () { closeModal(); resetState(); };
   });
+  kabukModalOdagi(".js-ek-menu");
+}
+
+/** §64b (P2-5) — Kabuktan açılan onay pencerelerinde odak güvenli seçeneğe
+ *  (Vazgeç) gider; Vazgeç ile kapanınca açan düğmeye döner. openModal ve
+ *  closeModal ortak bölgede (W2) olduğu için onlara dokunulmaz: yalnızca
+ *  bu pencerenin Vazgeç düğmesinin davranışı genişletilir. */
+function kabukModalOdagi(geriSecici) {
+  const vazgec = document.getElementById("modalCancel");
+  if (!vazgec) return;
+  vazgec.onclick = function () {
+    closeModal();
+    // "a|b": ilk GÖRÜNÜR hedef (mobilde Demo düğmesi gizli → ⋯).
+    const geri = geriSecici.split("|").map(function (s) { return document.querySelector(s); })
+      .filter(function (el) { return el && el.offsetParent !== null; })[0];
+    if (geri) geri.focus();
+  };
+  vazgec.focus();
 }
 
 /** Rehberli demoyu başlatır. loadDemoScenario soru havuzunu ve etkin sınavı
@@ -11176,6 +11298,9 @@ function demoBaslat() {
   document.querySelectorAll(".js-demo-onay").forEach(function (b) {
     b.onclick = function () { closeModal(); loadDemoScenario(); };
   });
+  // Giriş açıksa oradaki demo düğmesine, değilse üst çubuktakine dönülür.
+  const girisAcik = !document.getElementById("girisKapisi").hidden;
+  kabukModalOdagi(girisAcik ? "#gkDemoBtn" : "#btnDemoSeed|.js-ek-menu");
 }
 
 /** §64b — Kabuğun gerçek yüksekliğini :root'ta --kabuk-yuk olarak yayınlar.
@@ -11213,7 +11338,8 @@ function kabukDinleyicileriKur() {
     renderRoleNav();
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape" || !_kabukMenu) return;
+    if (!_kabukMenu) return;
+    if (e.key !== "Escape") { kabukMenuKlavye(e); return; }
     const hangi = _kabukMenu;
     _kabukMenu = null;
     renderRoleNav();
@@ -11351,13 +11477,17 @@ function girisKapisiKur() {
   kapi.querySelectorAll(".gk-kart").forEach(function (k) {
     k.onclick = function () {
       state.role = k.dataset.role;
-      renderAll();
+      /* Kapı renderAll'dan ÖNCE kapanır: girisInertEsitle (renderRoleNav)
+         kapının durumunu okuyup .app'in inert'ini kaldırır. */
       kapi.hidden = true;
       document.body.style.overflow = "";   // uygulamanın kaydırması geri gelsin
+      renderAll();
+      etkinPaneleOdaklan();                 // §64b (P2-3)
     };
   });
   /* Rehberli demo: demoAdimaGit kapıyı kendisi kapatır. */
   kapi.querySelectorAll("#gkDemoBtn").forEach(function (b) { b.onclick = demoBaslat; });
+  girisInertEsitle();                       // açılışta kapı açık → .app inert
 }
 
 /* §33 — Giriş kapısını yeniden açar (giriş ekranına dönüş).
@@ -11370,6 +11500,7 @@ function girisKapisiniAc() {
   kapi.hidden = false;
   kapi.scrollTop = 0;
   document.body.style.overflow = "hidden";   // arkadaki uygulama kaymasın
+  girisInertEsitle();                        // §64b (P1-1) — arkası odaklanamaz
   const ilkKart = kapi.querySelector(".gk-kart");
   if (ilkKart) ilkKart.focus();              // klavye kullanıcısı akışa devam etsin
 }
@@ -12243,6 +12374,7 @@ function bosDurumHtml(mesaj) {
        Biri düşerse üst çubuk ya da giriş sessizce ölür. */
     "kabukRolGrubu", "kabukGruplari", "rolRozetleri", "panelMenuHtml", "rolSec", "kabukMenuAc",
     "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur", "kabukYuksekligiIzle", "kabukYuksekliginiYaz",
+    "kabukOdagiKoy", "kabukMenuKlavye", "girisInertEsitle", "etkinPaneleOdaklan", "kabukModalOdagi",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
        değerlendirme analitiği. (calibration zaten yukarıda listede;
        şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */
