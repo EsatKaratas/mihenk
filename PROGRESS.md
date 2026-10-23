@@ -9904,3 +9904,30 @@ dal `ogretmen-rubrik-onay` (main `5c84c13`). Push yok.
 
 **Doğrulama:** 399/399 test (+2) · öz-kontrol %100 · yerel confirm 0 kez
 çağrıldı · U+FFFD 0 · model çağrısı 0.
+
+## 81. ŞÜPHELİ SORU İKİNCİ ONAYI — klavye eksikleri (23 Ekim 2026, W3)
+
+W1'in doğrulamasında (P2) §71 penceresinin klavye davranışı soruldu. W2 bu
+sırada odak tuzağını ve "Vazgeç odaklıyken Enter = kapat"ı ortak düzeye aldı
+(`openModal`, §77). Önce main 5c84c13'te ölçüldü (gerçek tuşlar):
+
+| Davranış | main 5c84c13 | Bu düzeltme |
+|---|---|---|
+| Açılışta odak Vazgeç | ✓ | ✓ |
+| Vazgeç + Enter → kapat, onay yok | ✓ (ortak) | ✓ |
+| Tab pencerenin içinde döner | ✓ (ortak) | ✓ |
+| **Escape → kapat** | ✗ pencere açık kalıyordu | ✓ |
+| **"Yine de onayla" + Enter → onay YOK** | ✗ **onaylıyordu** | ✓ |
+| "Yine de onayla" + Space / fare → onay | ✓ | ✓ |
+
+Yalnız iki eksik `supheliOnayModali` içinde giderildi; ortak davranışa
+dokunulmadı.
+- "Yine de onayla"da Enter etkisiz. Şüpheli soruyu onaylamak bilinçli eylem
+  olmalı (§71); onay fare ya da Space ile verilir. Tab + Space ile klavyeden
+  yapılabilir (WCAG 2.1.1).
+- Escape = Vazgeç; yalnız `#modalSupheOnay` varken. Ortak `onaylaModal`
+  etkilenmedi (ölçüldü: Escape onu kapatıyor, sonuç `false`).
+
+Ölçüm: klavye testi 9/9; §71 34/34; onay kartı 20/20; `npm test` 397/397;
+öz-kontrol %100. (Önceki `ce-enter-vazgec` / 2e180c6 dalı bu yaklaşımla
+değiştirildi; alınmamalı.)

@@ -4456,6 +4456,20 @@ function supheliOnayModali(q, yuksek) {
     '<button class="btn btn-primary" id="modalSupheOnay">Yine de onayla</button></div>');
   const evet = document.getElementById("modalSupheOnay");
   if (evet) evet.onclick = function () { closeModal(); soruyuOnayla(q); };
+  /* §81 KLAVYE. Odak tuzağı, Tab döngüsü ve "Vazgeç odaklıyken Enter = kapat"
+     ortak düzeyde (openModal, §77). Ölçüldü (main 5c84c13): iki eksik vardı,
+     yalnız onlar burada:
+     - "Yine de onayla" odaklıyken Enter onaylıyordu. Artık Enter hiçbir şey
+       yapmaz; onay fare ya da Space ister. Şüpheli soruyu onaylamak bilinçli bir
+       eylem olmalı; alışkanlıkla basılan Enter onay vermesin (§71). Tab + Space
+       ile klavyeden yine yapılabilir (WCAG 2.1.1).
+     - Escape bu pencereyi kapatmıyordu. Artık Escape = Vazgeç; yalnız bu pencere
+       açıkken (modalBox öteki pencerelerde de kullanılır). */
+  if (evet) evet.onkeydown = function (e) { if (e.key === "Enter") e.preventDefault(); };
+  const kutu = document.getElementById("modalBox");
+  if (kutu) kutu.onkeydown = function (e) {
+    if (e.key === "Escape" && document.getElementById("modalSupheOnay")) { e.preventDefault(); closeModal(); }
+  };
   // Varsayılan odak Vazgeç'te: Enter'a basmak şüpheli soruyu onaylamasın.
   const hayir = document.getElementById("modalCancel"); if (hayir) hayir.focus();
 }
