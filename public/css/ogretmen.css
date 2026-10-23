@@ -43,6 +43,10 @@
 #panel-teacher .ogt-kart-sayi { font-size: var(--fs-3); margin-top: auto; }
 #panel-teacher .ogt-kart-bos { font-size: var(--fs-1); color: var(--text-muted); }
 #panel-teacher .ogt-form { margin-bottom: var(--sp-4); }
+/* Demo adım 2 (W3 P2-8): sınavın bulunduğu kart ve kısa yönlendirme */
+#panel-teacher .ogt-demo-ipucu { font-size: var(--fs-3); background: var(--accent-soft); color: var(--text);
+  border-radius: var(--r-md); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-4); }
+#panel-teacher .ogt-kart-vurgu { border-color: var(--accent); box-shadow: 0 0 0 calc(var(--sp-1) / 2) var(--accent), var(--sh-2); }
 #panel-teacher .ogt-form-alt { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
 
 /* Sınıf sayfası üstü */

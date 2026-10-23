@@ -5894,7 +5894,9 @@ function sinifKartiHtml(sf) {
   const sinavlar = sinifSinavlari(sf);
   const yayinda = sinavlar.filter(function (k) { return k.durum === "published"; }).length;
   const bekleyen = sinavlar.reduce(function (t, k) { return t + k.bekleyen; }, 0);
-  return '<button type="button" class="ogt-kart' + (sf ? "" : " ogt-kart-tum") + '" data-ogt-sinif="' + escapeHtml(sf) + '">' +
+  const vurgu = ogtDurum().demoKartGoster && state.demoAdim === 2 && (state.exam.targetClass || "") === sf;
+  return '<button type="button" class="ogt-kart' + (sf ? "" : " ogt-kart-tum") + (vurgu ? " ogt-kart-vurgu" : "") +
+    '" data-ogt-sinif="' + escapeHtml(sf) + '">' +
     '<span class="ogt-kart-ad">' + (sf ? escapeHtml(sf) : "Tüm sınıflar") + '</span>' +
     '<span class="ogt-kart-alt">' + ogr + ' öğrenci' + (sf ? "" : " · " + siniflar().length + " şube") + '</span>' +
     '<span class="ogt-kart-sayi"><b>' + sinavlar.length + '</b> sınav · <b>' + yayinda + '</b> yayında</span>' +
@@ -5912,6 +5914,10 @@ function siniflarimHtml() {
     '</div>' +
     (o.yeniSinif ? yeniSinifFormHtml() : "") +
     (o.sonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(o.sonuc) + '</div>' : "") +
+    (o.demoKartGoster && state.demoAdim === 2
+      ? '<div class="ogt-demo-ipucu" role="status"><b>Demo:</b> Öğretmen önce sınıfını seçer. Sınavınız “' +
+        escapeHtml(state.exam.targetClass || "Tüm sınıflar") + '” kartında — devam etmek için bir sınıf kartına tıklayın.</div>'
+      : "") +
     '<div class="ogt-kartlar">' + siniflar().map(sinifKartiHtml).join("") + sinifKartiHtml("") + '</div>';
 }
 
@@ -9236,7 +9242,17 @@ function renderTeacher() {
   /* §62 — her sayfa açılışı Sınıflarım'dan başlar ("girmeli" düzen). Demo
      Akışı bir adımdaysa dokunulmaz: demo adımları teacherTab 1 ve 3'ü açar. */
   if (ogtIlkCizim) { ogtIlkCizim = false; if (!state.demoAdim) state.teacherTab = 0; }
+  /* W3 P2-8: Demo adım 2 Sınıflarım'dan geçer — jüri sınıf kartlarını görsün.
+     Demo kodu (ortak bölge) teacherTab=1 açar; öğretmen tarafı bir kez
+     Sınıflarım'ı gösterir, karta tıklanınca adım kaldığı yerden sürer.
+     Adımın kilidi (sınav yayında mı) değişmedi. */
+  const od = ogtDurum();
+  if (state.demoAdim !== 2) od.demoKartGecildi = false;
+  else if (state.role === "teacher" && state.teacherTab === 1 && !od.demoKartGecildi) {
+    od.demoKartGecildi = true; od.demoKartGoster = true; state.teacherTab = 0;
+  }
   if (state.teacherTab === 0) { root.innerHTML = siniflarimHtml(); wireSiniflarim(); return; }
+  od.demoKartGoster = false;
   /* Sınıf seçilmeden gelindiyse (demo adımı, ekran betiği) bağlam bir kez
      sabitlenir; yoksa aktif sınavın hedefi değiştikçe sayfa kendiliğinden
      başka şubeye kayardı (ölçüldü). */
