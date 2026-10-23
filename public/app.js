@@ -11178,8 +11178,23 @@ function demoBaslat() {
   });
 }
 
+/** §64b — Kabuğun gerçek yüksekliğini :root'ta --kabuk-yuk olarak yayınlar.
+ *  Panellerin yapışkan öğeleri (öğrenci sınav başlığı, İçerik Uzmanı özeti)
+ *  top:0 / sabit px ile kabuğun ALTINDA kalıyordu (ölçüldü: 46 ve 41 px
+ *  örtülü). Demo şeridi açılınca kabuk büyür; ResizeObserver bunu izler. */
+function kabukYuksekligiIzle() {
+  const ust = document.querySelector(".topbar.kabuk-ust");
+  if (!ust) return;
+  const yaz = function () {
+    document.documentElement.style.setProperty("--kabuk-yuk", Math.ceil(ust.getBoundingClientRect().height) + "px");
+  };
+  yaz();
+  if (typeof ResizeObserver === "function") new ResizeObserver(yaz).observe(ust);
+}
+
 /** Menü dışına tıklama ve Esc açık menüyü kapatır. Bir kez kurulur. */
 function kabukDinleyicileriKur() {
+  kabukYuksekligiIzle();
   document.addEventListener("click", function (e) {
     if (!_kabukMenu) return;
     if (e.target.closest && e.target.closest(".kb-acilir, .js-rol-menu, .js-ek-menu")) return;
@@ -12215,7 +12230,7 @@ function bosDurumHtml(mesaj) {
     /* §64 — kabuk: panel menüsü, ⋯ menüsü, onaylı sıfırlama ve demo.
        Biri düşerse üst çubuk ya da giriş sessizce ölür. */
     "kabukRolGrubu", "kabukGruplari", "rolRozetleri", "panelMenuHtml", "rolSec", "kabukMenuAc",
-    "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur",
+    "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur", "kabukYuksekligiIzle",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
        değerlendirme analitiği. (calibration zaten yukarıda listede;
        şık taşıma/karıştırma yardımcıları da öyle — mükerrer eklenmedi.) */

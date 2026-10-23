@@ -17,7 +17,7 @@
 /* ===== §63 Öğrenci paneli — tasarım turu (W4) ===== */
 
 /* Yapışkan sınav başlığı: süre + gezgin + lejant kaydırınca görünür kalır. */
-#panel-student .ogr-baslik { position: sticky; top: 0; z-index: 5; flex-wrap: wrap;
+#panel-student .ogr-baslik { position: sticky; top: var(--kabuk-yuk, 0px); z-index: 5; flex-wrap: wrap;
   gap: var(--sp-2) var(--sp-4); padding: var(--sp-2) var(--sp-4); }
 #panel-student .ogr-sure { display: flex; align-items: baseline; gap: var(--sp-2); }
 #panel-student .ogr-sure-lbl { font-size: var(--fs-2); color: var(--text-muted); }
