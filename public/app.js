@@ -6996,24 +6996,24 @@ function poolEditHtml(q) {
   return '<div class="pool-edit">' +
     (kilitli ? '<div class="pill pill-warning" style="margin-bottom:9px;">Bu soru yayında olan bir sınavda kullanılıyor. Değişiklik, sınavı çözen öğrencilere de yansır.</div>' : "") +
     '<div class="field"><label>Soru metni</label>' +
-    '<textarea class="pe-body" data-qid="' + q.id + '" rows="3">' + escapeHtml(q.body) + '</textarea></div>' +
+    '<textarea class="pe-body" data-qid="' + q.id + '" rows="3" aria-label="Soru metni">' + escapeHtml(q.body) + '</textarea></div>' +
     (q.type === "mc"
       ? '<div class="field"><label>Şıklar — doğru olanı işaretleyin</label>' +
         (q.options || []).map(function (o) {
           return '<div class="opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
             '<span class="opt-key">' + o.key + '</span>' +
-            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
+            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkının metni" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
             '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);white-space:nowrap;">' +
-            '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '"' +
+            '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkı doğru cevap"' +
             (o.key === q.correctKey ? " checked" : "") + '> doğru</label></div>';
         }).join("") + '</div>'
       : "") +
     '<div class="field-row"><div class="field"><label>Zorluk</label>' +
-    '<select class="pe-diff" data-qid="' + q.id + '">' +
+    '<select class="pe-diff" data-qid="' + q.id + '" aria-label="Zorluk">' +
     [["easy", "Kolay"], ["medium", "Orta"], ["hard", "Zor"]].map(function (d) {
       return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
     }).join("") + '</select></div>' +
-    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '">' +
+    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '" aria-label="Kazanım">' +
     /* §51: tüm derslerin kazanımları karışık listeleniyordu; bir Fen sorusuna
        Matematik kazanımı atanabiliyordu. Sorunun dersine ait olanlar + mevcut
        kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
@@ -7030,7 +7030,7 @@ function poolEditHtml(q) {
       return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
     }).join("") + '</select></div>' +
     '<div class="field"><label>Süre (sn)</label>' +
-    '<input type="number" class="pe-time" data-qid="' + q.id + '" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
+    '<input type="number" class="pe-time" data-qid="' + q.id + '" aria-label="Süre (saniye)" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
     '<button class="btn btn-primary btn-sm pe-save" data-qid="' + q.id + '">Değişiklikleri Kaydet</button> ' +
     '<button class="btn btn-secondary btn-sm pe-cancel">Vazgeç</button></div>';
 }
