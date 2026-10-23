@@ -8533,3 +8533,104 @@ açılamadı.
 
 **Doğrulama:** 338/338 · öz-kontrol 380 ad %100 · U+FFFD 0 · servis = disk
 (app.js `e2a0f5acd6c4…`, app.css `86f5cb22f3d3…`) · model çağrısı 0.
+
+## 60. TASARIM TURU T0 — belirteç katmanı, ortak bileşenler, kırmızı hata rengi (23 Ekim 2026, W2)
+
+Tasarım turunun kritik yolu. Diğer worker'lar panellerini bu commit'ten
+dallanarak yeniden düzenler. İş bölümü: İçerik Uzmanı W3, Öğretmen W1,
+Öğrenci/Yönetici/Veli/giriş W4; ortak bölge (`app.js` 1–4635) tek sahibi W2.
+
+### 60.1 Karar: `--critical` KIRMIZI (§49.4'ün yalnız bu rengi değişti)
+
+§49.4'te hata rengi maviydi (`#2148a8`) ve ana vurguyla kontrastı **1,11**
+idi, yani hata rozeti normal rozetten ayırt edilemiyordu. Kullanıcı o gün
+"palet olduğu gibi kalsın" demişti. Tasarım turunda karar **yalnız bu renk
+için** değişti (Esat → Mihenk Orchestrator). Mavi/turuncu marka paleti ve
+`--warning` aynen duruyor.
+
+| | önce | şimdi |
+|---|---|---|
+| `--critical` | `#2148a8` mavi | **`#b42318` kırmızı** |
+| `--critical-soft` | `#d9e2f8` | `#fdecea` |
+| koyu tema (kapalı) | `#5c8ce2` / `#18243a` | `#ff8a80` / `#3a1614` |
+
+Kontrast ölçüldü (WCAG AA metin 4,5:1, kenar 3:1). Kırmızının kullanıldığı her
+zeminde ölçüm şöyle:
+
+| Zemin | Oran |
+|---|---|
+| beyaz | 6,57 |
+| `--critical-soft` | 5,75 |
+| `--bg` | 6,13 |
+| `--surface-2` | 5,81 |
+| `--surface-3` | 5,30 |
+| `--accent2-soft` | 5,63 |
+
+Koyu temada `#ff8a80` yüzeyde 7,58, soft zeminde 7,05 veriyor. Kırmızı ile
+`--accent` arasındaki oran 1,38. Ayrım ton farkıyla geliyor, renk tek işaret
+değil: hata metinleri "Hata:" ya da açıklama taşır.
+
+### 60.2 Belirteç katmanı (alias, `app.css :root`)
+
+- `--fs-1..6` = 12/13/14/16/20/24 px
+- `--sp-1..8` = 4px adımlı (4–32)
+- `--r-sm/md/lg/tam` = 6/8/12/999 px
+- `--sh-1`, `--sh-2` (= `--shadow`)
+- `--hedef-min: 24px` (WCAG 2.2 SC 2.5.8)
+
+Eski kurallar **yalnız değeri birebir aynı olan yerlerde** bu adlara
+bağlandı: `.card`, `.card-head .hint`, `.field label`, form alanlarının
+radius'u, `.btn` ve `.btn-sm`. `.btn`'e `min-height: 24px` eklendi; ölçüldü,
+24 px'ten kısa görünür düğme yoktu.
+
+### 60.3 Ortak bileşenler (eklemeli; mevcut öğe taşımıyor)
+
+- `.btn-critical.btn-dolu`: yalnız geri alınamaz eylemin onay adımı.
+- `.btn-tam`, `.btn-grup`.
+- `.card-govde`, `.card-alt`.
+- `.chip`: seçilebilir öğe, `aria-pressed`. `.pill` salt-okunur rozet olarak kalır.
+- `.field-yardim`, `.field-hata-metni`, `.field.field-hata`.
+- `.gorsel-gizli` (ekran okuyucu metni).
+- **Adımcı:** `.adimci*` ve `adimciHtml(adimlar, aktif, {tiklanabilir})`
+  (`app.js`, `escapeHtml`'in hemen altında; öz-kontrol listesinde, **381 ad**).
+  - Etkin adım `aria-current="step"` taşır.
+  - Her adımın görünmez "Adım n / N:" öneki var.
+  - Tamamlanan adım ✓ ile gösterilir; istenirse `button.js-adim[data-adim]` olur.
+  - Adlar kaçışlanır.
+  - Dar ekranda (≤560 px) yalnız etkin adımın adı görünür.
+
+### 60.4 Panel CSS dosyaları
+
+`public/css/{kabuk,ce,ogretmen,ogrenci,yonetici,veli}.css` eklendi.
+`index.html`'de `app.css`'ten **sonra** yükleniyor ve her dosyanın tek sahibi
+var (dosya başındaki yorumda kurallar). Böylece panel turunda `app.css`
+sonuna ekleme çakışması olmaz. CSP `style-src 'self'` bu dosyaları zaten
+kapsıyor; `_headers` değişmedi.
+
+### 60.5 Doğrulama (statik sunucu)
+
+`workerd` bu makinede Windows Uygulama Denetimi tarafından engelli, wrangler
+dev açılmıyor. Karşılaştırma `python -m http.server` ile yapıldı. Taban
+`fe2b308`'den `git archive` ile alındı. Ölçüm: Playwright, 1280 px, tam
+sayfa, 10 görünüm (giriş, İçerik Uzmanı 1–2, Öğretmen 1–4, Öğrenci,
+Yönetici, Veli).
+
+| Karşılaştırma | Sonuç |
+|---|---|
+| taban ↔ taban (gürültü) | 9 görünüm 0 px; Yönetici ~360 px (%0,008) |
+| taban ↔ T0, kırmızı maviye zorlanmış | 9 görünüm 0 px; Yönetici 415 px (gürültü düzeyi) → **alias katmanı görsel fark 0** |
+| taban ↔ T0 (gerçek) | yalnız İçerik Uzmanı 1: 529 px (%0,018), demo verisindeki kırmızı öğeler; diğerleri gürültü düzeyi |
+
+Diğer kontroller:
+
+- Bileşen çizim denemesi (1280 ve 390): adım numarası 24×24, çip 50×25, dolgulu
+  tehlike düğmesi `rgb(180,35,24)`, `<İncele>` kaçışlandı, sayfa hatası 0.
+- Yazdırma: kâğıt kontrolü T0'da tabanla aynı sonucu verdi (2 soru, doğru
+  işareti 0).
+- 338 test geçti; öz-kontrol %100.
+- `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketliyor.
+- Konsoldaki tek 404 statik sunucudaki `/api/ai/status`; tabanda da var.
+
+**Panel sahiplerine kural:** yeni ham px/hex yazılmaz, ölçek dışı ihtiyaç W2'ye
+gelir. Ekran betiği seçicileri (`.q-card`, `.eval-card`, `#panel-* .card`,
+`#modalBox .kat-satir`) yeniden adlandırılmaz.

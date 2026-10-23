@@ -15,19 +15,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="app.css">
-<!-- §64: kabuk (üst çubuk, panel menüsü, giriş) — app.css'ten SONRA yüklenir,
-     yalnızca kabuğun kendi sınıflarını ve eski kabuk kurallarını ezer. -->
+<!-- §60 panel stilleri: app.css'ten SONRA; her dosyanın tek sahibi var -->
 <link rel="stylesheet" href="css/kabuk.css">
+<link rel="stylesheet" href="css/ce.css">
+<link rel="stylesheet" href="css/ogretmen.css">
+<link rel="stylesheet" href="css/ogrenci.css">
+<link rel="stylesheet" href="css/yonetici.css">
+<link rel="stylesheet" href="css/veli.css">
 </head>
 <body>
 
 <!-- ===========================================================================
-     GİRİŞ KAPISI — iki aşamalı karşılama + panel seçimi
+     GİRİŞ KAPISI — tek ekran: logo + tez + rol kartları + rehberli demo (§64)
      ===========================================================================
      Bu blok mevcut uygulamanın ÜSTÜNDE duran ayrı bir katmandır; .app içindeki
-     hiçbir yapıya dokunmaz. Rol kartları `ROLES` dizisinden üretilir ve tıklama
-     davranışı üst çubuktaki mevcut rol düğmeleriyle BİREBİR aynıdır
-     (state.role = <id>; renderAll()) — yönlendirme mantığı değişmedi.
+     hiçbir yapıya dokunmaz.
+
+     İŞARET: üst çubuktaki public/mihenk-isaret.png bu logonun YALNIZCA simge
+     kısmıdır (yazı ve slogan satırlarının üstü kırpıldı, 131×96). 32 px
+     yükseklikte kilit logonun yazısı okunmadığı için ayrıldı; renkler ve
+     biçim değiştirilmedi.
 
      LOGO: public/mihenk-logo.png — kurumun kendi logosu. Kaynak dosya saydam
      DEĞİLDİ (arka planına açık gri "damalı" desen gömülüydü, ölçüldü: kenar

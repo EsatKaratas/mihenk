@@ -1,0 +1,15 @@
+/* veli.css — Veli paneli (#panel-parent)
+   SAHİBİ: W4. Bu dosyaya yalnız sahibi yazar (§60 iş bölümü).
+
+   KURALLAR (§60):
+   - Seçicileri panel kökü ile sınırlayın (ör. #panel-teacher .x); başka
+     panelin görünümünü buradan değiştirmeyin.
+   - Ham px/hex yazmayın: app.css :root'taki --fs-*, --sp-*, --r-*, --sh-*
+     ve renk belirteçlerini kullanın. Ölçek dışı ihtiyaç → W2.
+   - Ortak bileşenler (.btn, .card, .chip, .field, .adimci) app.css'te;
+     burada yalnız panelin kendi düzeni.
+   - Ekran betiğinin seçicileri (.q-card, .eval-card, #panel-* .card,
+     #modalBox .kat-satir) yeniden adlandırılmaz.
+   - Yazdırma kuralları app.css @media print'te kalır.
+   Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
+   aynı özgüllükte app.css'i ezer. */
