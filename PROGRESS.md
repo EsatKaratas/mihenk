@@ -9666,3 +9666,34 @@ Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek
   adımları ise açılır-kapanır başlık + tek satırlık özet + "Değiştir". İkisi
   farklı işlere hizmet eden iki ayrı kalıp olarak kalır; `ceAdimHtml` ortak
   adımcıya taşınmaz.
+
+## 76. AKSANSIZ YABANCI SÖZCÜK SIZINTISI — ölçüldü, EKLENMEDİ (ikinci tur, 23 Ekim 2026, W2)
+
+§73 aksanlı yabancı harfleri yakalıyor; aksansız sızıntı ("however", "pero",
+"only") harf kuralıyla yakalanamaz, sözcük listesi ister. Eklemeden önce
+ölçüldü (`node tools/olcum/aksansiz-say.mjs`; model çağrısı yok).
+
+**Liste:** `tools/olcum/aksansiz-liste.tsv` — 145 satır / 119 tekil işlev
+sözcüğü (en, es, pt, fr, it, de), Türkçe çakışma notuyla. Gemini üretti, W2
+denetledi: Gemini "y" ve "com" için "Türkçede geçmez" dedi; ölçümde "y"
+matematik değişkeni (45 + 87), "com" URL parçası (16) → EVET'e çevrildi.
+Gemini'nin "çakışmasızlar sıfır yanlış alarmla eklenebilir" iddiası sözlüğe
+dayanıyordu, ölçüme değil.
+
+| Alt küme | Tekil | Model çıktısı (782 soru + 621 gerekçe, ~59 bin belirteç) | İnsan yazımı Türkçe (~55 bin belirteç) |
+|---|---|---|---|
+| Türkçe ile çakışan (de, o, en, su, her, para…) | 58 | 1.942 isabet, **hepsi yanlış alarm** | 566, hepsi yanlış alarm |
+| Çakışmasız, programlama sözcüğü (if, for, and, or, not…) | 11 | 0 | 1 ("if/else karar yapısı", Deneyap müfredatı — meşru) |
+| Çakışmasız, dar (however, therefore, because, only, pero, mais…) | 50 | **1 — gerçek sızıntı**: "Ancak, **only** 1 litrelik süt kutuları bulunmaktadır" (70B, ön koşum, MAT.6.4.1) | 0 |
+
+**Karar (Orchestrator 2): EKLENMEDİ; deneysel meta da yok.**
+- Çakışan sözcükler kullanılamaz (yanlış alarm 1.942 : 0).
+- Dar liste 1 doğru, 0 yanlış alarm verdi, ama kanıt **tek örnek**
+  (≈1/1.400 metin); yakalama ve yanlış alarm için güven aralığı çıkmaz.
+- Kodlama kazanımlarında İngilizce anahtar sözcükler (if, for, while, and,
+  or, not, print) meşrudur; ölçüm setinde kodlama soruları az, risk kanıtsız.
+- Sunucuda kalıcı depo yok; meta'ya yazıp Workers Logs'ta toplamak bu taban
+  oranla anlamlı veri üretmez.
+
+**Yeniden açma koşulu:** `/api/ai/evaluate` çıktısını (canlı sızıntıların
+görüldüğü uç) ve kodlama kazanımlarını içeren, çok daha büyük bir derlem.

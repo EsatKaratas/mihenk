@@ -1,0 +1,149 @@
+# §76 aksansız yabancı işlev sözcükleri — Gemini listesi (23.10.2026), W2 denetimli.
+# sütunlar: sozcuk<TAB>dil<TAB>turkce_cakisma(EVET/HAYIR)<TAB>not
+# W2 düzeltmesi: Gemini 'y' ve 'com' için HAYIR dedi; ölçümde Türkçe metinde geçiyorlar → EVET.
+# not=kod: programlama anahtar sözcüğü (Deneyap yazılım kazanımlarında meşru).
+the	İngilizce	HAYIR	
+and	İngilizce	HAYIR	kod
+to	İngilizce	HAYIR	kod
+of	İngilizce	EVET	Ünlem (bıkkınlık, acı: "of!") / Trabzon ilçesi (özel ad: Of)
+in	İngilizce	EVET	İsim (kovuk, hayvan ini) / Fiil emri (inmek fiili: in!); kod
+is	İngilizce	EVET	İsim (duman lekesi, kurum); kod
+it	İngilizce	EVET	İsim (köpek / kaba seslenme) / Fiil emri (itmek fiili: it!)
+that	İngilizce	HAYIR	
+for	İngilizce	HAYIR	kod
+as	İngilizce	EVET	İsim (iskambil ası / şampiyon usta) / Fiil emri (asmak: as!); kod
+with	İngilizce	HAYIR	kod
+on	İngilizce	EVET	Sayı (10); kod
+at	İngilizce	EVET	İsim (binek hayvanı at) / Fiil emri (atmak fiili: at!)
+by	İngilizce	HAYIR	
+this	İngilizce	HAYIR	kod
+from	İngilizce	HAYIR	kod
+but	İngilizce	EVET	İsim (tavuk/koyun budu, kalça)
+not	İngilizce	EVET	İsim (ders notu, pusula, işaret); kod
+or	İngilizce	HAYIR	kod
+an	İngilizce	EVET	İsim (lahza, zaman parçası) / Fiil emri (anmak fiili: an!)
+if	İngilizce	HAYIR	kod
+can	İngilizce	EVET	İsim (ruh, hayat, can) / Özel ad (Can)
+so	İngilizce	HAYIR	kod
+her	İngilizce	EVET	Belirteç/sıfat (bütün, her biri: "her gün")
+which	İngilizce	HAYIR	
+when	İngilizce	HAYIR	kod
+their	İngilizce	HAYIR	
+there	İngilizce	HAYIR	
+about	İngilizce	HAYIR	
+would	İngilizce	HAYIR	
+these	İngilizce	HAYIR	
+then	İngilizce	HAYIR	kod
+also	İngilizce	HAYIR	
+into	İngilizce	HAYIR	
+only	İngilizce	HAYIR	
+because	İngilizce	HAYIR	
+however	İngilizce	HAYIR	
+therefore	İngilizce	HAYIR	
+although	İngilizce	HAYIR	
+between	İngilizce	HAYIR	
+de	İspanyolca	EVET	Bağlaç (ayrı yazılan de/da bağlacı)
+la	İspanyolca	EVET	Müzik notası (la) / Ünlem ("baksana la")
+el	İspanyolca	EVET	İsim (tutma organı el / yabancı, el gün)
+en	İspanyolca	EVET	Üstünlük zarfı ("en büyük") / İsim (en, boyut)
+y	İspanyolca	EVET	W2: matematik değişkeni (x, y) — ölçüldü 45+87 isabet
+que	İspanyolca	HAYIR	
+los	İspanyolca	HAYIR	
+se	İspanyolca	EVET	Şart eki parçası (-se / -sa: "gelse")
+por	İspanyolca	HAYIR	
+un	İspanyolca	EVET	İsim (öğütülmüş tahıl unu)
+con	İspanyolca	HAYIR	
+para	İspanyolca	EVET	İsim (nakit para, mangır, akçe)
+una	İspanyolca	HAYIR	
+su	İspanyolca	EVET	İsim (içecek su, H2O)
+al	İspanyolca	EVET	Sıfat/İsim (kırmızı, al renk) / Fiil emri (almak: al!)
+como	İspanyolca	HAYIR	
+pero	İspanyolca	HAYIR	
+sus	İspanyolca	EVET	İsim/Ünlem (sessizlik emri: sus! / susmak fiili)
+o	İspanyolca	EVET	Zamir/Sıfat (3. şahıs zamiri, işaret sıfatı o)
+este	İspanyolca	HAYIR	
+del	İspanyolca	EVET	Fiil emri (delmek fiili: del!)
+sin	İspanyolca	EVET	İsim (mezar, kabir / Arap harfi sin)
+sobre	İspanyolca	HAYIR	
+entre	İspanyolca	HAYIR	
+son	İspanyolca	EVET	İsim/Sıfat (bitiş, nihayet, sonuncu)
+de	Portekizce	EVET	Bağlaç (ayrı yazılan de/da bağlacı)
+a	Portekizce	EVET	Ünlem (şaşma/seslenme: A!) / Yönelme eki (-a)
+o	Portekizce	EVET	Zamir/Sıfat (3. şahıs zamiri, işaret sıfatı o)
+que	Portekizce	HAYIR	
+e	Portekizce	EVET	Ünlem (merak/seslenme: E!) / Yönelme eki (-e)
+do	Portekizce	EVET	Müzik notası (do); kod
+da	Portekizce	EVET	Bağlaç (ayrı yazılan de/da bağlacı)
+em	Portekizce	EVET	İsim (halk ağzında: ilaç, merhem, çare)
+um	Portekizce	HAYIR	
+para	Portekizce	EVET	İsim (nakit para, akçe)
+com	Portekizce	EVET	W2: .com URL parçası — ölçüldü 16 isabet
+uma	Portekizce	HAYIR	
+os	Portekizce	HAYIR	
+no	Portekizce	EVET	Kısaltma (numara kısaltması: no. / No.)
+se	Portekizce	EVET	Şart eki parçası (-se / -sa: "bilse")
+na	Portekizce	EVET	Ünlem (halk ağzında: al işte, na!)
+por	Portekizce	HAYIR	
+mais	Portekizce	HAYIR	
+mas	Portekizce	HAYIR	
+como	Portekizce	HAYIR	
+ela	Portekizce	EVET	Özel ad (Ela) / Sıfat (açık kestane göz rengi)
+nem	Portekizce	EVET	İsim (rutubet, hava nemi, ıslaklık)
+sua	Portekizce	HAYIR	
+seu	Portekizce	HAYIR	
+quando	Portekizce	HAYIR	
+de	Fransızca	EVET	Bağlaç (ayrı yazılan de/da bağlacı)
+le	Fransızca	EVET	Vasıta eki/bağlaç parçası (-le / -la: "evle")
+la	Fransızca	EVET	Müzik notası (la) / Ünlem ("baksana la")
+et	Fransızca	EVET	İsim (besin maddesi et) / Fiil emri (etmek fiili: et!)
+un	Fransızca	EVET	İsim (öğütülmüş tahıl unu)
+une	Fransızca	HAYIR	
+du	Fransızca	EVET	Geçmiş zaman eki parçası (-du / -dü: "oldu")
+que	Fransızca	HAYIR	
+pour	Fransızca	HAYIR	
+dans	Fransızca	EVET	İsim (ritmik vücut oyunu dans / TDK alıntısı)
+ce	Fransızca	EVET	Eşitlik eki parçası (-ce / -ca: "Türkçe", "bence")
+qui	Fransızca	HAYIR	
+ne	Fransızca	EVET	Soru zamiri/zarfı ("ne?") / Bağlaç ("ne... ne...")
+sur	Fransızca	EVET	İsim (şehir suru, kale duvarı / Sûr borusu)
+se	Fransızca	EVET	Şart eki parçası (-se / -sa: "gelse")
+pas	Fransızca	EVET	İsim (metal pası / sporda top aktarma: pas)
+plus	Fransızca	HAYIR	
+par	Fransızca	EVET	Fiil kökü ("par par parlamak") / Terim (golfte par)
+avec	Fransızca	HAYIR	
+son	Fransızca	EVET	İsim/Sıfat (nihayet, bitiş, sonuncu / un kepeği)
+sa	Fransızca	EVET	Şart eki parçası (-sa / -se: "yapsa")
+mais	Fransızca	HAYIR	
+en	Fransızca	EVET	Üstünlük zarfı ("en iyi") / İsim (en, genişlik)
+au	Fransızca	HAYIR	
+ses	Fransızca	EVET	İsim (akustik ses, seda)
+di	İtalyanca	EVET	Görülen geçmiş zaman eki parçası (-di / -tı: "geldi")
+il	İtalyanca	EVET	İsim (vilayet, şehir, idari birim il)
+che	İtalyanca	HAYIR	
+la	İtalyanca	EVET	Müzik notası (la) / Ünlem ("baksana la")
+a	İtalyanca	EVET	Ünlem (şaşma: A!) / Yönelme eki (-a)
+in	İtalyanca	EVET	İsim (hayvan ini, kovuk) / Fiil emri (inmek: in!); kod
+su	İtalyanca	EVET	İsim (içecek su, H2O)
+per	İtalyanca	EVET	İsim (kanat - Farsça kökenli / TDK)
+un	İtalyanca	EVET	İsim (öğütülmüş tahıl unu)
+con	İtalyanca	HAYIR	
+non	İtalyanca	HAYIR	
+da	İtalyanca	EVET	Bağlaç (ayrı yazılan de/da bağlacı)
+del	İtalyanca	EVET	Fiil emri (delmek fiili: del!)
+se	İtalyanca	EVET	Şart eki parçası (-se / -sa: "gelse")
+come	İtalyanca	HAYIR	
+und	Almanca	HAYIR	
+der	Almanca	EVET	Fiil çekimi ("demek" fiili geniş zaman 3. tekil: "der")
+die	Almanca	HAYIR	
+das	Almanca	HAYIR	
+in	Almanca	EVET	İsim (hayvan ini, mağara) / Fiil emri (inmek: in!); kod
+von	Almanca	EVET	Unvan edatı (Alman soyluluk sanı: von)
+mit	Almanca	EVET	İsim (efsane, mitoloji) / Kısaltma (MİT)
+zu	Almanca	HAYIR	
+den	Almanca	EVET	Ayrılma hâl eki parçası (-den / -dan: "evden")
+es	Almanca	EVET	İsim (müzikte susku işareti es) / Fiil emri (esmek: es!)
+nicht	Almanca	HAYIR	
+im	Almanca	EVET	İsim (işaret, iz / TDK) / İyelik eki parçası (-im)
+dem	Almanca	EVET	İsim (çayın demi / zaman, çağ: bu demde)
+auf	Almanca	HAYIR	
+an	Almanca	EVET	İsim (lahza, zaman parçası) / Fiil emri (anmak: an!)
