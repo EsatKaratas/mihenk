@@ -5919,22 +5919,46 @@ function yeniSinifFormHtml() {
     '<button type="button" class="btn btn-ghost btn-sm" id="ogtYeniSinifVazgec">Vazgeç</button></div></div>';
 }
 
-/** Yapıştırılan listeyi ayıklar. Boş satır ve yinelenen ad (listede ya da
-    sınıfta zaten olan) EKLENMEZ ama sayılır — sessiz düşüş yok. e-Okul'dan
-    kopyalanan "12  Ada Yılmaz" / "3. Ada Yılmaz" satırlarındaki sıra numarası
-    atılır. */
+/** e-Okul / Excel'den yapıştırılan TEK satırdan öğrenci adını çıkarır.
+    W3 testi (P1-1): "4 1234 Deniz Kaya" → yalnız ilk sayı atılıyordu.
+    - Sekmeli satırda yalnız sayılardan oluşan sütunlar (sıra, okul no,
+      tarih) ve cinsiyet sütunu (Kız/Erkek/K/E) atılır.
+    - Baştaki TÜM sayılar atılır ("4 1234 Deniz Kaya" → "Deniz Kaya").
+    - Harf içermeyen satır ad değildir: "" döner (çağıran "geçersiz" sayar). */
+function eokulSatiriAd(satir) {
+  let parcalar = String(satir || "").split("\t");
+  if (parcalar.length > 1) {
+    parcalar = parcalar.filter(function (p) {
+      const t = p.trim();
+      if (!t) return false;
+      if (/^[\d\s.,\/:()\-]+$/.test(t)) return false;
+      return ["kız", "kiz", "erkek", "k", "e"].indexOf(t.toLocaleLowerCase("tr")) < 0;
+    });
+  }
+  const ad = parcalar.join(" ").replace(/\s+/g, " ").trim().replace(/^(\d+[.):\-]?\s+)+/, "");
+  return /\p{L}/u.test(ad) ? ad.slice(0, 60) : "";
+}
+
+/** Yinelenen ad karşılaştırma anahtarı: Türkçe küçük harf ("İ"→"i", "I"→"ı"). */
+function adAnahtari(ad) {
+  return String(ad || "").replace(/\s+/g, " ").trim().toLocaleLowerCase("tr");
+}
+
+/** Yapıştırılan listeyi ayıklar. Boş satır, harfsiz (geçersiz) satır ve
+    yinelenen ad (listede ya da şubede zaten olan) EKLENMEZ ama sayılır —
+    sessiz düşüş yok. */
 function topluAdAyikla(metin, sf) {
-  const sonuc = { eklenecek: [], yinelenen: [], bos: 0 };
+  const sonuc = { eklenecek: [], yinelenen: [], bos: 0, gecersiz: 0 };
   const ham = String(metin || "");
   if (!ham.trim()) return sonuc;
-  const anahtar = function (ad) { return ad.toLocaleLowerCase("tr"); };
   const mevcut = (state.students || []).filter(function (s) { return (s.sinif || "") === sf; })
-    .map(function (s) { return anahtar(String(s.name || "").replace(/\s+/g, " ").trim()); });
+    .map(function (s) { return adAnahtari(s.name); });
   const gorulen = {};
   ham.replace(/\s+$/, "").replace(/^(\s*\r?\n)+/, "").split(/\r?\n/).forEach(function (satir) {
-    const ad = satir.replace(/^\s*\d+\s*[.):\-]?\s+/, "").replace(/\s+/g, " ").trim().slice(0, 60);
-    if (!ad) { sonuc.bos++; return; }
-    const k = anahtar(ad);
+    if (!satir.trim()) { sonuc.bos++; return; }
+    const ad = eokulSatiriAd(satir);
+    if (!ad) { sonuc.gecersiz++; return; }
+    const k = adAnahtari(ad);
     if (mevcut.indexOf(k) >= 0 || gorulen[k]) { sonuc.yinelenen.push(ad); return; }
     gorulen[k] = true;
     sonuc.eklenecek.push(ad);
@@ -5942,10 +5966,14 @@ function topluAdAyikla(metin, sf) {
   return sonuc;
 }
 
-/** Ayıklama sonucunun tek satırlık özeti (önizleme ve sonuç için ortak). */
+/** Ayıklama sonucunun tek satırlık özeti (önizleme ve sonuç için ortak).
+    Önizlemede ilk 5 ad gösterilir: öğretmen neyin ekleneceğini görür. */
 function topluOzetMetni(a, eklendi) {
-  const parca = [a.eklenecek.length + (eklendi ? " öğrenci eklendi" : " öğrenci eklenecek")];
+  const ilk = a.eklenecek.slice(0, 5).join(", ") + (a.eklenecek.length > 5 ? " ve " + (a.eklenecek.length - 5) + " kişi daha" : "");
+  const parca = [a.eklenecek.length + (eklendi ? " öğrenci eklendi" : " öğrenci eklenecek") +
+    (!eklendi && a.eklenecek.length ? " (" + ilk + ")" : "")];
   if (a.bos) parca.push(a.bos + " boş satır atlandı");
+  if (a.gecersiz) parca.push(a.gecersiz + " geçersiz satır (ad yok) atlandı");
   if (a.yinelenen.length) {
     parca.push(a.yinelenen.length + " yinelenen ad eklenmedi (" + a.yinelenen.slice(0, 3).join(", ") +
       (a.yinelenen.length > 3 ? "…" : "") + ")");
@@ -6151,6 +6179,7 @@ function wireSinifYonetim() {
     var sinif = ogtSinif() || String((document.getElementById("sySinif") || {}).value || "").trim();
     state.sy = state.sy || {};
     if (!ad) { state.sy.hata = "Öğrenci adı boş olamaz."; renderAll(); return; }
+    if (!/\p{L}/u.test(ad)) { state.sy.hata = "Öğrenci adı en az bir harf içermeli."; renderAll(); return; }
     if (topluAdAyikla(ad, sinif || "7-A").yinelenen.length) {
       state.sy.hata = "“" + ad + "” bu şubede zaten var."; renderAll(); return;
     }
@@ -12055,7 +12084,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
