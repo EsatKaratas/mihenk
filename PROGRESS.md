@@ -8631,6 +8631,13 @@ Diğer kontroller:
 - `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketliyor.
 - Konsoldaki tek 404 statik sunucudaki `/api/ai/status`; tabanda da var.
 
+**Görsel fark tabanı:** `tools/gorsel-fark.mjs` (bkz. 9cdb1ef) ile `fe2b308`
+statik sunucuda alındı. Görüntüler depoya girmez (3,4 MB ikili, orkestratör
+kararı); W2 makinesinde `%TEMP%\claude\…\scratchpad\gf-taban`. Yeniden üretmek
+için: `git archive fe2b308 public | tar -x -C <d>`, `python -m http.server 8801
+--directory <d>/public`, `node tools/gorsel-fark.mjs --url http://localhost:8801/
+--cikti <taban>`.
+
 **Panel sahiplerine kural:** yeni ham px/hex yazılmaz, ölçek dışı ihtiyaç W2'ye
 gelir. Ekran betiği seçicileri (`.q-card`, `.eval-card`, `#panel-* .card`,
 `#modalBox .kat-satir`) yeniden adlandırılmaz.
@@ -8976,3 +8983,28 @@ README ekran görüntüleri yenilenmedi; tüm paneller birleşince yeniden
 - Sekme numaraları W1/W3/W4 dallarında kalkıyor; birleşince kontrol edilmeli.
 - Güzel olur (yapılmadı): adıma tıklayınca ilgili panele gitme, rol başına
   "ilk bakış" boş durum kartı.
+
+## 65. ORTAK BÖLGE TEMİZLİĞİ — tasarım turu birleştirmeleri sonrası (23 Ekim 2026, W2)
+
+Panel sahiplerinin (W1, W3, W4, W5) ortak bölgeye düşen talepleri tek
+commit'te toplandı. Orkestratör onaylı kuyruk:
+
+| # | Talep | Yapılan |
+|---|---|---|
+| 1 | Koyu temada dolgulu düğme kontrastı (W3 ölçtü) | Yeni belirteçler `--on-accent/--on-success/--on-critical`: açık temada `#fff` (görsel fark 0), koyu temada `#0d1117`. Tarayıcıda hesaplanan renkten ölçüldü, koyu tema önce → sonra: `.btn-primary` 1,78 → 10,65 · `.btn-success` 2,56 → 7,40 · `.btn-dolu` 2,28 → 8,29 · `.tab-btn.active` 2,62 → 7,21. Vurgu dolgulu beyaz metinli diğer kurallar da (adımcı, sekme sayacı, seçili şık, çip ekle) aynı belirtece bağlandı |
+| 2 | Yönerge notu (26 kelime) | Kısa özet + ⓘ altına katlandı. Ayrı sınıf `.alan-bilgi`: W3'ün `.ce-bilgi`'sinin açık/kapalı durumu kazanım notuna bağlı, paylaşılsaydı biri açılınca öteki de açılırdı |
+| 3 | `uretimModuSecHtml` (§61'den beri çağrılmıyor) | Silindi; öz-kontrol listesinden çıkarıldı (455 → 454 ad) |
+| 4 | Yayın engeli metni (W1, §62: Rubrik sekmesi kalktı) | "Rubrik sekmesinden düzeltin" → "Sınavın 2. adımında (Sorular ve rubrik) düzeltin" |
+| 5 | Örnek öğretmen dersi (W4) | "Fen Bilgisi" → "Fen Bilimleri" (MEB adı) |
+| 6 | `.chip-x` (×) 23 px genişlik | `min-width: var(--hedef-min)`. gorsel-fark'ta <24 px hedef 43 → 26 |
+| 7 | Ölü iki aşamalı giriş kuralları (W5) | `.gk-serit`, `.gk-asama1/2`, `.gk-giris-btn`, `.gk-ok`, `[data-asama="2"]`, `.role-btn .r-hint`: 24 seçici, `@media` içindekiler dahil; karışık listelerde yalnız ölü parça çıktı. app.css −87 satır. HTML/JS'de hiçbiri üretilmiyordu (sayıldı) |
+
+**Kalan <24 px hedefler (26):** `button.oc-link` cümle içi metin bağlantısı
+(WCAG 2.5.8 satır içi istisnası) ve `input.correct-radio` 15×15 (soru kartında
+doğru şık seçimi). İkincisi bu kuyrukta değildi; ayrı karar.
+
+**Doğrulama:** 338 test · lint (tsc) · öz-kontrol 454 %100 · gorsel-fark
+(26 ekran, 1280/390, taban `5b6d533`): konsol hatası 0, yinelenen kimlik 0,
+taşma 0; fark yalnız İçerik Uzmanı-1 %0,20/%0,27 (chip-x 1 px genişledi) ve
+yönetici gürültüsü (≤%0,026). Demo/Sıfırla davranışı ve yazdırma kâğıdı
+değişmedi.

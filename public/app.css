@@ -158,6 +158,11 @@
     --sh-2: var(--shadow);
     /* WCAG 2.2 SC 2.5.8 (AA): tıklanabilir hedef en az 24×24 CSS px. */
     --hedef-min: 24px;
+    /* Dolgulu zemin üstündeki metin (§60 ortak). Açık temada beyaz; koyu
+       temada dolgular açık tonlu olduğu için KOYU metin. Ölçüldü, koyu tema:
+       #0d1117 → --accent-strong 10,65 · --accent 7,21 · --success 7,40 ·
+       --critical 8,29 (beyazla 1,78 / 2,62 / 2,56 / 2,28 idi). */
+    --on-accent: #fff; --on-success: #fff; --on-critical: #fff;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -170,6 +175,7 @@
       --accent2: #F2994A; --accent2-soft: #3a2410; --accent2-line: #F2994A;
       --success: #4fb488; --success-soft: #163526; --warning: #F2994A; --warning-soft: #3a2410;
       --critical: #ff8a80; --critical-soft: #3a1614;
+      --on-accent: #0d1117; --on-success: #0d1117; --on-critical: #0d1117;
       --neutral: #39414a; --neutral-strong: #45515c; --neutral-soft: #1c232c;
       --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
       --kat-1: #72a0f0; --kat-2: #F2994A; --kat-3: #4a95d6;
@@ -187,6 +193,7 @@
     --accent2: #F2994A; --accent2-soft: #3a2410; --accent2-line: #F2994A;
     --success: #4fb488; --success-soft: #163526; --warning: #F2994A; --warning-soft: #3a2410;
     --critical: #ff8a80; --critical-soft: #3a1614;
+    --on-accent: #0d1117; --on-success: #0d1117; --on-critical: #0d1117;
     --neutral: #39414a; --neutral-strong: #45515c; --neutral-soft: #1c232c;
     --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 28px rgba(0,0,0,0.45);
     --kat-1: #72a0f0; --kat-2: #F2994A; --kat-3: #4a95d6;
@@ -275,7 +282,6 @@
     background: var(--surface); color: var(--text-muted); cursor: pointer; text-align: left;
   }
   .role-btn .r-label { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 13.5px; color: var(--text); }
-  .role-btn .r-hint { font-size: 11px; color: var(--text-muted); }
   .role-btn.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: var(--shadow); }
   .role-btn.active .r-label { color: var(--accent-strong); }
   .role-btn .badge {
@@ -315,7 +321,7 @@
      Beyaz metinle kontrast 9,08:1 (yeniden ölçüldü; eski bordoda 7,4:1 idi).
      Hover hâlâ nötr (--neutral-soft), yani
      "ara tuşlar sakin dursun" yaklaşımı seçili olmayan sekmelerde sürüyor. */
-  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent-strong);
+  .tab-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent-strong);
     box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   .tab-btn:disabled { opacity: .45; cursor: not-allowed; }
   .tab-btn:disabled:hover { background: transparent; color: var(--text-muted); }
@@ -342,11 +348,11 @@
      eylemi TEHLİKE düğmesinden (.btn-critical, çerçeveli kırmızı) ayırıyor.
      inset box-shadow kullanıldı: kenarlık eklemek düğme yüksekliğini
      değiştirirdi, gölge yerleşimi etkilemez. */
-  .btn-primary { background: var(--accent-strong); color: #fff;
+  .btn-primary { background: var(--accent-strong); color: var(--on-accent);
     box-shadow: inset 0 -2px 0 var(--accent2-line); }
   .btn-primary:hover { background: var(--accent); }
   .btn-primary:disabled { background: var(--border-strong); color: var(--text-muted); cursor: not-allowed; }
-  .btn-success { background: var(--success); color: #fff; }
+  .btn-success { background: var(--success); color: var(--on-success); }
   .btn-success:hover { opacity: 0.88; }
   .btn-secondary { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
   .btn-secondary:hover { background: var(--surface-2); }
@@ -383,7 +389,7 @@
      commit'te görünüm değişmez. Panel turunda kullanılmaya başlanır. */
   /* Dolgulu tehlike düğmesi: yalnız geri alınamaz eylemin ONAY adımında
      (ör. modaldaki "Evet, sil"). Beyaz metin 6,57:1. */
-  .btn-critical.btn-dolu { background: var(--critical); border-color: var(--critical); color: #fff; }
+  .btn-critical.btn-dolu { background: var(--critical); border-color: var(--critical); color: var(--on-critical); }
   .btn-critical.btn-dolu:hover { background: #8f1c13; border-color: #8f1c13; }
   .btn-tam { width: 100%; justify-content: center; }
   .btn-grup { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
@@ -422,7 +428,7 @@
     display: inline-flex; align-items: center; justify-content: center;
     font-size: var(--fs-1); font-weight: 700; border: 1px solid var(--border-strong); background: var(--surface); }
   .adimci-adim.aktif { color: var(--text); font-weight: 600; }
-  .adimci-adim.aktif .adimci-no { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+  .adimci-adim.aktif .adimci-no { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
   .adimci-adim.tamam .adimci-no { background: var(--accent-soft); border-color: var(--accent-strong); color: var(--accent-strong); }
   .adimci-dugme { display: inline-flex; align-items: center; gap: var(--sp-2); font: inherit; color: inherit;
     background: none; border: none; padding: 0; cursor: pointer; min-height: var(--hedef-min); }
@@ -465,6 +471,10 @@
   /* Yönerge alanının altındaki açıklama satırı. */
   .alan-not { margin-top: 6px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+  /* §65: uzun alan notu ⓘ altına katlanır (yönerge alanı). */
+  .alan-bilgi { margin-top: var(--sp-2); }
+  .alan-bilgi > summary { font-size: var(--fs-2); color: var(--text-muted); cursor: pointer; min-height: var(--hedef-min); }
+  .alan-bilgi > summary:hover { color: var(--accent); }
 
   /* §41 Madde 2 — geçersiz cevap anahtarı uyarısı. .dil-uyari ile aynı
      kalıp; kendi zeminini taşır (§6.3-2). Kritik tonda, çünkü yanlış cevap
@@ -524,7 +534,7 @@
     height: 26px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .answer-opt .opt-text { flex: 1; padding-top: 3px; }
   .answer-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
-  .answer-opt.selected .opt-key { background: var(--accent); color: #fff; }
+  .answer-opt.selected .opt-key { background: var(--accent); color: var(--on-accent); }
 
   .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
@@ -557,7 +567,7 @@
     border: 1px solid var(--border-strong); border-radius: 20px; background: var(--surface);
     color: var(--text); font-family: inherit; font-size: 12.5px; cursor: pointer; }
   .sp-btn:hover, .ta-who-btn:hover { border-color: var(--accent); }
-  .sp-btn.active, .ta-who-btn.active { background: var(--accent); border-color: var(--accent-strong); color: #fff; }
+  .sp-btn.active, .ta-who-btn.active { background: var(--accent); border-color: var(--accent-strong); color: var(--on-accent); }
   .ta-who-btn .sc-class, .ta-who-btn .sc-tag { font-size: 10px; font-weight: 700;
     opacity: .75; letter-spacing: .2px; }
   .ta-who-btn.active .sc-class, .ta-who-btn.active .sc-tag { opacity: .9; }
@@ -619,7 +629,7 @@
 
   .rub-step { display: flex; align-items: center; gap: 9px; margin: 18px 0 9px; }
   .rub-step .rs-no { width: 22px; height: 22px; flex: none; border-radius: 50%;
-    background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+    background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; }
   .rub-step .rs-text { font-size: 13.5px; font-weight: 600; }
 
@@ -696,8 +706,8 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip-tab .chip-x { flex: none; border: none; background: none;
     color: var(--text-muted); font: inherit; font-size: 15px; line-height: 1;
-    padding: 0 10px 0 6px; cursor: pointer; transition: color .12s, background .12s; }
-  .chip-tab .chip-x:hover:not(:disabled) { color: #fff; background: var(--critical); }
+    padding: 0 10px 0 6px; min-width: var(--hedef-min); cursor: pointer; transition: color .12s, background .12s; }
+  .chip-tab .chip-x:hover:not(:disabled) { color: var(--on-critical); background: var(--critical); }
   /* Devre dışı "×" GİZLENMEZ: silinemeyeceği de bir bilgidir ve nedeni
      title'da yazar. Gizlemek o bilgiyi yok ederdi. */
   .chip-tab .chip-x:disabled { opacity: .3; cursor: not-allowed; }
@@ -719,7 +729,7 @@
     font-family: inherit; font-size: 17px; font-weight: 700; line-height: 1;
     cursor: pointer; transition: background .12s, border-color .12s; }
   .chip-tab-add:hover { background: var(--accent-soft); }
-  .chip-tab-add.active { background: var(--accent-strong); color: #fff;
+  .chip-tab-add.active { background: var(--accent-strong); color: var(--on-accent);
     border-style: solid; border-color: var(--accent-strong); }
 
   .chip-bos { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
@@ -913,7 +923,7 @@
     min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px;
     background: var(--accent-soft); color: var(--accent); font-size: 10.5px;
     font-weight: 700; font-family: "IBM Plex Mono", monospace; }
-  .tab-btn.active .tab-count { background: rgba(255,255,255,.22); color: #fff; }
+  .tab-btn.active .tab-count { background: rgba(255,255,255,.22); color: var(--on-accent); }
 
   .lbl-hint { font-weight: 400; font-size: 10.5px; color: var(--text-muted);
     text-transform: none; letter-spacing: 0; margin-left: 6px; }
@@ -1240,7 +1250,6 @@
   .ia-note { margin-top: 9px; font-size: 11.5px; line-height: 1.55;
     color: var(--warning); }
 
-
   /* --- Öğretmen-AI uyumu (kalibrasyon) ------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* ve .inj-warn notları). */
   .cal-top { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -1298,7 +1307,6 @@
     border-top: 1px solid var(--border); font-size: 11px; line-height: 1.55;
     color: var(--text-muted); }
 
-
   /* --- Öğretmen Değerlendirme Analitiği & Kalibrasyon (§29) ---------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* notları). Karne kartının kendisi
      `.cal-worst` / `.cal-limit` / `.stat-tile` / `.grid-3col` gibi mevcut
@@ -1313,7 +1321,6 @@
   .ta-row-ad { font-size: 13px; font-weight: 700; color: var(--text); }
   .ta-row-ders { font-weight: 400; color: var(--text-muted); }
   .ta-row-ozet { font-size: 12px; color: var(--text-muted); }
-
 
   /* --- Kavram yanılgısı kümeleme ------------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .inj-warn notları). */
@@ -1350,7 +1357,6 @@
     margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--border); }
   .mis-alt-not { font-size: 11px; color: var(--text-muted); }
 
-
   /* --- MEB kazanım kataloğu (modal) ---------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* notları). */
   .kat-kaynak { font-size: 11.5px; line-height: 1.6; color: var(--text-muted);
@@ -1378,7 +1384,6 @@
   .kat-bos { padding: 18px; text-align: center; font-size: 12px; color: var(--text-muted); }
   .kat-not { margin-top: 9px; font-size: 10.5px; line-height: 1.5; color: var(--text-muted); }
 
-
   /* --- Bloom bilişsel düzey dağılımı --------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* / .kat-* notları). */
   .bl-box { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
@@ -1397,7 +1402,6 @@
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 8px 10px; }
   .bl-ok { font-size: 11.5px; line-height: 1.55; color: var(--text-muted); }
-
 
   /* --- Kazanım-soru hizalama denetimi (içerik geçerliği) ------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* / .kat-* / .bl-* notları). */
@@ -1419,7 +1423,6 @@
   .al-err { font-size: 11.5px; line-height: 1.55; color: var(--critical);
     background: var(--accent2-soft); border-left-color: var(--critical); }
 
-
   /* --- Kazanım ders/sınıf tutarlılığı -------------------------------------- */
   .oc-uyusmaz { margin-top: 8px; font-size: 11.5px; line-height: 1.6;
     color: var(--warning); background: var(--warning-soft);
@@ -1427,7 +1430,6 @@
   .oc-link { background: none; border: none; padding: 0; font: inherit;
     font-size: 11px; color: var(--accent); cursor: pointer; text-decoration: underline; }
   .oc-link:hover { color: var(--accent-strong); }
-
 
   /* --- Uyaran metin (soruya eşlik eden kaynak metin) ---------------------- */
   .src-blok { margin-bottom: 12px; border: 1px solid var(--border-strong);
@@ -1452,7 +1454,6 @@
   .src-uyari.src-uyari-kritik { color: var(--critical);
     background: var(--accent2-soft); border-left-color: var(--critical); }
   .src-uyari.src-uyari-kritik b { color: var(--critical); }
-
 
   /* --- Öğrenciye geri bildirim taslağı ------------------------------------- */
   .fb-draft { margin-top: 12px; padding: 10px 12px; border-radius: 8px;
@@ -1490,7 +1491,7 @@
   .kit-ad { font-size: 12.5px; font-weight: 600; color: var(--text);
     overflow-wrap: anywhere; }
   .kit-rozet { display: inline-block; padding: 1px 7px; border-radius: 999px;
-    background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
+    background: var(--accent); color: var(--on-accent); font-size: 10px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .04em; vertical-align: middle; }
   .kit-alt { margin-top: 2px; font-size: 11.5px; color: var(--text-muted); }
   .kit-islem { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -1621,7 +1622,6 @@
     max-width: 40ch; }
   .empty-rich button { margin-top: 4px; }
 
-
 /* Sınav seçicideki eylem düğmeleri (§28c). Bağımsız sınıf (§6.3-2):
    kendi yerleşimini taşır, kapsayıcıya bağlı değildir. */
 .es-actions {
@@ -1631,7 +1631,6 @@
   margin-top: 8px;
 }
 .es-actions .btn { flex: 1 1 auto; }
-
 
 /* ==========================================================================
    SINIF YÖNETİMİ (§28q) — öğretmen kendi sınıfını elle kurar.
@@ -1711,14 +1710,6 @@
 .giris-kapisi[hidden] { display: none; }
 
 /* ---------- Üst şerit (yalnızca 2. aşamada iner) ---------- */
-.giris-kapisi .gk-serit {
-  position: fixed; top: 0; left: 0; right: 0; height: 84px;
-  background: var(--gk-kirmizi);
-  border-bottom: 3px solid var(--gk-altin);
-  transform: translateY(-100%);
-  transition: transform .55s cubic-bezier(.62,.05,.2,1);
-}
-.giris-kapisi[data-asama="2"] .gk-serit { transform: translateY(0); }
 
 /* ---------- Logo kilidi: TEK düğüm, iki konum ----------
    1. aşamada ortada ve büyük; 2. aşamada küçülüp sol üste kayar. Geçiş
@@ -1753,14 +1744,6 @@
    beyaz bir zemin plakası kullanılıyor — logo olduğu gibi kalıyor.
    Ölçü/yarıçap değerleri BÜYÜK seçildi, çünkü scale() onları da küçültüyor
    (30px dolgu × .21 ≈ 6px). */
-.giris-kapisi[data-asama="2"] .gk-logo {
-  left: 22px; top: 42px;
-  transform: translate(0, -50%) scale(.23);
-  background: var(--gk-beyaz);
-  padding: 28px 34px;
-  border-radius: 52px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, .22);
-}
 
 /* ---------- 1. AŞAMA: karşılama ---------- */
 /* Logo sabit konumlu (fixed) olduğu için akışta yer kaplamaz; düğmenin
@@ -1769,25 +1752,9 @@
      +152px = logo yüksekliğinin yarısı (120) + nefes payı (32)
    Böylece hesap ekran yüksekliğiyle birlikte ölçekleniyor, sabit bir
    piksele çakılı kalmıyor. */
-.giris-kapisi .gk-asama1 {
-  min-height: 100%;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  /* §58: alt dolgu 170 → 100 px; tez + not eklenince kapı 720 px pencerede 65 px
-     taşıyordu. Dalganın boyası içeriğin altında kalıyor (ölçüldü). */
-  gap: 4px; padding: calc(42vh + 152px) 24px 100px; text-align: center;
-  transition: opacity .35s ease;
-}
+
 /* `visibility` de kapanir: yalnizca opacity:0 birakilsaydi 1. asamanin
    dugmesi ekran okuyucuda ve sekme sirasinda erisilebilir kalirdi. */
-.giris-kapisi[data-asama="2"] .gk-asama1 {
-  opacity: 0; pointer-events: none; visibility: hidden;
-  /* AKISTAN CIKAR: yalnizca gorunmez birakilsaydi 1. asama yer kaplamaya
-     devam eder ve 2. asamada sayfa gereksiz yere kaydirilabilir olurdu
-     (olculdu: 860 px pencerede sayfa 1465 px). inset:0 ile ayni alani
-     kapladigi icin solma sirasinda gorsel bir siçrama olmaz. */
-  position: absolute; inset: 0;
-  transition: opacity .35s ease, visibility 0s linear .35s;
-}
 
 /* NOT: Ayrı bir "gk-slogan" satırı YOK — "Yapay Zeka Destekli Eğitim
    Sistemi" ibaresi logo görselinin içinde geliyor (bkz. index.html). */
@@ -1798,40 +1765,13 @@
 .giris-kapisi .gk-not { margin: 12px 0 0; max-width: 460px; font-size: 12.5px; line-height: 1.5;
   color: var(--gk-fume); position: relative; z-index: 1; }
 
-.giris-kapisi .gk-giris-btn {
-  position: relative; z-index: 1;
-  display: inline-flex; align-items: center; gap: 12px;
-  margin-top: 8px; padding: 17px 34px;
-  border: none; border-bottom: 3px solid var(--gk-altin); border-radius: 14px;
-  background: var(--gk-kirmizi); color: var(--gk-beyaz);
-  font-family: "Archivo", sans-serif; font-weight: 700; font-size: 16.5px;
-  letter-spacing: .01em; cursor: pointer;
-  box-shadow: 0 10px 24px rgba(13, 61, 176, .26);
-  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-}
-.giris-kapisi .gk-giris-btn:hover {
-  background: var(--gk-kirmizi-koyu);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(13, 61, 176, .32);
-}
-.giris-kapisi .gk-giris-btn:active { transform: translateY(0); }
-.giris-kapisi .gk-giris-btn .gk-ok { transition: transform .18s ease; }
-.giris-kapisi .gk-giris-btn:hover .gk-ok { transform: translateX(4px); }
-
 .giris-kapisi .gk-dalga {
   position: fixed; left: 0; right: 0; bottom: 0;
   width: 100%; height: clamp(120px, 22vh, 210px);
   display: block; pointer-events: none;
 }
-.giris-kapisi[data-asama="2"] .gk-dalga { opacity: 0; transition: opacity .35s ease; }
 
 /* ---------- 2. AŞAMA: panel seçimi ---------- */
-.giris-kapisi .gk-asama2 {
-  padding: 132px 24px 72px; max-width: 1080px; margin: 0 auto;
-  opacity: 0; transform: translateY(14px);
-  transition: opacity .45s ease .25s, transform .45s ease .25s;
-}
-.giris-kapisi[data-asama="2"] .gk-asama2 { opacity: 1; transform: none; }
 
 .giris-kapisi .gk-baslik {
   margin: 0 0 34px; text-align: center;
@@ -1894,7 +1834,6 @@
 .giris-kapisi .gk-kart:hover .gk-kart-alt { transform: translateX(4px); color: var(--gk-kirmizi); }
 
 /* Klavye erişilebilirliği: odak halkası her iki zeminde de görünür. */
-.giris-kapisi .gk-giris-btn:focus-visible,
 .giris-kapisi .gk-kart:focus-visible {
   outline: 3px solid var(--gk-kirmizi); outline-offset: 3px;
 }
@@ -1908,20 +1847,11 @@
   .giris-kapisi .gk-kart:nth-child(4),
   .giris-kapisi .gk-kart:nth-child(5) { grid-column: auto; }
   .giris-kapisi .gk-gorsel { height: 200px; }
-  .giris-kapisi .gk-asama1 { padding-top: calc(42vh + 132px); }
-  .giris-kapisi[data-asama="2"] .gk-logo { left: 16px; top: 38px; transform: translate(0, -50%) scale(.225); }
-  .giris-kapisi .gk-serit { height: 76px; }
-  .giris-kapisi .gk-asama2 { padding-top: 116px; }
 }
 @media (max-width: 560px) {
   /* Mobil: tek sütun. */
   .giris-kapisi .gk-kartlar { grid-template-columns: 1fr; }
   .giris-kapisi .gk-gorsel { height: 152px; }
-  .giris-kapisi[data-asama="2"] .gk-logo { left: 12px; top: 34px; transform: translate(0, -50%) scale(.26); }
-  .giris-kapisi .gk-serit { height: 68px; }
-  .giris-kapisi .gk-asama1 { padding: calc(42vh + 108px) 18px 90px; }   /* §58: 140 → 90 */
-  .giris-kapisi .gk-asama2 { padding: 100px 18px 56px; }
-  .giris-kapisi .gk-giris-btn { font-size: 15px; padding: 15px 20px; width: 100%; justify-content: center; }
   .giris-kapisi .gk-kart { padding: 20px 18px 14px; }
 }
 
@@ -1929,14 +1859,10 @@
 @media (prefers-reduced-motion: reduce) {
   .giris-kapisi .gk-logo,
   .giris-kapisi .gk-gorsel,
-  .giris-kapisi .gk-serit,
-  .giris-kapisi .gk-asama1,
-  .giris-kapisi .gk-asama2,
   .giris-kapisi .gk-dalga,
   .giris-kapisi .gk-kart,
   .giris-kapisi .gk-ikon,
-  .giris-kapisi .gk-kart-alt,
-  .giris-kapisi .gk-giris-btn { transition: none; }
+  .giris-kapisi .gk-kart-alt { transition: none; }
 }
 
 /* ===========================================================================

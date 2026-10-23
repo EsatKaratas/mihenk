@@ -506,34 +506,6 @@ let qIdSeq = 1;
    Eski durumlarda (localStorage'dan gelen ceForm) bu alan hiç yoktur;
    o yüzden bilinmeyen her değer "kaynak"a düşer — eski kullanıcı verisi
    davranış değiştirmez. */
-/* §31 — MOD SEÇİCİ. İki dayanak da gerçektir, bu yüzden gizli bir ayar değil
-   görünür bir seçim olarak sunulur; öğretmen hangi temele dayandığını bilmeli.
-   Seçim state.ceForm.mode'a yazılır ve KALICI_ALANLAR üzerinden saklanır. */
-function uretimModuSecHtml() {
-  const m = uretimModu();
-  const kart = function (deger, baslik, aciklama) {
-    return '<button type="button" class="mod-kart' + (m === deger ? " secili" : "") + '" ' +
-      'data-uretim-modu="' + deger + '" aria-pressed="' + (m === deger ? "true" : "false") + '" ' +
-      // §56: giriş kartlarıyla aynı — ad açıkça (erişilebilirlik ağacında boş çıkıyordu)
-      'aria-label="' + escapeHtml(baslik.replace(/^\S+\s/, "") + " — " + aciklama) + '">' +
-      '<span class="mod-ad">' + baslik + '</span>' +
-      '<span class="mod-not">' + aciklama + '</span></button>';
-  };
-  return '<div class="field"><label>Soru neye dayansın?</label>' +
-    '<div class="mod-secici">' +
-    kart("kaynak", "📄 Kaynak metinden",
-      "Yüklediğiniz ders notundan üretilir. Okuma kazanımları için gerekli — metin sınavda öğrenciye gösterilir.") +
-    /* §51: Keşif kazanımlarının MEB kataloğu yoktur; dayanakları okulun ders
-       belgesidir (belge kilidi). Metin bunu yanlış söylüyordu. */
-    kart("kazanim", "🎯 Kazanımdan",
-      seciliMateryal()
-        ? "Metin gerekmez. Dayanak bu kazanıma bağlı ders belgesi; isterseniz bir yönerge yazarsınız."
-        : mebYerine("Metin gerekmez. Dayanak MEB kazanımı; isterseniz bir yönerge yazarsınız.",
-            /* §52: Deneyap kazanımı MEB kazanımı değildir. */
-            "Metin gerekmez. Dayanak TÜBİTAK Deneyap kitabındaki kazanım; isterseniz bir yönerge yazarsınız.")) +
-    '</div></div>';
-}
-
 /* §31 — YÖNERGE ALANI. Yalnızca kazanım modunda görünür. Zorunlu değildir;
    boş bırakılırsa istem yalnızca kazanıma dayanır (eski davranışın kazanım
    karşılığı). Sunucuda kaynak metinle aynı enjeksiyon koruması uygulanır. */
@@ -584,8 +556,11 @@ function yonergeAlaniHtml() {
     '<span class="char-count' + (g.length > 540 ? " near" : "") + '">' + g.length + ' / 600</span></div>' +
     '<textarea id="ceGuidance" rows="3" placeholder="örn. Günlük hayattan örneklerle, grafik yorumlatan sorular olsun. Sürtünme kuvvetine ağırlık ver.">' +
     escapeHtml(g) + '</textarea>' +
-    '<div class="alan-not">Bu bir <b>odak ve üslup</b> isteğidir — soru sayısını, çıktı biçimini ve dil kurallarını değiştiremez. ' +
-    'Öğrencinin önünde okuyacağı bir metin olmayacağı için sorular metne atıf yapmaz.</div></div>';
+    /* §65: 26 kelimelik not kısa cümle + ⓘ'ye katlandı (W3'ün ⓘ deseni). Ayrı
+       sınıf (.alan-bilgi): .ce-bilgi'nin açık/kapalı durumu kazanım notuna bağlı. */
+    '<details class="alan-bilgi"><summary>ⓘ Odak ve üslup isteği; neyi değiştiremez?</summary>' +
+    '<div class="alan-not">Soru sayısını, çıktı biçimini ve dil kurallarını değiştiremez. ' +
+    'Öğrencinin önünde okuyacağı bir metin olmayacağı için sorular metne atıf yapmaz.</div></details></div>';
 }
 
 function uretimModu() {
@@ -1920,7 +1895,7 @@ const state = {
         { ogrenci: "Öğrenci E", soru: "Cebirsel ifadeyi sadeleştirip sonucu yorumlayınız.",                 maxScore: 20, ai: 14, nihai: 13, confidence: 0.73 },
         { ogrenci: "Öğrenci F", soru: "Verilen tabloyu kullanarak orantı kurunuz ve açıklayınız.",           maxScore: 20, ai: 16, nihai: 15, confidence: 0.82 },
       ] },
-      { name: "Ayşe Kaya", subject: "Fen Bilgisi", records: [
+      { name: "Ayşe Kaya", subject: "Fen Bilimleri", records: [
         { ogrenci: "Öğrenci A", soru: "Dengelenmemiş kuvvetlerin cisme etkisini örnekle açıklayınız.", maxScore: 20, ai: 12, nihai: 13, confidence: 0.77 },
         { ogrenci: "Öğrenci B", soru: "Fotosentez ve solunum arasındaki ilişkiyi karşılaştırınız.",     maxScore: 20, ai: 14, nihai: 15, confidence: 0.68 },
         { ogrenci: "Öğrenci C", soru: "Bir maddenin hâl değişimini enerji alışverişiyle açıklayınız.",  maxScore: 20, ai: 9,  nihai: 10, confidence: 0.52 },
@@ -6563,7 +6538,7 @@ function yayinEngeliMetni() {
   if (taslak) p.push(taslak + " rubrik yapay zekâ taslağı ve henüz kabul edilmedi (“✓ Taslağı kabul et”)");
   if (agirlikBozuk) p.push(agirlikBozuk + " rubrikte ağırlık toplamı %100 değil");
   if (bosEtiket) p.push(bosEtiket + " rubrikte kriter adı boş (boş adlı kriterle puanlama sunucuda reddedilir)");
-  return p.length ? "Rubrik sekmesinden düzeltin: " + p.join("; ") + "." : "";
+  return p.length ? "Sınavın 2. adımında (Sorular ve rubrik) düzeltin: " + p.join("; ") + "." : "";
 }
 
 /* ===========================================================================
@@ -12134,7 +12109,7 @@ function bosDurumHtml(mesaj) {
     "wireCeTabs", "wirePendingCards", "wireRejectedPool", "wireExamSwitcher",
     "renderAiBadge", "renderPipeline",
     /* §31 — üretim dayanağı (kaynak metin / kazanım) seçimi. */
-    "uretimModu", "uretimModuSecHtml", "yonergeAlaniHtml", "kazanimAnahtarlari",
+    "uretimModu", "yonergeAlaniHtml", "kazanimAnahtarlari",
     /* §34 — öğretmen adı hızlı seçim listesi. */
     "ogretmenSecenekleri", "wireTeacherWhoami",
     /* §41 — geçersiz cevap anahtarı uyarısı ve öğrenci yanıt sayacı. */

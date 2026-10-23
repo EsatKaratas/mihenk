@@ -18,10 +18,9 @@
    Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
    aynı özgüllükte app.css'i ezer.
 
-   app.css'te ÖLÜ KALAN eski kurallar (iki aşamalı giriş, §64'te kalktı):
-   .gk-serit, .gk-asama1, .gk-asama2, .gk-giris-btn, [data-asama="2"]
-   seçicileri, .role-btn .r-hint. HTML artık bunları üretmiyor; ortak
-   bölge sahibi (W2) silebilir. */
+   İki aşamalı girişin app.css'te ölü kalan kuralları (.gk-serit,
+   .gk-asama1/2, .gk-giris-btn, [data-asama="2"], .role-btn .r-hint) §65'te
+   W2 tarafından silindi. */
 
 /* ============================================================================
    ÜST ÇUBUK — tek satır, kayarken üstte kalır (§64 a)
