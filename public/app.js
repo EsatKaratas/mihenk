@@ -9559,7 +9559,13 @@ function teacherTab4Html() {
   const vals = Object.keys(scores).map(function (k) { return scores[k]; });
   const avg = vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0;
   // Sabit "1/1" yazıyordu: çoklu öğrenci desteği geldiğinde güncellenmemişti.
-  const tumOgr = (state.students || []).length;
+  /* §79 (W4 bulgusu): payda tüm öğrencilerdi; 7-B'ye açık sınavda 7-A da
+     sayılıyordu. Kural yönetici panosuyla TEK: yonSinavAtandiMi (§77) —
+     hedef boşsa herkes, doluysa o sınıf; sınava girmiş öğrenci atanmış sayılır. */
+  const aktifKayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  const tumOgr = aktifKayit
+    ? (state.students || []).filter(function (o) { return yonSinavAtandiMi(aktifKayit, o); }).length
+    : (state.students || []).length;
   const bitiren = submittedStudents().length;
   // Şube adı da sabit "8-A" idi; gerçek şubeler 7-A / 7-B.
   // Mevcut siniflar() yardımcısı kullanıldı (alan adı s.sinif).
