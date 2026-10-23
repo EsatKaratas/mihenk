@@ -5571,43 +5571,327 @@ function varsayilanListeMi() {
   return ogr.every(function (o) { return adlar.indexOf(o.name) !== -1; });
 }
 
-function sinifYonetimHtml() {
-  var ogrenciler = (state.students || []).slice().sort(function (a, b) {
-    return (a.sinif || "").localeCompare(b.sinif || "") || a.name.localeCompare(b.name, "tr");
+/* ===========================================================================
+   §62 — ÖĞRETMEN: SINIFLARIM → SINIF SAYFASI → SINAV SİHİRBAZI
+   ===========================================================================
+   Esat: "Sınıfım kısmı daha profesyonel olsun; kafa karışıklığı sağlayan çok
+   şey var." Araştırma (Google Classroom, Teams, EBA, e-Okul): her sistemde
+   önce BAĞLAM (sınıf/şube) seçilir, iş onun içinde yapılır. Bizde öğrenci
+   listesi ile sınav kurma aynı sekmede yan yanaydı.
+
+   Müdür kararları: sınıf kodu/davet YOK (hesap ve ikinci cihaz yok); boş
+   sınıf varlığı YOK — sınıf = students[].sinif, sınavın sınıfı
+   exam.targetClass ("" = tüm sınıflar). State şekli değişmez, göç yok.
+
+   Yönlendirme teacherTab ile: 0 Sınıflarım · 1 Sınavlar (sihirbaz dahil) ·
+   2 → sihirbazın "Sorular ve rubrik" adımı · 3 Puanlama · 4 Analitik ·
+   5 Öğrenciler. 1 ve 3 demo adımlarına ve ekran betiğine bağlı; değişmedi.
+   Arayüz durumu `state.ogt` KALICI DEĞİL (KALICI_ALANLAR'da yok): her sayfa
+   açılışı Sınıflarım'dan başlar. */
+
+let ogtIlkCizim = true;
+
+/** Öğretmen arayüz durumu (kalıcı değil). */
+function ogtDurum() {
+  if (!state.ogt) {
+    state.ogt = { sinif: null, sihirbaz: null, yeni: false, hata: "", sonuc: "",
+                  yeniSinif: false, yeniSinifAd: "", toplu: "", yeniAd: "", yeniSure: 10, yeniHedef: null };
+  }
+  return state.ogt;
+}
+
+/** Bağlamdaki sınıf: seçilen; seçilmediyse aktif sınavın hedefi ("" = tümü). */
+function ogtSinif() {
+  const o = ogtDurum();
+  return o.sinif != null ? o.sinif : (state.exam.targetClass || "");
+}
+
+function aktifSinavKaydi() {
+  return (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+}
+
+/** Sınıftaki öğrenci kimlikleri (sf boşsa herkes). */
+function sinifOgrenciIdleri(sf) {
+  return (state.students || []).filter(function (s) { return !sf || (s.sinif || "") === sf; })
+    .map(function (s) { return String(s.id); });
+}
+
+/** Bir sınavın özeti; aktif sınav canlı alanlardan (state.exam) okunur.
+    `bekleyen`: sf sınıfından gönderilmiş, öğretmen kararı bekleyen kâğıt. */
+function sinavOzeti(x, sf) {
+  const aktif = x.id === state.activeExamId;
+  const e = aktif ? state.exam : x;
+  const adet = (e.questionIds || []).length;
+  const kat = sinavKatilim(x);
+  const idler = sinifOgrenciIdleri(sf);
+  const ss = x.sessions || {};
+  let bekleyen = 0;
+  Object.keys(ss).forEach(function (sid) {
+    if (aktif && String(sid) === String(state.activeStudentId)) return;   // canlısı aşağıda
+    if (idler.indexOf(String(sid)) >= 0 && (ss[sid] || {}).examStatus === "submitted") bekleyen++;
   });
-  return '<div class="card sinif-yonetim"><div class="card-head"><h3>Sınıfım</h3>' +
+  if (aktif && state.examStatus === "submitted" && idler.indexOf(String(state.activeStudentId)) >= 0) bekleyen++;
+  const ad = String(e.title || "").trim();
+  return { id: x.id, aktif: aktif, ad: ad, hedef: e.targetClass || "", durum: e.status, adet: adet,
+           sure: e.durationMin, baslayan: kat.baslayan, gonderen: kat.gonderen, bekleyen: bekleyen,
+           /* Hiç dokunulmamış boş kayıt (ilk açılışta ya da son sınav silinince
+              kendiliğinden oluşan) listede GÖSTERİLMEZ: "Adsız Sınav · 0 soru ·
+              Taslak" satırı öğretmenin oluşturmadığı bir sınavdı. "Yeni sınav"
+              bu kaydı yeniden kullanır, yığılma olmaz. */
+           yerTutucu: (!ad || /^Yeni Sınav( \d+)?$/.test(ad)) && !adet && e.status !== "published" && !kat.baslayan };
+}
+
+/** Sınıfın sınavları: hedefi o sınıf olanlar + tüm sınıflara açık olanlar. */
+function sinifSinavlari(sf) {
+  return (state.exams || []).map(function (x) { return sinavOzeti(x, sf); })
+    .filter(function (k) { return !k.yerTutucu && (!sf || !k.hedef || k.hedef === sf); });
+}
+
+function sinifKartiHtml(sf) {
+  const ogr = sinifOgrenciIdleri(sf).length;
+  const sinavlar = sinifSinavlari(sf);
+  const yayinda = sinavlar.filter(function (k) { return k.durum === "published"; }).length;
+  const bekleyen = sinavlar.reduce(function (t, k) { return t + k.bekleyen; }, 0);
+  return '<button type="button" class="ogt-kart' + (sf ? "" : " ogt-kart-tum") + '" data-ogt-sinif="' + escapeHtml(sf) + '">' +
+    '<span class="ogt-kart-ad">' + (sf ? escapeHtml(sf) : "Tüm sınıflar") + '</span>' +
+    '<span class="ogt-kart-alt">' + ogr + ' öğrenci' + (sf ? "" : " · " + siniflar().length + " şube") + '</span>' +
+    '<span class="ogt-kart-sayi"><b>' + sinavlar.length + '</b> sınav · <b>' + yayinda + '</b> yayında</span>' +
+    (bekleyen
+      ? '<span class="pill pill-accent2">' + bekleyen + ' kâğıt onay bekliyor</span>'
+      : '<span class="ogt-kart-bos">Onay bekleyen kâğıt yok</span>') +
+    '</button>';
+}
+
+function siniflarimHtml() {
+  const o = ogtDurum();
+  return '<div class="ogt-ust"><div><h2 class="ogt-baslik">Sınıflarım</h2>' +
+    '<div class="ogt-alt">Bir sınıf seçin: o sınıfın sınavları, öğrencileri ve puanlaması tek yerde.</div></div>' +
+    (o.yeniSinif ? "" : '<button type="button" class="btn btn-secondary btn-sm" id="ogtYeniSinifAc">+ Yeni sınıf</button>') +
+    '</div>' +
+    (o.yeniSinif ? yeniSinifFormHtml() : "") +
+    (o.sonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(o.sonuc) + '</div>' : "") +
+    '<div class="ogt-kartlar">' + siniflar().map(sinifKartiHtml).join("") + sinifKartiHtml("") + '</div>';
+}
+
+function yeniSinifFormHtml() {
+  const o = ogtDurum();
+  return '<div class="card ogt-form"><div class="card-head"><h3>Yeni sınıf</h3></div>' +
+    '<div class="field"><label for="ogtYeniSinifAd">Şube adı</label>' +
+    '<input id="ogtYeniSinifAd" type="text" maxlength="20" placeholder="ör. 7-C" value="' + escapeHtml(o.yeniSinifAd || "") + '"></div>' +
+    '<div class="field"><label for="ogtYeniSinifListe">Öğrenciler — her satıra bir ad</label>' +
+    '<textarea id="ogtYeniSinifListe" rows="5" placeholder="e-Okul listesinden kopyalayıp yapıştırabilirsiniz; baştaki sıra numaraları atılır.">' +
+    escapeHtml(o.toplu || "") + '</textarea>' +
+    '<span class="field-note" id="ogtYeniSinifOnizleme">Sınıf, ilk öğrencisiyle birlikte oluşur; öğrencisiz sınıf tutulmaz.</span></div>' +
+    (o.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(o.hata) + '</div>' : "") +
+    '<div class="ogt-form-alt"><button type="button" class="btn btn-primary btn-sm" id="ogtYeniSinifKaydet">Sınıfı oluştur</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="ogtYeniSinifVazgec">Vazgeç</button></div></div>';
+}
+
+/** Yapıştırılan listeyi ayıklar. Boş satır ve yinelenen ad (listede ya da
+    sınıfta zaten olan) EKLENMEZ ama sayılır — sessiz düşüş yok. e-Okul'dan
+    kopyalanan "12  Ada Yılmaz" / "3. Ada Yılmaz" satırlarındaki sıra numarası
+    atılır. */
+function topluAdAyikla(metin, sf) {
+  const sonuc = { eklenecek: [], yinelenen: [], bos: 0 };
+  const ham = String(metin || "");
+  if (!ham.trim()) return sonuc;
+  const anahtar = function (ad) { return ad.toLocaleLowerCase("tr"); };
+  const mevcut = (state.students || []).filter(function (s) { return (s.sinif || "") === sf; })
+    .map(function (s) { return anahtar(String(s.name || "").replace(/\s+/g, " ").trim()); });
+  const gorulen = {};
+  ham.replace(/\s+$/, "").replace(/^(\s*\r?\n)+/, "").split(/\r?\n/).forEach(function (satir) {
+    const ad = satir.replace(/^\s*\d+\s*[.):\-]?\s+/, "").replace(/\s+/g, " ").trim().slice(0, 60);
+    if (!ad) { sonuc.bos++; return; }
+    const k = anahtar(ad);
+    if (mevcut.indexOf(k) >= 0 || gorulen[k]) { sonuc.yinelenen.push(ad); return; }
+    gorulen[k] = true;
+    sonuc.eklenecek.push(ad);
+  });
+  return sonuc;
+}
+
+/** Ayıklama sonucunun tek satırlık özeti (önizleme ve sonuç için ortak). */
+function topluOzetMetni(a, eklendi) {
+  const parca = [a.eklenecek.length + (eklendi ? " öğrenci eklendi" : " öğrenci eklenecek")];
+  if (a.bos) parca.push(a.bos + " boş satır atlandı");
+  if (a.yinelenen.length) {
+    parca.push(a.yinelenen.length + " yinelenen ad eklenmedi (" + a.yinelenen.slice(0, 3).join(", ") +
+      (a.yinelenen.length > 3 ? "…" : "") + ")");
+  }
+  return parca.join(" · ") + ".";
+}
+
+/** Ayıklanan adları sf şubesine ekler; özet cümleyi döner. */
+function topluOgrenciEkle(metin, sf) {
+  const a = topluAdAyikla(metin, sf);
+  state.students = state.students || [];
+  a.eklenecek.forEach(function (ad) {
+    state.students.push({ id: studentIdSeq++, name: ad, sinif: sf, demo: false });
+  });
+  if (state.activeStudentId == null && state.students.length) state.activeStudentId = state.students[0].id;
+  return { eklenen: a.eklenecek.length, metin: topluOzetMetni(a, true) };
+}
+
+function yeniSinifKaydet() {
+  const o = ogtDurum();
+  const ad = String(o.yeniSinifAd || "").replace(/\s+/g, " ").trim().slice(0, 20);
+  if (!ad) { o.hata = "Şube adını yazın (ör. 7-C)."; renderAll(); return; }
+  if (siniflar().some(function (s) { return s.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr"); })) {
+    o.hata = "“" + ad + "” zaten var. Öğrencileri o sınıfın Öğrenciler sekmesinden ekleyin.";
+    renderAll(); return;
+  }
+  if (!topluAdAyikla(o.toplu, ad).eklenecek.length) {
+    o.hata = "En az bir öğrenci adı yazın; sınıf ilk öğrencisiyle oluşur.";
+    renderAll(); return;
+  }
+  const r = topluOgrenciEkle(o.toplu, ad);
+  o.yeniSinif = false; o.yeniSinifAd = ""; o.toplu = ""; o.hata = "";
+  o.sonuc = "“" + ad + "” oluşturuldu: " + r.metin;
+  saveState(); renderAll();
+}
+
+/** Sınıf kartına tıklama: bağlamı kurar; aktif sınav o sınıfta yoksa
+    sınıfın ilk sınavı açılır (Puanlama/Analitik hep görünen sınava baksın). */
+function sinifiAc(sf) {
+  const o = ogtDurum();
+  o.sinif = sf; o.sihirbaz = null; o.yeni = false; o.hata = ""; o.sonuc = ""; o.yeniSinif = false;
+  state.poolError = "";
+  state.teacherTab = 1;
+  const liste = sinifSinavlari(sf);
+  if (liste.length && !liste.some(function (k) { return k.aktif; })) { activateExam(liste[0].id); return; }
+  renderAll();
+}
+
+function wireSiniflarim() {
+  const o = ogtDurum();
+  document.querySelectorAll("[data-ogt-sinif]").forEach(function (b) {
+    b.onclick = function () { sinifiAc(b.dataset.ogtSinif); };
+  });
+  const ac = document.getElementById("ogtYeniSinifAc");
+  if (ac) ac.onclick = function () {
+    o.yeniSinif = true; o.hata = ""; o.sonuc = ""; renderAll();
+    const el = document.getElementById("ogtYeniSinifAd"); if (el) el.focus();
+  };
+  const adEl = document.getElementById("ogtYeniSinifAd");
+  if (adEl) adEl.oninput = function () { o.yeniSinifAd = adEl.value; };
+  const listeEl = document.getElementById("ogtYeniSinifListe");
+  const onEl = document.getElementById("ogtYeniSinifOnizleme");
+  if (listeEl) listeEl.oninput = function () {
+    o.toplu = listeEl.value;
+    if (onEl) onEl.textContent = o.toplu.trim()
+      ? topluOzetMetni(topluAdAyikla(o.toplu, String(o.yeniSinifAd || "").trim()), false)
+      : "Sınıf, ilk öğrencisiyle birlikte oluşur; öğrencisiz sınıf tutulmaz.";
+  };
+  const kaydet = document.getElementById("ogtYeniSinifKaydet");
+  if (kaydet) kaydet.onclick = yeniSinifKaydet;
+  const vazgec = document.getElementById("ogtYeniSinifVazgec");
+  if (vazgec) vazgec.onclick = function () { o.yeniSinif = false; o.hata = ""; renderAll(); };
+}
+
+/** Sınıf sayfasının üstü: geri yolu + sekmeler (numarasız, data-tab sabit). */
+function sinifSayfasiHtml() {
+  const sf = ogtSinif();
+  const sekme = state.teacherTab === 2 ? 1 : state.teacherTab;
+  const sekmeler = [
+    { id: 1, ad: "Sınavlar" },
+    { id: 5, ad: "Öğrenciler" },
+    { id: 3, ad: "Puanlama", rozet: pendingReviewCount() },
+    { id: 4, ad: "Analitik" }
+  ];
+  return '<div class="ogt-yol"><button type="button" class="ogt-geri" id="ogtSiniflarimaDon">‹ Sınıflarım</button>' +
+    '<h2 class="ogt-sinif-ad">' + (sf ? escapeHtml(sf) : "Tüm sınıflar") + '</h2>' +
+    '<span class="ogt-alt">' + sinifOgrenciIdleri(sf).length + ' öğrenci</span></div>' +
+    '<div class="tabs" id="teacherTabs" role="tablist">' +
+    sekmeler.map(function (t) {
+      return '<button type="button" role="tab" aria-selected="' + (sekme === t.id) + '" class="tab-btn ' +
+        (sekme === t.id ? "active" : "") + '" data-tab="' + t.id + '">' + t.ad +
+        (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
+    }).join("") + '</div>';
+}
+
+function wireSinifSayfasi() {
+  const o = ogtDurum();
+  const geri = document.getElementById("ogtSiniflarimaDon");
+  if (geri) geri.onclick = function () {
+    o.sihirbaz = null; o.yeni = false; o.hata = ""; o.sonuc = ""; state.poolError = "";
+    state.teacherTab = 0; renderAll();
+  };
+  document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) {
+    b.onclick = function () {
+      const yeni = Number(b.dataset.tab);
+      /* "Sınavlar"a yeniden basmak sihirbazdan listeye döner. */
+      if (yeni === 1 && (state.teacherTab === 1 || state.teacherTab === 2)) { o.sihirbaz = null; o.yeni = false; }
+      o.hata = ""; o.sonuc = "";
+      state.teacherTab = yeni; renderAll();
+    };
+  });
+}
+
+/** Puanlama ve Analitik hangi sınava bakıyor: sınıfın sınavları arasından. */
+function sinavSeciciHtml() {
+  const sf = ogtSinif();
+  const liste = sinifSinavlari(sf);
+  if (!liste.some(function (k) { return k.aktif; })) {
+    const a = aktifSinavKaydi();
+    if (a && !sinavOzeti(a, sf).yerTutucu) liste.unshift(sinavOzeti(a, sf));
+  }
+  if (!liste.length) return '<div class="ogt-sinav-secici"><span class="lbl-hint">Bu sınıfta henüz sınav yok.</span></div>';
+  return '<div class="ogt-sinav-secici"><label for="ogtSinavSec">Sınav</label><select id="ogtSinavSec">' +
+    liste.map(function (k) {
+      return '<option value="' + k.id + '"' + (k.aktif ? " selected" : "") + '>' + escapeHtml(k.ad || "Adsız sınav") +
+        (k.durum === "published" ? " — yayında" : " — taslak") + '</option>';
+    }).join("") + '</select></div>';
+}
+
+function wireSinavSecici() {
+  const s = document.getElementById("ogtSinavSec");
+  if (s) s.onchange = function () { activateExam(Number(s.value)); };
+}
+
+/* ==================== ÖĞRENCİLER (eski "Sınıfım" kartı, §28q) ==================== */
+function sinifYonetimHtml() {
+  const o = ogtDurum();
+  const sf = ogtSinif();
+  var ogrenciler = (state.students || []).filter(function (s) { return !sf || (s.sinif || "") === sf; })
+    .sort(function (a, b) {
+      return (a.sinif || "").localeCompare(b.sinif || "") || a.name.localeCompare(b.name, "tr");
+    });
+  return '<div class="card sinif-yonetim"><div class="card-head"><h3>Öğrenciler</h3>' +
     '<span class="hint">' + ogrenciler.length + ' öğrenci</span></div>' +
-    /* §42 — EKRAN KENDİNİ YALANLIYORDU. Bu cümle "(takım üyelerinin adları)"
-       diyordu; §41 Madde 9 tam da jüri ekranında geliştirici adı görünmesin
-       diye o adları nötr örnek adlarla DEĞİŞTİRDİ (Ada Yılmaz, Kerem Aydın…)
-       ama bu satır güncellenmedi. Canlıda ölçüldü: liste nötr adları
-       gösterirken uyarı hâlâ takım adlarından söz ediyordu.
-       Bu, projenin beş kez düzelttiği "yanlış beyan" sınıfının aynısıdır
-       (§17a-3, §21d, §25b, §37, §7e). */
+    /* §42 — örnek liste uyarısı nötr adlarla tutarlı (bkz. §41 Madde 9). */
     (varsayilanListeMi()
       ? '<div class="sy-ornek-uyari">Bu, ürünle birlikte gelen <b>örnek bir listedir</b>; ' +
         'gerçek öğrencileriniz değildir. Kendi sınıfınızı eklerken tek tıkla temizleyebilirsiniz. ' +
         '<button class="btn btn-secondary btn-sm" id="btnOrnekTemizle">Örnek listeyi temizle</button></div>'
       : "") +
     (ogrenciler.length
-      ? '<div class="sy-liste">' + ogrenciler.map(function (o) {
-          return '<div class="sy-satir"><span class="sy-ad">' + escapeHtml(o.name) + '</span>' +
-            (o.sinif ? '<span class="pill pill-neutral">' + escapeHtml(o.sinif) + '</span>' : "") +
-            (o.demo ? '<span class="pill pill-warning">örnek</span>' : "") +
-            '<button class="icon-btn" data-ogrenci-sil="' + o.id + '" title="Öğrenciyi çıkar" aria-label="' +
-            escapeHtml(o.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
+      ? '<div class="sy-liste">' + ogrenciler.map(function (o2) {
+          return '<div class="sy-satir"><span class="sy-ad">' + escapeHtml(o2.name) + '</span>' +
+            (!sf && o2.sinif ? '<span class="pill pill-neutral">' + escapeHtml(o2.sinif) + '</span>' : "") +
+            (o2.demo ? '<span class="pill pill-warning">örnek</span>' : "") +
+            '<button class="icon-btn" data-ogrenci-sil="' + o2.id + '" title="Öğrenciyi çıkar" aria-label="' +
+            escapeHtml(o2.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
         }).join("") + '</div>'
-      : '<div class="empty-state">Henüz öğrenci eklenmedi.</div>') +
+      : '<div class="empty-state">' + (sf ? "Bu sınıfta öğrenci yok." : "Henüz öğrenci eklenmedi.") + '</div>') +
     '<div class="sy-ekle">' +
-    '<input id="syAd" class="sy-input" placeholder="Öğrenci adı" maxlength="60">' +
-    '<input id="sySinif" class="sy-input sy-input-sm" placeholder="Sınıf, ör. 7-A" maxlength="20" value="' +
-    escapeHtml((ogrenciler[ogrenciler.length - 1] || {}).sinif || "") + '">' +
+    '<input id="syAd" class="sy-input" placeholder="Öğrenci adı" maxlength="60" aria-label="Öğrenci adı">' +
+    (sf ? "" : '<input id="sySinif" class="sy-input sy-input-sm" placeholder="Şube, ör. 7-A" maxlength="20" aria-label="Şube" value="' +
+      escapeHtml((ogrenciler[ogrenciler.length - 1] || {}).sinif || "") + '">') +
     '<button class="btn btn-secondary btn-sm" id="btnOgrenciEkle">+ Öğrenci ekle</button></div>' +
-    (state.sy && state.sy.hata ? '<div class="sy-hata">' + escapeHtml(state.sy.hata) + '</div>' : "") +
+    (state.sy && state.sy.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(state.sy.hata) + '</div>' : "") +
+    '<details class="ogt-toplu"' + (o.topluAcik ? " open" : "") + '><summary>Toplu ekle: listeyi yapıştır</summary>' +
+    '<textarea id="ogtTopluListe" rows="6" aria-label="Öğrenci listesi, her satıra bir ad" ' +
+    'placeholder="Her satıra bir ad. e-Okul listesinden kopyalayıp yapıştırabilirsiniz; baştaki sıra numaraları atılır.">' +
+    escapeHtml(o.toplu || "") + '</textarea>' +
+    (sf ? "" : '<input id="ogtTopluSinif" class="sy-input sy-input-sm" maxlength="20" placeholder="Şube, ör. 7-A" aria-label="Eklenecek şube">') +
+    '<div class="ogt-form-alt"><button type="button" class="btn btn-secondary btn-sm" id="ogtTopluEkle">Listeyi ekle</button>' +
+    '<span class="lbl-hint" id="ogtTopluOnizleme" aria-live="polite"></span></div></details>' +
+    (o.sonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(o.sonuc) + '</div>' : "") +
     '</div>';
 }
 
 function wireSinifYonetim() {
+  const o = ogtDurum();
   var temizle = document.getElementById("btnOrnekTemizle");
   if (temizle) temizle.onclick = function () {
     if (!confirm("Örnek öğrenci listesi (" + state.students.length + " kişi) çıkarılacak. Devam edilsin mi?")) return;
@@ -5618,9 +5902,9 @@ function wireSinifYonetim() {
   document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
     b.onclick = function () {
       var id = Number(b.dataset.ogrenciSil);
-      var o = (state.students || []).find(function (x) { return x.id === id; });
-      if (!o) return;
-      var uyari = "“" + o.name + "” sınıftan çıkarılacak.";
+      var ogr = (state.students || []).find(function (x) { return x.id === id; });
+      if (!ogr) return;
+      var uyari = "“" + ogr.name + "” sınıftan çıkarılacak.";
       if (ogrenciSilGuard(id)) uyari += " Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; " +
         "çıkarırsanız kayıtlar isimsiz kalır (silinmez).";
       if (!confirm(uyari + " Devam edilsin mi?")) return;
@@ -5631,55 +5915,359 @@ function wireSinifYonetim() {
   });
   var ekle = document.getElementById("btnOgrenciEkle");
   if (ekle) ekle.onclick = function () {
-    var ad = String((document.getElementById("syAd") || {}).value || "").trim();
-    var sinif = String((document.getElementById("sySinif") || {}).value || "").trim();
+    var ad = String((document.getElementById("syAd") || {}).value || "").replace(/\s+/g, " ").trim();
+    var sinif = ogtSinif() || String((document.getElementById("sySinif") || {}).value || "").trim();
     state.sy = state.sy || {};
     if (!ad) { state.sy.hata = "Öğrenci adı boş olamaz."; renderAll(); return; }
+    if (topluAdAyikla(ad, sinif || "7-A").yinelenen.length) {
+      state.sy.hata = "“" + ad + "” bu şubede zaten var."; renderAll(); return;
+    }
     state.sy.hata = "";
     state.students = state.students || [];
     state.students.push({ id: studentIdSeq++, name: ad, sinif: sinif || "7-A", demo: false });
     if (state.activeStudentId == null) state.activeStudentId = state.students[state.students.length - 1].id;
     saveState(); renderAll();
   };
+  const liste = document.getElementById("ogtTopluListe");
+  const onizleme = document.getElementById("ogtTopluOnizleme");
+  const det = document.querySelector(".ogt-toplu");
+  if (det) det.ontoggle = function () { o.topluAcik = det.open; };
+  const hedefSube = function () {
+    return ogtSinif() || String((document.getElementById("ogtTopluSinif") || {}).value || "").trim();
+  };
+  if (liste) liste.oninput = function () {
+    o.toplu = liste.value;
+    if (onizleme) onizleme.textContent = o.toplu.trim() ? topluOzetMetni(topluAdAyikla(o.toplu, hedefSube()), false) : "";
+  };
+  const topluBtn = document.getElementById("ogtTopluEkle");
+  if (topluBtn) topluBtn.onclick = function () {
+    const sube = hedefSube();
+    state.sy = state.sy || {};
+    if (!sube) { state.sy.hata = "Listenin ekleneceği şubeyi yazın (ör. 7-A)."; renderAll(); return; }
+    if (!String(o.toplu || "").trim()) { state.sy.hata = "Yapıştırılacak liste boş."; renderAll(); return; }
+    state.sy.hata = "";
+    const r = topluOgrenciEkle(o.toplu, sube);
+    o.sonuc = (ogtSinif() ? "" : sube + ": ") + r.metin;
+    if (r.eklenen) { o.toplu = ""; o.topluAcik = false; }
+    saveState(); renderAll();
+  };
+}
+
+/* ==================== SINAVLAR (eski "Sınavlarım" şeridi) ==================== */
+function sinavKartiHtml(k) {
+  const yayinda = k.durum === "published";
+  const d = ' data-exam="' + k.id + '"';
+  const meta = [k.adet + " soru", (k.sure || "—") + " dk", k.hedef ? escapeHtml(k.hedef) : "Tüm sınıflar"];
+  if (k.gonderen) meta.push(k.gonderen + " kâğıt gönderildi");
+  /* Yayınla düğmesi yalnız SEÇİLİ sınavın kartında ve sınav yayına hazırsa
+     çizilir (id btnPublishExam: ekran betiği ve demo bu düğmeye dayanır).
+     Hazır değilse "Gözden geçir" engelin ne olduğunu 3. adımda gösterir. */
+  let eylem;
+  if (!yayinda) {
+    eylem = '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="duzenle"' + d + '>Düzenle</button>' +
+      (k.aktif && canPublishExam()
+        ? '<button type="button" class="btn btn-primary btn-sm" id="btnPublishExam">Yayınla</button>'
+        : '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="gozden"' + d + '>Gözden geçir</button>');
+  } else {
+    eylem = (k.bekleyen
+      ? '<button type="button" class="btn btn-primary btn-sm" data-ogt-islem="puanla"' + d + '>Kâğıtları puanla (' + k.bekleyen + ')</button>'
+      : "") +
+      '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="sonuc"' + d + '>Sonuçlar</button>';
+  }
+  const menu = '<details class="ogt-menu"><summary title="Diğer işlemler" aria-label="“' + escapeHtml(k.ad || "Adsız sınav") +
+    '” için diğer işlemler">⋯</summary><div class="ogt-menu-liste">' +
+    '<button type="button" data-ogt-islem="duzenle"' + d + '>Düzenle</button>' +
+    '<button type="button" data-ogt-islem="kagit"' + d + (k.adet ? "" : " disabled") + '>🖨 Sınav kâğıdı</button>' +
+    '<button type="button" data-ogt-islem="anahtar"' + d + (k.adet ? "" : " disabled") + '>🖨 Cevap anahtarı</button>' +
+    (yayinda ? '<button type="button" data-ogt-islem="kaldir"' + d + '>Yayından kaldır</button>' : "") +
+    '<button type="button" class="ogt-menu-tehlike" data-ogt-islem="sil"' + d + '>Sil…</button></div></details>';
+  return '<div class="ogt-sinav' + (k.aktif ? " aktif" : "") + '">' +
+    '<div class="ogt-sinav-ust"><button type="button" class="ogt-sinav-ad" data-ogt-islem="sec"' + d +
+    ' aria-pressed="' + k.aktif + '" title="Bu sınavı seç">' + escapeHtml(k.ad || "Adsız sınav") + '</button>' +
+    (yayinda ? '<span class="pill pill-accent">Yayında</span>' : '<span class="pill pill-neutral">Taslak</span>') + menu + '</div>' +
+    '<div class="ogt-sinav-meta">' + meta.join(" · ") + '</div>' +
+    '<div class="ogt-sinav-eylem">' + eylem + '</div></div>';
 }
 
 function examSwitcherHtml() {
-  return '<div class="exam-switcher"><div class="es-head">Sınavlarım <span class="lbl-hint">' +
-    state.exams.length + ' sınav</span></div><div class="es-list">' +
-    state.exams.map(function (x) {
-      const aktif = x.id === state.activeExamId;
-      const sess = aktif ? state.examStatus : (((x.sessions || {})[state.activeStudentId] || {}).examStatus || "not_started");
-      const st = aktif ? state.exam.status : x.status;
-      const ad = aktif ? (state.exam.title || "Adsız Sınav") : (x.title || "Adsız Sınav");
-      const adet = (aktif ? state.exam.questionIds : x.questionIds).length;
-      return '<button class="es-item ' + (aktif ? "active" : "") + '" data-exam="' + x.id + '">' +
-        '<span class="es-name">' + escapeHtml(ad) + '</span>' +
-        '<span class="es-meta">' + adet + ' soru ' + examStatusPill(st, sess) + '</span></button>';
-    }).join("") +
-    '<button class="es-item es-new" id="btnNewExam">+ Yeni Sınav</button></div>' +
-    /* Silme düğmesi ESKİDEN YALNIZCA TASLAKTA çiziliyordu; yayınlanan bir sınav
-       için öğretmenin hiçbir çıkışı yoktu (§28c). Artık her durumda var ve
-       yayındaki sınavda deleteExam() kaç öğrencinin verisinin gideceğini sayıp
-       soruyor. Yayından kaldırma ise veri silmeyen, geri alınabilir yoldur. */
-    '<div class="es-actions">' +
-    (state.exam.status === "published"
-      ? '<button class="btn btn-secondary btn-sm" id="btnUnpublishExam">Yayından kaldır</button>'
-      : "") +
-    '<button class="btn btn-secondary btn-sm" id="btnDelExam">' +
-    (state.exam.status === "published" ? "Bu sınavı sil" : "Bu taslağı sil") + '</button>' +
-    '</div></div>';
+  const o = ogtDurum();
+  const sf = ogtSinif();
+  const liste = sinifSinavlari(sf);
+  return '<div class="ogt-ust ogt-ust-ic"><div><h3 class="ogt-bolum">Sınavlar</h3>' +
+    '<div class="ogt-alt">' + liste.length + ' sınav' + (sf ? " · bu sınıfa ve tüm sınıflara açık olanlar" : "") + '</div></div>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="btnNewExam">+ Yeni sınav</button></div>' +
+    (o.sonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(o.sonuc) + '</div>' : "") +
+    (state.poolError ? '<div class="pill pill-blok pill-critical" role="alert">' + escapeHtml(state.poolError) + '</div>' : "") +
+    (liste.length
+      ? '<div class="ogt-sinavlar">' + liste.map(sinavKartiHtml).join("") + '</div>'
+      : '<div class="empty-state empty-rich"><div class="es-baslik">Bu sınıf için henüz sınav yok</div>' +
+        '<div class="es-alt">“Yeni sınav” ile üç adımda kurun: ad ve süre, sorular ve rubrik, gözden geçirip yayınlama.</div></div>');
+}
+
+/** Sınav kartı ve ⋯ menüsü işlemleri. */
+function sinavIslemi(islem, id) {
+  const o = ogtDurum();
+  o.sonuc = "";
+  if (islem === "sil") {
+    const kayit = (state.exams || []).find(function (x) { return x.id === id; });
+    if (!kayit) return;
+    const aktif = id === state.activeExamId;
+    const yayinda = (aktif ? state.exam.status : kayit.status) === "published";
+    /* deleteExam yayındaki ya da başlanmış sınavda kendi onayını sorar ama
+       taslağı SORMADAN siliyordu. Müdür kararı: silme her zaman onaylı. */
+    if (!yayinda && !sinavKatilim(kayit).baslayan) {
+      const ad = (aktif ? state.exam.title : kayit.title) || "Adsız sınav";
+      if (!confirm("“" + ad + "” taslağı kalıcı olarak silinecek. Bu işlem geri alınamaz.\n\nDevam edilsin mi?")) return;
+    }
+    deleteExam(id);
+    return;
+  }
+  if (id && id !== state.activeExamId) activateExam(id);
+  if (islem === "sec") return;
+  if (islem === "duzenle" || islem === "gozden") {
+    o.yeni = false; o.hata = ""; o.sihirbaz = islem === "gozden" ? 3 : 1;
+    state.poolError = ""; renderAll(); return;
+  }
+  if (islem === "puanla") { state.teacherTab = 3; renderAll(); return; }
+  if (islem === "sonuc") { state.teacherTab = 4; renderAll(); return; }
+  if (islem === "kaldir") { unpublishExam(id); return; }
+  if (islem === "kagit" || islem === "anahtar") {
+    const y = yazdirSorulari();
+    if (!y.sorular.length) { o.sonuc = "Bu sınavda yazdırılacak onaylı soru yok."; renderAll(); return; }
+    if (y.dusen) { o.sonuc = y.dusen + " soru onaylı olmadığı için çıktıya girmedi."; renderAll(); }
+    sinavYazdir(islem);
+  }
 }
 
 function wireExamSwitcher() {
-  document.querySelectorAll(".es-item[data-exam]").forEach(function (b) {
-    b.onclick = function () { activateExam(Number(b.dataset.exam)); };
-  });
+  const o = ogtDurum();
   const nb = document.getElementById("btnNewExam");
-  if (nb) nb.onclick = function () { createExam(); };
-  const db = document.getElementById("btnDelExam");
-  if (db) db.onclick = function () { deleteExam(state.activeExamId); };
-  const ub = document.getElementById("btnUnpublishExam");
-  if (ub) ub.onclick = function () { unpublishExam(state.activeExamId); };
+  if (nb) nb.onclick = function () {
+    o.yeni = true; o.sihirbaz = 1; o.hata = ""; o.sonuc = "";
+    o.yeniAd = ""; o.yeniSure = 10; o.yeniHedef = ogtSinif();
+    state.poolError = ""; renderAll();
+    const el = document.getElementById("ogtYeniAd"); if (el) el.focus();
+  };
+  document.querySelectorAll("[data-ogt-islem]").forEach(function (b) {
+    b.onclick = function () { sinavIslemi(b.dataset.ogtIslem, Number(b.dataset.exam)); };
+  });
+}
+
+/* ==================== YENİ SINAV / DÜZENLE: 3 ADIMLI SİHİRBAZ ==================== */
+const SIHIRBAZ_ADIMLARI = ["Ad ve süre", "Sorular ve rubrik", "Gözden geçir ve yayınla"];
+
+function sihirbazHtml() {
+  const o = ogtDurum();
+  const adim = o.yeni ? 1 : o.sihirbaz;
+  const baslik = o.yeni ? "Yeni sınav" : (String(state.exam.title || "").trim() || "Adsız sınav");
+  return '<div class="ogt-sihirbaz">' +
+    '<div class="ogt-sh-ust"><button type="button" class="ogt-geri" id="ogtSihirbazKapat">‹ Sınavlar</button>' +
+    '<h3 class="ogt-bolum">' + escapeHtml(baslik) + '</h3></div>' +
+    /* Ortak adımcı (T0, §60): tamamlanan adımlar geri dönmek için tıklanır. */
+    adimciHtml(SIHIRBAZ_ADIMLARI, adim - 1, { tiklanabilir: !o.yeni }) +
+    (adim === 1 ? sihirbazAdim1Html() : adim === 2 ? sihirbazAdim2Html() : sihirbazAdim3Html()) +
+    '<div class="ogt-sh-alt">' +
+    (adim > 1 ? '<button type="button" class="btn btn-secondary" data-ogt-adim="' + (adim - 1) + '">‹ Geri</button>' : "<span></span>") +
+    (adim === 1
+      ? '<button type="button" class="btn btn-primary" id="ogtAdim1Ileri">' + (o.yeni ? "Sınavı oluştur ve devam et ›" : "İleri ›") + '</button>'
+      : adim === 2
+        ? '<button type="button" class="btn btn-primary" data-ogt-adim="3">İleri ›</button>'
+        : '<button type="button" class="btn btn-secondary" id="ogtSihirbazBitir">Sınavlara dön</button>') +
+    '</div></div>';
+}
+
+/** 1. adım: ad (zorunlu), süre, hedef sınıf. Yeni sınavda kayıt, ad
+    yazılıp "oluştur" denene kadar AÇILMAZ — adsız kayıt oluşmaz. */
+function sihirbazAdim1Html() {
+  const o = ogtDurum();
+  const yeni = o.yeni;
+  const locked = !yeni && sinavZamanKilitli(aktifSinavKaydi());
+  const ad = yeni ? (o.yeniAd || "") : (state.exam.title || "");
+  const sure = yeni ? (o.yeniSure || 10) : state.exam.durationMin;
+  const hedef = yeni ? (o.yeniHedef != null ? o.yeniHedef : ogtSinif()) : (state.exam.targetClass || "");
+  const id = function (eski, yeniId) { return yeni ? yeniId : eski; };
+  return '<div class="card ogt-sh-kart">' +
+    '<div class="field"><label for="' + id("examTitle", "ogtYeniAd") + '">Sınavın adı <span class="ogt-zorunlu">(zorunlu)</span></label>' +
+    '<input id="' + id("examTitle", "ogtYeniAd") + '" type="text" maxlength="120" required value="' + escapeHtml(ad) +
+    '" placeholder="ör. 1. Dönem Fen Bilimleri Kısa Sınavı"></div>' +
+    '<div class="field-row"><div class="field"><label for="' + id("examDuration", "ogtYeniSure") + '">Süre (dk)</label>' +
+    '<input id="' + id("examDuration", "ogtYeniSure") + '" type="number" min="1" max="300" value="' + escapeHtml(String(sure)) + '"' +
+    (locked ? " disabled" : "") + '>' +
+    '<span class="field-note">Soruları seçtikten sonra 3. adımda soru sürelerinden öneri alabilirsiniz.</span></div>' +
+    '<div class="field"><label for="' + id("examTargetClass", "ogtYeniHedef") + '">Hangi sınıf?</label>' +
+    '<select id="' + id("examTargetClass", "ogtYeniHedef") + '"' + (locked ? " disabled" : "") + '>' +
+    '<option value="">Tüm sınıflar</option>' +
+    siniflar().map(function (sf) {
+      return '<option value="' + escapeHtml(sf) + '"' + (hedef === sf ? " selected" : "") + '>' + escapeHtml(sf) + '</option>';
+    }).join("") + '</select>' +
+    '<span class="field-note">Yalnız bu sınıftaki öğrenciler sınavı görür; “Tüm sınıflar” herkese açar.</span></div></div>' +
+    (locked ? '<div class="pill pill-blok pill-warning">Öğrenciler sınava başladı: süre ve sınıf artık değiştirilemez.</div>' : "") +
+    (o.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(o.hata) + '</div>' : "") +
+    '</div>';
+}
+
+/** 2. adım: havuzdan soru + sınavdaki sorular + (açık uçlu varsa) rubrik. */
+function sihirbazAdim2Html() {
+  const approved = filteredPool();
+  const tumOnayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
+  const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
+  /* Soru listesi yayında değişmez (ölçme bütünlüğü, §28c). */
+  const soruKilidi = state.exam.status === "published";
+  const acikVar = state.exam.questionIds.some(function (id) {
+    const q = state.questions.find(function (x) { return x.id === id; });
+    return q && q.type === "open";
+  });
+  return '<div class="grid-2">' +
+    '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
+    (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
+    poolFilterHtml() +
+    (approved.length ? approved.map(function (q) {
+      const duzenleniyor = state.editingQid === q.id;
+      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
+        '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
+        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + '</div>' +
+        (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
+        '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
+        (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
+    }).join("")
+      : '<div class="empty-state empty-rich">' +
+        (tumOnayli
+          ? '<div class="es-baslik">Bu filtreye uyan soru yok</div>' +
+            '<div class="es-alt">Havuzda ' + tumOnayli + ' onaylı soru var ama seçtiğiniz filtreye uymuyor.</div>' +
+            '<button class="btn btn-secondary btn-sm" id="btnFiltreTemizle">Filtreleri temizle</button>'
+          : '<div class="es-baslik">Havuzda henüz onaylı soru yok</div>' +
+            '<div class="es-alt">Sınav kurabilmek için önce İçerik Uzmanı panelinde soru üretip onaylamanız gerekiyor.</div>' +
+            '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
+        '</div>') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Sınavdaki sorular</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
+    (soruKilidi ? '<div class="lbl-hint">Sınav yayında: soru listesi değişmez. Değiştirmek için önce yayından kaldırın.</div>' : "") +
+    '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() + '</div></div>' +
+    (acikVar
+      ? '<div class="ogt-rubrik" id="ogtRubrik"><h3 class="ogt-bolum">Rubrik — açık uçlu soruların puanlama anahtarı</h3>' + teacherTab2Html() + '</div>'
+      : '<div class="lbl-hint ogt-rubrik-yok">Sınavda açık uçlu soru yok; rubrik gerekmiyor.</div>') +
+    rejectedPoolHtml("teacher");
+}
+
+/** 3. adım: özet + süre önerisi + açılış zamanı + yayın + yazdırma. */
+function sihirbazAdim3Html() {
+  const katilim = sinavKatilim(aktifSinavKaydi());
+  const yayinda = state.exam.status === "published";
+  const locked = yayinda && katilim.baslayan > 0;
+  const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+  const acik = items.filter(function (q) { return q.type === "open"; }).length;
+  const engel = yayinEngeliMetni();
+  return '<div class="card ogt-sh-kart">' +
+    '<dl class="ogt-ozet">' +
+    '<div><dt>Sınav</dt><dd>' + escapeHtml(state.exam.title || "—") + '</dd></div>' +
+    '<div><dt>Sınıf</dt><dd>' + (state.exam.targetClass ? escapeHtml(state.exam.targetClass) : "Tüm sınıflar") + '</dd></div>' +
+    '<div><dt>Sorular</dt><dd>' + items.length + ' soru (' + (items.length - acik) + ' çoktan seçmeli, ' + acik + ' açık uçlu)</dd></div>' +
+    '<div><dt>Toplam puan</dt><dd>' + ondalikTr(examTotalPoints(items)) + '</dd></div>' +
+    '<div><dt>Rubrik</dt><dd>' + (acik ? (engel ? "Eksik — 2. adımda tamamlayın" : "Hazır") : "Gerekmiyor") + '</dd></div>' +
+    '</dl>' +
+    '<div class="field-row"><div class="field"><label for="examDuration">Öğrenciye verilecek toplam süre (dk)</label>' +
+    '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
+    (locked ? "" : '<button class="btn btn-secondary btn-sm" id="btnUseSuggested" title="Soru sürelerinin toplamını uygula">Öneriyi uygula</button>') + '</div>' +
+    '<span class="field-note">Süre dolunca sınav otomatik biter.</span></div>' +
+    '<div class="field"><label for="examStartMode">Sınav ne zaman açılsın?</label>' +
+    '<select id="examStartMode" ' + (locked ? "disabled" : "") + '>' +
+    '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
+    '<option value="scheduled"' + (state.exam.startMode === "scheduled" ? " selected" : "") + '>Belirli bir tarih ve saatte</option>' +
+    '</select></div></div>' +
+    (state.exam.startMode === "scheduled"
+      ? '<div class="field"><label for="examStartAt">Açılış tarihi ve saati</label>' +
+        '<input id="examStartAt" type="datetime-local" min="' + yerelDamga(new Date()) + '" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
+        '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
+      : "") +
+    (yayinda && state.exam.startsAt
+      ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
+        new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
+      : "") +
+    (yayinda ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' +
+      (locked
+        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' + katilim.baslayan +
+          ' öğrenci sınava başladı — süre ve açılış saati artık değiştirilemez. ' +
+          'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
+        : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
+      '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
+      (!canPublishExam() && items.length
+        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' +
+          escapeHtml(engel || "Açık uçlu sorular için 2. adımda %100 ağırlıklı bir rubrik tanımlayın.") + '</div>'
+        : "") +
+      (!items.length ? '<div class="lbl-hint" style="margin-top:8px;">Yayınlamak için 2. adımda en az bir soru seçin.</div>' : "")
+    ) +
+    (state.poolError ? '<div class="pill pill-blok pill-critical" role="alert" style="margin-top:8px;">' + escapeHtml(state.poolError) + '</div>' : "") +
+    yazdirCubuguHtml() + '</div>';
+}
+
+function sihirbazAdimaGit(n) {
+  const o = ogtDurum();
+  if (o.sihirbaz === 1 && n > 1 && !String(state.exam.title || "").trim()) {
+    o.hata = "Sınavın adını yazın; adsız sınav kaydedilmez.";
+    renderAll();
+    const el = document.getElementById("examTitle"); if (el) el.focus();
+    return;
+  }
+  o.hata = ""; o.sihirbaz = n; state.poolError = "";
+  renderAll();
+  const sh = document.querySelector(".ogt-sihirbaz");
+  if (sh && sh.getBoundingClientRect().top < 0) sh.scrollIntoView({ block: "start" });
+}
+
+/** "Sınavı oluştur": ad zorunlu. Kendiliğinden oluşmuş boş kayıt varsa onu
+    kullanır (yeni kayıt yığılmaz), yoksa createExam ile açar. */
+function yeniSinavOlustur() {
+  const o = ogtDurum();
+  const ad = String(o.yeniAd || "").replace(/\s+/g, " ").trim().slice(0, 120);
+  if (!ad) {
+    o.hata = "Sınavın adını yazın; adsız sınav oluşturulmaz.";
+    renderAll();
+    const el = document.getElementById("ogtYeniAd"); if (el) el.focus();
+    return;
+  }
+  const sure = Math.max(1, Math.min(300, Math.round(Number(o.yeniSure) || 10)));
+  const hedef = o.yeniHedef != null ? o.yeniHedef : ogtSinif();
+  const kayit = aktifSinavKaydi();
+  if (kayit && sinavOzeti(kayit, "").yerTutucu) state.exam.title = ad;
+  else createExam(ad);
+  state.exam.durationMin = sure;
+  state.exam.targetClass = hedef;
+  aktifOturumuYaz();
+  /* Başka bir şubeye açıldıysa bağlam o şubeye geçer; yoksa sınav, açık
+     sınıf sayfasının listesinde görünmezdi. */
+  if (ogtSinif() && hedef && hedef !== ogtSinif()) o.sinif = hedef;
+  o.yeni = false; o.sihirbaz = 2; o.hata = ""; o.yeniAd = "";
+  saveState(); renderAll();
+}
+
+function wireOgtSihirbaz() {
+  const o = ogtDurum();
+  const kapat = function () {
+    const h = state.exam.targetClass || "";
+    if (ogtSinif() && h && h !== ogtSinif()) o.sinif = h;
+    o.sihirbaz = null; o.yeni = false; o.hata = ""; state.poolError = "";
+    saveState(); renderAll();
+  };
+  const k = document.getElementById("ogtSihirbazKapat"); if (k) k.onclick = kapat;
+  const b = document.getElementById("ogtSihirbazBitir"); if (b) b.onclick = kapat;
+  document.querySelectorAll("[data-ogt-adim]").forEach(function (el) {
+    el.onclick = function () { sihirbazAdimaGit(Number(el.dataset.ogtAdim)); };
+  });
+  document.querySelectorAll(".ogt-sihirbaz .js-adim").forEach(function (el) {
+    el.onclick = function () { sihirbazAdimaGit(Number(el.dataset.adim) + 1); };   // adimci 0 tabanlı
+  });
+  const ileri = document.getElementById("ogtAdim1Ileri");
+  if (ileri) ileri.onclick = function () { if (o.yeni) yeniSinavOlustur(); else sihirbazAdimaGit(2); };
+  const yAd = document.getElementById("ogtYeniAd");
+  if (yAd) {
+    yAd.oninput = function () { o.yeniAd = yAd.value; };
+    yAd.onkeydown = function (e) { if (e.key === "Enter") { o.yeniAd = yAd.value; yeniSinavOlustur(); } };
+  }
+  const ySure = document.getElementById("ogtYeniSure");
+  if (ySure) ySure.oninput = function () { o.yeniSure = ySure.value; };
+  const yHedef = document.getElementById("ogtYeniHedef");
+  if (yHedef) yHedef.onchange = function () { o.yeniHedef = yHedef.value; };
+  if (document.getElementById("ogtRubrik")) wireTeacherTab2();
 }
 
 /* ============================== Öğretmen ============================== */
@@ -6220,91 +6808,13 @@ function poolFilterHtml() {
     '</div>';
 }
 
+/* §62: "Sınavlar" sekmesi. Sihirbaz kapalıyken sınıfın sınav listesi,
+   açıkken seçili sınavın adımı. teacherTab=2 (eski Rubrik sekmesi; rubrik
+   derin bağlantısı ve eski kayıtlar) sihirbazın 2. adımına yönlenir. */
 function teacherTab1Html() {
-  const approved = filteredPool();
-  const tumOnayli = state.questions.filter(function (q) { return q.status === "approved"; }).length;
-  const inExam = function (id) { return state.exam.questionIds.indexOf(id) !== -1; };
-  /* §28c: kilit artık "yayında mı"ya değil "öğrenci başladı mı"ya bakar.
-     Yayınlanmış ama kimsenin başlamadığı sınav hâlâ düzenlenebilir — asıl
-     boşluk buydu. Soru listesi yayında değişmez (ölçme bütünlüğü). */
-  const katilim = sinavKatilim((state.exams || []).find(function (x) { return x.id === state.activeExamId; }));
-  const yayinda = state.exam.status === "published";
-  const locked = yayinda && katilim.baslayan > 0;
-  const soruKilidi = yayinda;
-  return sinifYonetimHtml() + examSwitcherHtml() + '<div class="grid-2">' +
-    '<div class="card"><div class="card-head"><h3>Onaylı Soru Havuzu</h3><span class="hint">' +
-    (approved.length === tumOnayli ? approved.length + ' soru' : approved.length + ' / ' + tumOnayli + ' soru (filtreli)') + '</span></div>' +
-    poolFilterHtml() +
-    (approved.length ? approved.map(function (q) {
-      const duzenleniyor = state.editingQid === q.id;
-      return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
-        '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
-        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + '</div>' +
-        (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
-        '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
-        (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
-    }).join("")
-      : '<div class="empty-state empty-rich">' +
-        (tumOnayli
-          ? '<div class="es-baslik">Bu filtreye uyan soru yok</div>' +
-            '<div class="es-alt">Havuzda ' + tumOnayli + ' onaylı soru var ama seçtiğiniz filtreye uymuyor.</div>' +
-            '<button class="btn btn-secondary btn-sm" id="btnFiltreTemizle">Filtreleri temizle</button>'
-          /* Boş durum artık ne yapılacağını söylemekle kalmıyor, ORAYA GÖTÜRÜYOR.
-             Kullanıcı "havuzda soru yok" yazısını okuyup hangi panele gideceğini
-             kendi bulmak zorunda kalıyordu. */
-          : '<div class="es-baslik">Havuzda henüz onaylı soru yok</div>' +
-            '<div class="es-alt">Sınav kurabilmek için önce İçerik Uzmanı panelinde soru üretip onaylamanız gerekiyor.</div>' +
-            '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
-        '</div>') + '</div>' +
-    '<div class="card"><div class="card-head"><h3>Sınav Taslağı</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
-    '<div class="field"><label>Sınav Başlığı</label><input id="examTitle" type="text" value="' + escapeHtml(state.exam.title) + '" placeholder="örn. 1. Dönem Fen Bilimleri Kısa Sınavı"></div>' +
-    '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() +
-    '<div class="field-row" style="margin-top:12px;"><div class="field"><label>Öğrenciye verilecek toplam süre (dk)</label>' +
-    '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
-    (locked ? "" : '<button class="btn btn-secondary btn-sm" id="btnUseSuggested" title="Soru sürelerinin toplamını uygula">Öneriyi uygula</button>') + '</div>' +
-    '<span class="field-note">Süre dolunca sınav otomatik biter.</span></div>' +
-    '<div class="field"><label>Sınav ne zaman açılsın?</label>' +
-    '<select id="examStartMode" ' + (locked ? "disabled" : "") + '>' +
-    '<option value="now"' + (state.exam.startMode !== "scheduled" ? " selected" : "") + '>Yayınlar yayınlamaz</option>' +
-    '<option value="scheduled"' + (state.exam.startMode === "scheduled" ? " selected" : "") + '>Belirli bir tarih ve saatte</option>' +
-    '</select></div></div>' +
-    /* §28r: "sınav kurarken hangi sınıfa yayınla" seçimi. Boş = tüm sınıflar
-       (eski davranış korunur, geriye dönük uyum). Doluysa yalnızca o sınıftaki
-       öğrenciler sınavı görür — studentTab1Html/studentTab2Html'deki
-       "yayindakiler" filtresinde kontrol edilir. */
-    '<div class="field"><label>Kime yayınlansın?</label>' +
-    '<select id="examTargetClass" ' + (locked ? "disabled" : "") + '>' +
-    '<option value="">Tüm sınıflar</option>' +
-    siniflar().map(function (sf) {
-      return '<option value="' + escapeHtml(sf) + '"' + (state.exam.targetClass === sf ? " selected" : "") + '>' +
-        escapeHtml(sf) + '</option>';
-    }).join("") + '</select>' +
-    '<span class="field-note">Boş bırakırsanız tüm öğrenciler görür.</span></div>' +
-    (state.exam.startMode === "scheduled"
-      ? '<div class="field"><label>Açılış tarihi ve saati</label>' +
-        /* `min` OLMADAN geçmiş bir tarih seçilebiliyordu (ölçüldü: 2020-01-01
-           kabul ediliyor, checkValidity() true dönüyordu). Yayınlandığında sınav
-           anında açılıyor ama kartta "Açılış: 1 Oca 2020" yazıyordu. */
-        '<input id="examStartAt" type="datetime-local" min="' + yerelDamga(new Date()) + '" value="' + escapeHtml(state.exam.startAtLocal || "") + '" ' + (locked ? "disabled" : "") + '>' +
-        '<span class="lbl-hint">Öğrenciler bu saatten önce sınava giremez; sınav kartında geri sayım görür.</span></div>'
-      : "") +
-    (yayinda && state.exam.startsAt
-      ? '<div class="pill pill-neutral" style="margin-bottom:8px;">Açılış: ' +
-        new Date(state.exam.startsAt).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) + '</div>'
-      : "") +
-    (yayinda ? '<div class="pill pill-success">Yayında — öğrenciler görebilir</div>' +
-      (locked
-        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' + katilim.baslayan +
-          ' öğrenci sınava başladı — süre ve açılış saati artık değiştirilemez. ' +
-          'Aynı sınava giren öğrencilerin farklı süre alması ölçmeyi bozar.</div>'
-        : '<div class="lbl-hint" style="margin-top:8px;">Henüz kimse başlamadı; başlığı, süreyi ve açılış saatini hâlâ değiştirebilirsiniz.</div>') :
-      '<button class="btn btn-primary" id="btnPublishExam" ' + (canPublishExam() ? "" : "disabled") + '>Sınavı Yayınla</button>' +
-      (!canPublishExam() && state.exam.questionIds.length
-        ? '<div class="pill pill-blok pill-warning" style="margin-top:8px;">' +
-          escapeHtml(yayinEngeliMetni() || "Açık uçlu sorular için Rubrik sekmesinden %100 ağırlıklı puanlama anahtarı tanımlayın.") + '</div>'
-        : "")
-    ) + yazdirCubuguHtml() + "</div></div>" + rejectedPoolHtml("teacher");
+  const o = ogtDurum();
+  if (state.teacherTab === 2) { o.sihirbaz = 2; o.yeni = false; state.teacherTab = 1; }
+  return o.sihirbaz ? sihirbazHtml() : examSwitcherHtml();
 }
 
 /* ===========================================================================
@@ -6467,8 +6977,8 @@ function wireYazdir() {
 }
 
 function wireTeacherTab1() {
-  wireSinifYonetim();
   wireExamSwitcher();
+  wireOgtSihirbaz();   // §62
   wireRejectedPool("teacher");
   wireYazdir();   // §59
   // Boş durumdaki yönlendirme düğmeleri.
@@ -6525,7 +7035,8 @@ function wireTeacherTab1() {
   document.querySelectorAll(".pe-save").forEach(function (b) {
     b.onclick = function () { state.editingQid = null; renderAll(); };
   });
-  document.getElementById("examTitle").oninput = function (e) { state.exam.title = e.target.value; };
+  const titleEl = document.getElementById("examTitle");   // §62: yalnız sihirbazın 1. adımında var
+  if (titleEl) titleEl.oninput = function (e) { state.exam.title = e.target.value; };
   const durEl = document.getElementById("examDuration"); if (durEl) durEl.oninput = function (e) { state.exam.durationMin = Number(e.target.value) || 1; };
   const sugBtn = document.getElementById("btnUseSuggested");
   if (sugBtn) sugBtn.onclick = function () {
@@ -6840,7 +7351,7 @@ function teacherTab2Html() {
       '<div class="rub-intro">Açık uçlu sorular, çoktan seçmeli sorular gibi tek bir doğru cevaba sahip değildir. ' +
       'Bu yüzden yapay zekânın <b>neye göre puan vereceğini</b> siz belirlersiniz. ' +
       'Bu ekran, sınavınızdaki açık uçlu sorular için o ölçütleri tanımladığınız yerdir.</div>' +
-      '<div class="empty-state">Sınavda henüz açık uçlu soru yok. Önce <b>1 · Sınav Oluştur</b> sekmesinden açık uçlu bir soru ekleyin.</div></div>';
+      '<div class="empty-state">Sınavda henüz açık uçlu soru yok. Önce <b>Sorular ve rubrik</b> adımında açık uçlu bir soru ekleyin.</div></div>';
   }
   if (state.rubricSelectedQ == null || !opens.find(function (q) { return q.id === state.rubricSelectedQ; })) state.rubricSelectedQ = opens[0].id;
   const q = opens.find(function (x) { return x.id === state.rubricSelectedQ; });
@@ -8442,40 +8953,27 @@ function wireTeacherWhoami() {
 
 function renderTeacher() {
   const root = document.getElementById("panel-teacher");
-  // Madde 3: rozetler İçerik Uzmanı sekmelerindeki (ceTabsHtml) desenle
-  // birebir aynı — salt okunur sayaç, hiçbir onay/karar vermez.
-  const tabs = [
-    { id: 1, label: "1 · Sınav Oluştur" },
-    { id: 2, label: "2 · Rubrik", rozet: pendingRubricCount() },
-    { id: 3, label: "3 · Değerlendirme Onayı", rozet: pendingReviewCount() },
-    { id: 4, label: "4 · Analitik" }
-  ];
-  /* §35 — ÖĞRETMEN ADI ALANI ARTIK YALNIZCA "3 · Değerlendirme Onayı"
-     SEKMESİNDE. Eskiden sekme şeridinin ÜSTÜNDE, dört sekmede birden
-     duruyordu; alanın sorduğu şey ("bu sınavı kim değerlendiriyor") yalnızca
-     değerlendirme adımında anlamlı olduğu için sınav kurma, rubrik ve
-     analitik ekranlarında yer kaplıyordu.
-
-     BİLİNEN SONUÇ: createExam() yeni sınavı state.activeTeacherName'e atar
-     (bkz. o fonksiyondaki §29 notu). Alan 1. sekmede görünmediği için ad,
-     sınav oluşturulmadan ÖNCE girilemez. Kayıp değildir: 3. sekmede ad
-     girildiğinde state.exam.teacherName de güncellenir ve aktif sınavın
-     sahibi düzelir. Analitik sekmesi bu alandan bağımsızdır — kendi
-     listesini (state.adminSelectedTeacher) kullanır (ölçüldü). */
-  root.innerHTML = '<div class="tabs" id="teacherTabs">' +
-    tabs.map(function (t) {
-      return '<button class="tab-btn ' + (state.teacherTab === t.id ? "active" : "") + '" data-tab="' + t.id + '">' +
-        t.label + (t.rozet ? ' <span class="tab-count">' + t.rozet + '</span>' : "") + '</button>';
-    }).join("") +
-    '</div><div id="teacherTabContent"></div>';
-  document.querySelectorAll("#teacherTabs .tab-btn").forEach(function (b) { b.onclick = function () { state.teacherTab = Number(b.dataset.tab); renderAll(); }; });
+  /* §62 — her sayfa açılışı Sınıflarım'dan başlar ("girmeli" düzen). Demo
+     Akışı bir adımdaysa dokunulmaz: demo adımları teacherTab 1 ve 3'ü açar. */
+  if (ogtIlkCizim) { ogtIlkCizim = false; if (!state.demoAdim) state.teacherTab = 0; }
+  if (state.teacherTab === 0) { root.innerHTML = siniflarimHtml(); wireSiniflarim(); return; }
+  /* Sınıf seçilmeden gelindiyse (demo adımı, ekran betiği) bağlam bir kez
+     sabitlenir; yoksa aktif sınavın hedefi değiştikçe sayfa kendiliğinden
+     başka şubeye kayardı (ölçüldü). */
+  if (ogtDurum().sinif == null) ogtDurum().sinif = state.exam.targetClass || "";
+  /* §35 — öğretmen adı alanı yalnız Puanlama'da (teacherWhoamiHtml); alanın
+     sorduğu şey ("bu sınavı kim değerlendiriyor") yalnız orada anlamlı.
+     createExam() yeni sınavı state.activeTeacherName'e atar; ad Puanlama'da
+     girilince state.exam.teacherName de güncellenir. */
+  root.innerHTML = sinifSayfasiHtml() + '<div id="teacherTabContent"></div>';
+  wireSinifSayfasi();
   const content = document.getElementById("teacherTabContent");
-  if (state.teacherTab === 1) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
-  if (state.teacherTab === 2) { content.innerHTML = teacherTab2Html(); wireTeacherTab2(); }
-  if (state.teacherTab === 3) { content.innerHTML = teacherWhoamiHtml() + teacherTab3Html(); wireTeacherWhoami(); wireTeacherTab3(); }
+  if (state.teacherTab === 1 || state.teacherTab === 2) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
+  if (state.teacherTab === 5) { content.innerHTML = sinifYonetimHtml(); wireSinifYonetim(); }
+  if (state.teacherTab === 3) { content.innerHTML = sinavSeciciHtml() + teacherWhoamiHtml() + teacherTab3Html(); wireSinavSecici(); wireTeacherWhoami(); wireTeacherTab3(); }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
-  if (state.teacherTab === 4) { content.innerHTML = teacherTab4Html() + dikkatPanelHtml(); wireMisconceptions(); wireDikkat(); wireKararRaporu(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
+  if (state.teacherTab === 4) { content.innerHTML = sinavSeciciHtml() + teacherTab4Html() + dikkatPanelHtml(); wireSinavSecici(); wireMisconceptions(); wireDikkat(); wireKararRaporu(); if (state.exam.status === "published" && submittedStudents().length) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows()); }
 }
 
 /* ============================== Öğrenci ============================== */
@@ -10954,7 +11452,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
