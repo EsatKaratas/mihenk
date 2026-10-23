@@ -9753,6 +9753,31 @@ PDF yüklenip IndexedDB'de silme/yeniden yükleme ile. Üç bulgu, aynı gün ka
 Testler +3 (387). Kitaplık düzeltme sonrası W2 tarafından yeniden denenemedi
 (test PDF'i yüklenmedi); aynı kod yolu, W5 yeniden doğrulayacak.
 
+**Ortak düzeye taşındı (Orchestrator 2 isteği):** kabukta hazır bir odak
+tuzağı yardımcısı yoktu (W5'in deseni giriş kapısı için `.app` inert'i,
+`girisInertEsitle`). Tuzak `onaylaModal`'dan alınıp **her `openModal`'a**
+taşındı; ikinci bir tane yok:
+- `openModal`: arka plan `.app` (ve açıksa giriş kapısı) `inert` +
+  `aria-hidden`; odak kutuya alınır; tek belge dinleyicisi
+  (`modalOdakTuzagiKur`) Tab/Shift+Tab'ı kutunun içinde döndürür.
+- `closeModal`: kapı inert'i kaldırılır, `.app` inert'i `girisInertEsitle`'ye
+  bırakılır (kapı açıksa inert KALIR); odak modalı açan öğeye döner.
+- **`girisInertEsitle` düzeltmesi:** her `renderAll`'da çağrıldığı için modal
+  açıkken bir çizim `.app`'in inert'ini siliyordu (ölçüldü: Sıfırla penceresinin
+  arkası tıklanabilirdi). Kural tek yerde: `.app` inert = kapı açık **veya**
+  modal açık.
+- Ölçüldü (gerçek Tab ×6 + Shift+Tab ×4, beş modal: giriş kapısından demo onayı,
+  Sıfırla, katalog, §71 şüpheli onay, sınavı bitir): 10/10 içerde, açıkken arka
+  plan tıklanamaz, kapanınca inert doğru geri verilir, odak açan öğeye döner.
+- **Onaydan sonra odak hedefi** (Orchestrator 2: "aynı listede sonraki öğe,
+  yoksa liste başlığı"): açan öğe → aynı `id` → listedeki SONRAKİ öğe (açanın
+  `data-*` anahtarı ve sırası; liste sonuysa bir önceki) → kart başlığı →
+  panel başlığı. Ölçüldü: ders silince sonraki dersin "×" düğmesi; liste
+  boşalınca kart başlığı. W5 kitaplıkta yeniden doğruladı (3/3 GEÇTİ); kitaplık
+  metnine "KALICI OLARAK silinir" eklendi (W5 önerisi).
+Testler 388. gorsel-fark `--dolu`: odak/inert değişikliği hiçbir ekranı
+değiştirmedi.
+
 **TUZAK (devir notu):** yerel statik sunucular 879x/880x portlarını paylaşır.
 Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), ve
 ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:

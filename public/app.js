@@ -438,8 +438,17 @@ function onaylaModal(secenek) {
      çizilirse (acan.isConnected=false) odak BODY'ye düşüyordu. Yedek: açan
      öğenin kartının başlığı (aynı metinle yeniden bulunur), o da yoksa panel. */
   const acanKart = acan && acan.closest ? acan.closest(".card") : null;
+  // Listedeki yeri: açan öğenin kendi data-* anahtarı (ör. data-ders-sil) ve
+  // panelde o anahtarı taşıyanlar arasındaki sırası → onaydan sonra "sonraki öğe".
+  const anahtar = acan && acan.getAttributeNames ? (acan.getAttributeNames().filter(function (n) {
+    return n.indexOf("data-") === 0 && n !== "data-onay-bekliyor";
+  })[0] || "") : "";
+  const acanPanel = acan && acan.closest ? acan.closest('[id^="panel-"]') : null;
   const iz = {
     acan: acan,
+    id: acan && acan.id ? acan.id : "",
+    anahtar: anahtar,
+    sira: anahtar ? Array.prototype.indexOf.call((acanPanel || document).querySelectorAll("[" + anahtar + "]"), acan) : -1,
     panel: acan && acan.closest ? (acan.closest('[id^="panel-"]') || {}).id || "" : "",
     kartBaslik: acanKart && acanKart.querySelector("h3") ? acanKart.querySelector("h3").textContent : "",
   };
@@ -463,21 +472,9 @@ function onaylaModal(secenek) {
   return new Promise(function (coz) {
     let bitti = false;
     let gozcu = null;
-    /* Escape = Vazgeç. Tab / Shift+Tab pencerenin içinde döner (W5 P1: odak
-       tuzağı yoktu, Tab arkadaki üst çubuğa kaçıyordu; aria-modal bunu
-       engellemez). .app'e inert verilmedi: kabuk giriş kapısı inert'i kendisi
-       yönetiyor (girisInertEsitle), iki sahip çakışırdı. */
-    const tus = function (e) {
-      if (e.key === "Escape") { e.preventDefault(); bitir(false); return; }
-      if (e.key !== "Tab") return;
-      const odaklanir = Array.prototype.filter.call(kutu.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"),
-        function (x) { return !x.disabled && x.offsetParent !== null; });
-      if (!odaklanir.length) return;
-      const ilk = odaklanir[0], son = odaklanir[odaklanir.length - 1];
-      const icerde = kutu.contains(document.activeElement);
-      if (e.shiftKey && (!icerde || document.activeElement === ilk)) { e.preventDefault(); son.focus(); }
-      else if (!e.shiftKey && (!icerde || document.activeElement === son)) { e.preventDefault(); ilk.focus(); }
-    };
+    /* Escape = Vazgeç. Odak tuzağı (Tab/Shift+Tab pencere içinde döner) ve
+       arkanın inert'i ORTAK düzeyde, openModal'da (modalOdakTuzagi). */
+    const tus = function (e) { if (e.key === "Escape") { e.preventDefault(); bitir(false); } };
     function bitir(sonuc) {
       if (bitti) return;
       bitti = true;
@@ -514,12 +511,21 @@ function onayOdagiGeriVer(iz) {
   if (iz.acan && iz.acan.isConnected && typeof iz.acan.focus === "function") { iz.acan.focus(); return; }
   const kok = (iz.panel && document.getElementById(iz.panel)) || document;
   let hedef = null;
-  if (iz.kartBaslik) {
+  // 1) Aynı kimlikle yeniden çizilmiş öğe (ör. #btnAuditTemizle).
+  if (iz.id) hedef = document.getElementById(iz.id);
+  // 2) Aynı listede SONRAKİ öğe: silinen öğenin sırasına artık bir sonraki
+  //    oturur; liste sonuysa bir önceki. Devre dışı olanlar atlanır.
+  if (!hedef && iz.anahtar && iz.sira >= 0) {
+    const liste = Array.prototype.filter.call(kok.querySelectorAll("[" + iz.anahtar + "]"), function (x) { return !x.disabled && x.offsetParent !== null; });
+    hedef = liste[iz.sira] || liste[iz.sira - 1] || null;
+  }
+  // 3) Liste boşaldıysa listenin kartının başlığı.
+  if (!hedef && iz.kartBaslik) {
     hedef = Array.prototype.find.call(kok.querySelectorAll(".card h3"), function (h) { return h.textContent === iz.kartBaslik; }) || null;
   }
   if (!hedef) hedef = kok.querySelector("h2, h3");
   if (!hedef) return;
-  if (!hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
+  if (/^H[1-6]$/.test(hedef.tagName) && !hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
   hedef.focus();
 }
 
@@ -3546,7 +3552,7 @@ function wireKitaplik() {
       if (!k) return;
       onayliEylem(b, {
         baslik: "“" + k.ad + "” kitaplıktan silinsin mi?",
-        metin: "Bu kitaptan üretilmiş sorular silinmez.",
+        metin: "Kitap bu tarayıcıdan KALICI OLARAK silinir. Bu kitaptan üretilmiş sorular silinmez.",
         onayEtiketi: "Evet, kitaplıktan sil", tehlikeli: true,
       }, function () { kitapKaldir(k.id); });
     };
@@ -11692,12 +11698,72 @@ function openModal(html) {
      görünmüyordu (ölçüldü: scrollTop 159). Her açılış en üstten başlar.
      Sıfırlama overlay GÖRÜNÜR olduktan sonra yapılır: display:none iken
      verilen scrollTop'u tarayıcı yok sayıyordu (ölçüldü: 79 ve 103 kaldı). */
-  document.getElementById("modalOverlay").classList.add("open");
+  const kaplama = document.getElementById("modalOverlay");
+  const zatenAcik = kaplama.classList.contains("open");
+  if (!zatenAcik) _modalAcan = document.activeElement;
+  kaplama.classList.add("open");
   kutu.scrollTop = 0;
   const cancel = document.getElementById("modalCancel"); if (cancel) cancel.onclick = closeModal;
   const confirmFinish = document.getElementById("modalConfirmFinish"); if (confirmFinish) confirmFinish.onclick = function () { closeModal(); finishExam(); };
+  /* §77 (W5 P1) — ORTAK ODAK TUZAĞI: her openModal'da arka plan inert
+     (fare, klavye, ekran okuyucu), Tab/Shift+Tab kutunun içinde döner ve
+     odak kutuya alınır. Çağıran kendi odağını sonra verebilir (onaylaModal
+     Vazgeç'e odaklanır). */
+  modalArkasiInert(true);
+  modalOdakTuzagiKur();
+  if (!kutu.contains(document.activeElement)) {
+    const ilk = modalOdaklanirlar()[0];
+    if (ilk) ilk.focus(); else { kutu.setAttribute("tabindex", "-1"); kutu.focus(); }
+  }
 }
-function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); }
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+  modalArkasiInert(false);
+  // Odak modalı açan öğeye döner (hâlâ sayfadaysa). onaylaModal kendi daha
+  // akıllı hedefini eylemden sonra ayrıca verir.
+  const a = _modalAcan; _modalAcan = null;
+  if (a && a.isConnected && typeof a.focus === "function") a.focus();
+}
+
+/* Modal açıkken arkası: .app ve (açıksa) giriş kapısı inert + aria-hidden.
+   Kapanışta .app'in inert'i W5'in girisInertEsitle'sine bırakılır (kapı
+   açıksa .app inert KALIR) — iki sahip çakışmaz. Modal .app'in dışında. */
+var _modalAcan = null;
+function modalArkasiInert(acik) {
+  const app = document.querySelector(".app");
+  const kapi = document.getElementById("girisKapisi");
+  if (acik) {
+    if (app) { app.inert = true; app.setAttribute("aria-hidden", "true"); }
+    if (kapi && !kapi.hidden) { kapi.inert = true; kapi.setAttribute("aria-hidden", "true"); }
+  } else {
+    if (kapi) { kapi.inert = false; kapi.removeAttribute("aria-hidden"); }
+    if (app) { app.inert = false; app.removeAttribute("aria-hidden"); }
+    girisInertEsitle();
+  }
+}
+function modalOdaklanirlar() {
+  const kutu = document.getElementById("modalBox");
+  return Array.prototype.filter.call(
+    kutu.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"),
+    function (x) { return !x.disabled && x.offsetParent !== null; });
+}
+/* Tek belge dinleyicisi (bir kez kurulur): modal açıkken Tab kutunun
+   içinde döner; odak dışarıdaysa kutuya geri alınır. */
+var _modalTuzakKurulu = false;
+function modalOdakTuzagiKur() {
+  if (_modalTuzakKurulu) return;
+  _modalTuzakKurulu = true;
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" || !document.getElementById("modalOverlay").classList.contains("open")) return;
+    const kutu = document.getElementById("modalBox");
+    const o = modalOdaklanirlar();
+    if (!o.length) { e.preventDefault(); return; }
+    const ilk = o[0], son = o[o.length - 1];
+    const icerde = kutu.contains(document.activeElement);
+    if (e.shiftKey && (!icerde || document.activeElement === ilk)) { e.preventDefault(); son.focus(); }
+    else if (!e.shiftKey && (!icerde || document.activeElement === son)) { e.preventDefault(); ilk.focus(); }
+  }, true);
+}
 
 /* ============================== Üst çubuk & sayfa iskeleti ============================== */
 
@@ -11849,7 +11915,11 @@ function girisInertEsitle() {
   const kapi = document.getElementById("girisKapisi");
   const app = document.querySelector(".app");
   if (!kapi || !app) return;
-  const acik = !kapi.hidden;
+  /* §77 (W2): modal açıkken de .app inert kalır. Bu fonksiyon her renderAll'da
+     (renderRoleNav) çağrılır; yalnız kapıya bakarsa modal açıkken bir çizim
+     .app'in inert'ini siliyordu (ölçüldü: Sıfırla penceresi arkası tıklanabilirdi). */
+  const modal = document.getElementById("modalOverlay");
+  const acik = !kapi.hidden || !!(modal && modal.classList.contains("open"));
   app.inert = acik;
   if (acik) app.setAttribute("aria-hidden", "true"); else app.removeAttribute("aria-hidden");
 }
@@ -13030,6 +13100,7 @@ function bosDurumHtml(mesaj) {
 (function selfCheck() {
   const gerekli = [
     "adimciHtml", "onaylaModal", "onayliEylem", "onayOdagiGeriVer",
+    "modalArkasiInert", "modalOdaklanirlar", "modalOdakTuzagiKur",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",

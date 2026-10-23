@@ -45,10 +45,24 @@ describe('onaylaModal — ortak bölgede yerel confirm() yok (§77)', () => {
     expect((g.match(/tehlikeli: true/g) || []).length).toBe(4);
   });
 
-  it('W5 P1: Tab / Shift+Tab pencere içinde döner (odak tuzağı)', () => {
-    const g = govde('onaylaModal');
-    expect(g).toContain('e.key !== "Tab"');
-    expect(g).toMatch(/e\.shiftKey[\s\S]*son\.focus\(\)[\s\S]*ilk\.focus\(\)/);
+  it('W5 P1: odak tuzağı ORTAK düzeyde — her openModal arkayı inert yapar, Tab kutuda döner', () => {
+    const om = govde('openModal');
+    expect(om).toContain('modalArkasiInert(true)');
+    expect(om).toContain('modalOdakTuzagiKur()');
+    expect(govde('closeModal')).toContain('modalArkasiInert(false)');
+    const tz = govde('modalOdakTuzagiKur');
+    expect(tz).toContain('e.key !== "Tab"');
+    expect(tz).toMatch(/e\.shiftKey[\s\S]*son\.focus\(\)[\s\S]*ilk\.focus\(\)/);
+    // Kapanışta .app inert'i W5'in giriş kapısı eşitlemesine bırakılır (iki sahip çakışmaz).
+    expect(govde('modalArkasiInert')).toContain('girisInertEsitle()');
+    // onaylaModal'da ikinci bir Tab döngüsü yok.
+    expect(govde('onaylaModal')).not.toContain('"Tab"');
+  });
+
+  it('onaydan sonra odak: aynı id → listede sonraki öğe → kart başlığı', () => {
+    const g = govde('onayOdagiGeriVer');
+    const i1 = g.indexOf('getElementById(iz.id)'), i2 = g.indexOf('liste[iz.sira]'), i3 = g.indexOf('.card h3');
+    expect(i1).toBeGreaterThan(0); expect(i2).toBeGreaterThan(i1); expect(i3).toBeGreaterThan(i2);
   });
 
   it('W5 P2: metin aria-describedby ile bağlı; kapanınca kaldırılır', () => {
