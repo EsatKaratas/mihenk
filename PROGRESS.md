@@ -8637,6 +8637,21 @@ için: `git archive fe2b308 public | tar -x -C <d>`, `python -m http.server 8801
 gelir. Ekran betiği seçicileri (`.q-card`, `.eval-card`, `#panel-* .card`,
 `#modalBox .kat-satir`) yeniden adlandırılmaz.
 
+### 60a `gorsel-fark --dolu` — veri dolu ekranlar + sabit saat (ikinci tur, W2)
+
+§74 birleştirmesinde ölçülen araç açığı: demo tohumunda sınav TASLAKTIR; öğretmen
+Analitik/ısı haritası boş çizilir ve "fark 0" bir şey kanıtlamaz.
+- `--dolu`: her çözünürlükte AYRI tarayıcı bağlamında demo programla 4. adım
+  sonuna götürülür (yayın sihirbazın 3. adımından → `startExam` → `finishExam`
+  [`/api/ai/` engelli, uygulamanın yerel yedeği puanlar] → `finalizeReview` →
+  `publishResults`). Çekilen 6 ekran × 2 genişlik, `dolu-` önekli: Puanlama
+  (onaydan önce ve sonra), Analitik, karne, yönetici, veli. Öğretmen ve yönetici
+  ısı haritası boşsa çıkış 1.
+- **Sabit saat** (`page.clock.setFixedTime`): karar günlüğü saatleri yönetici
+  ekranında "gürültü" üretiyordu. Ölçüldü: aynı kod kendi tabanına karşı 38/38
+  ekran **%0,000** (önce yönetici %0,007–0,038).
+- Model çağrısı yok. Tur sonu QA: `node tools/gorsel-fark.mjs --url … --cikti … --taban … --dolu`.
+
 ## 61. İÇERİK UZMANI — SORU ÜRET SİHİRBAZI (tasarım turu 1) (23 Ekim 2026, W3)
 
 **Neden:** Eski "1 · Kaynak İçerik" kartı tek uzun formdu. Canlıda ölçüldü

@@ -3,6 +3,11 @@
  *
  * Kullanım:
  *   node tools/gorsel-fark.mjs --url http://127.0.0.1:8788 --cikti <klasör> [--taban <klasör>]
+ *   --dolu: ek olarak demo 4. adım sonuna kadar PROGRAMLA ilerletilir (model çağrısı
+ *     yok; /api/ai/ engelli, uygulamanın yerel yedeği puanlar) ve Puanlama, Analitik,
+ *     karne, yönetici, veli ekranları VERİ DOLU çekilir (dosya adları "dolu-" önekli).
+ *     NEDEN: demo tohumunda sınav taslaktır; öğretmen Analitik/ısı haritası boş çizilir
+ *     ve "fark 0" bir şey kanıtlamaz (§74 birleştirmesinde ölçüldü).
  *   workerd açılmıyorsa statik sunucu yeter (/api/ai/ zaten engellenir):
  *     python -m http.server 8801 --directory public
  *
@@ -31,6 +36,7 @@ import path from 'node:path';
 let url = 'http://127.0.0.1:8788';
 let cikti = '';
 let taban = null;
+let dolu = false;
 
 const args = process.argv.slice(2);
 for (let i = 0; i < args.length; i++) {
@@ -47,12 +53,14 @@ for (let i = 0; i < args.length; i++) {
     taban = args[++i];
   } else if (arg.startsWith('--taban=')) {
     taban = arg.slice(8);
+  } else if (arg === '--dolu') {
+    dolu = true;
   }
 }
 
 if (!cikti) {
   console.error('Hata: --cikti <klasör> parametresi zorunludur.');
-  console.error('Kullanım: node tools/gorsel-fark.mjs --url <url> --cikti <klasör> [--taban <klasör>]');
+  console.error('Kullanım: node tools/gorsel-fark.mjs --url <url> --cikti <klasör> [--taban <klasör>] [--dolu]');
   process.exit(1);
 }
 
@@ -119,6 +127,11 @@ try {
 }
 
 const sayfa = await tarayici.newPage();
+
+/* Belirlenimcilik: karar günlüğü ve kayıt saatleri ekrana basılır; saat her
+   koşumda farklı olunca yönetici ekranı "gürültü" veriyordu. Sabit saat. */
+const SABIT_ZAMAN = new Date('2026-10-23T09:00:00+03:00');
+await sayfa.clock.setFixedTime(SABIT_ZAMAN);
 
 // Yapay zekâ isteklerini engelleme sayacı
 let engellenenAiSayisi = 0;
@@ -448,6 +461,94 @@ for (const cozunurluk of COZUNURLUKLER) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 4b) --dolu: veri dolu ekranlar (demo 4. adım sonu, model çağrısı yok)
+// ---------------------------------------------------------------------------
+/* Her çözünürlükte AYRI ve TEMİZ bir tarayıcı bağlamı: dolu durum (localStorage)
+   yukarıdaki ekranlara sızmasın, sıradan bağımsız olsun. Akış
+   tools/ekran-goruntusu-al.mjs ile aynıdır (yayın sihirbazın 3. adımından,
+   startExam → finishExam → finalizeReview → publishResults); yalnız model
+   çağrısı yerine uygulamanın yerel yedeği puanlar (/api/ai/ engelli). */
+let doluHatasi = '';
+if (dolu) {
+  for (const cozunurluk of COZUNURLUKLER) {
+    console.log(`\n📦 Dolu senaryo ${cozunurluk.genislik}×${cozunurluk.yukseklik}`);
+    const baglam = await tarayici.newContext({ viewport: { width: cozunurluk.genislik, height: cozunurluk.yukseklik } });
+    const p = await baglam.newPage();
+    await p.clock.setFixedTime(SABIT_ZAMAN);
+    await p.route('**/api/ai/**', (route) => { engellenenAiSayisi++; route.abort(); });
+    p.on('console', (m) => {
+      if (m.type() !== 'error') return;
+      if (((m.location() && m.location().url) || '').includes('/api/ai/')) return;
+      anlikEkranHatalari.push(m.text());
+    });
+    p.on('pageerror', (e) => anlikEkranHatalari.push(String(e)));
+    anlikEkranHatalari = [];
+    await p.goto(url, { waitUntil: 'networkidle' });
+    await p.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important;caret-color:transparent!important}' });
+    await p.evaluate(() => document.fonts.ready);
+
+    const yayin = await p.evaluate(async () => {
+      loadDemoScenario(); demoBitir();
+      state.role = 'teacher'; state.teacherTab = 1; ogtDurum().sihirbaz = 3; renderAll();
+      const d = document.getElementById('btnPublishExam'); if (d) d.click();
+      if (state.exam.status !== 'published') return (typeof yayinEngeliMetni === 'function' && yayinEngeliMetni()) || 'sınav yayınlanamadı';
+      state.role = 'student'; renderAll();
+      startExam();
+      await finishExam();
+      return '';
+    });
+    if (yayin) { doluHatasi = `${cozunurluk.etiket}: ${yayin}`; console.error('  ✗ ' + doluHatasi); await baglam.close(); continue; }
+    await p.waitForFunction(() => !state.ai.busy && Object.keys(state.aiEvals || {}).length > 0, null, { timeout: 60000 });
+
+    const kaydet = async (ekran, rol, sekme, js) => {
+      anlikEkranHatalari = [];
+      await p.evaluate((kod) => { (0, eval)(kod); renderAll(); window.scrollTo(0, 0); }, js);
+      await p.waitForLoadState('networkidle');
+      await p.evaluate(() => document.fonts.ready);
+      await bekle(700);
+      const dosyaAdi = `dolu-${ekran}-${cozunurluk.etiket}.png`;
+      const dosyaYolu = path.join(cikti, dosyaAdi);
+      const metrikler = await ekranMetrikleriniOlc(p);
+      await p.screenshot({ path: dosyaYolu, fullPage: true });
+      const konsolHataSayisi = anlikEkranHatalari.length;
+      const fark = await pikselFarkiHesapla(p, dosyaYolu, tabanGorseliBul(taban, dosyaAdi));
+      sonuclar.push({ ekran: `dolu-${ekran}-${cozunurluk.etiket}`, rol: 'dolu-' + rol, sekme, genislik: cozunurluk.genislik,
+        dosyaAdi, konsolHataSayisi, konsolHatalari: [...anlikEkranHatalari], ...metrikler, fark });
+      console.log(
+        `  ✓ ${dosyaAdi.padEnd(26)} | Fark: ${fark.metin.padEnd(16)} | Hata: ${konsolHataSayisi} | ID: ${metrikler.yinelenenIdSayisi} | <24px: ${metrikler.kucukHedefSayisi} | Taşma: ${metrikler.yatayTasma ? 'Evet' : 'Yok'}`
+      );
+    };
+    // Onaydan ÖNCE: Puanlama kuyruğu dolu (yapay zekâ önerisi bekliyor).
+    await kaydet('teacher-3-bekleyen', 'teacher', 3, "state.role='teacher'; state.teacherTab=3");
+    // Öğretmen KARAR VERİR (aynen kabul), sonuçlar yayınlanır.
+    await p.evaluate(() => {
+      Object.keys(state.aiEvals).forEach((qid) => {
+        const ev = state.aiEvals[qid];
+        if (ev && ev.aiScore != null) finalizeReview(Number(qid), ev.aiScore, '', 'kabul', state.activeStudentId);
+      });
+      publishResults();
+    });
+    await kaydet('teacher-3-onayli', 'teacher', 3, "state.role='teacher'; state.teacherTab=3");
+    await kaydet('teacher-4', 'teacher', 4, "state.role='teacher'; state.teacherTab=4");
+    await kaydet('student-3', 'student', 3, "state.role='student'; state.studentTab=3");
+    await kaydet('admin-1', 'admin', 1, "state.role='admin'");
+    await kaydet('parent-1', 'parent', 1, "state.role='parent'");
+    const isi = await p.evaluate(() => {
+      state.role = 'teacher'; state.teacherTab = 4; renderAll();
+      const t = document.getElementById('teacherHeatmap');
+      state.role = 'admin'; renderAll();
+      const a = document.getElementById('adminHeatmap');
+      return { ogretmen: !!(t && t.children.length), yonetici: !!(a && a.children.length) };
+    });
+    if (!isi.ogretmen || !isi.yonetici) {
+      doluHatasi = `${cozunurluk.etiket}: ısı haritası boş (öğretmen ${isi.ogretmen}, yönetici ${isi.yonetici})`;
+      console.error('  ✗ ' + doluHatasi);
+    }
+    await baglam.close();
+  }
+}
+
 await tarayici.close();
 
 // ---------------------------------------------------------------------------
@@ -457,7 +558,7 @@ const toplamKonsolHatasi = sonuclar.reduce((t, s) => t + s.konsolHataSayisi, 0);
 const toplamYinelenenId = sonuclar.reduce((t, s) => t + s.yinelenenIdSayisi, 0);
 const toplamKucukHedef = sonuclar.reduce((t, s) => t + s.kucukHedefSayisi, 0);
 const toplamYatayTasma = sonuclar.filter((s) => s.yatayTasma).length;
-const basarisiz = sonuclar.some((s) => s.konsolHataSayisi > 0 || s.yinelenenIdSayisi > 0);
+const basarisiz = sonuclar.some((s) => s.konsolHataSayisi > 0 || s.yinelenenIdSayisi > 0) || !!doluHatasi;
 
 // Markdown Raporu
 const mdIcerik = `# Görsel Regresyon ve Arayüz Kalite Raporu
@@ -467,7 +568,7 @@ const mdIcerik = `# Görsel Regresyon ve Arayüz Kalite Raporu
 - **Çıktı Klasörü:** \`${cikti}\`
 - **Taban Klasörü:** ${taban ? `\`${taban}\`` : '*Belirtilmedi (yalnız çekim yapıldı)*'}
 - **Engellenen Yapay Zekâ İstekleri (\`/api/ai/*\`):** ${engellenenAiSayisi} adet
-- **Toplam Test Edilen Ekran:** ${sonuclar.length}
+- **Toplam Test Edilen Ekran:** ${sonuclar.length}${dolu ? ' (--dolu dahil)' : ''}${doluHatasi ? `\n- **DOLU SENARYO HATASI:** ${doluHatasi}` : ''}
 - **Genel Değerlendirme:** ${basarisiz ? '❌ **BAŞARISIZ** (Konsol hatası veya yinelenen ID tespit edildi)' : '✅ **BAŞARILI** (Konsol hatası ve yinelenen ID yok)'}
 
 ---
