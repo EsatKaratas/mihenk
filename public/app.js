@@ -5863,9 +5863,19 @@ function sinavOzeti(x, sf) {
     if (idler.indexOf(String(sid)) >= 0 && (ss[sid] || {}).examStatus === "submitted") bekleyen++;
   });
   if (aktif && state.examStatus === "submitted" && idler.indexOf(String(state.activeStudentId)) >= 0) bekleyen++;
+  /* Gönderilmiş kâğıtların kaçı örnek (demo/simüle) öğrenciye ait — taslak
+     kartında "gönderildi" yanlış okunuyordu (W3 P1-2). */
+  const ornekIdler = (state.students || []).filter(function (s) { return s.demo; }).map(function (s) { return String(s.id); });
+  let ornekGonderen = 0;
+  Object.keys(ss).forEach(function (sid) {
+    if (aktif && String(sid) === String(state.activeStudentId)) return;
+    const d = (ss[sid] || {}).examStatus;
+    if ((d === "submitted" || d === "graded") && ornekIdler.indexOf(String(sid)) >= 0) ornekGonderen++;
+  });
   const ad = String(e.title || "").trim();
   return { id: x.id, aktif: aktif, ad: ad, hedef: e.targetClass || "", durum: e.status, adet: adet,
            sure: e.durationMin, baslayan: kat.baslayan, gonderen: kat.gonderen, bekleyen: bekleyen,
+           ornekGonderen: ornekGonderen,
            /* Hiç dokunulmamış boş kayıt (ilk açılışta ya da son sınav silinince
               kendiliğinden oluşan) listede GÖSTERİLMEZ: "Adsız Sınav · 0 soru ·
               Taslak" satırı öğretmenin oluşturmadığı bir sınavdı. "Yeni sınav"
@@ -6219,7 +6229,12 @@ function sinavKartiHtml(k) {
   const yayinda = k.durum === "published";
   const d = ' data-exam="' + k.id + '"';
   const meta = [k.adet + " soru", (k.sure || "—") + " dk", k.hedef ? escapeHtml(k.hedef) : "Tüm sınıflar"];
-  if (k.gonderen) meta.push(k.gonderen + " kâğıt gönderildi");
+  /* Taslak öğrenciye açılmamıştır: orada "gönderildi" yazmak yanlış. Taslakta
+     kâğıt varsa ya demo/simüle örnek veridir ya da sınav yayından
+     kaldırılmıştır (yanıtlar silinmez, §28c) — ikisi ayrı söylenir. */
+  if (k.gonderen && yayinda) meta.push(k.gonderen + " kâğıt gönderildi");
+  else if (k.gonderen && k.ornekGonderen === k.gonderen) meta.push(k.gonderen + " örnek kâğıt (örnek veri)");
+  else if (k.gonderen) meta.push(k.gonderen + " kâğıt var — sınav yayından kaldırıldı");
   /* Yayınla düğmesi yalnız SEÇİLİ sınavın kartında ve sınav yayına hazırsa
      çizilir (id btnPublishExam: ekran betiği ve demo bu düğmeye dayanır).
      Hazır değilse "Gözden geçir" engelin ne olduğunu 3. adımda gösterir. */
