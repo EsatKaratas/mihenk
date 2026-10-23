@@ -1,4 +1,4 @@
-// §72 / W3 — İçerik Uzmanı kısa metin ön uyarısı.
+// §73 / W3 — İçerik Uzmanı kısa metin ön uyarısı.
 // İstemcideki eşik (public/app.js ceMetinKapasitesi) sunucunun uyguladığı
 // kuralla (src/lib/guards.ts makulSoruSayisi) BİREBİR aynı olmalı; ayrışırsa
 // özet "~N soru taşır" derken sunucu başka sayıda soru döndürür.

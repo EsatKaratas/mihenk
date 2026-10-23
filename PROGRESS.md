@@ -9573,7 +9573,7 @@ uyarır: "Bu metin ~N soru taşır; M istendi, fazlası düşer." Engellemez.
   orada kısmaz). Uyarı, metin kutusundan çıkınca güncellenir (yazarken yeniden
   çizim odak kaybettirir).
 
-### 72b. Onay kartı sadeleşmesi
+### 73b. Onay kartı sadeleşmesi
 
 Canlıda (§64 testi, 390 px) şık metni tek satırlık `<input>`ta kırpılıyordu
 ("Zemin pürüzlendikçe sürtün…"); kartta çeldirici gerekçeleri ve kazanım
@@ -9594,7 +9594,7 @@ denetimi her zaman açıktı.
 - Ölçüm (390 px, demo kartı): kapalı 769 px, açık 1053 px. Şık/gövde
   kırpılması 0 (1366 ve 390).
 
-**72a eki:** kısa metin uyarısı ilk sürümde kutudan çıkınca `renderAll` ile
+**73a eki:** kısa metin uyarısı ilk sürümde kutudan çıkınca `renderAll` ile
 güncelleniyordu; yazıp hemen "Belge yükle"ye tıklayınca yeniden çizim tıklamayı
 yutuyordu (ölçüldü: tarayıcı testinde belge kartı açılmadı). Artık uyarı listesi
 yazarken yerinde güncellenir (`ceUyarilariYenile`), yeniden çizim yok.

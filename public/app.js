@@ -4473,7 +4473,7 @@ function renderPendingQuestionCard(q) {
     return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
-      /* §72b: <input> tek satırdı; 390 px'te şık metni kırpılıyordu. textarea
+      /* §73b: <input> tek satırdı; 390 px'te şık metni kırpılıyordu. textarea
          satıra sarar (ce.css field-sizing). Sınıf/veri/ad aynı; bağlayıcı
          .value okuduğu için değişmedi. */
       '<textarea rows="1" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni">' + escapeHtml(o.text) + '</textarea>' +
@@ -4500,7 +4500,7 @@ function renderPendingQuestionCard(q) {
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2">' + escapeHtml(q.body) + '</textarea>' +
     '<div class="q-opts">' + optsHtml + '</div>' +
-    /* §72b: çeldirici gerekçeleri ve kazanım denetimi katlanır (varsayılan
+    /* §73b: çeldirici gerekçeleri ve kazanım denetimi katlanır (varsayılan
        KAPALI); özet satırı ne içerdiğini söyler. Şüphe şeridi yukarıda,
        katlanmaz: şüpheli rozet her zaman görünür. */
     kartDetayHtml(q) +
@@ -4512,7 +4512,7 @@ function renderPendingQuestionCard(q) {
     '</div></div>';
 }
 
-/** §72b: onay kartının katlanır ayrıntısı. İçerik yoksa hiçbir şey çizilmez. */
+/** §73b: onay kartının katlanır ayrıntısı. İçerik yoksa hiçbir şey çizilmez. */
 function kartDetayHtml(q) {
   const ic = distractorHtml(q) + alignmentRowHtml(q);
   if (!ic) return "";
@@ -4946,7 +4946,7 @@ function ceUyarilari() {
       ? { tur: "blok", metin: "“" + m.ad + "” okunamadı; üretim yapılmaz." }
       : { tur: "kilit", metin: "“" + m.ad + "” okunuyor…" });
   }
-  /* §72: kısa metin ön uyarısı. Sunucu, metnin taşıyabileceğinden fazla
+  /* §73: kısa metin ön uyarısı. Sunucu, metnin taşıyabileceğinden fazla
      soru istenince fazlasını düşürür ve bunu ÜRETİMDEN SONRA söyler
      (routes/ai.ts kisiltmaNotu). Aynı kural burada ÖNCEDEN söylenir. */
   const istenen = state.ceForm.mcCount + state.ceForm.openCount;
@@ -4973,7 +4973,7 @@ function ceUyarilariYenile() {
   if (ul) ul.innerHTML = ceUyariOgeleriHtml(ceUyarilari());
 }
 
-/* §72 — METİN / SORU DENGESİ. Eşik UYDURULMADI: sunucunun uyguladığı kuralın
+/* §73 — METİN / SORU DENGESİ. Eşik UYDURULMADI: sunucunun uyguladığı kuralın
    (src/lib/guards.ts KARAKTER_BASINA_SORU + makulSoruSayisi, §41 Madde 5)
    birebir aynısıdır; ikisi ayrışırsa uyarı yalan söyler. Eşitlik
    test/ce-kapasite.test.ts'te denetlenir. Canlı doğrulama (§69): 484
@@ -5115,14 +5115,14 @@ function wireCeSihirbaz() {
   document.querySelectorAll(".ce-bilgi").forEach(function (d) {
     d.ontoggle = function () { state.ceBilgiAcik = d.open; };
   });
-  // §72b: kart ayrıntısının açıklığı soru başına, yalnız arayüz durumu.
+  // §73b: kart ayrıntısının açıklığı soru başına, yalnız arayüz durumu.
   document.querySelectorAll("#panel-content_expert .q-detay").forEach(function (d) {
     d.ontoggle = function () {
       state.ceKartDetay = state.ceKartDetay || {};
       state.ceKartDetay[d.dataset.qid] = d.open;
     };
   });
-  /* §72b: şık metni artık textarea; görünüşte satıra sarar ama tek satırlık
+  /* §73b: şık metni artık textarea; görünüşte satıra sarar ama tek satırlık
      bir şıktır. Enter yeni satır açmasın. */
   document.querySelectorAll("#panel-content_expert .opt-input").forEach(function (el) {
     el.onkeydown = function (e) { if (e.key === "Enter") e.preventDefault(); };
@@ -5228,7 +5228,7 @@ function renderContentExpert() {
     /* §61: renderAll yok (TUZAK 3); yalnız özetteki sayı yerinde güncellenir. */
     const oz = document.getElementById("ceOzetDayanak");
     if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
-    /* §72: kısa metin uyarısı da yazarken yerinde güncellenir. renderAll
+    /* §73: kısa metin uyarısı da yazarken yerinde güncellenir. renderAll
        DEĞİL: odak kaybolur (TUZAK 3) ve kutudan çıkarken yapılan yeniden
        çizim, aynı anda tıklanan kartın tıklamasını yutuyordu (ölçüldü). */
     ceUyarilariYenile();
@@ -12697,9 +12697,9 @@ function bosDurumHtml(mesaj) {
     "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
     // §70 şüpheli soruda ikinci onay (W3)
     "soruyuOnayla", "supheliOnayModali",
-    // §72 kısa metin ön uyarısı (W3)
+    // §73 kısa metin ön uyarısı (W3)
     "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
-    // §72b onay kartı sadeleşmesi (W3)
+    // §73b onay kartı sadeleşmesi (W3)
     "kartDetayHtml",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
