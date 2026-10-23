@@ -9439,3 +9439,70 @@ görünür düğme/başlık adları karşılaştırıldı (statik sunucu, 1366 p
   çıkarıldı, düğme kartta zaten yan yana).
 - Doğrulama: 346 test, lint, öz-kontrol 470, gorsel-fark 26 ekran (hata/kimlik/
   taşma 0, ikinci yayına göre fark yok), gerçek tıklamalı demo 5/5.
+## 73. YÖNETİCİ PANOSU FİLTRELERİ — sınıf · ders · öğretmen (ikinci tur, 23 Ekim 2026, W4)
+
+**Önce kodda doğrulandı.** State şekli değişmedi, göç yok.
+
+| Boyut | State'te | Karar |
+|---|---|---|
+| Sınıf | `students[].sinif` | filtre var |
+| Öğretmen | `exams[].teacherName` (boşsa "İsimsiz Öğretmen") | filtre var |
+| Ders | Sınavda alan **yok**; her sorunun kazanım kodundan türetiliyor (`OUTCOMES_LIST().subject`, yoksa `kodDanDers`) | filtre var |
+| Dönem | **Yok**; sınavda tarih ya da dönem alanı tutulmuyor | **eklenmedi**, ⓘ içinde nedeni yazıyor |
+
+- **Ders, İçerik Uzmanı'nın formundan alınmıyor.** `soruDersSinif()` kodu
+  bilinmeyen soruda `state.ceForm.subject`'e düşüyor. Yönetici filtresi
+  başka panelin açık formuna bağlı olamayacağı için yeni `yonSoruDersi()`
+  yalnız kazanım koduna bakıyor; kodu olmayan sorunun dersi "".
+- **Seçenekler yalnız gerçek veriden:** yayınlanmış sınavların dersleri ve
+  öğretmenleri, öğrencilerin sınıfları. Taslak sınav seçeneğe girmez. Artık
+  var olmayan bir kayıtlı seçim "tümü" olur (`yonFiltreGecerli`).
+- **Filtrenin uygulandığı yerler:**
+  - "Önce buraya bakın" (metin "bu filtredeki en düşük değer" olur);
+  - üç durum kutusu (`okulGercekDurum(f)`);
+  - kazanım grafiği ("N öğrenciden");
+  - "Sınavlar Arası Gelişim";
+  - öğretmen analitiği;
+  - YZ ↔ nihai puan raporu;
+  - risk listesi.
+- **Filtreden bağımsız olanlar** (ⓘ içinde yazıyor):
+  - Karar Günlüğü, Dışa Aktarma ve "Karşılaştırma (örnek)".
+  - Risk listesindeki davranış (dikkat) göstergesi tüm sınavlardan
+    hesaplanıyor.
+- **Boş durumlar:** "Bu filtrelerle eşleşen yayınlanmış sınav / onaylı sonuç
+  / öğretmen yok. Filtreleri genişletin ya da temizleyin."
+- **Gizlilik:** seçim yalnız `localStorage["mihenk.yonetici.filtre.v1"]`
+  anahtarında, yalnız üç değer. URL'ye hiçbir şey yazılmıyor (ölçüldü:
+  adres değişmedi).
+- **Yan düzeltmeler:**
+  - Eylem kartında en düşük değer kritik eşiğin üstündeyse "tekrar çalışması
+    planlanabilir" yerine "acil bir kazanım sorunu görünmüyor" yazıyor.
+  - Kazanım grafiğindeki "Bu kazanımlar için aksiyon alın" kutusu **örnek
+    şubeleri de** listeliyordu ("6-A (örnek) → tekrar sorusu üret"). Hemen
+    üstündeki uyarı listesiyle aynı kural uygulandı: örnek satır eylem
+    doğurmaz.
+- **Yönetici aralığı dışında tek dokunuş:** `trendHtml(gecmisVerilen)`,
+  isteğe bağlı ve geriye uyumlu parametre (2 satır). Öğretmen ekranı
+  parametresiz çağırıyor, davranışı aynı.
+- **Test:** yeni `test/yonetici-filtre.test.ts`, 13 test. Kapsadıkları:
+  - seçeneklerin yalnız gerçek veriden gelmesi;
+  - kayıtlı seçimin süzülmesi;
+  - dersin koddan çıkması;
+  - sınav, öğrenci ve kayıt süzme;
+  - okul durumu sayıları;
+  - yüzdenin yalnız onaylı oturumdan gelmesi;
+  - ders filtresinin kazanım sütununu çıkarması;
+  - gelişim geçmişi.
+- **Doğrulama:**
+  - 359/359 test (14 dosya), tsc temiz, öz-kontrol %100.
+  - gorsel-fark 1280/390: hata 0, yinelenen id 0, 24 px altı hedef 0, taşma
+    yok.
+  - Tarayıcıda demo verisiyle elle denendi:
+    - Filtresiz değerler önceki ölçümle aynı: 7-A · 1, 7-B · 2, %48.
+    - 7-A seçilince kutular %50 / 0 / 1, grafik yalnız 7-A, risk "1 / 2
+      öğrenci".
+    - Sayfa yenilenince seçim korundu.
+    - Boş sınıf (8-C) seçilince boş durum metinleri çıktı.
+    - "Filtreleri temizle" seçimi sıfırladı.
+    - 390 px'te üç seçici alt alta (41 px), taşma yok.
+  - Model çağrısı yapılmadı.
