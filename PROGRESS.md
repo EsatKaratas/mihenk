@@ -8976,3 +8976,25 @@ README ekran görüntüleri yenilenmedi; tüm paneller birleşince yeniden
 - Sekme numaraları W1/W3/W4 dallarında kalkıyor; birleşince kontrol edilmeli.
 - Güzel olur (yapılmadı): adıma tıklayınca ilgili panele gitme, rol başına
   "ilk bakış" boş durum kartı.
+
+## 61a. İÇERİK UZMANI — yapışkan özet/çubuk düzeltmeleri (23 Ekim 2026, W3)
+
+W2'nin görsel farkı (390 px, tam sayfa) iki şüphe bildirdi; gerçek kaydırmayla
+ölçüldü (yerel statik sunucu, main 5b6d533 üstü):
+- **Çubuk kazanım seçicisini örtüyor mu?** Kalıcı olarak hayır: çubuk 118 px,
+  altındaki öğe kaydırınca açılıyor; tam sayfa çekimdeki görüntü yan etkiydi.
+  Ama klavye odağı (Tab) öğeyi çubuğun altına bırakabiliyordu. Düzeltme:
+  `.ce-source` denetimlerine `scroll-margin-bottom` (144 px). Ölçüm: Tab ile
+  30 adım, örtülen odak 0.
+- **~250 px boşluk:** boşluk değil, çubuğun sihirbaz sonundaki kendi yeri
+  (118 px) + iki 16 px aralık; tam sayfa çekimde çubuk başka yerde çizildiği
+  için boş görünüyordu. Dar ekranda aralıklar 16 → 8 px (kart→çubuk 8,
+  çubuk→bekleyenler 8).
+- **Yeni bulgu (kabuk §64):** üst çubuk yapışkan oldu (57 px; demo şeridiyle
+  120 px). 1366'da sağdaki özet `top: 16px` ile üst çubuğun altına 87 px
+  giriyordu. Düzeltme: `top` kabuğun `scroll-padding-top` payıyla aynı
+  (80 px), demo açıkken 144 px. Ölçüm: iki durumda da örtüşme yok (−23/−24 px).
+- Özetteki kazanım satırı kodu iki kez yazıyordu ("FEN.7.1.2" +
+  "FEN.7.1.2 — Kuvvet ve Hareket"); etiketten kod atıldı.
+
+Tarayıcı testi 27/27, `npm test` 338/338, lint temiz, öz-kontrol %100.

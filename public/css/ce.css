@@ -112,8 +112,12 @@
   gap: 0 var(--sp-4); margin-top: var(--sp-3); }
 
 /* --- Özet paneli (yapışkan) ---------------------------------------------- */
-#panel-content_expert .ce-ozet { position: sticky; top: var(--sp-4); display: flex; flex-direction: column;
+/* §61a: üst kabuk çubuğu (kabuk.css, §64) yapışkan oldu; özet onun ALTINDA
+   durmalı. Pay, kabuğun kendi scroll-padding-top'uyla aynı (ölçüldü: çubuk
+   57 px, eski top 16 px'te özet 87 px örtülüyordu). */
+#panel-content_expert .ce-ozet { position: sticky; top: calc(var(--sp-8) * 2.5); display: flex; flex-direction: column;
   gap: var(--sp-3); }
+body.demo-acik #panel-content_expert .ce-ozet { top: calc(var(--sp-8) * 4.5); }
 #panel-content_expert .ce-ozet-baslik { margin: 0; font-size: var(--fs-4); }
 #panel-content_expert .ce-ozet-liste { margin: 0; display: grid; gap: var(--sp-2); }
 #panel-content_expert .ce-ozet-satir { display: grid; grid-template-columns: calc(var(--sp-8) * 2 + var(--sp-2)) minmax(0, 1fr);
@@ -139,7 +143,14 @@
 
 /* --- Dar ekran: özet alta yapışan çubuk olur ----------------------------- */
 @media (max-width: 900px) {
-  #panel-content_expert .ce-sihirbaz { grid-template-columns: minmax(0, 1fr); }
+  /* §61a: kart ile çubuk ve bekleyenler arası 16 → 8 px. Çubuğun kendi yeri
+     (118 px) kalır: çubuk sihirbazın sonunda oraya oturur, boşluk değildir. */
+  #panel-content_expert .ce-sihirbaz { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2);
+    margin-bottom: var(--sp-2); }
+  /* §61a: alttaki çubuk (≈118 px) odaklanan alanı örtmesin: klavye/odak
+     kaydırması öğeyi çubuğun üstünde bırakır. */
+  #panel-content_expert .ce-source :is(input, select, textarea, button, summary) {
+    scroll-margin-bottom: calc(var(--sp-8) * 4.5); }
   #panel-content_expert .ce-adim-govde { padding-left: 0; }
   #panel-content_expert .ce-adim-bas { gap: var(--sp-2); }
   #panel-content_expert .ce-ozet { top: auto; bottom: 0; z-index: 5; padding: var(--sp-3) var(--sp-4);
