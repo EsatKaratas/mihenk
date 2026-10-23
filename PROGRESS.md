@@ -9376,3 +9376,45 @@ Görüntü yeniden çekildi (commit'teki temiz).
 - **Bulgu (ortak bölge, W2'ye):** demo şeridinin 3. adımı "Sınavı Bitir ile
   gönderin" diyor. Ekranda önce **Gözden geçir ve bitir**, sonra **Sınavı
   bitir** var. Metin "Gözden geçir ve bitir ile gönderin" olmalı.
+
+## 71. ŞÜPHELİ SORUDA İKİNCİ ONAY + ESKİ ÜRETİM NOTU TEMİZLİĞİ (23 Ekim 2026, W3)
+
+*(Dalda §70 olarak yazılmıştı; W4'ün §70 belge bölümüyle çakıştığı için birleştirmede §71'e alındı. Metindeki "§70" atıfları bu bölümü kastediyor.)*
+
+Canlı kontrolün (§69, 87dc965d) iki P2'si. Müdür kararı; ortak bölgedeki
+onay düğmesi için W3'e izin verildi (W2 bilgilendirildi).
+
+**1. Şüpheli soruda ikinci onay.** Canlıda Matematik kazanım modunda 2 ÇSS'nin
+2'sinde anahtar şüpheliydi (hesap başka şık; bağımsız çözüm farklı). Rozetler
+ikisini de yakaladı ama "✓ Onayla → Havuza Aktar" tek tıkla geçiyordu. Artık
+**yüksek ciddiyetli** şüphe (`SUPHE_TURLERI` içinde `ciddiyet: "yuksek"`:
+hesapBaskaSik, hesapUyusmazligi, cozumUyusmazligi, anahtarBelirsiz, kaynakYok)
+varsa pencere açılır: "Şüphe işaretlerine rağmen onaylıyor musunuz?", her
+şüphenin adı ve açıklaması, **[Vazgeç] [Yine de onayla]**.
+- Engellemez, otomatik karar vermez (agents.md §1); yalnız insanın şüpheyi
+  gördüğünü onaylatır. Orta/düşük şüphe (yabancı harf, kazanım, aynı gerekçe)
+  pencere açmaz.
+- Varsayılan odak **Vazgeç**: Enter şüpheli soruyu onaylamaz.
+- Onay tek fonksiyonda (`soruyuOnayla`); `soru_onaylandi` denetim kaydı ve
+  `supheler` alanı aynen.
+- Demo tohumunun sorusunda yüksek şüphe yok (ölçüldü: 0) → demo akışı
+  değişmedi, tek tıkla onay.
+
+**2. Eski üretim notu.** Üretim notu ve hatası, üretildikleri bağlama aittir.
+Ders, sınıf, atölye ya da kazanım değişince (`seciliKatalogAnahtari()` +
+kazanım kodu) bir sonraki çizimde temizlenir. Canlıda 390 px'te başka dersin
+"1 soru elendi" notu alt çubukta kalıyordu. İlk çizimde temizlenmez (sayfa
+yenilenince not kendi bağlamında durur).
+
+**Ölçüm** (yerel statik sunucu, 1366 ve 390): tarayıcı testi 34/34. Pencere,
+Enter = Vazgeç, Yine de onayla → approved + `supheler: ["hesapBaskaSik"]`,
+rozetsiz soru tek tık, not ders ve kazanım değişiminde temizleniyor, demo
+5/5, konsol 0, taşma 0. `npm test` 346/346, lint temiz, öz-kontrol 470 ad %100.
+
+**İkinci tura (müdür kararı):**
+- **P1-1 model kalitesi:** "yalnız kazanım" + hesap gerektiren Matematik
+  sorularında anahtar şüphesi yüksek (canlıda 2/2). A5 ölçüm setine ve istem
+  çalışmasına aday.
+- **P2-4 kısa metin uyarısı:** metin, istenen sayıda soruyu taşımayacak kadar
+  kısaysa özet bunu ÜRETİMDEN ÖNCE söylesin ("bu metin ~2 soru taşır");
+  bugün sunucu notu yalnız üretimden sonra geliyor.
