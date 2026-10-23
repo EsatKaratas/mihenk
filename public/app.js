@@ -7603,7 +7603,7 @@ function critRowHtml(rub, c, i) {
     '<button class="btn btn-ghost btn-sm crit-remove" data-idx="' + i + '" title="Bu ölçütü kaldır">✕</button></div>' +
     (acikMi
       ? '<textarea class="crit-desc" data-idx="' + i + '" rows="2" placeholder="Bu ölçütten tam puan almak için yanıtta ne olmalı?">' + escapeHtml(c.description || "") + '</textarea>'
-      : '<button class="crit-desc-add" data-idx="' + i + '">+ Ne beklendiğini yaz (opsiyonel)</button>') +
+      : '<button class="crit-desc-add" data-idx="' + i + '">+ Ne beklendiğini yaz (isteğe bağlı)</button>') +
     '</div>';
 }
 
@@ -7821,7 +7821,7 @@ function evalCardHtml(q, student, ev) {
     '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
-    '<div class="eval-block"><h4>AI Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
+    '<div class="eval-block"><h4>Yapay Zekâ Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
     injectionWarnHtml(ev) +
@@ -7834,8 +7834,8 @@ function evalCardHtml(q, student, ev) {
     feedbackDraftHtml(q, student, ev) + '</div></div>' +
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
-    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (AI puanı: ' + ev.aiScore + ')</button>' +
+    '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (YZ puanı: ' + ev.aiScore + ')</button>' +
     '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button>' +
     (ev.fromCache ? '<button class="btn btn-secondary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' : "") +
     '</div></div>';
@@ -7856,7 +7856,7 @@ function evalFailedCardHtml(q, student, ans, ev, rub) {
     '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
     '<input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
-    '<div class="field" style="flex:2;"><label>Not (opsiyonel)</label>' +
+    '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label>' +
     '<input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
     '<div class="actions">' +
     '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
@@ -7870,12 +7870,12 @@ function doneCardHtml(q, student, ev, rv) {
     '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
     '<div style="margin-top:8px;font-size:13px;">' +
-    'AI önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
+    'Yapay zekâ önerisi: <b class="tabular">' + (rv.aiScore != null ? rv.aiScore : "—") + '</b>' +
     ' <span style="color:var(--text-muted);">&rarr;</span> ' +
     'Öğretmen onayı: <b class="tabular">' + rv.finalScore + ' / ' + rub.maxScore + '</b> ' +
     (rv.decision === "revised"
       ? '<span class="pill pill-accent2">öğretmen revize etti</span>'
-      : '<span class="pill pill-accent">AI önerisiyle aynı</span>') +
+      : '<span class="pill pill-accent">YZ önerisiyle aynı</span>') +
     (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
     '</div></div>';
 }
@@ -7911,7 +7911,7 @@ function confBadge(c) {
     : (c < 0.75
       ? "Model kısmen emin. Gerekçeleri okuyup teyit etmeniz önerilir."
       : "Model yüksek güvenle değerlendirdi. Yine de son söz sizde.");
-  return '<div class="conf-row"><span class="pill ' + cls + '">AI güveni %' + pct + '</span>' +
+  return '<div class="conf-row"><span class="pill ' + cls + '">YZ güveni %' + pct + '</span>' +
     '<span class="conf-note">' + not + '</span></div>';
 }
 
@@ -8041,10 +8041,10 @@ function teacherTab3Html() {
     (yayinlandi ? '<span class="pill pill-success">Sonuçlar yayınlandı</span>'
                 : '<span class="pill pill-accent2">Öğretmen onayı bekliyor</span>') + '</div>' +
     '<div class="grid-3col">' +
-    '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcToplam + '</div><div class="s-sub">' + gonderenler.length + ' öğrenci · otomatik puanlandı</div></div>' +
+    '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcToplam + '</div><div class="s-sub">' + gonderenler.length + ' öğrenci · cevap anahtarıyla puanlandı</div></div>' +
     '<div class="stat-tile' + (basarisiz ? ' tile-alert' : '') + '"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' +
     (basarisiz ? basarisiz + ' değerlendirme yapılamadı — yeniden deneyin'
-      : (pending.length ? "AI puan önerdi, karar sizde" : "tümü incelendi")) + '</div></div>' +
+      : (pending.length ? "Yapay zekâ puan önerdi, karar sizde" : "tümü incelendi")) + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? gonderenler.length + " öğrenci karnesini görebiliyor" : "siz yayınlayana kadar gizli") + '</div></div>' +
     '</div></div>';
 
@@ -8075,7 +8075,7 @@ function teacherTab3Html() {
   const acikUclu = opens.length
     ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
       (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>')
-    : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular otomatik puanlandı.</div>';
+    : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular cevap anahtarıyla puanlandı.</div>';
   /* §62b: onaylananlar ayrı — "Sonuçları Yayınla" kutusu onların ÜSTÜNDE
      durur (ölçüldü: altta kalınca 7270 px aşağıdaydı). */
   const onaylanan = opens.length && done.length
@@ -8882,7 +8882,7 @@ function calibrationHtml() {
   const enFarkliKutu = c.enFarkli
     ? '<div class="cal-worst"><span class="cal-worst-baslik">En çok ayrıştığınız yanıt</span>' +
       escapeHtml(c.enFarkli.ogrenci || "öğrenci") + " · " + escapeHtml(String(c.enFarkli.soru).slice(0, 90)) +
-      '<div class="cal-worst-sayi">AI önerisi <b>' + c.enFarkli.ai + "</b> &rarr; sizin puanınız <b>" +
+      '<div class="cal-worst-sayi">Yapay zekâ önerisi <b>' + c.enFarkli.ai + "</b> &rarr; sizin puanınız <b>" +
       c.enFarkli.nihai + "</b> (" + (c.enFarkli.fark > 0 ? "+" : "") + ondalikTr(c.enFarkli.fark, 1) + ")</div></div>"
     : "";
 

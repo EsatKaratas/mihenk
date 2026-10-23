@@ -9158,6 +9158,36 @@ kullanıcı metinlerini değiştirir.
 
 ---
 
+### 67.3 Bölüm 2b — öğretmen aralığı metinleri (W4, 058d0c5 üzerine)
+
+- **"opsiyonel" → "isteğe bağlı"** (3 yer):
+  - Ölçüt açıklaması ekleme düğmesi.
+  - Puanlama kartlarındaki iki "Not" etiketi.
+- **"otomatik puanlandı" → "cevap anahtarıyla puanlandı"** (2 yer: ÇSS
+  kutucuğu, açık uçlusu olmayan sınavın boş durumu).
+  - Kodda doğrulandı: ÇSS sonucu yalnızca `selectedKey === q.correctKey`
+    karşılaştırmasıyla üretiliyor. Bu karşılaştırma 3 yerde var: sınav
+    bitişi, simüle öğrenci, demo tohumu; hiçbirinde model çağrısı yok.
+  - "Otomatik" sözü yapay zekâ puanladı diye okunabiliyordu.
+- **"AI" → "yapay zekâ"**:
+  - Değerlendirme kartı başlığı "Yapay Zekâ Puan Önerisi".
+  - Onaylanan kartta "Yapay zekâ önerisi:".
+  - Sayaç cümlesi "Yapay zekâ puan önerdi, karar sizde".
+  - Kalibrasyon kartında "Yapay zekâ önerisi".
+- **Dar yerde "YZ"**:
+  - "Tek Tıkla Onayla (YZ puanı: N)".
+  - "YZ önerisiyle aynı".
+  - "YZ güveni %N".
+- **Sekme adı** zaten "Puanlama" (W1 §62b); değişiklik gerekmedi.
+- **Bilerek değiştirilmeyen:**
+  - Öğretmen ekranındaki "simüle" rozeti (sözlük kuralı yalnız öğrenci paneli
+    için).
+  - "Tek Tıkla Onayla" ifadesi (W1'in puanlama akışı; yalnız "AI" sözü
+    değişti).
+- **Doğrulama:**
+  - 346/346 test, tsc temiz, öz-kontrol %100.
+  - gorsel-fark: hata 0, yinelenen id 0, taşma yok.
+
 ## 62b. ÖĞRETMEN — Puanlama'da onay kuyruğu en üstte + soru düzenleme erişilebilirliği (23 Ekim 2026, W1)
 
 §62a'da önerilen ve müdürün onayladığı iş. Dal `ogretmen-puanlama`, main
