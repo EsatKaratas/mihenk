@@ -113,8 +113,10 @@ console.log('  … sınav yayınlanıyor, öğrenci sınavı çözüyor, model �
    kabul edilmemiş AI rubrik taslağı yayını engelleyen bir koşul oldu; demo
    tohumunun rubriği şablondur, etkilenmez — ama koşul değişirse sebep burada
    yazılır.) */
+/* §62 (W1): yayın düğmesi sınav sihirbazının 3. adımında ("Gözden geçir ve
+   yayınla"); Sınavlar listesinde yok. Sihirbaz durumu ogtDurum() içinde. */
 const yayinEngeli = await sayfa.evaluate(() => {
-  state.role = 'teacher'; state.teacherTab = 1; renderAll();
+  state.role = 'teacher'; state.teacherTab = 1; ogtDurum().sihirbaz = 3; renderAll();
   document.getElementById('btnPublishExam')?.click();
   return state.exam.status === 'published'
     ? ''
