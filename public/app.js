@@ -7994,8 +7994,8 @@ function teacherTab3Html() {
      açacak "sınıf simüle et" düğmesi kilidin arkasında kalırdı. */
   if (!gonderenler.length) {
     return '<div class="card"><div class="empty-state">' +
-      'Bu sınavda henüz kağıdını gönderen öğrenci yok. Değerlendirme kuyruğu, ' +
-      'bir öğrenci “Sınavı Bitir” dediğinde dolacak.' +
+      'Bu sınavda henüz kâğıdını gönderen öğrenci yok. Değerlendirme kuyruğu, ' +
+      'bir öğrenci “Gözden geçir ve bitir” adımında “Sınavı bitir”e bastığında dolacak.' +
       '</div></div>' + sinifVerisiKutusuHtml(0);
   }
 
