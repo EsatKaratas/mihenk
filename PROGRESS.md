@@ -8702,3 +8702,91 @@ Gerçek "AI ile Soru Üret" çağrısı yayından sonra canlıda doğrulanacak
 bağlantısıyla yükleniyor. `adimciHtml` kullanılmadı: adımlar açılır-kapanır
 başlık + özet satırı istediği için kendi başlıkları var.
 **İkinci tur:** onay kartı sadeleşmesi, Soru Havuzu ağacı ve filtreleri.
+
+## 63. ÖĞRENCİ, YÖNETİCİ VE VELİ PANELLERİ (tasarım turu 1) (23 Ekim 2026, W4)
+
+Taban T0 (§60), dal `tasarim-ogrenci`, main `9cdb1ef` üzerine rebase. Yalnız
+W4 aralıkları değişti: `app.js` öğrenci, modallar, yönetici ve veli
+bölümleri, öz-kontrol listesi ve `css/{ogrenci,yonetici,veli}.css`.
+`kabuk.css`'e dokunulmadı (W5'in).
+
+### 63.1 Öğrenci
+- **Yapışkan sınav başlığı** (`ogrSinavBaslikHtml`). Süre, soru gezgini ve
+  lejant birlikte: ✓ yanıtlandı · ⚑ işaretli · ○ boş, sayılarıyla. Durum
+  yalnız renkle verilmiyor: her noktada simge ve `aria-label` var
+  ("Soru 2, boş, işaretli").
+  - Noktalar artık `button` (eskiden `div`).
+  - Yanıt verilince başlık **renderAll olmadan** yerinde tazelenir
+    (`ogrBaslikTazele`), odak kaybolmaz.
+  - Kaydırınca üstte kaldığı ölçüldü: 1500 px kaydırmada top = 0.
+- **"Gözden geçir ve bitir" ayrı adım** (`ogrGozdenHtml`).
+  - Boş ve işaretli sorular listelenir; tıklanınca o soruya dönülür.
+  - **Sınavı bitir yalnız bu adımda** var: `.btn-critical.btn-dolu`, kırmızı
+    `rgb(180,35,24)`. Son onay modalı korunuyor ("Evet, bitir").
+  - Bu adım oturuma yazılmaz (`ogrGozdenGecir`); süre ve yanıtlar etkilenmez.
+- **Yanıt kutusu** gövde yazı tipinde ("Source Sans 3", `--fs-4`). Eskiden
+  eş aralıklı yazı tipindeydi.
+- **Bütünlük notu**: tek satır + "ayrıntı" (`<details>`). Tam metin aynen
+  ayrıntının içinde (privacy-policy §2 sözü kısaltılmadı). Açık/kapalı
+  durumu yeniden çizimde korunur.
+- **Karne "sen" dilinde.** Her soruda kazanımın kısa adı önde, kodu ikincil
+  (`kazanimAdKodHtml`). Öğrenci panelinin geri kalanı da "sen"e alındı, tek
+  panelde iki hitap olmasın diye.
+- **Sekmeler numarasız**: "Sınavı Çöz / Sınavlarım / Karne" (W5 ile
+  anlaşıldı). `data-tab` 2/1/3 ve pasif mantığı aynı.
+
+### 63.2 Yönetici
+- **Açıklamalar ⓘ ardında** (`yonBilgiHtml`, `<details>`). Metin silinmedi,
+  yalnız varsayılan olarak kapalı.
+- **"Önce buraya bakın" eylem kartı** başta (`yonEylemKartiHtml`). En fazla üç
+  madde: onay bekleyen yanıt, en düşük kazanım (eşik altındaysa kritik),
+  tamamlanmamış atama. **Yalnız gerçek veriden** üretilir. Eskiden gerçek
+  veri yokken örnek şubeye düşüyordu; artık "henüz yayınlanmış sınav yok"
+  diyor.
+- **Örnek veri ayrı bölümde**: "Karşılaştırma (örnek)" (`yonOrnekBolumHtml`).
+  İçinde örnek şubelerin grafiği ve örnek öğretmenler var (detay kartı
+  `#taDetayOrnek`). Ana grafik ve öğretmen listesi yalnız gerçek.
+- **Tek birim puan.** Öğretmen sapması eskiden bir satırda "%8 daha düşük",
+  ötekinde "0,1 puan" diyordu; artık her yerde "ortalama N puan daha
+  düşük/yüksek". `teacherDeltaYuzde` tanımlı kaldı, burada kullanılmıyor.
+- **Şube adı** "7-A (2/2)" yerine "7-A · 2 öğrenciden". Sayı, yüzdenin
+  dayandığı **onaylı** (graded) öğrenci sayısıdır.
+- **Açık iş:**
+  - "Fen Bilimleri" düzeltmesi: örnek veri satırı W2'nin ortak bölgesinde
+    (≈1923), W2 yapacak.
+  - Filtreler ikinci tura kaldı.
+
+### 63.3 Veli
+- **"Çocuğunuz:" seçici.** Eskiden yanlışlıkla "Görüntülenen veli" yazıyordu.
+  Seçenekler `.chip`, `aria-pressed`.
+- **Çocuk kartı**: baş harfler, sınıf, onaylı sınav sayısı ve gizlilik sözü.
+- **"Son onaylı sonuç" büyük** (`--fs-6`×2). Öğretmenin onaylı notu altında.
+  Önceki sınavlar ayrı kartta.
+- **Konular sade dille.** Kazanım adı önde, kod ikincil. Durum sözcük, simge,
+  renk ve çubukla birlikte verilir: Güçlü ✓ (≥70), Gelişiyor ◐ (≥50),
+  Desteğe ihtiyaç var ! (<50).
+- **Boş durum**: sürecin üç adımı (çözer, öğretmen onaylar, burada görünür)
+  ve "yapay zekâ önerisi size gösterilmez" notu.
+
+### 63.4 Değişmeyenler
+- **HITL ve gizlilik.**
+  - Öğrenci ve veli yalnız `graded` sonucu görür (`veliSonuclari` onay kapısı
+    aynı).
+  - Sıralama, sınıf ortalaması ve başka öğrenci yok.
+  - Bütünlük bilgisi veliye yalnız öğretmen onayıyla gider (kart aynı).
+- **Ekran betiği seçicileri** `#panel-student/admin/parent .card` korundu.
+
+### 63.5 Doğrulama (statik sunucu, 8794; workerd Uygulama Denetimi'nde engelli)
+- 338/338 test, `tsc --noEmit` temiz, `node --check` temiz.
+- Öz-kontrol 401 ad, %100.
+- `tools/gorsel-fark.mjs` (1280 + 390), öğrenci 1–3, yönetici, veli: konsol
+  hatası 0, yinelenen id 0, 24 px altı hedef 0, taşma yok.
+- Tarayıcıda 1366 ve 390 px el kontrolü:
+  - başlık, lejant, gözden geçirme ve modal metni;
+  - karne;
+  - yöneticide eylem kartı, "N öğrenciden" lejantı, örnek öğretmen detayı;
+  - veli dolu ve boş durum.
+- Kapalı `<details>` içi ölçümde 5 px "taşma" gibi görünüyordu; açıkken 0,
+  sayfa genişliği 390.
+- **Ücretli çağrı yapılmadı.** "Evet, bitir" tıklanmadı. Tek konsol hatası
+  statik sunucudaki `/api/ai/status` 404'ü.
