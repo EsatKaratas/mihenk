@@ -9056,3 +9056,35 @@ seçici itmiyor. Ama sekmenin kendi kartları (sınav özeti, Sınıf Verisi,
 10 ekran (1280 ve 390): hata 0, yinelenen id 0, <24px 0, taşma yok · servis
 = disk (app.js `51413e5b452c…`, ogretmen.css `dce289885390…`) · U+FFFD 0 ·
 model çağrısı 0. P2-5 W2'de, P2-7 W4'ün dalında.
+
+### 65.2 Bölüm 2a — ortak bölge metinleri (W4, d28dfef üzerine)
+
+§65.1 ayrı dalda (`metin-cilasi`, 5158774). Bu dal yalnız ortak bölgenin
+kullanıcı metinlerini değiştirir.
+
+- **"opsiyonel" → "isteğe bağlı"**: İçerik Uzmanı yönerge etiketi.
+- **"AI" → "yapay zekâ"**:
+  - Model durum notu ve alt bilgi.
+  - Denetim günlüğü ayrıntısı.
+  - Çeldirici kutusu başlığı.
+- **Dar yerde "YZ"**:
+  - Denetim günlüğü sayaç etiketleri ("YZ soru önerdi", "YZ puan önerdi",
+    "YZ olmadan puanlandı").
+  - Süre etiketi "⏱ YZ önerisi: N sn" (eskiden "s").
+- **HITL dili:**
+  - Kazanım denetimi açıklamasında "karar verdi" → "değerlendirdi".
+  - Uyum rozetinde "karar verilemedi" → "belirlenemedi".
+  - **Bilerek değiştirilmeyen:** denetim günlüğünün boş durumundaki
+    "insan ne karar verdi". Orada kararı veren insandır; cümle HITL'i
+    doğru anlatıyor.
+- **Bilerek değiştirilmeyen başka yerler:**
+  - "Hesap tutmuyor" etiketi kodun kendi aritmetik denetimi, model hükmü
+    değil.
+  - "Workers AI", "OpenAI" ürün adları.
+  - Alt bilgideki "simüle eder" (sözlük kuralı yalnız öğrenci paneli için).
+  - CSV başlıkları.
+- **Doğrulama:**
+  - 346/346 test, tsc temiz, öz-kontrol %100.
+  - gorsel-fark: hata 0, yinelenen id 0.
+- **Kalan (bölüm 2b):** öğretmen aralığı metinleri. W1'in `ogretmen-puanlama`
+  dalı main'e girdikten sonra, ona rebase edilerek yapılacak.

@@ -552,7 +552,7 @@ function materyalSeridiHtml() {
 function yonergeAlaniHtml() {
   const g = String(state.ceForm.guidance || "");
   return '<div class="field ce-text-field"><div class="label-row">' +
-    '<label for="ceGuidance">Yönerge <span style="font-weight:400;color:var(--text-muted);">(opsiyonel)</span></label>' +
+    '<label for="ceGuidance">Yönerge <span style="font-weight:400;color:var(--text-muted);">(isteğe bağlı)</span></label>' +
     '<span class="char-count' + (g.length > 540 ? " near" : "") + '">' + g.length + ' / 600</span></div>' +
     '<textarea id="ceGuidance" rows="3" placeholder="örn. Günlük hayattan örneklerle, grafik yorumlatan sorular olsun. Sürtünme kuvvetine ağırlık ver.">' +
     escapeHtml(g) + '</textarea>' +
@@ -1156,7 +1156,7 @@ function aiAyrintiHtml() {
   } else if (a.mode === "simulation") {
     icerik += satir("Durum", "Yerel simülasyon");
     if (a.error) icerik += satir("Sebep", a.error);
-    icerik += '<div class="aim-not">Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı ' +
+    icerik += '<div class="aim-not">Model sunucusuna ulaşılamadığı için yapay zekâ adımları şablon tabanlı ' +
       "yerel yedeğe düştü. Üretilen içerik <b>gerçek model çıktısı değildir</b> ve ekranda böyle işaretlenir.</div>";
   } else {
     icerik += satir("Durum", "Denetleniyor…");
@@ -1198,7 +1198,7 @@ function renderAiBadge() {
       "yalnızca yapay zekâ adımlarında ilgili metin modele iletilir.";
     const model = state.ai.mode === "live"
       ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir."
-      : "Model sunucusuna ulaşılamadığı için AI adımları şablon tabanlı yerel yedeğe düşmüştür.";
+      : "Model sunucusuna ulaşılamadığı için yapay zekâ adımları şablon tabanlı yerel yedeğe düşmüştür.";
     col.textContent = model + " Bu prototip " + rolAdedi + " rolü aynı tarayıcı oturumunda simüle eder; " + depoNotu;
   }
 }
@@ -3609,10 +3609,10 @@ function auditSatirHtml(k) {
   var detay = [];
   if (k.model) detay.push((k.fellBack ? "yedek model: " : "model: ") + escapeHtml(k.model));
   if (k.aiScore != null && k.finalScore != null) {
-    detay.push("AI önerisi <b>" + k.aiScore + "</b> → öğretmen <b>" + k.finalScore + "</b>" +
+    detay.push("Yapay zekâ önerisi <b>" + k.aiScore + "</b> → öğretmen <b>" + k.finalScore + "</b>" +
       (k.degisti ? ' <span class="au-degisti">değiştirdi</span>' : ' <span class="au-aynen">aynen onayladı</span>'));
   } else if (k.aiScore != null) {
-    detay.push("AI önerisi: <b>" + k.aiScore + "</b>" + (k.confidence != null ? " (güven " + k.confidence + ")" : ""));
+    detay.push("Yapay zekâ önerisi: <b>" + k.aiScore + "</b>" + (k.confidence != null ? " (güven " + k.confidence + ")" : ""));
   } else if (k.tur === "puan_karari") {
     detay.push('<span class="au-elle">yapay zekâ önerisi olmadan, öğretmen doğrudan puanladı</span>: <b>' + k.finalScore + "</b>");
   }
@@ -3653,13 +3653,13 @@ function auditGunluguHtml() {
     "zaman damgasıyla kayıtlıdır.</p>" +
 
     '<div class="au-ozet">' +
-    '<div class="au-kutu"><div class="au-sayi">' + o.uretilen + '</div><div class="au-etiket">AI soru önerdi</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.uretilen + '</div><div class="au-etiket">YZ soru önerdi</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.onaylanan + '</div><div class="au-etiket">insan onayladı</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.reddedilen + '</div><div class="au-etiket">insan reddetti</div></div>' +
-    '<div class="au-kutu"><div class="au-sayi">' + o.oneri + '</div><div class="au-etiket">AI puan önerdi</div></div>' +
+    '<div class="au-kutu"><div class="au-sayi">' + o.oneri + '</div><div class="au-etiket">YZ puan önerdi</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.aynen + '</div><div class="au-etiket">aynen onaylandı</div></div>' +
     '<div class="au-kutu au-vurgu"><div class="au-sayi">' + o.degisen + '</div><div class="au-etiket">öğretmen değiştirdi</div></div>' +
-    (o.elle ? '<div class="au-kutu"><div class="au-sayi">' + o.elle + '</div><div class="au-etiket">AI olmadan puanlandı</div></div>' : "") +
+    (o.elle ? '<div class="au-kutu"><div class="au-sayi">' + o.elle + '</div><div class="au-etiket">YZ olmadan puanlandı</div></div>' : "") +
     "</div>" +
 
     (yuzde != null
@@ -4024,7 +4024,7 @@ var ALIGN_ETIKET = {
   olcuyor: { ad: "kazanımı ölçüyor", sinif: "pill-success" },
   kismen: { ad: "kısmen ölçüyor", sinif: "pill-warning" },
   olcmuyor: { ad: "bu kazanımı ölçmüyor", sinif: "pill-critical" },
-  belirsiz: { ad: "karar verilemedi", sinif: "pill-neutral" }
+  belirsiz: { ad: "belirlenemedi", sinif: "pill-neutral" }
 };
 
 /** Tek bir soru kartında gösterilen hizalama satırı. */
@@ -4144,7 +4144,7 @@ const SUPHE_TURLERI = [
       "olabilir. Onaylamadan önce soruyu ve şıkları okuyup düzeltin." },
   { anahtar: "kazanimUyusmuyor", etiket: "Kazanımı ölçmüyor", ciddiyet: "orta",
     var: function (q) { return ((state.alignment || {})[alignKey(q.id)] || {}).karar === "olcmuyor"; },
-    aciklama: "Bağımsız kazanım denetimi bu sorunun seçili kazanımı ölçmediğine karar verdi. " +
+    aciklama: "Bağımsız kazanım denetimi bu sorunun seçili kazanımı ölçmediğini değerlendirdi. " +
       "Gerekçe ve önerilen kazanım kartın altında." },
   { anahtar: "gerekceTekrari", etiket: "Aynı gerekçe", ciddiyet: "dusuk",
     var: function (q) { return !!q.gerekceTekrari; },
@@ -4464,7 +4464,7 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
     subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
-    '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
+    '<span class="time-tag">⏱ YZ önerisi: ' + q.aiTime + ' sn</span></div>' +
     supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
     '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
@@ -4486,7 +4486,7 @@ function distractorHtml(q) {
   if (q.type !== "mc" || !q.distractorRationale) return "";
   const keys = Object.keys(q.distractorRationale).filter(function (k) { return k !== q.correctKey; });
   if (!keys.length) return "";
-  return '<div class="distractor-box"><div class="db-title">Çeldirici gerekçeleri — AI analizi</div>' +
+  return '<div class="distractor-box"><div class="db-title">Çeldirici gerekçeleri — yapay zekâ analizi</div>' +
     keys.map(function (k) {
       return '<div class="db-row"><span class="db-key">' + k + '</span><span>' + escapeHtml(q.distractorRationale[k]) + '</span></div>';
     }).join("") + '</div>';
