@@ -9741,15 +9741,9 @@ Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), 
 ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:
 başka bir worktree'yi sunan port üzerinde ölçüm yapıldı).
 
-- **`adimciHtml` birleştirmesi KAPATILDI (iki meşru kalıp; Orchestrator 2
-
-*(Dalda §77 olarak yazılmıştı; W2'nin §77 onay penceresi bölümüyle çakıştığı için birleştirmede §78'e alındı.)*
-  kararı).** Ortak adımcı yatay bir adım şeridi; İçerik Uzmanı sihirbazının
-  adımları ise açılır-kapanır başlık + tek satırlık özet + "Değiştir". İkisi
-  farklı işlere hizmet eden iki ayrı kalıp olarak kalır; `ceAdimHtml` ortak
-  adımcıya taşınmaz.
-
 ## 78. YÖNETİCİ — atama sınavın hedef sınıfına göre + karar raporu yalnız yayındakiler (23 Ekim 2026, W4)
+
+*(Dalda §77 olarak yazılmıştı; W2'nin §77 onay penceresi bölümüyle çakıştığı için birleştirmede §78'e alındı. Kod ve test yorumlarındaki "§77" (yönetici) atıfları bu bölümü kastediyor.)*
 
 **Kaynak:** W3'ün §74 bağımsız doğrulaması (138 geçti, 8 kaldı; kalanlar 2 bulgudan).
 
