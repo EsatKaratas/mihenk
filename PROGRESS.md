@@ -9699,7 +9699,6 @@ dayanıyordu, ölçüme değil.
 
 **Yeniden açma koşulu:** `/api/ai/evaluate` çıktısını (canlı sızıntıların
 görüldüğü uç) ve kodlama kazanımlarını içeren, çok daha büyük bir derlem.
-
 ## 77. ONAY PENCERESİ — `onaylaModal` (yerel confirm() yerine; ikinci tur, 23 Ekim 2026, W2)
 
 W4 bulgusu, Orchestrator 2 kararı: tarayıcının yerel `confirm()` penceresi
@@ -9741,3 +9740,80 @@ Testler 374 → 378 (`test/onay-modal.test.ts`: dört işleyicide `confirm(` yok
 Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), ve
 ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:
 başka bir worktree'yi sunan port üzerinde ölçüm yapıldı).
+
+- **`adimciHtml` birleştirmesi KAPATILDI (iki meşru kalıp; Orchestrator 2
+
+*(Dalda §77 olarak yazılmıştı; W2'nin §77 onay penceresi bölümüyle çakıştığı için birleştirmede §78'e alındı.)*
+  kararı).** Ortak adımcı yatay bir adım şeridi; İçerik Uzmanı sihirbazının
+  adımları ise açılır-kapanır başlık + tek satırlık özet + "Değiştir". İkisi
+  farklı işlere hizmet eden iki ayrı kalıp olarak kalır; `ceAdimHtml` ortak
+  adımcıya taşınmaz.
+
+## 78. YÖNETİCİ — atama sınavın hedef sınıfına göre + karar raporu yalnız yayındakiler (23 Ekim 2026, W4)
+
+**Kaynak:** W3'ün §74 bağımsız doğrulaması (138 geçti, 8 kaldı; kalanlar 2 bulgudan).
+
+### 78.1 P1 — atama hedef sınıfı yok sayıyordu
+
+- **Hata:** her yayınlı sınav her öğrenciye atanmış sayılıyordu. `exam.targetClass`
+  (§28r, §62) yönetici tarafında hiç okunmuyordu.
+- **Etkisi:**
+  - tamamlanma oranı düşük çıkıyordu;
+  - eylem kartı olmayan atamaları "tamamlanmadı" diye sayıyordu;
+  - risk listesi, sınavı kendisine açık olmayan öğrenciyi **adıyla** "1 sınava
+    hiç girmemiş" diye işaretliyordu;
+  - hiç sınavı olmayan sınıf "girmedi" sayılıyordu.
+- **Filtrelerden önce de vardı (eski okulGercekDurum).** 1a175d3'teki eski
+  `okulGercekDurum` / `riskOgrencileri` aynı örnekle koşuldu: 7-B'ye açık 1
+  sınav, 5 öğrenci (2'si 7-A, 2'si 7-B, 1'i sınavsız 8-Z).
+  - atanan **5**, doğrusu **2**;
+  - risk listesinde Ada ve Kerem (7-A) ile Zeki (8-Z) "1 sınava hiç girmemiş".
+  - §74 bu kuralı olduğu gibi korumuştu, yani kusur ondan önce vardı.
+- **Tek kural, `yonSinavAtandiMi(kayit, ogr)`:**
+  - hedef sınıf boşsa sınav herkese, doluysa yalnız o sınıfa atanmıştır;
+  - sınava **zaten girmiş** öğrenci (hedef sonradan değişse bile) atanmış
+    sayılır; öğrenci panelindeki görünürlük kuralıyla aynı.
+- **Uygulandığı dört yer:**
+  - `okulGercekDurum` (tamamlanma ve eylem kartı);
+  - `riskOgrencileri` ("girmedi");
+  - `yonPuanlar`;
+  - `yonSinavUygunMu`'nun sınıf süzmesi: o sınıftan kimseye atanmamış sınav
+    dışarıda kalır. Sınavsız sınıfta "Bu filtrelerle eşleşen yayınlanmış
+    sınav yok" yazar.
+- **Tarayıcıda (demo verisi)** demo sınavının hedefi 7-B yapıldı:
+  - tamamlanma "%75 · 3/4" → "%100 · 3/3" (Kerem 7-A'da ama sınava girmiş,
+    atanmış kalır);
+  - eylemdeki "1 sınav ataması henüz tamamlanmadı" kalktı;
+  - risk listesinden Ada Yılmaz (7-A, "1 sınava hiç girmemiş") çıktı, 2/4 →
+    1/4.
+- **Öğretmen ekranında aynı varsayım (W1 aralığı, düzeltilmedi, W1'e
+  bildirildi):** Analitik sekmesindeki "N / M tamamladı" kutusunda M =
+  tüm öğrenciler (`teacherTab4Html`, `tumOgr`). Sınavın hedef sınıfına
+  bakmıyor. Öğretmenin öteki sayımları (`sinavKatilim`, kâğıt sayıları)
+  yalnız var olan oturumları saydığı için etkilenmiyor.
+
+### 78.2 P2 — karar raporu yayından kaldırılmış sınavı sayıyordu
+
+- `teacherExamRecords` sınav durumuna bakmıyor. Yönetici ekranının öteki
+  bölümleri yalnız yayındaki sınavları sayıyor.
+- Karar: yönetici tarafında yalnız yayındaki ve filtreye uyan sınavların
+  kayıtları kalır (`yonYayindakiKayitlar`). `teacherExamRecords`'a
+  **dokunulmadı**; öğretmen ekranı kendi sınavlarının hepsini görmeye devam
+  ediyor.
+- Kayıtta sınav kimliği yok. Eşleme (öğrenci, soru) çiftiyle ve **sayaçla**
+  yapılıyor: aynı çift bir taslak sınavda da varsa yalnız yayındaki kadarı
+  kalır.
+- Etkisi: öğretmen analitiği ve "YZ Önerisi ↔ Nihai Puan Raporu".
+
+### 78.3 Doğrulama
+
+- 380/380 test (15 dosya). `test/yonetici-filtre.test.ts`'e +6 test:
+  - W3 örneği (7-B'ye açık sınav, 7-A öğrencileri);
+  - sınavsız sınıf (8-Z);
+  - risk listesinde "girmedi" yok;
+  - giren öğrencinin atanmış sayılması;
+  - hedefsiz sınavda eski sonucun aynen kalması;
+  - P2 sayaçlı eşleme.
+- tsc temiz, öz-kontrol 508 ad %100.
+- `gorsel-fark --dolu` 1280/390: hata 0, yinelenen id 0, taşma yok.
+- Model çağrısı yok.

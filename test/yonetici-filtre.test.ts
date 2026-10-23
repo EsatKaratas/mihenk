@@ -19,6 +19,7 @@ const ADLAR = [
   'yonFiltreAktif', 'yonSinavi', 'yonOgretmenAdi', 'yonSinavSorulari', 'yonSoruDersi', 'yonSoruUygunMu',
   'yonSinavUygunMu', 'yonOgrenciler', 'yonOturum', 'yonFiltreSecenekleri', 'yonFiltreGecerli',
   'yonFiltreOzet', 'yonPuanlar', 'yonSinavGecmisi', 'yonKayitlariSuz', 'okulGercekDurum',
+  'yonSinavAtandiMi', 'yonYayindakiKayitlar', 'riskOgrencileri',
 ];
 
 const KAZANIMLAR = [
@@ -68,13 +69,16 @@ function ornekState() {
 
 function kur(state = ornekState()) {
   const kod = ADLAR.map(fonksiyonMetni).join('\n');
-  const readSession = (sid: number) => (state.exams[0].sessions as Record<string, unknown>)[sid] || null;
+  const aktif = () => (state.exams as Array<{ id: number; sessions: Record<string, unknown> }>).find((e) => e.id === state.activeExamId);
+  const readSession = (sid: number) => ((aktif() || { sessions: {} }).sessions)[sid] || null;
   // eslint-disable-next-line no-new-func
   const fab = new Function(
     'state', 'OUTCOMES_LIST', 'kodDanDers', 'VARSAYILAN_OGRETMEN_ADI', 'readSession', 'YON_FILTRE_BOS',
+    'OTURUM_ALANLARI', 'mcPuani', 'dikkatOgrenciSinyali', 'RISK_ESIK_BASARI', 'RISK_ESIK_GIRMEME',
     kod + '\nreturn {' + ADLAR.join(',') + '};',
   );
-  return fab(state, () => KAZANIMLAR, () => '', 'İsimsiz Öğretmen', readSession, { ders: '', sinif: '', ogretmen: '' });
+  return fab(state, () => KAZANIMLAR, () => '', 'İsimsiz Öğretmen', readSession, { ders: '', sinif: '', ogretmen: '' },
+    [], () => 5, () => null, 50, 1);
 }
 
 const BOS = { ders: '', sinif: '', ogretmen: '' };
@@ -174,5 +178,74 @@ describe('yonetici filtre — sayılar', () => {
     expect(yonKayitlariSuz(kayitlar, { ...BOS, sinif: '7-A' })).toHaveLength(2);
     expect(yonKayitlariSuz(kayitlar, { ...BOS, ders: 'Fen Bilimleri' })).toHaveLength(2);
     expect(yonKayitlariSuz(kayitlar, { ...BOS, sinif: '7-A', ders: 'Matematik' })).toEqual([{ sid: '1', qid: '21' }]);
+  });
+});
+
+/* §77 — W3 bulgusu: sınav yalnız hedef sınıfına atanır (targetClass). */
+function hedefliState() {
+  const st = ornekState() as ReturnType<typeof ornekState> & { students: Array<{ id: number; name: string; sinif: string }> };
+  // Matematik sınavı yalnız 7-B'ye açık; 7-A'dan kimse girmedi.
+  const mat = st.exams[1] as Record<string, unknown>;
+  mat.targetClass = '7-B';
+  mat.sessions = { 3: (mat.sessions as Record<string, unknown>)[3] };
+  // Hiç sınavı olmayan sınıf.
+  st.students.push({ id: 9, name: 'Zeki', sinif: '8-Z' });
+  // Fen sınavı yalnız 7-A'ya; Elif (7-B) yine de girmiş (hedef sonradan değişmiş gibi).
+  (st.exams[0] as Record<string, unknown>).targetClass = '7-A';
+  return st;
+}
+
+describe('yonetici — atama hedef sınıfa göre (§77, W3 P1)', () => {
+  it('hedef sınıf boşsa herkese, doluysa yalnız o sınıfa; sınava giren öğrenci atanmış sayılır', () => {
+    const st = hedefliState();
+    const { yonSinavAtandiMi } = kur(st);
+    const [fen, mat, taslak] = st.exams;
+    const ogr = (id: number) => st.students.find((o) => o.id === id);
+    expect(yonSinavAtandiMi(mat, ogr(1))).toBe(false);   // Ada 7-A, sınav 7-B'ye
+    expect(yonSinavAtandiMi(mat, ogr(3))).toBe(true);    // Elif 7-B
+    expect(yonSinavAtandiMi(mat, ogr(9))).toBe(false);   // 8-Z
+    expect(yonSinavAtandiMi(fen, ogr(3))).toBe(true);    // 7-B ama sınava girmiş (submitted)
+    expect(yonSinavAtandiMi(taslak, ogr(9))).toBe(true); // hedefsiz sınav herkese
+  });
+
+  it("W3 örneği: 7-B'ye açık sınav 7-A öğrencilerine atama sayılmaz", () => {
+    const { okulGercekDurum } = kur(hedefliState());
+    // Fen: Ada, Kerem (7-A) + Elif (girmiş) = 3 · Mat: yalnız Elif = 1 → 4 atama, 4'ü tamam.
+    expect(okulGercekDurum(BOS)).toEqual({ atanan: 4, tamamlanan: 4, bekleyen: 1 });
+    expect(okulGercekDurum({ ...BOS, sinif: '7-A' })).toEqual({ atanan: 2, tamamlanan: 2, bekleyen: 0 });
+  });
+
+  it('sınavsız sınıf: atama 0 ve hiçbir sınav o sınıf filtresine uymaz', () => {
+    const st = hedefliState();
+    const { okulGercekDurum, yonSinavUygunMu } = kur(st);
+    expect(okulGercekDurum({ ...BOS, sinif: '8-Z' })).toEqual({ atanan: 0, tamamlanan: 0, bekleyen: 0 });
+    expect(st.exams.map((k) => yonSinavUygunMu(k, { ...BOS, sinif: '8-Z' }))).toEqual([false, false, false]);
+  });
+
+  it('risk listesi: atanmamış sınav "girmedi" sayılmaz; sınavsız sınıf işaretlenmez', () => {
+    const { riskOgrencileri } = kur(hedefliState());
+    const liste = riskOgrencileri(BOS) as Array<{ ad: string; sebepler: Array<{ tur: string }> }>;
+    expect(liste.filter((r) => r.sebepler.some((s) => s.tur === 'devam')).map((r) => r.ad)).toEqual([]);
+    expect(liste.map((r) => r.ad)).not.toContain('Zeki');
+  });
+
+  it('hedef sınıf yoksa sonuç eskisiyle aynı', () => {
+    const { okulGercekDurum } = kur();
+    expect(okulGercekDurum(BOS)).toEqual({ atanan: 6, tamamlanan: 5, bekleyen: 1 });
+  });
+});
+
+describe('yonetici — karar raporu yalnız yayındaki sınavlardan (§77, W3 P2)', () => {
+  it('yayından kaldırılmış sınavın kararı düşer; aynı çift taslakta da varsa yalnız yayındaki kadar kalır', () => {
+    const st = ornekState();
+    st.exams[0].sessions = { 1: { examStatus: 'graded', reviews: { 12: { finalScore: 10, aiScore: 12 } } } };
+    st.exams[2].teacherName = 'Ayşe Kaya';
+    st.exams[2].sessions = {
+      1: { examStatus: 'graded', reviews: { 12: { finalScore: 9, aiScore: 9 } } },
+      2: { examStatus: 'graded', reviews: { 21: { finalScore: 3, aiScore: 4 } } },
+    };
+    const { yonYayindakiKayitlar } = kur(st);
+    const kayitlar = [{ sid: '1', qid: '12' }, { sid: '1', qid: '12' }, { sid: '2', qid: '21' }];
+    expect(yonYayindakiKayitlar('Ayşe Kaya', kayitlar, BOS)).toEqual([{ sid: '1', qid: '12' }]);
   });
 });
