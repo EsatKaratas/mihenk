@@ -9699,3 +9699,45 @@ dayanıyordu, ölçüme değil.
 
 **Yeniden açma koşulu:** `/api/ai/evaluate` çıktısını (canlı sızıntıların
 görüldüğü uç) ve kodlama kazanımlarını içeren, çok daha büyük bir derlem.
+
+## 77. ONAY PENCERESİ — `onaylaModal` (yerel confirm() yerine; ikinci tur, 23 Ekim 2026, W2)
+
+W4 bulgusu, Orchestrator 2 kararı: tarayıcının yerel `confirm()` penceresi
+görünümü, dili ve klavye davranışı tarayıcıya göre değişen, tehlikeli eylemi
+ayırt edemeyen ve demo kayıtlarında görünmeyen bir penceredir. **Kalıcı kural:
+tehlikeli eylem = kırmızı `.btn-critical`.**
+
+**Yardımcılar (ortak bölge, `escapeHtml`'in altı):**
+- `onaylaModal({baslik, metin, onayEtiketi, tehlikeli, vazgecEtiketi})` →
+  `Promise<boolean>`; yalnız onay düğmesi true döner. `openModal` tabanlı.
+  - Odak **Vazgeç'te** başlar; Enter odaklı düğmeyi tetikler (Vazgeç → kapat,
+    §71 ikinci onay penceresiyle aynı). **Escape = Vazgeç.**
+  - `tehlikeli: true` → onay düğmesi `.btn-critical.btn-dolu` (kırmızı dolgu).
+  - Açıkken `#modalBox`'a `role="alertdialog"`, `aria-modal`, `aria-labelledby`.
+  - Kapanınca odak, pencereyi açan öğeye döner; başka bir modal yerine
+    geçtiyse onun odağı çalınmaz.
+  - Modal başka yoldan kapanır/değişirse söz **false** ile çözülür (sınıf ve
+    içerik gözlemcisi; `closeModal`'a dokunulmadı). Aynı anda ikinci onay
+    istenirse önceki false döner.
+- `onayliEylem(el, secenek, eylem)`: yeniden giriş koruması
+  (`data-onay-bekliyor`); pencere açıkken aynı düğme ikinci pencere açmaz.
+
+**Geçirilen ortak bölge çağrıları (4):** ders sil, kazanım sil, kitaplıktan sil,
+karar günlüğünü temizle — dördü de `tehlikeli: true`. Öğretmen aralığındaki 6
+`confirm()` çağrısını W1 geçirecek.
+
+**Ölçüm (gerçek tarayıcı, gerçek tıklama ve tuşlar):** ders sil, kazanım sil ve
+karar günlüğü için Escape / Enter / Vazgeç / Onay yollarının her birinde:
+pencere açıldı, odak Vazgeç'te, rol alertdialog, düğme kırmızı; Escape, Enter
+ve Vazgeç veriyi DEĞİŞTİRMEDİ ve odağı açan düğmeye döndürdü; Onay eylemi yaptı.
+Çift tıklama tek pencere açtı, bayrak kapanınca temizlendi; başka modal gelince
+söz false döndü ve yeni modal bozulmadı; tehlikesiz onay mavi. Yerel `confirm`
+penceresi 0, sayfa hatası 0. **Kitaplıktan sil uçtan uca denenmedi**: demo
+verisinde kitaplıkta kitap yok (IndexedDB); aynı `onayliEylem` yolunu kullanır.
+Testler 374 → 378 (`test/onay-modal.test.ts`: dört işleyicide `confirm(` yok,
+`onayliEylem` var, dördü kırmızı). gorsel-fark `--dolu` 38/38 %0,000; demo 5/5.
+
+**TUZAK (devir notu):** yerel statik sunucular 879x/880x portlarını paylaşır.
+Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), ve
+ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:
+başka bir worktree'yi sunan port üzerinde ölçüm yapıldı).

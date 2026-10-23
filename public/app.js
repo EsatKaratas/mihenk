@@ -415,6 +415,81 @@ function escapeHtml(str) {
   });
 }
 
+/* §77 ONAY PENCERESİ — tarayıcının yerel confirm() penceresi yerine
+   uygulamanın kendi modalı (W4 bulgusu, Orchestrator 2 kararı). Neden:
+   confirm() görünümü, dili ve klavye davranışı tarayıcıya göre değişir,
+   tehlikeli eylemi görsel olarak ayırt edemez ve demo kayıtlarında görünmez.
+   KURALLAR:
+   - Odak Vazgeç'te başlar; Enter odaklı düğmeyi tetikler (Vazgeç → kapat,
+     §71 ikinci onay penceresiyle aynı davranış). Escape = Vazgeç.
+   - tehlikeli: true → onay düğmesi kırmızı dolgulu (.btn-critical.btn-dolu);
+     kalıcı kural: tehlikeli eylem = kırmızı.
+   - Kapanınca odak, pencereyi açan öğeye döner.
+   - Modal başka bir yoldan kapanırsa (başka bir openModal, closeModal) söz
+     false ile çözülür; bekleyen bir işleyici asılı kalmaz. Aynı anda ikinci
+     bir onay istenirse önceki false döner.
+   Dönüş: Promise<boolean> — yalnız onay düğmesine basılırsa true. */
+var _onayBekleyen = null;
+function onaylaModal(secenek) {
+  const o = secenek || {};
+  if (_onayBekleyen) _onayBekleyen(false);
+  const acan = document.activeElement;
+  const metinHtml = String(o.metin || "").split(/\n{2,}/).map(function (p) {
+    return "<p>" + escapeHtml(p).replace(/\n/g, "<br>") + "</p>";
+  }).join("");
+  openModal('<h3 id="onayBaslik">' + escapeHtml(o.baslik || "Emin misiniz?") + "</h3>" + metinHtml +
+    '<div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">' +
+    escapeHtml(o.vazgecEtiketi || "Vazgeç") + "</button>" +
+    '<button type="button" class="btn ' + (o.tehlikeli ? "btn-critical btn-dolu" : "btn-primary") + '" id="modalOnay">' +
+    escapeHtml(o.onayEtiketi || "Onayla") + "</button></div>");
+  const kutu = document.getElementById("modalBox");
+  const kaplama = document.getElementById("modalOverlay");
+  kutu.setAttribute("role", "alertdialog");
+  kutu.setAttribute("aria-modal", "true");
+  kutu.setAttribute("aria-labelledby", "onayBaslik");
+  return new Promise(function (coz) {
+    let bitti = false;
+    let gozcu = null;
+    const tus = function (e) { if (e.key === "Escape") { e.preventDefault(); bitir(false); } };
+    function bitir(sonuc) {
+      if (bitti) return;
+      bitti = true;
+      if (_onayBekleyen === bitir) _onayBekleyen = null;
+      document.removeEventListener("keydown", tus, true);
+      if (gozcu) gozcu.disconnect();
+      kutu.removeAttribute("role"); kutu.removeAttribute("aria-modal"); kutu.removeAttribute("aria-labelledby");
+      if (kaplama.classList.contains("open") && document.getElementById("modalOnay")) closeModal();
+      // Odak yalnız pencere gerçekten kapandıysa geri döner; başka bir modal
+      // yerine geçtiyse onun odağı çalınmaz.
+      if (!kaplama.classList.contains("open") && acan && acan.isConnected && typeof acan.focus === "function") acan.focus();
+      coz(sonuc);
+    }
+    _onayBekleyen = bitir;
+    document.getElementById("modalCancel").onclick = function () { bitir(false); };
+    document.getElementById("modalOnay").onclick = function () { bitir(true); };
+    document.addEventListener("keydown", tus, true);
+    gozcu = new MutationObserver(function () {
+      if (!kaplama.classList.contains("open") || !document.getElementById("modalOnay")) bitir(false);
+    });
+    gozcu.observe(kaplama, { attributes: true, attributeFilter: ["class"] });
+    gozcu.observe(kutu, { childList: true });
+    document.getElementById("modalCancel").focus();
+  });
+}
+
+/* Onay isteyen bir düğme işleyicisi için yeniden giriş koruması: pencere
+   açıkken aynı düğmeye yeniden basılırsa (çift tıklama, klavye tekrarı)
+   ikinci pencere açılmaz. eylem() yalnız onaylanırsa çalışır. */
+function onayliEylem(el, secenek, eylem) {
+  if (el && el.dataset.onayBekliyor) return Promise.resolve(false);
+  if (el) el.dataset.onayBekliyor = "1";
+  return onaylaModal(secenek).then(function (tamam) {
+    if (el) delete el.dataset.onayBekliyor;
+    if (tamam) eylem();
+    return tamam;
+  });
+}
+
 /* §60 ADIMCI (stepper) — tek ortak üretici; panel sahipleri kendi
    sihirbazlarını bununla çizer, ayrı adımcı yazmaz.
    adimlar: adım adları (string dizisi). aktif: 0 tabanlı etkin adım.
@@ -2762,14 +2837,18 @@ function wireSecimSekmeleri() {
   kok.querySelectorAll("[data-ders-sil]").forEach(function (el) {
     el.onclick = function () {
       const ad = el.dataset.dersSil;
-      /* Kalıcı silme ONAY ister — geri alma yoktur. Sınav silmede de aynı
-         desen kullanılıyor ("KALICI OLARAK silinecek"). */
-      if (!window.confirm("“" + ad + "” dersi panelinizden KALICI OLARAK silinecek.\n\n" +
-        "Bu dersin kazanımları silinmez; dersi tekrar eklerseniz yerinde bulursunuz.\n\n" +
-        "Devam edilsin mi?")) return;
-      state.subjectError = removeSubject(ad);
-      renderAll();
-      katalogHazirla(true);
+      /* Kalıcı silme ONAY ister — geri alma yoktur. §77: uygulamanın onay
+         penceresi (tehlikeli eylem = kırmızı). */
+      onayliEylem(el, {
+        baslik: "“" + ad + "” dersi silinsin mi?",
+        metin: "Ders panelinizden KALICI OLARAK silinecek.\n\n" +
+          "Bu dersin kazanımları silinmez; dersi tekrar eklerseniz yerinde bulursunuz.",
+        onayEtiketi: "Evet, dersi sil", tehlikeli: true,
+      }, function () {
+        state.subjectError = removeSubject(ad);
+        renderAll();
+        katalogHazirla(true);
+      });
     };
   });
   const bNS = document.getElementById("btnNewSubject");
@@ -2812,11 +2891,15 @@ function wireSecimSekmeleri() {
   kok.querySelectorAll("[data-kazanim-sil]").forEach(function (el) {
     el.onclick = function () {
       const kod = el.dataset.kazanimSil;
-      if (!window.confirm("“" + kod + "” kazanımı panelinizden KALICI OLARAK silinecek.\n\n" +
-        "Devam edilsin mi?")) return;
-      state.outcomeError = removeOutcome(kod);
-      saveSoon();
-      renderAll();
+      onayliEylem(el, {
+        baslik: "“" + kod + "” kazanımı silinsin mi?",
+        metin: "Kazanım panelinizden KALICI OLARAK silinecek.",
+        onayEtiketi: "Evet, kazanımı sil", tehlikeli: true,
+      }, function () {
+        state.outcomeError = removeOutcome(kod);
+        saveSoon();
+        renderAll();
+      });
     };
   });
   const bNO = document.getElementById("btnNewOutcome");
@@ -3415,9 +3498,11 @@ function wireKitaplik() {
     b.onclick = function () {
       var k = kitapBul(b.getAttribute("data-kitap-sil"));
       if (!k) return;
-      if (confirm("“" + k.ad + "” kitaplıktan silinsin mi? Bu kitaptan üretilmiş sorular silinmez.")) {
-        kitapKaldir(k.id);
-      }
+      onayliEylem(b, {
+        baslik: "“" + k.ad + "” kitaplıktan silinsin mi?",
+        metin: "Bu kitaptan üretilmiş sorular silinmez.",
+        onayEtiketi: "Evet, kitaplıktan sil", tehlikeli: true,
+      }, function () { kitapKaldir(k.id); });
     };
   });
   document.querySelectorAll("[data-kitap-duzenle]").forEach(function (b) {
@@ -3705,9 +3790,11 @@ function wireAudit() {
   };
   var tm = document.getElementById("btnAuditTemizle");
   if (tm) tm.onclick = function () {
-    if (confirm("Karar günlüğü tamamen silinsin mi? Bu işlem geri alınamaz. İndirmediyseniz önce indirin.")) {
-      state.auditLog = []; state.auditDusen = 0; renderAll();
-    }
+    onayliEylem(tm, {
+      baslik: "Karar günlüğü tamamen silinsin mi?",
+      metin: "Bu işlem geri alınamaz. İndirmediyseniz önce CSV ya da JSON olarak indirin.",
+      onayEtiketi: "Evet, günlüğü sil", tehlikeli: true,
+    }, function () { state.auditLog = []; state.auditDusen = 0; renderAll(); });
   };
 }
 
@@ -12838,7 +12925,7 @@ function bosDurumHtml(mesaj) {
    doneCardHtml, evalFailedCardHtml ve confBadge silinmişti.)          */
 (function selfCheck() {
   const gerekli = [
-    "adimciHtml",
+    "adimciHtml", "onaylaModal", "onayliEylem",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
