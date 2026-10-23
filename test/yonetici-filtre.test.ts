@@ -1,4 +1,4 @@
-// §73 / W4 — Eğitim Yöneticisi panosu filtreleri (sınıf · ders · öğretmen).
+// §74 / W4 — Eğitim Yöneticisi panosu filtreleri (sınıf · ders · öğretmen).
 // İstemci kodu tarayıcıda çalışır; fonksiyonlar public/app.js metninden
 // alınıp yalıtılmış bir kapsamda kurulur (state yalnız buradaki sahte nesne).
 import { describe, it, expect } from 'vitest';

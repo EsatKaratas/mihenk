@@ -8400,7 +8400,7 @@ function trendOku(fark) {
 }
 
 function trendHtml(gecmisVerilen) {
-  // §73: yönetici filtreli geçmişi verir; verilmezse eski davranış (öğretmen ekranı).
+  // §74: yönetici filtreli geçmişi verir; verilmezse eski davranış (öğretmen ekranı).
   const gecmis = gecmisVerilen || gradedExamHistory();
   if (gecmis.length < 2) {
     return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Sınavlar Arası Gelişim</h3>' +
@@ -10121,7 +10121,7 @@ function renderKazanimGrafigi(targetId, rows, bosMesaj) {
      soru üretim ekranına götürür. İçerik → sınav → değerlendirme → analiz
      → YENİ İÇERİK zinciri böyle kapanır.                                  */
   const zayif = [];
-  /* §73: örnek (demo) şube eylem doğurmaz — yukarıdaki uyarı listesiyle aynı
+  /* §74: örnek (demo) şube eylem doğurmaz — yukarıdaki uyarı listesiyle aynı
      kural. Eskiden "6-A (örnek) → tekrar sorusu üret" düğmesi çıkıyordu. */
   rows.filter(function (r) { return !r.ornek; }).forEach(function (r) {
     cols.forEach(function (c) {
@@ -10203,7 +10203,7 @@ function buildAdminHeatmapRows() {
    üzerinden yapılır (§3.2). */
 function okulGercekDurum(f) {
   f = f || YON_FILTRE_BOS;
-  /* §73: filtre sınavı (öğretmen, ders), öğrenciyi (sınıf) ve onay bekleyen
+  /* §74: filtre sınavı (öğretmen, ders), öğrenciyi (sınıf) ve onay bekleyen
      yanıtı (ders: yalnız o dersin sorusu) süzer. Filtre boşken sonuç eskisiyle
      aynıdır. */
   const ogrenciler = yonOgrenciler(f);
@@ -10225,7 +10225,7 @@ function okulGercekDurum(f) {
 }
 function renderAdmin() {
   const root = document.getElementById("panel-admin");
-  // §73: kayıtlı seçim bugünkü seçeneklere göre süzülür (artık olmayan değer = tümü).
+  // §74: kayıtlı seçim bugünkü seçeneklere göre süzülür (artık olmayan değer = tümü).
   const secenek = yonFiltreSecenekleri();
   const f = yonFiltreGecerli(yonFiltreAl(), secenek);
   const durum = okulGercekDurum(f);
@@ -10298,7 +10298,7 @@ function renderAdmin() {
   // (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası).
   root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml(f));
   /* §56 (A7): aynı rapor, kurum geneli. "örnek" öğretmen verisi KATILMAZ.
-     §73: filtre boşken kayıtlar kurumKararKayitlari() ile birebir aynıdır. */
+     §74: filtre boşken kayıtlar kurumKararKayitlari() ile birebir aynıdır. */
   root.insertAdjacentHTML("beforeend", kararRaporuHtml("yonetici", yonKararKayitlari(f),
     (yonFiltreAktif(f) ? escapeHtml(yonFiltreOzet(f)) + " · " : "kurum geneli · ") +
     "yalnız bu sistemde gerçekten verilen kararlar (örnek öğretmen verisi hariç)"));
@@ -10335,7 +10335,7 @@ function yonBilgiHtml(icerik, etiket) {
 }
 
 /** Gerçek şube satırları; ad "7-A · 2 öğrenciden" (yüzdenin dayandığı onaylı sonuç sayısı).
-    §73: filtreye uyan sınav, sınıf ve soru; sayı, yüzdeye katkısı olan öğrenci sayısıdır. */
+    §74: filtreye uyan sınav, sınıf ve soru; sayı, yüzdeye katkısı olan öğrenci sayısıdır. */
 function yonGercekSatirlar(f) {
   f = f || YON_FILTRE_BOS;
   const kayitlar = (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f); });
@@ -10402,7 +10402,7 @@ function yonSeciliOgretmen(demo) {
   return teacherRoster().find(function (t) { return t.name === ad && !!t.demo === demo; }) || null;
 }
 
-/* ==================== §73 — YÖNETİCİ FİLTRELERİ (ikinci tur, W4) ====================
+/* ==================== §74 — YÖNETİCİ FİLTRELERİ (ikinci tur, W4) ====================
    Boyutlar KODDA DOĞRULANDI, state şekli DEĞİŞMEDİ, göç yok:
    · sınıf    : students[].sinif                                   → gerçek alan
    · öğretmen : exams[].teacherName (boşsa VARSAYILAN_OGRETMEN_ADI) → gerçek alan
@@ -10647,7 +10647,7 @@ function teacherSatirHtml(t) {
 
 function teacherAnalyticsHtml(f) {
   // §63: örnek öğretmenler bu kartta değil, "Karşılaştırma (örnek)" bölümünde.
-  // §73: filtreye uyan öğretmenler, sınıf ve derse göre süzülmüş kayıtlarıyla.
+  // §74: filtreye uyan öğretmenler, sınıf ve derse göre süzülmüş kayıtlarıyla.
   const roster = yonCanliOgretmenler(f);
 
   const satirlar = !roster.length
@@ -11936,7 +11936,7 @@ const RISK_ESIK_GIRMEME = 1;     // en az bu kadar sınava hiç girmemişse
 
 function riskOgrencileri(f) {
   f = f || YON_FILTRE_BOS;
-  // §73: filtre boşken yayındaki tüm sınavlar ve tüm öğrenciler (eski davranış).
+  // §74: filtre boşken yayındaki tüm sınavlar ve tüm öğrenciler (eski davranış).
   const yayindaki = (state.exams || []).filter(function (kayit) { return yonSinavUygunMu(kayit, f); });
   if (!yayindaki.length) return [];
 
@@ -12646,7 +12646,7 @@ function bosDurumHtml(mesaj) {
     "ogrNoktalariBagla", "ogrGozdenHtml", "kazanimAdKodHtml",
     "yonBilgiHtml", "yonGercekSatirlar", "yonEylemKartiHtml", "yonOrnekBolumHtml", "yonSeciliOgretmen", "teacherSatirHtml",
     "veliSeciciHtml", "veliCocukKartiHtml", "veliYorumlarHtml", "veliSonSonucHtml", "veliKonuSatiriHtml", "veliBosDurumHtml",
-    /* §73 — yönetici filtreleri (W4). */
+    /* §74 — yönetici filtreleri (W4). */
     "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
     "yonFiltreGecerli", "yonFiltreOzet", "yonPuanlar", "yonSinavGecmisi", "yonKayitlariSuz", "yonCanliOgretmenler",
