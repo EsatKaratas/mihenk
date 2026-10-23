@@ -8635,6 +8635,73 @@ Diğer kontroller:
 gelir. Ekran betiği seçicileri (`.q-card`, `.eval-card`, `#panel-* .card`,
 `#modalBox .kat-satir`) yeniden adlandırılmaz.
 
+## 61. İÇERİK UZMANI — SORU ÜRET SİHİRBAZI (tasarım turu 1) (23 Ekim 2026, W3)
+
+**Neden:** Eski "1 · Kaynak İçerik" kartı tek uzun formdu. Canlıda ölçüldü
+(fe2b308, 1366×768, temiz bağlam): kart 985 px (mobilde 1692 px), 26 kontrol,
+508 kelime, 9 ayrı yazı boyutu (11–26 px), yardım metinleri 11–11,5 px ve en
+uzunu 27 kelime; "AI ile Soru Üret" y≈1137'de, ilk ekranın dışında.
+Benzer ürünler (Quizizz/Wayground, MagicSchool, Eduaide, Questionwell, Brisk,
+Kahoot, Google Forms Gemini, MS Forms Copilot) 2–3 karar + kaynak → önizleme →
+insan onayı kalıbını kullanıyor.
+
+**Ne değişti (yalnız `ceCreateHtml` bölgesi + `public/css/ce.css`):**
+- Üç adım aynı sayfada: **① Ne için?** (ders · sınıf · atölye · kazanım)
+  **② Neye dayansın?** (Metin yapıştır / Belge yükle / Yalnız kazanım; kutu
+  yalnız seçilince açılır, kitaplık Belge'nin altında) **③ Kaç soru?**
+  (−/+ sayaçlar; bilişsel düzey, başlık, şube "Gelişmiş"te katlı).
+  Kapalı adımın başlığında tek satırlık özet + "Değiştir".
+- Sağda yapışkan **Özet**: seçimler, uyarılar (kazanım yok/uyuşmaz, metin
+  <30 krk, belge kilidi, 0 soru) ve tek `btnGenerate`. Dar ekranda alta
+  yapışan çubuk. Uyarılar düğmeyi kilitlemez; doğrulamanın tek yeri yine
+  `onGenerateQuestions`. Düğmenin altında §1 cümlesi: "Sorular taslak gelir;
+  onayınız olmadan havuza girmez."
+- Kazanım seçici yeniden yazılmadı; "Katalog" → "Tüm listeyi aç", "Konu ve
+  Kazanım" → "Kazanım". Kazanım notu olağan durumda ⓘ altına katlanır;
+  yükleniyor / hata / 0 kazanım / tümü gösteriliyor durumları açık kalır.
+- Sekme etiketleri numarasız ("Soru Üret", "Soru Havuzu"; W5 kabuk kararı).
+  `data-tab` ve `ceTab` aynı.
+- Yazı ölçeği T0 belirteçleriyle (§60): `--fs-2/3/4/5` = 13 / 14 / 16 / 20 px,
+  dört boyut; girdiler 16 px (iOS odak büyütmesi olmasın). Ham px/hex yok;
+  ölçek dışı yalnız düzen ölçüleri (özet sütunu 300 px, 900 px kırılımı).
+  Tüm seçiciler `#panel-content_expert` altında.
+- Özet uyarı tonları: "eksik" (henüz yapılmamış adım) nötr gri; kırmızı
+  `--critical` yalnız gerçek engelde (belge okunamadı).
+
+**Korunanlar:** `ceText, ceOutcome, btnKatalog, btnGenerate, ceMcCount,
+ceOpenCount, ceGrade, ceSube, ceTitle, ceBloomFocus` kimlikleri; kapalı
+adımların gövdesi `hidden` ile gizlenir, DOM'dan çıkmaz (koşulsuz bağlama
+kodu kırılmasın diye). `outcomeUyar`, `dersSec`, katalog modalı, belge kilidi
+(`materyalSeridiHtml`), Deneyap/Keşif atölye seçicisi, bekleyen soru kartları,
+şüphe rozetleri ve onay düğmeleri değişmedi. Yeni durum alanları (`ceAdim`,
+`ceGiris`, `ceGelismisAcik`, `ceBilgiAcik`) yalnız arayüz durumu; saklanmaz,
+`??` ile varsayılan alır, göç yok. Eski `uretimModuSecHtml` (ortak bölge)
+artık çağrılmıyor ama silinmedi.
+
+**Ölçüm (yerel, statik sunucu, ce.css ile):**
+
+| | Önce (canlı) | Sonra |
+|---|---|---|
+| 1366: kart yüksekliği | 985 px | 632 px |
+| 1366: "AI ile Soru Üret" | y≈1137 (ekran dışı) | y=529, kaydırınca da görünür |
+| 390: "AI ile Soru Üret" | ekran dışı | alttaki çubukta, her zaman görünür |
+| görünür kontrol | 26 | 21 |
+| yazı boyutu | 9 (11–26 px) | 4 (13/14/16/20) |
+| en uzun yardım | 27 kelime | 8 kelime |
+| yatay taşma (1366/390) | yok | yok |
+
+Tarayıcı testi 27/27 (adımlar, üç giriş kartı, metin kaybolmuyor, sayaçlar,
+Gelişmiş açık kalıyor, katalog modalı, Deneyap → atölye, demo tohumu →
+`.q-card` → onay → approved, koyu tema, konsol temiz). `npm test` 338/338,
+`npm run lint` temiz, öz-kontrol 397 ad %100. `tools/ekran-goruntusu-al.mjs`
+yerelde 7/7 çekim (tek konsol hatası, statik sunucuda olmayan `/api`).
+Gerçek "AI ile Soru Üret" çağrısı yayından sonra canlıda doğrulanacak
+(yerelde workerd engelli).
+
+**Taban:** T0 (5910e96) üstüne yeniden kuruldu; `ce.css` T0'ın index.html
+bağlantısıyla yükleniyor. `adimciHtml` kullanılmadı: adımlar açılır-kapanır
+başlık + özet satırı istediği için kendi başlıkları var.
+**İkinci tur:** onay kartı sadeleşmesi, Soru Havuzu ağacı ve filtreleri.
 
 ---
 
