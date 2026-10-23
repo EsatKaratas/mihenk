@@ -9214,3 +9214,80 @@ yolunda (`teacherTab=3`) 4 `.eval-card` var.
 öğretmen 10 ekran (1280 ve 390): hata 0, yinelenen id 0, <24px 0, taşma
 yok · servis = disk (app.js `988d9b6acf8a…`, ogretmen.css `7d6aba79efe3…`)
 · U+FFFD 0 · model çağrısı 0 (statik sunucu).
+
+---
+
+## 64b. KABUK — bütünleşik test bulguları + erişilebilirlik (23 Ekim 2026, W5)
+
+**Kaynak:** W5'in 5b6d533 bütünleşik testi (P1-A) ve W4'ün kabuk testi
+(P1-1, P1-2, P2-3…8). Dal `kabuk-erisilebilirlik` (main d28dfef üstüne).
+Dosyalar: `public/app.js` (kabuk bölgesi + `renderAll`'a bir satır),
+`public/css/kabuk.css`, ve Orchestrator kararıyla iki tüketici satırı:
+`public/css/ogrenci.css` (`.ogr-baslik`), `public/css/ce.css` (`.ce-ozet`).
+
+### 64b.1 P1-A — yapışkan panel öğeleri kabuğun altında kalıyordu
+
+| Öğe | Önce (1366, ölçüldü) | Kök neden |
+|---|---|---|
+| Öğrenci `.ogr-baslik` (kalan süre) | **46 px örtülü**, süre görünmüyordu | `top: 0`, kabuk z 40 |
+| İçerik Uzmanı `.ce-ozet` | **41 px örtülü** | `top: 16px`; W3'ün sonraki düzeltmesi sabit 80 / demo 144 px |
+
+**Çözüm:** `kabukYuksekliginiYaz()` kabuğun gerçek yüksekliğini `:root
+--kabuk-yuk`'a yazar; tüketiciler `top: var(--kabuk-yuk, 0px)` (+ pay).
+
+**🔴 İlk sürüm yetmedi (ölçüldü):** yalnız ResizeObserver kullanılmıştı;
+demo açılınca kabuk 57 → 120 px oldu ama değişken ilk değerinde (53/57 px)
+kaldı — sayfa arka plandayken gözlemci tetiklenmedi. Asıl yazma artık
+`renderAll` içinde demo şeridi çizildikten hemen sonra; gözlemci ve
+`resize` yalnızca ek güvence.
+
+**Sonra (ölçüldü — yapışık öğe kabuğun altına tam oturuyor, fark 0):**
+
+| | 1366 demo kapalı | 1366 demo açık | 390 demo kapalı | 390 demo açık |
+|---|---|---|---|---|
+| Öğrenci başlığı üst kenarı = kabuk alt kenarı | 57 = 57 | 120 = 120 | 53 = 53 | 191 = 191 |
+| İçerik Uzmanı özeti | 73 > 57, örtüşme 0 | özet kendi kapsayıcısında, örtüşme 0 | mobilde alta yapışık (`bottom: 0`), etkilenmez | — |
+
+**Yan bulgu (düzeltildi):** 390'da demo şeridi **150 px**, kabuk toplam
+**216 px** (ekranın ~%26'sı). Şerit dar ekranda sıkıştırıldı → **109 px**,
+kabuk **171 px**. Kilit nedeni gizlenmedi (dokunmatikte `title` görünmez).
+
+### 64b.2 Erişilebilirlik (W4 listesi)
+
+| Madde | Yapılan | Ölçüm |
+|---|---|---|
+| **P1-1** giriş odak tuzağı | Giriş açıkken `.app` `inert` + `aria-hidden` (`girisInertEsitle`); kapıyı kapatan her yol `renderAll`'dan geçtiği için eşitleme `renderRoleNav`'da tek yerde. Modal `.app` dışında → girişten açılan demo onayı çalışır | Gerçek Tab ×9: odak yalnız 5 kart + demo düğmesi arasında döndü, üst çubuğa hiç gitmedi |
+| **P1-2** menü klavye + odak | Menü açılınca odak seçili `menuitemradio`'ya (yoksa ilk etkin öğe). ↑↓ döngülü, Home/End, Tab menüyü kapatıp düğmeden devam, Esc düğmeye döner. Öğeler `tabindex=-1`. Yeniden çizimde odak `data-kb` anahtarıyla geri konur | Gerçek tuşlar: Enter → `rol:content_expert`, ↓ → `rol:teacher`, End → `rol:cikis`, ↓ → başa, Esc → `rol-btn` |
+| **P2-3** rol sonrası odak | `etkinPaneleOdaklan()`: odak yeni panele (`tabindex=-1`, `aria-label="<rol> paneli"`), kaydırmasız | Kartı Enter'la seçince odak "İçerik Uzmanı paneli" |
+| **P2-4** | "Evet, tümünü sil" → `.btn-critical.btn-dolu` | sınıf doğrulandı |
+| **P2-5** modal odağı | `kabukModalOdagi()`: açılınca odak **Vazgeç**'te; Vazgeç ile kapanınca açan düğmeye (görünmüyorsa ⋯'ye). `openModal/closeModal` ortak bölgede, dokunulmadı | ⋯ → ↓ → Enter → Vazgeç → Enter: odak `ek-btn`, veri korundu |
+| **P2-6** | Menü grupları `role="group"` + `aria-labelledby` | "Okul", "Öğrenci ve aile" çözüldü |
+| **P2-7** | Demo kilitli öğeler `disabled` DEĞİL `aria-disabled` + `aria-describedby="kbDemoNot"`: odaklanır, neden okunur, tıklama çalışmaz | 5 öğe aria-disabled; kilitli tıklama rolü değiştirmedi |
+| **P2-8** | Dar ekranda ⋯'de etiketli satır: "Model durumu …" (okul rolleri) | 390'da görünür; öğrencide yok (beklenen) |
+| Ek (§56 dersi) | Menü öğelerinin erişilebilir adı ağaçta **boş** çıkıyordu → açık `aria-label` | ağaçta adlar dolu |
+
+### 64b.3 Doğrulama
+
+Statik sunucu 8795 (workerd engelli). **Ölçüm aracı yine yanılttı:**
+tarayıcı `kabuk.css`'in eski sürümünü önbellekten kullandı (disk ve sunucu
+SHA eş, CSSOM'da yeni kural yoktu) — `fetch(..., {cache: 'reload'})` ile
+tazelenip yeniden ölçüldü.
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` · `npm run lint` | **346/346** · exit 0 |
+| `node tools/ozkontrol-dogrula.mjs` | **468 ad · %100** (+8 kabuk adı) |
+| Demo 5 adım (gerçek düğmelerle) | geçti; kilitler çalıştı |
+| Ekran betiği | **7/7** |
+| `tools/gorsel-fark.mjs` (1280 + 390) | BAŞARILI — konsol 0, yinelenen id 0, taşma yok |
+
+### 64b.4 Başkasına ait bulgular (düzeltilmedi)
+
+- **W1:** d28dfef'te demo 2. adım öğretmeni **Sınıflarım** ana sayfasına
+  (`teacherTab 0`) götürüyor; 5b6d533'te "Tüm sınıflar › Sınavlar" açılıyordu.
+  Yayınla düğmesine ulaşmak için önce bir sınıfa tıklamak gerekiyor; demo
+  şeridi bunu söylemiyor.
+- **W3:** gorsel-fark `<24px` uyarıları İçerik Uzmanı'nda (`.oc-link`,
+  `.correct-radio`, `.opt-move-btn`).
+- `state.role` temiz yüklemede varsayılan `content_expert` (giriş açıkken);
+  görünür etkisi yok, eskiden de böyle.
