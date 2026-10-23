@@ -6485,6 +6485,9 @@ function sihirbazAdimaGit(n) {
     return;
   }
   o.hata = ""; o.sihirbaz = n; state.poolError = "";
+  /* W3 P2-6: reddedilen soru havuzu adıma her girişte katlı başlar (açık
+     bırakılan hâl sihirbazın ana işi olan seçimi aşağı itiyordu). */
+  if (n === 2) state.rejectedOpenByRole = Object.assign({}, state.rejectedOpenByRole, { teacher: false });
   renderAll();
   const sh = document.querySelector(".ogt-sihirbaz");
   if (sh && sh.getBoundingClientRect().top < 0) sh.scrollIntoView({ block: "start" });
@@ -6513,6 +6516,7 @@ function yeniSinavOlustur() {
      sınıf sayfasının listesinde görünmezdi. */
   if (ogtSinif() && hedef && hedef !== ogtSinif()) o.sinif = hedef;
   o.yeni = false; o.sihirbaz = 2; o.hata = ""; o.yeniAd = "";
+  state.rejectedOpenByRole = Object.assign({}, state.rejectedOpenByRole, { teacher: false });   // P2-6
   saveState(); renderAll();
 }
 
