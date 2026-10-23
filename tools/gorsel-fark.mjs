@@ -188,8 +188,11 @@ async function ekranMetrikleriniOlc(page) {
       if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') continue;
       if (el.hidden || el.closest('[hidden]') || el.closest('.modal-overlay:not(.open)')) continue;
 
-      const r = el.getBoundingClientRect();
+      let r = el.getBoundingClientRect();
       if (r.width <= 0 || r.height <= 0) continue;
+      // Radyo/onay kutusunun tıklama alanı onu saran <label>'dır (WCAG 2.5.8 hedefi).
+      const etiket = el.matches('input[type="checkbox"], input[type="radio"]') && el.closest('label');
+      if (etiket) { const e = etiket.getBoundingClientRect(); if (e.width * e.height > r.width * r.height) r = e; }
 
       if (r.width < 24 || r.height < 24) {
         const metin = (el.innerText || el.value || el.getAttribute('aria-label') || el.title || '')

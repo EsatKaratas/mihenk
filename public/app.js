@@ -4446,7 +4446,7 @@ function renderPendingQuestionCard(q) {
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
       '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
-      '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
+      '<label class="dogru-etiket" style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
       /* §58: dört radyonun dördü de erişilebilirlik ağacında yalnız "doğru"
          adını taşıyordu (hangi şık olduğu belli değildi), değerleri "on"du. */
       '<input type="radio" name="correct-' + q.id + '" value="' + escapeHtml(o.key) + '" aria-label="' + escapeHtml(o.key) +
@@ -4467,7 +4467,7 @@ function renderPendingQuestionCard(q) {
     '<span class="time-tag">⏱ AI önerisi: ' + q.aiTime + 's</span></div>' +
     supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
-    '<textarea class="q-body-input" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
+    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
     '<div style="margin-top:8px;">' + optsHtml + '</div>' +
     distractorHtml(q) +
     alignmentRowHtml(q) +

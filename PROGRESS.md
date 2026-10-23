@@ -9056,3 +9056,17 @@ seçici itmiyor. Ama sekmenin kendi kartları (sınav özeti, Sınıf Verisi,
 10 ekran (1280 ve 390): hata 0, yinelenen id 0, <24px 0, taşma yok · servis
 = disk (app.js `51413e5b452c…`, ogretmen.css `dce289885390…`) · U+FFFD 0 ·
 model çağrısı 0. P2-5 W2'de, P2-7 W4'ün dalında.
+
+## 66. ORTAK BÖLGE — soru kartı erişilebilirliği (23 Ekim 2026, W2)
+
+- **Soru metni kutusu** (`.q-body-input`, `renderPendingQuestionCard`) adsızdı
+  (W3 ölçtü) → `aria-label="Soru metni"`.
+- **Doğru şık radyosu** 15×15 px (WCAG 2.2 SC 2.5.8 eşiği 24×24). Orkestratör
+  kararı: radyo görünümü değişmez, onu saran etiket (`.dogru-etiket`) tıklama
+  alanı olur. Eşit padding + negatif margin (5/6 px): ölçüldü, etiket
+  **66,4×28 px**; görsel fark tüm ekranlarda %0,000.
+- `tools/gorsel-fark.mjs`: radyo/onay kutusu için hedef ölçüsü onu saran
+  `<label>`'ın alanıdır (WCAG'da hedef etiketi kapsar).
+- Sonuç: <24 px hedef 26 → 18. Kalanlar: `button.oc-link` (cümle içi metin
+  bağlantısı, 2.5.8 satır içi istisnası) ve şık sıralama okları
+  `.opt-move-btn` ▲▼ 20×16 (ayrı karar).
