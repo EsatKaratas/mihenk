@@ -9873,3 +9873,34 @@ Senkron bool döndürüyor ve bu görevde atanmadı. Geçirilecekse çağıranla
 **Doğrulama:** 393/393 test (+9) · öz-kontrol %100 · gorsel-fark `--dolu`:
 öğretmenin 16 ekranında (veri dolu Puanlama/Analitik dahil, 1280 ve 390)
 hata 0, yinelenen id 0, <24px 0, taşma yok · U+FFFD 0 · model çağrısı 0.
+
+
+---
+
+## 80. ÖĞRETMEN — son yerel confirm(): rubrik üzerine yazma koruması (23 Ekim 2026, W1)
+
+Müdür görevi; §79'da "değişmeyen" diye bırakılan madde. Commit `f897a8a`,
+dal `ogretmen-rubrik-onay` (main `5c84c13`). Push yok.
+
+- `rubricTemplateOverwriteGuard` artık async. Rubrik elle düzenlenmemişse
+  sormadan `true` döner. Düzenlenmişse `onaylaModal` açılır: "Ölçütleriniz
+  değiştirilsin mi?", kırmızı "Evet, ölçütleri değiştir" (elle düzenlenmiş
+  ölçütler kaybolur → tehlikeli eylem). Vazgeç/Escape hiçbir şeyi değiştirmez.
+- İki çağıran bekler: `aiSuggestRubric` (`await`) ve şablon düğmeleri
+  (`.rub-tpl`, async). İkisinde de çift tıklama tek pencere açar. AI
+  düğmesinde koruma model çağrısı sürerken de geçerlidir.
+- **app.js'te yorum dışında yerel `confirm(` çağrısı kalmadı.** Bu, testle
+  denetleniyor.
+
+**Ölçüm (tarayıcı, gerçek odak + tıklama, statik sunucu):**
+- **Şablon yolu:** Vazgeç ve Escape elle girilen ağırlığı (45) korudu; çift tık
+  tek pencere açtı. Onayla "Kavramsal Anlama" uygulandı, `userEdited` false oldu.
+- **AI yolu:** Kırmızı pencere açıldı. Vazgeç'te `/api/ai/rubric` isteği 0,
+  hata yok. Onayda koruma geçildi; statik sunucuda model olmadığı için
+  "gerçek model bağlantısı gerekiyor" uyarısı çıktı, istek yine 0.
+- **Canlı modelle AI taslağının uygulanması ölçülmedi.**
+- §77 ortak odak düzeniyle (5c84c13), sınav kartı silinince odak listede
+  kalan kartın düğmesine gidiyor; son kart silinince sınıf başlığına (h2).
+
+**Doğrulama:** 399/399 test (+2) · öz-kontrol %100 · yerel confirm 0 kez
+çağrıldı · U+FFFD 0 · model çağrısı 0.
