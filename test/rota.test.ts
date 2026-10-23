@@ -269,3 +269,36 @@ describe('hız sınırı: IP başına ortak tavan (§51b)', () => {
     }
   });
 });
+
+// §73 — canlıda (§69) evaluate'in geri bildirim taslağında "necessário" görüldü.
+describe('evaluate: Latin-1 yabancı aksan uyarısı ve tetikleyen sözcük (§73)', () => {
+  let no = 0;
+  const govde = () => ({
+    questionBody: 'Aksan testi sorusu ' + ++no,
+    maxScore: 10,
+    criteria: [{ label: 'Kavram', weight: 100 }],
+    studentAnswer: 'Sürtünme kuvveti hareketi zorlaştırır.',
+  });
+  const yanit = (geriBildirim: string) => ({
+    breakdown: [{ label: 'Kavram', points: 6, reason: 'Kavramı doğru kullanmış.' }],
+    justification: 'Yeterli.', studentFeedback: geriBildirim, confidence: 0.8,
+  });
+
+  it('geri bildirimde necessário → dilUyarisi true, meta.dilUyarisiSozcukler = ["necessário"]', async () => {
+    const r = await post('/api/ai/evaluate', govde(),
+      sahteAi(yanit('Doğru bir yaklaşım; bazı kavramları açıklaman necessário olabilir.')));
+    expect(r.status).toBe(200);
+    const j: any = await r.json();
+    expect(j.dilUyarisi).toBe(true);
+    expect(j.meta.dilUyarisiSozcukler).toEqual(['necessário']);
+    // Metin DEĞİŞTİRİLMEZ (otomatik düzeltme yok, agents.md §1).
+    expect(j.studentFeedback).toContain('necessário');
+  });
+
+  it('şapkalı Türkçe geri bildirim → uyarı yok, sözcük listesi boş', async () => {
+    const r = await post('/api/ai/evaluate', govde(), sahteAi(yanit('Kâğıdındaki açıklama hâlâ millî müfredata uygun.')));
+    const j: any = await r.json();
+    expect(j.dilUyarisi).toBe(false);
+    expect(j.meta.dilUyarisiSozcukler).toEqual([]);
+  });
+});

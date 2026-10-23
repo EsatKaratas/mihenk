@@ -198,15 +198,64 @@ export const kaynakGerektirirMi = (body: string, modelKarari: boolean) =>
  * "thư", "sư" uyarısız geçerdi. Türkçede bu blokta harf YOKTUR; bloğun tamamı
  * eklendi (Vietnamca ơ/ư, Rumence ș/ț, pinyin ǎ… hepsi Türkçe dışı).
  * Yanlış pozitif yeniden ölçüldü (test/guards.test.ts): 0.
- * BİLİNÇLİ SINIR: Latin-1 içindeki é, ñ, ã, ß gibi harfler hâlâ
- * yakalanmaz — Türkçenin ç ö ü â î û harfleriyle aynı blokta yaşarlar ve
- * tek tek ayıklamak sözlük gerektirir (§48b.3'teki "necessary" sınıfı).
+ * (Eski not: "Latin-1 içindeki é, ñ, ã, ß hâlâ yakalanmaz" — §73'te
+ * YABANCI_AKSAN ile kapandı; aşağıya bakın. Sözlük gerekmedi: Türkçe
+ * harfler tek tek dışarıda bırakıldı.)
  */
 export const YABANCI_ALFABE =
   /[\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0590-\u05FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u1E00-\u1EFF\u0100-\u011D\u0120-\u012F\u0132-\u015D\u0160-\u017F\u0180-\u024F]/;
 
-/** Metinde Türkçe dışı alfabe geçiyorsa true. */
-export const yabanciAlfabeVarMi = (s: string): boolean => YABANCI_ALFABE.test(String(s || ''));
+/*
+ * §73 — LATİN-1 YABANCI AKSAN (yukarıdaki "BİLİNÇLİ SINIR" kapandı).
+ * Latin-1 Supplement'ın (U+00C0–00FF) HARFLERİ, Türkçede geçen altısı
+ * (Ç ç Ö ö Ü ü) ve şapkalılar (Â â Î î Û û) DIŞARIDA; × (D7) ve ÷ (F7) harf
+ * değildir. Kalanlar: À Á Ã Ä Å Æ È–Í Ï–Õ Ø–Ú Ý Þ ß à á ã–æ è–í ï–õ ø–ú ý–ÿ.
+ * ÖLÇÜLDÜ (§73, tools/olcum/aksan-say.mjs, model çağrısı yok):
+ *   - 782 üretilmiş soru + 621 çözücü gerekçesi: 4 isabet, 4'ü de gerçek
+ *     sızıntı (luôn, tämir, konkrét; đúngudur zaten Ext-A ile yakalanıyordu),
+ *     yanlış alarm 0. Eski kural bunların yalnız 1'ini görüyordu.
+ *   - İnsan yazımı Türkçe ders derlemi (müfredat + ders belgeleri + ölçüm
+ *     seti, ~1 MB): isabet 0.
+ *   - Canlıda (§69) değerlendirme çıktısında "necessário" görüldü.
+ * BİLİNEN VE KABUL EDİLEN: meşru özgün yazımlı yabancı özel adlar da uyarı
+ * verir (Ampère, Poincaré, El Niño, García Márquez…). Uyarı ENGELLEMEZ;
+ * öğretmen görür ve geçer (agents.md §1). Allowlist bilerek yok: ölçülen
+ * yanlış alarm 0 ve liste bakım yükü getirir.
+ * KAPSAM DIŞI: aksansız yabancı sözcük (however, para, pero) — sözlük ya da
+ * dil tanıma ister, ayrı iş.
+ */
+export const YABANCI_AKSAN =
+  /[\u00C0\u00C1\u00C3-\u00C6\u00C8-\u00CD\u00CF-\u00D5\u00D8-\u00DA\u00DD-\u00E1\u00E3-\u00E6\u00E8-\u00ED\u00EF-\u00F5\u00F8-\u00FA\u00FD-\u00FF]/;
+
+/* NFC: "e" + birleşik akut (U+0301) gibi ayrık yazımlar tek harfe dönsün;
+   yoksa "é" ayrık yazılınca aralık testinden kaçardı. Türkçe harfler NFC'de
+   değişmez. */
+const nfc = (s: string): string => String(s || '').normalize('NFC');
+
+/** Metinde Türkçe dışı alfabe ya da Türkçe dışı Latin-1 aksanlı harf geçiyorsa true. */
+export const yabanciAlfabeVarMi = (s: string): boolean => {
+  const m = nfc(s);
+  return YABANCI_ALFABE.test(m) || YABANCI_AKSAN.test(m);
+};
+
+/**
+ * §73 — Uyarıyı TETİKLEYEN sözcükler (tekil, görülme sırasıyla, en çok `en`).
+ * Yalnız bilgi: öğretmene/ölçüme "neden uyarı" sorusunun cevabı. Metni
+ * değiştirmez, karar vermez.
+ */
+export function yabanciSozcukler(metinler: Array<string | null | undefined>, en = 3): string[] {
+  const out: string[] = [];
+  for (const m of metinler) {
+    for (const w of nfc(m || '').split(/[^\p{L}\p{M}]+/u)) {
+      if (!w || out.includes(w)) continue;
+      if (YABANCI_ALFABE.test(w) || YABANCI_AKSAN.test(w)) {
+        out.push(w);
+        if (out.length >= en) return out;
+      }
+    }
+  }
+  return out;
+}
 
 /**
  * §45 — HERHANGİ BİR MODEL METNİ İÇİN yabancı alfabe denetimi.

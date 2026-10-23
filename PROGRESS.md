@@ -9439,3 +9439,51 @@ görünür düğme/başlık adları karşılaştırıldı (statik sunucu, 1366 p
   çıkarıldı, düğme kartta zaten yan yana).
 - Doğrulama: 346 test, lint, öz-kontrol 470, gorsel-fark 26 ekran (hata/kimlik/
   taşma 0, ikinci yayına göre fark yok), gerçek tıklamalı demo 5/5.
+
+## 73. DİL UYARISI — LATİN-1 YABANCI AKSAN (ikinci tur B, 23 Ekim 2026, W2)
+
+§69'da canlıda modelin öğrenciye geri bildirim taslağı "…açıklaman
+**necessário** olabilir" yazdı ve dil uyarısı çıkmadı: `á` Latin-1'deydi ve
+`YABANCI_ALFABE` bu bloğu bilerek kapsamıyordu (Türkçe ç ö ü â î û de orada).
+Karar (Orchestrator 2): **önce ölç, sonra ekle.**
+
+**Ölçüm** (`node tools/olcum/aksan-say.mjs`; model çağrısı yok, sınıflar
+`src/lib/guards.ts`'ten okunur):
+
+| Derlem | Birim | Latin-1 aksan isabeti | Gerçek sızıntı | Yanlış alarm | Eski kural yakalıyor mu |
+|---|---|---|---|---|---|
+| Üretim ham çıktısı (`docs/olcum/ham`, 12 koşum) | 282 çağrı / 782 soru | 3 | 3 — "đúngudur" (Vietnamca), "luôn" (Vietnamca), "tämir" (ä'lı tamir) | 0 | 1/3 (yalnız đ, Ext-A) |
+| Çözücü gerekçeleri (CSV + `a5/cozucu-v2.json`) | 621 | 1 | 1 — "konkrét" | 0 | 0/1 |
+| İnsan yazımı Türkçe (müfredat, ders belgeleri, ölçüm seti, ~1 MB) | 34 dosya | 0 | — | 0 | — |
+
+Yeni sınıf 4/4, eski kural 1/4 yakalıyor. Mevcut test (606 kazanım + demo
+soruları) yeni sınıfla da **yanlış alarm 0**.
+
+**Yapılan:**
+- `YABANCI_AKSAN` (`guards.ts`): Latin-1 harfleri eksi Ç ç Ö ö Ü ü Â â Î î Û û;
+  × ÷ harf değil. 50 harf. `yabanciAlfabeVarMi` iki sınıfı birlikte kullanır;
+  `metinDilUyarisi` / `soruDilUyarisi` üzerinden **üç uca** bağlı:
+  soru üretimi, `/evaluate` (gerekçe + geri bildirim + kriter açıklamaları),
+  `/solve` gerekçesi. Metin önce NFC'ye çevrilir (ayrık "e + ◌́" kaçmasın).
+- `yabanciSozcukler()`: uyarıyı tetikleyen ilk 3 sözcük →
+  `meta.dilUyarisiSozcukler` (üç uçta). `dilUyarisi` alanı aynı; istemci
+  değişmedi. Metin **değiştirilmez**, uyarı **engellemez** (agents.md §1).
+- Allowlist **yok**: ölçülen yanlış alarm 0; liste bakım yükü getirir.
+- Testler +10 (346 → 356): 4 gerçek sızıntı + "necessário" (rota testinde
+  `/evaluate` uçtan, `meta` dahil), Gemini listesinden 5 sık sözcük (não,
+  también, très, più, groß), şapkalı Türkçe (kâğıt, hâlâ, millî, Kâzım) ve
+  düz Türkçe → uyarı yok, × ÷ → yok, NFD ayrık yazım → var.
+
+**BİLİNEN VE KABUL EDİLEN:** meşru özgün yazımlı yabancı özel ad da uyarı
+verir (Ampère, El Niño — testte belgelendi). Gemini'nin listesi (36 ad: Poincaré,
+García Márquez, Béla Bartók…) çoğunlukla lise edebiyat/sanat/tarih; hedef
+müfredatımızda 0 geçiş ölçüldü. Yanlış alarm görülürse bu listeden küçük bir
+istisna kümesi alınır. (Gemini'nin "MEB kitabında özgün yazılır" iddiaları
+belirli sayfaya bağlı değildi → doğrulanmadı; "%98+ güvenilirlik" iddiası
+dayanaksızdı → kullanılmadı.)
+
+**SINIRLILIK:**
+- `/evaluate` çıktısı ölçüm setinde **yok**; canlı sızıntı oradaydı. Bu uç
+  için ölçülmüş oran yok, yalnız test ve canlı gözlem var.
+- Aksansız yabancı sözcük (however, para, pero, also) bu kuralla
+  yakalanmaz; sözlük ya da dil tanıma ister, ölçülmeden önerilmez.

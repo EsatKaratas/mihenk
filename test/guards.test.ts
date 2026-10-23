@@ -16,6 +16,7 @@ import {
   yabanciAlfabeVarMi,
   soruDilUyarisi,
   metinDilUyarisi,
+  yabanciSozcukler,
   sikImzasi,
   gerekceyiSadelestir,
   gerekceleriSadelestir,
@@ -739,8 +740,8 @@ describe('yabanciAlfabeVarMi — Latin Extended-A (§51b)', () => {
     }
   });
 
-  it('BİLİNÇLİ SINIR: Latin-1 içindeki é ñ hâlâ yakalanmaz', () => {
-    expect(yabanciAlfabeVarMi('café, niño')).toBe(false);
+  it('§73: eski sınır kapandı — Latin-1 içindeki é ñ artık yakalanır', () => {
+    expect(yabanciAlfabeVarMi('café, niño')).toBe(true);
   });
 
   it('yanlış pozitif 0: tüm müfredat kazanımları (MEB) ve demo soruları', () => {
@@ -783,5 +784,63 @@ describe('yabanciAlfabeVarMi — Latin Extended-B (§57)', () => {
     expect(yabanciAlfabeVarMi('\u0180')).toBe(true);
     expect(yabanciAlfabeVarMi('\u024F')).toBe(true);
     expect(yabanciAlfabeVarMi('Ağaçtaki İğne, ışık, Şule, ĞÜŞİÖÇ ğüşıöç âîû')).toBe(false);
+  });
+});
+
+/* ============================================================================
+   §73 — YABANCI_AKSAN: Latin-1'in Türkçe dışı harfleri.
+   Ölçüm: 782 soru + 621 çözücü gerekçesinde 4 gerçek sızıntı, yanlış alarm 0
+   (tools/olcum/aksan-say.mjs). Canlıda (§69) evaluate çıktısında "necessário".
+   ============================================================================ */
+describe('YABANCI_AKSAN — Latin-1 yabancı aksan (§73)', () => {
+  it('ölçülen 4 gerçek sızıntı + canlıdaki necessário → uyarı VAR', () => {
+    for (const s of [
+      'Açık ifadelerin luôn somut ve net olduğunu',      // Vietnamca, a5s05 T.Y.7.17
+      'Bu cümle tämir edilmelidir.',                       // ä'lı bozuk "tamir", Scout T.Y.6.18
+      'ancak konkrét değerler verilmemiş',                 // çözücü v2 gerekçesi
+      'daha derinlemesine açıklaman necessário olabilir',  // canlı evaluate geri bildirimi
+    ]) expect(yabanciAlfabeVarMi(s)).toBe(true);
+  });
+
+  it('dillerde sık aksanlı sözcükler (Gemini listesi, bölüm 2) → uyarı VAR', () => {
+    for (const w of ['não', 'también', 'très', 'più', 'groß']) {
+      expect(yabanciAlfabeVarMi('Öğrenci ' + w + ' yazdı')).toBe(true);
+    }
+  });
+
+  it('Türkçe şapkalılar ve düz Türkçe → uyarı YOK', () => {
+    for (const s of ['kâğıt', 'hâlâ', 'millî', 'Kâzım', 'Âşık Veysel', 'KÂĞIT HÂLÂ MİLLÎ',
+      'Çığır açan öğrenci şunu düşündü: ılık su, ünlü güneş.', 'ÇÖÜ çöü ÂÎÛ âîû ĞİŞ ğış']) {
+      expect(yabanciAlfabeVarMi(s)).toBe(false);
+    }
+  });
+
+  it('× ve ÷ harf değildir → uyarı YOK', () => {
+    expect(yabanciAlfabeVarMi('3 × 4 = 12, 12 ÷ 4 = 3')).toBe(false);
+  });
+
+  it('BİLİNEN VE KABUL EDİLEN: meşru yabancı özel ad da uyarı verir (engellemez, öğretmen geçer)', () => {
+    expect(yabanciAlfabeVarMi('Ampère yasası')).toBe(true);
+    expect(yabanciAlfabeVarMi('El Niño iklimi etkiler')).toBe(true);
+  });
+
+  it('ayrık yazım (NFD: e + birleşik akut) da yakalanır', () => {
+    const ayrik = 'necessa' + String.fromCharCode(0x0301) + 'rio';
+    expect(ayrik.length).toBe(11);
+    expect(yabanciAlfabeVarMi(ayrik)).toBe(true);
+  });
+
+  it('metinDilUyarisi ve soruDilUyarisi yeni sınıfı kullanır', () => {
+    expect(metinDilUyarisi('Yeterli.', 'açıklaman necessário olabilir')).toBe(true);
+    expect(soruDilUyarisi({ body: 'Temiz gövde', options: [{ text: 'luôn' }] })).toBe(true);
+    expect(soruDilUyarisi({ body: 'Temiz', distractorRationale: { A: 'tämir' } })).toBe(true);
+  });
+
+  it('yabanciSozcukler: tetikleyen sözcükler, tekil, sırayla, en çok 3', () => {
+    expect(yabanciSozcukler(['açıklaman necessário olabilir', 'necessário ve luôn', 'tämir konkrét'])).toEqual(
+      ['necessário', 'luôn', 'tämir']);
+    expect(yabanciSozcukler(['Кирилл ve phứcekli'])).toEqual(['Кирилл', 'phứcekli']);
+    expect(yabanciSozcukler(['kâğıt hâlâ millî', null, undefined, ''])).toEqual([]);
+    expect(yabanciSozcukler(['café niño très'], 2)).toEqual(['café', 'niño']);
   });
 });

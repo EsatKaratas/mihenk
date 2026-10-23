@@ -31,6 +31,7 @@ import {
   rateLimited as rateLimitedRaw,
   soruDilUyarisi,
   metinDilUyarisi,
+  yabanciSozcukler,
   anahtarla,
   round05,
   clamp,
@@ -490,6 +491,12 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
          kullanıcıya yazar (§6.3-5 sessiz düşüş yasağı). */
       meta: {
         provider: usedProvider, model: usedModel, attempts, fellBack,
+        // §73: dil uyarısını tetikleyen sözcükler (ilk 3; yalnız bilgi, metin değişmez).
+        dilUyarisiSozcukler: yabanciSozcukler(kabul.flatMap((q) => !q ? [] : [
+          q.body,
+          ...('options' in q && Array.isArray(q.options) ? q.options.map((o) => o.text) : []),
+          ...('distractorRationale' in q && q.distractorRationale ? Object.values(q.distractorRationale) : []),
+        ])),
         istenen: istenenToplam,
         uretilen: kabul.length,
         elenenTekrar,
@@ -608,11 +615,8 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
        gider (gerekçe öğretmene, geri bildirim taslağı onaydan sonra
        ÖĞRENCİYE) ve sızıntı canlıda gözlendi. Otomatik düzeltme yok;
        öğretmene bildirilir, karar onda kalır (agents.md §1). */
-    const dilUyarisi = metinDilUyarisi(
-      parsed.data.justification,
-      parsed.data.studentFeedback,
-      ...breakdown.map((x) => x.reason)
-    );
+    const dilMetinleri = [parsed.data.justification, parsed.data.studentFeedback, ...breakdown.map((x) => x.reason)];
+    const dilUyarisi = metinDilUyarisi(...dilMetinleri);
 
     return c.json({
       aiScore,
@@ -625,7 +629,8 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       // §45: model çıktısına Türkçe dışı alfabe karıştıysa öğretmene bildirilir.
       dilUyarisi,
       breakdown,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      // §73: dil uyarısını tetikleyen sözcükler (ilk 3). Canlıdaki "necessário" bu uçtaydı.
+      meta: { provider: usedProvider, model: usedModel, attempts, fellBack, dilUyarisiSozcukler: yabanciSozcukler(dilMetinleri) },
     });
   } catch (e) {
     return c.json(
@@ -1005,7 +1010,7 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
       anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
       dilUyarisi: metinDilUyarisi(gerekce),
       // §57: çözücü isteminin sürümü (2 = gerekçe önce, harf sonra). Ölçümler buna göre ayrılmalı.
-      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU },
+      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU, dilUyarisiSozcukler: yabanciSozcukler([gerekce]) },
     });
   } catch (e) {
     return c.json(modelHatasiGovdesi(e, c.req.path), 502);
