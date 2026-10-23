@@ -9853,3 +9853,23 @@ başka bir worktree'yi sunan port üzerinde ölçüm yapıldı).
 - tsc temiz, öz-kontrol 508 ad %100.
 - `gorsel-fark --dolu` 1280/390: hata 0, yinelenen id 0, taşma yok.
 - Model çağrısı yok.
+
+
+---
+
+## 79. ÖĞRETMEN — Analitik paydası hedef sınıfa göre + ortak onay penceresi (23 Ekim 2026, W1)
+
+Müdür görevi, iki ayrı commit. Dal `ogretmen-hedef-onay` (main `74f71b8`). Push yok.
+
+| Commit | İş | Ölçüm |
+|---|---|---|
+| `253448f` | **Analitik "N / M tamamladı" paydası** (W4 bulgusu). M tüm öğrencilerdi; 7-B'ye açık sınavda 7-A da sayılıyordu. Artık yönetici panosuyla TEK kural: `yonSinavAtandiMi` (§77). Hedef boşsa herkes, doluysa o sınıf; sınava girmiş öğrenci atanmış sayılır. Ayrı kural yazılmadı | Test (4): 7-B hedefli → 2 (4 değil), hedef boş → 4, girmiş 7-A öğrencisi → 3, kodun kuralı kullandığı. Tarayıcı (demo, Kerem 7-A girmemiş): 7-B hedefli **2/2**, tümüne açık **2/4** |
+| `92090ae` | **Öğretmen tarafında yerel `confirm()` kalmadı** (5 nokta) → `onaylaModal` / `onayliEylem` (§77). Yayından kaldır: async, mavi (geri alınabilir). Sınav/taslak sil: async, kırmızı; silme artık **her durumda** `deleteExam` içinde sorulur (taslak onayı kart menüsünden taşındı). Örnek listeyi temizle ve öğrenci çıkar: `onayliEylem`, kırmızı. Kart menüsü düğmesi onay açıkken ikinci pencere açmaz | Test (5, kaynak düzeyi). Tarayıcı, beş akış: odak Vazgeç'te; Vazgeç ve Escape değiştirmiyor; onay uyguluyor; tehlikeliler kırmızı; çift tık tek pencere; yerel confirm 0 kez çağrıldı |
+
+**Değişmeyen:** `rubricTemplateOverwriteGuard` hâlâ `confirm()` kullanıyor.
+Senkron bool döndürüyor ve bu görevde atanmadı. Geçirilecekse çağıranları
+`onaylaModal().then` ile zincirlenmeli; ayrı küçük iş.
+
+**Doğrulama:** 393/393 test (+9) · öz-kontrol %100 · gorsel-fark `--dolu`:
+öğretmenin 16 ekranında (veri dolu Puanlama/Analitik dahil, 1280 ve 390)
+hata 0, yinelenen id 0, <24px 0, taşma yok · U+FFFD 0 · model çağrısı 0.

@@ -6124,17 +6124,21 @@ function sinavZamanKilitli(kayit) {
 }
 
 /** Yayından kaldır: sınav taslağa döner, öğrenciler artık göremez. */
-function unpublishExam(id) {
+/* §79: onay yerel confirm() değil, uygulamanın onay penceresi (onaylaModal,
+   §77). Dönüş Promise<boolean>. Geri alınabilir eylem: onay düğmesi mavi. */
+async function unpublishExam(id) {
   const kayit = (state.exams || []).find(function (x) { return x.id === id; });
   if (!kayit) return false;
   const k = sinavKatilim(kayit);
-  let uyari = "“" + (kayit.title || "Adsız Sınav") + "” yayından kaldırılacak ve öğrenciler artık göremeyecek.";
+  let metin = "Öğrenciler sınavı artık göremeyecek. Sınavı yeniden yayınlayabilirsiniz.";
   if (k.baslayan) {
-    uyari += "\n\nDİKKAT: " + k.baslayan + " öğrenci bu sınava başlamış" +
+    metin += "\n\nDİKKAT: " + k.baslayan + " öğrenci bu sınava başlamış" +
       (k.gonderen ? " (" + k.gonderen + " tanesi yanıtlarını göndermiş)" : "") +
       ". Yanıtları SİLİNMEZ, sınav yeniden yayınlandığında yerinde durur.";
   }
-  if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  const tamam = await onaylaModal({ baslik: "“" + (kayit.title || "Adsız Sınav") + "” yayından kaldırılsın mı?",
+    metin: metin, onayEtiketi: "Yayından kaldır" });
+  if (!tamam) return false;
   /* §42: burada `if (aktif) state.exam.status=...; else kayit.status=...;`
      vardı ve HEMEN ARDINDAN koşulsuz `kayit.status = "draft"` geliyordu —
      yani `else` dalı hiçbir şey eklemiyordu. Aktif sınavda İKİ yerin de
@@ -6146,7 +6150,9 @@ function unpublishExam(id) {
   return true;
 }
 
-function deleteExam(id) {
+/* §79: silme HER durumda sorulur (taslak dahil; eskiden taslağın onayı
+   yalnız kart menüsündeydi, §62) ve tek yerden: onaylaModal, kırmızı. */
+async function deleteExam(id) {
   const kayit = state.exams.find(function (x) { return x.id === id; });
   if (!kayit) return false;
 
@@ -6155,15 +6161,16 @@ function deleteExam(id) {
      öğretmene hiçbir açıklama yapılmıyordu. */
   const yayinda = (id === state.activeExamId ? state.exam.status : kayit.status) === "published";
   const k = sinavKatilim(kayit);
-  if (yayinda || k.baslayan) {
-    let uyari = "“" + (kayit.title || "Adsız Sınav") + "” KALICI OLARAK silinecek.";
-    if (k.baslayan) {
-      uyari += "\n\n" + k.baslayan + " öğrencinin bu sınavdaki yanıtları" +
-        (k.gonderen ? ", " + k.gonderen + " tanesinin gönderdiği kağıt dahil," : "") +
-        " birlikte silinecek. Bu işlem geri alınamaz.";
-    }
-    if (!confirm(uyari + "\n\nDevam edilsin mi?")) return false;
+  const ad = (id === state.activeExamId ? state.exam.title : kayit.title) || "Adsız Sınav";
+  let metin = (yayinda || k.baslayan ? "Sınav" : "Taslak") + " KALICI OLARAK silinecek.";
+  if (k.baslayan) {
+    metin += "\n\n" + k.baslayan + " öğrencinin bu sınavdaki yanıtları" +
+      (k.gonderen ? ", " + k.gonderen + " tanesinin gönderdiği kâğıt dahil," : "") + " birlikte silinecek.";
   }
+  metin += "\n\nBu işlem geri alınamaz.";
+  const tamam = await onaylaModal({ baslik: "“" + ad + "” silinsin mi?", metin: metin,
+    onayEtiketi: yayinda || k.baslayan ? "Evet, sınavı sil" : "Evet, taslağı sil", tehlikeli: true });
+  if (!tamam) return false;
   state.exams = state.exams.filter(function (x) { return x.id !== id; });
   if (state.activeExamId === id) {
     if (state.exams.length) { state.activeExamId = null; activateExam(state.exams[0].id); }
@@ -6598,23 +6605,28 @@ function wireSinifYonetim() {
   const o = ogtDurum();
   var temizle = document.getElementById("btnOrnekTemizle");
   if (temizle) temizle.onclick = function () {
-    if (!confirm("Örnek öğrenci listesi (" + state.students.length + " kişi) çıkarılacak. Devam edilsin mi?")) return;
-    state.students = [];
-    state.activeStudentId = null;
-    saveState(); renderAll();
+    onayliEylem(temizle, { baslik: "Örnek öğrenci listesi çıkarılsın mı?",
+      metin: state.students.length + " örnek öğrenci listeden çıkarılacak.",
+      onayEtiketi: "Örnek listeyi temizle", tehlikeli: true }, function () {
+      state.students = [];
+      state.activeStudentId = null;
+      saveState(); renderAll();
+    });
   };
   document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
     b.onclick = function () {
       var id = Number(b.dataset.ogrenciSil);
       var ogr = (state.students || []).find(function (x) { return x.id === id; });
       if (!ogr) return;
-      var uyari = "“" + ogr.name + "” sınıftan çıkarılacak.";
-      if (ogrenciSilGuard(id)) uyari += " Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; " +
-        "çıkarırsanız kayıtlar isimsiz kalır (silinmez).";
-      if (!confirm(uyari + " Devam edilsin mi?")) return;
-      state.students = state.students.filter(function (x) { return x.id !== id; });
-      state.activeStudentId = state.students.length ? state.students[0].id : null;
-      saveState(); renderAll();
+      onayliEylem(b, { baslik: "“" + ogr.name + "” sınıftan çıkarılsın mı?",
+        metin: ogrenciSilGuard(id)
+          ? "Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; çıkarırsanız kayıtlar isimsiz kalır (silinmez)."
+          : "Öğrenci bu sınıfın listesinden çıkarılacak.",
+        onayEtiketi: "Sınıftan çıkar", tehlikeli: true }, function () {
+        state.students = state.students.filter(function (x) { return x.id !== id; });
+        state.activeStudentId = state.students.length ? state.students[0].id : null;
+        saveState(); renderAll();
+      });
     };
   });
   var ekle = document.getElementById("btnOgrenciEkle");
@@ -6715,21 +6727,13 @@ function examSwitcherHtml() {
 }
 
 /** Sınav kartı ve ⋯ menüsü işlemleri. */
-function sinavIslemi(islem, id) {
+async function sinavIslemi(islem, id) {
   const o = ogtDurum();
   o.sonuc = "";
   if (islem === "sil") {
-    const kayit = (state.exams || []).find(function (x) { return x.id === id; });
-    if (!kayit) return;
-    const aktif = id === state.activeExamId;
-    const yayinda = (aktif ? state.exam.status : kayit.status) === "published";
-    /* deleteExam yayındaki ya da başlanmış sınavda kendi onayını sorar ama
-       taslağı SORMADAN siliyordu. Müdür kararı: silme her zaman onaylı. */
-    if (!yayinda && !sinavKatilim(kayit).baslayan) {
-      const ad = (aktif ? state.exam.title : kayit.title) || "Adsız sınav";
-      if (!confirm("“" + ad + "” taslağı kalıcı olarak silinecek. Bu işlem geri alınamaz.\n\nDevam edilsin mi?")) return;
-    }
-    deleteExam(id);
+    /* Silme her durumda (taslak dahil) deleteExam'in onay penceresiyle
+       sorulur (§79; eskiden taslak onayı burada ayrı bir confirm idi). */
+    await deleteExam(id);
     return;
   }
   if (id && id !== state.activeExamId) activateExam(id);
@@ -6740,7 +6744,7 @@ function sinavIslemi(islem, id) {
   }
   if (islem === "puanla") { state.teacherTab = 3; renderAll(); return; }
   if (islem === "sonuc") { state.teacherTab = 4; renderAll(); return; }
-  if (islem === "kaldir") { unpublishExam(id); return; }
+  if (islem === "kaldir") { await unpublishExam(id); return; }
   if (islem === "kagit" || islem === "anahtar") {
     const y = yazdirSorulari();
     if (!y.sorular.length) { o.sonuc = "Bu sınavda yazdırılacak onaylı soru yok."; renderAll(); return; }
@@ -6759,7 +6763,14 @@ function wireExamSwitcher() {
     const el = document.getElementById("ogtYeniAd"); if (el) el.focus();
   };
   document.querySelectorAll("[data-ogt-islem]").forEach(function (b) {
-    b.onclick = function () { sinavIslemi(b.dataset.ogtIslem, Number(b.dataset.exam)); };
+    /* §79: onay penceresi açıkken aynı düğmeye yeniden basmak ikinci
+       pencere açmaz (çift tıklama). */
+    b.onclick = async function () {
+      if (b.dataset.onayBekliyor) return;
+      b.dataset.onayBekliyor = "1";
+      try { await sinavIslemi(b.dataset.ogtIslem, Number(b.dataset.exam)); }
+      finally { delete b.dataset.onayBekliyor; }
+    };
   });
 }
 
@@ -9565,7 +9576,13 @@ function teacherTab4Html() {
   const vals = Object.keys(scores).map(function (k) { return scores[k]; });
   const avg = vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0;
   // Sabit "1/1" yazıyordu: çoklu öğrenci desteği geldiğinde güncellenmemişti.
-  const tumOgr = (state.students || []).length;
+  /* §79 (W4 bulgusu): payda tüm öğrencilerdi; 7-B'ye açık sınavda 7-A da
+     sayılıyordu. Kural yönetici panosuyla TEK: yonSinavAtandiMi (§77) —
+     hedef boşsa herkes, doluysa o sınıf; sınava girmiş öğrenci atanmış sayılır. */
+  const aktifKayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  const tumOgr = aktifKayit
+    ? (state.students || []).filter(function (o) { return yonSinavAtandiMi(aktifKayit, o); }).length
+    : (state.students || []).length;
   const bitiren = submittedStudents().length;
   // Şube adı da sabit "8-A" idi; gerçek şubeler 7-A / 7-B.
   // Mevcut siniflar() yardımcısı kullanıldı (alan adı s.sinif).
