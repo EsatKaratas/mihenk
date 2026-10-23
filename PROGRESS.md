@@ -9418,3 +9418,24 @@ rozetsiz soru tek tık, not ders ve kazanım değişiminde temizleniyor, demo
 - **P2-4 kısa metin uyarısı:** metin, istenen sayıda soruyu taşımayacak kadar
   kısaysa özet bunu ÜRETİMDEN ÖNCE söylesin ("bu metin ~2 soru taşır");
   bugün sunucu notu yalnız üretimden sonra geliyor.
+
+## 72. DEMO ŞERİDİ — 5 adımın metni ekrandaki düğme adlarıyla (ikinci tur A, 23 Ekim 2026, W2)
+
+Demo gerçek tıklamalarla yürütüldü; her adımda şerit metni ile etkin paneldeki
+görünür düğme/başlık adları karşılaştırıldı (statik sunucu, 1366 px).
+
+| Adım | Önce | Ekranda | Şimdi |
+|---|---|---|---|
+| 1 | "inceleyip onaylayın; soru havuzuna geçsin" | `✓ Onayla → Havuza Aktar` | "…“Onayla → Havuza Aktar” düğmesine basın; soru havuza geçer" |
+| 2 | "…sınavın kartında Yayınla'ya basın" (§68) | `Yayınla` | "…sınavın kartındaki “Yayınla” düğmesine basın" (biçim birliği) |
+| 3 | "Yayınlanan sınavı çözün; “Gözden geçir ve bitir”e, ardından “Sınavı bitir”e basın" | `Sınava Başla` → `Gözden geçir ve bitir` → `Sınavı bitir` → pencerede `Evet, bitir` | "“Sınava Başla” ile sınavı çözün; sonra “Gözden geçir ve bitir”, “Sınavı bitir” ve “Evet, bitir” düğmelerine sırayla basın" |
+| 4 | "puan önerisini inceleyin, nihai kararı verin ve sonuçları yayınlayın" | `✓ Tek Tıkla Onayla (YZ puanı: n)` · `Puanı Güncelle ve Onayla` · `✓ Sonuçları Öğrenciye Yayınla` | "Puan önerisini inceleyip kararı verin (“Tek Tıkla Onayla”), sonra “Sonuçları Öğrenciye Yayınla” düğmesine basın" |
+| 4 → 5 düğmesi | "Sonraki Adım → Analiz" | rol adı "Eğitim Yöneticisi" | "Sonraki Adım → Eğitim Yöneticisi" (diğer adımlar rol adını kullanıyor) |
+| 5 | "…analiz ekranına ve kazanım başarı grafiğine düştü" | başlıklar "Okul Geneli Ölçme Durumu", "Kazanım Başarı Grafiği" | "…okul geneli ekranına ve “Kazanım Başarı Grafiği”ne düştü" |
+
+- Düğme adlarına ek getirmek ("…Aktar”a") okunuşu bozduğu için "… düğmesine basın" kalıbı.
+- 390 px şerit yüksekliği: adım 1/2/3/5 = 109 px (W5'in §64b sıkılığı korundu),
+  adım 4 = 129 px (ilk taslak 146 px idi; "Puanı Güncelle ve Onayla" metinden
+  çıkarıldı, düğme kartta zaten yan yana).
+- Doğrulama: 346 test, lint, öz-kontrol 470, gorsel-fark 26 ekran (hata/kimlik/
+  taşma 0, ikinci yayına göre fark yok), gerçek tıklamalı demo 5/5.
