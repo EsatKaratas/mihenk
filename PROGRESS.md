@@ -9070,6 +9070,11 @@ model çağrısı 0. P2-5 W2'de, P2-7 W4'ün dalında.
 - Sonuç: <24 px hedef 26 → 18. Kalanlar: `button.oc-link` (cümle içi metin
   bağlantısı, 2.5.8 satır içi istisnası) ve şık sıralama okları
   `.opt-move-btn` ▲▼ 20×16 (ayrı karar).
+- **§66b (orkestratör kararı):** şık sıralama okları 24×24 ve YAN YANA (arada
+  4 px). Üst üste 16 px'de 24 px'lik hedef çemberleri çakışır, aralık istisnası
+  da sağlanmaz. 390 px'te yatay taşma çıktı (metin kutusunun içsel en küçük
+  genişliği) → `min-width: 0`. Sonuç: <24 px hedef 18 → 2 (ikisi de cümle içi
+  `oc-link`); taşma 0; fark yalnız İçerik Uzmanı-1 (%5,8 / %8,1).
 
 ## 67. METİN CİLASI (23 Ekim 2026, W4)
 
