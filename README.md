@@ -720,7 +720,7 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
   Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
   DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **468 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  dosya sonunda **470 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
@@ -860,7 +860,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 23 Ekim 2026, tasarım turu yayını (canlı sürüm `87dc965d` · 346 test · öz-kontrol 468 ad %100 · gorsel-fark 1280/390 temiz)
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 23 Ekim 2026, ikinci yayın (canlı sürüm `da505ee0` · 346 test · öz-kontrol 470 ad %100)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)

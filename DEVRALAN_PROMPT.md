@@ -48,7 +48,7 @@ npm install
 git rev-parse --short HEAD          # 19 Ekim itibarıyla e4a4024'ten yenisi
 npm run lint                        # sessiz olmalı
 npm test                            # 346/346, 13 dosya
-node tools/ozkontrol-dogrula.mjs    # 468 ad · kapsama %100
+node tools/ozkontrol-dogrula.mjs    # 470 ad · kapsama %100
 npm run check:config                # exit 0
 node --check public/app.js          # sessiz
 curl -s https://mihenk.bies.workers.dev/api/health

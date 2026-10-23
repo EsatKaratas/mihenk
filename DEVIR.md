@@ -18,7 +18,7 @@ Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
 > - Öğrenci, yönetici ve veli panelleri yenilendi.
 > - Hata rengi kırmızı; metin cilası.
 >
-> HITL zinciri aynen. 346 test (13 dosya) · öz-kontrol 468 ad %100.
+> HITL zinciri aynen. 346 test (13 dosya) · öz-kontrol 470 ad %100.
 > Ayrıntı PROGRESS §60–§69, özet README "Tasarım turu".
 
 > **v4'te ne değişti (19 Ekim):** v3 §48b'de kalmıştı. §49-§50n (Keşif
@@ -42,7 +42,7 @@ Hepsi §5'te özetli, tamamı `PROGRESS.md`'de.
 | Test | **346/346** (13 dosya) — 23 Ekim |
 | Cevap denetimleri (20 Ekim) | A1 bağımsız çözüm · A2 sayısal hesap · A3 uzun şık (yalnız ölçüm) · A4 tür içi tekrar — yazıldı ve A5'te ölçüldü: A1 (v2) ∪ A2 yakalama %61,1, yanlış alarm %5,3; A3 işe yaramıyor. A1 çözücüsünde "harf önce" istem hatası bulunup düzeltildi (`1b8f611`). Ön bulgu — ARASTIRMA §6.8, OZET §9 |
 | Lint (`tsc --noEmit`) | temiz — 19 Ekim |
-| Öz-kontrol | **468 ad · eksik 0 · kapsama %100** — 23 Ekim |
+| Öz-kontrol | **470 ad · eksik 0 · kapsama %100** — 23 Ekim |
 | Sınav yazdırma (20 Ekim) | Sınav kâğıdı ve ayrı cevap anahtarı, A4; yalnız onaylı sorular; sayfa numarası; öğrenci kâğıdında cevap yok. PROGRESS §59 |
 | Şüphe rozetleri + uyum raporu (20 Ekim) | B1 onay kartında "neden şüpheli?" rozetleri ve "Bağımsız çöz"; A7 YZ önerisi ↔ nihai puan raporu (soru bazında). Onayı engellemez. A7 kriter bazında farkı **ölçemez** (öğretmen yalnız toplam puan verir). PROGRESS §56 |
 | `check:config` · `node --check public/app.js` | exit 0 · temiz — 19 Ekim |
