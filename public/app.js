@@ -414,6 +414,29 @@ function escapeHtml(str) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
   });
 }
+
+/* §60 ADIMCI (stepper) — tek ortak üretici; panel sahipleri kendi
+   sihirbazlarını bununla çizer, ayrı adımcı yazmaz.
+   adimlar: adım adları (string dizisi). aktif: 0 tabanlı etkin adım.
+   secenek.tiklanabilir: tamamlanan adımlar düğme olur
+   (class "js-adim", data-adim=sıra); bağlamayı panel yapar.
+   Ekran okuyucu: etkin adımda aria-current="step"; her adım görünmez
+   "Adım 2 / 4:" öneki (ve gerekiyorsa ", tamamlandı") taşır. */
+function adimciHtml(adimlar, aktif, secenek) {
+  const tiklanabilir = !!(secenek && secenek.tiklanabilir);
+  const n = adimlar.length;
+  const ogeler = adimlar.map(function (ad, i) {
+    const durum = i < aktif ? "tamam" : (i === aktif ? "aktif" : "bekliyor");
+    const ic = '<span class="adimci-no" aria-hidden="true">' + (i < aktif ? "✓" : (i + 1)) + "</span>" +
+      '<span class="adimci-ad"><span class="gorsel-gizli">Adım ' + (i + 1) + " / " + n + ": </span>" +
+      escapeHtml(ad) + (durum === "tamam" ? '<span class="gorsel-gizli">, tamamlandı</span>' : "") + "</span>";
+    const govde = (tiklanabilir && durum === "tamam")
+      ? '<button type="button" class="adimci-dugme js-adim" data-adim="' + i + '">' + ic + "</button>"
+      : ic;
+    return '<li class="adimci-adim ' + durum + '"' + (durum === "aktif" ? ' aria-current="step"' : "") + ">" + govde + "</li>";
+  });
+  return '<ol class="adimci">' + ogeler.join("") + "</ol>";
+}
 function truncate(str, n) { str = String(str || ""); return str.length > n ? str.slice(0, n - 1) + "…" : str; }
 // Model her soruya bilissel duzey (Bloom) etiketi uretir; bu etiket
 // olcme aracinin yalnizca ezber olcup olcmedigini gorunur kilar.
@@ -10925,6 +10948,7 @@ function bosDurumHtml(mesaj) {
    doneCardHtml, evalFailedCardHtml ve confBadge silinmişti.)          */
 (function selfCheck() {
   const gerekli = [
+    "adimciHtml",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
