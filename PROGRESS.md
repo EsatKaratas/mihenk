@@ -1283,7 +1283,6 @@ denetliyoruz. Üstelik denetimi soruyu üreten çağrı değil, ayrı ve bağım
 Bu, §11f seçenek havuzundaki **"kazanım-soru hizalama denetimi"** ve
 **"Bloom taksonomisi dengesi"** maddelerinin karşılığıdır.
 
-
 ---
 
 ## 14. ÜRÜN AÇIKLARI VE GÜVENLİK TURU (26 Ağustos)
@@ -4229,7 +4228,6 @@ sınav öğrencinin ekranından sessizce kaybolurdu.
    değiştirip AYNI id ile `activateStudent`'i tekrar çağırdığımda hiçbir şey
    olmadı, `state.examStatus` eski değerde kaldı. Önce başka bir öğrenciye
    geçip sonra hedefe dönerek düzeltildi.
-
 
 ### 28r. MADDE 2 — öğrenci sınıf değişikliğinin senkronu
 
@@ -8313,7 +8311,6 @@ Tasarım önce W5'in ham verisinden ölçülerek yapıldı (6 gerçek koşum, 42
 | Model çağrısı (bu bölüm) | — | 5 (A1 kanıtı 2 + duman 3) |
 | Push / deploy | — | **YAPILMADI** (müdürün sözüyle) |
 
-
 ---
 
 ## 56. ŞÜPHE ROZETLERİ (B1) + YZ ÖNERİSİ ↔ NİHAİ PUAN RAPORU (A7) (19 Ekim 2026, W1)
@@ -8439,7 +8436,6 @@ OZET §9.6):
 gelirse karar hesaptan kopabiliyor. **Açık aday (ölçülmedi):** değerlendirme
 isteminde `"points"` `"reason"`dan önce.
 
-
 ---
 
 ## 58. JÜRİ GÖZÜYLE ARAYÜZ DÜZELTMELERİ — W3 değerlendirmesinden 6 madde (20 Ekim 2026, W1)
@@ -8461,7 +8457,6 @@ kartının durum satırı) görüntüleri değişti; yayından sonra yeniden çe
 
 **Doğrulama:** 338/338 · öz-kontrol 370 ad %100 · U+FFFD 0 · konsol JS
 hatası 0 · model çağrısı 0.
-
 
 ---
 
@@ -9031,7 +9026,6 @@ W2'nin görsel farkı (390 px, tam sayfa) iki şüphe bildirdi; gerçek kaydırm
 
 Tarayıcı testi 27/27, `npm test` 338/338, lint temiz, öz-kontrol %100.
 
-
 ---
 
 ## 62a. ÖĞRETMEN — W3 bağımsız testinden düzeltmeler (23 Ekim 2026, W1)
@@ -9159,7 +9153,6 @@ kullanıcı metinlerini değiştirir.
   - gorsel-fark: hata 0, yinelenen id 0.
 - **Kalan (bölüm 2b):** öğretmen aralığı metinleri. W1'in `ogretmen-puanlama`
   dalı main'e girdikten sonra, ona rebase edilerek yapılacak.
-
 
 ---
 
@@ -9487,3 +9480,73 @@ dayanaksızdı → kullanılmadı.)
   için ölçülmüş oran yok, yalnız test ve canlı gözlem var.
 - Aksansız yabancı sözcük (however, para, pero, also) bu kuralla
   yakalanmaz; sözlük ya da dil tanıma ister, ölçülmeden önerilmez.
+
+## 74. YÖNETİCİ PANOSU FİLTRELERİ — sınıf · ders · öğretmen (ikinci tur, 23 Ekim 2026, W4)
+
+*(Dalda §73 olarak yazılmıştı; W2'nin §73 dil uyarısı bölümüyle çakıştığı için birleştirmede §74'e alındı. Kod yorumlarındaki "§73" atıfları (yönetici filtreleri) bu bölümü kastediyor.)*
+
+**Önce kodda doğrulandı.** State şekli değişmedi, göç yok.
+
+| Boyut | State'te | Karar |
+|---|---|---|
+| Sınıf | `students[].sinif` | filtre var |
+| Öğretmen | `exams[].teacherName` (boşsa "İsimsiz Öğretmen") | filtre var |
+| Ders | Sınavda alan **yok**; her sorunun kazanım kodundan türetiliyor (`OUTCOMES_LIST().subject`, yoksa `kodDanDers`) | filtre var |
+| Dönem | **Yok**; sınavda tarih ya da dönem alanı tutulmuyor | **eklenmedi**, ⓘ içinde nedeni yazıyor |
+
+- **Ders, İçerik Uzmanı'nın formundan alınmıyor.** `soruDersSinif()` kodu
+  bilinmeyen soruda `state.ceForm.subject`'e düşüyor. Yönetici filtresi
+  başka panelin açık formuna bağlı olamayacağı için yeni `yonSoruDersi()`
+  yalnız kazanım koduna bakıyor; kodu olmayan sorunun dersi "".
+- **Seçenekler yalnız gerçek veriden:** yayınlanmış sınavların dersleri ve
+  öğretmenleri, öğrencilerin sınıfları. Taslak sınav seçeneğe girmez. Artık
+  var olmayan bir kayıtlı seçim "tümü" olur (`yonFiltreGecerli`).
+- **Filtrenin uygulandığı yerler:**
+  - "Önce buraya bakın" (metin "bu filtredeki en düşük değer" olur);
+  - üç durum kutusu (`okulGercekDurum(f)`);
+  - kazanım grafiği ("N öğrenciden");
+  - "Sınavlar Arası Gelişim";
+  - öğretmen analitiği;
+  - YZ ↔ nihai puan raporu;
+  - risk listesi.
+- **Filtreden bağımsız olanlar** (ⓘ içinde yazıyor):
+  - Karar Günlüğü, Dışa Aktarma ve "Karşılaştırma (örnek)".
+  - Risk listesindeki davranış (dikkat) göstergesi tüm sınavlardan
+    hesaplanıyor.
+- **Boş durumlar:** "Bu filtrelerle eşleşen yayınlanmış sınav / onaylı sonuç
+  / öğretmen yok. Filtreleri genişletin ya da temizleyin."
+- **Gizlilik:** seçim yalnız `localStorage["mihenk.yonetici.filtre.v1"]`
+  anahtarında, yalnız üç değer. URL'ye hiçbir şey yazılmıyor (ölçüldü:
+  adres değişmedi).
+- **Yan düzeltmeler:**
+  - Eylem kartında en düşük değer kritik eşiğin üstündeyse "tekrar çalışması
+    planlanabilir" yerine "acil bir kazanım sorunu görünmüyor" yazıyor.
+  - Kazanım grafiğindeki "Bu kazanımlar için aksiyon alın" kutusu **örnek
+    şubeleri de** listeliyordu ("6-A (örnek) → tekrar sorusu üret"). Hemen
+    üstündeki uyarı listesiyle aynı kural uygulandı: örnek satır eylem
+    doğurmaz.
+- **Yönetici aralığı dışında tek dokunuş:** `trendHtml(gecmisVerilen)`,
+  isteğe bağlı ve geriye uyumlu parametre (2 satır). Öğretmen ekranı
+  parametresiz çağırıyor, davranışı aynı.
+- **Test:** yeni `test/yonetici-filtre.test.ts`, 13 test. Kapsadıkları:
+  - seçeneklerin yalnız gerçek veriden gelmesi;
+  - kayıtlı seçimin süzülmesi;
+  - dersin koddan çıkması;
+  - sınav, öğrenci ve kayıt süzme;
+  - okul durumu sayıları;
+  - yüzdenin yalnız onaylı oturumdan gelmesi;
+  - ders filtresinin kazanım sütununu çıkarması;
+  - gelişim geçmişi.
+- **Doğrulama:**
+  - 359/359 test (14 dosya), tsc temiz, öz-kontrol %100.
+  - gorsel-fark 1280/390: hata 0, yinelenen id 0, 24 px altı hedef 0, taşma
+    yok.
+  - Tarayıcıda demo verisiyle elle denendi:
+    - Filtresiz değerler önceki ölçümle aynı: 7-A · 1, 7-B · 2, %48.
+    - 7-A seçilince kutular %50 / 0 / 1, grafik yalnız 7-A, risk "1 / 2
+      öğrenci".
+    - Sayfa yenilenince seçim korundu.
+    - Boş sınıf (8-C) seçilince boş durum metinleri çıktı.
+    - "Filtreleri temizle" seçimi sıfırladı.
+    - 390 px'te üç seçici alt alta (41 px), taşma yok.
+  - Model çağrısı yapılmadı.

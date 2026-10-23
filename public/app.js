@@ -8399,8 +8399,9 @@ function trendOku(fark) {
   return '<span class="trend-flat">● ' + (fark > 0 ? "+" : "") + fark + '</span>';
 }
 
-function trendHtml() {
-  const gecmis = gradedExamHistory();
+function trendHtml(gecmisVerilen) {
+  // §73: yönetici filtreli geçmişi verir; verilmezse eski davranış (öğretmen ekranı).
+  const gecmis = gecmisVerilen || gradedExamHistory();
   if (gecmis.length < 2) {
     return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Sınavlar Arası Gelişim</h3>' +
       '<span class="hint">' + gecmis.length + ' sonuçlanmış sınav</span></div>' +
@@ -10120,7 +10121,9 @@ function renderKazanimGrafigi(targetId, rows, bosMesaj) {
      soru üretim ekranına götürür. İçerik → sınav → değerlendirme → analiz
      → YENİ İÇERİK zinciri böyle kapanır.                                  */
   const zayif = [];
-  rows.forEach(function (r) {
+  /* §73: örnek (demo) şube eylem doğurmaz — yukarıdaki uyarı listesiyle aynı
+     kural. Eskiden "6-A (örnek) → tekrar sorusu üret" düğmesi çıkıyordu. */
+  rows.filter(function (r) { return !r.ornek; }).forEach(function (r) {
     cols.forEach(function (c) {
       const v = r.scores[c.code];
       if (v != null && v < 60) zayif.push({ sinif: r.name, kod: c.code, deger: v });
@@ -10198,27 +10201,34 @@ function buildAdminHeatmapRows() {
    Bir atama = (yayınlanmış sınav × öğrenci) çifti. Aktif sınavın aktif
    öğrencisinin oturumu state kökünde durduğu için okuma `readSession()`
    üzerinden yapılır (§3.2). */
-function okulGercekDurum() {
-  const ogrenciler = state.students || [];
+function okulGercekDurum(f) {
+  f = f || YON_FILTRE_BOS;
+  /* §73: filtre sınavı (öğretmen, ders), öğrenciyi (sınıf) ve onay bekleyen
+     yanıtı (ders: yalnız o dersin sorusu) süzer. Filtre boşken sonuç eskisiyle
+     aynıdır. */
+  const ogrenciler = yonOgrenciler(f);
   let atanan = 0, tamamlanan = 0, bekleyen = 0;
   (state.exams || []).forEach(function (kayit) {
-    if (kayit.status !== "published") return;
+    if (!yonSinavUygunMu(kayit, f)) return;
+    const dersSorulari = {};
+    yonSinavSorulari(yonSinavi(kayit)).forEach(function (q) { if (yonSoruUygunMu(q, f)) dersSorulari[q.id] = true; });
     ogrenciler.forEach(function (ogr) {
       atanan++;
-      const ss = (kayit.id === state.activeExamId)
-        ? readSession(ogr.id)
-        : ((kayit.sessions || {})[ogr.id] || null);
+      const ss = yonOturum(kayit, ogr.id);
       if (!ss) return;
       if (ss.examStatus === "submitted" || ss.examStatus === "graded") tamamlanan++;
       const evals = ss.aiEvals || {}, revs = ss.reviews || {};
-      Object.keys(evals).forEach(function (qid) { if (!revs[qid]) bekleyen++; });
+      Object.keys(evals).forEach(function (qid) { if (!revs[qid] && (!f.ders || dersSorulari[qid])) bekleyen++; });
     });
   });
   return { atanan: atanan, tamamlanan: tamamlanan, bekleyen: bekleyen };
 }
 function renderAdmin() {
   const root = document.getElementById("panel-admin");
-  const durum = okulGercekDurum();
+  // §73: kayıtlı seçim bugünkü seçeneklere göre süzülür (artık olmayan değer = tümü).
+  const secenek = yonFiltreSecenekleri();
+  const f = yonFiltreGecerli(yonFiltreAl(), secenek);
+  const durum = okulGercekDurum(f);
   const rate = durum.atanan ? Math.round(durum.tamamlanan / durum.atanan * 1000) / 10 : null;
 
   /* En zayif kazanimi bul: yoneticiye "ne yapmali" sorusunun cevabini ver.
@@ -10232,7 +10242,7 @@ function renderAdmin() {
      veri yokken örnek şubeye düşüyor ve yöneticiye var olmayan bir şube
      gösteriliyordu (etiketli olsa bile eylem kartında örnek veri durmaz).
      Örnek veri artık sayfanın sonundaki "Karşılaştırma (örnek)" bölümünde. */
-  const gercekSatirlar = yonGercekSatirlar();
+  const gercekSatirlar = yonGercekSatirlar(f);
   let enZayif = null;
   gercekSatirlar.forEach(function (r) {
     OUTCOMES_LIST().forEach(function (c) {
@@ -10243,7 +10253,7 @@ function renderAdmin() {
 
   root.innerHTML =
     '<div class="card yon-ust"><div class="card-head">' +
-    '<h3>Okul Geneli Ölçme Durumu</h3><span class="hint">tüm sınıflar, bu dönem</span></div>' +
+    '<h3>Okul Geneli Ölçme Durumu</h3><span class="hint">' + escapeHtml(yonFiltreOzet(f)) + '</span></div>' +
     '<p class="yon-ozet">Sayılar yalnızca <b>öğretmen onayından geçmiş</b> sonuçlardan hesaplanır.</p>' +
     yonBilgiHtml('Bu ekran, okuldaki ölçme sürecinin ne kadarının tamamlandığını ve hangi kazanımlarda ' +
       'eksik kalındığını gösterir. Puanların hiçbiri yapay zekâ tarafından kesinleştirilmemiştir. ' +
@@ -10252,7 +10262,9 @@ function renderAdmin() {
       "Bu ekran neyi gösterir?") +
     '</div>' +
 
-    yonEylemKartiHtml(durum, enZayif) +
+    yonFiltreCubuguHtml(f, secenek) +
+
+    yonEylemKartiHtml(durum, enZayif, f) +
 
     '<div class="grid-3col yon-kutular">' +
     '<div class="stat-tile"><div class="s-label">Sınav Tamamlanma</div><div class="s-value tabular">' +
@@ -10271,8 +10283,8 @@ function renderAdmin() {
     yonBilgiHtml('Yapay zekâ puan önerdi, öğretmen henüz onaylamadı. Onaylanmayan sonucu öğrenci ve veli ' +
       'göremez; bu sayı büyürse sonuçlar gecikiyor demektir.') + '</div>' +
 
-    '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + siniflar().length + '</div>' +
-    '<div class="s-sub">okul genelinde</div>' +
+    '<div class="stat-tile"><div class="s-label">Aktif Sınıf</div><div class="s-value tabular">' + (f.sinif ? 1 : siniflar().length) + '</div>' +
+    '<div class="s-sub">' + (f.sinif ? "seçili sınıf" : "okul genelinde") + '</div>' +
     yonBilgiHtml('Bu dönem en az bir ölçme süreci yürütülen sınıf sayısı.') + '</div></div>' +
 
     '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği</h3><span class="hint">grup: kazanım, sütun: şube</span></div>' +
@@ -10280,14 +10292,16 @@ function renderAdmin() {
       'Şube adının yanındaki sayı, yüzdenin <b>kaç öğrencinin onaylı sonucundan</b> hesaplandığını söyler. ' +
       'Kesikli kırmızı çizgi <b>%' + KRITIK_ESIK + ' kritik eşiği</b> gösterir — altında kalan ölçümler ayrıca listelenir.',
       "Grafik nasıl okunur?") +
-    '<div id="adminHeatmap"></div></div>' + trendHtml();
+    '<div id="adminHeatmap"></div></div>' + trendHtml(yonSinavGecmisi(f));
 
   // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — grafikten SONRA
   // (okul geneli görünümden öğretmen bazlı kırılıma iniş sırası).
-  root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml());
-  /* §56 (A7): aynı rapor, kurum geneli. "örnek" öğretmen verisi KATILMAZ. */
-  root.insertAdjacentHTML("beforeend", kararRaporuHtml("yonetici", kurumKararKayitlari(),
-    "kurum geneli · yalnız bu sistemde gerçekten verilen kararlar (örnek öğretmen verisi hariç)"));
+  root.insertAdjacentHTML("beforeend", teacherAnalyticsHtml(f));
+  /* §56 (A7): aynı rapor, kurum geneli. "örnek" öğretmen verisi KATILMAZ.
+     §73: filtre boşken kayıtlar kurumKararKayitlari() ile birebir aynıdır. */
+  root.insertAdjacentHTML("beforeend", kararRaporuHtml("yonetici", yonKararKayitlari(f),
+    (yonFiltreAktif(f) ? escapeHtml(yonFiltreOzet(f)) + " · " : "kurum geneli · ") +
+    "yalnız bu sistemde gerçekten verilen kararlar (örnek öğretmen verisi hariç)"));
   wireKararRaporu();
   wireTeacherAnalytics();
   // Yapay zeka karar gunlugu (denetim izi) — Egitim Yoneticisi gozetim rolu
@@ -10298,16 +10312,18 @@ function renderAdmin() {
   /* Risk listesi (§28g). Denetim izinin ÜSTÜNE değil altına konuldu ama dışa
      aktarmanın üstünde: müdürün "bugün ne yapmalıyım" sorusu, indirme
      düğmelerinden önce gelir. */
-  root.insertAdjacentHTML("beforeend", riskListesiHtml());
+  root.insertAdjacentHTML("beforeend", riskListesiHtml(f));
   // §63: örnek veri tek yerde, açıkça etiketli ve gerçek bölümlerden ayrı.
   root.insertAdjacentHTML("beforeend", yonOrnekBolumHtml());
   wireTeacherAnalytics();   // örnek öğretmen satırları da bağlansın
   // Dışa aktarma (§28d) — okullar sonuçları Excel'de ister.
   root.insertAdjacentHTML("beforeend", disaAktarHtml());
   wireDisaAktar();
-  renderKazanimGrafigi("adminHeatmap", gercekSatirlar,
-    "Henüz öğretmen onayından geçmiş sonuç yok. İlk sınav onaylandığında grafik burada oluşur.");
+  renderKazanimGrafigi("adminHeatmap", gercekSatirlar, yonFiltreAktif(f)
+    ? "Bu filtrelerle eşleşen onaylı sonuç yok. Filtreleri genişletin ya da temizleyin."
+    : "Henüz öğretmen onayından geçmiş sonuç yok. İlk sınav onaylandığında grafik burada oluşur.");
   renderKazanimGrafigi("adminOrnekGrafik", ornekSinifSatirlari(realClassRows()));
+  wireYonFiltre();
 }
 
 /* §63 — YÖNETİCİ PANELİ YARDIMCILARI (tasarım turu, W4). */
@@ -10318,18 +10334,22 @@ function yonBilgiHtml(icerik, etiket) {
     '<span>' + (etiket || "Ne demek?") + '</span></summary><div class="yon-bilgi-metin">' + icerik + '</div></details>';
 }
 
-/** Gerçek şube satırları; ad "7-A · 2 öğrenciden" (yüzdenin dayandığı onaylı sonuç sayısı). */
-function yonGercekSatirlar() {
-  return realClassRows().map(function (r) {
-    const n = (state.students || []).filter(function (o) {
-      return o.sinif === r.sinif && readSession(o.id).examStatus === "graded";
-    }).length;
-    return Object.assign({}, r, { name: r.sinif + " · " + (n ? n + " öğrenciden" : "onaylı sonuç yok") });
+/** Gerçek şube satırları; ad "7-A · 2 öğrenciden" (yüzdenin dayandığı onaylı sonuç sayısı).
+    §73: filtreye uyan sınav, sınıf ve soru; sayı, yüzdeye katkısı olan öğrenci sayısıdır. */
+function yonGercekSatirlar(f) {
+  f = f || YON_FILTRE_BOS;
+  const kayitlar = (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f); });
+  return siniflar().filter(function (sf) { return !f.sinif || sf === f.sinif; }).map(function (sf) {
+    const ogr = (state.students || []).filter(function (o) { return o.sinif === sf; });
+    const p = yonPuanlar(f, ogr, kayitlar);
+    return { sinif: sf, name: sf + " · " + (p.ogrenci ? p.ogrenci + " öğrenciden" : "onaylı sonuç yok"),
+      scores: p.scores, live: p.ogrenci > 0 };
   });
 }
 
 /** "Önce buraya bakın": yöneticinin bugün yapabileceği en fazla üç iş, yalnız gerçek veriden. */
-function yonEylemKartiHtml(durum, enZayif) {
+function yonEylemKartiHtml(durum, enZayif, f) {
+  const filtreli = yonFiltreAktif(f);
   const maddeler = [];
   if (durum.bekleyen) {
     maddeler.push({ ton: "uyari", metin: '<b class="tabular">' + durum.bekleyen + '</b> açık uçlu yanıt öğretmen onayı bekliyor. ' +
@@ -10337,9 +10357,11 @@ function yonEylemKartiHtml(durum, enZayif) {
   }
   if (enZayif) {
     maddeler.push({ ton: enZayif.v < KRITIK_ESIK ? "kritik" : "bilgi", metin: '<b>' + escapeHtml(enZayif.sinif) + '</b> şubesi ' +
-      '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarıda — okuldaki en düşük değer' +
+      '<b>' + escapeHtml(enZayif.etiket) + '</b> kazanımında <b class="tabular">%' + enZayif.v + '</b> başarıda — ' + (filtreli ? "bu filtredeki" : "okuldaki") + ' en düşük değer' +
       (enZayif.v < KRITIK_ESIK ? ', kritik eşiğin (%' + KRITIK_ESIK + ') altında' : '') +
-      '. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.' });
+      (enZayif.v < KRITIK_ESIK
+        ? '. İlgili öğretmenle bu kazanıma yönelik tekrar çalışması planlanabilir.'
+        : '; kritik eşiğin üstünde, acil bir kazanım sorunu görünmüyor.') });
   }
   if (durum.atanan && durum.tamamlanan < durum.atanan) {
     maddeler.push({ ton: "bilgi", metin: '<b class="tabular">' + (durum.atanan - durum.tamamlanan) + '</b> sınav ataması henüz tamamlanmadı.' });
@@ -10350,9 +10372,11 @@ function yonEylemKartiHtml(durum, enZayif) {
       }).join("") + '</ol>'
     : '<div class="empty-state">' + (durum.atanan
         ? "Şu an bekleyen bir iş yok: onay bekleyen yanıt kalmadı ve kritik eşiğin altında bir kazanım görünmüyor."
-        : "Henüz yayınlanmış sınav yok. İlk sınav yayınlanıp öğretmen onayından geçtiğinde yapılacak işler burada listelenir.") + '</div>';
+        : filtreli
+          ? "Bu filtrelerle eşleşen yayınlanmış sınav yok. Filtreleri genişletin ya da temizleyin."
+          : "Henüz yayınlanmış sınav yok. İlk sınav yayınlanıp öğretmen onayından geçtiğinde yapılacak işler burada listelenir.") + '</div>';
   return '<div class="card yon-eylem"><div class="card-head"><h3>Önce buraya bakın</h3>' +
-    '<span class="hint">yalnız bu sistemdeki gerçek veri</span></div>' + govde + '</div>';
+    '<span class="hint">' + (filtreli ? escapeHtml(yonFiltreOzet(f)) + " · " : "") + 'yalnız bu sistemdeki gerçek veri</span></div>' + govde + '</div>';
 }
 
 /** Örnek (demo) veri bölümü: şube karşılaştırması + örnek öğretmenler. */
@@ -10376,6 +10400,200 @@ function yonSeciliOgretmen(demo) {
   const ad = state.adminSelectedTeacher;
   if (!ad) return null;
   return teacherRoster().find(function (t) { return t.name === ad && !!t.demo === demo; }) || null;
+}
+
+/* ==================== §73 — YÖNETİCİ FİLTRELERİ (ikinci tur, W4) ====================
+   Boyutlar KODDA DOĞRULANDI, state şekli DEĞİŞMEDİ, göç yok:
+   · sınıf    : students[].sinif                                   → gerçek alan
+   · öğretmen : exams[].teacherName (boşsa VARSAYILAN_OGRETMEN_ADI) → gerçek alan
+   · ders     : sınavda alan YOK; her sorunun kazanım kodundan türetilir
+                (OUTCOMES_LIST().subject, yoksa kodDanDers). İçerik Uzmanı'nın
+                açık formundaki ders (state.ceForm.subject) BİLEREK kullanılmaz:
+                yöneticinin filtresi başka bir panelin o anki formuna bağlı olamaz.
+   · dönem    : state'te YOK — sınavda tarih/dönem alanı tutulmuyor. Filtre
+                uydurulmadı; ekranda nedeni yazar.
+   Seçim yalnız localStorage'da tutulur (YON_FILTRE_ANAHTAR) ve yalnız seçimdir;
+   URL'ye hiçbir şey yazılmaz. Örnek (demo) veri filtreden bağımsızdır. */
+const YON_FILTRE_ANAHTAR = "mihenk.yonetici.filtre.v1";
+const YON_FILTRE_BOS = { ders: "", sinif: "", ogretmen: "" };
+let yonFiltreSecim = null;
+
+/** Kayıtlı seçim (ilk çağrıda localStorage'dan okunur; okunamazsa "tümü"). */
+function yonFiltreAl() {
+  if (!yonFiltreSecim) {
+    let h = {};
+    try { h = JSON.parse(localStorage.getItem(YON_FILTRE_ANAHTAR) || "{}") || {}; } catch (e) { h = {}; }
+    yonFiltreSecim = { ders: String(h.ders || ""), sinif: String(h.sinif || ""), ogretmen: String(h.ogretmen || "") };
+  }
+  return yonFiltreSecim;
+}
+function yonFiltreKaydet(f) {
+  yonFiltreSecim = { ders: String((f && f.ders) || ""), sinif: String((f && f.sinif) || ""), ogretmen: String((f && f.ogretmen) || "") };
+  try { localStorage.setItem(YON_FILTRE_ANAHTAR, JSON.stringify(yonFiltreSecim)); } catch (e) { /* özel pencere: yalnız bu oturum */ }
+}
+function yonFiltreAktif(f) { return !!(f && (f.ders || f.sinif || f.ogretmen)); }
+
+/** Aktif sınavın canlı hâli state.exam'dedir (§3.2). */
+function yonSinavi(kayit) { return kayit.id === state.activeExamId ? state.exam : kayit; }
+function yonOgretmenAdi(ex) { return String((ex && ex.teacherName) || "").trim() || VARSAYILAN_OGRETMEN_ADI; }
+function yonSinavSorulari(ex) {
+  return ((ex && ex.questionIds) || []).map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
+}
+/** Sorunun dersi YALNIZ kazanım kodundan; bilinmiyorsa "". */
+function yonSoruDersi(q) {
+  const kod = (q && q.outcome) || "";
+  if (!kod) return "";
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === kod; });
+  return String((o && o.subject) || kodDanDers(kod) || "");
+}
+function yonSoruUygunMu(q, f) { return !f.ders || yonSoruDersi(q) === f.ders; }
+/** Yayınlanmış ve filtreye uyan sınav mı? Ders: en az bir sorusu o dersten. */
+function yonSinavUygunMu(kayit, f) {
+  const ex = yonSinavi(kayit);
+  if (ex.status !== "published") return false;
+  if (f.ogretmen && yonOgretmenAdi(ex) !== f.ogretmen) return false;
+  if (f.ders && !yonSinavSorulari(ex).some(function (q) { return yonSoruDersi(q) === f.ders; })) return false;
+  return true;
+}
+function yonOgrenciler(f) { return (state.students || []).filter(function (o) { return !f.sinif || o.sinif === f.sinif; }); }
+function yonOturum(kayit, sid) {
+  return kayit.id === state.activeExamId ? readSession(sid) : ((kayit.sessions || {})[sid] || null);
+}
+
+/** Seçenekler yalnız GERÇEK veriden: yayınlanmış sınavların dersleri ve öğretmenleri, öğrencilerin sınıfları. */
+function yonFiltreSecenekleri() {
+  const ders = {}, ogretmen = {}, sinif = {};
+  (state.exams || []).forEach(function (kayit) {
+    const ex = yonSinavi(kayit);
+    if (ex.status !== "published") return;
+    ogretmen[yonOgretmenAdi(ex)] = true;
+    yonSinavSorulari(ex).forEach(function (q) { const d = yonSoruDersi(q); if (d) ders[d] = true; });
+  });
+  (state.students || []).forEach(function (o) { if (o.sinif) sinif[o.sinif] = true; });
+  const sirala = function (n) { return Object.keys(n).sort(function (a, b) { return a.localeCompare(b, "tr"); }); };
+  return { ders: sirala(ders), sinif: sirala(sinif), ogretmen: sirala(ogretmen) };
+}
+/** Kayıtlı seçimi bugünkü seçeneklere göre süzer: artık olmayan değer "tümü" olur. */
+function yonFiltreGecerli(secim, secenek) {
+  const f = {};
+  ["ders", "sinif", "ogretmen"].forEach(function (k) {
+    const v = String((secim || {})[k] || "");
+    f[k] = v && (secenek[k] || []).indexOf(v) >= 0 ? v : "";
+  });
+  return f;
+}
+function yonFiltreOzet(f) {
+  if (!yonFiltreAktif(f)) return "tüm sınıflar, dersler ve öğretmenler";
+  return [f.sinif, f.ders, f.ogretmen].filter(Boolean).join(" · ");
+}
+
+/** Kazanım yüzdeleri: yalnız ONAYLI (graded) oturum; filtreye uyan sınav, öğrenci ve soru.
+    `ogrenci`: yüzdeye en az bir yanıtla katkı veren öğrenci sayısı. */
+function yonPuanlar(f, ogrenciler, kayitlar) {
+  const toplam = {}, adet = {}, sayan = {};
+  kayitlar.forEach(function (kayit) {
+    const sorular = yonSinavSorulari(yonSinavi(kayit)).filter(function (q) { return yonSoruUygunMu(q, f); });
+    ogrenciler.forEach(function (ogr) {
+      const ss = yonOturum(kayit, ogr.id);
+      if (!ss || ss.examStatus !== "graded") return;
+      sorular.forEach(function (q) {
+        let pct = null;
+        if (q.type === "mc" && (ss.mcResults || {})[q.id]) pct = ss.mcResults[q.id].correct ? 100 : 0;
+        if (q.type === "open" && (ss.reviews || {})[q.id]) {
+          const rub = state.rubrics[q.id];
+          if (rub && rub.maxScore) pct = ss.reviews[q.id].finalScore / rub.maxScore * 100;
+        }
+        if (pct == null) return;
+        toplam[q.outcome] = (toplam[q.outcome] || 0) + pct;
+        adet[q.outcome] = (adet[q.outcome] || 0) + 1;
+        sayan[ogr.id] = true;
+      });
+    });
+  });
+  const scores = {};
+  Object.keys(toplam).forEach(function (k) { scores[k] = Math.round(toplam[k] / adet[k]); });
+  return { scores: scores, ogrenci: Object.keys(sayan).length };
+}
+
+/** "Sınavlar Arası Gelişim" için filtreli geçmiş (trendHtml'in beklediği biçim). */
+function yonSinavGecmisi(f) {
+  const ogr = yonOgrenciler(f);
+  return (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f); }).map(function (kayit) {
+    const p = yonPuanlar(f, ogr, [kayit]);
+    return p.ogrenci ? { baslik: yonSinavi(kayit).title || "Adsız Sınav", scores: p.scores } : null;
+  }).filter(Boolean);
+}
+
+/** Öğretmen kararı kayıtları (teacherExamRecords) sınıf ve derse göre süzülür. */
+function yonKayitlariSuz(kayitlar, f) {
+  if (!f.ders && !f.sinif) return kayitlar;
+  return kayitlar.filter(function (r) {
+    if (f.sinif) {
+      const o = (state.students || []).find(function (s) { return String(s.id) === String(r.sid); });
+      if (!o || o.sinif !== f.sinif) return false;
+    }
+    if (f.ders) {
+      const q = state.questions.find(function (x) { return String(x.id) === String(r.qid); });
+      if (!q || yonSoruDersi(q) !== f.ders) return false;
+    }
+    return true;
+  });
+}
+/** Gerçek öğretmenler, filtreli kayıtlarıyla. Örnek öğretmen buraya hiç girmez. */
+function yonCanliOgretmenler(f) {
+  f = f || YON_FILTRE_BOS;
+  return teacherRoster().filter(function (t) { return !t.demo && (!f.ogretmen || t.name === f.ogretmen); })
+    .map(function (t) { return Object.assign({}, t, { records: yonKayitlariSuz(t.records, f) }); });
+}
+function yonKararKayitlari(f) {
+  return yonCanliOgretmenler(f).reduce(function (a, t) { return a.concat(t.records); }, []);
+}
+
+/** Filtre çubuğu: üç gerçek boyut; dönem yok ve nedeni ⓘ içinde. */
+function yonFiltreCubuguHtml(f, secenek) {
+  const secim = function (id, ad, anahtar, tumu) {
+    return '<div class="field yon-filtre-alan"><label for="' + id + '">' + ad + '</label>' +
+      '<select id="' + id + '" class="js-yon-filtre" data-boyut="' + anahtar + '"' + (secenek[anahtar].length ? "" : " disabled") + '>' +
+      '<option value="">' + tumu + '</option>' +
+      secenek[anahtar].map(function (v) {
+        return '<option value="' + escapeHtml(v) + '"' + (f[anahtar] === v ? " selected" : "") + '>' + escapeHtml(v) + '</option>';
+      }).join("") + '</select></div>';
+  };
+  return '<div class="card yon-filtre" role="search" aria-label="Pano filtreleri"><div class="card-head"><h3>Filtreler</h3>' +
+    (yonFiltreAktif(f)
+      ? '<button type="button" class="btn btn-secondary btn-sm js-yon-filtre-temizle">Filtreleri temizle</button>'
+      : '<span class="hint">tümü gösteriliyor</span>') + '</div>' +
+    '<div class="yon-filtre-alanlar">' +
+    secim("yonFiltreSinif", "Sınıf", "sinif", "Tüm sınıflar") +
+    secim("yonFiltreDers", "Ders", "ders", "Tüm dersler") +
+    secim("yonFiltreOgretmen", "Öğretmen", "ogretmen", "Tüm öğretmenler") + '</div>' +
+    yonBilgiHtml('Filtreler bu sayfadaki <b>gerçek</b> veriye uygulanır: eylem kartı, durum kutuları, kazanım ' +
+      'grafiği, gelişim tablosu, öğretmen analitiği, karar raporu ve risk listesi. <b>Ders</b> her sorunun ' +
+      'kazanım kodundan çıkarılır. <b>Dönem filtresi yok:</b> sınavlarda tarih ya da dönem bilgisi ' +
+      'tutulmuyor, bu yüzden eklenmedi. Karar Günlüğü, Dışa Aktarma ve Karşılaştırma (örnek) filtreden ' +
+      'bağımsızdır; risk listesindeki davranış göstergesi tüm sınavlardan hesaplanır. Seçim yalnız bu tarayıcıda saklanır.',
+      "Filtreler neye uygulanır?") + '</div>';
+}
+function wireYonFiltre() {
+  document.querySelectorAll("#panel-admin .js-yon-filtre").forEach(function (el) {
+    el.onchange = function () {
+      const f = Object.assign({}, yonFiltreAl());
+      f[el.dataset.boyut] = el.value;
+      yonFiltreKaydet(f);
+      const id = el.id;
+      renderAll();
+      const yeni = document.getElementById(id);   // yeniden çizimden sonra odak aynı seçicide kalsın
+      if (yeni) yeni.focus();
+    };
+  });
+  document.querySelectorAll("#panel-admin .js-yon-filtre-temizle").forEach(function (b) {
+    b.onclick = function () {
+      yonFiltreKaydet(YON_FILTRE_BOS);
+      renderAll();
+      const s = document.getElementById("yonFiltreSinif");
+      if (s) s.focus();
+    };
+  });
 }
 
 /* ===========================================================================
@@ -10427,15 +10645,18 @@ function teacherSatirHtml(t) {
     '</div>';
 }
 
-function teacherAnalyticsHtml() {
+function teacherAnalyticsHtml(f) {
   // §63: örnek öğretmenler bu kartta değil, "Karşılaştırma (örnek)" bölümünde.
-  const roster = teacherRoster().filter(function (t) { return !t.demo; });
+  // §73: filtreye uyan öğretmenler, sınıf ve derse göre süzülmüş kayıtlarıyla.
+  const roster = yonCanliOgretmenler(f);
 
   const satirlar = !roster.length
-    ? '<div class="empty-state">Henüz sınav kaydı yok; öğretmen listesi ilk sınav oluşturulunca dolar.</div>'
+    ? '<div class="empty-state">' + (yonFiltreAktif(f)
+        ? "Bu filtrelerle eşleşen öğretmen yok."
+        : "Henüz sınav kaydı yok; öğretmen listesi ilk sınav oluşturulunca dolar.") + '</div>'
     : roster.map(teacherSatirHtml).join("");
 
-  const seciliKayit = yonSeciliOgretmen(false);
+  const seciliKayit = roster.find(function (t) { return t.name === state.adminSelectedTeacher; }) || null;
   const detay = seciliKayit
     ? teacherReportCardHtml(seciliKayit)
     : (roster.length ? '<div class="empty-state">Karneyi görmek için listeden bir öğretmen seçin.</div>' : "");
@@ -11713,14 +11934,13 @@ setInterval(function () {
 const RISK_ESIK_BASARI = 50;     // onaylı sınav ortalaması bu yüzdenin altındaysa
 const RISK_ESIK_GIRMEME = 1;     // en az bu kadar sınava hiç girmemişse
 
-function riskOgrencileri() {
-  const yayindaki = (state.exams || []).filter(function (kayit) {
-    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
-    return ex.status === "published";
-  });
+function riskOgrencileri(f) {
+  f = f || YON_FILTRE_BOS;
+  // §73: filtre boşken yayındaki tüm sınavlar ve tüm öğrenciler (eski davranış).
+  const yayindaki = (state.exams || []).filter(function (kayit) { return yonSinavUygunMu(kayit, f); });
   if (!yayindaki.length) return [];
 
-  return (state.students || []).map(function (ogr) {
+  return yonOgrenciler(f).map(function (ogr) {
     let toplamPuan = 0, toplamTam = 0, girmedi = 0, onayli = 0;
     yayindaki.forEach(function (kayit) {
       const ex = kayit.id === state.activeExamId ? state.exam : kayit;
@@ -11733,7 +11953,7 @@ function riskOgrencileri() {
       onayli++;
       const sorular = (ex.questionIds || [])
         .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
-        .filter(Boolean);
+        .filter(function (q) { return q && yonSoruUygunMu(q, f); });
       const mcP = mcPuani(kayit);
       sorular.forEach(function (q) {
         if (q.type === "mc") {
@@ -11768,9 +11988,10 @@ function riskOgrencileri() {
     });
 }
 
-function riskListesiHtml() {
-  const liste = riskOgrencileri();
-  const toplam = (state.students || []).length;
+function riskListesiHtml(f) {
+  f = f || YON_FILTRE_BOS;
+  const liste = riskOgrencileri(f);
+  const toplam = yonOgrenciler(f).length;
   if (!liste.length) {
     return '<div class="card"><div class="card-head"><h3>Risk Altındaki Öğrenciler</h3>' +
       '<span class="pill pill-success">işaret yok</span></div>' +
@@ -12425,6 +12646,11 @@ function bosDurumHtml(mesaj) {
     "ogrNoktalariBagla", "ogrGozdenHtml", "kazanimAdKodHtml",
     "yonBilgiHtml", "yonGercekSatirlar", "yonEylemKartiHtml", "yonOrnekBolumHtml", "yonSeciliOgretmen", "teacherSatirHtml",
     "veliSeciciHtml", "veliCocukKartiHtml", "veliYorumlarHtml", "veliSonSonucHtml", "veliKonuSatiriHtml", "veliBosDurumHtml",
+    /* §73 — yönetici filtreleri (W4). */
+    "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
+    "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
+    "yonFiltreGecerli", "yonFiltreOzet", "yonPuanlar", "yonSinavGecmisi", "yonKayitlariSuz", "yonCanliOgretmenler",
+    "yonKararKayitlari", "yonFiltreCubuguHtml", "wireYonFiltre",
     /* §30 — final birleştirme denetimi: aşağıdaki altı ad üst düzeyde
        tanımlıydı ama bu listede yoktu. Dördü wire* — yani bir merge onları
        düşürürse ekran sorunsuz çizilir, sadece DÜĞMELER SESSİZCE ÖLÜR.
