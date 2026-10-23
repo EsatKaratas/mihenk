@@ -8082,7 +8082,15 @@ function teacherTab3Html() {
   // §42: gövde tek yerde (bkz. sinifVerisiKutusuHtml) — boş durumda da çizilir.
   const simKutusu = sinifVerisiKutusuHtml(gonderenler.length);
 
-  return ozet + simKutusu + integritySummaryHtml() + mcListesi + acikUclu + yayinKutusu;
+  /* §62b — Puanlama'nın asıl işi onay kuyruğu: en üstte. Özet ve ikincil
+     kartlar altta; uzun olanlar (Sınıf Verisi, Bütünlük Kaydı, ÇSS) katlı.
+     Ölçülmüştü: ilk .eval-card içerik başından 1327 px aşağıdaydı. */
+  const katli = function (baslik, govde) {
+    return govde ? '<details class="ogt-katli"><summary>' + baslik + '</summary>' + govde + '</details>' : "";
+  };
+  return acikUclu + yayinKutusu + '<div class="ogt-ikincil">' + ozet +
+    katli("Sınıf verisi", simKutusu) + katli("Sınav bütünlüğü kaydı", integritySummaryHtml()) +
+    katli("Çoktan seçmeli sonuçlar", mcListesi) + '</div>';
 }
 
 function wireTeacherTab3() {

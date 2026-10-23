@@ -118,6 +118,12 @@
 #panel-teacher .ogt-kim[open] > summary { margin-bottom: var(--sp-3); }
 #panel-teacher .ogt-kim .ta-whoami { margin: 0; }
 
+/* Puanlama: ikincil kartlar kuyruğun altında, katlı (§62b) */
+#panel-teacher .ogt-ikincil { margin-top: var(--sp-6); }
+#panel-teacher .ogt-katli { margin-bottom: var(--sp-3); }
+#panel-teacher .ogt-katli > summary { cursor: pointer; font-size: var(--fs-3); font-weight: 600;
+  color: var(--accent-strong); min-height: var(--hedef-min); padding: var(--sp-1) 0; }
+
 /* Öğrenciler: toplu ekleme */
 #panel-teacher .ogt-toplu { margin-top: var(--sp-4); border-top: 1px solid var(--border); padding-top: var(--sp-3); }
 #panel-teacher .ogt-toplu > summary { cursor: pointer; font-size: var(--fs-3); font-weight: 600; color: var(--accent-strong);
