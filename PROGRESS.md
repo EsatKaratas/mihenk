@@ -9481,6 +9481,21 @@ dayanaksızdı → kullanılmadı.)
 - Aksansız yabancı sözcük (however, para, pero, also) bu kuralla
   yakalanmaz; sözlük ya da dil tanıma ister, ölçülmeden önerilmez.
 
+### 73b Ayrık birleşik işaretler (W4 bağımsız denetimi, P2)
+
+W4, §73'ü bağımsız denetledi ve GEÇTİ verdi; bir kaçak buldu: ön-birleşik
+karşılığı olmayan ayrık işaretler ("q" + U+0301, "ı" + U+0308) NFC'den sonra da
+ayrık kalıyor ve uyarı vermiyordu. Karar (Orchestrator 2): önce yanlış alarmı
+ölç, 0 ise ekle.
+
+- Ölçüm: 12.017 metin birimi (ders belgeleri, müfredat, ölçüm seti, 782 sorunun
+  metinleri, çözücü gerekçeleri) — NFC sonrası kalan U+0300–036F işareti **0**,
+  U+0307 de 0.
+- Eklendi: `YABANCI_AKSAN`'a U+0300–0306 ve U+0308–036F. **U+0307 hariç**:
+  `"İSTANBUL".toLowerCase()` "i" + U+0307 üretir, meşru Türkçedir.
+- +2 test (371): "q" + akut ve "ı" + iki nokta → uyarı var; büyük İ'li
+  sözcüklerin küçültülmüşü → yok.
+
 ## 74. YÖNETİCİ PANOSU FİLTRELERİ — sınıf · ders · öğretmen (ikinci tur, 23 Ekim 2026, W4)
 
 *(Dalda §73 olarak yazılmıştı; W2'nin §73 dil uyarısı bölümüyle çakıştığı için birleştirmede §74'e alındı. Kod yorumlarındaki "§73" atıfları (yönetici filtreleri) bu bölümü kastediyor.)*

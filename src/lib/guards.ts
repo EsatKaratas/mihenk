@@ -223,9 +223,16 @@ export const YABANCI_ALFABE =
  * yanlış alarm 0 ve liste bakım yükü getirir.
  * KAPSAM DIŞI: aksansız yabancı sözcük (however, para, pero) — sözlük ya da
  * dil tanıma ister, ayrı iş.
+ * §73b — AYRIK BİRLEŞİK İŞARETLER (W4 bağımsız denetimi buldu): ön-birleşik
+ * karşılığı olmayan "q + U+0301", "ı + U+0308" NFC'den sonra da ayrık kalır ve
+ * aralık testinden kaçardı. NFC sonrası kalan U+0300–036F işaretleri de
+ * sayılır; U+0307 (birleşik üst nokta) HARİÇ: "İ".toLowerCase() = "i" + U+0307
+ * üretir, meşru Türkçedir. Ölçüldü: 12.017 metin biriminde (ders belgeleri,
+ * müfredat, ölçüm seti, 782 soru, çözücü gerekçeleri) NFC sonrası kalan
+ * işaret 0 → yanlış alarm 0.
  */
 export const YABANCI_AKSAN =
-  /[\u00C0\u00C1\u00C3-\u00C6\u00C8-\u00CD\u00CF-\u00D5\u00D8-\u00DA\u00DD-\u00E1\u00E3-\u00E6\u00E8-\u00ED\u00EF-\u00F5\u00F8-\u00FA\u00FD-\u00FF]/;
+  /[\u00C0\u00C1\u00C3-\u00C6\u00C8-\u00CD\u00CF-\u00D5\u00D8-\u00DA\u00DD-\u00E1\u00E3-\u00E6\u00E8-\u00ED\u00EF-\u00F5\u00F8-\u00FA\u00FD-\u00FF\u0300-\u0306\u0308-\u036F]/;
 
 /* NFC: "e" + birleşik akut (U+0301) gibi ayrık yazımlar tek harfe dönsün;
    yoksa "é" ayrık yazılınca aralık testinden kaçardı. Türkçe harfler NFC'de

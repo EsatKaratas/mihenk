@@ -844,3 +844,17 @@ describe('YABANCI_AKSAN — Latin-1 yabancı aksan (§73)', () => {
     expect(yabanciSozcukler(['café niño très'], 2)).toEqual(['café', 'niño']);
   });
 });
+
+describe('YABANCI_AKSAN — ayrık birleşik işaretler (§73b)', () => {
+  it('ön-birleşik karşılığı olmayan ayrık işaret → uyarı VAR (q + akut, ı + iki nokta)', () => {
+    expect(yabanciAlfabeVarMi('q' + String.fromCharCode(0x0301))).toBe(true);
+    expect(yabanciAlfabeVarMi('ı' + String.fromCharCode(0x0308))).toBe(true);
+  });
+
+  it('"İSTANBUL".toLowerCase() (i + U+0307) meşru Türkçedir → uyarı YOK', () => {
+    const kucuk = 'İSTANBUL'.toLowerCase();
+    expect(kucuk.includes(String.fromCharCode(0x0307))).toBe(true);
+    expect(yabanciAlfabeVarMi(kucuk)).toBe(false);
+    expect(yabanciAlfabeVarMi('İĞNE İPEK'.toLowerCase() + ' ' + 'IŞIK')).toBe(false);
+  });
+});
