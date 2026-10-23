@@ -8634,3 +8634,114 @@ Diğer kontroller:
 **Panel sahiplerine kural:** yeni ham px/hex yazılmaz, ölçek dışı ihtiyaç W2'ye
 gelir. Ekran betiği seçicileri (`.q-card`, `.eval-card`, `#panel-* .card`,
 `#modalBox .kat-satir`) yeniden adlandırılmaz.
+
+---
+
+## 64. KABUK — tek satır üst çubuk, panel menüsü, onaylı sıfırlama, tek ekran giriş (23 Ekim 2026, W5)
+
+**İstek (Orchestrator, Esat'ın tasarım turu):** W5'in gezinme araştırmasındaki
+"olmazsa olmaz" listesi (a–g) ve W4'ün giriş önerisi. Dal `tasarim-kabuk`,
+worktree `mihenk-w5`. Dosyalar: `public/index.html`, `public/app.js` (kabuk
+bölgesi: `renderRoleNav` → `renderPipeline`), `public/css/kabuk.css`, yeni
+`public/mihenk-isaret.png`. Panel içlerine dokunulmadı.
+
+### 64.1 Önce — ölçülen sorunlar (canlı, 1366×820 ve 375×812)
+
+| Sorun | Ölçüm |
+|---|---|
+| Kabuk üç katmandı | İlk içerik **243. pikselde** (ekranın %30'u kabuk) |
+| Mobilde üst çubuk | 5 satıra kırılıyordu, içerik ~390. pikselde |
+| Rol değiştirme | 3 tıklama (Çıkış → logo ekranı → "Panel seçimine geç" → kart), Çıkış sekmeleri de sıfırlıyordu |
+| 🔴 Sıfırla | Demo Akışı'nın hemen yanında, **onaysız**: `btnReset.onclick = resetState` localStorage + kitaplığı silip sayfayı yeniliyordu |
+| Marka | Girişte Mihenk logosu, uygulamada "T3" yazılı kare |
+
+### 64.2 Yapılan
+
+- **(a) Tek satır üst çubuk:** marka (logodan kırpılmış işaret + "Mihenk" +
+  küçük T3) · Panel menüsü · süreç göstergesi · model çipi · Demo · ⋯.
+  Yapışkan (sticky). Rol kartı + Çıkış satırı kalktı.
+- **(b) Panel menüsü:** iki grup (Okul · Öğrenci ve aile), fiilli
+  açıklama, bekleyen iş rozeti; **1 tıkla** geçiş. En altta "Giriş ekranına
+  dön" (eski Çıkış, `rolCikisYap` aynen). Demo açıkken diğer roller ve
+  giriş dönüşü **devre dışı**, menüde nedeni yazar.
+- **§33 kararı BİLEREK değişti:** "rol değiştirmenin tek yolu Çıkış" artık
+  geçerli değil. **Korunan kural:** her an yalnızca bir panel etkin
+  (`renderAll` tek panele `.active`), roller birleşmez; menü kapalıyken
+  ekranda yalnızca etkin rolün adı görünür. Gerekçe: rol bir simülasyon
+  seçimi (kimlik doğrulama yok), 3 tıklamalık yol tanıtımda ve demoda
+  zaman kaybettiriyordu; Google Classroom (Teaching/Enrolled/Admin görünüm
+  değiştirici) ve Okulistik (kitle açılır menüsü) aynı deseni kullanıyor.
+- **(c) ⋯ menüsü:** "Tüm verileri sıfırla…" → **onay penceresi** ("Bu
+  tarayıcıdaki tüm veriler silinir… geri alınamaz", Vazgeç / Evet, tümünü
+  sil). Yalnızca okul rollerinde. Ayrıca rehberli demo; dar ekranda model
+  durumu da burada okunur.
+- **(d) Öğrenci ve veli:** model çipi, süreç göstergesi ve Sıfırla görünmez
+  (`body[data-rol-grup="aile"]`).
+- **(e) Giriş tek ekran:** logo + tez + "Kim olarak devam ediyorsunuz?" +
+  iki grup yatay kart (fiilli açıklama) + ikincil "▶ Rehberli demo (5 adım)".
+- **(f) Mobil (<760):** tek satır; ad, T3, model çipi ve Demo gizli (⋯
+  menüsünde), adımlar yalnızca nokta.
+- **(g) Sekme numaraları:** etiketler panel kodunda; W1, W3 ve W4 kendi
+  dallarında kaldırıyor (yazılı onay alındı). Kabuk bunlara dokunmadı.
+- **Ek (istenmedi, gerekçeli):** girişten ya da Demo'dan başlatılan demo,
+  kullanıcının **kendi sorusu varsa** önce sorar. `loadDemoScenario` soru
+  havuzunu ve etkin sınavı DEĞİŞTİRİYOR; demo düğmesi artık giriş ekranında
+  da durduğu için tek tıkla veri kaybı riski büyüdü. Kendi verisi yoksa
+  doğrudan başlar.
+- Süreç adımlarına `title` ve erişilebilir ad: hangi panelde yapıldığı ve
+  durumu ("Sınav · Öğretmen · sıradaki adım").
+- Demo açıkken kabuğun alt çizgisi altın renk olur (Canvas "Student View"
+  deseni).
+
+### 64.3 Bulunan ve düzeltilen kusurlar (kendi işimde)
+
+1. **Mobilde üst çubuk 129 px idi:** app.css ≤760'ta `.brand-row`'u sütuna
+   çeviriyor, `.ai-mode`'a tam genişlik veriyordu; ⋯ menüsü ekranın soluna
+   taşıyordu (left −204). kabuk.css'te geri alındı → **53 px**, menüler ekran
+   içinde.
+2. **Giriş dalgası içeriğin üstüne biniyordu** (390×844, `position: fixed`):
+   dalga akışa alındı, içeriğin altında; çakışma yok.
+3. **Yapışkan çubuk eleman görüntülerinde kartı örtüyordu**
+   (04-egitim-yoneticisi'nde kart başlığı çubuğun altında kaldı):
+   `html { scroll-padding-top }` eklendi, yeniden çekimde düzeldi.
+4. Modal (z 50) giriş ekranının (z 900) arkasında kalırdı → kabuk.css'te
+   `.modal-overlay { z-index: 950 }`.
+5. Panel düğmesinin erişilebilir adı yalnızca `title` ("Paneli değiştir")
+   çıkıyordu → `aria-label="Panel: <rol> (N bekleyen) — değiştir"`.
+
+### 64.4 Doğrulama
+
+Ortam: workerd Windows Uygulama Denetimi'nce engelli olduğu için
+`python -m http.server 8795` (statik); `/api/*` 404 döner, model çipi
+"Yerel simülasyon" gösterir. Sunulan `app.js`, `index.html`, `kabuk.css`
+diskle **SHA-256 eş**.
+
+| Kontrol | Sonuç |
+|---|---|
+| İlk içerik (1366×820, İçerik Uzmanı) | **243 → 147 px**; üst çubuk 57 px |
+| Mobil (390×844) üst çubuk | **tek satır, 53 px**; yatay taşma 0 |
+| Panel menüsü | 5 rol, 1 tık; öğrenci ↔ öğretmen geçişinde tek `.panel.active` |
+| Aile rolleri | model çipi ve süreç gizli; ⋯'de yalnız demo (Sıfırla yok) |
+| Sıfırla | onay penceresi açılıyor; Vazgeç → localStorage değişmedi; `btnReset` DOM'da yok |
+| Demo 5 adım (gerçek düğmelerle) | adım kilitleri çalıştı (onayla → yayınla → başla/bitir → tek tıkla onay + sonuçları yayınla → analiz); demo sırasında menü kilitli; bitince açık |
+| Demo onayı | kendi soru varken pencere girişin ÜSTÜNDE açılıyor; Vazgeç → demo başlamadı; kendi soru yokken doğrudan başlıyor |
+| Giriş ekranına dön | giriş açılıyor, sorular korunuyor, odak ilk kartta |
+| Yinelenen `id` (5 rol) | **0** |
+| Konsol hatası | yalnız `/api/ai/status` 404 (statik sunucu) |
+| Ekran betiği (`tools/ekran-goruntusu-al.mjs`, 8795) | **7/7 çekim**; yalnız API 404 uyarısı |
+| `npm test` · `npm run lint` | **338/338** · exit 0 |
+| `node tools/ozkontrol-dogrula.mjs` | **391 ad · %100** (+10 kabuk fonksiyonu) |
+| kabuk.css ham px/hex | yok (yalnız 1–3 px kenarlık ve @media eşikleri) |
+
+**Test edilmeyen:** gerçek model çağrısı (workerd engelli), canlı yayın.
+README ekran görüntüleri yenilenmedi; tüm paneller birleşince yeniden
+çekilmeli (betik hazır, 7/7 çalışıyor).
+
+### 64.5 Açık kalan
+
+- app.css'te ölü kalan eski giriş/kabuk kuralları (`.gk-serit`,
+  `.gk-asama1/2`, `.gk-giris-btn`, `[data-asama="2"]`, `.role-btn .r-hint`)
+  ortak bölge sahibi W2'nin temizliğine bırakıldı.
+- Sekme numaraları W1/W3/W4 dallarında kalkıyor; birleşince kontrol edilmeli.
+- Güzel olur (yapılmadı): adıma tıklayınca ilgili panele gitme, rol başına
+  "ilk bakış" boş durum kartı.

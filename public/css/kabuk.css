@@ -35,6 +35,10 @@
 /* Demo açıkken kabuk altın çizgiyle işaretlenir (Canvas "Student View"
    deseni): kullanıcı hangi kipte olduğunu her an görür. */
 body.demo-acik .topbar.kabuk-ust { border-bottom: 2px solid var(--accent2); }
+/* Yapışkan çubuk, öğeye kaydırıldığında (bağlantı, odak, ekran betiğinin
+   eleman görüntüsü) öğenin üstünü örtüyordu — 04-egitim-yoneticisi'nde
+   kart başlığı çubuğun altında kaldı. Kaydırma çubuk yüksekliği + pay bırakır. */
+html { scroll-padding-top: calc(var(--sp-8) * 2.5); }
 .kabuk-ust #demoSeritYuva:not(:empty) { padding-bottom: var(--sp-3); }
 .kabuk-ust .demo-serit { margin-top: 0; }
 
@@ -165,7 +169,13 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
 /* §64 (f) — Mobil: tek satır. Ad, T3 ve model çipi gizlenir (model durumu
    ⋯ menüsünde okunur), Demo ⋯ menüsüne geçer, adımlar yalnızca nokta. */
 @media (max-width: 760px) {
-  .kabuk-ust .kb-satir { gap: var(--sp-2); min-height: calc(var(--sp-8) + var(--sp-5)); }
+  /* app.css ≤760'ta .brand-row'u sütuna çevirip .ai-mode'a tam genişlik
+     veriyor (eski üç katmanlı kabuk için); tek satır kabukta geri alınır. */
+  .kabuk-ust .kb-satir {
+    flex-direction: row; align-items: center;
+    gap: var(--sp-2); min-height: calc(var(--sp-8) + var(--sp-5));
+  }
+  .kabuk-ust .ai-mode { margin-left: auto; width: auto; }
   .kabuk-ust .kb-marka .titles,
   .kabuk-ust .kb-t3,
   .kabuk-ust #aiModeSlot,
@@ -184,13 +194,16 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
 /* ============================================================================
    GİRİŞ — TEK EKRAN (§64 e)
    ============================================================================ */
-.giris-kapisi.gk-tek { display: block; }
+/* Dalga AKIŞTA, içeriğin altında: sabit (fixed) bırakıldığında kısa ekranda
+   ve mobilde kaydırırken kartların ve demo notunun üstüne biniyordu
+   (390×844'te gözlendi). Kapı kendi içinde kayar (app.css overflow-y). */
+.giris-kapisi.gk-tek { display: flex; flex-direction: column; }
 .giris-kapisi.gk-tek[hidden] { display: none; }
 .giris-kapisi.gk-tek .gk-icerik {
-  position: relative; z-index: 1;
+  position: relative; z-index: 1; flex: 1 0 auto;
   width: min(calc(var(--sp-8) * 31), calc(100% - var(--sp-8)));   /* ≤992 */
   margin: 0 auto;
-  padding: clamp(var(--sp-6), 6vh, calc(var(--sp-8) * 1.75)) 0 clamp(calc(var(--sp-8) * 3.75), 20vh, calc(var(--sp-8) * 6));
+  padding: clamp(var(--sp-6), 6vh, calc(var(--sp-8) * 1.75)) 0 var(--sp-6);
   display: flex; flex-direction: column; align-items: center; text-align: center;
 }
 /* Logo akışta, sabit konumlu değil (eski iki aşamalı geçiş kalktı). */
@@ -244,7 +257,10 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
   font-size: var(--fs-2); color: var(--gk-fume); max-width: calc(var(--sp-8) * 11.5); text-align: left;
 }
 .giris-kapisi.gk-tek .gk-not { margin-top: var(--sp-4); }
-.giris-kapisi.gk-tek .gk-dalga { position: fixed; z-index: 0; }
+.giris-kapisi.gk-tek .gk-dalga {
+  position: relative; z-index: 0; flex: none;
+  height: clamp(calc(var(--sp-8) * 2.5), 14vh, calc(var(--sp-8) * 5));
+}
 
 @media (max-width: 760px) {
   .giris-kapisi.gk-tek .gk-gruplar { grid-template-columns: 1fr; gap: var(--sp-4); }

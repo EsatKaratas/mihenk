@@ -10068,6 +10068,7 @@ function renderRoleNav() {
   const acik = _kabukMenu === "rol";
   nav.innerHTML = '<div class="kb-menu">' +
     '<button type="button" class="kb-rol-btn js-rol-menu" aria-haspopup="menu" aria-expanded="' + (acik ? "true" : "false") + '"' +
+    ' aria-label="' + escapeHtml("Panel: " + aktif.label + (badges[aktif.id] ? " (" + badges[aktif.id] + " bekleyen)" : "") + " — değiştir") + '"' +
     ' title="Paneli değiştir">' +
     '<span class="kb-rol-on">Panel</span>' +
     '<span class="r-label">' + escapeHtml(aktif.label) + '</span>' +
