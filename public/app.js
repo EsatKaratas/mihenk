@@ -3736,6 +3736,11 @@ function auditGunluguHtml() {
     '<p class="au-aciklama">Bu ürünün ilkesi <b>yapay zekâ önerir, insan karar verir</b>. ' +
     "Bu günlük o ilkenin kanıtıdır: her yapay zekâ önerisi ve insanın o öneriye ne yaptığı " +
     "zaman damgasıyla kayıtlıdır.</p>" +
+    /* §78 P3 (müdür kararı): günlük SÜZÜLMEZ, kapsamı yazılır. Üstteki rapor
+       §78'den beri yalnız yayındaki sınavları sayıyor; taslakta biri boş,
+       öteki "3 YZ puan önerdi" diyordu ve yan yana çelişkili okunuyordu. */
+    '<p class="au-aciklama au-kapsam">Tüm kayıtlar: yayından kaldırılmış ve taslak sınavlar dahil; ' +
+    "filtreden bağımsızdır. Üstteki “YZ Önerisi ↔ Nihai Puan Raporu” yalnız yayındaki sınavları sayar.</p>" +
 
     '<div class="au-ozet">' +
     '<div class="au-kutu"><div class="au-sayi">' + o.uretilen + '</div><div class="au-etiket">YZ soru önerdi</div></div>' +
