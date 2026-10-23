@@ -13,3 +13,65 @@
    - Yazdırma kuralları app.css @media print'te kalır.
    Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
    aynı özgüllükte app.css'i ezer. */
+
+/* ===== §63 Öğrenci paneli — tasarım turu (W4) ===== */
+
+/* Yapışkan sınav başlığı: süre + gezgin + lejant kaydırınca görünür kalır. */
+#panel-student .ogr-baslik { position: sticky; top: 0; z-index: 5; flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4); padding: var(--sp-2) var(--sp-4); }
+#panel-student .ogr-sure { display: flex; align-items: baseline; gap: var(--sp-2); }
+#panel-student .ogr-sure-lbl { font-size: var(--fs-2); color: var(--text-muted); }
+#panel-student .ogr-baslik .qnav { display: flex; flex-wrap: wrap; gap: var(--sp-1); flex: 1; min-width: 0; }
+#panel-student .ogr-baslik .qnav-dot { width: auto; min-width: calc(var(--hedef-min) + var(--sp-4));
+  height: var(--hedef-min); padding: 0 var(--sp-1); gap: calc(var(--sp-1) / 2); display: inline-flex; align-items: center;
+  justify-content: center; font-size: var(--fs-1); }
+#panel-student .ogr-baslik .qnav-dot.flagged { border-width: 2px; color: var(--warning); background: var(--warning-soft); }
+#panel-student .ogr-baslik .qnav-dot.current { outline: 2px solid var(--accent); outline-offset: 1px; }
+#panel-student .ogr-nokta-simge { font-size: var(--fs-1); line-height: 1; }
+#panel-student .ogr-lejant { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3);
+  font-size: var(--fs-1); color: var(--text-muted); flex-basis: 100%; }
+#panel-student .ogr-l b { color: var(--text); }
+#panel-student .ogr-l-yanit { color: var(--success); }
+#panel-student .ogr-l-isaret { color: var(--warning); }
+
+/* Yanıt kutusu gövde yazı tipinde (eskiden tarayıcının eş aralıklı varsayılanı). */
+#panel-student #openAnswerInput { font-family: "Source Sans 3", sans-serif; font-size: var(--fs-4);
+  line-height: 1.6; padding: var(--sp-3); border-radius: var(--r-md); }
+
+/* Bütünlük notu: tek satır, ayrıntı katlanır. */
+#panel-student .ogr-butunluk .ib-text { flex: 1 1 calc(var(--sp-8) * 7); min-width: 0; }
+#panel-student .ogr-butunluk-ayrinti { flex-basis: 100%; }
+#panel-student .ogr-butunluk-ayrinti summary { cursor: pointer; display: inline-flex; align-items: center;
+  min-height: var(--hedef-min); color: var(--accent-strong); text-decoration: underline; }
+#panel-student .ogr-butunluk-metin { margin-top: var(--sp-1); line-height: 1.6; }
+#panel-student .ogr-butunluk-ayrinti:not([open]) { flex-basis: auto; }
+
+/* Gözden geçir ve bitir adımı */
+#panel-student .ogr-gg-giris { margin: 0 0 var(--sp-3); color: var(--text-muted); font-size: var(--fs-3); }
+#panel-student .ogr-gg-baslik { margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-3); }
+#panel-student .ogr-gg-liste { display: flex; flex-direction: column; gap: var(--sp-2); }
+#panel-student .ogr-gg-soru { display: flex; align-items: center; gap: var(--sp-3); width: 100%; text-align: left;
+  min-height: calc(var(--hedef-min) + var(--sp-4)); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md); background: var(--surface); color: var(--text); cursor: pointer; font: inherit; }
+#panel-student .ogr-gg-soru:hover { border-color: var(--accent); background: var(--accent-soft); }
+#panel-student .ogr-gg-no { font-weight: 700; white-space: nowrap; font-size: var(--fs-2); }
+#panel-student .ogr-gg-govde { flex: 1; min-width: 0; font-size: var(--fs-2); color: var(--text-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#panel-student .ogr-gg-git { color: var(--accent-strong); }
+#panel-student .ogr-gg-tamam { padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); color: var(--text-muted); font-size: var(--fs-2); }
+#panel-student .ogr-gg-uyari { margin-top: var(--sp-5); padding: var(--sp-3); border-left: 3px solid var(--critical);
+  background: var(--critical-soft); border-radius: var(--r-sm); font-size: var(--fs-3); line-height: 1.6; }
+
+/* Karne: kazanım adı önde, kod ikincil */
+#panel-student .kz-etiket { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-2);
+  margin: var(--sp-1) 0 var(--sp-2); font-size: var(--fs-2); }
+#panel-student .kz-ad { color: var(--accent-strong); font-weight: 600; }
+#panel-student .kz-kod { color: var(--text-muted); font-size: var(--fs-1); font-family: "IBM Plex Mono", monospace; }
+
+@media (max-width: 560px) {
+  #panel-student .ogr-baslik { padding: var(--sp-2) var(--sp-3); }
+  #panel-student .ogr-butunluk .ib-text { flex-basis: calc(100% - var(--sp-5)); }
+  #panel-student .ogr-gozden .exam-footer { flex-direction: column-reverse; align-items: stretch; gap: var(--sp-2); }
+  #panel-student .ogr-gozden .exam-footer .btn { width: 100%; }
+}

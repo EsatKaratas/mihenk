@@ -13,3 +13,55 @@
    - Yazdırma kuralları app.css @media print'te kalır.
    Yükleme sırası: app.css'ten SONRA (index.html), yani buradaki kural
    aynı özgüllükte app.css'i ezer. */
+
+/* ===== §63 Veli paneli — tasarım turu (W4) ===== */
+#panel-parent .card { margin-bottom: var(--sp-4); }
+#panel-parent .veli-not { margin: var(--sp-2) 0 0; font-size: var(--fs-2); color: var(--text-muted); line-height: 1.6; }
+
+/* "Çocuğunuz:" seçici */
+#panel-parent .veli-secici { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+#panel-parent .veli-secici-lbl { font-weight: 700; font-size: var(--fs-3); margin-right: var(--sp-1); }
+
+/* Çocuk kartı */
+#panel-parent .veli-cocuk-ust { display: flex; align-items: center; gap: var(--sp-3); }
+#panel-parent .veli-avatar { flex: none; width: calc(var(--sp-8) + var(--sp-4)); height: calc(var(--sp-8) + var(--sp-4));
+  border-radius: var(--r-tam); display: grid; place-items: center; background: var(--accent-soft);
+  color: var(--accent-strong); font-family: "Archivo", sans-serif; font-weight: 800; font-size: var(--fs-4); }
+#panel-parent .veli-cocuk-ad { margin: 0; font-size: var(--fs-5); }
+#panel-parent .veli-cocuk-alt { font-size: var(--fs-2); color: var(--text-muted); margin-top: var(--sp-1); }
+
+/* Son onaylı sonuç — büyük */
+#panel-parent .veli-son-baslik { font-weight: 600; font-size: var(--fs-4); }
+#panel-parent .veli-son-puan { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3);
+  margin: var(--sp-2) 0 var(--sp-3); }
+#panel-parent .veli-son-sayi { font-family: "Archivo", sans-serif; font-weight: 800; color: var(--accent-strong);
+  font-size: calc(var(--fs-6) * 2); line-height: 1; }
+#panel-parent .veli-son-tam { font-size: var(--fs-4); color: var(--text-muted); }
+#panel-parent .veli-son-yuzde { font-size: var(--fs-5); font-weight: 700; padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-tam); background: var(--accent-soft); color: var(--accent-strong); }
+
+/* Konular: sade ad, durum sözcük + simge + renk, çubuk; kod ikincil */
+#panel-parent .veli-kz { padding: var(--sp-3) 0; border-top: 1px solid var(--border); }
+#panel-parent .veli-kz:first-of-type { border-top: none; }
+#panel-parent .veli-kz-ust { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--sp-1) var(--sp-3); }
+#panel-parent .veli-kz-ad { font-weight: 600; font-size: var(--fs-3); }
+#panel-parent .veli-kz-durum { font-size: var(--fs-2); font-weight: 700; white-space: nowrap; }
+#panel-parent .veli-kz-cubuk { height: var(--sp-2); border-radius: var(--r-tam); background: var(--surface-2);
+  margin: var(--sp-2) 0 var(--sp-1); overflow: hidden; }
+#panel-parent .veli-kz-cubuk span { display: block; height: 100%; border-radius: var(--r-tam); }
+#panel-parent .veli-kz-alt { font-size: var(--fs-1); color: var(--text-muted); }
+#panel-parent .veli-kz-kod { font-family: "IBM Plex Mono", monospace; }
+#panel-parent .veli-kz-guclu .veli-kz-durum { color: var(--success); }
+#panel-parent .veli-kz-guclu .veli-kz-cubuk span { background: var(--success); }
+#panel-parent .veli-kz-gelisiyor .veli-kz-durum { color: var(--warning); }
+#panel-parent .veli-kz-gelisiyor .veli-kz-cubuk span { background: var(--warning); }
+#panel-parent .veli-kz-destek .veli-kz-durum { color: var(--critical); }
+#panel-parent .veli-kz-destek .veli-kz-cubuk span { background: var(--critical); }
+
+/* Boş durum */
+#panel-parent .veli-bos { text-align: center; padding: var(--sp-8) var(--sp-5); }
+#panel-parent .veli-bos-ikon { font-size: calc(var(--fs-6) * 1.5); color: var(--accent-strong); line-height: 1; }
+#panel-parent .veli-bos h3 { margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-5); }
+#panel-parent .veli-bos p { max-width: 52ch; margin: 0 auto; line-height: 1.6; }
+#panel-parent .veli-bos-adimlar { display: inline-flex; flex-direction: column; gap: var(--sp-1); text-align: left;
+  margin: var(--sp-4) auto; padding-left: var(--sp-5); font-size: var(--fs-3); }
