@@ -434,10 +434,22 @@ function onaylaModal(secenek) {
   const o = secenek || {};
   if (_onayBekleyen) _onayBekleyen(false);
   const acan = document.activeElement;
+  /* Odak geri dönüş izi (W5 P2): açan öğe eylemle silinir ya da yeniden
+     çizilirse (acan.isConnected=false) odak BODY'ye düşüyordu. Yedek: açan
+     öğenin kartının başlığı (aynı metinle yeniden bulunur), o da yoksa panel. */
+  const acanKart = acan && acan.closest ? acan.closest(".card") : null;
+  const iz = {
+    acan: acan,
+    panel: acan && acan.closest ? (acan.closest('[id^="panel-"]') || {}).id || "" : "",
+    kartBaslik: acanKart && acanKart.querySelector("h3") ? acanKart.querySelector("h3").textContent : "",
+  };
   const metinHtml = String(o.metin || "").split(/\n{2,}/).map(function (p) {
     return "<p>" + escapeHtml(p).replace(/\n/g, "<br>") + "</p>";
   }).join("");
-  openModal('<h3 id="onayBaslik">' + escapeHtml(o.baslik || "Emin misiniz?") + "</h3>" + metinHtml +
+  // W5 P2: metin bir kapsayıcıda; aria-describedby ile bağlanır ki ekran
+  // okuyucu "kalıcı olarak silinecek" uyarısını da okusun.
+  openModal('<h3 id="onayBaslik">' + escapeHtml(o.baslik || "Emin misiniz?") + "</h3>" +
+    '<div id="onayMetin">' + metinHtml + "</div>" +
     '<div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">' +
     escapeHtml(o.vazgecEtiketi || "Vazgeç") + "</button>" +
     '<button type="button" class="btn ' + (o.tehlikeli ? "btn-critical btn-dolu" : "btn-primary") + '" id="modalOnay">' +
@@ -447,10 +459,25 @@ function onaylaModal(secenek) {
   kutu.setAttribute("role", "alertdialog");
   kutu.setAttribute("aria-modal", "true");
   kutu.setAttribute("aria-labelledby", "onayBaslik");
+  if (o.metin) kutu.setAttribute("aria-describedby", "onayMetin");
   return new Promise(function (coz) {
     let bitti = false;
     let gozcu = null;
-    const tus = function (e) { if (e.key === "Escape") { e.preventDefault(); bitir(false); } };
+    /* Escape = Vazgeç. Tab / Shift+Tab pencerenin içinde döner (W5 P1: odak
+       tuzağı yoktu, Tab arkadaki üst çubuğa kaçıyordu; aria-modal bunu
+       engellemez). .app'e inert verilmedi: kabuk giriş kapısı inert'i kendisi
+       yönetiyor (girisInertEsitle), iki sahip çakışırdı. */
+    const tus = function (e) {
+      if (e.key === "Escape") { e.preventDefault(); bitir(false); return; }
+      if (e.key !== "Tab") return;
+      const odaklanir = Array.prototype.filter.call(kutu.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"),
+        function (x) { return !x.disabled && x.offsetParent !== null; });
+      if (!odaklanir.length) return;
+      const ilk = odaklanir[0], son = odaklanir[odaklanir.length - 1];
+      const icerde = kutu.contains(document.activeElement);
+      if (e.shiftKey && (!icerde || document.activeElement === ilk)) { e.preventDefault(); son.focus(); }
+      else if (!e.shiftKey && (!icerde || document.activeElement === son)) { e.preventDefault(); ilk.focus(); }
+    };
     function bitir(sonuc) {
       if (bitti) return;
       bitti = true;
@@ -458,11 +485,14 @@ function onaylaModal(secenek) {
       document.removeEventListener("keydown", tus, true);
       if (gozcu) gozcu.disconnect();
       kutu.removeAttribute("role"); kutu.removeAttribute("aria-modal"); kutu.removeAttribute("aria-labelledby");
+      kutu.removeAttribute("aria-describedby");
       if (kaplama.classList.contains("open") && document.getElementById("modalOnay")) closeModal();
-      // Odak yalnız pencere gerçekten kapandıysa geri döner; başka bir modal
-      // yerine geçtiyse onun odağı çalınmaz.
-      if (!kaplama.classList.contains("open") && acan && acan.isConnected && typeof acan.focus === "function") acan.focus();
       coz(sonuc);
+      /* Odak, EYLEMDEN SONRA geri verilir (setTimeout 0): onayliEylem ya da
+         `await onaylaModal()` sonrası yazılan eylem öğeyi silip yeniden
+         çizebilir. Yalnız pencere gerçekten kapandıysa; başka bir modal yerine
+         geçtiyse onun odağı çalınmaz. */
+      setTimeout(function () { if (!kaplama.classList.contains("open")) onayOdagiGeriVer(iz); }, 0);
     }
     _onayBekleyen = bitir;
     document.getElementById("modalCancel").onclick = function () { bitir(false); };
@@ -475,6 +505,22 @@ function onaylaModal(secenek) {
     gozcu.observe(kutu, { childList: true });
     document.getElementById("modalCancel").focus();
   });
+}
+
+/* Onay penceresinden sonra odağın gideceği yer: açan öğe hâlâ sayfadaysa o;
+   değilse aynı paneldeki aynı başlıklı kartın başlığı (tabindex=-1); o da
+   yoksa panelin ilk başlığı. BODY'ye düşmez (klavye kullanıcısı kaybolmasın). */
+function onayOdagiGeriVer(iz) {
+  if (iz.acan && iz.acan.isConnected && typeof iz.acan.focus === "function") { iz.acan.focus(); return; }
+  const kok = (iz.panel && document.getElementById(iz.panel)) || document;
+  let hedef = null;
+  if (iz.kartBaslik) {
+    hedef = Array.prototype.find.call(kok.querySelectorAll(".card h3"), function (h) { return h.textContent === iz.kartBaslik; }) || null;
+  }
+  if (!hedef) hedef = kok.querySelector("h2, h3");
+  if (!hedef) return;
+  if (!hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
+  hedef.focus();
 }
 
 /* Onay isteyen bir düğme işleyicisi için yeniden giriş koruması: pencere
@@ -12983,7 +13029,7 @@ function bosDurumHtml(mesaj) {
    doneCardHtml, evalFailedCardHtml ve confBadge silinmişti.)          */
 (function selfCheck() {
   const gerekli = [
-    "adimciHtml", "onaylaModal", "onayliEylem",
+    "adimciHtml", "onaylaModal", "onayliEylem", "onayOdagiGeriVer",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",

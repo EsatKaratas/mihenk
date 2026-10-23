@@ -45,6 +45,26 @@ describe('onaylaModal — ortak bölgede yerel confirm() yok (§77)', () => {
     expect((g.match(/tehlikeli: true/g) || []).length).toBe(4);
   });
 
+  it('W5 P1: Tab / Shift+Tab pencere içinde döner (odak tuzağı)', () => {
+    const g = govde('onaylaModal');
+    expect(g).toContain('e.key !== "Tab"');
+    expect(g).toMatch(/e\.shiftKey[\s\S]*son\.focus\(\)[\s\S]*ilk\.focus\(\)/);
+  });
+
+  it('W5 P2: metin aria-describedby ile bağlı; kapanınca kaldırılır', () => {
+    const g = govde('onaylaModal');
+    expect(g).toContain('id="onayMetin"');
+    expect(g).toContain('setAttribute("aria-describedby", "onayMetin")');
+    expect(g).toContain('removeAttribute("aria-describedby")');
+  });
+
+  it('W5 P2: onaydan sonra odak BODY\'ye düşmez (kart başlığı yedeği, eylemden sonra)', () => {
+    expect(govde('onaylaModal')).toMatch(/setTimeout\(function \(\) \{[^}]*onayOdagiGeriVer\(iz\)/);
+    const g = govde('onayOdagiGeriVer');
+    expect(g).toContain('.card h3');
+    expect(g).toContain('setAttribute("tabindex", "-1")');
+  });
+
   it('odak Vazgeç\'te başlar, Escape = Vazgeç (kaynak düzeyi)', () => {
     const g = govde('onaylaModal');
     expect(g).toContain('getElementById("modalCancel").focus()');

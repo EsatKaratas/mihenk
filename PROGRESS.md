@@ -9736,6 +9736,23 @@ verisinde kitaplıkta kitap yok (IndexedDB); aynı `onayliEylem` yolunu kullanı
 Testler 374 → 378 (`test/onay-modal.test.ts`: dört işleyicide `confirm(` yok,
 `onayliEylem` var, dördü kırmızı). gorsel-fark `--dolu` 38/38 %0,000; demo 5/5.
 
+**W5 bağımsız doğrulaması:** dört yerin dördünde GEÇTİ — kitaplık dahil, gerçek
+PDF yüklenip IndexedDB'de silme/yeniden yükleme ile. Üç bulgu, aynı gün kapatıldı:
+- **P1 odak tuzağı yoktu:** Tab ×4 odağı üst çubuğa kaçırıyordu (aria-modal
+  engellemez). Tab / Shift+Tab artık pencere içinde döner; `.app`'e `inert`
+  verilmedi (kabuk giriş kapısı inert'i kendisi yönetiyor). Ölçüldü: Tab ×4 +
+  Shift+Tab ×3, 7/7 pencere içinde (ders, kazanım, karar günlüğü).
+- **P2 metin okunmuyordu:** metin `#onayMetin` kapsayıcısında,
+  `aria-describedby` ile bağlı; kapanınca öznitelik kaldırılır.
+- **P2 onaydan sonra odak BODY'ye düşüyordu** (açan öğe silinmiş/yeniden
+  çizilmiş): `onayOdagiGeriVer` — açan öğe yoksa aynı paneldeki aynı başlıklı
+  kartın başlığına (tabindex=-1), o da yoksa panelin ilk başlığına. Eylemden
+  SONRA (setTimeout 0) çalışır; `await onaylaModal()` kullanan W1 çağrılarını da
+  kapsar. Ölçüldü: onay sonrası odak "Yeni soru taslağı" / "Yapay Zekâ Karar
+  Günlüğü" başlığında; Vazgeç sonrası açan düğmede.
+Testler +3 (387). Kitaplık düzeltme sonrası W2 tarafından yeniden denenemedi
+(test PDF'i yüklenmedi); aynı kod yolu, W5 yeniden doğrulayacak.
+
 **TUZAK (devir notu):** yerel statik sunucular 879x/880x portlarını paylaşır.
 Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), ve
 ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:
