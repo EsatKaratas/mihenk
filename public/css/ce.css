@@ -164,7 +164,7 @@
 }
 
 /* ==========================================================================
-   §73b — ONAY KARTI SADELEŞMESİ (W3, ikinci tur)
+   §75b — ONAY KARTI SADELEŞMESİ (W3, ikinci tur)
    Şık metni satıra sarar (390 px'te kırpılıyordu); çeldirici gerekçeleri ve
    kazanım denetimi katlanır ayrıntıda (varsayılan kapalı); şüphe şeridi
    katlanmaz. Yazı ölçeği §61'le aynı dört boyut.
@@ -210,7 +210,7 @@
 }
 
 /* ==========================================================================
-   §73c — SORU HAVUZU: ağaç + filtreler (W3, ikinci tur)
+   §75c — SORU HAVUZU: ağaç + filtreler (W3, ikinci tur)
    ========================================================================== */
 #panel-content_expert .havuz { margin-top: var(--sp-4); }
 #panel-content_expert .havuz .card-head h3 { font-size: var(--fs-5); }
