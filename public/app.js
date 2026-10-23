@@ -4288,6 +4288,34 @@ function soruSupheleri(q) {
   return SUPHE_TURLERI.filter(function (t) { return t.var(q); });
 }
 
+/** İnsan onayı: denetim izi + durum. Tek yol; ikinci onay da buraya gelir. */
+function soruyuOnayla(q) {
+  // Denetim izi: AI'ın ürettiği soruyu İNSAN onayladı.
+  /* §56: şüpheye rağmen onay SAYILABİLSİN diye o anki şüpheler yazılır
+     (araştırma verisi). Kayıt biçimi §70'te değişmedi. */
+  const supheler = soruSupheleri(q).map(function (t) { return t.anahtar; });
+  auditKaydet("soru_onaylandi", { qid: q.id, soru: auditKisalt(q.body),
+    model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null,
+    supheler: supheler.length ? supheler : null });
+  q.status = "approved"; renderAll();
+}
+
+/** §70: yüksek ciddiyetli şüpheli soruda ikinci onay penceresi. */
+function supheliOnayModali(q, yuksek) {
+  openModal('<h3>Şüphe işaretlerine rağmen onaylıyor musunuz?</h3>' +
+    '<ul class="suphe-onay-liste">' + yuksek.map(function (t) {
+      return '<li><b>⚠ ' + escapeHtml(supheMetni(t.etiket, q)) + ':</b> ' + escapeHtml(supheMetni(t.aciklama, q)) + '</li>';
+    }).join("") + '</ul>' +
+    '<p>Onaylarsanız soru havuza girer ve sınavlarda kullanılabilir. Şüpheyi gidermek için önce ' +
+    'soruyu düzenleyebilir ya da reddedebilirsiniz.</p>' +
+    '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    '<button class="btn btn-primary" id="modalSupheOnay">Yine de onayla</button></div>');
+  const evet = document.getElementById("modalSupheOnay");
+  if (evet) evet.onclick = function () { closeModal(); soruyuOnayla(q); };
+  // Varsayılan odak Vazgeç'te: Enter'a basmak şüpheli soruyu onaylamasın.
+  const hayir = document.getElementById("modalCancel"); if (hayir) hayir.focus();
+}
+
 /** Rozet açık mı? Kullanıcı dokunmadıysa ciddiyete göre varsayılan. */
 function supheAcikMi(q, t) {
   const kayit = ((state.supheAcik || {})[q.id] || {})[t.anahtar];
@@ -4590,16 +4618,13 @@ function wirePendingCards() {
   document.querySelectorAll(".approve-btn").forEach(function (el) {
     el.onclick = function () {
       const q = findQuestion(el.dataset.qid);
-      if (q) {
-        // Denetim izi: AI'ın ürettiği soruyu İNSAN onayladı.
-        /* §56: şüpheye rağmen onay SAYILABİLSİN diye o anki şüpheler yazılır
-           (araştırma verisi). Onay davranışı değişmedi. */
-        const supheler = soruSupheleri(q).map(function (t) { return t.anahtar; });
-        auditKaydet("soru_onaylandi", { qid: q.id, soru: auditKisalt(q.body),
-          model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null,
-          supheler: supheler.length ? supheler : null });
-        q.status = "approved"; renderAll();
-      }
+      if (!q) return;
+      /* §70: yüksek ciddiyetli şüphe varsa ikinci onay istenir. ENGELLEMEZ ve
+         otomatik karar vermez (agents.md §1): yalnız insanın şüpheyi gördüğünü
+         onaylatır. Canlıda (§69) 2/2 şüpheli anahtarlı soru tek tıkla onaylanabildi. */
+      const yuksek = soruSupheleri(q).filter(function (t) { return t.ciddiyet === "yuksek"; });
+      if (!yuksek.length) { soruyuOnayla(q); return; }
+      supheliOnayModali(q, yuksek);
     };
   });
   document.querySelectorAll(".reject-btn").forEach(function (el) {
@@ -5050,6 +5075,17 @@ function renderContentExpert() {
      hazırlanır. Tek bir çağrı noktasına eklemek, bir yolun unutulmasına
      açık kalırdı. */
   materyalHazirla();
+  /* §70: üretim notu ve hata, ÜRETİLDİKLERİ bağlama aittir. Ders, sınıf,
+     atölye ya da kazanım hangi yoldan değişirse değişsin (sekme, seçici,
+     katalog, demo) bir sonraki çizimde temizlenir; aksi hâlde başka dersin
+     notu özet çubuğunda kalıyordu (ölçüldü, canlı 390 px). İlk çizimde
+     temizlenmez: sayfa yenilense de not kendi bağlamında durur. */
+  const ceBaglam = seciliKatalogAnahtari() + "|" + (state.ceForm.outcomeCode || "");
+  if (state.ceSonBaglam != null && state.ceSonBaglam !== ceBaglam) {
+    state.ceForm.uretimNotu = "";
+    state.ceForm.error = "";
+  }
+  state.ceSonBaglam = ceBaglam;
   const root = document.getElementById("panel-content_expert");
   root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
     (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
@@ -12344,6 +12380,8 @@ function bosDurumHtml(mesaj) {
     "ceAdimi", "ceGirisi", "ceSeciliKazanim", "ceAdimOzeti", "ceAdimHtml", "ceKazanimNotuHtml",
     "ceAdim1Html", "ceGirisKartlariHtml", "ceMetinAlaniHtml", "ceBelgeAlaniHtml", "ceAdim2Html",
     "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
+    // §70 şüpheli soruda ikinci onay (W3)
+    "soruyuOnayla", "supheliOnayModali",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
