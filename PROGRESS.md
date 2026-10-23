@@ -9580,3 +9580,88 @@ ayrık kalıyor ve uyarı vermiyordu. Karar (Orchestrator 2): önce yanlış ala
     - "Filtreleri temizle" seçimi sıfırladı.
     - 390 px'te üç seçici alt alta (41 px), taşma yok.
   - Model çağrısı yapılmadı.
+
+## 75. İÇERİK UZMANI — İKİNCİ TUR (23 Ekim 2026, W3)
+
+### 75a. Kısa metin ön uyarısı
+
+Metin, istenen soru sayısını taşımayacak kadar kısaysa özet **üretimden önce**
+uyarır: "Bu metin ~N soru taşır; M istendi, fazlası düşer." Engellemez.
+
+**Eşik uydurulmadı.** Sunucu bu kuralı zaten uyguluyor:
+`src/lib/guards.ts` → `makulSoruSayisi(n) = max(2, floor(n / 180))`
+(`KARAKTER_BASINA_SORU = 180`, §41 Madde 5). Fazlasını düşürüp bunu yalnız
+üretimden SONRA (`kisiltmaNotu`) söylüyordu. İstemci aynı formülü kullanır
+(`ceMetinKapasitesi`); farklı bir eşik, özetin sunucuyla çelişmesi demek olurdu.
+- Canlı doğrulama (§69): 484 karakterlik Fen metninden 3 soru istendi, sunucu
+  2 döndürdü = floor(484/180) = 2.
+- Eşitlik testte: `test/ce-kapasite.test.ts` istemci fonksiyonunu app.js'ten
+  alır, 0–6000 karakterin her birinde sunucu fonksiyonuyla karşılaştırır.
+  Sabit değişirse test kırılır.
+- Kapsam: metin ve belge girişinde metin uzunluğu; belge kilitli kazanımda
+  belge metni (ilk 6.000 karakter, §51). Saf kazanım modunda uyarı yok (sunucu
+  orada kısmaz). Uyarı, metin kutusundan çıkınca güncellenir (yazarken yeniden
+  çizim odak kaybettirir).
+
+### 75b. Onay kartı sadeleşmesi
+
+Canlıda (§64 testi, 390 px) şık metni tek satırlık `<input>`ta kırpılıyordu
+("Zemin pürüzlendikçe sürtün…"); kartta çeldirici gerekçeleri ve kazanım
+denetimi her zaman açıktı.
+- **Şıklar satıra sarar:** şık girdisi `<textarea rows="1" class="opt-input">`;
+  sınıf, `data-qid`, `data-okey`, `aria-label` aynı. Bağlayıcı `.value`
+  okuduğu için değişmedi. Enter satır açmaz; yapıştırılan çok satırlı metin
+  tek satıra iner. Yükseklik CSS `field-sizing: content` (Chromium); desteklemeyen
+  tarayıcıda küçük bir JS yedeği yüksekliği içeriğe uydurur. Dar ekranda şık
+  satırı iki sıra: harf + metin, altında "doğru" ve taşıma düğmeleri.
+- **Ayrıntı katlanır:** çeldirici gerekçeleri ve kazanım denetimi tek
+  `<details class="q-detay">` içinde, **varsayılan kapalı**. Özet satırı ne
+  içerdiğini söyler ("Çeldirici gerekçeleri (3) · Kazanım denetimi: Ölçüyor").
+  Açıklık soru başına arayüz durumu (saklanmaz). **Şüphe şeridi katlanmaz**;
+  kazanım uyuşmazlığı da şeritte (`kazanimUyusmuyor`) görünmeye devam eder.
+- Onay/ret ve §71 ikinci onay değişmedi. `.q-card` ve `.distractor-box`
+  korundu. Ekran betiği 01 çekiminden önce `.q-detay`'ları açacak (W2 ekler).
+- Ölçüm (390 px, demo kartı): kapalı 769 px, açık 1053 px. Şık/gövde
+  kırpılması 0 (1366 ve 390).
+
+**75a eki:** kısa metin uyarısı ilk sürümde kutudan çıkınca `renderAll` ile
+güncelleniyordu; yazıp hemen "Belge yükle"ye tıklayınca yeniden çizim tıklamayı
+yutuyordu (ölçüldü: tarayıcı testinde belge kartı açılmadı). Artık uyarı listesi
+yazarken yerinde güncellenir (`ceUyarilariYenile`), yeniden çizim yok.
+
+### 75c. Soru Havuzu — ders → sınıf → kazanım ağacı + filtreler
+
+Sekme eskiden düz bir onaylı liste + ayrı "Reddedilen" kartıydı. Şimdi tek kart:
+- **Filtreler:** durum (Onaylı · Bekleyen · Reddedilmiş · Tümü; varsayılan
+  Onaylı, yani eski görünüm), **⚠ Yalnız şüpheli** (şüphe tablosunda en az bir
+  işaret) ve kaynak türü (Metinden · Yalnız kazanım · Deneyap kitabı · Demo örneği).
+- **Ağaç:** ders → sınıf → kazanım, her düğümde filtreden geçen soru sayısı.
+  Yalnız seçili dalın alt düğümleri açılır. Dar ekranda ağaç listenin üstüne iner.
+- **Eylemler:** onaylı → Sil; reddedilmiş → ↩ Yeniden İncele + Sil (ortak
+  bağlayıcı `wireRejectedPool` aynen); bekleyen → **İncele →** (Soru Üret
+  sekmesinde o kartın üstüne götürür). **Havuzda onay düğmesi yok:** karar
+  yalnız onay kartında, §71 ikinci onayıyla birlikte (agents.md §1).
+- **State şekli değişmedi, göç yok.** Her şey var olan alanlardan türetilir:
+  ders/sınıf kazanımın kaydından (`subject`/`grade`). Kazanım okul listesinden
+  silinmişse koddan çıkarılır; katalog önekleri ölçüldü (DNY 622, FB 141,
+  MAT 100, T 365), Deneyap'ın sınıf ekseni "Deneyap". Kaynak türü: `demo` →
+  demo, `srcId` → metinden, `DNY.` kodu → Deneyap, değilse yalnız kazanım.
+  Filtre seçimi (`state.cePool`) yalnız arayüz durumu.
+- Ölçüm (1366 ve 390, 7 soruluk karışık havuz): 30/30. Durum, şüphe ve kaynak
+  filtreleri, ağaç düğümü (2 soru, sayaç = liste), İncele → kart, Yeniden
+  İncele → bekleyen, Sil, taşma 0, yinelenen id 0, konsol 0.
+
+### 75d. Toplu ölçüm ve ertelenen
+
+- `npm test` 372/372 (yeni: `test/ce-kapasite.test.ts`), lint temiz,
+  öz-kontrol %100. Tarayıcı paketleri (yerel statik sunucu): sihirbaz 27/27,
+  §71 ikinci onay 34/34, onay kartı 20/20, havuz 30/30. Konsol 0, taşma 0.
+- `tools/gorsel-fark.mjs`, taban main 978f3e1, 1280 ve 390: fark yalnız
+  İçerik Uzmanı ekranlarında (CE-1/CE-2 %12–24). Öteki 24 ekranda %0
+  (yönetici %0,01–0,02 gürültü). Konsol 0, yinelenen id 0, taşma 0. Tek
+  <24 px hedef (`button.oc-link` 313×20, CE-1 1280) main'de de aynı; bu turla
+  gelmedi.
+- **Ertelendi: `ceAdimHtml` → ortak `adimciHtml`.** Ortak adımcı yatay bir
+  adım şeridi; sihirbazın adımları ise açılır-kapanır başlık + tek satırlık
+  özet + "Değiştir". Geçiş görünümü ve kapalı adım özetini değiştirir;
+  ayrı bir tasarım kararı (W2 ile) olarak bırakıldı.

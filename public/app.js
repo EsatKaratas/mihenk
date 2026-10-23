@@ -4473,8 +4473,11 @@ function renderPendingQuestionCard(q) {
     return '<div class="opt-row opt-draggable" draggable="true" data-qid="' + q.id + '" data-index="' + i + '">' +
       '<span class="opt-drag-handle" title="Sürükleyerek sırala" aria-hidden="true">⠿</span>' +
       '<span class="opt-key">' + o.key + '</span>' +
-      '<input type="text" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni" value="' + escapeHtml(o.text) + '">' +
-      '<label class="dogru-etiket" style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">' +
+      /* §75b: <input> tek satırdı; 390 px'te şık metni kırpılıyordu. textarea
+         satıra sarar (ce.css field-sizing). Sınıf/veri/ad aynı; bağlayıcı
+         .value okuduğu için değişmedi. */
+      '<textarea rows="1" data-qid="' + q.id + '" data-okey="' + o.key + '" class="opt-input" aria-label="' + escapeHtml(o.key) + ' şıkkının metni">' + escapeHtml(o.text) + '</textarea>' +
+      '<label class="dogru-etiket">' +
       /* §58: dört radyonun dördü de erişilebilirlik ağacında yalnız "doğru"
          adını taşıyordu (hangi şık olduğu belli değildi), değerleri "on"du. */
       '<input type="radio" name="correct-' + q.id + '" value="' + escapeHtml(o.key) + '" aria-label="' + escapeHtml(o.key) +
@@ -4495,16 +4498,35 @@ function renderPendingQuestionCard(q) {
     '<span class="time-tag">⏱ YZ önerisi: ' + q.aiTime + ' sn</span></div>' +
     supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
-    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2" style="width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);">' + escapeHtml(q.body) + '</textarea>' +
-    '<div style="margin-top:8px;">' + optsHtml + '</div>' +
-    distractorHtml(q) +
-    alignmentRowHtml(q) +
+    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2">' + escapeHtml(q.body) + '</textarea>' +
+    '<div class="q-opts">' + optsHtml + '</div>' +
+    /* §75b: çeldirici gerekçeleri ve kazanım denetimi katlanır (varsayılan
+       KAPALI); özet satırı ne içerdiğini söyler. Şüphe şeridi yukarıda,
+       katlanmaz: şüpheli rozet her zaman görünür. */
+    kartDetayHtml(q) +
     '<div class="actions">' +
     '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
     '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button>' +
     /* §56: bilgi amaçlı sayaç — onay düğmesini ENGELLEMEZ (agents.md §1). */
     (soruSupheleri(q).length ? '<span class="suphe-sayac">' + soruSupheleri(q).length + ' şüphe işareti var</span>' : "") +
     '</div></div>';
+}
+
+/** §75b: onay kartının katlanır ayrıntısı. İçerik yoksa hiçbir şey çizilmez. */
+function kartDetayHtml(q) {
+  const ic = distractorHtml(q) + alignmentRowHtml(q);
+  if (!ic) return "";
+  const parca = [];
+  if (q.type === "mc" && q.distractorRationale) {
+    const n = Object.keys(q.distractorRationale).filter(function (k) { return k !== q.correctKey; }).length;
+    if (n) parca.push("Çeldirici gerekçeleri (" + n + ")");
+  }
+  const d = (state.alignment || {})[alignKey(q.id)];
+  if (d) parca.push(d.loading ? "kazanım denetimi yapılıyor…" : d.error ? "kazanım denetimi yapılamadı"
+    : "Kazanım denetimi: " + (ALIGN_ETIKET[d.karar] || ALIGN_ETIKET.belirsiz).ad);
+  const acik = !!((state.ceKartDetay || {})[q.id]);
+  return '<details class="q-detay" data-qid="' + q.id + '"' + (acik ? " open" : "") + '>' +
+    '<summary>' + escapeHtml(parca.join(" · ") || "Ayrıntılar") + '</summary>' + ic + '</details>';
 }
 
 // Model, her yanlis sik icin o sikki secen ogrencinin hangi kavram yanilgisina
@@ -4924,10 +4946,51 @@ function ceUyarilari() {
       ? { tur: "blok", metin: "“" + m.ad + "” okunamadı; üretim yapılmaz." }
       : { tur: "kilit", metin: "“" + m.ad + "” okunuyor…" });
   }
-  if (state.ceForm.mcCount + state.ceForm.openCount < 1) {
+  /* §75: kısa metin ön uyarısı. Sunucu, metnin taşıyabileceğinden fazla
+     soru istenince fazlasını düşürür ve bunu ÜRETİMDEN SONRA söyler
+     (routes/ai.ts kisiltmaNotu). Aynı kural burada ÖNCEDEN söylenir. */
+  const istenen = state.ceForm.mcCount + state.ceForm.openCount;
+  const uzunluk = ceMetinUzunlugu(g, m ? materyalDurumu(m.id) : null);
+  if (uzunluk >= 30 && istenen > ceMetinKapasitesi(uzunluk)) {
+    u.push({ tur: "uyari", metin: "Bu metin ~" + ceMetinKapasitesi(uzunluk) + " soru taşır; " +
+      istenen + " istendi, fazlası düşer." });
+  }
+  if (istenen < 1) {
     u.push({ tur: "eksik", metin: "En az bir soru isteyin." });
   }
   return u;
+}
+
+function ceUyariOgeleriHtml(uyarilar) {
+  return uyarilar.map(function (x) {
+    return '<li class="ce-uyari ce-uyari-' + x.tur + '">' + escapeHtml(x.metin) + '</li>';
+  }).join("");
+}
+
+/** Özetteki uyarı listesini yeniden çizmeden günceller (metin yazılırken). */
+function ceUyarilariYenile() {
+  const ul = document.getElementById("ceUyarilar");
+  if (ul) ul.innerHTML = ceUyariOgeleriHtml(ceUyarilari());
+}
+
+/* §75 — METİN / SORU DENGESİ. Eşik UYDURULMADI: sunucunun uyguladığı kuralın
+   (src/lib/guards.ts KARAKTER_BASINA_SORU + makulSoruSayisi, §41 Madde 5)
+   birebir aynısıdır; ikisi ayrışırsa uyarı yalan söyler. Eşitlik
+   test/ce-kapasite.test.ts'te denetlenir. Canlı doğrulama (§69): 484
+   karakterlik Fen metninden 3 soru istendi, sunucu 2 döndürdü = floor(484/180). */
+const KARAKTER_BASINA_SORU = 180;
+
+function ceMetinKapasitesi(uzunluk) {
+  return Math.max(2, Math.floor(uzunluk / KARAKTER_BASINA_SORU));
+}
+
+/** Sunucunun ölçeceği metin uzunluğu; ölçülecek metin yoksa 0.
+    Saf kazanım modunda metin yoktur (sunucu orada kısmaz). Belge kilidinde
+    sunucuya giden belge metnidir; ilk 6.000 karakteri kullanılır (§51). */
+function ceMetinUzunlugu(g, materyal) {
+  if (g !== "kazanim") return state.ceForm.text.trim().length;
+  if (!materyal || materyal.durum !== "hazir") return 0;
+  return Math.min(6000, materyal.uzunluk || 0);
 }
 
 /* Sağdaki yapışkan özet: seçimler + uyarılar + üret düğmesi. Üret düğmesi
@@ -4958,11 +5021,9 @@ function ceOzetHtml() {
       ? satir("Düzey", state.ceForm.bloomFocus === "ust" ? "Üst düzey vurgulu" : "Temel düzey vurgulu") : "") +
     (state.ceForm.sube ? satir("Şube", escapeHtml(state.ceForm.sube)) : "") +
     '</dl>' +
-    (uyarilar.length
-      ? '<ul class="ce-uyarilar">' + uyarilar.map(function (x) {
-          return '<li class="ce-uyari ce-uyari-' + x.tur + '">' + escapeHtml(x.metin) + '</li>';
-        }).join("") + '</ul>'
-      : "") +
+    /* Liste boş da olsa çizilir: metin yazılırken (yeniden çizim olmadan)
+       ceUyarilariYenile() içini yerinde günceller. */
+    '<ul class="ce-uyarilar" id="ceUyarilar">' + ceUyariOgeleriHtml(uyarilar) + '</ul>' +
     (state.ceForm.error ? '<div class="pill pill-blok pill-critical">' + escapeHtml(state.ceForm.error) + '</div>' : "") +
     /* §41: sunucunun soru sayısını neden düşürdüğü — hata değil bilgi. */
     (state.ceForm.uretimNotu ? '<div class="pill pill-blok pill-warning">ℹ ' + escapeHtml(state.ceForm.uretimNotu) + '</div>' : "") +
@@ -4997,22 +5058,197 @@ function ceCreateHtml() {
     '</div></div></div>';
 }
 
-// 2. sekme: onayli havuz + reddedilenler havuzu
+/* §75c — SORU HAVUZU: ders → sınıf → kazanım ağacı + filtreler (W3).
+   Eskiden bu sekme düz bir onaylı liste + ayrı "Reddedilen" kartıydı;
+   soru sayısı arttıkça aranan soruyu bulmak kaydırmaya kalıyordu.
+   STATE ŞEKLİ DEĞİŞMEDİ, GÖÇ YOK: ağaç ve filtreler sorunun var olan
+   alanlarından türetilir (outcome → ders/sınıf, status, şüphe tablosu,
+   srcId/demo). Filtre seçimi yalnız arayüz durumudur (state.cePool),
+   saklanmaz. Onay yine yalnız "Soru Üret" sekmesindeki kartta yapılır;
+   havuzdan onay ya da toplu işlem YOK (agents.md §1). */
+const HAVUZ_DURUMLARI = [
+  { id: "approved", ad: "Onaylı" },
+  { id: "ai_generated", ad: "Bekleyen" },
+  { id: "rejected", ad: "Reddedilmiş" },
+  { id: "tumu", ad: "Tümü" },
+];
+const HAVUZ_KAYNAKLARI = [
+  { id: "tumu", ad: "Tüm kaynaklar" },
+  { id: "metin", ad: "Metinden" },
+  { id: "kazanim", ad: "Yalnız kazanım" },
+  { id: "deneyap", ad: "Deneyap kitabı" },
+  { id: "demo", ad: "Demo örneği" },
+];
+
+function havuzFiltresi() {
+  const f = state.cePool || {};
+  return { durum: f.durum || "approved", suphe: !!f.suphe, kaynak: f.kaynak || "tumu", dugum: f.dugum || "" };
+}
+
+/** Sorunun kaynak türü — var olan alanlardan (yeni alan yok). */
+function soruKaynakTuru(q) {
+  if (q.demo) return "demo";
+  if (q.srcId != null) return "metin";
+  if (/^DNY\./.test(q.outcome || "")) return "deneyap";
+  return "kazanim";
+}
+
+/** Ağaç yolu: ders | sınıf | kazanım. Bilinmeyen ders/sınıf açıkça yazılır;
+    o anki form seçimine (soruDersSinif'in yedeği) DÜŞÜLMEZ, yoksa soru
+    yanlış dalda görünürdü. */
+function soruAgacYolu(q) {
+  const kod = q.outcome || "";
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === kod; })[0];
+  if (o && o.subject) return { ders: String(o.subject), sinif: String(o.grade || ""), kazanim: kod };
+  /* Kazanım okul listesinden silinmişse koddan çıkarılır. Katalog önekleri
+     (ölçüldü: DNY 622, FB 141, MAT 100, T 365) ortak tabloda (KOD_DERS_ONEK)
+     eksik; Deneyap'ın sınıf ekseni de sayı değil "Deneyap"tır. */
+  if (/^DNY\./.test(kod)) return { ders: DENEYAP_DERSI, sinif: DENEYAP_SINIFI, kazanim: kod };
+  const ders = kodDanDers(kod) || (/^FB\./.test(kod) ? "Fen Bilimleri" : /^T\.\d/.test(kod) ? "Türkçe" : "") || "Dersi belirsiz";
+  return { ders: String(ders), sinif: String(kodDanSinif(kod) || ""), kazanim: kod || "Kazanımsız" };
+}
+
+function havuzDugumu(q) {
+  const y = soruAgacYolu(q);
+  return [y.ders, y.sinif, y.kazanim];
+}
+
+/** Durum + şüphe + kaynak filtresinden geçen sorular (ağaç seçimi hariç). */
+function havuzSorulari(f) {
+  return state.questions.filter(function (q) {
+    if (f.durum !== "tumu" && q.status !== f.durum) return false;
+    if (f.suphe && !soruSupheleri(q).length) return false;
+    if (f.kaynak !== "tumu" && soruKaynakTuru(q) !== f.kaynak) return false;
+    return true;
+  });
+}
+
+function dugumIcinde(q, dugum) {
+  if (!dugum) return true;
+  const p = dugum.split("|"), y = havuzDugumu(q);
+  for (let i = 0; i < p.length; i++) if (p[i] !== y[i]) return false;
+  return true;
+}
+
+function havuzAgaciHtml(sorular, f) {
+  const agac = {};
+  sorular.forEach(function (q) {
+    const y = havuzDugumu(q);
+    agac[y[0]] = agac[y[0]] || {};
+    agac[y[0]][y[1]] = agac[y[0]][y[1]] || {};
+    agac[y[0]][y[1]][y[2]] = (agac[y[0]][y[1]][y[2]] || 0) + 1;
+  });
+  const say = function (o) { return typeof o === "number" ? o : Object.keys(o).reduce(function (s, k) { return s + say(o[k]); }, 0); };
+  const secim = f.dugum.split("|");
+  const dugum = function (yol, ad, n, derinlik) {
+    return '<button type="button" class="havuz-dugum havuz-d' + derinlik + (f.dugum === yol ? " secili" : "") +
+      '" data-havuz-dugum="' + escapeHtml(yol) + '" aria-pressed="' + (f.dugum === yol) + '">' +
+      '<span class="havuz-dugum-ad">' + ad + '</span><span class="havuz-dugum-say">' + n + '</span></button>';
+  };
+  let html = dugum("", "Tüm sorular", sorular.length, 0);
+  Object.keys(agac).sort(function (a, b) { return a.localeCompare(b, "tr"); }).forEach(function (d) {
+    html += dugum(d, escapeHtml(d), say(agac[d]), 0);
+    // Yalnız seçili dersin dalı açılır; ağaç kısa kalır.
+    if (secim[0] !== d) return;
+    Object.keys(agac[d]).sort(function (a, b) {
+      return (parseInt(a, 10) || 99) - (parseInt(b, 10) || 99) || a.localeCompare(b, "tr");
+    }).forEach(function (s) {
+      const sy = d + "|" + s;
+      html += dugum(sy, escapeHtml(s ? sinifEtiketi(s) : "Sınıfı belirsiz"), say(agac[d][s]), 1);
+      if (secim.slice(0, 2).join("|") !== sy) return;
+      Object.keys(agac[d][s]).sort(function (a, b) { return a.localeCompare(b, "tr"); }).forEach(function (k) {
+        const etiket = String(outcomeLabel(k) || "").replace(k, "").replace(/^\s*[—–-]\s*/, "");
+        html += dugum(sy + "|" + k, "<b>" + escapeHtml(k) + "</b>" + (etiket ? " " + escapeHtml(etiket) : ""), agac[d][s][k], 2);
+      });
+    });
+  });
+  return '<nav class="havuz-agac" aria-label="Ders, sınıf ve kazanım">' + html + "</nav>";
+}
+
+function havuzSecimHtml(ad, liste, secili, veri) {
+  return '<div class="havuz-filtre-grup" role="group" aria-label="' + ad + '">' +
+    liste.map(function (x) {
+      return '<button type="button" class="chip havuz-chip' + (secili === x.id ? " secili" : "") + '" data-' + veri + '="' + x.id +
+        '" aria-pressed="' + (secili === x.id) + '">' + x.ad + "</button>";
+    }).join("") + "</div>";
+}
+
+function havuzSoruHtml(q) {
+  const supheler = soruSupheleri(q);
+  const durum = q.status === "approved" ? '<span class="pill pill-success">Onaylı</span>'
+    : q.status === "rejected" ? '<span class="pill pill-critical">Reddedildi</span>'
+    : '<span class="pill pill-warning">Onay bekliyor</span>';
+  const eylem = q.status === "approved"
+    ? '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button>'
+    : q.status === "rejected"
+    ? '<button class="btn btn-secondary btn-sm restore-q" data-qid="' + q.id + '" data-mode="review">↩ Yeniden İncele</button>' +
+      '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Kalıcı olarak sil">Sil</button>'
+    // Bekleyen soru havuzda ONAYLANMAZ; karar kartta verilir (§1, §71).
+    : '<button class="btn btn-primary btn-sm" data-havuz-incele="' + q.id + '">İncele →</button>';
+  const kaynak = HAVUZ_KAYNAKLARI.filter(function (x) { return x.id === soruKaynakTuru(q); })[0];
+  return '<div class="pool-item havuz-oge"><div class="p-body"><div class="havuz-metin">' + escapeHtml(q.body) + "</div>" +
+    '<div class="p-tags">' + durum +
+    '<span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + "</span>" +
+    '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + "</span>" + bloomPill(q.bloom) +
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome || "kazanımsız") + "</span>" +
+    '<span class="pill pill-neutral">' + escapeHtml(kaynak ? kaynak.ad : "") + "</span>" +
+    subeRozetiHtml(q) +
+    (supheler.length
+      ? '<span class="pill pill-warning" title="' + escapeHtml(supheler.map(function (t) { return supheMetni(t.etiket, q); }).join(", ")) +
+        '">⚠ ' + supheler.length + " şüphe</span>"
+      : "") +
+    '</div></div><div class="havuz-eylem">' + eylem + "</div></div>";
+}
+
+// 2. sekme: soru havuzu (ağaç + filtre). Onaylı, bekleyen ve reddedilmiş tek yerde.
 function cePoolHtml() {
-  const approved = state.questions.filter(function (q) { return q.status === "approved"; });
-  const rejected = state.questions.filter(function (q) { return q.status === "rejected"; });
-  return '<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Ortak Soru Havuzu</h3><span class="hint">' + approved.length + ' onaylı · ' + rejected.length + ' reddedilen</span></div>' +
-    (approved.length ? approved.map(function (q) {
-      return '<div class="pool-item"><div class="p-body">' + escapeHtml(q.body) +
-        '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "Çoktan Seçmeli" : "Açık Uçlu") + '</span>' +
-        '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
-        subeRozetiHtml(q) +
-        '<span class="pill pill-success">Onaylı</span></div></div>' +
-        '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button></div>';
-    }).join("") : '<div class="empty-state">Onaylanan soru henüz yok.</div>') +
-    (state.poolError ? '<div class="pill pill-blok pill-critical" style="margin-top:10px;">' + escapeHtml(state.poolError) + '</div>' : "") + '</div>' +
-    rejectedPoolHtml("ce");
+  const f = havuzFiltresi();
+  const sorular = havuzSorulari(f);
+  const liste = sorular.filter(function (q) { return dugumIcinde(q, f.dugum); });
+  const say = {};
+  state.questions.forEach(function (q) { say[q.status] = (say[q.status] || 0) + 1; });
+  const bos = !state.questions.length
+    ? "Havuzda henüz soru yok. “Soru Üret” sekmesinde üretip onaylayın."
+    : "Bu filtreye uyan soru yok.";
+  return '<div class="card havuz"><div class="card-head"><h3>Soru Havuzu</h3><span class="hint">' +
+    (say.approved || 0) + " onaylı · " + (say.ai_generated || 0) + " bekleyen · " + (say.rejected || 0) + " reddedilmiş</span></div>" +
+    '<div class="havuz-filtreler">' +
+    havuzSecimHtml("Durum", HAVUZ_DURUMLARI, f.durum, "havuz-durum") +
+    '<button type="button" class="chip havuz-chip' + (f.suphe ? " secili" : "") + '" data-havuz-suphe aria-pressed="' + f.suphe + '">⚠ Yalnız şüpheli</button>' +
+    '<label class="havuz-kaynak"><span class="gorsel-gizli">Kaynak türü</span><select id="ceHavuzKaynak">' +
+    HAVUZ_KAYNAKLARI.map(function (x) {
+      return '<option value="' + x.id + '"' + (f.kaynak === x.id ? " selected" : "") + ">" + x.ad + "</option>";
+    }).join("") + "</select></label></div>" +
+    '<div class="havuz-icerik">' + havuzAgaciHtml(sorular, f) +
+    '<div class="havuz-liste"><div class="havuz-liste-bas">' + liste.length + " soru" +
+    (f.dugum ? ' · <button type="button" class="oc-link" data-havuz-dugum="">seçimi kaldır</button>' : "") + "</div>" +
+    (liste.length ? liste.map(havuzSoruHtml).join("") : '<div class="empty-state">' + bos + "</div>") +
+    "</div></div>" +
+    (state.poolError ? '<div class="pill pill-blok pill-critical" role="alert">' + escapeHtml(state.poolError) + "</div>" : "") +
+    "</div>";
+}
+
+function wireCeHavuz() {
+  const f = function () { state.cePool = Object.assign(havuzFiltresi(), state.cePool || {}); return state.cePool; };
+  document.querySelectorAll("#panel-content_expert [data-havuz-durum]").forEach(function (el) {
+    el.onclick = function () { f().durum = el.dataset.havuzDurum; renderAll(); };
+  });
+  document.querySelectorAll("#panel-content_expert [data-havuz-suphe]").forEach(function (el) {
+    el.onclick = function () { f().suphe = !havuzFiltresi().suphe; renderAll(); };
+  });
+  const k = document.getElementById("ceHavuzKaynak");
+  if (k) k.onchange = function () { f().kaynak = k.value; renderAll(); };
+  document.querySelectorAll("#panel-content_expert [data-havuz-dugum]").forEach(function (el) {
+    el.onclick = function () { f().dugum = el.dataset.havuzDugum; renderAll(); };
+  });
+  // Bekleyen soru: incelemek için Soru Üret sekmesine, o kartın üstüne.
+  document.querySelectorAll("#panel-content_expert [data-havuz-incele]").forEach(function (el) {
+    el.onclick = function () {
+      state.ceTab = 1; renderAll();
+      const kart = document.querySelector('#panel-content_expert .q-card[data-card-id="' + el.dataset.havuzIncele + '"]');
+      if (kart) kart.scrollIntoView({ block: "start" });
+    };
+  });
 }
 
 /* §61 — sihirbazın kendi olayları. Beş panel aynı anda DOM'da olduğu için id
@@ -5054,6 +5290,35 @@ function wireCeSihirbaz() {
   document.querySelectorAll(".ce-bilgi").forEach(function (d) {
     d.ontoggle = function () { state.ceBilgiAcik = d.open; };
   });
+  // §75b: kart ayrıntısının açıklığı soru başına, yalnız arayüz durumu.
+  document.querySelectorAll("#panel-content_expert .q-detay").forEach(function (d) {
+    d.ontoggle = function () {
+      state.ceKartDetay = state.ceKartDetay || {};
+      state.ceKartDetay[d.dataset.qid] = d.open;
+    };
+  });
+  /* §75b: şık metni artık textarea; görünüşte satıra sarar ama tek satırlık
+     bir şıktır. Enter yeni satır açmasın. */
+  document.querySelectorAll("#panel-content_expert .opt-input").forEach(function (el) {
+    el.onkeydown = function (e) { if (e.key === "Enter") e.preventDefault(); };
+    // Yapıştırılan çok satırlı metin de tek satıra iner (W2 notu).
+    el.onpaste = function (e) {
+      const ham = e.clipboardData && e.clipboardData.getData("text");
+      if (!ham || !/[\r\n]/.test(ham)) return;
+      e.preventDefault();
+      el.setRangeText(ham.replace(/\s*[\r\n]+\s*/g, " ").trim(), el.selectionStart, el.selectionEnd, "end");
+      el.dispatchEvent(new Event("input"));
+    };
+  });
+  /* field-sizing:content desteklenmiyorsa (Firefox, eski Safari) yükseklik
+     içeriğe elle uydurulur; yoksa metin yine kırpılırdı. */
+  if (!(window.CSS && CSS.supports && CSS.supports("field-sizing", "content"))) {
+    document.querySelectorAll("#panel-content_expert .q-card textarea").forEach(function (el) {
+      const uydur = function () { el.style.height = "auto"; el.style.height = el.scrollHeight + 2 + "px"; };
+      uydur();
+      el.addEventListener("input", uydur);
+    });
+  }
 }
 
 function renderContentExpert() {
@@ -5090,7 +5355,9 @@ function renderContentExpert() {
   root.innerHTML = ceTabsHtml() + '<div id="ceTabContent">' +
     (state.ceTab === 2 ? cePoolHtml() : ceCreateHtml()) + '</div>';
   wireCeTabs();
-  if (state.ceTab === 2) { wireRejectedPool("ce"); return; }
+  /* §75c: havuzdaki Sil / Yeniden İncele düğmeleri ortak bağlayıcıyla
+     (wireRejectedPool) bağlanır; ağaç ve filtreler wireCeHavuz ile. */
+  if (state.ceTab === 2) { wireRejectedPool("ce"); wireCeHavuz(); return; }
 
   const rg = document.getElementById("btnRemedialGen");
   if (rg) rg.onclick = onGenerateQuestions;
@@ -5138,6 +5405,10 @@ function renderContentExpert() {
     /* §61: renderAll yok (TUZAK 3); yalnız özetteki sayı yerinde güncellenir. */
     const oz = document.getElementById("ceOzetDayanak");
     if (oz) oz.textContent = "Metin · " + state.ceForm.text.trim().length.toLocaleString("tr") + " karakter";
+    /* §75: kısa metin uyarısı da yazarken yerinde güncellenir. renderAll
+       DEĞİL: odak kaybolur (TUZAK 3) ve kutudan çıkarken yapılan yeniden
+       çizim, aynı anda tıklanan kartın tıklamasını yutuyordu (ölçüldü). */
+    ceUyarilariYenile();
   };
   const ceGuidanceEl = document.getElementById("ceGuidance");
   /* TUZAK 3: metin kutusunun oninput'undan renderAll() ÇAĞRILMAZ — sayfa
@@ -12603,6 +12874,13 @@ function bosDurumHtml(mesaj) {
     "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
     // §70 şüpheli soruda ikinci onay (W3)
     "soruyuOnayla", "supheliOnayModali",
+    // §75 kısa metin ön uyarısı (W3)
+    "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
+    // §75b onay kartı sadeleşmesi (W3)
+    "kartDetayHtml",
+    // §75c soru havuzu ağacı (W3)
+    "havuzFiltresi", "soruKaynakTuru", "soruAgacYolu", "havuzDugumu", "havuzSorulari", "dugumIcinde",
+    "havuzAgaciHtml", "havuzSecimHtml", "havuzSoruHtml", "wireCeHavuz",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
