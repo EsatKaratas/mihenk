@@ -16,7 +16,7 @@ T3 Vakfı Bursiyer Yapay Zekâ Creathon · **Problem 2**
 [![Mimari](https://img.shields.io/badge/mimari-dok%C3%BCmantasyon-4c6ef5?style=for-the-badge)](https://mihenk.bies.workers.dev/mimari)
 
 [![CI](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml/badge.svg)](https://github.com/EsatKaratas/mihenk/actions/workflows/ci.yml)
-[![Testler](https://img.shields.io/badge/test-346%2F346-2ea44f?style=flat-square)](./test)
+[![Testler](https://img.shields.io/badge/test-402%2F402-2ea44f?style=flat-square)](./test)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?style=flat-square&logo=cloudflare&logoColor=white)](#3-mimari)
 [![Hono](https://img.shields.io/badge/Hono-4.6-e36002?style=flat-square)](#3-mimari)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](./tsconfig.json)
@@ -67,6 +67,34 @@ gizlilik kuralları aynen korundu**. Ayrıntı: PROGRESS §60–§68.
 
 Her panel 1280 ve 390 px'te `tools/gorsel-fark.mjs` ile denetlendi: konsol
 hatası 0, yinelenen kimlik 0, yatay taşma yok.
+
+### İkinci tur — 23–24 Ekim 2026
+
+Tasarım turundan sonra kalan açıklar kapatıldı. Her satırdaki sayı ölçüldü;
+bir öneri ölçüm sonucunda **eklenmediyse** o da yazıldı. Ayrıntı: PROGRESS §72–§83.
+
+| Ne değişti | Nasıl · ölçülen |
+|---|---|
+| **Demo şeridi ekrandaki adlarla konuşuyor** | Beş adımın her biri, basılacak düğmenin adını tırnak içinde **aynen** veriyor: "Onayla → Havuza Aktar"; "Yayınla"; "Sınava Başla" → "Gözden geçir ve bitir" → "Sınavı bitir" → "Evet, bitir"; "Tek Tıkla Onayla" → "Sonuçları Öğrenciye Yayınla". Gerçek tıklamayla iki ayrı denetimde 5/5 adım geçti. 390 px'te şerit 109 px (4. adımda 129 px), düğme kesilmiyor, taşmıyor |
+| **Onay kartı sadeleşti** | Şık metni artık satıra sarıyor; eskiden tek satırlık kutuda kırpılıyordu ("Zemin pürüzlendikçe sürtün…"). Kırpılma 1366 ve 390 px'te 0. Çeldirici gerekçeleri ve kazanım denetimi tek bir **katlı** "ayrıntı" altında; 390 px'te kart 1053 px yerine 769 px. **Şüphe şeridi katlanmaz**, her zaman görünür |
+| **Soru Havuzu: ders → sınıf → kazanım ağacı** | Tek kartta ağaç ve filtreler: durum (Onaylı · Bekleyen · Reddedilmiş), **⚠ Yalnız şüpheli** ve kaynak türü (metinden · yalnız kazanım · Deneyap kitabı · demo). Her düğümde soru sayısı. **Havuzda onay düğmesi yok:** karar yalnız onay kartında verilir. Tarayıcıda 30/30 denetim geçti |
+| **Kısa metin ön uyarısı** | Metin, istenen soru sayısını taşımayacak kadar kısaysa özet üretimden **önce** söylüyor: "~N soru taşır; M istendi". Eşik uydurulmadı: sunucunun zaten uyguladığı formül (her 180 karaktere 1 soru, en az 2) kullanıldı. Bir test 0–6.000 karakterin her birinde istemci ile sunucunun aynı sonucu verdiğini denetliyor. Canlıda 484 karakterlik metinden 3 soru istendi, 2 geldi; ⌊484/180⌋ = 2 |
+| **Dil uyarısı Latin-1 aksanlarını ve ayrık işaretleri de görüyor** | Canlıda modelin geri bildirim taslağındaki "necessário" uyarısız geçmişti. Önce ölçüldü: 782 üretilmiş soru ve 621 çözücü gerekçesinde **4 gerçek sızıntı** vardı ("luôn", "tämir", "konkrét", "đúngudur"). Yeni kural 4'ünü de, eski kural yalnız 1'ini yakalıyor. İnsan yazımı Türkçe metinde (müfredat, ders belgeleri) **yanlış alarm 0**. Bağımsız denetimde bulunan kaçak da kapandı: ön-birleşik karşılığı olmayan ayrık işaretler ("q" + ◌́). Bu kural 12.017 metin biriminde yanlış alarm 0 verdi. Büyük "İ"nin küçültülmesinden gelen nokta Türkçe olduğu için hariç. Uyarı **engellemez**. **Kabul edilen sınır:** özgün yazımlı yabancı özel ad da uyarı verir (Ampère, El Niño) |
+| **Aksansız yabancı sözcük denetimi: ölçüldü, EKLENMEDİ** | "however", "pero", "only" gibi sözcükler harf kuralıyla yakalanamaz, liste ister. 119 tekil sözcükle ölçüldü. Türkçe ile çakışan 58 sözcük (de, o, en, para…) model çıktısında **1.942 isabet verdi, hepsi yanlış alarm**. Çakışmasız dar liste yalnız **1** gerçek sızıntı buldu ("only"); tek örnekle güvenilir bir yakalama oranı çıkmaz. Kodlama kazanımlarında "if", "for" meşru. Karar: eklenmedi. Daha büyük bir derlemle yeniden ölçülecek |
+| **Tehlikeli eylemler uygulamanın kendi onay penceresinde** | Tarayıcının yerel `confirm()` penceresi yerine tek ortak pencere. Odak **Vazgeç**'te başlar, Escape = Vazgeç; tehlikeli eylemin düğmesi **kırmızı**. 10 çağrının **hepsi** geçirildi; uygulamada yerel `confirm()` kalmadı.<br>• **Ortak bölümde 4:** ders, kazanım ve kitaplıktan silme; karar günlüğünü temizleme.<br>• **Öğretmen tarafında 6:** yayından kaldırma; sınav ve taslak silme; örnek listeyi temizleme; öğrenci çıkarma; elle düzenlenmiş rubriğin üzerine şablon ya da yapay zekâ taslağı yazma.<br>• **Tüm pencerelerde aynı kurallar:** her pencere bir diyalog olarak işaretli (`role="dialog"`, `aria-modal`); açıkken arka plan tıklanamaz, Tab pencere içinde kalır, Escape pencerenin kendi Vazgeç'ini çalıştırır.<br>• Bağımsız denetimlerde gerçek tuşlarla, canlıda da denendi: Escape, Enter ve Vazgeç veriyi değiştirmedi; çift tık tek pencere açtı; rubrikte Vazgeç'e basılınca yapay zekâ isteği **hiç gönderilmedi** |
+| **Şüpheli soruda ikinci onay klavyede de bilinçli** | Yüksek ciddiyetli şüphesi olan soruyu onaylarken açılan pencerede **"Yine de onayla" odaklıyken Enter onaylamaz**; onay fare ya da Space ile verilir (klavyeyle Tab + Space). Önceki sürümde Enter şüpheli soruyu onaylıyordu, Escape pencereyi kapatmıyordu; ikisi de bağımsız denetimde bulundu. Klavye testi 9/9; canlıda da geçti |
+| **Katalogdan ekleme artık pencere açmıyor** | "Seçilenleri Ekle"den sonra arkadaki sihirbazı örten "Katalogdan eklendi" penceresi kalktı. Yerine kazanım satırının altında, ekran okuyucunun duyurduğu bir durum satırı ("N kazanım eklendi.") çıkıyor; odak çalınmaz, satır 6 sn sonra kaybolur. Demoda bir tıklama azaldı |
+| **Eğitim Yöneticisi panosunda filtre** | **Sınıf · ders · öğretmen.** Ders, her sorunun kazanım kodundan çıkarılır. **Dönem filtresi yok:** sınavlarda tarih ya da dönem bilgisi tutulmuyor, bu yüzden eklenmedi; ekranda nedeni yazar. Filtre eylem kartına, durum kutularına, kazanım grafiğine, gelişim tablosuna, öğretmen analitiğine, karar raporuna ve risk listesine uygulanır. Örnek veri bölümü filtreden bağımsızdır. Seçim yalnız bu tarayıcıda saklanır, adrese yazılmaz. Filtreli boş durumda kutu "henüz yayınlanmış sınav yok" yerine "Bu filtrelerle eşleşen yayınlanmış sınav yok" der. Yan düzeltme: grafik altındaki "aksiyon alın" kutusu artık **örnek** şube için "tekrar sorusu üret" önermiyor |
+| **Atama, sınavın hedef sınıfına göre** | Yönetici ekranı her yayınlı sınavı **her öğrenciye** atanmış sayıyordu. Sonuçları: tamamlanma oranı düşük çıkıyordu; risk listesi, sınavı kendisine açık olmayan öğrenciyi **adıyla** "sınava hiç girmemiş" diye işaretliyordu. **Bu kusur filtrelerden önce de vardı;** eski kod aynı örnekte 2 yerine 5 atama saydı. Bağımsız bir doğrulamada bulundu. Artık sınav yalnız hedef sınıfına atanır; sınava zaten girmiş öğrenci atanmış kalır. Demo verisinde tamamlanma "%75 · 3/4" yerine "%100 · 3/3", yanlış risk işareti kalktı. Karar raporu da artık yalnız yayındaki sınavları sayıyor |
+| **Öğretmen › Analitik de hedef sınıfa göre** | "N / M tamamladı" kutusundaki M, yönetici ekranıyla aynı kuralla sayılıyor: sınav yalnız hedef sınıfına atanır, sınava girmiş öğrenci atanmış kalır. Üç durumda iki ekran aynı sayıyı verdi: tümüne açık sınav 3/4, 7-B'ye hedefli 3/3, girmemiş 7-A öğrencisiyle 2/2 |
+| **Karar Günlüğü süzülmez, kapsamını söyler** | Günlük bir denetim kaydıdır: hiçbir yapay zekâ önerisi ondan düşmez, filtre de uygulanmaz. Üstteki rapor ise yalnız yayındaki sınavları saydığı için sayılar farklı olabilir. Kartta artık "Tüm kayıtlar: yayından kaldırılmış ve taslak sınavlar dahil; filtreden bağımsızdır" yazıyor |
+
+Testler **346 → 402** (18 dosya). Öz-kontrol **516** ad, %100. Her ekran 1280
+ve 390 px'te `tools/gorsel-fark.mjs` ile, veri dolu hâlde de (`--dolu`),
+denetlendi: konsol hatası, yinelenen kimlik ve yatay taşma 0. Canlı sürüm
+`aba0563e` (24 Ekim) iki ayrı bağımsız denetimden geçti: canlıdaki 51 dosya
+diskle bayt bayt aynı; demo, onay pencereleri, filtreler ve kısa metin uyarısı
+gerçek tıklama ve tuşlarla 1280 ve 390 px'te denendi.
 
 ### Son değişiklikler — 6 Eylül 2026
 
@@ -465,7 +493,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 346 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 402 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -710,21 +738,39 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile 13 dosyada **346 test**
-  koşar (`test/guards.test.ts` 112 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile 18 dosyada **402 test**
+  koşar (`test/guards.test.ts` 122 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
   `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
-  `test/sayac-ve-yedek.test.ts` 15 · `test/rota.test.ts` 14 · `test/cozucu.test.ts` 12 ·
+  `test/yonetici-filtre.test.ts` 19 · `test/rota.test.ts` 16 ·
+  `test/sayac-ve-yedek.test.ts` 15 · `test/cozucu.test.ts` 12 · `test/onay-modal.test.ts` 11 ·
   `test/mufredat.test.ts` 11 · `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 ·
-  `test/atolye-ve-materyal.test.ts` 9 · `test/ogretmen-toplu.test.ts` 8) —
+  `test/atolye-ve-materyal.test.ts` 9 · `test/ogretmen-toplu.test.ts` 8 ·
+  `test/ogretmen-onay.test.ts` 7 · `test/ogretmen-analitik.test.ts` 4 ·
+  `test/ce-kapasite.test.ts` 3) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
-  Kapsanmayan kısım **arayüz mantığıdır** (`public/app.js`): bu dosya tarayıcı
-  DOM'una bağlı olduğu için Node altında koşan testlerle sınanmıyor; yerine
-  dosya sonunda **470 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  Kapsanmayan kısım büyük ölçüde **arayüz mantığıdır** (`public/app.js`): bu dosya
+  tarayıcı DOM'una bağlı olduğu için Node altında koşan testlerle çoğunlukla
+  sınanmıyor. İstisna: bazı saf yardımcılar (yönetici filtresi, öğretmen
+  analitiği, metin kapasitesi) ve onay penceresi kullanımı testte `app.js`
+  metninden okunup denetleniyor. Geri kalanı için
+  dosya sonunda **516 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
   güvenlik testi var: `tools/injection-test.py` (bkz. §11).
+- **Sınavı bitirdikten sonra klavye odağı kaybolabiliyor (düzeltme sırada).**
+  Öğrenci "Evet, bitir"e bastığında odak önce sınav başlığına gidiyor. Canlıda
+  yapay zekâ değerlendirmesi bitip ekran yeniden çizilince sayfanın başına
+  (BODY) düşüyor; klavye kullanan öğrenci yerini kaybeder. Statik sunucuda
+  değerlendirme beklenmeden bittiği için görünmüyordu, canlıda ölçüldü
+  (24 Ekim, `aba0563e`).
+- **Canlıda bir kez açıklanamayan dil uyarısı görüldü.** 24 Ekim'de demo
+  yanıtının gerçek değerlendirmesinde "Türkçe olmayan karakterler var"
+  uyarısı çıktı; yanıt kaydedilmediği için tetikleyen sözcük bilinmiyor.
+  Aynı girdiyle tekrarlanan değerlendirmede uyarı çıkmadı. Gerçek bir sızıntı
+  mı, yanlış alarm mı olduğu belirlenemedi. Uyarının tetikleyen sözcükleri
+  göstermesi sırada.
 - Geliştirici kuralları (branch stratejisi, token/kaynak sınırları) için
   `agents.md` dosyasına bakın.
 
@@ -860,7 +906,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 23 Ekim 2026, ikinci yayın (canlı sürüm `da505ee0` · 346 test · öz-kontrol 470 ad %100)
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 24 Ekim 2026, ikinci tur yayını (canlı sürüm `aba0563e` · 402 test · öz-kontrol 516 ad %100)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)
