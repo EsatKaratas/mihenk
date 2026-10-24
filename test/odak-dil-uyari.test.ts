@@ -44,9 +44,10 @@ describe('dil uyarısı — tetikleyen sözcükler (§84)', () => {
   const dilTetikleyiciMetni = new Function('TURKCE_HARF', tanim('dilTetikleyiciMetni') + '\nreturn dilTetikleyiciMetni;')(TURKCE_HARF) as
     (s: string[] | undefined, m: string[]) => string;
 
-  it('sunucunun sözcükleri, en çok 3, üçte "…"', () => {
+  it('sunucunun sözcükleri, en çok 3, "…" YOK (sunucu toplamı bildirmez)', () => {
     expect(dilTetikleyiciMetni(['luôn'], [])).toBe('Türkçe olmayan: luôn');
-    expect(dilTetikleyiciMetni(['a1', 'b2', 'c3'], [])).toBe('Türkçe olmayan: a1, b2, c3, …');
+    expect(dilTetikleyiciMetni(['a1', 'b2', 'c3'], [])).toBe('Türkçe olmayan: a1, b2, c3');
+    expect(dilTetikleyiciMetni(['a1', 'b2', 'c3', 'd4'], [])).toBe('Türkçe olmayan: a1, b2, c3');
   });
 
   it('sözcük yoksa metindeki Türkçe dışı harfler; Türkçe (şapkalı dahil) metinde boş', () => {

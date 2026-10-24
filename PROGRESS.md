@@ -10079,7 +10079,7 @@ Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrı
 **2. Dil uyarısı tanılanabilir.**
 - Sunucu §73'ten beri `meta.dilUyarisiSozcukler` (ilk 3) döndürüyordu; istemci
   göstermiyordu. Artık uyarının yanında kısa bir ek var: "Türkçe olmayan: luôn, …"
-  (en çok 3; üç sözcükte "…", çünkü sunucu 3'te keser).
+  (en çok 3; "…" YOK — §84b).
 - Sözcük yoksa (eski kayıt) metindeki Türkçe dışı harfler gösterilir: "Türkçe olmayan
   karakter: п, р, а, …". Şapkalı Türkçe (â, î, û) yabancı sayılmaz. Metin değişmez,
   karar insanda.
@@ -10105,3 +10105,14 @@ Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrı
 - `gorsel-fark --dolu`, taban 37610f2: 38 ekranda fark %0,000; konsol, yinelenen id ve
   taşma 0.
 - Ölçülmedi: canlıda gerçek model yanıtıyla. Bağımsız doğrulama ve yayın W8'de.
+
+### §84b — Sunucu sözcüklerinde "…" kaldırıldı (24 Ekim, W6; W8 notu, O2 kararı)
+
+- Sunucu en çok 3 sözcük döndürür ve toplamı bildirmez. Tam 3 sözcükte "…" yazmak
+  "daha fazlası var" demekti ve doğrulanamıyordu. Seçim: sunucuya sayı EKLENMEDİ
+  (sunucu ve test değişikliği gerektirirdi); "…" sunucu sözcüklerinde hiç
+  gösterilmiyor.
+- Karakter yedeğinde (istemci kendisi sayar) "…" yalnız gerçekten 3'ten fazla harf
+  varsa kalır.
+- Testler 407/407 (beklenti güncellendi + 4 sözcük → 3 gösterim). Lint temiz;
+  öz-kontrol %100.

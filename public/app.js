@@ -4527,13 +4527,15 @@ function degerlendirmeDilUyarisiHtml(ev) {
    sözcükleri döndürüyor (meta.dilUyarisiSozcukler, ilk 3) ama arayüz yalnız
    "yabancı harf var" diyordu; nerede olduğu bulunamıyordu (W8: canlıda
    açıklanamayan uyarı). Üç yolda (üretim, değerlendirme, bağımsız çözüm)
-   uyarının yanına kısa bir ek: "Türkçe olmayan: luôn, …". Sözcük yoksa
+   uyarının yanına kısa bir ek: "Türkçe olmayan: luôn". Sözcük yoksa
    (eski kayıt ya da sözcük döndürmeyen yol) metindeki Türkçe dışı harfler
    gösterilir. Yalnız bilgi: metin değişmez, karar insanda. */
 const TURKCE_HARF = /^[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]$/;
 function dilTetikleyiciMetni(sozcukler, metinler) {
   const s = (sozcukler || []).filter(Boolean);
-  if (s.length) return "Türkçe olmayan: " + s.slice(0, 3).join(", ") + (s.length >= 3 ? ", …" : "");
+  /* Sunucu en çok 3 sözcük döndürür ve toplamı bildirmez: "…" yazılmaz
+     (tam 3'te "daha fazlası var" demek yanlış olurdu; W8 notu). */
+  if (s.length) return "Türkçe olmayan: " + s.slice(0, 3).join(", ");
   const harfler = [];
   ((metinler || []).join(" ").normalize("NFC").match(/\p{L}/gu) || []).forEach(function (h) {
     if (!TURKCE_HARF.test(h) && harfler.indexOf(h) < 0) harfler.push(h);
