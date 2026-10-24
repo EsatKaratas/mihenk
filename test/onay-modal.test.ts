@@ -59,10 +59,10 @@ describe('onaylaModal — ortak bölgede yerel confirm() yok (§77)', () => {
     expect(govde('onaylaModal')).not.toContain('"Tab"');
   });
 
-  it('onaydan sonra odak: aynı id → listede sonraki öğe → kart başlığı', () => {
-    const g = govde('onayOdagiGeriVer');
-    const i1 = g.indexOf('getElementById(iz.id)'), i2 = g.indexOf('liste[iz.sira]'), i3 = g.indexOf('.card h3');
-    expect(i1).toBeGreaterThan(0); expect(i2).toBeGreaterThan(i1); expect(i3).toBeGreaterThan(i2);
+  it('kapanıştan sonra odak: aynı id → listede sonraki öğe → kart başlığı → <main> (BODY yok)', () => {
+    const g = govde('modalOdagiGeriVer');
+    const i1 = g.indexOf('getElementById(iz.id)'), i2 = g.indexOf('liste[iz.sira]'), i3 = g.indexOf('.card h3'), i4 = g.indexOf('etkinPaneleOdaklan()');
+    expect(i1).toBeGreaterThan(0); expect(i2).toBeGreaterThan(i1); expect(i3).toBeGreaterThan(i2); expect(i4).toBeGreaterThan(i3);
   });
 
   it('W5 P2: metin aria-describedby ile bağlı; kapanınca kaldırılır', () => {
@@ -72,16 +72,33 @@ describe('onaylaModal — ortak bölgede yerel confirm() yok (§77)', () => {
     expect(g).toContain('removeAttribute("aria-describedby")');
   });
 
-  it('W5 P2: onaydan sonra odak BODY\'ye düşmez (kart başlığı yedeği, eylemden sonra)', () => {
-    expect(govde('onaylaModal')).toMatch(/setTimeout\(function \(\) \{[^}]*onayOdagiGeriVer\(iz\)/);
-    const g = govde('onayOdagiGeriVer');
-    expect(g).toContain('.card h3');
-    expect(g).toContain('setAttribute("tabindex", "-1")');
+  it('W5 P2-a: odak dönüşü ORTAK — openModal izi kaydeder, closeModal eylemden SONRA verir', () => {
+    expect(govde('openModal')).toContain('_modalIz = modalIzi(document.activeElement)');
+    expect(govde('closeModal')).toMatch(/setTimeout\(function \(\) \{[^}]*modalOdagiGeriVer\(iz\)/);
+    expect(govde('onaylaModal')).not.toContain('setTimeout');
+    expect(govde('modalOdagiGeriVer')).toContain('setAttribute("tabindex", "-1")');
   });
 
-  it('odak Vazgeç\'te başlar, Escape = Vazgeç (kaynak düzeyi)', () => {
+  it('W5 P2-c: her openModal diyalog — role, aria-modal, aria-labelledby; closeModal kaldırır', () => {
+    const om = govde('openModal');
+    expect(om).toContain('setAttribute("role", "dialog")');
+    expect(om).toContain('setAttribute("aria-modal", "true")');
+    expect(om).toContain('setAttribute("aria-labelledby", baslik.id)');
+    expect(govde('closeModal')).toMatch(/"role", "aria-modal", "aria-labelledby", "aria-describedby"/);
+    // onaylaModal alertdialog kalır.
+    expect(govde('onaylaModal')).toContain('setAttribute("role", "alertdialog")');
+  });
+
+  it('W5 P2-b + P3: Escape tüm pencerelerde #modalCancel tıklaması; kaplamaya basış odağı almaz', () => {
+    const tz = govde('modalOdakTuzagiKur');
+    expect(tz).toMatch(/e\.key === "Escape"[\s\S]*getElementById\("modalCancel"\)[\s\S]*iptal\.click\(\)/);
+    expect(tz).toMatch(/"mousedown"[\s\S]*e\.target === e\.currentTarget[\s\S]*preventDefault/);
+    expect(govde('onaylaModal')).not.toContain('"Escape"');
+  });
+
+  it('onaylaModal: odak Vazgeç\'te başlar, Vazgeç = bitir(false)', () => {
     const g = govde('onaylaModal');
     expect(g).toContain('getElementById("modalCancel").focus()');
-    expect(g).toMatch(/e\.key === "Escape"[^}]*bitir\(false\)/);
+    expect(g).toMatch(/getElementById\("modalCancel"\)\.onclick = function \(\) \{ bitir\(false\); \}/);
   });
 });

@@ -9778,6 +9778,35 @@ taşındı; ikinci bir tane yok:
 Testler 388. gorsel-fark `--dolu`: odak/inert değişikliği hiçbir ekranı
 değiştirmedi.
 
+### §77b — Ortak modal: W5 doğrulamasının 3 P2 + P3'ü (24 Ekim, W2)
+
+W5 ortak tuzağa GEÇTİ verdi; düz `openModal` pencerelerinde dört eksik buldu.
+Orchestrator 2 kararıyla üçü + P3 yayından önce, ortak düzeyde kapatıldı:
+- **P2-a odak BODY'ye düşüyordu** (eylem açan öğeyi silince/gizleyince):
+  odak izi artık `openModal`'da (`modalIzi`), dönüş `closeModal`'da, eylemden
+  SONRA (`setTimeout 0`, `modalOdagiGeriVer`). Sıra: açan öğe (GÖRÜNÜR ve inert
+  değilse) → aynı `id` → listede sonraki öğe → kart başlığı → **etkin panelin
+  kendisi** (W5'in §64b `etkinPaneleOdaklan`'ı; panel kabı yeniden çizimde
+  silinmez) → `<main>`. `onaylaModal`'ın kendi izi/zamanlayıcısı kaldırıldı,
+  tek yol. Ölçüldü: "Demoyu başlat" → İçerik Uzmanı paneli; "Yine de onayla" →
+  "İncelemeyi bekleyenler"; "Evet, bitir" → sınav başlığı (üçü de önce BODY).
+- **P2-b Escape** yalnız `onaylaModal`'daydı: ortak dinleyicide Escape =
+  pencerenin kendi `#modalCancel` (Vazgeç/Kapat/Tamam) tıklaması; yoksa
+  `closeModal`. Böylece Escape hiçbir pencerede Vazgeç'ten farklı bir şey
+  yapamaz. Veri kaybı açısından tek dikkatli pencere **katalog**: Escape,
+  işaretlenip eklenmemiş seçimleri bırakır — "Kapat" ile aynı. Ölçüldü 6/6
+  (Sıfırla, katalog, §71, ders sil, sınavı bitir): kapandı, veri aynı
+  (sınavı bitir: Escape sonrası `in_progress`, bitmedi).
+- **P2-c**: her `openModal` `role=dialog`, `aria-modal=true`, ilk başlığa
+  `aria-labelledby`; `onaylaModal` `alertdialog`'u korur; `closeModal`
+  kaldırır. Ölçüldü 6/6.
+- **P3**: kaplamaya fare basışı (`mousedown` + `preventDefault`) odağı
+  kutudan almıyor. Ölçüldü 5/5.
+Testler 401. Görünüm değişmedi: `--dolu` karşılaştırmasında 1280'deki 6 dolu
+ekranda çıkan %0,11–0,21, DEĞİŞMEMİŞ `fd6690a` aynı tabana koşturulunca da
+birebir aynı çıktı → taban ortamından, bu değişiklikten değil. Yayın tabanı
+yeni uçta yeniden alındı.
+
 **TUZAK (devir notu):** yerel statik sunucular 879x/880x portlarını paylaşır.
 Bir süreci yalnız KENDİ PID'iyle durdurun (komut satırını doğrulayarak), ve
 ölçümden önce portun KENDİ worktree'nizi sunduğunu doğrulayın (W3, 23.10 kazası:

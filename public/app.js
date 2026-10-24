@@ -433,25 +433,8 @@ var _onayBekleyen = null;
 function onaylaModal(secenek) {
   const o = secenek || {};
   if (_onayBekleyen) _onayBekleyen(false);
-  const acan = document.activeElement;
-  /* Odak geri dönüş izi (W5 P2): açan öğe eylemle silinir ya da yeniden
-     çizilirse (acan.isConnected=false) odak BODY'ye düşüyordu. Yedek: açan
-     öğenin kartının başlığı (aynı metinle yeniden bulunur), o da yoksa panel. */
-  const acanKart = acan && acan.closest ? acan.closest(".card") : null;
-  // Listedeki yeri: açan öğenin kendi data-* anahtarı (ör. data-ders-sil) ve
-  // panelde o anahtarı taşıyanlar arasındaki sırası → onaydan sonra "sonraki öğe".
-  const anahtar = acan && acan.getAttributeNames ? (acan.getAttributeNames().filter(function (n) {
-    return n.indexOf("data-") === 0 && n !== "data-onay-bekliyor";
-  })[0] || "") : "";
-  const acanPanel = acan && acan.closest ? acan.closest('[id^="panel-"]') : null;
-  const iz = {
-    acan: acan,
-    id: acan && acan.id ? acan.id : "",
-    anahtar: anahtar,
-    sira: anahtar ? Array.prototype.indexOf.call((acanPanel || document).querySelectorAll("[" + anahtar + "]"), acan) : -1,
-    panel: acan && acan.closest ? (acan.closest('[id^="panel-"]') || {}).id || "" : "",
-    kartBaslik: acanKart && acanKart.querySelector("h3") ? acanKart.querySelector("h3").textContent : "",
-  };
+  /* Odak geri dönüş izi ortak: openModal kaydeder, closeModal eylemden
+     sonra modalOdagiGeriVer ile verir (§77, W5 P2-a). */
   const metinHtml = String(o.metin || "").split(/\n{2,}/).map(function (p) {
     return "<p>" + escapeHtml(p).replace(/\n/g, "<br>") + "</p>";
   }).join("");
@@ -472,29 +455,21 @@ function onaylaModal(secenek) {
   return new Promise(function (coz) {
     let bitti = false;
     let gozcu = null;
-    /* Escape = Vazgeç. Odak tuzağı (Tab/Shift+Tab pencere içinde döner) ve
-       arkanın inert'i ORTAK düzeyde, openModal'da (modalOdakTuzagi). */
-    const tus = function (e) { if (e.key === "Escape") { e.preventDefault(); bitir(false); } };
+    /* Escape, odak tuzağı ve arkanın inert'i ORTAK düzeyde (openModal /
+       modalOdakTuzagiKur): Escape = #modalCancel tıklaması = bitir(false). */
     function bitir(sonuc) {
       if (bitti) return;
       bitti = true;
       if (_onayBekleyen === bitir) _onayBekleyen = null;
-      document.removeEventListener("keydown", tus, true);
       if (gozcu) gozcu.disconnect();
       kutu.removeAttribute("role"); kutu.removeAttribute("aria-modal"); kutu.removeAttribute("aria-labelledby");
       kutu.removeAttribute("aria-describedby");
       if (kaplama.classList.contains("open") && document.getElementById("modalOnay")) closeModal();
       coz(sonuc);
-      /* Odak, EYLEMDEN SONRA geri verilir (setTimeout 0): onayliEylem ya da
-         `await onaylaModal()` sonrası yazılan eylem öğeyi silip yeniden
-         çizebilir. Yalnız pencere gerçekten kapandıysa; başka bir modal yerine
-         geçtiyse onun odağı çalınmaz. */
-      setTimeout(function () { if (!kaplama.classList.contains("open")) onayOdagiGeriVer(iz); }, 0);
     }
     _onayBekleyen = bitir;
     document.getElementById("modalCancel").onclick = function () { bitir(false); };
     document.getElementById("modalOnay").onclick = function () { bitir(true); };
-    document.addEventListener("keydown", tus, true);
     gozcu = new MutationObserver(function () {
       if (!kaplama.classList.contains("open") || !document.getElementById("modalOnay")) bitir(false);
     });
@@ -504,28 +479,43 @@ function onaylaModal(secenek) {
   });
 }
 
-/* Onay penceresinden sonra odağın gideceği yer: açan öğe hâlâ sayfadaysa o;
+/* Modal kapandıktan sonra odağın gideceği yer (§77, tüm openModal pencereleri):
+   açan öğe hâlâ sayfadaysa o;
    değilse aynı paneldeki aynı başlıklı kartın başlığı (tabindex=-1); o da
    yoksa panelin ilk başlığı. BODY'ye düşmez (klavye kullanıcısı kaybolmasın). */
-function onayOdagiGeriVer(iz) {
-  if (iz.acan && iz.acan.isConnected && typeof iz.acan.focus === "function") { iz.acan.focus(); return; }
+function modalOdagiGeriVer(iz) {
+  /* "Görünür ve odaklanabilir": sayfada olmak yetmez. "Demoyu başlat" açan
+     düğmeyi SİLMEZ, giriş kapısıyla GİZLER; gizli öğeye focus() sessizce
+     başarısız olur ve odak BODY'de kalırdı (W5 P2-a). */
+  const kullanilir = function (x) { return !!(x && x.isConnected && x.offsetParent !== null && !x.disabled && !x.closest("[inert]")); };
+  if (kullanilir(iz.acan)) { iz.acan.focus(); return; }
   const kok = (iz.panel && document.getElementById(iz.panel)) || document;
   let hedef = null;
   // 1) Aynı kimlikle yeniden çizilmiş öğe (ör. #btnAuditTemizle).
-  if (iz.id) hedef = document.getElementById(iz.id);
+  if (iz.id && kullanilir(document.getElementById(iz.id))) hedef = document.getElementById(iz.id);
   // 2) Aynı listede SONRAKİ öğe: silinen öğenin sırasına artık bir sonraki
   //    oturur; liste sonuysa bir önceki. Devre dışı olanlar atlanır.
   if (!hedef && iz.anahtar && iz.sira >= 0) {
     const liste = Array.prototype.filter.call(kok.querySelectorAll("[" + iz.anahtar + "]"), function (x) { return !x.disabled && x.offsetParent !== null; });
     hedef = liste[iz.sira] || liste[iz.sira - 1] || null;
   }
-  // 3) Liste boşaldıysa listenin kartının başlığı.
+  // 3) Liste boşaldıysa listenin kartının başlığı (görünür olan).
+  const gorunur = function (x) { return x.offsetParent !== null && !x.closest("[inert]"); };
   if (!hedef && iz.kartBaslik) {
-    hedef = Array.prototype.find.call(kok.querySelectorAll(".card h3"), function (h) { return h.textContent === iz.kartBaslik; }) || null;
+    hedef = Array.prototype.find.call(kok.querySelectorAll(".card h3"), function (h) { return h.textContent === iz.kartBaslik && gorunur(h); }) || null;
   }
-  if (!hedef) hedef = kok.querySelector("h2, h3");
+  if (!hedef && kok !== document) hedef = Array.prototype.find.call(kok.querySelectorAll("h2, h3"), gorunur) || null;
+  /* 4) Son yedek: ETKİN PANELİN KENDİSİ — W5'in §64b yardımcısı
+     (etkinPaneleOdaklan). Panel kabı yeniden çizimde silinmez; içindeki bir
+     başlık silinebilirdi (ölçüldü: "Demoyu başlat" sonrası eşzamansız
+     renderAll odaklı başlığı silip odağı BODY'ye düşürüyordu). Panel yoksa <main>. */
+  if (!hedef) {
+    const p = document.getElementById("panel-" + state.role);
+    if (p && gorunur(p)) { etkinPaneleOdaklan(); return; }
+    hedef = document.getElementById("panels");
+  }
   if (!hedef) return;
-  if (/^H[1-6]$/.test(hedef.tagName) && !hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
+  if ((/^H[1-6]$/.test(hedef.tagName) || hedef.tagName === "MAIN") && !hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
   hedef.focus();
 }
 
@@ -11736,7 +11726,15 @@ function openModal(html) {
      verilen scrollTop'u tarayıcı yok sayıyordu (ölçüldü: 79 ve 103 kaldı). */
   const kaplama = document.getElementById("modalOverlay");
   const zatenAcik = kaplama.classList.contains("open");
-  if (!zatenAcik) _modalAcan = document.activeElement;
+  if (!zatenAcik) _modalIz = modalIzi(document.activeElement);
+  /* §77 (W5 P2-c) — her pencere bir diyalogdur: role=dialog, aria-modal ve
+     ilk başlığa aria-labelledby. onaylaModal bunu alertdialog ile ezer. */
+  kutu.setAttribute("role", "dialog");
+  kutu.setAttribute("aria-modal", "true");
+  kutu.removeAttribute("aria-describedby");
+  const baslik = kutu.querySelector("h1, h2, h3, h4");
+  if (baslik) { if (!baslik.id) baslik.id = "modalBaslik"; kutu.setAttribute("aria-labelledby", baslik.id); }
+  else kutu.removeAttribute("aria-labelledby");
   kaplama.classList.add("open");
   kutu.scrollTop = 0;
   const cancel = document.getElementById("modalCancel"); if (cancel) cancel.onclick = closeModal;
@@ -11753,18 +11751,42 @@ function openModal(html) {
   }
 }
 function closeModal() {
-  document.getElementById("modalOverlay").classList.remove("open");
+  const kaplama = document.getElementById("modalOverlay");
+  const kutu = document.getElementById("modalBox");
+  kaplama.classList.remove("open");
+  ["role", "aria-modal", "aria-labelledby", "aria-describedby"].forEach(function (a) { kutu.removeAttribute(a); });
   modalArkasiInert(false);
-  // Odak modalı açan öğeye döner (hâlâ sayfadaysa). onaylaModal kendi daha
-  // akıllı hedefini eylemden sonra ayrıca verir.
-  const a = _modalAcan; _modalAcan = null;
-  if (a && a.isConnected && typeof a.focus === "function") a.focus();
+  /* §77 (W5 P2-a) — odak EYLEMDEN SONRA verilir (setTimeout 0): pencereyi
+     kapatan düğmenin eylemi ("Demoyu başlat", "Yine de onayla", "Evet, bitir")
+     açan öğeyi silip yeniden çizebilir. Yalnız hâlâ kapalıysa; arada başka
+     bir pencere açıldıysa onun odağı çalınmaz. */
+  const iz = _modalIz; _modalIz = null;
+  if (iz) setTimeout(function () { if (!kaplama.classList.contains("open")) modalOdagiGeriVer(iz); }, 0);
+}
+
+/* Pencereyi açan öğenin izi: kendisi, kimliği, listedeki yeri (data-*
+   anahtarı + sıra), paneli ve kartının başlığı. modalOdagiGeriVer bunu okur. */
+function modalIzi(acan) {
+  const ok = acan && acan.closest && acan !== document.body;
+  const panel = ok ? acan.closest('[id^="panel-"]') : null;
+  const kart = ok ? acan.closest(".card") : null;
+  const anahtar = ok && acan.getAttributeNames ? (acan.getAttributeNames().filter(function (n) {
+    return n.indexOf("data-") === 0 && n !== "data-onay-bekliyor";
+  })[0] || "") : "";
+  return {
+    acan: ok ? acan : null,
+    id: ok && acan.id ? acan.id : "",
+    anahtar: anahtar,
+    sira: anahtar ? Array.prototype.indexOf.call((panel || document).querySelectorAll("[" + anahtar + "]"), acan) : -1,
+    panel: panel ? panel.id : "",
+    kartBaslik: kart && kart.querySelector("h3") ? kart.querySelector("h3").textContent : "",
+  };
 }
 
 /* Modal açıkken arkası: .app ve (açıksa) giriş kapısı inert + aria-hidden.
    Kapanışta .app'in inert'i W5'in girisInertEsitle'sine bırakılır (kapı
    açıksa .app inert KALIR) — iki sahip çakışmaz. Modal .app'in dışında. */
-var _modalAcan = null;
+var _modalIz = null;
 function modalArkasiInert(acik) {
   const app = document.querySelector(".app");
   const kapi = document.getElementById("girisKapisi");
@@ -11783,14 +11805,28 @@ function modalOdaklanirlar() {
     kutu.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"),
     function (x) { return !x.disabled && x.offsetParent !== null; });
 }
-/* Tek belge dinleyicisi (bir kez kurulur): modal açıkken Tab kutunun
-   içinde döner; odak dışarıdaysa kutuya geri alınır. */
+/* Tek belge dinleyicisi (bir kez kurulur): modal açıkken Escape = Vazgeç,
+   Tab kutunun içinde döner; odak dışarıdaysa kutuya geri alınır. */
 var _modalTuzakKurulu = false;
 function modalOdakTuzagiKur() {
   if (_modalTuzakKurulu) return;
   _modalTuzakKurulu = true;
+  /* P3 (W5): arka plana (kaplamaya) fare basışı odağı BODY'ye almasın. */
+  document.getElementById("modalOverlay").addEventListener("mousedown", function (e) {
+    if (e.target === e.currentTarget) e.preventDefault();
+  });
   document.addEventListener("keydown", function (e) {
-    if (e.key !== "Tab" || !document.getElementById("modalOverlay").classList.contains("open")) return;
+    if (!document.getElementById("modalOverlay").classList.contains("open")) return;
+    /* §77 (W5 P2-b) — Escape TÜM pencerelerde = pencerenin kendi Vazgeç/Kapat
+       düğmesi (#modalCancel). Böylece Escape hiçbir pencerede Vazgeç'ten
+       farklı bir şey (veri kaybı) yapamaz; düğme yoksa closeModal. */
+    if (e.key === "Escape") {
+      e.preventDefault();
+      const iptal = document.getElementById("modalCancel");
+      if (iptal) iptal.click(); else closeModal();
+      return;
+    }
+    if (e.key !== "Tab") return;
     const kutu = document.getElementById("modalBox");
     const o = modalOdaklanirlar();
     if (!o.length) { e.preventDefault(); return; }
@@ -13135,7 +13171,7 @@ function bosDurumHtml(mesaj) {
    doneCardHtml, evalFailedCardHtml ve confBadge silinmişti.)          */
 (function selfCheck() {
   const gerekli = [
-    "adimciHtml", "onaylaModal", "onayliEylem", "onayOdagiGeriVer",
+    "adimciHtml", "onaylaModal", "onayliEylem", "modalOdagiGeriVer", "modalIzi",
     "modalArkasiInert", "modalOdaklanirlar", "modalOdakTuzagiKur",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
