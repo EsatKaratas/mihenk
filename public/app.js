@@ -4453,13 +4453,12 @@ function supheliOnayModali(q, yuksek) {
        yapmaz; onay fare ya da Space ister. Şüpheli soruyu onaylamak bilinçli bir
        eylem olmalı; alışkanlıkla basılan Enter onay vermesin (§71). Tab + Space
        ile klavyeden yine yapılabilir (WCAG 2.1.1).
-     - Escape bu pencereyi kapatmıyordu. Artık Escape = Vazgeç; yalnız bu pencere
-       açıkken (modalBox öteki pencerelerde de kullanılır). */
+     - Escape bu pencereyi kapatmıyordu. Bu ORTAK düzeyde kapandı (§77b:
+       Escape = #modalCancel tıklaması, tüm pencereler). Birleştirmede (W2)
+       buradaki ayrı Escape işleyicisi kaldırıldı: paylaşılan #modalBox'a
+       bağlanıyordu, ortak dinleyiciden sonra closeModal'ı ikinci kez çağırıyor
+       ve pencere kapandıktan sonra da kutuda kalıyordu. */
   if (evet) evet.onkeydown = function (e) { if (e.key === "Enter") e.preventDefault(); };
-  const kutu = document.getElementById("modalBox");
-  if (kutu) kutu.onkeydown = function (e) {
-    if (e.key === "Escape" && document.getElementById("modalSupheOnay")) { e.preventDefault(); closeModal(); }
-  };
   // Varsayılan odak Vazgeç'te: Enter'a basmak şüpheli soruyu onaylamasın.
   const hayir = document.getElementById("modalCancel"); if (hayir) hayir.focus();
 }
