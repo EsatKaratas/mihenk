@@ -10010,3 +10010,40 @@ değiştirildi; alınmamalı.)
     sınav yok", eylem kartı aynı;
   - filtre temizlenince "2 / 2 atama tamamlandı".
 - 401/401 test.
+
+---
+
+## 83. YAYIN — ikinci tur canlıda (24 Ekim 2026, W7)
+
+- **Canlı:** Version `aba0563e-a758-445a-a71a-dfe9710d5183` (`npm run deploy:demo`).
+  - Yayınlanan commit `90ebd01`: main `8f30d97`'den `modal-ortak-2`'ye ileri sarıldı.
+  - Yayına giren iki commit:
+    - `f8b7188` §77c: `closeModal` gecikmeli odak dönüşü yalnız kaybolmuş odağı kurtarır;
+    - `90ebd01`: `demoBaslat` → `renderKabukEk`.
+  - W6 bu iki commit'i bağımsız doğruladı.
+  - GitHub `1a175d3..1c486f9`; `1c486f9` yalnız `docs/ekran` PNG'lerini yeniler.
+- **Ö1:**
+  - 402/402 test, lint temiz, öz-kontrol 516 ad %100, check:config ve `node --check` temiz.
+  - `public/` 52/52 dosya **bayt düzeyinde** blob ile eşit, diskte CRLF 0.
+  - Dry-run'da yalnız AI + ASSETS + vars var.
+  - Sır taraması: 2.776 eklenen satırda 0 eşleşme.
+- **Canlı A (0 Neuron):**
+  - health ve status geçti; bozuk JSON ve solve şemasında 400.
+  - Canlı↔disk SHA 51/52; canlıda HTML'de CRLF 0.
+  - `gorsel-fark --dolu`, taban 86c52da: 38 ekranda fark %0; konsol, yinelenen id ve taşma 0.
+  - Demo 5/5; §71 klavye 9/9; onay penceresi testleri geçti; yerel confirm 0.
+  - Kısa metin uyarısı: 0 çağrı.
+  - vars'ta `OLCUM_*` yok.
+- **Canlı B:**
+  - evaluate: `meta.dilUyarisiSozcukler` = `[]`.
+  - Rubrik AI taslağı: Vazgeç'te 0 çağrı, Onay'da 1 çağrı; taslak şeridi çiziliyor.
+  - Ekran görüntüleri 7/7, 02 gerçek model, sızıntı yok.
+  - Neuron: gün toplamı 6.297 → ölçümde 6.387; analitik gecikmeli, B tahmini ~650.
+- **TUZAKLAR (yayın):**
+  - `git hash-object` autocrlf'i normalleştirir ve CRLF'yi kaçırır; disk ile `git show HEAD:f` bayt bayt karşılaştırılmalı.
+  - `.html` adresleri 307 ile yönlenir; `curl -L` (ya da `redirect: follow`) gerekir, yoksa gövde boş gelir.
+  - CRLF bayat checkout'tan gelir; `git checkout -- <f>` düzeltir.
+  - `_headers` varlık olarak sunulmaz (canlıda 404). SHA listesinde 51/52 beklenir; başlıklar `curl -I` ile denetlenir.
+  - Wrangler'ın "Read N files" sayısı alt klasörleri de sayar: 52 dosya + 3 klasör = 55.
+  - `/api/ai/**` toptan engellenirse `/api/ai/status` da kesilir ve arayüz "live" moda geçmez. Model çağrısını sayan canlı testte status serbest bırakılmalı.
+  - Devir notundaki "TUZAK satırının üstüne ekle" kuralı eskidi: o satır §77b'de kaldı, §78–§82 ondan sonra geliyor. Yeni bölümler dosya sonuna eklenir.
