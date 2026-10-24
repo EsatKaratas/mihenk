@@ -79,6 +79,14 @@ describe('onaylaModal — ortak bölgede yerel confirm() yok (§77)', () => {
     expect(govde('modalOdagiGeriVer')).toContain('setAttribute("tabindex", "-1")');
   });
 
+  it('W6 P2/P3: gecikmeli dönüş yalnız KAYBOLMUŞ odağı kurtarır (kabuğun koyduğu odak ezilmez)', () => {
+    const g = govde('closeModal');
+    expect(g).toMatch(/const kayip = !a \|\| a === document\.body \|\| !a\.isConnected \|\| a\.offsetParent === null/);
+    expect(g).toContain('a.closest("[inert]")');
+    expect(g).toContain('kaplama.contains(a)');
+    expect(g).toContain('if (kayip) modalOdagiGeriVer(iz);');
+  });
+
   it('W5 P2-c: her openModal diyalog — role, aria-modal, aria-labelledby; closeModal kaldırır', () => {
     const om = govde('openModal');
     expect(om).toContain('setAttribute("role", "dialog")');

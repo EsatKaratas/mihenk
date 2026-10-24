@@ -11800,9 +11800,19 @@ function closeModal() {
   /* §77 (W5 P2-a) — odak EYLEMDEN SONRA verilir (setTimeout 0): pencereyi
      kapatan düğmenin eylemi ("Demoyu başlat", "Yine de onayla", "Evet, bitir")
      açan öğeyi silip yeniden çizebilir. Yalnız hâlâ kapalıysa; arada başka
-     bir pencere açıldıysa onun odağı çalınmaz. */
+     bir pencere açıldıysa onun odağı çalınmaz. Yalnız KAYBOLMUŞ odak
+     kurtarılır (BODY, gizli/inert öğe, kapanan kutunun içi): kabuğun
+     kabukModalOdagi'si gibi bir sahip odağı geçerli bir yere koyduysa
+     ezilmez (W6 P2/P3: Sıfırla ve ⋯ demo onayında ⋯ düğmesi ezilip
+     panele / açık menü öğesine gidiyordu). */
   const iz = _modalIz; _modalIz = null;
-  if (iz) setTimeout(function () { if (!kaplama.classList.contains("open")) modalOdagiGeriVer(iz); }, 0);
+  if (iz) setTimeout(function () {
+    if (kaplama.classList.contains("open")) return;
+    const a = document.activeElement;
+    const kayip = !a || a === document.body || !a.isConnected || a.offsetParent === null ||
+      !!a.closest("[inert]") || kaplama.contains(a);
+    if (kayip) modalOdagiGeriVer(iz);
+  }, 0);
 }
 
 /* Pencereyi açan öğenin izi: kendisi, kimliği, listedeki yeri (data-*
