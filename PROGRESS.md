@@ -9967,3 +9967,17 @@ dal `ogretmen-rubrik-onay` (main `5c84c13`). Push yok.
   - Demo 5/5, gerçek düğmelerle.
   - Model çağrısı yok.
 - **Senaryo:** mülakat demo senaryosundaki "Tamam" adımı kaldırıldı.
+
+### 81b. Yönetici — filtreli boş durumda "Sınav Tamamlanma" metni (W3 bulgusu, P2)
+
+- **Sorun:** "7-A + Ayşe Kaya" gibi bir filtrede kutu "henüz yayınlanmış sınav
+  yok" diyordu. Oysa Ayşe'nin başka sınıfta yayınlanmış sınavı var; metin
+  sistemde hiç yayınlı sınav yokmuş gibi okunuyordu.
+- **Yapılan:** filtre etkinken metin "Bu filtrelerle eşleşen yayınlanmış
+  sınav yok" oldu; eylem kartıyla aynı. Filtresizken eski metin duruyor.
+- **Tarayıcıda:**
+  - filtresiz, yayın yok → "henüz yayınlanmış sınav yok";
+  - sınav 7-B'ye hedefli ve filtre 7-A → "Bu filtrelerle eşleşen yayınlanmış
+    sınav yok", eylem kartı aynı;
+  - filtre temizlenince "2 / 2 atama tamamlandı".
+- 401/401 test.

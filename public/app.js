@@ -10716,7 +10716,9 @@ function renderAdmin() {
       /* §51: "4/4 sınav" diyordu, oysa 1 sınav × 4 öğrenci idi; sayılan şey
          öğrenci-sınav atamasıdır. */
       ? durum.tamamlanan + ' / ' + durum.atanan + ' atama tamamlandı'
-      : 'henüz yayınlanmış sınav yok') + '</div>' +
+      /* §81b (W3 bulgusu): filtre etkinken "henüz yok" yanlış okunuyordu
+         (seçili öğretmenin başka sınıfta yayınlı sınavı olabilir). */
+      : (yonFiltreAktif(f) ? 'Bu filtrelerle eşleşen yayınlanmış sınav yok' : 'henüz yayınlanmış sınav yok')) + '</div>' +
     yonBilgiHtml('Atanan sınavların öğrenciler tarafından bitirilme oranı. ' +
       'Yayınlanmış her sınav × her öğrenci bir atama sayılır.') + '</div>' +
 
