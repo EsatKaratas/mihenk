@@ -10047,3 +10047,61 @@ değiştirildi; alınmamalı.)
   - Wrangler'ın "Read N files" sayısı alt klasörleri de sayar: 52 dosya + 3 klasör = 55.
   - `/api/ai/**` toptan engellenirse `/api/ai/status` da kesilir ve arayüz "live" moda geçmez. Model çağrısını sayan canlı testte status serbest bırakılmalı.
   - Devir notundaki "TUZAK satırının üstüne ekle" kuralı eskidi: o satır §77b'de kaldı, §78–§82 ondan sonra geliyor. Yeni bölümler dosya sonuna eklenir.
+
+## 84. YENİDEN ÇİZİMDE KAYBOLAN ODAK + DİL UYARISINDA TETİKLEYEN SÖZCÜK (24 Ekim 2026, W6)
+
+*(W5'in `mat-kazanim-anahtar` dalında da bir §83 var; bu bölüm §84 olarak yazıldı.)*
+
+Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrısı yok.
+
+**1. P2 (W8, canlıda) — "Evet, bitir" sonrası odak BODY'ye düşüyordu.**
+- §77b'nin kapanış kuralı odağı sınav başlığına (H3) veriyordu. Ama açık uçlu
+  değerlendirme eşzamansız; bitince `renderAll` paneli yeniden çiziyor, odaktaki
+  başlık siliniyor ve odak BODY'ye düşüyordu.
+- Statik sunucuda görünmüyordu: `/api/ai/status` yokken arayüz yerel simülasyona
+  geçer ve değerlendirme eşzamanlıdır.
+- **Çözüm ortak düzeyde, `renderAll`'da:**
+  - Başta `renderOdakIzi()` odaktaki panel öğesinin izini alır (`modalIzi`'nin aynısı,
+    ek olarak başlık etiketi ve metni).
+  - Sonda `renderOdaginiKurtar()` YALNIZ kaybolmuş odağı kurtarır (BODY ya da kopmuş
+    öğe). Odak yerindeyse ya da bir pencere açıksa dokunmaz.
+  - Sıra: aynı metinli başlık, ardından §77b'nin `modalOdagiGeriVer` sırası (aynı id →
+    listede sonraki → kart başlığı → etkin panel).
+  - `preventScroll` ile çalışır; `modalOdagiGeriVer`'e isteğe bağlı odak seçeneği eklendi.
+- Kapsam: `#panels` içindeki odak. Kabuk (`data-kb`) kendi geri yüklemesini yapar.
+- **Ölçüm:** `/api/ai/status` "hazır", `/api/ai/evaluate` 1,5 sn gecikmeli sahte yanıt;
+  gerçek Enter ile "Evet, bitir"; odak 0–3,5 sn izlendi.
+  - **Düzeltmesiz (37610f2), 1280:** başarılı ve hatalı (502) yolda 1,7 sn'de BODY.
+    W8'in bulgusu yeniden üretildi.
+  - **Düzeltmeli:** 1280 ve 390, başarılı ve hatalı yolda 3,5 sn boyunca H3 «Kuvvet ve
+    Hareket — Kısa Sınav». 4/4.
+
+**2. Dil uyarısı tanılanabilir.**
+- Sunucu §73'ten beri `meta.dilUyarisiSozcukler` (ilk 3) döndürüyordu; istemci
+  göstermiyordu. Artık uyarının yanında kısa bir ek var: "Türkçe olmayan: luôn, …"
+  (en çok 3; üç sözcükte "…", çünkü sunucu 3'te keser).
+- Sözcük yoksa (eski kayıt) metindeki Türkçe dışı harfler gösterilir: "Türkçe olmayan
+  karakter: п, р, а, …". Şapkalı Türkçe (â, î, û) yabancı sayılmaz. Metin değişmez,
+  karar insanda.
+- Üç yol:
+  - **Üretim:** `q.dilSozcukler`; yanıttaki sözcüklerden yalnız o sorunun metninde
+    geçenler. "Yabancı harf" rozetinin açıklamasında gösterilir. Süzme GÜNCEL metne
+    göre yapılır: uzman sözcüğü düzeltirse eski sözcük gösterilmez.
+  - **Değerlendirme:** `ev.dilSozcukler`; öğretmen onay ekranındaki dil uyarısı kutusunda.
+  - **Bağımsız çözüm:** `bagimsizCozum.dilSozcukler`. Çözücünün dil uyarısı daha önce
+    HİÇ gösterilmiyordu; artık denetim satırında "⚠ çözüm gerekçesinde Türkçe olmayan: …".
+- Ölçüm (sahte yanıtlarla, 1280 ve 390):
+  - Rozette "Türkçe olmayan: luôn."; ikinci, temiz soruda sözcük yok.
+  - Değerlendirmede "Türkçe olmayan: luôn".
+  - Çözümde "⚠ çözüm gerekçesinde Türkçe olmayan: chào".
+
+**Gerileme:**
+- Ortak pencere takımı (W6), 1280 ve 390:
+  - 6 pencere: Tab 10/10, Escape ve Enter@Vazgeç, veri korunuyor, 23 durumda BODY ya
+    da taşma yok.
+  - §71 9/9; ⋯ menüsü 8/8; Sıfırla 3/3; rol menüsü (§64b).
+  - Demo 5 adım gerçek tıklamayla 5/5. Sayfa hatası 0.
+- Testler 402 → 407 (`test/odak-dil-uyari.test.ts`). Lint temiz; öz-kontrol 521 ad %100.
+- `gorsel-fark --dolu`, taban 37610f2: 38 ekranda fark %0,000; konsol, yinelenen id ve
+  taşma 0.
+- Ölçülmedi: canlıda gerçek model yanıtıyla. Bağımsız doğrulama ve yayın W8'de.
