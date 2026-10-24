@@ -11710,10 +11710,36 @@ function katalogModalGoster(k, hata) {
       state.ceForm.error = "";
     }
     // Kullanıcıya ne olduğunu söyle (sessiz başarı da bir belirsizliktir).
-    openModal('<h3>Katalogdan eklendi</h3><p><b>' + eklenen + "</b> kazanım eklendi" +
-      (atlanan ? ", <b>" + atlanan + "</b> tanesi zaten tanımlıydı ve atlandı" : "") +
-      ".</p><div class=\"modal-actions\"><button class=\"btn btn-secondary\" id=\"modalCancel\">Tamam</button></div>");
+    // §81: engelleyici pencere değil, kazanım alanının altında satır içi bildirim.
+    katalogBildirimGoster(eklenen + " kazanım eklendi" +
+      (atlanan ? ", " + atlanan + " tanesi zaten tanımlıydı ve atlandı" : "") + ".");
   };
+}
+
+/* §81 — KATALOG EKLEME BİLDİRİMİ (W4, Orchestrator 2 kararı). Eskiden
+   "Katalogdan eklendi" bir modal açıyordu: yalnız bilgi veriyordu, tek
+   düğmesi "Tamam"dı ve arkadaki sihirbazı örtüyordu (demo senaryosunda ayrı
+   bir tıklama gerekiyordu). Artık kazanım satırının hemen altında
+   role="status" bir satır: odağı çalmaz, ekran okuyucu duyurur (canlı bölge
+   önce boş eklenir, metin bir an sonra yazılır), 6 sn sonra kendiliğinden ya
+   da bir sonraki yeniden çizimde (yeni işlem) kaybolur. Kazanım alanının
+   HTML'i (İçerik Uzmanı bölgesi) değişmedi; satır çizimden sonra eklenir. */
+let _katBildirimZamani = null;
+function katalogBildirimGoster(metin) {
+  const satir = document.querySelector("#panel-content_expert .kazanim-ekle-satiri");
+  if (!satir) return;
+  let el = document.getElementById("katBildirim");
+  if (!el) {
+    el = document.createElement("p");
+    el.id = "katBildirim";
+    el.className = "field-yardim kat-bildirim";
+    el.setAttribute("role", "status");
+    satir.insertAdjacentElement("afterend", el);
+  }
+  el.textContent = "";
+  setTimeout(function () { if (el.isConnected) el.textContent = metin; }, 50);
+  clearTimeout(_katBildirimZamani);
+  _katBildirimZamani = setTimeout(function () { if (el.isConnected) el.remove(); }, 6000);
 }
 
 function openModal(html) {
@@ -13265,6 +13291,8 @@ function bosDurumHtml(mesaj) {
     "yonKararKayitlari", "yonFiltreCubuguHtml", "wireYonFiltre",
     /* §78 — atama kuralı ve yayındaki karar kayıtları (W4). */
     "yonSinavAtandiMi", "yonYayindakiKayitlar",
+    /* §81 — katalog ekleme bildirimi (W4). */
+    "katalogBildirimGoster",
     /* §30 — final birleştirme denetimi: aşağıdaki altı ad üst düzeyde
        tanımlıydı ama bu listede yoktu. Dördü wire* — yani bir merge onları
        düşürürse ekran sorunsuz çizilir, sadece DÜĞMELER SESSİZCE ÖLÜR.

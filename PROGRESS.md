@@ -9933,3 +9933,37 @@ dal `ogretmen-rubrik-onay` (main `5c84c13`). Push yok.
 
 **Doğrulama:** 399/399 test (+2) · öz-kontrol %100 · yerel confirm 0 kez
 çağrıldı · U+FFFD 0 · model çağrısı 0.
+
+## 81. KATALOG EKLEME BİLDİRİMİ — engelleyici pencere yerine satır içi (24 Ekim 2026, W4)
+
+- **Sorun:** İçerik Uzmanı kataloğunda "Seçilenleri Ekle"den sonra
+  "Katalogdan eklendi" penceresi açılıyordu. Pencere yalnız bilgi veriyordu,
+  tek düğmesi "Tamam"dı ve arkadaki sihirbazı örtüyordu; demo senaryosunda
+  ayrı bir tıklama gerekiyordu.
+- **Karar (Orchestrator 2):** satır içi bildirim. Fonksiyon `katalogModalGoster`;
+  T0 iş bölümüne göre W4'ün "modallar" aralığında, işlevi İçerik Uzmanı'nın.
+- **Yapılan:**
+  - Yeni `katalogBildirimGoster()`. Bildirim kazanım satırının
+    (`.kazanim-ekle-satiri`) hemen altında, `role="status"` satır olarak
+    çıkıyor ("N kazanım eklendi.", varsa "M tanesi zaten tanımlıydı").
+  - Canlı bölge önce boş eklenir, metin 50 ms sonra yazılır; böylece ekran
+    okuyucu duyurur.
+  - Odak çalınmaz. Satır 6 sn sonra kendiliğinden, ya da bir sonraki yeniden
+    çizimde (yeni işlem) kaybolur.
+  - Kazanım alanının HTML'i (İçerik Uzmanı bölgesi) değişmedi; satır,
+    çizimden sonra eklenir. Yeni CSS yok, T0'ın `.field-yardim` sınıfı.
+  - "Hiç kazanım seçmediniz" hatası katalog penceresinin içinde kalmaya
+    devam ediyor.
+- **Ölçüm (tarayıcı, statik sunucu, main 86c52da üzerine):**
+  - pencere açılmadı;
+  - satır `.kazanim-ekle-satiri`'nin hemen altında, `role="status"`;
+  - eklenir eklenmez metin boş, 150 ms sonra "1 kazanım eklendi.";
+  - odak "Tüm listeyi aç"ta (W2'nin §77b odak dönüşü);
+  - 6 sn sonra satır yok; `renderAll()` sonrası satır yok;
+  - ikinci eklemede "2 kazanım eklendi.".
+- **Doğrulama:**
+  - 401/401 test, öz-kontrol %100.
+  - `gorsel-fark --dolu` 1280/390: hata 0, yinelenen id 0, taşma yok.
+  - Demo 5/5, gerçek düğmelerle.
+  - Model çağrısı yok.
+- **Senaryo:** mülakat demo senaryosundaki "Tamam" adımı kaldırıldı.
