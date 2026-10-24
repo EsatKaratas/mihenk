@@ -483,12 +483,12 @@ function onaylaModal(secenek) {
    açan öğe hâlâ sayfadaysa o;
    değilse aynı paneldeki aynı başlıklı kartın başlığı (tabindex=-1); o da
    yoksa panelin ilk başlığı. BODY'ye düşmez (klavye kullanıcısı kaybolmasın). */
-function modalOdagiGeriVer(iz) {
+function modalOdagiGeriVer(iz, odakSecenek) {
   /* "Görünür ve odaklanabilir": sayfada olmak yetmez. "Demoyu başlat" açan
      düğmeyi SİLMEZ, giriş kapısıyla GİZLER; gizli öğeye focus() sessizce
      başarısız olur ve odak BODY'de kalırdı (W5 P2-a). */
   const kullanilir = function (x) { return !!(x && x.isConnected && x.offsetParent !== null && !x.disabled && !x.closest("[inert]")); };
-  if (kullanilir(iz.acan)) { iz.acan.focus(); return; }
+  if (kullanilir(iz.acan)) { iz.acan.focus(odakSecenek); return; }
   const kok = (iz.panel && document.getElementById(iz.panel)) || document;
   let hedef = null;
   // 1) Aynı kimlikle yeniden çizilmiş öğe (ör. #btnAuditTemizle).
@@ -516,7 +516,7 @@ function modalOdagiGeriVer(iz) {
   }
   if (!hedef) return;
   if ((/^H[1-6]$/.test(hedef.tagName) || hedef.tagName === "MAIN") && !hedef.hasAttribute("tabindex")) hedef.setAttribute("tabindex", "-1");
-  hedef.focus();
+  hedef.focus(odakSecenek);
 }
 
 /* Onay isteyen bir düğme işleyicisi için yeniden giriş koruması: pencere
@@ -995,6 +995,10 @@ async function aiGenerateQuestions(doc) {
         // (ölçüldü: llama ~10 soruda 1 kez Kiril harfi karıştırıyor).
         // Otomatik düzeltilmez; İçerik Uzmanına gösterilir.
         dilUyarisi: !!q.dilUyarisi,
+        /* §84: uyarıyı tetikleyen sözcükler. Sunucu yanıt başına ilk 3'ü
+           döndürür (meta.dilUyarisiSozcukler); soruya yalnız kendi metninde
+           geçenler kalır. Rozet açıklamasında gösterilir. */
+        dilSozcukler: soruDilSozcukleri(q, j.meta && j.meta.dilUyarisiSozcukler),
         /* §41 Madde 2: sunucu, modelin verdiği cevap anahtarının şıklarda
            BULUNMADIĞINI saptadıysa işaretler. Eskiden bu durum sessizce
            "A doğru" sayılıyordu. Otomatik tahmin yok — İçerik Uzmanı
@@ -1154,7 +1158,8 @@ async function aiEvaluate(q, answerText, rubric, force) {
                        üretiminde bu koruma vardı, değerlendirmede YOKTU;
                        canlıda geri bildirim taslağına CJK karakteri sızdığı
                        ölçüldü. Otomatik düzeltilmez, öğretmene gösterilir. */
-                    dilUyarisi: !!j.dilUyarisi };
+                    dilUyarisi: !!j.dilUyarisi,
+                    dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [] };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
     // Denetim izi: yapay zekâ PUAN ÖNERDİ. Nihai puan değil — öğretmen
@@ -4274,8 +4279,13 @@ const SUPHE_TURLERI = [
       "Metni yeniden yükleyip soruyu tekrar üretmeyi ya da reddetmeyi düşünün." },
   { anahtar: "dilUyarisi", etiket: "Yabancı harf", ciddiyet: "orta",
     var: function (q) { return !!q.dilUyarisi; },
-    aciklama: "Bu soruda Türkçe olmayan karakterler var; model metne başka bir alfabeden harf karıştırmış " +
-      "olabilir. Onaylamadan önce soruyu ve şıkları okuyup düzeltin." },
+    aciklama: function (q) {
+      /* §84: tetikleyen sözcükler sorunun GÜNCEL metnine göre süzülür;
+         uzman düzelttiyse eski sözcük gösterilmez. */
+      const neler = dilTetikleyiciMetni(soruDilSozcukleri(q, q.dilSozcukler), soruDilMetinleri(q));
+      return "Bu soruda Türkçe olmayan karakterler var; model metne başka bir alfabeden harf karıştırmış " +
+        "olabilir. Onaylamadan önce soruyu ve şıkları okuyup düzeltin." + (neler ? " " + neler + "." : "");
+    } },
   { anahtar: "kazanimUyusmuyor", etiket: "Kazanımı ölçmüyor", ciddiyet: "orta",
     var: function (q) { return ((state.alignment || {})[alignKey(q.id)] || {}).karar === "olcmuyor"; },
     aciklama: "Bağımsız kazanım denetimi bu sorunun seçili kazanımı ölçmediğini değerlendirdi. " +
@@ -4337,6 +4347,11 @@ function denetimDurumHtml(q) {
   else if (c.anahtarUyusmazligi === true) p.push('bağımsız çözüm: <b class="durum-farkli">FARKLI (' + escapeHtml(c.secilenSik) +
     ")</b> — işaretli anahtar " + escapeHtml(q.correctKey) + ", kontrol edin");
   else p.push("bağımsız çözüm: <b>" + escapeHtml(c.secilenSik || "?") + " seçti</b> (anahtarla karşılaştırılamadı)");
+  /* §84: çözücünün gerekçesindeki dil uyarısı hiç gösterilmiyordu. */
+  if (c && !c.hata && c.dilUyarisi && c.imza === cozumImzasi(q)) {
+    p.push('<span class="dil-uyari-neler">⚠ çözüm gerekçesinde ' +
+      escapeHtml(dilTetikleyiciMetni(c.dilSozcukler, [c.gerekce]) || "Türkçe olmayan karakter var") + "</span>");
+  }
   return '<div class="denetim-durum">' + p.join(" · ") +
     ' <button type="button" class="btn btn-secondary btn-sm js-coz" data-qid="' + q.id + '"' + (yuk ? " disabled" : "") + ">" +
     (c && !c.hata ? "🔍 Yeniden çöz" : "🔍 Bağımsız çöz") + "</button></div>";
@@ -4360,6 +4375,7 @@ async function bagimsizCoz(q) {
     });
     q.bagimsizCozum = { imza: imza, secilenSik: j.secilenSik, gerekce: j.gerekce || "", guven: j.guven,
       cozulemedi: !!j.cozulemedi, anahtarUyusmazligi: j.anahtarUyusmazligi, dilUyarisi: !!j.dilUyarisi,
+      dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [],
       capraz: (j.meta && j.meta.capraz) || null, model: (j.meta && j.meta.model) || null, at: Date.now() };
     auditKaydet("bagimsiz_cozum", { qid: q.id, soru: auditKisalt(q.body), model: q.bagimsizCozum.model,
       not: j.cozulemedi ? "model çözemedi" : ("seçilen " + j.secilenSik + " · anahtar " + q.correctKey +
@@ -4500,9 +4516,40 @@ function yanitSayacMetni(metin) {
    değil, modelin gerekçesi ve ÖĞRENCİYE GİDECEK geri bildirim taslağıdır. */
 function degerlendirmeDilUyarisiHtml(ev) {
   if (!ev || !ev.dilUyarisi) return "";
+  const neler = dilTetikleyiciMetni(ev.dilSozcukler, [ev.justification, ev.studentFeedback]);
   return '<div class="dil-uyari">⚠ <b>Bu değerlendirmede Türkçe olmayan karakterler var.</b> ' +
     'Model, gerekçeye ya da geri bildirim taslağına başka bir alfabeden harf karıştırmış. ' +
-    'Metni öğrenciye aktarmadan önce okuyup düzeltin.</div>';
+    'Metni öğrenciye aktarmadan önce okuyup düzeltin.' +
+    (neler ? ' <span class="dil-uyari-neler">' + escapeHtml(neler) + "</span>" : "") + "</div>";
+}
+
+/* §84 — DİL UYARISI TANILANABİLİR. Sunucu §73'ten beri uyarıyı tetikleyen
+   sözcükleri döndürüyor (meta.dilUyarisiSozcukler, ilk 3) ama arayüz yalnız
+   "yabancı harf var" diyordu; nerede olduğu bulunamıyordu (W8: canlıda
+   açıklanamayan uyarı). Üç yolda (üretim, değerlendirme, bağımsız çözüm)
+   uyarının yanına kısa bir ek: "Türkçe olmayan: luôn, …". Sözcük yoksa
+   (eski kayıt ya da sözcük döndürmeyen yol) metindeki Türkçe dışı harfler
+   gösterilir. Yalnız bilgi: metin değişmez, karar insanda. */
+const TURKCE_HARF = /^[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]$/;
+function dilTetikleyiciMetni(sozcukler, metinler) {
+  const s = (sozcukler || []).filter(Boolean);
+  if (s.length) return "Türkçe olmayan: " + s.slice(0, 3).join(", ") + (s.length >= 3 ? ", …" : "");
+  const harfler = [];
+  ((metinler || []).join(" ").normalize("NFC").match(/\p{L}/gu) || []).forEach(function (h) {
+    if (!TURKCE_HARF.test(h) && harfler.indexOf(h) < 0) harfler.push(h);
+  });
+  if (!harfler.length) return "";
+  return "Türkçe olmayan karakter: " + harfler.slice(0, 3).join(", ") + (harfler.length > 3 ? ", …" : "");
+}
+/* Üretim yanıtının sözcüklerinden yalnız BU sorunun metninde geçenler. */
+function soruDilSozcukleri(q, sozcukler) {
+  if (!sozcukler || !sozcukler.length) return [];
+  const metin = soruDilMetinleri(q).join(" ").normalize("NFC");
+  return sozcukler.filter(function (w) { return metin.indexOf(String(w).normalize("NFC")) >= 0; });
+}
+function soruDilMetinleri(q) {
+  return [q.body].concat((q.options || []).map(function (o) { return o.text; }),
+    Object.values(q.distractorRationale || {}));
 }
 
 /* Madde 1: şube (bölüm) etiketi yalnızca ORGANİZASYON/RAPORLAMA amaçlıdır.
@@ -12499,6 +12546,7 @@ function renderDepoUyarisi() {
 }
 
 function renderAll() {
+  const odakIzi = renderOdakIzi();
   renderAiBadge();
   aktifOturumuYaz();
   saveState();
@@ -12515,6 +12563,38 @@ function renderAll() {
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   bindFieldLabels();
+  renderOdaginiKurtar(odakIzi);
+}
+
+/* §84 (W8 P2) — YENİDEN ÇİZİMDE KAYBOLAN ODAK. Paneller innerHTML ile
+   çizildiği için odaktaki öğe silinir ve odak BODY'ye düşer. Modal bunu
+   kapanışta çözüyordu (§77b), ama sonradan gelen eşzamansız bir renderAll
+   ("Evet, bitir" → değerlendirme bitince) odağı yine düşürüyordu (canlıda
+   ölçüldü: önce sınav başlığı, ~1 sn sonra BODY). Kural modalınkiyle aynı ve
+   aynı yardımcıyla: yalnız KAYBOLMUŞ odak kurtarılır (BODY ya da kopmuş öğe);
+   odak yerindeyse ya da bir pencere açıksa dokunulmaz. */
+function renderOdakIzi() {
+  const a = document.activeElement;
+  if (!a || a === document.body || !a.closest || !a.closest("#panels")) return null;
+  const iz = modalIzi(a);
+  iz.baslik = /^H[1-6]$/.test(a.tagName) ? { etiket: a.tagName, metin: a.textContent } : null;
+  return iz;
+}
+function renderOdaginiKurtar(iz) {
+  if (!iz) return;
+  const a = document.activeElement;
+  if (a && a !== document.body && a.isConnected) return;
+  if (document.getElementById("modalOverlay").classList.contains("open")) return;
+  // Odaktaki başlık yeniden çizildiyse aynı metinli başlık (kartBaslik
+  // yalnız kartın İLK h3'ünü tutar; panel başlığı kart dışında olabilir).
+  if (iz.baslik) {
+    const kok = (iz.panel && document.getElementById(iz.panel)) || document;
+    const h = Array.prototype.find.call(kok.querySelectorAll(iz.baslik.etiket), function (x) {
+      return x.textContent === iz.baslik.metin && x.offsetParent !== null && !x.closest("[inert]");
+    });
+    if (h) { if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); return; }
+  }
+  modalOdagiGeriVer(iz, { preventScroll: true });
 }
 function initPanels() {
   document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
@@ -13225,6 +13305,7 @@ function bosDurumHtml(mesaj) {
   const gerekli = [
     "adimciHtml", "onaylaModal", "onayliEylem", "modalOdagiGeriVer", "modalIzi",
     "modalArkasiInert", "modalOdaklanirlar", "modalOdakTuzagiKur",
+    "renderOdakIzi", "renderOdaginiKurtar", "dilTetikleyiciMetni", "soruDilSozcukleri", "soruDilMetinleri",
     "renderAll", "renderRoleNav", "renderContentExpert", "renderTeacher", "renderStudent", "renderAdmin",
     "ceCreateHtml", "cePoolHtml", "rejectedPoolHtml", "rejectedAcikMi", "renderPendingQuestionCard", "distractorHtml",
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
