@@ -12198,6 +12198,7 @@ function kabukModalOdagi(geriSecici) {
  *  Kendi verisi yoksa (ilk açılış, ya da zaten demo verisi) doğrudan başlar. */
 function demoBaslat() {
   _kabukMenu = null;
+  renderKabukEk();   // menü kapanınca çizimi de kapanır (W6 P3: açık çizili kalıyordu)
   const kendi = (state.questions || []).filter(function (q) { return !q.demo; }).length;
   if (!kendi) { loadDemoScenario(); return; }
   openModal('<h3>Rehberli demo başlatılsın mı?</h3>' +
