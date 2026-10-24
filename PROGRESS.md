@@ -9960,3 +9960,53 @@ dokunulmadı.
 Ölçüm: klavye testi 9/9; §71 34/34; onay kartı 20/20; `npm test` 397/397;
 öz-kontrol %100. (Önceki `ce-enter-vazgec` / 2e180c6 dalı bu yaklaşımla
 değiştirildi; alınmamalı.)
+
+## 82. KATALOG EKLEME BİLDİRİMİ — engelleyici pencere yerine satır içi (24 Ekim 2026, W4)
+
+*(Dalda §81/§81b olarak yazılmıştı; W3'ün §81'iyle çakıştığı için birleştirmede §82/§82b'ye alındı; koddaki yorum atıfları da çevrildi.)*
+
+- **Sorun:** İçerik Uzmanı kataloğunda "Seçilenleri Ekle"den sonra
+  "Katalogdan eklendi" penceresi açılıyordu. Pencere yalnız bilgi veriyordu,
+  tek düğmesi "Tamam"dı ve arkadaki sihirbazı örtüyordu; demo senaryosunda
+  ayrı bir tıklama gerekiyordu.
+- **Karar (Orchestrator 2):** satır içi bildirim. Fonksiyon `katalogModalGoster`;
+  T0 iş bölümüne göre W4'ün "modallar" aralığında, işlevi İçerik Uzmanı'nın.
+- **Yapılan:**
+  - Yeni `katalogBildirimGoster()`. Bildirim kazanım satırının
+    (`.kazanim-ekle-satiri`) hemen altında, `role="status"` satır olarak
+    çıkıyor ("N kazanım eklendi.", varsa "M tanesi zaten tanımlıydı").
+  - Canlı bölge önce boş eklenir, metin 50 ms sonra yazılır; böylece ekran
+    okuyucu duyurur.
+  - Odak çalınmaz. Satır 6 sn sonra kendiliğinden, ya da bir sonraki yeniden
+    çizimde (yeni işlem) kaybolur.
+  - Kazanım alanının HTML'i (İçerik Uzmanı bölgesi) değişmedi; satır,
+    çizimden sonra eklenir. Yeni CSS yok, T0'ın `.field-yardim` sınıfı.
+  - "Hiç kazanım seçmediniz" hatası katalog penceresinin içinde kalmaya
+    devam ediyor.
+- **Ölçüm (tarayıcı, statik sunucu, main 86c52da üzerine):**
+  - pencere açılmadı;
+  - satır `.kazanim-ekle-satiri`'nin hemen altında, `role="status"`;
+  - eklenir eklenmez metin boş, 150 ms sonra "1 kazanım eklendi.";
+  - odak "Tüm listeyi aç"ta (W2'nin §77b odak dönüşü);
+  - 6 sn sonra satır yok; `renderAll()` sonrası satır yok;
+  - ikinci eklemede "2 kazanım eklendi.".
+- **Doğrulama:**
+  - 401/401 test, öz-kontrol %100.
+  - `gorsel-fark --dolu` 1280/390: hata 0, yinelenen id 0, taşma yok.
+  - Demo 5/5, gerçek düğmelerle.
+  - Model çağrısı yok.
+- **Senaryo:** mülakat demo senaryosundaki "Tamam" adımı kaldırıldı.
+
+### 82b. Yönetici — filtreli boş durumda "Sınav Tamamlanma" metni (W3 bulgusu, P2)
+
+- **Sorun:** "7-A + Ayşe Kaya" gibi bir filtrede kutu "henüz yayınlanmış sınav
+  yok" diyordu. Oysa Ayşe'nin başka sınıfta yayınlanmış sınavı var; metin
+  sistemde hiç yayınlı sınav yokmuş gibi okunuyordu.
+- **Yapılan:** filtre etkinken metin "Bu filtrelerle eşleşen yayınlanmış
+  sınav yok" oldu; eylem kartıyla aynı. Filtresizken eski metin duruyor.
+- **Tarayıcıda:**
+  - filtresiz, yayın yok → "henüz yayınlanmış sınav yok";
+  - sınav 7-B'ye hedefli ve filtre 7-A → "Bu filtrelerle eşleşen yayınlanmış
+    sınav yok", eylem kartı aynı;
+  - filtre temizlenince "2 / 2 atama tamamlandı".
+- 401/401 test.
