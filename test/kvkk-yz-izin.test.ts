@@ -21,10 +21,12 @@ function ortam(students: Array<Record<string, unknown>>, mode = 'live') {
   const cagrilar: Array<{ url: string; body: any }> = [];
   const audit: Array<{ ad: string; v: any }> = [];
   const state: any = { students, activeStudentId: students[0].id, ai: { mode }, evalCache: {} };
-  const kod = [tanim('yzIzniVar'), tanim('yzIzinsizSonuc'), tanim('aiEvaluate')].join('\n');
+  // §90 (ai-rozet-tohum) ile birleşince aiEvaluate aiKaynak'ı (gerçek) ve hata yolunda
+  // demoTohumDegerlendirmesi'ni çağırır; tohum burada hiç devreye girmez (null).
+  const kod = [tanim('yzIzniVar'), tanim('yzIzinsizSonuc'), tanim('aiKaynak'), tanim('aiEvaluate')].join('\n');
   const aiEvaluate = new Function(
     'state', 'apiPost', 'AI_API', 'auditKaydet', 'auditKisalt', 'outcomeLabel', 'evalCacheKey', 'evalCacheGet',
-    'evalCachePut', 'simulateAIEvaluation', 'kisiselMaskele',
+    'evalCachePut', 'simulateAIEvaluation', 'kisiselMaskele', 'demoTohumDegerlendirmesi',
     kod + '\nreturn aiEvaluate;'
   )(
     state,
@@ -37,7 +39,8 @@ function ortam(students: Array<Record<string, unknown>>, mode = 'live') {
     () => null,
     () => {},
     () => ({ aiScore: 5, maxScore: 10, simulated: true }),
-    (m: string) => ({ metin: m, maskelendi: false })
+    (m: string) => ({ metin: m, maskelendi: false }),
+    () => null
   ) as (q: any, t: string, r: any, f?: boolean, sid?: number) => Promise<any>;
   return { aiEvaluate, cagrilar, audit, state };
 }
