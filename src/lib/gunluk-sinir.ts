@@ -112,7 +112,7 @@ export async function gunlukHakKullan(env: GunlukSinirEnv, ip: string, now: numb
       const j = (await r.json()) as { izin: boolean; sayi: number };
       return { izin: !!j.izin, sayi: Number(j.sayi) || 0, limit, mod: 'durable-object' };
     } catch (e) {
-      console.error(JSON.stringify({ ev: 'gunluk_sinir_do_hata', hata: (e instanceof Error ? e.message : String(e)).slice(0, 200) }));
+      console.error(JSON.stringify({ ev: 'gunluk_sinir_do_hata', islem: 'kullan', hataSinifi: e instanceof Error ? e.name : typeof e }));
     }
   }
   return bellekteKullan(ip, limit, now);

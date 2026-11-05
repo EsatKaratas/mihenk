@@ -161,6 +161,46 @@ export function aiHatasiniSinifla(e: unknown): AiHataTuru {
   return 'diger';
 }
 
+/**
+ * §86 — KVKK: Workers Logs'a yazılabilir, İÇERİKSİZ hata özeti.
+ *
+ * Hata mesajları model çıktısı (extractJson ön izlemesi), sağlayıcı yanıt
+ * gövdesi (callOpenAiUyumlu) ya da zod'un "received '…'" değerini taşıyabilir;
+ * bunlar öğrenci yanıtından alıntı içerebilir. Kayda MESAJ METNİ HİÇ girmez:
+ * yalnız sınıf adı, hata türü, kendi kodumuzun ürettiği neden etiketi, yapısal
+ * kod/HTTP durumu ve mesaj UZUNLUĞU. (SHA-256 öneki eklenmedi: kayıtlar eşzamanlı
+ * yazılıyor, crypto.subtle eşzamansız; gerek görülürse ayrı iş.)
+ */
+export function hataOzeti(e: unknown): Record<string, string | number | null> {
+  const mesaj = e instanceof Error ? e.message : String(e ?? '');
+  const o = e && typeof e === 'object' ? (e as Record<string, unknown>) : {};
+  const { kodlar } = hataIzleri(e);
+  const yapisalDurum = Number(o.status);
+  // Kendi ürettiğimiz önek ("OpenAI-uyumlu 400 …", "Anthropic 529: …") içerik değildir.
+  const onek = mesaj.match(/^(?:OpenAI-uyumlu|Anthropic) (\d{3})\b/);
+  const durum = Number.isFinite(yapisalDurum) && yapisalDurum > 0 ? yapisalDurum : onek ? Number(onek[1]) : null;
+  return {
+    hataSinifi: e instanceof Error ? e.name : typeof e,
+    tur: aiHatasiniSinifla(e),
+    neden: hataNedeni(e, mesaj),
+    kod: kodlar[0] ?? null,
+    durum,
+    mesajUzunlugu: mesaj.length,
+  };
+}
+
+function hataNedeni(e: unknown, mesaj: string): string {
+  if (e instanceof AiSemaHatasi) return 'sema';
+  if (e instanceof AiKotaHatasi) return 'kota';
+  if (e instanceof AiGunlukSinirHatasi) return 'gunluk_sinir';
+  if (/^Yanıtta JSON bulunamadı/.test(mesaj)) return 'json_yok';
+  if (/^JSON dengeli biçimde kapanmıyor/.test(mesaj)) return 'json_kesik';
+  if (e instanceof SyntaxError) return 'json_sozdizimi';
+  if (/^Yanıtta içerik yok/.test(mesaj)) return 'icerik_yok';
+  if (/^(AI binding tanımlı değil|AI_API_KEY tanımlı değil)/.test(mesaj)) return 'yapilandirma';
+  return 'model';
+}
+
 /** Bir sonraki 00:00 UTC'ye (Workers AI kota sıfırlanması = 03:00 TR) kalan saniye. */
 export function saniyeUtcGunSonuna(now: number = Date.now()): number {
   const d = new Date(now);
@@ -556,7 +596,8 @@ export async function callModelJson(
         ev: 'ai_fallback',
         from: providerName(env),
         to: providerName(yedek),
-        reason: birincilHata instanceof Error ? birincilHata.message.slice(0, 200) : String(birincilHata).slice(0, 200),
+        // §86 KVKK: mesaj metni değil, içeriksiz özet.
+        neden: hataOzeti(birincilHata),
       })
     );
     const r = await callOne(yedek, prompt, opts, sema, { kalan: YEDEK_CAGRI_TAVANI }, kanca);
@@ -592,7 +633,7 @@ async function callModelHizKorumali(
       }
       if (tur === 'hiz' && tekrar === 0 && hak.kalan > 0) {
         const ms = hizBeklemeMs(env);
-        console.log(JSON.stringify({ ev: 'ai_hiz_tekrar', provider: providerName(env), model: modelName(env), beklemeMs: ms, hata: mesaj.slice(0, 200) }));
+        console.log(JSON.stringify({ ev: 'ai_hiz_tekrar', provider: providerName(env), model: modelName(env), beklemeMs: ms, hata: hataOzeti(e) }));
         await bekle(ms);
         continue;
       }
@@ -666,6 +707,8 @@ async function callOne(
            boşa çağrı harcar; hata hemen yükselir ve callModelJson YEDEĞE geçer
            (README §3.1'deki "birincil bozuk, yine 200" davranışı korunur —
            test/rota.test.ts). */
+    const baslangic = Date.now();
+    let yanitUzunlugu: number | null = null;  // §86: içerik değil, yalnız uzunluk
     const kayit = (ok: boolean, asama?: 'model' | 'ayristirma' | 'sema', hata?: unknown) =>
       console.log(
         JSON.stringify({
@@ -676,7 +719,10 @@ async function callOne(
           maxTokens: buOpts.maxTokens,
           attempt,
           ok,
-          ...(ok ? {} : { asama, hata: (hata instanceof Error ? hata.message : String(hata)).slice(0, 200) }),
+          sureMs: Date.now() - baslangic,
+          ...(yanitUzunlugu !== null ? { yanitUzunlugu } : {}),
+          // §86 KVKK: hata METNİ yazılmaz (model çıktısı/gövde taşıyabilir).
+          ...(ok ? {} : { asama, hata: hataOzeti(hata) }),
         })
       );
     let raw: string | object;
@@ -687,6 +733,9 @@ async function callOne(
       if (!(e instanceof AiGunlukSinirHatasi)) kayit(false, 'model', e);
       throw e instanceof Error ? e : new Error(String(e));
     }
+    try {
+      yanitUzunlugu = typeof raw === 'string' ? raw.length : JSON.stringify(raw)?.length ?? 0;
+    } catch { yanitUzunlugu = null; }
     let data: unknown;
     try {
       data = extractJson(raw);
@@ -698,7 +747,10 @@ async function callOne(
     if (sema) {
       const s = sema.safeParse(data);
       if (!s.success) {
-        const ozet = (s.error?.issues ?? []).slice(0, 3).map((i) => `${i.path.join('.') || 'kök'}: ${i.message}`).join('; ');
+        /* §86 KVKK: zod mesajları "received '…'" ile modelin değerini
+           taşıyabilir; özet yalnız sorun SAYISINI ve kodlarını içerir. */
+        const sorunlar = (s.error?.issues ?? []) as Array<{ code?: string }>;
+        const ozet = `${sorunlar.length} sorun (${[...new Set(sorunlar.map((i) => String(i.code || '?')))].slice(0, 3).join(', ')})`;
         const e = new AiSemaHatasi(ozet || 'şema doğrulaması başarısız');
         kayit(false, 'sema', e);
         lastErr = e;

@@ -249,6 +249,56 @@ describe('§86 istek başına model çağrısı tavanı (3)', () => {
   });
 });
 
+describe('§86 KVKK — kayıtlar içerik taşımaz', () => {
+  const GIZLI = 'GIZLIOGRENCIMETNI';
+  const uzun = (on = '') => on + (GIZLI + ' Ali Yılmaz 7-B ').repeat(80);
+
+  /** Tüm console.log/error/warn satırlarını toplar. */
+  function kayitlariTopla() {
+    const satirlar: string[] = [];
+    const yaz = (...a: unknown[]) => { satirlar.push(a.map(String).join(' ')); };
+    vi.spyOn(console, 'log').mockImplementation(yaz);
+    vi.spyOn(console, 'error').mockImplementation(yaz);
+    vi.spyOn(console, 'warn').mockImplementation(yaz);
+    return satirlar;
+  }
+
+  it('uzun bozuk çıktı, şema dışı (enum received), sağlayıcı gövdesi, kota, hız: hiçbir satırda içerik yok', async () => {
+    const satirlar = kayitlariTopla();
+    const ogrenciGovdesi = { ...govde(), studentAnswer: uzun('Öğrenci: ') };
+    // 1) uzun JSON olmayan çıktı → json_yok; Scout uzun kesik JSON → json_kesik
+    let f = sahteAi({ [M70]: [() => uzun()], [SCOUT]: [() => '{"breakdown":"' + uzun()] });
+    expect((await post('/api/ai/evaluate', ogrenciGovdesi, zincirEnv(f.AI))).status).toBe(502);
+    // 2) şema dışı: zod "received '…'" değeri model metnini taşırdı
+    f = sahteAi({ [M70]: [() => ({ ...DEGERLENDIRME, breakdown: uzun() })], [SCOUT]: [() => ({ breakdown: [{ label: 7, points: uzun() }] })] });
+    expect((await post('/api/ai/evaluate', ogrenciGovdesi, zincirEnv(f.AI))).status).toBe(502);
+    // 3) hız hatası + kota hatası mesajında içerik
+    f = sahteAi({ [M70]: [() => { throw new Error('rate limited ' + uzun()); }, () => { throw new Error('3036: daily free allocation ' + uzun()); }] });
+    expect((await post('/api/ai/evaluate', ogrenciGovdesi, zincirEnv(f.AI))).status).toBe(503);
+    // 4) OpenAI uyumlu sağlayıcı gövdesi mesaja gömülür
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(uzun('{"error":"'), { status: 400 }));
+    const r4 = await post('/api/ai/evaluate', ogrenciGovdesi, { AI_PROVIDER: 'openai', AI_MODEL: 'm', AI_API_KEY: 'k' });
+    expect(r4.status).toBe(502);
+
+    expect(satirlar.length).toBeGreaterThan(5);
+    for (const s of satirlar) {
+      expect(s).not.toContain(GIZLI);
+      expect(s).not.toContain('Yılmaz');
+      expect(s.length).toBeLessThan(600);
+    }
+    // Teşhis için gereken içeriksiz alanlar duruyor
+    const cagrilar = satirlar.filter((s) => s.includes('"ev":"ai_call"')).map((s) => JSON.parse(s));
+    expect(cagrilar.some((k) => k.hata?.neden === 'json_yok')).toBe(true);
+    expect(cagrilar.some((k) => k.hata?.neden === 'json_kesik')).toBe(true);
+    expect(cagrilar.some((k) => k.hata?.neden === 'sema')).toBe(true);
+    expect(cagrilar.some((k) => k.hata?.durum === 400)).toBe(true);
+    expect(cagrilar.every((k) => typeof k.sureMs === 'number' && typeof k.approxPromptChars === 'number')).toBe(true);
+    expect(cagrilar.some((k) => typeof k.yanitUzunlugu === 'number' && k.yanitUzunlugu > 1000)).toBe(true);
+    expect(satirlar.some((s) => s.includes('"ev":"ai_kota_bitti"'))).toBe(true);
+    expect(satirlar.some((s) => s.includes('"ev":"ai_hiz_tekrar"'))).toBe(true);
+  });
+});
+
 describe('§86 madde 2 — meta.source', () => {
   it('70B yanıtı: source=workers-ai-70b, yedekModel=false; eski meta alanları duruyor', async () => {
     const f = sahteAi({ [M70]: [() => DEGERLENDIRME] });

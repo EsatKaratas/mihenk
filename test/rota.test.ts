@@ -221,7 +221,11 @@ describe('model çağrısı: yeniden deneme yalnız ayrıştırma hatasında, ye
     expect(j.message).toMatch(/ulaşılamıyor/);
     expect(cagri.bozuk).toBe(1);
     const ayrinti = hata.mock.calls.map((a) => String(a[0])).find((x) => x.includes('ai_failed'));
-    expect(ayrinti).toContain('quota');
+    /* §86 KVKK: eskiden ham mesaj ("…quota…") log'a giriyordu. Artık kayıt
+       yalnız içeriksiz özet taşır; teşhis için sınıf/tür/neden/uzunluk yeter. */
+    expect(ayrinti).toBeDefined();
+    expect(ayrinti).not.toContain('quota');
+    expect(JSON.parse(ayrinti!).hata).toMatchObject({ hataSinifi: 'Error', tur: 'diger', neden: 'model' });
   });
 });
 

@@ -23,7 +23,7 @@ import {
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
   fallbackSorunu, saglayiciHazirMi, type AiEnv,
-  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, saniyeUtcGunSonuna, gatewaySecenekleri,
+  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
   type CagriKancasi,
 } from '../lib/ai';
 import {
@@ -112,7 +112,8 @@ const onInvalid = (result: { success: boolean; error?: { issues?: Array<{ path: 
  */
 function modelHatasiGovdesi(e: unknown, uc: string) {
   const ayrinti = e instanceof Error ? e.message : String(e);
-  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: ayrinti.slice(0, 500) }));
+  // §86 KVKK: kayda hata METNİ girmez (model çıktısı/gövde taşıyabilir), yalnız özet.
+  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: hataOzeti(e) }));
   const ayristirma = /JSON|kapanm|kesil/i.test(ayrinti);
   return {
     error: 'ai_call_failed',
@@ -134,7 +135,7 @@ function modelHatasiGovdesi(e: unknown, uc: string) {
  */
 function modelHatasiYaniti(c: any, e: unknown) {
   if (e instanceof AiKotaHatasi) {
-    console.error(JSON.stringify({ ev: 'ai_kota_bitti', uc: c.req.path, hata: e.ayrinti.slice(0, 300) }));
+    console.error(JSON.stringify({ ev: 'ai_kota_bitti', uc: c.req.path, hata: hataOzeti(e) }));
     c.header('Retry-After', String(saniyeUtcGunSonuna()));
     return c.json(
       {
@@ -155,7 +156,7 @@ function modelHatasiYaniti(c: any, e: unknown) {
     );
   }
   if (e instanceof AiSemaHatasi) {
-    console.error(JSON.stringify({ ev: 'ai_failed', uc: c.req.path, hata: e.message.slice(0, 500) }));
+    console.error(JSON.stringify({ ev: 'ai_failed', uc: c.req.path, hata: hataOzeti(e) }));
     return c.json(
       { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
       502
