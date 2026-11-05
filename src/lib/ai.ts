@@ -50,9 +50,17 @@ export type AiEnv = {
 // KENDİ iç kodu tabloda YOK — bu yüzden metinle de tanınır.
 //
 // Binding'in fırlattığı hatanın TAM biçimi ölçülmedi (kotayı bilerek
-// tüketmek gerekirdi). Ayrıştırıcı bu yüzden dayanıklı yazıldı: hata
-// nesnesinin `code`/`status`/`errors[].code`/`cause` alanlarına, mesajdaki
-// "3036: ..." biçimine ve mesaj içindeki JSON gövdesine birlikte bakar.
+// tüketmek gerekirdi). Ayrıştırıcı iki tür kanıt kabul eder:
+//  (a) YAPISAL kod: hata nesnesinin sayısal `code` alanı ya da yapısal
+//      `errors[].code` (iç içe `cause` dahil);
+//  (b) AÇIK metin: kotada "daily free allocation" / "used up your daily" /
+//      "Account limited"; hızda sözcük sınırlı "rate limit", "too many
+//      requests", "capacity temporarily exceeded".
+// MESAJ METNİNDEKİ ÇIPLAK SAYILARA BAKILMAZ (bağımsız doğrulama, 5 Kasım):
+// "The input (3036 tokens)…", "requested 3036 tokens", "timed out after
+// 3036 ms" kota sanılıyordu. Ayrıca OpenAI uyumlu yol sağlayıcının yanıt
+// gövdesini mesaja gömer (callOpenAiUyumlu); oradaki sayılar ve gömülü JSON
+// da kanıt sayılmaz.
 //
 // BİLİNÇLİ DAR TUTULAN NOKTA: mesajda yalnızca "429" geçmesi kota SAYILMAZ.
 // 429 iki durumda da döner; çıplak 429'u kota sanmak geçici bir hız sınırında
@@ -79,7 +87,32 @@ export class AiSemaHatasi extends Error {
   }
 }
 
-/** Hata nesnesinden (iç içe olabilir) sayısal kodları ve metni toplar. */
+/**
+ * §86 — istek başına model çağrısı tavanı ve çağrı kancası.
+ * Bir istek EN ÇOK 3 gerçek model çağrısı yapar: birincil en çok 2 (JSON/şema
+ * onarımı ya da dakikalık hız tekrarı bu 2'nin içindedir), yedek en çok 1.
+ * `cagriOncesi` HER gerçek binding/sağlayıcı çağrısından hemen önce çalışır
+ * (günlük IP hakkı burada düşer); `kotaIade` çağrı 3036 ile döndüyse hakkı
+ * geri verir — kota bitmişken dönen 503 hak yemez.
+ */
+export const ISTEK_BASINA_CAGRI_TAVANI = 3;
+const BIRINCIL_CAGRI_TAVANI = 2;
+const YEDEK_CAGRI_TAVANI = 1;
+
+export type CagriKancasi = {
+  cagriOncesi?: () => Promise<void>;
+  kotaIade?: () => Promise<void>;
+};
+
+/** Günlük IP sınırı doldu: zincir durur, yedeğe geçilmez. */
+export class AiGunlukSinirHatasi extends Error {
+  constructor(public readonly limit: number) {
+    super(`Günlük adres sınırı doldu (${limit})`);
+    this.name = 'AiGunlukSinirHatasi';
+  }
+}
+
+/** Hata nesnesinden (iç içe olabilir) YAPISAL sayısal kodları ve metni toplar. */
 function hataIzleri(e: unknown, derinlik = 0): { kodlar: number[]; metin: string } {
   const kodlar: number[] = [];
   let metin = '';
@@ -104,38 +137,27 @@ function hataIzleri(e: unknown, derinlik = 0): { kodlar: number[]; metin: string
     kodlar.push(...iz.kodlar);
     metin += iz.metin;
   }
-  // Mesajın içine gömülü JSON gövdesi: {"errors":[{"code":3036,...}]}
-  const j = metin.match(/\{[\s\S]*\}/);
-  if (j && derinlik < 3) {
-    try {
-      const iz = hataIzleri(JSON.parse(j[0]), derinlik + 1);
-      kodlar.push(...iz.kodlar);
-    } catch { /* JSON değilse önemli değil */ }
-  }
-  // "3036: You have used up..." / "AiError: 3040: Capacity..." biçimi
-  for (const m of metin.matchAll(/(?:^|[^\d])(30\d\d)\s*:/g)) kodlar.push(Number(m[1]));
+  // Mesaj metnindeki sayılara ve gömülü JSON'a BİLEREK bakılmaz (üstteki not).
   return { kodlar, metin };
 }
 
+const KOTA_METNI = /daily free allocation|used up your daily|\baccount limited\b/i;
+// Sözcük sınırlı: "moderate limit", "generate", "accurate", "separate_limit" hız DEĞİL.
+const HIZ_METNI = /\brate[ -]?limit(?:s|ed|ing)?\b|\btoo many requests\b|\bcapacity temporarily exceeded\b/i;
+
 /**
  * Model çağrısı hatasını sınıflandırır.
- *  - 'kota': iç kod 3036 ya da Cloudflare'in kota metni ("daily free
- *    allocation", "Account limited"). Gün sonuna kadar kalıcıdır.
- *  - 'hiz' : iç kod 3040, yapısal `status === 429` (kod 3036 değilse) ya da
- *    "rate limit / too many requests / capacity temporarily exceeded" metni.
- *    Geçicidir: kısa bekleme + en fazla 1 tekrar.
+ *  - 'kota': yapısal kod 3036 ya da açık kota metni. Gün sonuna kadar kalıcı.
+ *  - 'hiz' : yapısal kod 3040, yapısal `status === 429` ya da açık hız metni.
+ *    Geçicidir: kısa bekleme + (çağrı tavanı izin verirse) 1 tekrar.
  *  - 'diger': geri kalan her şey (eski davranış: yedeğe geç).
  */
 export function aiHatasiniSinifla(e: unknown): AiHataTuru {
   if (e instanceof AiKotaHatasi) return 'kota';
   const { kodlar, metin } = hataIzleri(e);
-  if (kodlar.includes(3036) || /\b3036\b|daily free allocation|account limited/i.test(metin)) return 'kota';
+  if (kodlar.includes(3036) || KOTA_METNI.test(metin)) return 'kota';
   const durum = e && typeof e === 'object' ? Number((e as Record<string, unknown>).status) : NaN;
-  if (
-    kodlar.includes(3040) ||
-    durum === 429 ||
-    /rate[ _-]?limit|too many requests|capacity temporarily exceeded/i.test(metin)
-  ) return 'hiz';
+  if (kodlar.includes(3040) || durum === 429 || HIZ_METNI.test(metin)) return 'hiz';
   return 'diger';
 }
 

@@ -73,10 +73,26 @@ const kotaBicimleri: Array<[string, () => unknown]> = [
   ['"3036: ..." mesajı', () => new Error('3036: You have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare\'s Workers Paid plan if you would like to continue usage.')],
   ['AiError önekli', () => new Error('AiError: 3036: Account limited')],
   ['yapısal code alanı', () => Object.assign(new Error('Account limited'), { code: 3036 })],
-  ['mesaj içinde JSON gövde', () => new Error('InferenceUpstreamError: {"errors":[{"code":3036,"message":"x"}],"success":false}')],
+  ['yapısal errors[].code', () => Object.assign(new Error('upstream'), { errors: [{ code: 3036, message: 'x' }] })],
   ['cause içinde', () => new Error('upstream', { cause: { errors: [{ code: 3036, message: 'Account limited' }] } })],
   ['yalnız metin', () => new Error('You have used up your daily free allocation of 10,000 neurons')],
-  ['iki noktasız kod', () => new Error('Workers AI error code 3036')],
+];
+
+// Bağımsız doğrulamanın bulduğu yanlış pozitifler: metindeki sayı ya da
+// gömülü gövde KOTA/HIZ kanıtı DEĞİLDİR.
+const yanlisPozitifler: string[] = [
+  'The input (3036 tokens) exceeds the context window',
+  'requested 3036 tokens, max is 2048',
+  'timed out after 3036 ms',
+  'Workers AI error code 3036',
+  '3036: bilinmeyen',
+  'InferenceUpstreamError: {"errors":[{"code":3036,"message":"x"}],"success":false}',
+  'OpenAI-uyumlu 400 @ https://x/chat/completions [model=m] {"error":{"code":3036,"message":"bad"}}',
+  'AiError: 3040: unknown',
+  'moderate limit reached for this content',
+  'failed to generate output',
+  'response not accurate',
+  'separate_limit exceeded',
 ];
 
 describe('§86 hata ayrımı — aiHatasiniSinifla', () => {
@@ -91,6 +107,13 @@ describe('§86 hata ayrımı — aiHatasiniSinifla', () => {
     expect(aiHatasiniSinifla(Object.assign(new Error('istek reddedildi'), { status: 429 }))).toBe('hiz');
     expect(aiHatasiniSinifla(new Error('Rate limited: 300 requests per minute'))).toBe('hiz');
     expect(aiHatasiniSinifla(new Error('429 Too Many Requests'))).toBe('hiz');
+  });
+  for (const m of yanlisPozitifler) {
+    it(`yanlış pozitif yok: "${m.slice(0, 40)}" → diger`, () => expect(aiHatasiniSinifla(new Error(m))).toBe('diger'));
+  }
+  it('sözcük sınırlı hız metni: "rate-limited", "Rate limits" → hiz', () => {
+    expect(aiHatasiniSinifla(new Error('request rate-limited'))).toBe('hiz');
+    expect(aiHatasiniSinifla(new Error('Rate limits exceeded'))).toBe('hiz');
   });
   it('mesajda yalnız "429" geçmesi kota SAYILMAZ (README §3.1 testi korunur)', () => {
     expect(aiHatasiniSinifla(new Error('Workers AI 429: daily neuron quota exceeded'))).toBe('diger');
