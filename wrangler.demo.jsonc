@@ -126,7 +126,7 @@
   // , "migrations": [{ "tag": "v1-gunluk-sayac", "new_sqlite_classes": ["GunlukSayac"] }]
   //
   // (2) "vars" içine eklenebilecek ayarlar (hepsi isteğe bağlı):
-  //   "AI_GUNLUK_IP_SINIRI": "40"      // adres başına günlük model çağrısı (varsayılan 40)
+  //   "AI_GUNLUK_IP_SINIRI": "60"      // adres başına günlük MODEL ÇAĞRISI (varsayılan 60)
   //   "AI_HIZ_BEKLEME_MS": "2000"      // dakikalık 429'da tek tekrar öncesi bekleme
   //   "AI_GATEWAY_ID": ""              // boş = AI Gateway KAPALI (bugün gateway yok)
   //   "AI_GATEWAY_CACHE_TTL": "259200" // sn; 60 – 2.592.000 aralığına kırpılır

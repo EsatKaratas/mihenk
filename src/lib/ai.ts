@@ -517,21 +517,27 @@ export type JsonSema = {
 };
 
 /**
- * §86 — ZİNCİR: birincil (en fazla 2 deneme) → yedek (en fazla 2 deneme) → açık hata.
+ * §86 — ZİNCİR: birincil (en çok 2 gerçek çağrı) → yedek (en çok 1) → açık hata.
+ * İstek başına toplam en çok ISTEK_BASINA_CAGRI_TAVANI (3) model çağrısı;
+ * dakikalık hız tekrarı da bu sayıya dahildir.
  * `sema` verilirse her yanıt sunucuda o şemayla KATI doğrulanır; şemaya
  * uymayan yanıt "yumuşak hata" sayılır (bkz. callOne onarım notu).
  * Günlük kota (3036) bitince aynı Neuron havuzundaki yedeğe GEÇİLMEZ.
+ * `kanca` her gerçek çağrıdan önce çalışır (günlük IP hakkı, routes/ai.ts).
  */
 export async function callModelJson(
   env: AiEnv,
   prompt: string,
   opts: CallOptions,
-  sema?: JsonSema
+  sema?: JsonSema,
+  kanca?: CagriKancasi
 ): Promise<{ data: unknown; attempts: number; approxPromptChars: number; usedProvider: string; usedModel: string; fellBack: boolean; source: string }> {
   try {
-    const r = await callOne(env, prompt, opts, sema);
+    const r = await callOne(env, prompt, opts, sema, { kalan: BIRINCIL_CAGRI_TAVANI }, kanca);
     return { ...r, usedProvider: providerName(env), usedModel: modelName(env), fellBack: false, source: kaynakEtiketi(env) };
   } catch (birincilHata) {
+    // Günlük adres sınırı doldu: yedek de bir çağrı olurdu, zincir durur.
+    if (birincilHata instanceof AiGunlukSinirHatasi) throw birincilHata;
     const yedek = fallbackEnv(env);
     if (!yedek || !fallbackConfigured(env)) throw birincilHata;
     /* §86: kota bittiyse ve yedek de Workers AI ise yedek AYNI hesabın AYNI
@@ -553,27 +559,38 @@ export async function callModelJson(
         reason: birincilHata instanceof Error ? birincilHata.message.slice(0, 200) : String(birincilHata).slice(0, 200),
       })
     );
-    const r = await callOne(yedek, prompt, opts, sema);
+    const r = await callOne(yedek, prompt, opts, sema, { kalan: YEDEK_CAGRI_TAVANI }, kanca);
     return { ...r, usedProvider: providerName(yedek), usedModel: modelName(yedek), fellBack: true, source: kaynakEtiketi(yedek) };
   }
 }
 
+type CagriHakki = { kalan: number };
+
 /**
- * §86 — model çağrısı + hız sınırında TEK tekrar.
- *  - 'kota' → AiKotaHatasi (yeniden deneme yok).
- *  - 'hiz'  → kısa bekleme, aynı model/istem/parametrelerle 1 tekrar; yine
- *             düşerse hata yükselir (callModelJson eski davranışla yedeğe geçer).
+ * §86 — TEK gerçek model çağrısı (+ hız sınırında, hak kaldıysa TEK tekrar).
+ * Her gerçek çağrı `hak.kalan`'dan düşer ve önce `kanca.cagriOncesi` çalışır.
+ *  - 'kota' → hak iade edilir (`kotaIade`), AiKotaHatasi (yeniden deneme yok).
+ *  - 'hiz'  → hak kaldıysa kısa bekleme + aynı model/istem/parametrelerle
+ *             1 tekrar; yoksa hata yükselir (callModelJson yedeğe geçer).
  *  - diğer  → hata olduğu gibi yükselir (§51b: boşa tekrar yok).
  */
-async function callModelHizKorumali(env: AiEnv, prompt: string, opts: CallOptions): Promise<string | object> {
+async function callModelHizKorumali(
+  env: AiEnv, prompt: string, opts: CallOptions, hak: CagriHakki, kanca?: CagriKancasi
+): Promise<string | object> {
   for (let tekrar = 0; ; tekrar++) {
+    if (kanca?.cagriOncesi) await kanca.cagriOncesi();  // AiGunlukSinirHatasi fırlatabilir
+    hak.kalan--;
     try {
       return await callModel(env, prompt, opts);
     } catch (e) {
       const tur = aiHatasiniSinifla(e);
       const mesaj = e instanceof Error ? e.message : String(e);
-      if (tur === 'kota') throw e instanceof AiKotaHatasi ? e : new AiKotaHatasi(mesaj);
-      if (tur === 'hiz' && tekrar === 0) {
+      if (tur === 'kota') {
+        // Kota bitmişken model iş yapmadı: günlük adres hakkı geri verilir.
+        if (kanca?.kotaIade) await kanca.kotaIade();
+        throw e instanceof AiKotaHatasi ? e : new AiKotaHatasi(mesaj);
+      }
+      if (tur === 'hiz' && tekrar === 0 && hak.kalan > 0) {
         const ms = hizBeklemeMs(env);
         console.log(JSON.stringify({ ev: 'ai_hiz_tekrar', provider: providerName(env), model: modelName(env), beklemeMs: ms, hata: mesaj.slice(0, 200) }));
         await bekle(ms);
@@ -595,10 +612,13 @@ async function callOne(
   env: AiEnv,
   prompt: string,
   opts: CallOptions,
-  sema?: JsonSema
+  sema: JsonSema | undefined,
+  hak: CagriHakki,
+  kanca?: CagriKancasi
 ): Promise<{ data: unknown; attempts: number; approxPromptChars: number }> {
   let lastErr: unknown;
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  // §86: deneme sayısı ayrıca çağrı hakkıyla sınırlı (hız tekrarı hak yer).
+  for (let attempt = 1; attempt <= 2 && hak.kalan > 0; attempt++) {
     /* §86 — ONARIM DENEMESİ: İKİ AYRI YOL, İKİSİ DE TEK DENEME.
        (a) Yanıt JSON olarak AYRIŞMADIYSA eski davranış aynen sürer: ikinci
            denemede mevcut "gecerli JSON degildi" ek talimatı eklenir (§51b'den
@@ -661,9 +681,10 @@ async function callOne(
       );
     let raw: string | object;
     try {
-      raw = await callModelHizKorumali(env, p, buOpts);
+      raw = await callModelHizKorumali(env, p, buOpts, hak, kanca);
     } catch (e) {
-      kayit(false, 'model', e);
+      // Günlük sınır reddinde model çağrılmadı; "model hatası" diye kaydedilmez.
+      if (!(e instanceof AiGunlukSinirHatasi)) kayit(false, 'model', e);
       throw e instanceof Error ? e : new Error(String(e));
     }
     let data: unknown;

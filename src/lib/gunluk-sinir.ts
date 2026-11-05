@@ -15,26 +15,42 @@
 //    güçlü tutarlı, tek nesne içi istekler sıralı. SEÇİLDİ.
 // DO bir Cloudflare KAYNAĞIDIR (deploy sırasında migration ile oluşur). Bu
 // dalda OLUŞTURULMADI; bağlama satırı wrangler.demo.jsonc'ta YORUM olarak
-// bekliyor. Bağlama yokken sayaç BELLEK İÇİ çalışır (isolate başına, dağıtık
-// garanti değil) ve /api/ai/status bunu `gunlukSinir.mod: "bellek"` diye
-// açıkça söyler — sessiz değil.
+// bekliyor. /api/ai/status hangi modda olunduğunu `gunlukSinir.mod` ile söyler.
+//
+// ⚠ BELLEK MODUNDA SINIR GEVŞEKTİR (bağlama yokken — BUGÜNKÜ DURUM):
+//  - Her Workers isolate'i KENDİ sayacını tutar. Aynı adresin istekleri farklı
+//    isolate'lere (farklı veri merkezlerine ya da aynı merkezde birden çok
+//    isolate'e) düşebilir; GERÇEK sınır yazılı değerin BİRKAÇ KATI olabilir.
+//  - Isolate yenilenince (deploy, boşta kalma, bellek baskısı) sayaç SIFIRLANIR.
+//  - Yani bellek modu kötü niyete karşı garanti DEĞİLDİR; yalnız tek isolate
+//    içindeki döngüyü keser. Bu gevşeklik GUNLUK_SAYAC (Durable Object)
+//    bağlaması açılınca kalkar: sayaç adres başına tek nesnede, güçlü tutarlı.
+//
+// SAYILAN ŞEY: istek değil, GERÇEK MODEL ÇAĞRISI (onarım, hız tekrarı, yedek
+// çağrısı da birer hak). 3036 dönen çağrının hakkı iade edilir.
 //
 // GÜN: UTC günü. Workers AI kotası da 00:00 UTC'de (03:00 TR) sıfırlanır;
 // iki sayaç aynı anda yenilenir.
 // ============================================================================
 
-export const GUNLUK_SINIR_VARSAYILAN = 40;
+export const GUNLUK_SINIR_VARSAYILAN = 60;
 
 /**
- * Sınır değeri `AI_GUNLUK_IP_SINIRI` ortam değişkeninden; geçersizse 40.
+ * Sınır değeri `AI_GUNLUK_IP_SINIRI` ortam değişkeninden; geçersizse 60.
+ * Birim: GERÇEK MODEL ÇAĞRISI / UTC günü / adres.
  *
- * 40 NEDEN (gerekçeli TAHMİN, trafik ölçümü yok): rapor (c)'deki saha
- * ölçümleriyle puanlama ≈110, üretim ≈400, çözme ≈60 Neuron. Karma bir
- * öğretmen günü (bir sınıfın ~30 açık uçlu puanlaması + birkaç üretim/çözüm)
- * 40 çağrıya sığar; 40 çağrının ortalama ~150 Neuron'la tutarı ≈6.000 Neuron,
- * yani tek adres günlük havuzun yaklaşık %60'ını tüketebilir, TAMAMINI değil.
- * Okul ağları tek NAT adresinden çıkabilir; o durumda değer ortam
- * değişkeniyle yükseltilir (kod değişmez).
+ * 60 NEDEN (gerekçeli TAHMİN, trafik ölçümü yok): artık onarım ve yedek
+ * çağrıları da hak yediği için istek sayısından biraz yüksek tutuldu. Karma
+ * bir öğretmen günü: bir sınıfın ~30 açık uçlu puanlaması + ~%10 onarım + 5
+ * üretim + 10 çözüm ≈ 50 çağrı. Saha ölçümleriyle (rapor (c): puanlama ≈110,
+ * üretim ≈400, çözme ≈60 Neuron) bu gün ≈ 30×110+3×110+5×400+10×60 ≈ 6.200
+ * Neuron eder. Yalnız puanlama yapan bir adres 60 çağrıda ≈6.600 Neuron
+ * (%66) harcar. DÜRÜST SINIR: yalnız üretim yapan ya da en kötü durumda
+ * çağıran bir adres 60 çağrıyla günlük havuzu AŞABİLİR (en kötü durum hesabı
+ * PROGRESS §86'da); bu sınır tek adresin havuzu bitirmesini garanti
+ * engellemez, kaba döngüyü ve puanlama ağırlıklı aşırı kullanımı keser.
+ * Okul ağları tek NAT adresinden çıkabilir; değer ortam değişkeniyle
+ * değiştirilir (kod değişmez).
  */
 export function gunlukSinirDegeri(env: { AI_GUNLUK_IP_SINIRI?: string }): number {
   const n = Math.floor(Number(env.AI_GUNLUK_IP_SINIRI));
@@ -102,6 +118,32 @@ export async function gunlukHakKullan(env: GunlukSinirEnv, ip: string, now: numb
   return bellekteKullan(ip, limit, now);
 }
 
+/** Saf iade adımı: aynı gündeyse ve sayı > 0 ise bir azaltır. */
+export function iadeAdimi(k: Kayit | undefined, gun: string): Kayit | undefined {
+  if (!k || k.gun !== gun || k.sayi <= 0) return k;
+  return { gun, sayi: k.sayi - 1 };
+}
+
+/**
+ * Model çağrısı 3036 (kota bitti) ile döndüyse hakkı geri verir: kota
+ * bitmişken dönen 503 adresin günlük hakkını yemez. Hata yutulur ve loglanır
+ * (iade başarısızlığı en kötü durumda bir hak kaybettirir).
+ */
+export async function gunlukHakIade(env: GunlukSinirEnv, ip: string, now: number = Date.now()): Promise<void> {
+  const gun = utcGun(now);
+  if (env.GUNLUK_SAYAC) {
+    try {
+      const stub = env.GUNLUK_SAYAC.get(env.GUNLUK_SAYAC.idFromName(ip));
+      await stub.fetch(`https://gunluk-sayac/iade?gun=${gun}`);
+      return;
+    } catch (e) {
+      console.error(JSON.stringify({ ev: 'gunluk_sinir_do_hata', islem: 'iade', hataSinifi: e instanceof Error ? e.name : typeof e }));
+    }
+  }
+  const k = iadeAdimi(bellek.get(ip), gun);
+  if (k) bellek.set(ip, k);
+}
+
 export function gunlukSinirModu(env: GunlukSinirEnv): 'durable-object' | 'bellek' {
   return env.GUNLUK_SAYAC ? 'durable-object' : 'bellek';
 }
@@ -118,6 +160,12 @@ export class GunlukSayac {
 
   async fetch(req: Request): Promise<Response> {
     const u = new URL(req.url);
+    if (u.pathname === '/iade') {
+      const gunI = u.searchParams.get('gun') || utcGun();
+      const k = iadeAdimi(await this.state.storage.get<Kayit>('k'), gunI);
+      if (k) await this.state.storage.put('k', k);
+      return Response.json({ sayi: k?.sayi ?? 0 });
+    }
     const limit = Math.max(1, Math.floor(Number(u.searchParams.get('limit')) || GUNLUK_SINIR_VARSAYILAN));
     const gun = u.searchParams.get('gun') || utcGun();
     const onceki = await this.state.storage.get<Kayit>('k');

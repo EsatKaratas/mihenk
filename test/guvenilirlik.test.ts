@@ -210,6 +210,45 @@ describe('§86 madde 1 — dakikalık 429', () => {
   });
 });
 
+describe('§86 istek başına model çağrısı tavanı (3)', () => {
+  it('her şey bozuk: toplam 3 çağrı (70B 2 + Scout 1)', async () => {
+    const f = sahteAi({ [M70]: [() => 'yok'], [SCOUT]: [() => 'yok'] });
+    const r = await post('/api/ai/evaluate', govde(), zincirEnv(f.AI));
+    expect(r.status).toBe(502);
+    expect(f.cagri.length).toBe(3);
+  });
+
+  it('hız tekrarı tavana dahil: 70B 429 → tekrar bozuk JSON → JSON onarımı YOK, Scout 1', async () => {
+    const f = sahteAi({
+      [M70]: [() => { throw new Error('Too Many Requests'); }, () => 'bozuk', () => DEGERLENDIRME],
+      [SCOUT]: [() => DEGERLENDIRME],
+    });
+    const r = await post('/api/ai/evaluate', govde(), zincirEnv(f.AI));
+    expect(r.status).toBe(200);
+    expect(f.sayi(M70)).toBe(2);
+    expect(f.sayi(SCOUT)).toBe(1);
+    expect(((await r.json()) as any).meta).toMatchObject({ source: 'workers-ai-scout', yedekModel: true });
+  });
+
+  it('Scout\'ta hız hatası tekrar edilmez (Scout hakkı 1)', async () => {
+    const f = sahteAi({ [M70]: [() => 'yok'], [SCOUT]: [() => { throw new Error('rate limited'); }, () => DEGERLENDIRME] });
+    const r = await post('/api/ai/evaluate', govde(), zincirEnv(f.AI));
+    expect(r.status).toBe(502);
+    expect(f.sayi(SCOUT)).toBe(1);
+    expect(f.cagri.length).toBe(3);
+  });
+
+  it('kesilmiş JSON yolunda 2. deneme bütçesi büyür (820 → 1640), tavan yine 3', async () => {
+    const maks: unknown[] = [];
+    const f = sahteAi({ [M70]: [() => '{"breakdown": [{"label": "Kavram", "po', () => DEGERLENDIRME] });
+    const asil = (f.AI as any).run;
+    (f.AI as any).run = async (m: string, g: any, ...r: unknown[]) => { maks.push(g.max_tokens); return asil(m, g, ...r); };
+    const r = await post('/api/ai/evaluate', govde(), zincirEnv(f.AI));
+    expect(r.status).toBe(200);
+    expect(maks).toEqual([820, 1640]);
+  });
+});
+
 describe('§86 madde 2 — meta.source', () => {
   it('70B yanıtı: source=workers-ai-70b, yedekModel=false; eski meta alanları duruyor', async () => {
     const f = sahteAi({ [M70]: [() => DEGERLENDIRME] });
@@ -266,8 +305,9 @@ describe('§86 madde 3 — şema doğrulaması, onarım, Scout', () => {
     const j: any = await res.json();
     expect(j.error).toBe('model_output_invalid');
     expect(typeof j.message).toBe('string');
+    // İstek başına tavan 3: 70B en çok 2, Scout en çok 1.
     expect(f.sayi(M70)).toBe(2);
-    expect(f.sayi(SCOUT)).toBe(2);
+    expect(f.sayi(SCOUT)).toBe(1);
   });
 
   it('Scout ayrışmayan metin döndürür → açık hata 502 ai_call_failed', async () => {
@@ -291,12 +331,12 @@ describe('§86 madde 3 — şema doğrulaması, onarım, Scout', () => {
 describe('§86 madde 4 — IP başına günlük sınır', () => {
   beforeEach(() => bellekSayaciniSifirla());
 
-  it('sınır değeri: varsayılan 40, ortam değişkeni, geçersiz değer → varsayılan', () => {
-    expect(GUNLUK_SINIR_VARSAYILAN).toBe(40);
-    expect(gunlukSinirDegeri({})).toBe(40);
+  it('sınır değeri: varsayılan 60, ortam değişkeni, geçersiz değer → varsayılan', () => {
+    expect(GUNLUK_SINIR_VARSAYILAN).toBe(60);
+    expect(gunlukSinirDegeri({})).toBe(60);
     expect(gunlukSinirDegeri({ AI_GUNLUK_IP_SINIRI: '3' })).toBe(3);
-    expect(gunlukSinirDegeri({ AI_GUNLUK_IP_SINIRI: '0' })).toBe(40);
-    expect(gunlukSinirDegeri({ AI_GUNLUK_IP_SINIRI: 'abc' })).toBe(40);
+    expect(gunlukSinirDegeri({ AI_GUNLUK_IP_SINIRI: '0' })).toBe(60);
+    expect(gunlukSinirDegeri({ AI_GUNLUK_IP_SINIRI: 'abc' })).toBe(60);
   });
 
   it('sayacAdimi: sınırda durur, gün değişince sıfırlanır', () => {
@@ -318,7 +358,7 @@ describe('§86 madde 4 — IP başına günlük sınır', () => {
     expect(r.status).toBe(429);
     const j: any = await r.json();
     expect(j.error).toBe('gunluk_sinir');
-    expect(j.message).toMatch(/2 yapay zekâ isteği/);
+    expect(j.message).toMatch(/2 yapay zekâ çağrısı/);
     expect(Number(r.headers.get('retry-after'))).toBeGreaterThan(0);
     expect(f.sayi(M70)).toBe(2);
     expect((await post('/api/ai/evaluate', govde(), env, '198.51.100.9')).status).toBe(200);
@@ -333,12 +373,35 @@ describe('§86 madde 4 — IP başına günlük sınır', () => {
     expect((await post('/api/ai/evaluate', govde(), env, '203.0.113.8')).status).toBe(429);
   });
 
-  it('onarım + yedek denemeleri tek hak sayılır', async () => {
+  it('MODEL ÇAĞRISI başına sayılır: onarım + yedek çağrıları da birer hak', async () => {
     const f = sahteAi({ [M70]: [() => SEMA_DISI], [SCOUT]: [() => DEGERLENDIRME] });
-    const env = { ...zincirEnv(f.AI), AI_GUNLUK_IP_SINIRI: '1' };
+    const env = { ...zincirEnv(f.AI), AI_GUNLUK_IP_SINIRI: '3' };
     expect((await post('/api/ai/evaluate', govde(), env, '203.0.113.9')).status).toBe(200);
     expect(f.cagri.length).toBe(3);
-    expect((await post('/api/ai/evaluate', govde(), env, '203.0.113.9')).status).toBe(429);
+    const r = await post('/api/ai/evaluate', govde(), env, '203.0.113.9');
+    expect(r.status).toBe(429);
+    expect(f.cagri.length).toBe(3);
+  });
+
+  it('zincirin ortasında hak biterse yedek çağrılmaz, 429 gunluk_sinir döner', async () => {
+    const f = sahteAi({ [M70]: [() => SEMA_DISI], [SCOUT]: [() => DEGERLENDIRME] });
+    const env = { ...zincirEnv(f.AI), AI_GUNLUK_IP_SINIRI: '2' };
+    const r = await post('/api/ai/evaluate', govde(), env, '203.0.113.10');
+    expect(r.status).toBe(429);
+    expect(((await r.json()) as any).error).toBe('gunluk_sinir');
+    expect(f.sayi(M70)).toBe(2);
+    expect(f.sayi(SCOUT)).toBe(0);
+  });
+
+  it('kota bitmişken dönen 503 hak YEMEZ (3036 çağrısının hakkı iade edilir)', async () => {
+    const kota = sahteAi({ [M70]: [() => { throw kotaBicimleri[0][1](); }] });
+    const env1 = { ...zincirEnv(kota.AI), AI_GUNLUK_IP_SINIRI: '1' };
+    expect((await post('/api/ai/evaluate', govde(), env1, '203.0.113.11')).status).toBe(503);
+    expect((await post('/api/ai/evaluate', govde(), env1, '203.0.113.11')).status).toBe(503);
+    const ok = sahteAi({ [M70]: [() => DEGERLENDIRME] });
+    const env2 = { ...zincirEnv(ok.AI), AI_GUNLUK_IP_SINIRI: '1' };
+    expect((await post('/api/ai/evaluate', govde(), env2, '203.0.113.11')).status).toBe(200);
+    expect((await post('/api/ai/evaluate', govde(), env2, '203.0.113.11')).status).toBe(429);
   });
 
   it('/status günlük sınırı ve modu açıkça söyler (bağlama yok → bellek)', async () => {
@@ -356,6 +419,11 @@ describe('§86 madde 4 — IP başına günlük sınır', () => {
     expect(await iste('2026-11-05')).toEqual({ izin: true, sayi: 2 });
     expect(await iste('2026-11-05')).toEqual({ izin: false, sayi: 2 });
     expect(await iste('2026-11-06')).toEqual({ izin: true, sayi: 1 });
+    // iade: aynı günde bir azaltır; başka günün kaydına dokunmaz
+    expect(await (await d.fetch(new Request('https://x/iade?gun=2026-11-06'))).json()).toEqual({ sayi: 0 });
+    expect(await (await d.fetch(new Request('https://x/iade?gun=2026-11-06'))).json()).toEqual({ sayi: 0 });
+    expect(await iste('2026-11-06')).toEqual({ izin: true, sayi: 1 });
+    expect(await (await d.fetch(new Request('https://x/iade?gun=2026-11-07'))).json()).toEqual({ sayi: 1 });
   });
 
   it('bağlama varsa DO kullanılır; DO hata verirse bellek sayacına düşer ve loglar', async () => {

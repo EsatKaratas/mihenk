@@ -23,10 +23,11 @@ import {
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
   fallbackSorunu, saglayiciHazirMi, type AiEnv,
-  AiKotaHatasi, AiSemaHatasi, saniyeUtcGunSonuna, gatewaySecenekleri,
+  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, saniyeUtcGunSonuna, gatewaySecenekleri,
+  type CagriKancasi,
 } from '../lib/ai';
 import {
-  gunlukHakKullan, gunlukSinirDegeri, gunlukSinirModu, type GunlukSinirEnv,
+  gunlukHakKullan, gunlukHakIade, gunlukSinirDegeri, gunlukSinirModu, type GunlukSinirEnv,
 } from '../lib/gunluk-sinir';
 import {
   RATE_LIMIT_PER_MIN,
@@ -143,6 +144,16 @@ function modelHatasiYaniti(c: any, e: unknown) {
       503
     );
   }
+  if (e instanceof AiGunlukSinirHatasi) {
+    c.header('Retry-After', String(saniyeUtcGunSonuna()));
+    return c.json(
+      {
+        error: 'gunluk_sinir',
+        message: `Bu bağlantıdan bugün en fazla ${e.limit} yapay zekâ çağrısı yapılabilir. Sınır 03:00'te (TR) yenilenir.`,
+      },
+      429
+    );
+  }
   if (e instanceof AiSemaHatasi) {
     console.error(JSON.stringify({ ev: 'ai_failed', uc: c.req.path, hata: e.message.slice(0, 500) }));
     return c.json(
@@ -155,27 +166,27 @@ function modelHatasiYaniti(c: any, e: unknown) {
 
 /**
  * §86 — İSTEMCİ ADRESİ BAŞINA GÜNLÜK SINIR (src/lib/gunluk-sinir.ts).
- * Her uçta MODEL ÇAĞRISINDAN HEMEN ÖNCE çağrılır: doğrulama hatası, boş
- * yanıt kısayolu ya da dakikalık sınır reddi günlük hakkı yemez. Bir istek
- * içindeki onarım/yedek denemeleri tek hak sayılır.
+ * Sınır İSTEK değil GERÇEK MODEL ÇAĞRISI başına sayılır (bağımsız doğrulama,
+ * 5 Kasım): kanca callModelJson içinde HER binding/sağlayıcı çağrısından
+ * hemen önce çalışır — onarım, hız tekrarı ve yedek çağrısı da birer hak.
+ * Doğrulama hatası, boş yanıt kısayolu ve dakikalık ret model çağırmadığı
+ * için hak yemez; 3036 (kota bitti) dönen çağrının hakkı İADE edilir.
+ * Sınır dolunca AiGunlukSinirHatasi → 429 `gunluk_sinir` (modelHatasiYaniti).
  * `cf-connecting-ip` yoksa (yalnız `app.request` testleri ve olası yerel
  * çalıştırma) günlük sınır UYGULANMAZ: üretimde Cloudflare bu başlığı her
  * isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
  * sürmeye devam eder.
  */
-async function gunlukSinirYaniti(c: any): Promise<Response | null> {
+function gunlukKanca(c: any): CagriKancasi | undefined {
   const ip = (c.req.header('cf-connecting-ip') || '').trim();
-  if (!ip) return null;
-  const s = await gunlukHakKullan(c.env, ip);
-  if (s.izin) return null;
-  c.header('Retry-After', String(saniyeUtcGunSonuna()));
-  return c.json(
-    {
-      error: 'gunluk_sinir',
-      message: `Bu bağlantıdan bugün en fazla ${s.limit} yapay zekâ isteği gönderilebilir. Sınır 03:00'te (TR) yenilenir.`,
+  if (!ip) return undefined;
+  return {
+    cagriOncesi: async () => {
+      const s = await gunlukHakKullan(c.env, ip);
+      if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
     },
-    429
-  );
+    kotaIade: () => gunlukHakIade(c.env, ip),
+  };
 }
 
 /** §86: başarılı yanıtların ortak meta alanları (eski alanlar + source + yedekModel). */
@@ -372,8 +383,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      eklenir; aksi hâlde toplanır ama dönmez (davranış aynı). */
   const elenenler: Array<{ neden: 'tekrar' | 'ayniSik' | 'gecersiz'; type: string; body: string; benzedigi?: 'onceki' | 'ayniTur' }> = [];
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
     /* §55 A5: sıcaklık ürün için 0,5'te SABİT. Yalnız ölçüm sunucusunda
@@ -381,7 +391,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
        döner ki ölçüm betiği sunucunun gerçekten o değeri kullandığını doğrulasın. */
     const olcum = olcumAyarlari(c.env);
     const sicaklik = olcum.sicaklik ?? 0.5;
-    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: sicaklik }, modelQuestionsSchema);
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: sicaklik }, modelQuestionsSchema, kanca);
     const { data } = sonuc;
     const parsed = modelQuestionsSchema.safeParse(data);
     if (!parsed.success) {
@@ -657,11 +667,10 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
     studentAnswer: b.studentAnswer,
   });
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
-    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 820, temperature: 0.2 }, modelEvaluationSchema);  // +120: studentFeedback alanı eklendi
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 820, temperature: 0.2 }, modelEvaluationSchema, kanca);  // +120: studentFeedback alanı eklendi
     const { data } = sonuc;
     const parsed = modelEvaluationSchema.safeParse(data);
     if (!parsed.success) {
@@ -732,8 +741,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
       429
     );
   }
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
   try {
     const prompt = buildRubricPrompt({
       questionBody: b.questionBody,
@@ -742,7 +750,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
       grade: b.grade,
       maxScore: b.maxScore,
     });
-    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 }, modelRubricSchema);
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 }, modelRubricSchema, kanca);
     const parsed = modelRubricSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
@@ -796,8 +804,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     );
   }
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
     const prompt = buildSampleAnswerPrompt({
@@ -808,7 +815,7 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     });
     // Düzey başına ~140 token; taban 500.
     const maxTokens = clamp(500 + b.levels.length * 140, 700, 2000);
-    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 }, modelSampleAnswersSchema);
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 }, modelSampleAnswersSchema, kanca);
     const parsed = modelSampleAnswersSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
@@ -880,8 +887,7 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     });
   }
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
     const prompt = buildMisconceptionPrompt({
@@ -894,7 +900,7 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     const sonuc = await callModelJson(c.env, prompt, {
       maxTokens,
       temperature: 0.3,
-    }, modelMisconceptionsSchema);
+    }, modelMisconceptionsSchema, kanca);
     const parsed = modelMisconceptionsSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
@@ -956,8 +962,7 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
     );
   }
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
     const prompt = buildAlignmentPrompt({
@@ -970,7 +975,7 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
     const sonuc = await callModelJson(c.env, prompt, {
       maxTokens,
       temperature: 0.2,
-    }, modelAlignmentSchema);
+    }, modelAlignmentSchema, kanca);
     const parsed = modelAlignmentSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
@@ -1064,12 +1069,11 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
   const prompt = buildSolvePrompt({ questionBody: b.questionBody, options, outcomeLabel: b.outcomeLabel });
   const { env: cozucuEnv, capraz } = caprazEnv(c.env);
 
-  const gunluk = await gunlukSinirYaniti(c);
-  if (gunluk) return gunluk;
+  const kanca = gunlukKanca(c);
 
   try {
     // max_tokens açık (agents.md §4): ~2 cümle gerekçe + kısa JSON. Düşük sıcaklık: çözüm, yaratıcılık değil.
-    const sonuc = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 }, modelSolveSchema);
+    const sonuc = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 }, modelSolveSchema, kanca);
     const { attempts, usedProvider, usedModel, fellBack } = sonuc;
     const parsed = modelSolveSchema.safeParse(sonuc.data);
     if (!parsed.success) {
