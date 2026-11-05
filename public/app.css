@@ -907,6 +907,11 @@
   .fail-note .mono-err { font-family: "IBM Plex Mono", monospace; font-size: 11px;
     color: var(--text-muted); }
 
+  /* §88b: izin yok → elle değerlendirme kartı (hata değil, nötr). */
+  .elle-note { margin-top: 12px; padding: 11px 13px; border-radius: 8px;
+    background: var(--surface-2); border-left: 3px solid var(--border-strong);
+    font-size: 12.5px; line-height: 1.6; color: var(--text); }
+
   .exam-card .ec-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
   .exam-card.resume { border-color: var(--accent); }
   .resume-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px;
@@ -1653,6 +1658,10 @@
 .sy-satir .sy-ad { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sy-satir .icon-btn { flex: none; }
+/* §88b: öğrenci başına yapay zekâ izni anahtarı. */
+.sy-satir .sy-yz { flex: none; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); }
+.sy-satir .sy-yz.sy-yz-yok { border-color: var(--warning); background: var(--warning-soft); color: var(--warning); font-weight: 600; }
 .sy-ekle { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .sy-input {
   padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px;

@@ -45,7 +45,9 @@ notu, sınav hakkı ya da ders içi etkinlikleri bundan etkilenmez.
 
 Aşağıdaki iki rıza **birbirinden bağımsızdır**. Birini verip diğerini vermeyebilirsiniz. Ancak yapay zekâ
 değerlendirmesi ancak **ikisi birden** verildiğinde kullanılabilir; yalnızca biri işaretlenirse cevap elle
-değerlendirilir.
+değerlendirilir. Öğretmen bu durumda uygulamadaki öğrenci listesinde çocuğunuz için "YZ: izin yok" ayarını
+seçer; bu ayar açıkken çocuğunuzun cevabı hiçbir yapay zekâ isteğine (puan önerisi ya da sınıf düzeyinde
+yanılgı analizi) girmez.
 
 ---
 
@@ -74,7 +76,8 @@ Cloudflare, Inc.'e (Amerika Birleşik Devletleri) aktarılmasına:
 KVKK m.11'deki haklarınızı (verinin işlenip işlenmediğini öğrenme, bilgi isteme, düzeltme, silme, aktarılan
 üçüncü kişileri bilme, itiraz, zararın giderilmesi vb.) [iletişim e-postası] adresine yazarak
 kullanabilirsiniz. Rızanızı istediğiniz zaman, aynı adrese yazarak ya da öğretmene bildirerek geri
-alabilirsiniz; geri alma, o tarihten sonraki işlemler için geçerlidir.
+alabilirsiniz; geri alma, o tarihten sonraki işlemler için geçerlidir (daha önce gönderilmiş bir cevap için
+yapılmış değerlendirme geri alınamaz; Mihenk sunucusu o cevabı saklamamıştır).
 
 ---
 
