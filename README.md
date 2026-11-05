@@ -680,10 +680,18 @@ npx wrangler secret put BETTER_AUTH_SECRET
 
 ## 8. Deploy (üretim)
 
+**Canlı sistem `npm run deploy:demo` ile yayınlanır** (`wrangler.demo.jsonc`:
+yalnız Workers AI + statik dosyalar + değişkenler; Cloudflare ücretsiz planında
+çalışır). `npm run deploy` hedef üretim yapılandırmasını (`wrangler.jsonc`: D1,
+R2, Queues) kullanır. Bu bağlamalar ücretli plan istediği için `npm run deploy`
+bugün **bilerek durur**: `tools/deploy-guard.mjs` ücretli bağlamaları adıyla
+sayar ve hiçbir şey yüklemeden çıkar (testi `test/deploy-guard.test.ts`).
+Hedef mimari açıldığında sıra şudur:
+
 ```bash
 npm run db:migrate:remote   # uzak D1'e şemayı uygula
 npx wrangler secret put BETTER_AUTH_SECRET
-npm run deploy
+npm run deploy              # bugün: ücretli bağlama nedeniyle durur
 ```
 
 `wrangler deploy`, Worker'ı `*.workers.dev` alt alan adında yayınlar; kurumsal
