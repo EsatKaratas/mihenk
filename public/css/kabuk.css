@@ -285,3 +285,14 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
   .giris-kapisi.gk-tek .gk-tez { font-size: var(--fs-3); }
   .giris-kapisi.gk-tek .gk-demo-not { text-align: center; }
 }
+
+/* §90 — Yapay zekâ kaynak rozeti (yedek model · önbellek · önceden hazırlanmış).
+   Bilgi rozeti: lacivert (.pill-accent). Ana model rozet göstermez. Uzun metin
+   dar ekranda sarar (.pill varsayılanı nowrap; 390 px'te taşmasın). */
+.ai-kaynak-serit { display: inline-flex; flex-wrap: wrap; gap: var(--sp-1); align-items: center; max-width: 100%; }
+.ai-kaynak-serit .ai-kaynak { white-space: normal; overflow-wrap: anywhere; line-height: 1.4;
+  border: 1px solid var(--accent-strong); }
+.eval-block > .ai-kaynak-serit { margin: 0 0 var(--sp-2); }
+.ai-kaynak-satir { display: flex; flex-wrap: wrap; gap: var(--sp-1); align-items: center; margin: 0 0 var(--sp-2); }
+.ai-kaynak-satir .birim-farki { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; border: 1px solid var(--accent-strong); }
+.rub-taslak-serit .ai-kaynak-serit { flex-basis: 100%; }
