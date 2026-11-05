@@ -10191,6 +10191,8 @@ toplam ≤ 9.000 Neuron.
   - `_redirects`, `_headers` gibi varlık olarak sunulmaz; SHA listesinde
     ikisi de atlanır.
 
+---
+
 ## 86. Ücretsiz plan güvenilirlik katmanı (5 Kasım 2026, dal `ai-guvenilirlik`)
 
 Bağlam: hesap ödeme yapmıyor; Workers AI ücretsiz planı günde 10.000 Neuron verir.
@@ -10370,6 +10372,98 @@ Yöntem seçimi (belgelerden, 5 Kasım):
   satırdı; KVKK gereği tersine çevrildi. `tsc --noEmit` 0 hata. Öz-kontrol 521 ad %100.
 - `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketledi (yükleme yok).
 - Canlıda hiçbir şey ölçülmedi.
+
+---
+
+## 89. MAT V2 ÖN KAYITLI DOĞRULAMA + İSTEM v4 YALNIZ MATEMATİKTE (5 Kasım 2026, W6)
+
+*(§86–§88 başka dallara ayrıldı.)* Dal `mat-v4-yalniz-matematik`, main bf07df0'dan.
+Model çağrısı yok (ölçüm aşağıda, ayrı gün).
+
+### 89.1 Ölçüm sonucu (mat-v2, ön kayıtlı)
+
+- Ön kayıt `docs/olcum/ON-KAYIT-mat-v2.md` §1–§8 aynen (§8: A2 sırası koşumdan önce).
+- Veri, kör cevaplar ve elle kontrol `mat-v2-sonuc` dalında (1c4dad8). Ön kayıt ve
+  araçlar `mat-kazanim-anahtar` dalında (bb575f5).
+- 5 Kasım 20:17–20:28 UTC: 20/20 üretim, tohumlu karışık sıra, 429/3036 yok.
+  Önizleme yalnız `wrangler.demo.jsonc` (APP_ENV=olcum, OLCUM_HAM=1).
+- Dönen ÇSS: taban 24, v4 24 (her kolda 6'sı elendi).
+- **Körlük:** eşleme 20:29:32 UTC'de ağaç dışına taşındı. 48 doğru değer kör
+  yazılıp commit'lendi (08f2379), eşleme ancak ondan sonra açıldı.
+- **Araç hatası (kural değil):** `olc.mjs` koşum ekindeki tire ve noktayı siliyor;
+  kör betiği ilk koşuda 0 soru buldu. Desen düzeltildi.
+
+| v4 kolu (n = 24 ≥ 20) | Eşik | Sonuç |
+|---|---|---|
+| K1 anahtar doğruluğu | ≥ %80 | 22/24 = **%91,7** — GEÇTİ |
+| K2 doğru değer hiçbir şıkta yok | ≤ 1 | **0** — GEÇTİ |
+| K3 A2 yanlış alarmı (yeni A2) | ≤ 1 | **0** — GEÇTİ |
+
+- **K4 (bilgi):**
+  - Taban (istem v2) %45,8 → **+45,8 puan**.
+  - "Şıkta yok": taban 7, v4 0.
+  - A2 yanlış yakalama: taban 7/10 (eski) / 6/10 (yeni); v4 0/1.
+  - Birim farkı 0.
+- Neuron: gün başı 223 → 6.627 (+6.404; içinde W8'in payı da olabilir).
+
+### 89.2 Kapsam kararı (Orchestrator 2) — v4 YALNIZ Matematik + kazanım modu
+
+- Kod okumasında v4'ün Kural 10'u ve JSON şablonu tek üretim isteminde KOŞULSUZDU:
+  tüm dersler ve modlar etkileniyordu.
+- A5 (%77,7, A1 v2 ∪ A2) ve dil sızıntısı ölçümleri istem v2'ye dayanıyor; v4
+  matematik dışında hiç ölçülmedi.
+- **Uygulama:**
+  - `prompts.ts`'te `matematikDersiMi(subject)`: kırp, Türkçe küçük harf, ı→i,
+    "matematik" ile başlıyor mu ("MATEMATİK", "Matematik Uygulamaları" dahil).
+  - `matematikV4Yolu(spec)`: Matematik **ve** `mode === 'kazanim'` **ve** kaynak MEB
+    (Deneyap değil). Yani yalnız ölçüldüğü yer. İkinci karar (aynı gün): Matematik
+    metin ve materyal modu da v2'de kalır.
+  - `istemSurumu(spec)`: bu yolda `ISTEM_SURUMU_MATEMATIK` = 4, her yerde başka
+    `ISTEM_SURUMU` = 2.
+  - Kural 10 ve JSON örneği `${matematikV4 ? v4 : v2}`; v2 metnine dokunulmadı.
+  - `meta.istemSurumu` yola göre 4 ya da 2.
+- **Bayt düzeyinde doğrulandı (model çağrısı yok):**
+  - 11 spec (Mat kazanım/metin/materyal/varyant, Fen kazanım/metin, Türkçe
+    kazanım/materyal, Deneyap, Keşif): 3 Matematik kazanım yolu ölçülen dalın
+    (bb575f5) istemiyle, diğer 8 yol (Mat metin ve materyal dahil) main bf07df0'ın
+    istemiyle BİREBİR aynı.
+  - Mat metin `f46482be…` (10.740 karakter) ve Mat materyal `aa136490…` (10.790
+    karakter) parmak izleri eski kodla alındı; rastgele sınır belirteci sabitlendi.
+  - Parmak izleri: Fen v2 `afdfc8f1…` (10.554 karakter), Fen v1 `bab4bd87…` (A2
+    ekleri çıkarılınca), Mat v4 `7383b2c1…` (11.410 karakter).
+- **A2:** `sayisalCevapliMi`, `hesapBirimFarki` (yalnız true iken yanıtta) ve §8
+  sırası (başka şıkla tam tutma, birim farkından önce) bu dala taşındı. §73'ün
+  `YABANCI_AKSAN` ve `meta.dilUyarisiSozcukler` aynen korundu.
+- **Dil:** π θ α β Δ Σ μ yabancı alfabe sayılmaz (`MATEMATIK_YUNAN`; µ zaten aralık
+  dışı). mat-v2'de bir soru YALNIZ π yüzünden işaretlenmişti.
+  - Liste bilerek dar: γ, λ ve diğer Yunan harfleri yine uyarı verir.
+  - Muafiyet tüm derslerde geçerli (denetim dersi bilmez), ama yalnız bu 7 harf için.
+- **`routes/ai.ts`'e dokunulan satırlar** (paralel `ai-guvenilirlik` dalı için):
+  - İçe aktarma `ISTEM_SURUMU` → `istemSurumu`.
+  - A2'siz yoldaki nesneye `birimFarki: false`.
+  - Hesap alanlarına `...(d.birimFarki ? { hesapBirimFarki: true } : {})` + 1 yorum
+    satırı.
+  - `istemSurumu: istemSurumu({ subject: b.subject })`.
+  - Ölçüm dalının `meta.hamModel` eki ALINMADI (ürüne gerekmiyor).
+- Testler 413 → **425**: Mat metin/materyal v2 parmak izi, Fen v2/v1 parmak izi, Mat v4 parmak izi, ders adı
+  varyantları, matematik dışında v4 sızmaz, A2 sırası, uçtan istemSurumu 4 +
+  hesapBirimFarki, Yunan harfi muafiyeti. tsc temiz; öz-kontrol %100.
+
+### 89.3 Sınırlar ve AÇIK RİSK
+
+- **Matematikte dayanak n = 24, tek kodlayıcı** (Claude, insan uzman değil);
+  kazanım başına 2 tekrar.
+- Ölçüm yalnız **kazanım modunda** yapıldı; v4 de yalnız orada.
+- **"VERİLERİ DEĞİŞTİR" — KAPSAM DIŞI BIRAKILDI:** v4 Kural 10, çözüm tam çıkmıyorsa
+  ya da veri eksikse modele verileri değiştirmesini söylüyor. Metin/materyal
+  modunda bu, kaynak metindeki sayıların değişmesi demek olabilir; kaynak
+  sadakatiyle çelişir. Bu yüzden Matematik metin/materyal modu v2'de kaldı (bayt
+  aynı). Bu modlarda v4 ileride ~10 üretimlik bir ölçümle açılabilir (kural
+  "veriyi metinden al, değiştirme" diye koşullanarak ya da olduğu gibi).
+- A5 (%77,7) ve dil sızıntısı oranları matematikte artık geçerli değil: v4 yanlış
+  anahtar dağılımını değiştiriyor. Matematik dışında geçerli.
+- İstemci (`public/app.js`) `hesapBirimFarki`'yı henüz göstermiyor; alan yalnız
+  yanıtta ve ölçümde var.
 
 ---
 

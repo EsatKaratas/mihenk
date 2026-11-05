@@ -17,7 +17,7 @@ import {
   buildMisconceptionPrompt,
   buildAlignmentPrompt,
   buildSolvePrompt,
-  ISTEM_SURUMU,
+  istemSurumu,
   COZUCU_ISTEM_SURUMU,
 } from '../lib/prompts';
 import {
@@ -473,9 +473,11 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
               const hesap = typeof q.hesap === 'string' ? q.hesap.trim() : '';
               const d = anahtarGecerli
                 ? hesapDenetimi(hesap, karisik.options, karisik.correctKey)
-                : { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: !!hesap && hesapla(hesap) === null };
+                : { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: !!hesap && hesapla(hesap) === null, birimFarki: false };
               if (d.okunamadi) hesapOkunamadi++;
-              return { ...(hesap ? { hesap } : {}), hesapUyusmazligi: d.hesapUyusmazligi, hesapBaskaSik: d.hesapBaskaSik };
+              // §83/§89: birim farkı olası (hesap × 10^3/4/6 = doğru şık) — uyarı değil, ayrı işaret; yalnız true iken yazılır.
+              return { ...(hesap ? { hesap } : {}), hesapUyusmazligi: d.hesapUyusmazligi, hesapBaskaSik: d.hesapBaskaSik,
+                ...(d.birimFarki ? { hesapBirimFarki: true } : {}) };
             })(),
             difficulty: q.difficulty,
             bloom: q.bloom,
@@ -606,7 +608,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
         hesapUyusmazligi: kabul.filter((q) => (q as any).hesapUyusmazligi === true).length,
         hesapOkunamadi,
         // §55: soru üretim isteminin sürümü (1: §51b'ye kadar, 2: A2 "hesap" alanı). Ölçümler buna göre ayrılmalı.
-        istemSurumu: ISTEM_SURUMU,
+        istemSurumu: istemSurumu({ subject: b.subject, mode: b.mode, kaynakTuru: b.kaynakTuru }),   // §89: Matematik+kazanım 4, diğer 2
         // §55 A5: kullanılan sıcaklık — ölçüm betiği sunucunun gerçekten bunu kullandığını doğrular.
         sicaklik,
         // §55 A5: elenen maddeler YALNIZ ölçüm sunucusunda (APP_ENV=olcum + OLCUM_HAM=1).

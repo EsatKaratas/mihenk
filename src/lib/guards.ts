@@ -239,9 +239,19 @@ export const YABANCI_AKSAN =
    değişmez. */
 const nfc = (s: string): string => String(s || '').normalize('NFC');
 
+/*
+ * §89 — MATEMATİKTE MEŞRU YUNAN HARFLERİ yabancı alfabe sayılmaz: π θ α β Δ Σ μ
+ * (µ U+00B5 zaten aralık dışında). Ölçüldü (mat-v2, 5 Kasım): bir soruda
+ * dilUyarisi YALNIZ "π" yüzünden true idi; daire/π kullanan her soruda
+ * tekrarlardı. Liste bilerek dar: diğer Yunan harfleri (ör. "απο"daki ο)
+ * hâlâ uyarı verir. Muaf harfler sözcükten çıkarılır, kalan harfler denetlenir.
+ */
+export const MATEMATIK_YUNAN = /[πθαβΔΣμ]/gu;
+const yunanSiz = (s: string): string => s.replace(MATEMATIK_YUNAN, ' ');
+
 /** Metinde Türkçe dışı alfabe ya da Türkçe dışı Latin-1 aksanlı harf geçiyorsa true. */
 export const yabanciAlfabeVarMi = (s: string): boolean => {
-  const m = nfc(s);
+  const m = yunanSiz(nfc(s));
   return YABANCI_ALFABE.test(m) || YABANCI_AKSAN.test(m);
 };
 
@@ -253,7 +263,7 @@ export const yabanciAlfabeVarMi = (s: string): boolean => {
 export function yabanciSozcukler(metinler: Array<string | null | undefined>, en = 3): string[] {
   const out: string[] = [];
   for (const m of metinler) {
-    for (const w of nfc(m || '').split(/[^\p{L}\p{M}]+/u)) {
+    for (const w of yunanSiz(nfc(m || '')).split(/[^\p{L}\p{M}]+/u)) {
       if (!w || out.includes(w)) continue;
       if (YABANCI_ALFABE.test(w) || YABANCI_AKSAN.test(w)) {
         out.push(w);
@@ -783,26 +793,58 @@ export function sikSayisi(metin: string | null | undefined): { deger: number; to
   return { deger, tolerans: 0.5 * Math.pow(10, -ondalik) };
 }
 
-export type HesapSonucu = { hesapUyusmazligi: boolean | null; hesapBaskaSik: string | null; okunamadi: boolean };
+export type HesapSonucu = { hesapUyusmazligi: boolean | null; hesapBaskaSik: string | null; okunamadi: boolean; birimFarki: boolean };
+
+/**
+ * §83 — "Sayısal cevaplı" soru mu: her şıkta TEK sayı, işleç yok ve sayının
+ * dışında kalan metin bütün şıklarda AYNI ("12 bisküvi" / "4 bisküvi").
+ * Metin şıklı karşılaştırma ("2 litrelik paketlerden almak", "İkisi de aynı")
+ * ve ifade şıkları ("2*(8 + 5)") sayısal cevaplı DEĞİLDİR; şıktaki ilk sayı
+ * orada cevap değildir. Birim kelime listesi bilerek YOK (ölçüldü: liste
+ * "bisküvi" gibi her sayılabilir adı kaçırıp gerçek bir yakalamayı düşürdü).
+ */
+export function sayisalCevapliMi(options: Array<{ text: string }>): boolean {
+  if (!options.length) return false;
+  const kalanlar = options.map((o) => {
+    const s = String(o.text ?? '').trim().replace(/−/g, '-');
+    if ((s.match(/\d+(?:[.,]\d+)*/g) || []).length !== 1 || /[+*/×÷=<>]/.test(s)) return null;
+    return s.replace(/-?\d+(?:[.,]\d+)*/, '#').toLowerCase().replace(/\s+/g, ' ');
+  });
+  return kalanlar.every((k) => k !== null && k === kalanlar[0]);
+}
+
+/** §83 — metrik birim dönüşüm katsayıları (L↔m³, g↔kg, m↔km: 10^3; cm²↔m²: 10^4; cm³↔m³: 10^6). */
+const BIRIM_KATSAYILARI = [1e3, 1e4, 1e6];
 
 /**
  * Modelin hesabını doğru şıkla karşılaştırır. Karşılaştırma yapılamıyorsa
- * (hesap yok, şıkta sayı yok) hesapUyusmazligi null — "temiz" değil,
- * "denetlenmedi". Hesap başka bir şıkla tutuyorsa o harf döner: anahtar
- * büyük olasılıkla yanlış demektir — yine de karar İçerik Uzmanının.
+ * (hesap yok, şıkta sayı yok, soru sayısal cevaplı değil) hesapUyusmazligi
+ * null — "temiz" değil, "denetlenmedi". Hesap başka bir şıkla tutuyorsa o harf
+ * döner: anahtar büyük olasılıkla yanlış demektir — yine de karar İçerik
+ * Uzmanının. §83: hesap × 10^3/10^4/10^6 doğru şıkla tutuyorsa uyuşmazlık
+ * DEĞİL, ayrı `birimFarki` işareti (ör. hesap 9 m³, şık 9000 L); engellemez.
  */
 export function hesapDenetimi(
   hesap: string | null | undefined,
   options: Array<{ key: string; text: string }>,
   correctKey: string | null | undefined
 ): HesapSonucu {
-  if (!hesap || !String(hesap).trim()) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: false };
+  const sonuc = (hesapUyusmazligi: boolean | null, hesapBaskaSik: string | null = null, okunamadi = false, birimFarki = false): HesapSonucu =>
+    ({ hesapUyusmazligi, hesapBaskaSik, okunamadi, birimFarki });
+  if (!hesap || !String(hesap).trim()) return sonuc(null);
   const v = hesapla(hesap);
-  if (v === null) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: true };
-  const tutar = (o: { text: string }) => { const n = sikSayisi(o.text); return n !== null && Math.abs(v - n.deger) <= n.tolerans + 1e-9; };
+  if (v === null) return sonuc(null, null, true);
+  const yakin = (x: number, n: { deger: number; tolerans: number }) => Math.abs(x - n.deger) <= n.tolerans + 1e-9;
+  const tutar = (o: { text: string }) => { const n = sikSayisi(o.text); return n !== null && yakin(v, n); };
   const dogru = options.find((o) => o.key === correctKey);
-  if (!dogru || sikSayisi(dogru.text) === null) return { hesapUyusmazligi: null, hesapBaskaSik: null, okunamadi: false };
-  if (tutar(dogru)) return { hesapUyusmazligi: false, hesapBaskaSik: null, okunamadi: false };
+  const dogruSayi = dogru ? sikSayisi(dogru.text) : null;
+  if (!dogruSayi || !sayisalCevapliMi(options)) return sonuc(null);
+  if (yakin(v, dogruSayi)) return sonuc(false);
+  /* 5 Kasım denetimi: başka şıkla TAM tutma, birim farkından ÖNCE. Şıklar 9 ve
+     9000, anahtar 9000, hesap 9 ise gerçek bir anahtar hatası engellemeyen
+     "birim farkı" işaretine düşüyordu. */
   const baska = options.find((o) => o.key !== correctKey && tutar(o));
-  return { hesapUyusmazligi: true, hesapBaskaSik: baska ? baska.key : null, okunamadi: false };
+  if (baska) return sonuc(true, baska.key);
+  if (BIRIM_KATSAYILARI.some((k) => yakin(v * k, dogruSayi) || yakin(v / k, dogruSayi))) return sonuc(null, null, false, true);
+  return sonuc(true, null);
 }

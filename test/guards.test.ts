@@ -193,6 +193,20 @@ describe('yabanciAlfabeVarMi — model çıktısında Türkçe dışı alfabe', 
     expect(yabanciAlfabeVarMi(undefined as unknown as string)).toBe(false);
   });
 
+  /* §89 — matematikte meşru Yunan harfleri (π θ α β Δ Σ μ) yanlış alarm
+     vermez (mat-v2'de bir soru YALNIZ π yüzünden işaretlenmişti). */
+  it('π θ α β Δ Σ μ muaf; diğer Yunan harfleri ve gerçek sızıntılar yine yakalanır', () => {
+    for (const s of ['Dairenin alanı π · r² ile bulunur (π yerine 3,14 alınız).', 'θ açısı 30°', 'α + β = 90°',
+      'Δx = 5 m', 'Σ toplamı', '2 μm kalınlık', '5 µm (mikro işareti)']) {
+      expect(yabanciAlfabeVarMi(s), s).toBe(false);
+      expect(yabanciSozcukler([s]), s).toEqual([]);
+    }
+    expect(yabanciAlfabeVarMi('Soru: αβγ nedir?')).toBe(true);           // γ muaf değil
+    expect(yabanciAlfabeVarMi('π ile 直径 arasındaki ilişki')).toBe(true);  // CJK sızıntısı
+    expect(yabanciSozcukler(['πr² ve диагональ'])).toEqual(['диагональ']);
+    expect(yabanciAlfabeVarMi('λ dalga boyu')).toBe(true);                // liste dar
+  });
+
   /* §48 — CANLIDA GÖRÜLEN KUSUR. Liste Latin DIŞI alfabelerle sınırlıydı;
      Latin harfli ama Türkçe olmayan karakterler sessizce geçiyordu. İlk test
      canlı sistemde üretilmiş şıkkın kendisidir. */
