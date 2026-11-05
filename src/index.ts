@@ -12,6 +12,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import aiRoutes from './routes/ai';
 import type { AiEnv } from './lib/ai';
+import { kisiselKoruma } from './lib/kisisel'; // §88 KVKK
 
 type Bindings = AiEnv & {
   ASSETS?: Fetcher;
@@ -25,6 +26,7 @@ app.get('/api/health', (c) =>
   c.json({ ok: true, app: c.env.APP_NAME ?? 'Mihenk — Ölçme ve Değerlendirme Sistemi', env: c.env.APP_ENV ?? 'development' })
 );
 
+app.use('/api/ai/*', kisiselKoruma); // §88 KVKK: kişisel alan reddi + kendini tanıtma maskesi (src/lib/kisisel.ts)
 app.route('/api/ai', aiRoutes);
 
 /* §43 — /api/sync/* KALDIRILDI (4 uç: status, push, pull, reset).

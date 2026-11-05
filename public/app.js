@@ -877,6 +877,95 @@ async function apiPost(url, body) {
   return j;
 }
 
+/* ===========================================================================
+   §88 KVKK — ÖĞRENCİ ADI YAPAY ZEKÂYA GİTMEZ (istemci katmanı).
+   Denetim (PROGRESS §88): /api/ai/* gövdelerinde ad/sınıf/okul ALANI yok;
+   tek risk serbest metin — öğrenci cevabına kendi ya da arkadaşının adını
+   yazabilir. Gönderimden ÖNCE kayıtlı öğrenci listesindeki (yalnız tarayıcıda)
+   adlar "[ÖĞRENCİ]", "okul numaram 123" türü ifadeler "[NUMARA]" olur.
+   - Türkçe duyarlı: her harf tr büyük/küçük biçimi ve klavyesiz yazımı
+     (ş/s, ı/i, ğ/g, ü/u, ö/o, ç/c) ile eşleşir; ekler ("Ayşe'nin", "ayşenin",
+     "AYŞE'YE") de maskelenir.
+   - Puanı bozmamak için: aynı zamanda sözcük olan adlar (Deniz, Ada, Ege,
+     Bulut, Toprak…) TEK BAŞINA yalnız büyük harfle ve kesme işaretiyle
+     ("Deniz'in") maskelenir; "deniz suyu" dokunulmaz. Ad+soyad birlikte her
+     biçimde maskelenir.
+   - Maskeleme yerel önbelleği ve ekranda gösterilen cevabı DEĞİŞTİRMEZ; yalnız
+     istek gövdesine girer. Öğretmen arayüzünde küçük bir not gösterilir. */
+const KISISEL_SOZCUK_ADLAR = ["ada", "ege", "deniz", "su", "can", "nur", "gül", "bulut", "toprak", "yıldız",
+  "demir", "kaya", "aydın", "ay", "güneş", "umut", "barış", "sevgi", "bahar", "yağmur", "doğa", "ekin", "çınar",
+  "defne", "nehir", "ırmak", "derya", "mavi", "tuna", "ceylan", "şimşek", "kartal", "aslan", "kurt", "kılıç",
+  "özgür", "inci", "elmas", "meltem", "poyraz", "rüzgar", "rüzgâr", "ateş", "alev", "kumsal", "taş", "çelik",
+  "altın", "gümüş", "şahin", "doğan", "akın", "coşkun", "mert", "tan", "yaz", "kar", "lale", "menekşe",
+  "papatya", "orkide", "yasemin", "ilke", "sema", "erdem", "onur", "cesur", "sevinç", "ümit", "zafer",
+  "kıvanç", "güven", "başak", "berk", "tuğba", "ılgın", "çiçek", "dal", "fidan", "pınar", "şeker", "bal",
+  "elif", "kaan", "arı", "ova", "dağ", "göl", "bora", "volkan", "kuzey", "güney", "batı", "doğu"];
+const KISISEL_HARF_SINIFI = { "i": "iİıI", "ı": "ıIiİ", "ş": "şŞsS", "ğ": "ğĞgG", "ü": "üÜuU", "ö": "öÖoO",
+  "ç": "çÇcC", "s": "sSşŞ", "g": "gGğĞ", "u": "uUüÜ", "o": "oOöÖ", "c": "cCçÇ", "â": "âÂaA", "î": "îÎiİ", "û": "ûÛuU" };
+const KISISEL_EK = "(?:['’`ʼ][\\p{L}]{0,10}|nin|nın|nun|nün|in|ın|un|ün|yi|yı|yu|yü|ye|ya|de|da|te|ta|den|dan|ten|tan|le|la|yle|yla|ler|lar|e|a|i|ı|u|ü)?";
+
+function kisiselDesen(sozcuk) {
+  return Array.from(String(sozcuk).toLocaleLowerCase("tr")).map(function (h) {
+    const s = KISISEL_HARF_SINIFI[h];
+    if (s) return "[" + s + "]";
+    if (/\p{L}/u.test(h)) return "[" + h + h.toLocaleUpperCase("tr") + "]";
+    return h.replace(/[.*+?^${}()|[\]\\\-]/g, "\\$&");
+  }).join("");
+}
+
+/** Bir adı (ör. "Ayşe Nur Yılmaz") maske kalıplarına çevirir. */
+function kisiselAdKaliplari(ad) {
+  const parca = String(ad || "").split(/\s+/).map(function (p) { return p.replace(/[^\p{L}'’-]/gu, ""); })
+    .filter(function (p) { return /\p{L}{2,}/u.test(p); });
+  const kaliplar = [];
+  const sinir = "(?<![\\p{L}\\p{N}])", son = "(?![\\p{L}\\p{N}])";
+  if (parca.length >= 2) {
+    kaliplar.push({ re: new RegExp(sinir + parca.map(kisiselDesen).join("\\s+") + KISISEL_EK + son, "gu"), tam: true });
+  }
+  parca.forEach(function (p) {
+    const kucuk = p.toLocaleLowerCase("tr");
+    if (kucuk.length < 3 && parca.length > 1) return;          // "Su", "Ay" tek başına maskelenmez
+    const sozcukAd = KISISEL_SOZCUK_ADLAR.indexOf(kucuk) >= 0;
+    kaliplar.push({ re: new RegExp(sinir + kisiselDesen(p) + KISISEL_EK + son, "gu"), tam: false, sozcukAd: sozcukAd });
+  });
+  return kaliplar;
+}
+
+/** Metindeki kayıtlı öğrenci adlarını ve okul numarası ifadelerini maskeler.
+    Döner: { metin, maskelendi }. `ogrenciler` verilmezse state.students. */
+function kisiselMaskele(metin, ogrenciler) {
+  let m = String(metin == null ? "" : metin);
+  let degisti = false;
+  const liste = ogrenciler || (typeof state !== "undefined" && state.students) || [];
+  const tumKaliplar = [];
+  liste.forEach(function (s) { kisiselAdKaliplari(s && s.name).forEach(function (k) { tumKaliplar.push(k); }); });
+  // Önce ad+soyad (uzun kalıp), sonra tek parçalar.
+  tumKaliplar.sort(function (a, b) { return (b.tam ? 1 : 0) - (a.tam ? 1 : 0); });
+  tumKaliplar.forEach(function (k) {
+    m = m.replace(k.re, function (bulunan) {
+      if (!k.tam && k.sozcukAd) {
+        // Sözcük de olan ad: yalnız büyük harfle başlıyor VE kesme işaretli ise özel ad sayılır.
+        const ilk = bulunan.charAt(0);
+        const buyuk = ilk !== ilk.toLocaleLowerCase("tr");
+        if (!(buyuk && /['’`ʼ]/.test(bulunan))) return bulunan;
+      }
+      degisti = true;
+      return "[ÖĞRENCİ]";
+    });
+  });
+  // Okul numarası / öğrenci numarası ifadeleri ("okul numaram 1234", "no: 57").
+  m = m.replace(/((?:okul|öğrenci|ogrenci)\s*(?:numaram|numarası|numarasi|numaramız|no|nosu|numara)\s*[:=]?\s*|(?<![\p{L}])numaram\s*[:=]?\s*|(?<![\p{L}])no\s*[:=]\s*)\d{1,11}(?![\d])/giu,
+    function (_t, on) { degisti = true; return on + "[NUMARA]"; });
+  return { metin: m, maskelendi: degisti };
+}
+
+/** Öğretmen arayüzü notu: ad bilgisi istekten çıkarıldıysa gösterilir. */
+function adMaskeNotuHtml(ev) {
+  if (!ev || !ev.adMaskelendi) return "";
+  return '<div class="ad-maske-not" title="Öğrenci cevabında kayıtlı bir ad ya da numara vardı; yapay zekâya giden metinde [ÖĞRENCİ]/[NUMARA] ile değiştirildi. Ekranda cevap olduğu gibi duruyor.">' +
+    "🔒 Ad bilgisi yapay zekâya gönderilmedi.</div>";
+}
+
 /* Paket 4c — Tekrar Önleme (dedup) girdisi.
    Aynı kaynak/kazanım için bu OTURUMDA (state.questions içinde, henüz
    sayfa yenilenmemiş/localStorage'dan geleni de dahil) daha önce üretilmiş
@@ -1135,11 +1224,13 @@ async function aiEvaluate(q, answerText, rubric, force) {
     if (hit) { hit.fromCache = true; return hit; }
   }
 
+  // §88 KVKK: cevaptaki kayıtlı ad/numara yalnız istek gövdesinde maskelenir.
+  const maske = kisiselMaskele(answerText || "");
   try {
     const j = await apiPost(AI_API.evaluate, {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
-      studentAnswer: answerText || "",
+      studentAnswer: maske.metin,
       maxScore: rubric.maxScore,
       criteria: rubric.criteria.map(function (c) { return { label: c.label, weight: Number(c.weight) || 0 }; }),
     });
@@ -1159,7 +1250,8 @@ async function aiEvaluate(q, answerText, rubric, force) {
                        canlıda geri bildirim taslağına CJK karakteri sızdığı
                        ölçüldü. Otomatik düzeltilmez, öğretmene gösterilir. */
                     dilUyarisi: !!j.dilUyarisi,
-                    dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [] };
+                    dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [],
+                    adMaskelendi: maske.maskelendi || undefined };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
     // Denetim izi: yapay zekâ PUAN ÖNERDİ. Nihai puan değil — öğretmen
@@ -8358,6 +8450,7 @@ function evalCardHtml(q, student, ev) {
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
     injectionWarnHtml(ev) +
+    adMaskeNotuHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + ondalikTr(b.points) + '/' + ondalikTr(b.max) + '</span></div>' +
@@ -9524,11 +9617,18 @@ async function runMisconceptions(qid) {
     saveState(); renderAll(); return;
   }
 
+  // §88 KVKK: sınıf yanıtlarındaki kayıtlı ad/numara istekten önce maskelenir.
+  let adMaskelendi = false;
+  const gidenYanitlar = yanitlar.map(function (t) {
+    const m = kisiselMaskele(t);
+    if (m.maskelendi) adMaskelendi = true;
+    return m.metin;
+  });
   try {
     const j = await apiPost(AI_API.misconceptions, {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
-      answers: yanitlar
+      answers: gidenYanitlar
     });
     state.misconceptions[key] = {
       clusters: j.clusters || [],
@@ -9536,6 +9636,7 @@ async function runMisconceptions(qid) {
       analyzed: j.analyzed || yanitlar.length,
       model: (j.meta && j.meta.model) || "",
       fellBack: !!(j.meta && j.meta.fellBack),
+      adMaskelendi: adMaskelendi || undefined,
       at: Date.now()
     };
   } catch (e) {
@@ -9566,7 +9667,7 @@ function misconceptionHtml() {
     } else if (d && d.clusters) {
       if (!d.clusters.length) {
         govde = '<div class="mis-durum mis-temiz">Tekrarlayan bir kavram yanılgısı bulunamadı. ' +
-          d.analyzed + " yanıt incelendi.</div>";
+          d.analyzed + " yanıt incelendi.</div>" + adMaskeNotuHtml(d);
       } else {
         govde = d.clusters.map(function (k) {
           const oran = d.analyzed ? Math.round(k.studentCount / d.analyzed * 100) : 0;
@@ -9586,7 +9687,8 @@ function misconceptionHtml() {
         '<div class="mis-ozet">' + d.analyzed + " yanıt incelendi · " + d.correctCount +
           " yanıt kazanımı doğru biçimde ifade etmiş" +
           (d.model ? ' · <span class="mis-model">' + escapeHtml(d.model) + "</span>" : "") +
-          (d.fellBack ? ' <span class="pill pill-warning">yedek model</span>' : "") + "</div>";
+          (d.fellBack ? ' <span class="pill pill-warning">yedek model</span>' : "") + "</div>" +
+        adMaskeNotuHtml(d);
       }
     } else {
       govde = '<div class="mis-durum">Bu soruya ' + yanitSayisi +
@@ -13315,6 +13417,7 @@ function bosDurumHtml(mesaj) {
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
     "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
+    "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",

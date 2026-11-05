@@ -613,6 +613,8 @@
     background: var(--warning-soft); border: 1px solid var(--warning);
     color: var(--warning); font-size: 11.5px; line-height: 1.55; }
   .inj-warn b { color: var(--warning); }
+  /* §88 KVKK: ad bilgisi istekten çıkarıldı notu. Küçük, bilgi amaçlı. */
+  .ad-maske-not { margin: -2px 0 10px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
 
   .wait-box { padding: 9px 12px; border-radius: 8px; background: var(--warning-soft);
     color: var(--warning); font-size: 12.5px; line-height: 1.55; }
