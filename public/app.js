@@ -861,6 +861,63 @@ async function probeAiMode() {
   renderAll();
 }
 
+/* ===========================================================================
+   §90 — YAPAY ZEKÂ KAYNAK ROZETİ ve HATA EŞLEMESİ
+   ===========================================================================
+   Sunucu (§86) her başarılı yanıtta `meta.source` (`workers-ai-70b` |
+   `workers-ai-scout`) ve `meta.yedekModel` döndürüyor. Ana model rozet
+   göstermez; yedek model, önbellek ve önceden hazırlanmış (demo tohumu)
+   yanıt GÖRÜNÜR rozetle işaretlenir (agents.md §1: sessiz yedek yok).
+   Renk: bilgi lacivert (.pill-accent); hata yolları kendi kırmızı kutusunda. */
+function aiKaynak(meta) {
+  if (!meta) return null;
+  return {
+    source: String(meta.source || ""),
+    // Eski sunucu yedekModel göndermez; fellBack aynı anlamı taşır.
+    yedekModel: meta.yedekModel === true || (meta.yedekModel == null && meta.fellBack === true),
+    model: String(meta.model || ""),
+  };
+}
+
+/** Rozet metinleri (sırayla). Ana model ve kaynak yoksa boş dizi. */
+function aiKaynakMetinleri(k) {
+  if (!k) return [];
+  const m = [];
+  if (k.source === "seed") m.push("Önceden hazırlanmış örnek yanıt");
+  if (k.source === "cache" || k.onbellek) m.push("Önbellekten (aynı modelin önceki yanıtı)");
+  if (k.yedekModel) {
+    const scout = k.source === "workers-ai-scout" || /scout/i.test(k.model || "");
+    m.push("Yedek model (" + (scout ? "Llama 4 Scout" : (modelKisaAd(k.model) || "adı bildirilmedi")) + ") — kalitesi ölçülmedi");
+  }
+  return m;
+}
+
+function aiKaynakRozetiHtml(k) {
+  const metinler = aiKaynakMetinleri(k);
+  if (!metinler.length) return "";
+  return '<span class="ai-kaynak-serit" role="note" aria-label="Yapay zekâ yanıtının kaynağı">' +
+    metinler.map(function (t) { return '<span class="pill pill-accent ai-kaynak">' + escapeHtml(t) + "</span>"; }).join("") +
+    "</span>";
+}
+
+/* Sunucu hata kodu → öğretmene gösterilecek cümle. Kota ve günlük sınır
+   03:00'e (00:00 UTC) kadar açılmaz; cümle insan yolunu açıkça söyler. */
+const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir. Bu arada elle devam edebilirsiniz.";
+const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir. Bu arada elle devam edebilirsiniz.";
+const AI_GECERSIZ_CIKTI_METNI = "Model geçerli yanıt üretemedi, tekrar deneyin.";
+function aiHataMetni(status, govde) {
+  const kod = govde && govde.error;
+  if (kod === "ai_kota_bitti") return AI_KOTA_METNI;
+  if (kod === "gunluk_sinir") return AI_GUNLUK_SINIR_METNI;
+  if (kod === "model_output_invalid") return AI_GECERSIZ_CIKTI_METNI;
+  return (govde && govde.message) || ("HTTP " + status);
+}
+
+/** Gün sonuna kadar açılmayacak hata mı (yeniden denemek boşa)? */
+function aiGunlukKapali(kod) {
+  return kod === "ai_kota_bitti" || kod === "gunluk_sinir";
+}
+
 async function apiPost(url, body) {
   const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const j = await r.json().catch(function () { return null; });
@@ -869,9 +926,11 @@ async function apiPost(url, body) {
        bekleyin", "farklı kazanım seçin"), yoksa yalın "HTTP nnn" mi? Çağıran
        bu ayrımla kendi genel önerisini ekleyip eklemeyeceğine karar verir.
        Yalnızca bir özellik eklenir; diğer çağıranların davranışı değişmez. */
-    const hata = new Error((j && j.message) || ("HTTP " + r.status));
-    hata.sunucuMesaji = !!(j && j.message);
+    /* §90: bilinen kodlar (kota, günlük sınır, geçersiz çıktı) kendi cümlesine çevrilir. */
+    const hata = new Error(aiHataMetni(r.status, j));
+    hata.sunucuMesaji = !!(j && (j.message || j.error));
     hata.status = r.status;
+    hata.kod = (j && j.error) || "";
     throw hata;
   }
   return j;
@@ -1013,9 +1072,13 @@ async function aiGenerateQuestions(doc) {
         hesapUyusmazligi: q.hesapUyusmazligi,
         hesapBaskaSik: q.hesapBaskaSik,
         uzunSikIpucu: q.uzunSikIpucu,   // yalnız ölçüm; rozet YOK (zayıf sinyal)
+        /* §90b: sunucu (A2, mat-v4) olası birim farkını işaretler. Yalnız
+           BİLGİ rozeti; şüphe listesine ve §71 ikinci onaya GİRMEZ. */
+        hesapBirimFarki: q.hesapBirimFarki === true ? true : undefined,
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
+        kaynak: aiKaynak(j.meta),   // §90: yedek model rozeti onay kartında
         // Madde 1: yalnızca etiket — modele hiç gönderilmedi (yukarıdaki
         // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
         sube: doc.sube || "",
@@ -1132,7 +1195,12 @@ async function aiEvaluate(q, answerText, rubric, force) {
   const cacheKey = evalCacheKey(q, rubric, answerText);
   if (!force) {
     const hit = evalCacheGet(cacheKey);
-    if (hit) { hit.fromCache = true; return hit; }
+    if (hit) {
+      hit.fromCache = true;
+      // §90: önbellek rozeti; özgün yanıt yedek modeldense o rozet de kalır.
+      hit.kaynak = Object.assign({}, hit.kaynak || {}, { onbellek: true });
+      return hit;
+    }
   }
 
   try {
@@ -1145,7 +1213,7 @@ async function aiEvaluate(q, answerText, rubric, force) {
     });
     state.ai.error = "";
     if (j.meta) { state.ai.usingFallback = !!j.meta.fellBack; if (j.meta.model) state.ai.model = j.meta.model; }
-    const sonuc = { aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification,
+    const sonuc = { kaynak: aiKaynak(j.meta), aiScore: j.aiScore, maxScore: j.maxScore, justification: j.justification,
                     // Öğrenciye geri bildirim TASLAĞI. Öğretmen "Nota Aktar" demeden
                     // öğrenciye gitmez; otomatik doldurma bilinçli olarak yapılmadı
                     // (öğretmen farkında olmadan AI metnini onaylamasın).
@@ -1181,7 +1249,11 @@ async function aiEvaluate(q, answerText, rubric, force) {
       qid: q.id, sid: state.activeStudentId, soru: auditKisalt(q.body),
       not: mesaj.slice(0, 120),
     });
-    return { failed: true, error: mesaj, maxScore: rubric.maxScore, aiScore: null,
+    /* §90: YALNIZ birebir demo girdisinde ve tohum gerçekten doldurulmuşsa
+       önceden hazırlanmış yanıt, rozet + uyarı satırıyla gösterilir. */
+    const tohum = demoTohumDegerlendirmesi(q, answerText, rubric, mesaj);
+    if (tohum) return tohum;
+    return { failed: true, error: mesaj, kod: (e && e.kod) || "", maxScore: rubric.maxScore, aiScore: null,
              justification: "", confidence: null, breakdown: [] };
   }
 }
@@ -1593,6 +1665,77 @@ const DEMO_METIN = "Bir cisme etki eden kuvvet, cismin hareket durumunu değişt
 const DEMO_YANIT = "Tekerlekli platformu öneririm. Pürüzlü betonda koliyi doğrudan itersem " +
   "sürtünme kuvveti büyük olur ve harekete zıt yönde beni zorlar. Tekerlek kullanınca kayma " +
   "yerine yuvarlanma olur, sürtünme azalır ve aynı koliyi daha az kuvvetle taşırım.";
+
+/* §90 — DEMO TOHUMU: ÖNCEDEN HAZIRLANMIŞ DEĞERLENDİRME.
+   Demo akışında modele giden TEK çağrı, adım 3'te sınav bitince DEMO_YANIT'ın
+   /api/ai/evaluate ile puanlanmasıdır (sorular, metin ve simüle sınıf zaten
+   istemcide elle yazılmış; sunucudan geçmez). Canlı çağrı kota/ağ yüzünden
+   başarısız olursa, YALNIZ birebir aynı demo girdisi için (aynı soru, aynı
+   yanıt, varsayılan rubrik) burada saklanan yanıt "Önceden hazırlanmış örnek
+   yanıt" rozeti ve açık bir uyarı satırıyla gösterilebilir. Demo dışı girdide
+   ASLA kullanılmaz.
+
+   İÇERİK UYDURULMADI. `yanit`, main'deki tools/dogrula/ornek-evaluate-yanit.json
+   (bf07df0) dosyasından OLDUĞU GİBİ alındı: 5 Kasım 2026'da canlıdan,
+   @cf/meta/llama-3.3-70b-instruct-fp8-fast, attempts 1, fellBack false.
+   Kriter gerekçeleri demo sorusuna (kargo deposu) ve demo yanıtına
+   ("hareketi zorladığını", "tekerlek ... sürtünmeyi azalttığını") atıf yapıyor;
+   kriter tavanları (8/6/6) varsayılan rubrikle aynı. AÇIK RİSK: isteğin gövdesi
+   kayıtlı değil, yani girdinin DEMO_YANIT ile bayt bayt aynı olduğu
+   doğrulanmadı (PROGRESS §90). Yalnız `meta` alanı çıkarıldı (kaynak rozeti
+   onun yerini tutar). Değiştirmek gerekirse aynı girdinin canlı yanıtı
+   olduğu gibi konur ve `kaynakNotu` güncellenir. */
+const DEMO_TOHUM_DEGERLENDIRME = {
+  dolduruldu: true,
+  kaynakNotu: "5 Kasım 2026 canlı /api/ai/evaluate yanıtı · llama-3.3-70b · tools/dogrula/ornek-evaluate-yanit.json (main bf07df0)",
+  rubrik: { maxScore: 20, criteria: [["Kavram doğruluğu", 40], ["Örnek / uygulama", 30], ["Anlatım açıklığı", 30]] },
+  yanit: {
+    aiScore: 16,
+    justification: "Öğrenci sürtünme kuvveti kavramını doğru bir şekilde anlamış ve bir örnek üzerinden uygulamıştır, ancak açıklamaları biraz daha geliştirilebilir.",
+    studentFeedback: "Doğru bir şekilde sürtünme kuvvetinin önemini vurgulamışsın, ancak açıklamalarını biraz daha detaylı hale getirebilirsin. Bir sonraki adımda düşüncelerini daha açık bir şekilde ifade etmeye çalış.",
+    confidence: 0.8, injectionAttempt: false, dilUyarisi: false, dilSozcukler: [],
+    breakdown: [
+      { label: "Kavram doğruluğu", weight: 40, max: 8, points: 6,
+        reason: "Öğrenci sürtünme kuvvetinin büyük olmasının hareketi zorladığını ve tekerlek kullanmanın sürtünmeyi azalttığını doğru bir şekilde açıklamıştır." },
+      { label: "Örnek / uygulama", weight: 30, max: 6, points: 5,
+        reason: "Öğrenci bir kargo deposunda ağır koliler taşınırken sürtünme kuvvetinin önemini ve tekerlekli platformun avantajını somut bir şekilde örneklemiştir." },
+      { label: "Anlatım açıklığı", weight: 30, max: 6, points: 5,
+        reason: "Öğrenci düşüncelerini açık ve anlaşılır bir şekilde ifade etmiştir, ancak biraz daha detaylı açıklamalar eklemesi daha iyi olurdu." },
+    ],
+  },
+};
+
+/** Girdi demo tohumuyla BİREBİR aynı mı? (soru metni, yanıt, rubrik) */
+function demoTohumEslesir(q, answerText, rubric) {
+  if (!q || q.demo !== true || q.type !== "open" || !rubric) return false;
+  const demoAcik = DEMO_SORULAR.filter(function (x) { return x.type === "open"; })[0];
+  if (!demoAcik || String(q.body || "").trim() !== demoAcik.body.trim()) return false;
+  if (String(answerText || "").trim() !== DEMO_YANIT.trim()) return false;
+  const t = DEMO_TOHUM_DEGERLENDIRME.rubrik;
+  const c = rubric.criteria || [];
+  if (Number(rubric.maxScore) !== t.maxScore || c.length !== t.criteria.length) return false;
+  return t.criteria.every(function (k, i) {
+    return String(c[i].label || "").trim() === k[0] && Number(c[i].weight) === k[1];
+  });
+}
+
+/** Canlı çağrı başarısızsa ve girdi eşleşiyorsa tohum yanıtı; değilse null. */
+function demoTohumDegerlendirmesi(q, answerText, rubric, hataMesaji) {
+  const t = DEMO_TOHUM_DEGERLENDIRME;
+  if (!t.dolduruldu || !t.yanit || !demoTohumEslesir(q, answerText, rubric)) return null;
+  const sonuc = JSON.parse(JSON.stringify(t.yanit));
+  sonuc.maxScore = t.rubrik.maxScore;
+  sonuc.kaynak = { source: "seed", yedekModel: false, model: "" };
+  sonuc.demoTohumu = true;
+  sonuc.canliHata = String(hataMesaji || "");
+  // Önbelleğe ALINMAZ: bir sonraki denemede canlı model yine çağrılır.
+  auditKaydet("degerlendirme_onerildi", {
+    qid: q.id, sid: state.activeStudentId, soru: auditKisalt(q.body),
+    aiScore: sonuc.aiScore, confidence: sonuc.confidence,
+    model: "önceden hazırlanmış örnek yanıt (model çağrılmadı)",
+  });
+  return sonuc;
+}
 
 /* §38 — DEMO AKIŞI: sahne artık "her şey bitmiş" değil, ADIM ADIM İLERLETİLİR.
 
@@ -4147,7 +4290,7 @@ async function runAlignment() {
         if (!q) return;
         state.alignment[alignKey(q.id)] = {
           karar: r.karar, gerekce: r.gerekce, onerilenKod: r.onerilenKod,
-          model: (j.meta && j.meta.model) || ""
+          model: (j.meta && j.meta.model) || "", kaynak: aiKaynak(j.meta)
         };
       });
     } catch (e) {
@@ -4181,7 +4324,7 @@ function alignmentRowHtml(q) {
       '" data-kod="' + escapeHtml(d.onerilenKod) + '">Bu kazanıma taşı</button></div>'
     : "";
   return '<div class="al-row"><div class="al-bas"><span class="pill ' + e.sinif + '">' + e.ad + "</span>" +
-    '<span class="al-hint">içerik geçerliği denetimi · bağımsız çağrı</span></div>' +
+    '<span class="al-hint">içerik geçerliği denetimi · bağımsız çağrı</span>' + aiKaynakRozetiHtml(d.kaynak) + "</div>" +
     (d.gerekce ? '<div class="al-gerekce">' + escapeHtml(d.gerekce) + "</div>" : "") +
     oneri + "</div>";
 }
@@ -4352,6 +4495,11 @@ function denetimDurumHtml(q) {
     p.push('<span class="dil-uyari-neler">⚠ çözüm gerekçesinde ' +
       escapeHtml(dilTetikleyiciMetni(c.dilSozcukler, [c.gerekce]) || "Türkçe olmayan karakter var") + "</span>");
   }
+  /* §90: çözümü yedek model verdiyse rozet. ÇAPRAZ modda Scout bilerek
+     seçilen çözücüdür; sunucu o durumda yedekModel=false döner, rozet çıkmaz. */
+  if (c && !c.hata && c.imza === cozumImzasi(q) && aiKaynakMetinleri(c.kaynak).length) {
+    p.push("çözüm " + aiKaynakRozetiHtml(c.kaynak));
+  }
   return '<div class="denetim-durum">' + p.join(" · ") +
     ' <button type="button" class="btn btn-secondary btn-sm js-coz" data-qid="' + q.id + '"' + (yuk ? " disabled" : "") + ">" +
     (c && !c.hata ? "🔍 Yeniden çöz" : "🔍 Bağımsız çöz") + "</button></div>";
@@ -4376,12 +4524,14 @@ async function bagimsizCoz(q) {
     q.bagimsizCozum = { imza: imza, secilenSik: j.secilenSik, gerekce: j.gerekce || "", guven: j.guven,
       cozulemedi: !!j.cozulemedi, anahtarUyusmazligi: j.anahtarUyusmazligi, dilUyarisi: !!j.dilUyarisi,
       dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [],
-      capraz: (j.meta && j.meta.capraz) || null, model: (j.meta && j.meta.model) || null, at: Date.now() };
+      capraz: (j.meta && j.meta.capraz) || null, model: (j.meta && j.meta.model) || null,
+      kaynak: aiKaynak(j.meta), at: Date.now() };
     auditKaydet("bagimsiz_cozum", { qid: q.id, soru: auditKisalt(q.body), model: q.bagimsizCozum.model,
       not: j.cozulemedi ? "model çözemedi" : ("seçilen " + j.secilenSik + " · anahtar " + q.correctKey +
         (j.anahtarUyusmazligi === true ? " · UYUŞMAZLIK" : "")) });
   } catch (e) {
-    q.bagimsizCozum = { imza: imza, hata: String((e && e.message) || e), durumKodu: (e && e.status) || null, at: Date.now() };
+    q.bagimsizCozum = { imza: imza, hata: String((e && e.message) || e), durumKodu: (e && e.status) || null,
+      hataKodu: (e && e.kod) || "", at: Date.now() };
   } finally {
     delete state.cozuluyor[q.id];
     saveSoon(); renderAll();
@@ -4396,14 +4546,19 @@ async function bekleyenleriCoz() {
   const liste = state.questions.filter(function (q) { return q.status === "ai_generated" && q.type === "mc"; });
   state.topluCoz = { bitti: 0, toplam: liste.length, hata: 0 };
   renderAll();
+  let durduran = "";
   for (let i = 0; i < liste.length; i++) {
     /* §56: hız sınırı (429: soru başına 5/dk, IP başına 60/dk) gelirse
        SESSİZCE düşülmez: ekranda geri sayımla beklenir ve aynı soru en
-       fazla 3 kez yeniden denenir. Başka hatalar kartta yazar, sıra sürer. */
+       fazla 3 kez yeniden denenir. Başka hatalar kartta yazar, sıra sürer.
+       §90: günlük kota (503 ai_kota_bitti) ve günlük IP sınırı (429
+       gunluk_sinir) 03:00'e kadar açılmaz: bekleme/yeniden deneme YOK,
+       döngü hemen durur, kalan sorular işlenmez. */
     for (let deneme = 0; deneme < 3; deneme++) {
       await bagimsizCoz(liste[i]);
       const c = liste[i].bagimsizCozum;
-      if (!(c && c.hata && c.durumKodu === 429) || deneme === 2) break;
+      if (topluCozDurdurmaKodu(c)) { durduran = c.hataKodu; break; }
+      if (!topluCozBeklenirMi(c) || deneme === 2) break;
       for (let sn = 60; sn > 0; sn--) {
         state.topluCoz.bekleme = sn; renderAll();
         await new Promise(function (r) { setTimeout(r, 1000); });
@@ -4412,10 +4567,32 @@ async function bekleyenleriCoz() {
     }
     if (liste[i].bagimsizCozum && liste[i].bagimsizCozum.hata) state.topluCoz.hata++;
     state.topluCoz.bitti = i + 1; renderAll();
+    if (durduran) break;
   }
   const s = state.topluCoz; state.topluCoz = null;
-  state.topluCozSonuc = s.toplam + " sorudan " + (s.toplam - s.hata) + " tanesi çözüldü" + (s.hata ? ", " + s.hata + " tanesinde hata (kartlarda yazıyor)" : "") + ".";
+  state.topluCozSonuc = topluCozSonucMetni(s, durduran);
   renderAll();
+}
+
+/** §90: döngüyü HEMEN durduran hata kodu (gün sonuna kadar açılmayan). */
+function topluCozDurdurmaKodu(c) {
+  return !!(c && c.hata && aiGunlukKapali(c.hataKodu));
+}
+
+/** §90: yalnız gerçek dakikalık hız sınırında (429, kod gunluk_sinir DEĞİL) beklenir. */
+function topluCozBeklenirMi(c) {
+  return !!(c && c.hata && c.durumKodu === 429 && !aiGunlukKapali(c.hataKodu));
+}
+
+function topluCozSonucMetni(s, durduran) {
+  const cozulen = s.bitti - s.hata;
+  if (durduran) {
+    const kalan = s.toplam - s.bitti;
+    return (durduran === "ai_kota_bitti" ? AI_KOTA_METNI : AI_GUNLUK_SINIR_METNI) +
+      " Toplu çözme durduruldu: " + s.toplam + " sorudan " + cozulen + " tanesi çözüldü" +
+      (kalan ? ", " + kalan + " soru işlenmedi" : "") + ".";
+  }
+  return s.toplam + " sorudan " + (s.toplam - s.hata) + " tanesi çözüldü" + (s.hata ? ", " + s.hata + " tanesinde hata (kartlarda yazıyor)" : "") + ".";
 }
 
 /** Bekleyen listesinin başındaki toplu çözme çubuğu (yalnız ÇSS varsa). */
@@ -4485,10 +4662,21 @@ function supheAcikMi(q, t) {
   return kayit == null ? t.ciddiyet === "yuksek" : kayit;
 }
 
+/* §90b — BİRİM FARKI (sunucu `hesapBirimFarki: true`, A2). Engellemeyen
+   bilgi rozeti (lacivert, kırmızı değil). SUPHE_TURLERI'ne bilerek
+   EKLENMEDİ: şüphe sayılmaz, §71 ikinci onayı tetiklemez, onayı zorlaştırmaz.
+   Alan yoksa ya da true değilse hiçbir şey çizilmez. */
+function birimFarkiRozetiHtml(q) {
+  if (!q || q.hesapBirimFarki !== true) return "";
+  return '<span class="pill pill-accent ai-kaynak birim-farki" role="note">Birim farkı olası (ör. m³ ↔ L) — anahtarı kontrol edin</span>';
+}
+
 /** Onay kartındaki rozet şeridi. Şüphe yoksa hiçbir şey çizilmez. */
 function supheSeridiHtml(q) {
   const liste = soruSupheleri(q);
-  const durum = denetimDurumHtml(q);
+  // §90: soruyu yedek model ürettiyse rozet; §90b birim farkı bilgi rozeti.
+  const bilgi = aiKaynakRozetiHtml(q.kaynak) + birimFarkiRozetiHtml(q);
+  const durum = (bilgi ? '<div class="ai-kaynak-satir">' + bilgi + "</div>" : "") + denetimDurumHtml(q);
   if (!liste.length) return durum;
   const sinif = { yuksek: "pill-critical", orta: "pill-warning", dusuk: "pill-neutral" };
   return '<div class="supheli-serit" role="group" aria-label="Neden şüpheli?">' +
@@ -7174,6 +7362,7 @@ async function aiSuggestRubric(qid) {
       return { label: c.label, weight: c.weight, description: c.description || "" };
     });
     state.rubrics[qid].aiDraft = true;
+    state.rubrics[qid].aiKaynak = aiKaynak(j.meta);   // §90: taslak şeridinde rozet
     state.rubrics[qid].userEdited = false; // taze öneri — henüz elle dokunulmadı
     /* §51: `rubrik_onerildi` etiketi AUDIT_ETIKET'te tanımlıydı ama hiçbir
        yerde YAZILMIYORDU. Karşılığı öğretmenin `rubrik_kabul_edildi` kaydıdır. */
@@ -8196,6 +8385,7 @@ function teacherTab2Html() {
     (state.rubricError ? '<div class="pill pill-critical" style="margin-bottom:10px;">' + escapeHtml(state.rubricError) + '</div>' : "") +
     (rub.aiDraft ? '<div class="rub-taslak-serit">' +
       '<span class="pill pill-accent2">Bu taslağı yapay zekâ önerdi — kabul etmeden önce gözden geçirin. Kabul edilene kadar sınav yayınlanamaz.</span>' +
+      aiKaynakRozetiHtml(rub.aiKaynak) +
       '<button type="button" class="btn btn-primary btn-sm js-rubrik-kabul">✓ Taslağı kabul et</button></div>' : "") +
 
     bar + durum +
@@ -8355,6 +8545,7 @@ function evalCardHtml(q, student, ev) {
     '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
     '<div class="eval-grid"><div class="eval-block"><h4>Öğrenci Yanıtı</h4><div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
     '<div class="eval-block"><h4>Yapay Zekâ Puan Önerisi — ' + ev.aiScore + ' / ' + rub.maxScore + '</h4>' +
+    aiKaynakRozetiHtml(ev.kaynak) + demoTohumUyariHtml(ev) +
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
     injectionWarnHtml(ev) +
@@ -8391,9 +8582,25 @@ function evalFailedCardHtml(q, student, ans, ev, rub) {
     '<input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
     '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label>' +
     '<input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions">' +
-    '<button class="btn btn-primary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' +
-    '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Elle Puanla ve Onayla</button></div></div>';
+    evalFailedActionsHtml(q, student, ev) + '</div>';
+}
+
+/* §90: kota/günlük sınırda yeniden denemek 03:00'e kadar boşa; İNSAN YOLU
+   (elle puanla) birincil düğme olur, yeniden deneme ikincil kalır. */
+function evalFailedActionsHtml(q, student, ev) {
+  const kapali = aiGunlukKapali(ev && ev.kod);
+  const veri = ' data-qid="' + q.id + '" data-sid="' + student.id + '"';
+  const yeniden = '<button class="btn ' + (kapali ? "btn-secondary" : "btn-primary") + ' retry-eval"' + veri + '>Yapay Zekâ ile Yeniden Dene</button>';
+  const elle = '<button class="btn ' + (kapali ? "btn-primary" : "btn-secondary") + ' revise-approve"' + veri + '>Elle Puanla ve Onayla</button>';
+  return '<div class="actions">' + (kapali ? elle + yeniden : yeniden + elle) + '</div>';
+}
+
+/* §90: tohum yanıtı gösteriliyorsa NEDEN gösterildiği açıkça yazar. */
+function demoTohumUyariHtml(ev) {
+  if (!ev || !ev.demoTohumu) return "";
+  return '<div class="fail-note" role="status"><b>Canlı yapay zekâ çağrısı başarısız oldu.</b> ' +
+    "Aşağıdaki, bu demo girdisi için önceden hazırlanmış örnek yanıttır; bu yanıt için model şimdi çağrılmadı." +
+    (ev.canliHata ? '<br><span class="mono-err">' + escapeHtml(ev.canliHata) + "</span>" : "") + "</div>";
 }
 
 function doneCardHtml(q, student, ev, rv) {
@@ -13362,6 +13569,10 @@ function bosDurumHtml(mesaj) {
     /* §38 — Demo Akışı. renderDemoSerit her renderAll'da çağrılır; düşerse
        şerit sessizce kaybolur ve sunum ortasında rehber ölür. */
     "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
+    /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
+    "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
+    "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
+    "topluCozDurdurmaKodu", "topluCozBeklenirMi", "topluCozSonucMetni", "birimFarkiRozetiHtml",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
     "dikkatSinavSinyali", "dikkatOgrenciSinyali", "dikkatSinyalleri", "ensureDikkatOnay",
     "dikkatVeliyeOnayla", "dikkatOnayGeriAl", "dikkatPanelHtml", "wireDikkat",
