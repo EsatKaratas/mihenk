@@ -50,8 +50,16 @@ app.onError((err, c) => {
       durum
     );
   }
-  console.error(JSON.stringify({ ev: 'unhandled_error', message: err.message }));
+  /* §86 KVKK: hata mesajı istek gövdesinden parça taşıyabilir (ör. JSON
+     ayrıştırma hataları); kayda yalnız sınıf adı ve uzunluk yazılır. */
+  console.error(JSON.stringify({ ev: 'unhandled_error', hataSinifi: err.name, mesajUzunlugu: String(err.message || '').length }));
   return c.json({ error: 'internal_error', message: 'Beklenmeyen bir hata oluştu.' }, 500);
 });
 
 export default app;
+
+/* §86 — günlük adres sayacı Durable Object sınıfı. Wrangler sınıfı ana
+   modülün dışa aktarımlarında arar; bağlama (GUNLUK_SAYAC) wrangler.demo.jsonc'ta
+   henüz YORUM olarak bekliyor — bağlanmadıkça bu dışa aktarım hiçbir şey
+   oluşturmaz ve sayaç bellek içi çalışır. */
+export { GunlukSayac } from './lib/gunluk-sinir';

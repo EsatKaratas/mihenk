@@ -23,7 +23,12 @@ import {
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
   fallbackSorunu, saglayiciHazirMi, type AiEnv,
+  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
+  type CagriKancasi,
 } from '../lib/ai';
+import {
+  gunlukHakKullan, gunlukHakIade, gunlukSinirDegeri, gunlukSinirModu, type GunlukSinirEnv,
+} from '../lib/gunluk-sinir';
 import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
@@ -70,7 +75,7 @@ import {
 
 /* §55: APP_ENV ve iki ölçüm ayarı yalnız `olcumAyarlari()` üzerinden okunur
    (guards.ts — APP_ENV === "olcum" izin listesi; canlıda kapalı). */
-type Bindings = AiEnv & { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string };
+type Bindings = AiEnv & GunlukSinirEnv & { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string };
 
 // Hız sınırı, kaynak metin tespiti ve sayısal yardımcılar ayrı bir modülde:
 // dışa açık olmadıkları için test edilemiyorlardı (agents.md §6 birim testi
@@ -107,13 +112,91 @@ const onInvalid = (result: { success: boolean; error?: { issues?: Array<{ path: 
  */
 function modelHatasiGovdesi(e: unknown, uc: string) {
   const ayrinti = e instanceof Error ? e.message : String(e);
-  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: ayrinti.slice(0, 500) }));
+  // §86 KVKK: kayda hata METNİ girmez (model çıktısı/gövde taşıyabilir), yalnız özet.
+  console.error(JSON.stringify({ ev: 'ai_failed', uc, hata: hataOzeti(e) }));
   const ayristirma = /JSON|kapanm|kesil/i.test(ayrinti);
   return {
     error: 'ai_call_failed',
     message: ayristirma
       ? 'Yapay zekâ geçerli bir yanıt üretemedi. Lütfen tekrar deneyin.'
       : 'Yapay zekâ servisine şu an ulaşılamıyor (kota, kesinti ya da yapılandırma). Biraz sonra tekrar deneyin.',
+  };
+}
+
+/**
+ * §86 — model hatasını istemci yanıtına çevirir.
+ *  - Günlük kota (3036): 503 `ai_kota_bitti` + `Retry-After` (00:00 UTC'ye
+ *    kalan sn). 429 DEĞİL, bilerek: public/app.js toplu çözmede 429 görünce
+ *    60 sn bekleyip 3 kez yeniden deniyor (§56); kota gün sonuna kadar
+ *    dönmeyeceği için bu bekleme boşa olurdu. İstemci koduna dokunulmadı.
+ *  - Şemaya uymayan yanıt (onarım + yedek de geçemedi): eski kod
+ *    `model_output_invalid` (502) korunur — istemci aynı mesajı görür.
+ *  - Diğer: eski davranış (`ai_call_failed`, 502).
+ */
+function modelHatasiYaniti(c: any, e: unknown) {
+  if (e instanceof AiKotaHatasi) {
+    console.error(JSON.stringify({ ev: 'ai_kota_bitti', uc: c.req.path, hata: hataOzeti(e) }));
+    c.header('Retry-After', String(saniyeUtcGunSonuna()));
+    return c.json(
+      {
+        error: 'ai_kota_bitti',
+        message: "Günlük yapay zekâ kotası doldu; 03:00'te (TR) yenilenir. O saate kadar yeniden denemek işe yaramaz.",
+      },
+      503
+    );
+  }
+  if (e instanceof AiGunlukSinirHatasi) {
+    c.header('Retry-After', String(saniyeUtcGunSonuna()));
+    return c.json(
+      {
+        error: 'gunluk_sinir',
+        message: `Bu bağlantıdan bugün en fazla ${e.limit} yapay zekâ çağrısı yapılabilir. Sınır 03:00'te (TR) yenilenir.`,
+      },
+      429
+    );
+  }
+  if (e instanceof AiSemaHatasi) {
+    console.error(JSON.stringify({ ev: 'ai_failed', uc: c.req.path, hata: hataOzeti(e) }));
+    return c.json(
+      { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
+      502
+    );
+  }
+  return c.json(modelHatasiGovdesi(e, c.req.path), 502);
+}
+
+/**
+ * §86 — İSTEMCİ ADRESİ BAŞINA GÜNLÜK SINIR (src/lib/gunluk-sinir.ts).
+ * Sınır İSTEK değil GERÇEK MODEL ÇAĞRISI başına sayılır (bağımsız doğrulama,
+ * 5 Kasım): kanca callModelJson içinde HER binding/sağlayıcı çağrısından
+ * hemen önce çalışır — onarım, hız tekrarı ve yedek çağrısı da birer hak.
+ * Doğrulama hatası, boş yanıt kısayolu ve dakikalık ret model çağırmadığı
+ * için hak yemez; 3036 (kota bitti) dönen çağrının hakkı İADE edilir.
+ * Sınır dolunca AiGunlukSinirHatasi → 429 `gunluk_sinir` (modelHatasiYaniti).
+ * `cf-connecting-ip` yoksa (yalnız `app.request` testleri ve olası yerel
+ * çalıştırma) günlük sınır UYGULANMAZ: üretimde Cloudflare bu başlığı her
+ * isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
+ * sürmeye devam eder.
+ */
+function gunlukKanca(c: any): CagriKancasi | undefined {
+  const ip = (c.req.header('cf-connecting-ip') || '').trim();
+  if (!ip) return undefined;
+  return {
+    cagriOncesi: async () => {
+      const s = await gunlukHakKullan(c.env, ip);
+      if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
+    },
+    kotaIade: () => gunlukHakIade(c.env, ip),
+  };
+}
+
+/** §86: başarılı yanıtların ortak meta alanları (eski alanlar + source + yedekModel). */
+function aiMeta(r: { usedProvider: string; usedModel: string; attempts: number; fellBack: boolean; source: string }) {
+  return {
+    provider: r.usedProvider, model: r.usedModel, attempts: r.attempts, fellBack: r.fellBack,
+    source: r.source,
+    // Yapılandırılmış YEDEK modelin yanıtladığını söyler (rozet için).
+    yedekModel: r.fellBack,
   };
 }
 
@@ -160,6 +243,11 @@ ai.get('/status', (c) => {
        yapılandırma uyarısı olarak gösterir (bkz. public/app.js
        aiAyrintiHtml). §6.3-5 sessiz düşüş yasağı. */
     fallbackSorunu: fallbackSorunu(c.env),
+    /* §86: günlük adres sınırı ve sayacın nerede tutulduğu ("bellek" =
+       Durable Object bağlaması henüz yok, isolate başına sayaç). */
+    gunlukSinir: { limit: gunlukSinirDegeri(c.env), mod: gunlukSinirModu(c.env) },
+    // §86: AI Gateway açık mı (AI_GATEWAY_ID). Bugün kapalı.
+    gateway: !!gatewaySecenekleri(c.env),
   });
 });
 
@@ -296,13 +384,16 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
      eklenir; aksi hâlde toplanır ama dönmez (davranış aynı). */
   const elenenler: Array<{ neden: 'tekrar' | 'ayniSik' | 'gecersiz'; type: string; body: string; benzedigi?: 'onceki' | 'ayniTur' }> = [];
 
+  const kanca = gunlukKanca(c);
+
   try {
     /* §55 A5: sıcaklık ürün için 0,5'te SABİT. Yalnız ölçüm sunucusunda
        (APP_ENV=olcum) OLCUM_SICAKLIK ile değişir; kullanılan değer meta'da
        döner ki ölçüm betiği sunucunun gerçekten o değeri kullandığını doğrulasın. */
     const olcum = olcumAyarlari(c.env);
     const sicaklik = olcum.sicaklik ?? 0.5;
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: sicaklik });
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: sicaklik }, modelQuestionsSchema, kanca);
+    const { data } = sonuc;
     const parsed = modelQuestionsSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -490,7 +581,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       /* §41: kısıtlama ve eleme SESSİZ OLMAZ — arayüz bu iki alanı
          kullanıcıya yazar (§6.3-5 sessiz düşüş yasağı). */
       meta: {
-        provider: usedProvider, model: usedModel, attempts, fellBack,
+        ...aiMeta(sonuc),
         // §73: dil uyarısını tetikleyen sözcükler (ilk 3; yalnız bilgi, metin değişmez).
         dilUyarisiSozcukler: yabanciSozcukler(kabul.flatMap((q) => !q ? [] : [
           q.body,
@@ -523,10 +614,7 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
       },
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -580,8 +668,11 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
     studentAnswer: b.studentAnswer,
   });
 
+  const kanca = gunlukKanca(c);
+
   try {
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 820, temperature: 0.2 });  // +120: studentFeedback alanı eklendi
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 820, temperature: 0.2 }, modelEvaluationSchema, kanca);  // +120: studentFeedback alanı eklendi
+    const { data } = sonuc;
     const parsed = modelEvaluationSchema.safeParse(data);
     if (!parsed.success) {
       return c.json(
@@ -630,13 +721,10 @@ ai.post('/evaluate', zValidator('json', evaluateSchema, onInvalid), async (c) =>
       dilUyarisi,
       breakdown,
       // §73: dil uyarısını tetikleyen sözcükler (ilk 3). Canlıdaki "necessário" bu uçtaydı.
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack, dilUyarisiSozcukler: yabanciSozcukler(dilMetinleri) },
+      meta: { ...aiMeta(sonuc), dilUyarisiSozcukler: yabanciSozcukler(dilMetinleri) },
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -654,6 +742,7 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
       429
     );
   }
+  const kanca = gunlukKanca(c);
   try {
     const prompt = buildRubricPrompt({
       questionBody: b.questionBody,
@@ -662,8 +751,8 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
       grade: b.grade,
       maxScore: b.maxScore,
     });
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 });
-    const parsed = modelRubricSchema.safeParse(data);
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens: 600, temperature: 0.3 }, modelRubricSchema, kanca);
+    const parsed = modelRubricSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
         { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
@@ -690,13 +779,10 @@ ai.post('/rubric', zValidator('json', rubricDraftSchema, onInvalid), async (c) =
 
     return c.json({
       criteria: olcekli,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      meta: aiMeta(sonuc),
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -719,6 +805,8 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     );
   }
 
+  const kanca = gunlukKanca(c);
+
   try {
     const prompt = buildSampleAnswerPrompt({
       questionBody: b.questionBody,
@@ -728,8 +816,8 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     });
     // Düzey başına ~140 token; taban 500.
     const maxTokens = clamp(500 + b.levels.length * 140, 700, 2000);
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 });
-    const parsed = modelSampleAnswersSchema.safeParse(data);
+    const sonuc = await callModelJson(c.env, prompt, { maxTokens, temperature: 0.8 }, modelSampleAnswersSchema, kanca);
+    const parsed = modelSampleAnswersSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
         { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
@@ -741,13 +829,10 @@ ai.post('/sample-answers', zValidator('json', sampleAnswersSchema, onInvalid), a
     return c.json({
       answers,
       simulated: true,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      meta: aiMeta(sonuc),
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -803,6 +888,8 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     });
   }
 
+  const kanca = gunlukKanca(c);
+
   try {
     const prompt = buildMisconceptionPrompt({
       questionBody: b.questionBody,
@@ -811,11 +898,11 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
     });
     // agents.md §7.4: max_tokens açıkça verilir. Küme başına ~180 token.
     const maxTokens = clamp(500 + dolu.length * 60, 700, 1600);
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, {
+    const sonuc = await callModelJson(c.env, prompt, {
       maxTokens,
       temperature: 0.3,
-    });
-    const parsed = modelMisconceptionsSchema.safeParse(data);
+    }, modelMisconceptionsSchema, kanca);
+    const parsed = modelMisconceptionsSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
         { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
@@ -844,13 +931,10 @@ ai.post('/misconceptions', zValidator('json', misconceptionsSchema, onInvalid), 
       correctCount: clamp(Math.round(Number(parsed.data.correctCount) || 0), 0, dolu.length),
       analyzed: dolu.length,
       skipped: b.answers.length - dolu.length,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      meta: aiMeta(sonuc),
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -879,6 +963,8 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
     );
   }
 
+  const kanca = gunlukKanca(c);
+
   try {
     const prompt = buildAlignmentPrompt({
       outcomeCode: b.outcomeCode,
@@ -887,11 +973,11 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
       candidates: b.candidates,
     });
     const maxTokens = clamp(400 + b.questions.length * 110, 600, 1600);
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(c.env, prompt, {
+    const sonuc = await callModelJson(c.env, prompt, {
       maxTokens,
       temperature: 0.2,
-    });
-    const parsed = modelAlignmentSchema.safeParse(data);
+    }, modelAlignmentSchema, kanca);
+    const parsed = modelAlignmentSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json(
         { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' },
@@ -934,13 +1020,10 @@ ai.post('/outcome-alignment', zValidator('json', alignmentSchema, onInvalid), as
       outcomeCode: b.outcomeCode,
       results: tam,
       ozet,
-      meta: { provider: usedProvider, model: usedModel, attempts, fellBack },
+      meta: aiMeta(sonuc),
     });
   } catch (e) {
-    return c.json(
-      modelHatasiGovdesi(e, c.req.path),
-      502
-    );
+    return modelHatasiYaniti(c, e);
   }
 });
 
@@ -987,10 +1070,13 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
   const prompt = buildSolvePrompt({ questionBody: b.questionBody, options, outcomeLabel: b.outcomeLabel });
   const { env: cozucuEnv, capraz } = caprazEnv(c.env);
 
+  const kanca = gunlukKanca(c);
+
   try {
     // max_tokens açık (agents.md §4): ~2 cümle gerekçe + kısa JSON. Düşük sıcaklık: çözüm, yaratıcılık değil.
-    const { data, attempts, usedProvider, usedModel, fellBack } = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 });
-    const parsed = modelSolveSchema.safeParse(data);
+    const sonuc = await callModelJson(cozucuEnv, prompt, { maxTokens: 400, temperature: 0.2 }, modelSolveSchema, kanca);
+    const { attempts, usedProvider, usedModel, fellBack } = sonuc;
+    const parsed = modelSolveSchema.safeParse(sonuc.data);
     if (!parsed.success) {
       return c.json({ error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan bir yanıt döndürdü.' }, 502);
     }
@@ -1010,10 +1096,13 @@ ai.post('/solve', zValidator('json', solveSchema, onInvalid), async (c) => {
       anahtarUyusmazligi: anahtar && gecerli ? harf !== anahtar : null,
       dilUyarisi: metinDilUyarisi(gerekce),
       // §57: çözücü isteminin sürümü (2 = gerekçe önce, harf sonra). Ölçümler buna göre ayrılmalı.
-      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU, dilUyarisiSozcukler: yabanciSozcukler([gerekce]) },
+      /* §86: source = yanıtlayan model. ÇAPRAZ modda Scout bilerek seçilen
+         çözücüdür, yedek değil: yedekModel = fellBack (çözücü düşüp
+         birincil devraldıysa true). */
+      meta: { provider: usedProvider, model: usedModel, capraz: capraz && !fellBack, attempts, fellBack, source: sonuc.source, yedekModel: fellBack, cozucuIstemSurumu: COZUCU_ISTEM_SURUMU, dilUyarisiSozcukler: yabanciSozcukler([gerekce]) },
     });
   } catch (e) {
-    return c.json(modelHatasiGovdesi(e, c.req.path), 502);
+    return modelHatasiYaniti(c, e);
   }
 });
 

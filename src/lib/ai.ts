@@ -29,7 +29,234 @@ export type AiEnv = {
   AI_FALLBACK_MODEL?: string;
   AI_FALLBACK_BASE_URL?: string;
   AI_FALLBACK_API_KEY?: string;
+  /* §86 — ücretsiz plan güvenilirlik katmanı (ayrıntı: aşağıdaki §86 notları).
+     AI_GATEWAY_ID boşsa AI Gateway KAPALIDIR (bugünkü durum; gateway yok). */
+  AI_GATEWAY_ID?: string;
+  AI_GATEWAY_CACHE_TTL?: string;
+  AI_GATEWAY_SKIP_CACHE?: string;
+  /** Dakikalık hız sınırı / geçici kapasite hatasında tek tekrar öncesi bekleme (ms). */
+  AI_HIZ_BEKLEME_MS?: string;
 };
+
+// ============================================================================
+// §86 — HATA AYRIMI: GÜNLÜK KOTA (3036) ≠ DAKİKALIK HIZ SINIRI ≠ DİĞER
+//
+// Workers AI ücretsiz planda günde 10.000 Neuron verir; bitince HTTP 429 +
+// iç kod 3036 "Account limited" döner ve kota 00:00 UTC'de (03:00 TR) açılır.
+// Cloudflare hata tablosu (developers.cloudflare.com/workers-ai/platform/errors,
+// 5 Kasım 2026'da okundu): 3036 → 429 "You have used up your daily free
+// allocation of 10,000 neurons"; 3040 → 429 "Capacity temporarily exceeded,
+// please try again". Dakikalık hız sınırının (metin üretiminde 300 istek/dk)
+// KENDİ iç kodu tabloda YOK — bu yüzden metinle de tanınır.
+//
+// Binding'in fırlattığı hatanın TAM biçimi ölçülmedi (kotayı bilerek
+// tüketmek gerekirdi). Ayrıştırıcı iki tür kanıt kabul eder:
+//  (a) YAPISAL kod: hata nesnesinin sayısal `code` alanı ya da yapısal
+//      `errors[].code` (iç içe `cause` dahil);
+//  (b) AÇIK metin: kotada "daily free allocation" / "used up your daily" /
+//      "Account limited"; hızda sözcük sınırlı "rate limit", "too many
+//      requests", "capacity temporarily exceeded".
+// MESAJ METNİNDEKİ ÇIPLAK SAYILARA BAKILMAZ (bağımsız doğrulama, 5 Kasım):
+// "The input (3036 tokens)…", "requested 3036 tokens", "timed out after
+// 3036 ms" kota sanılıyordu. Ayrıca OpenAI uyumlu yol sağlayıcının yanıt
+// gövdesini mesaja gömer (callOpenAiUyumlu); oradaki sayılar ve gömülü JSON
+// da kanıt sayılmaz.
+//
+// BİLİNÇLİ DAR TUTULAN NOKTA: mesajda yalnızca "429" geçmesi kota SAYILMAZ.
+// 429 iki durumda da döner; çıplak 429'u kota sanmak geçici bir hız sınırında
+// istemciye "yarına kadar bekle" dedirtirdi. Böyle bir hata "diğer" sayılır
+// ve eski davranış (yedeğe geç) sürer — test/rota.test.ts README §3.1 testi.
+// ============================================================================
+
+export type AiHataTuru = 'kota' | 'hiz' | 'diger';
+
+/** Günlük kota bitti: yeniden deneme ve aynı havuzdaki yedeğe geçiş YAPILMAZ. */
+export class AiKotaHatasi extends Error {
+  readonly tur = 'kota' as const;
+  constructor(public readonly ayrinti: string) {
+    super(`Workers AI günlük kota bitti (3036): ${ayrinti.slice(0, 200)}`);
+    this.name = 'AiKotaHatasi';
+  }
+}
+
+/** Model yanıtı JSON olarak ayrıştı ama uç noktanın zod şemasına uymadı. */
+export class AiSemaHatasi extends Error {
+  constructor(public readonly ayrinti: string) {
+    super(`Yanıt beklenen JSON şemasına uymuyor: ${ayrinti.slice(0, 200)}`);
+    this.name = 'AiSemaHatasi';
+  }
+}
+
+/**
+ * §86 — istek başına model çağrısı tavanı ve çağrı kancası.
+ * Bir istek EN ÇOK 3 gerçek model çağrısı yapar: birincil en çok 2 (JSON/şema
+ * onarımı ya da dakikalık hız tekrarı bu 2'nin içindedir), yedek en çok 1.
+ * `cagriOncesi` HER gerçek binding/sağlayıcı çağrısından hemen önce çalışır
+ * (günlük IP hakkı burada düşer); `kotaIade` çağrı 3036 ile döndüyse hakkı
+ * geri verir — kota bitmişken dönen 503 hak yemez.
+ */
+export const ISTEK_BASINA_CAGRI_TAVANI = 3;
+const BIRINCIL_CAGRI_TAVANI = 2;
+const YEDEK_CAGRI_TAVANI = 1;
+
+export type CagriKancasi = {
+  cagriOncesi?: () => Promise<void>;
+  kotaIade?: () => Promise<void>;
+};
+
+/** Günlük IP sınırı doldu: zincir durur, yedeğe geçilmez. */
+export class AiGunlukSinirHatasi extends Error {
+  constructor(public readonly limit: number) {
+    super(`Günlük adres sınırı doldu (${limit})`);
+    this.name = 'AiGunlukSinirHatasi';
+  }
+}
+
+/** Hata nesnesinden (iç içe olabilir) YAPISAL sayısal kodları ve metni toplar. */
+function hataIzleri(e: unknown, derinlik = 0): { kodlar: number[]; metin: string } {
+  const kodlar: number[] = [];
+  let metin = '';
+  if (e == null || derinlik > 3) return { kodlar, metin };
+  if (typeof e === 'string') return { kodlar, metin: e };
+  if (typeof e !== 'object') return { kodlar, metin: String(e) };
+  const o = e as Record<string, unknown>;
+  for (const alan of ['code', 'internalCode', 'internal_code']) {
+    const n = Number(o[alan]);
+    if (Number.isFinite(n) && n > 0) kodlar.push(n);
+  }
+  if (typeof o.message === 'string') metin += o.message + ' ';
+  if (typeof o.name === 'string') metin += o.name + ' ';
+  const errs = Array.isArray(o.errors) ? o.errors : [];
+  for (const x of errs) {
+    const iz = hataIzleri(x, derinlik + 1);
+    kodlar.push(...iz.kodlar);
+    metin += iz.metin + ' ';
+  }
+  if (o.cause) {
+    const iz = hataIzleri(o.cause, derinlik + 1);
+    kodlar.push(...iz.kodlar);
+    metin += iz.metin;
+  }
+  // Mesaj metnindeki sayılara ve gömülü JSON'a BİLEREK bakılmaz (üstteki not).
+  return { kodlar, metin };
+}
+
+const KOTA_METNI = /daily free allocation|used up your daily|\baccount limited\b/i;
+// Sözcük sınırlı: "moderate limit", "generate", "accurate", "separate_limit" hız DEĞİL.
+const HIZ_METNI = /\brate[ -]?limit(?:s|ed|ing)?\b|\btoo many requests\b|\bcapacity temporarily exceeded\b/i;
+
+/**
+ * Model çağrısı hatasını sınıflandırır.
+ *  - 'kota': yapısal kod 3036 ya da açık kota metni. Gün sonuna kadar kalıcı.
+ *  - 'hiz' : yapısal kod 3040, yapısal `status === 429` ya da açık hız metni.
+ *    Geçicidir: kısa bekleme + (çağrı tavanı izin verirse) 1 tekrar.
+ *  - 'diger': geri kalan her şey (eski davranış: yedeğe geç).
+ */
+export function aiHatasiniSinifla(e: unknown): AiHataTuru {
+  if (e instanceof AiKotaHatasi) return 'kota';
+  const { kodlar, metin } = hataIzleri(e);
+  if (kodlar.includes(3036) || KOTA_METNI.test(metin)) return 'kota';
+  const durum = e && typeof e === 'object' ? Number((e as Record<string, unknown>).status) : NaN;
+  if (kodlar.includes(3040) || durum === 429 || HIZ_METNI.test(metin)) return 'hiz';
+  return 'diger';
+}
+
+/**
+ * §86 — KVKK: Workers Logs'a yazılabilir, İÇERİKSİZ hata özeti.
+ *
+ * Hata mesajları model çıktısı (extractJson ön izlemesi), sağlayıcı yanıt
+ * gövdesi (callOpenAiUyumlu) ya da zod'un "received '…'" değerini taşıyabilir;
+ * bunlar öğrenci yanıtından alıntı içerebilir. Kayda MESAJ METNİ HİÇ girmez:
+ * yalnız sınıf adı, hata türü, kendi kodumuzun ürettiği neden etiketi, yapısal
+ * kod/HTTP durumu ve mesaj UZUNLUĞU. (SHA-256 öneki eklenmedi: kayıtlar eşzamanlı
+ * yazılıyor, crypto.subtle eşzamansız; gerek görülürse ayrı iş.)
+ */
+export function hataOzeti(e: unknown): Record<string, string | number | null> {
+  const mesaj = e instanceof Error ? e.message : String(e ?? '');
+  const o = e && typeof e === 'object' ? (e as Record<string, unknown>) : {};
+  const { kodlar } = hataIzleri(e);
+  const yapisalDurum = Number(o.status);
+  // Kendi ürettiğimiz önek ("OpenAI-uyumlu 400 …", "Anthropic 529: …") içerik değildir.
+  const onek = mesaj.match(/^(?:OpenAI-uyumlu|Anthropic) (\d{3})\b/);
+  const durum = Number.isFinite(yapisalDurum) && yapisalDurum > 0 ? yapisalDurum : onek ? Number(onek[1]) : null;
+  return {
+    hataSinifi: e instanceof Error ? e.name : typeof e,
+    tur: aiHatasiniSinifla(e),
+    neden: hataNedeni(e, mesaj),
+    kod: kodlar[0] ?? null,
+    durum,
+    mesajUzunlugu: mesaj.length,
+  };
+}
+
+function hataNedeni(e: unknown, mesaj: string): string {
+  if (e instanceof AiSemaHatasi) return 'sema';
+  if (e instanceof AiKotaHatasi) return 'kota';
+  if (e instanceof AiGunlukSinirHatasi) return 'gunluk_sinir';
+  if (/^Yanıtta JSON bulunamadı/.test(mesaj)) return 'json_yok';
+  if (/^JSON dengeli biçimde kapanmıyor/.test(mesaj)) return 'json_kesik';
+  if (e instanceof SyntaxError) return 'json_sozdizimi';
+  if (/^Yanıtta içerik yok/.test(mesaj)) return 'icerik_yok';
+  if (/^(AI binding tanımlı değil|AI_API_KEY tanımlı değil)/.test(mesaj)) return 'yapilandirma';
+  return 'model';
+}
+
+/** Bir sonraki 00:00 UTC'ye (Workers AI kota sıfırlanması = 03:00 TR) kalan saniye. */
+export function saniyeUtcGunSonuna(now: number = Date.now()): number {
+  const d = new Date(now);
+  const yarin = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1);
+  return Math.max(1, Math.ceil((yarin - now) / 1000));
+}
+
+function hizBeklemeMs(env: AiEnv): number {
+  const n = Number(env.AI_HIZ_BEKLEME_MS);
+  // Varsayılan 2 sn: dakikalık pencerede bir sonraki saniyelere kaymak için
+  // yeterli, isteği kullanıcıyı bezdirecek kadar uzatmayan bir değer. TAHMİN;
+  // ölçülmedi (binding hız sınırında `retry-after` vermiyor).
+  return Number.isFinite(n) && env.AI_HIZ_BEKLEME_MS !== undefined && env.AI_HIZ_BEKLEME_MS !== ''
+    ? Math.min(Math.max(0, n), 10_000)
+    : 2000;
+}
+
+const bekle = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * §86 — AI GATEWAY (isteğe bağlı, BUGÜN KAPALI).
+ * AI_GATEWAY_ID boşsa `undefined` döner ve `env.AI.run` üçüncü argümansız,
+ * eskisi gibi çağrılır. Doluysa `{ gateway: { id, cacheTtl, skipCache } }`.
+ * Seçenek adları @cloudflare/workers-types `GatewayOptions` ve
+ * developers.cloudflare.com/ai-gateway/usage/worker-binding-methods ile
+ * eşleşir. TTL saniyedir; belge aralığı 60 sn – 1 ay, buraya kırpılır.
+ * Varsayılan 3 gün: demo öncesi gün ısıtılan önbelleğin demo günü de geçerli
+ * kalması için (rapor (d) "önbellek ısıtma"). Değer gerekçeli tahmindir.
+ */
+export function gatewaySecenekleri(env: AiEnv): { gateway: { id: string; cacheTtl: number; skipCache: boolean } } | undefined {
+  const id = (env.AI_GATEWAY_ID || '').trim();
+  if (!id) return undefined;
+  const ttl = Number(env.AI_GATEWAY_CACHE_TTL);
+  const cacheTtl = Number.isFinite(ttl) && ttl > 0 ? Math.min(Math.max(Math.round(ttl), 60), 2_592_000) : 259_200;
+  const skipCache = /^(1|true|evet)$/i.test((env.AI_GATEWAY_SKIP_CACHE || '').trim());
+  return { gateway: { id, cacheTtl, skipCache } };
+}
+
+/**
+ * §86 — `meta.source` etiketi. Hangi kaynağın yanıtladığı her başarılı
+ * yanıtta görünür (rapor (d): "her kaynak rozetli"). Bugün yalnız iki
+ * Workers AI modeli var; `cache` ve `seed` ileride eklenecek.
+ * NOT: AI Gateway önbellek isabeti (`cf-aig-cache-status: HIT`) binding'in
+ * normal dönüş değerinden OKUNAMIYOR — dönen değer gövdedir, başlık değil.
+ * Bu yüzden `cache` bugün işaretlenmez (bkz. PROGRESS §86).
+ */
+export function kaynakEtiketi(env: AiEnv): string {
+  const p = providerName(env);
+  const m = modelName(env).toLowerCase();
+  if (p === 'workers-ai') {
+    if (m.includes('llama-3.3-70b')) return 'workers-ai-70b';
+    if (m.includes('scout')) return 'workers-ai-scout';
+    return 'workers-ai';
+  }
+  return p;
+}
 
 /** Yedek sağlayıcıyı birincilmiş gibi gösteren bir env görünümü üretir. */
 /**
@@ -140,11 +367,16 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
   if (provider === 'workers-ai') {
     if (!env.AI) throw new Error('AI binding tanımlı değil (wrangler.jsonc -> ai.binding)');
     // agents.md §7.4: max_tokens her çağrıda açıkça verilir.
-    const res: any = await env.AI.run(model as any, {
+    const girdi = {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: opts.maxTokens,
       temperature,
-    } as any);
+    };
+    // §86: gateway kapalıyken üçüncü argüman HİÇ verilmez (eski çağrı birebir).
+    const gw = gatewaySecenekleri(env);
+    const res: any = gw
+      ? await env.AI.run(model as any, girdi as any, gw)
+      : await env.AI.run(model as any, girdi as any);
     const r = res?.response ?? res?.result?.response ?? res;
     return typeof r === 'string' ? r : (r as object);
   }
@@ -319,17 +551,43 @@ export function extractJson(raw: string | object): unknown {
  * döndür" uyarısıyla BİR kez daha dener (agents.md §7.4 token disiplini
  * gereği ikiden fazla denenmez).
  */
+/** §86: uç noktanın zod şeması (yalnız `safeParse` gerekir). */
+export type JsonSema = {
+  safeParse(d: unknown): { success: boolean; error?: { issues?: Array<{ path: (string | number)[]; message: string }> } };
+};
+
+/**
+ * §86 — ZİNCİR: birincil (en çok 2 gerçek çağrı) → yedek (en çok 1) → açık hata.
+ * İstek başına toplam en çok ISTEK_BASINA_CAGRI_TAVANI (3) model çağrısı;
+ * dakikalık hız tekrarı da bu sayıya dahildir.
+ * `sema` verilirse her yanıt sunucuda o şemayla KATI doğrulanır; şemaya
+ * uymayan yanıt "yumuşak hata" sayılır (bkz. callOne onarım notu).
+ * Günlük kota (3036) bitince aynı Neuron havuzundaki yedeğe GEÇİLMEZ.
+ * `kanca` her gerçek çağrıdan önce çalışır (günlük IP hakkı, routes/ai.ts).
+ */
 export async function callModelJson(
   env: AiEnv,
   prompt: string,
-  opts: CallOptions
-): Promise<{ data: unknown; attempts: number; approxPromptChars: number; usedProvider: string; usedModel: string; fellBack: boolean }> {
+  opts: CallOptions,
+  sema?: JsonSema,
+  kanca?: CagriKancasi
+): Promise<{ data: unknown; attempts: number; approxPromptChars: number; usedProvider: string; usedModel: string; fellBack: boolean; source: string }> {
   try {
-    const r = await callOne(env, prompt, opts);
-    return { ...r, usedProvider: providerName(env), usedModel: modelName(env), fellBack: false };
+    const r = await callOne(env, prompt, opts, sema, { kalan: BIRINCIL_CAGRI_TAVANI }, kanca);
+    return { ...r, usedProvider: providerName(env), usedModel: modelName(env), fellBack: false, source: kaynakEtiketi(env) };
   } catch (birincilHata) {
+    // Günlük adres sınırı doldu: yedek de bir çağrı olurdu, zincir durur.
+    if (birincilHata instanceof AiGunlukSinirHatasi) throw birincilHata;
     const yedek = fallbackEnv(env);
     if (!yedek || !fallbackConfigured(env)) throw birincilHata;
+    /* §86: kota bittiyse ve yedek de Workers AI ise yedek AYNI hesabın AYNI
+       günlük havuzundan yer — denemek kesin başarısız ve yalnızca gecikme
+       ekler. Harici bir yedek (openai vb.) başka havuzdur; ona geçiş sürer. */
+    if (
+      birincilHata instanceof AiKotaHatasi &&
+      providerName(env) === 'workers-ai' &&
+      providerName(yedek) === 'workers-ai'
+    ) throw birincilHata;
     // Birincil sağlayıcı düştü (kota, kesinti, model kaldırılması...).
     // Sessizce yutmuyoruz: hangi sağlayıcının yanıtladığı çağrıya döner ve
     // arayüzde gösterilir.
@@ -338,11 +596,49 @@ export async function callModelJson(
         ev: 'ai_fallback',
         from: providerName(env),
         to: providerName(yedek),
-        reason: birincilHata instanceof Error ? birincilHata.message.slice(0, 200) : String(birincilHata).slice(0, 200),
+        // §86 KVKK: mesaj metni değil, içeriksiz özet.
+        neden: hataOzeti(birincilHata),
       })
     );
-    const r = await callOne(yedek, prompt, opts);
-    return { ...r, usedProvider: providerName(yedek), usedModel: modelName(yedek), fellBack: true };
+    const r = await callOne(yedek, prompt, opts, sema, { kalan: YEDEK_CAGRI_TAVANI }, kanca);
+    return { ...r, usedProvider: providerName(yedek), usedModel: modelName(yedek), fellBack: true, source: kaynakEtiketi(yedek) };
+  }
+}
+
+type CagriHakki = { kalan: number };
+
+/**
+ * §86 — TEK gerçek model çağrısı (+ hız sınırında, hak kaldıysa TEK tekrar).
+ * Her gerçek çağrı `hak.kalan`'dan düşer ve önce `kanca.cagriOncesi` çalışır.
+ *  - 'kota' → hak iade edilir (`kotaIade`), AiKotaHatasi (yeniden deneme yok).
+ *  - 'hiz'  → hak kaldıysa kısa bekleme + aynı model/istem/parametrelerle
+ *             1 tekrar; yoksa hata yükselir (callModelJson yedeğe geçer).
+ *  - diğer  → hata olduğu gibi yükselir (§51b: boşa tekrar yok).
+ */
+async function callModelHizKorumali(
+  env: AiEnv, prompt: string, opts: CallOptions, hak: CagriHakki, kanca?: CagriKancasi
+): Promise<string | object> {
+  for (let tekrar = 0; ; tekrar++) {
+    if (kanca?.cagriOncesi) await kanca.cagriOncesi();  // AiGunlukSinirHatasi fırlatabilir
+    hak.kalan--;
+    try {
+      return await callModel(env, prompt, opts);
+    } catch (e) {
+      const tur = aiHatasiniSinifla(e);
+      const mesaj = e instanceof Error ? e.message : String(e);
+      if (tur === 'kota') {
+        // Kota bitmişken model iş yapmadı: günlük adres hakkı geri verilir.
+        if (kanca?.kotaIade) await kanca.kotaIade();
+        throw e instanceof AiKotaHatasi ? e : new AiKotaHatasi(mesaj);
+      }
+      if (tur === 'hiz' && tekrar === 0 && hak.kalan > 0) {
+        const ms = hizBeklemeMs(env);
+        console.log(JSON.stringify({ ev: 'ai_hiz_tekrar', provider: providerName(env), model: modelName(env), beklemeMs: ms, hata: hataOzeti(e) }));
+        await bekle(ms);
+        continue;
+      }
+      throw e instanceof Error ? e : new Error(mesaj);
+    }
   }
 }
 
@@ -356,16 +652,33 @@ const KESILME_TOKEN_TAVANI = 8000;
 async function callOne(
   env: AiEnv,
   prompt: string,
-  opts: CallOptions
+  opts: CallOptions,
+  sema: JsonSema | undefined,
+  hak: CagriHakki,
+  kanca?: CagriKancasi
 ): Promise<{ data: unknown; attempts: number; approxPromptChars: number }> {
   let lastErr: unknown;
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  // §86: deneme sayısı ayrıca çağrı hakkıyla sınırlı (hız tekrarı hak yer).
+  for (let attempt = 1; attempt <= 2 && hak.kalan > 0; attempt++) {
+    /* §86 — ONARIM DENEMESİ: İKİ AYRI YOL, İKİSİ DE TEK DENEME.
+       (a) Yanıt JSON olarak AYRIŞMADIYSA eski davranış aynen sürer: ikinci
+           denemede mevcut "gecerli JSON degildi" ek talimatı eklenir (§51b'den
+           beri böyle; test/rota.test.ts bunu sınıyor).
+       (b) JSON ayrıştı ama ŞEMAYA UYMADIYSA ikinci deneme AYNI istemle
+           yapılır, ek talimat YOK. Gerekçe: (1) mevcut ek talimat "JSON
+           değildi" diyor; şema hatasında yanlış bilgi verirdi; (2) yeni bir
+           talimat cümlesi istem değişikliği olur ve ölçülmüş kalite sayıları
+           (%77,7 vb.) o istemle ölçülmediği için geçersizleşirdi (rapor (e));
+           (3) sıcaklık > 0 olduğu için aynı çağrının tekrarı farklı örnek
+           üretir — onarım şansı sıfır değildir. Ne kadar işe yaradığı
+           ÖLÇÜLMEDİ. */
+    const semaHatasiydi = lastErr instanceof AiSemaHatasi;
     // Yanit kesildiyse ikinci denemede token butcesini iki katina cikar ve
     // modelden daha kisa yazmasini iste. Farkli saglayicilar ayni istem icin
     // farkli uzunlukta yaziyor; sabit butce birinde yetip digerinde
     // yetmeyebiliyor (Gemini yedeginde tam bu yasandi).
-    const kesilmis = lastErr instanceof Error && /kapanm|kesil/i.test(lastErr.message);
-    const p = attempt === 1
+    const kesilmis = !semaHatasiydi && lastErr instanceof Error && /kapanm|kesil/i.test(lastErr.message);
+    const p = attempt === 1 || semaHatasiydi
       ? prompt
       : prompt + (kesilmis
           ? '\n\nONEMLI: Onceki yanitin YARIDA KESILDI. Daha KISA yaz: her gerekceyi tek cumleyle sinirla. Yalnizca gecerli JSON dondur.'
@@ -394,7 +707,9 @@ async function callOne(
            boşa çağrı harcar; hata hemen yükselir ve callModelJson YEDEĞE geçer
            (README §3.1'deki "birincil bozuk, yine 200" davranışı korunur —
            test/rota.test.ts). */
-    const kayit = (ok: boolean, asama?: 'model' | 'ayristirma', hata?: unknown) =>
+    const baslangic = Date.now();
+    let yanitUzunlugu: number | null = null;  // §86: içerik değil, yalnız uzunluk
+    const kayit = (ok: boolean, asama?: 'model' | 'ayristirma' | 'sema', hata?: unknown) =>
       console.log(
         JSON.stringify({
           ev: 'ai_call',
@@ -404,24 +719,46 @@ async function callOne(
           maxTokens: buOpts.maxTokens,
           attempt,
           ok,
-          ...(ok ? {} : { asama, hata: (hata instanceof Error ? hata.message : String(hata)).slice(0, 200) }),
+          sureMs: Date.now() - baslangic,
+          ...(yanitUzunlugu !== null ? { yanitUzunlugu } : {}),
+          // §86 KVKK: hata METNİ yazılmaz (model çıktısı/gövde taşıyabilir).
+          ...(ok ? {} : { asama, hata: hataOzeti(hata) }),
         })
       );
     let raw: string | object;
     try {
-      raw = await callModel(env, p, buOpts);
+      raw = await callModelHizKorumali(env, p, buOpts, hak, kanca);
     } catch (e) {
-      kayit(false, 'model', e);
+      // Günlük sınır reddinde model çağrılmadı; "model hatası" diye kaydedilmez.
+      if (!(e instanceof AiGunlukSinirHatasi)) kayit(false, 'model', e);
       throw e instanceof Error ? e : new Error(String(e));
     }
     try {
-      const data = extractJson(raw);
-      kayit(true);
-      return { data, attempts: attempt, approxPromptChars: p.length };
+      yanitUzunlugu = typeof raw === 'string' ? raw.length : JSON.stringify(raw)?.length ?? 0;
+    } catch { yanitUzunlugu = null; }
+    let data: unknown;
+    try {
+      data = extractJson(raw);
     } catch (e) {
       kayit(false, 'ayristirma', e);
       lastErr = e;
+      continue;
     }
+    if (sema) {
+      const s = sema.safeParse(data);
+      if (!s.success) {
+        /* §86 KVKK: zod mesajları "received '…'" ile modelin değerini
+           taşıyabilir; özet yalnız sorun SAYISINI ve kodlarını içerir. */
+        const sorunlar = (s.error?.issues ?? []) as Array<{ code?: string }>;
+        const ozet = `${sorunlar.length} sorun (${[...new Set(sorunlar.map((i) => String(i.code || '?')))].slice(0, 3).join(', ')})`;
+        const e = new AiSemaHatasi(ozet || 'şema doğrulaması başarısız');
+        kayit(false, 'sema', e);
+        lastErr = e;
+        continue;
+      }
+    }
+    kayit(true);
+    return { data, attempts: attempt, approxPromptChars: p.length };
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }

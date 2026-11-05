@@ -109,6 +109,31 @@
   },
 
   // ===========================================================================
+  // §86 — ÜCRETSİZ PLAN GÜVENİLİRLİK KATMANI: BEKLEYEN YAPILANDIRMA
+  //
+  // (1) IP başına günlük sayaç — Durable Object (SQLite arka uçlu; Workers
+  //     Free'de kullanılabilir: 100.000 istek/gün, 100.000 satır yazma/gün).
+  //     KAYNAK OLUŞTURMA BEKLİYOR: aşağıdaki iki blok açılıp deploy edilince
+  //     Cloudflare DO ad alanını migration ile oluşturur. Açılmadıkça sayaç
+  //     bellek içi (isolate başına) çalışır; /api/ai/status bunu
+  //     "gunlukSinir.mod": "bellek" diye söyler.
+  //     Ücretsiz planda YALNIZ "new_sqlite_classes" kabul edilir
+  //     ("new_classes" = anahtar-değer arka ucu, ücretli).
+  //
+  // , "durable_objects": {
+  //     "bindings": [{ "name": "GUNLUK_SAYAC", "class_name": "GunlukSayac" }]
+  //   }
+  // , "migrations": [{ "tag": "v1-gunluk-sayac", "new_sqlite_classes": ["GunlukSayac"] }]
+  //
+  // (2) "vars" içine eklenebilecek ayarlar (hepsi isteğe bağlı):
+  //   "AI_GUNLUK_IP_SINIRI": "60"      // adres başına günlük MODEL ÇAĞRISI (varsayılan 60)
+  //   "AI_HIZ_BEKLEME_MS": "2000"      // dakikalık 429'da tek tekrar öncesi bekleme
+  //   "AI_GATEWAY_ID": ""              // boş = AI Gateway KAPALI (bugün gateway yok)
+  //   "AI_GATEWAY_CACHE_TTL": "259200" // sn; 60 – 2.592.000 aralığına kırpılır
+  //   "AI_GATEWAY_SKIP_CACHE": ""      // "1" = önbelleği atla
+  // ===========================================================================
+
+  // ===========================================================================
   // D1 — CİHAZLAR ARASI SENKRON (§28b)
   //
   // Bu dosyanın başındaki not "D1 demo akışı için gerekli değildir" diyordu ve
