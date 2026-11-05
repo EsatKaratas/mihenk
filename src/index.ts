@@ -55,3 +55,9 @@ app.onError((err, c) => {
 });
 
 export default app;
+
+/* §86 — günlük adres sayacı Durable Object sınıfı. Wrangler sınıfı ana
+   modülün dışa aktarımlarında arar; bağlama (GUNLUK_SAYAC) wrangler.demo.jsonc'ta
+   henüz YORUM olarak bekliyor — bağlanmadıkça bu dışa aktarım hiçbir şey
+   oluşturmaz ve sayaç bellek içi çalışır. */
+export { GunlukSayac } from './lib/gunluk-sinir';
