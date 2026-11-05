@@ -1,0 +1,6 @@
+# Cloudflare statik varlık yönlendirmeleri.
+# NEDEN: Sayfalar ikonu <link rel="icon" href="/mihenk-logo.png"> ile veriyor
+# (§45), ama tarayıcılar ve tarayıcı dışı istemciler yine /favicon.ico ister;
+# canlıda 404 dönüyordu (5 Kasım 2026'da ölçüldü). Ayrı bir .ico dosyası
+# yerine aynı PNG'ye kalıcı yönlendirme: tek ikon kaynağı kalır.
+/favicon.ico /mihenk-logo.png 301
