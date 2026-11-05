@@ -10116,3 +10116,77 @@ Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrı
   varsa kalır.
 - Testler 407/407 (beklenti güncellendi + 4 sözcük → 3 gösterim). Lint temiz;
   öz-kontrol %100.
+
+---
+
+## 85. YAYIN — ücretsiz planda toplu yayın + deploy koruması + temizlik (5 Kasım 2026, W8)
+
+**Bağlam:** Workers Paid 26 Ekim'de bitti; hesap Cloudflare ücretsiz planında.
+Kural (Esat): hiçbir ödeme yapılmaz, panelde hiçbir şey açılmaz, R2 açılmaz,
+yalnız `npm run deploy:demo`. Ücretsiz planda kota aşımı ret demek; günlük
+toplam ≤ 9.000 Neuron.
+
+- **Ön koşul, modelin ücretsiz planda yanıt verdiği:** canlıya TEK
+  `POST /api/ai/evaluate` (curl) → HTTP 200, 7,6 sn, `@cf/meta/llama-3.3-70b-instruct-fp8-fast`,
+  `attempts 1`, `fellBack false`, puan 16/20, dil uyarısı yok.
+- **Ö1 (HEAD 3edaede):**
+  - 407/407 test (19 dosya), lint temiz, öz-kontrol 521 ad %100,
+    check:config ve `node --check` temiz;
+  - `public/` 52/52 dosya **bayt düzeyinde** blob ile eşit;
+  - origin/main (ec79450) HEAD'in atası;
+  - dry-run'da yalnız AI + ASSETS + vars, `OLCUM_*` yok;
+  - sır taraması: 226 eklenen satırda 0 eşleşme.
+- **Yayın 1:** `npm run deploy:demo` → Version `7cb5dcd7-d9e4-46f6-af69-b43c2cd55500`
+  (kod 3edaede: §84 odak kurtarma + dil uyarısı sözcükleri, §84b).
+- **Canlı A (0 Neuron):**
+  - health ve status; bozuk JSON 400 (`/evaluate`, `/solve`); solve şeması 400;
+  - canlı↔disk↔blob SHA (`curl -L`) 51/51 bayt; `/`, `/404`, `/mimari`,
+    `/privacy-policy`'de CR 0; `_headers` 404 ama 5 güvenlik başlığı uygulanıyor.
+  - Gerçek tıklama ve tuşlarla, 1280 ve 390 px'te 28/28:
+    - §71 (TOHUMLA): Escape ve Vazgeç+Enter onaylamaz; "Yine de onayla"+Enter
+      onaylamaz, Space onaylar; Tab 9/9;
+    - karar günlüğü: alertdialog, kırmızı, Escape sonrası odak açan düğmede;
+    - **Sıfırla:** Escape ve Enter@Vazgeç veriyi değiştirmez, **odak ⋯'ye döner**,
+      Tab 9/9 (24 Ekim'de canlıda denenmemişti);
+    - **katalog:** seçim yapılmışken Escape ve Enter@Kapat hiçbir kazanım
+      eklemez (31→31), odak "Tüm listeyi aç"a döner, Tab 9/9;
+    - sınavı bitir: Escape ve Enter@Vazgeç bitirmez; **"Evet, bitir" sonrası
+      odak değerlendirme bittikten sonra da sınav başlığında (H3)**. Değerlendirme
+      kayıtlı gerçek yanıtla 1,5 sn gecikmeli sahtelendi, model çağrısı 0;
+    - yönetici filtresi 3 bileşim + temizle; kısa metin uyarısı (istek 0);
+      12 rol/sekme ekranında konsol hatası 0, taşma 0.
+- **Canlı B:** demo 5 adım gerçek tıklama, 1280'de gerçek `/evaluate` → 20/20,
+  70B, yedeğe düşmedi, dil uyarısı yok, "Tek Tıkla Onayla" ile tamamlandı.
+  390'da değerlendirme engelli, "Elle Puanla ve Onayla" ile 5/5.
+  **Bugünkü toplam: 2 model çağrısı, 223 Neuron** (`tools/olcum/neuron-gunluk.mjs`).
+- **Push:** `ec79450..3edaede`, origin/main == HEAD.
+- **deploy koruması (e4548bc):** `npm run deploy` artık `tools/deploy-guard.mjs
+  wrangler.jsonc`. Dolu `d1_databases` / `r2_buckets` / `queues` varsa
+  "YAYIN DURDURULDU" der, ücretli bağlamaları adıyla sayar, çıkış 1, wrangler
+  çağrılmaz; yoksa `wrangler deploy --minify -c`. Bayrakla atlatma yok.
+  JSONC karakter karakter soyulur (dize içindeki `//` korunur). +6 test
+  (`test/deploy-guard.test.ts`). `deploy:demo` değişmedi. README §8 güncellendi.
+- **Temizlik (244f1a5):**
+  - `/favicon.ico` canlıda 404'tü → `public/_redirects`:
+    `/favicon.ico /mihenk-logo.png 301`.
+  - `tools/olcum/neuron-gunluk.mjs` mat dalından (130b798) main'e.
+  - Yayın 2: `deploy:demo` → Version `7f1ed075-cdb2-412e-b81d-d1acda65782c`.
+    `/favicon.ico` → 301 → PNG 200. SHA 51/51; `_redirects` de `_headers`
+    gibi sunulmaz (404).
+  - Main'e girmiş 7 worktree kaldırıldı (w1b, w2, w3, w4, w1-dogrula,
+    w5-dogrula, w6-dogrula); hepsi temizdi, HEAD'leri main'in atasıydı.
+    Dalları silinmedi.
+  - `ce-enter-vazgec` dalı silindi (ucu `2e180c6`; §81 bu yaklaşımın
+    alınmamasını söylüyordu). Geri almak için: `git branch ce-enter-vazgec 2e180c6`.
+- **Sonuç:** 413/413 test (20 dosya), lint temiz, öz-kontrol 521 ad %100.
+- **TUZAKLAR:**
+  - `git worktree remove` sonrası w2/w3/w4 klasörleri kaldı: içlerindeki
+    `node_modules` ana depodaki `node_modules`'e **junction**'dı.
+    `rm -rf` / `Remove-Item -Recurse` ana depodaki bağımlılıkları silerdi.
+    Yalnız bağlantı `cmd /c rmdir <yol>` ile (alt öğesiz) kaldırıldı; ana
+    `node_modules` 83 öğe, önce = sonra.
+  - Oturum scratchpad'i (`%TEMP%\claude\...`) haftalar içinde silinebiliyor:
+    24 Ekim'in doğrulama betikleri kaybolmuştu, yeniden yazıldı. Kalıcı
+    olması gereken betik depoya (tools/) alınmalı.
+  - `_redirects`, `_headers` gibi varlık olarak sunulmaz; SHA listesinde
+    ikisi de atlanır.
