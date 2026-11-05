@@ -16,3 +16,6 @@ seed/turkishmmlu/*_raw.json
 __pycache__/
 *.pyc
 .DS_Store
+
+# tools/dogrula örnek çıktı klasörü
+.dogrula-cikti/
