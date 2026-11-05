@@ -10116,3 +10116,108 @@ Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrı
   varsa kalır.
 - Testler 407/407 (beklenti güncellendi + 4 sözcük → 3 gösterim). Lint temiz;
   öz-kontrol %100.
+
+## 86. Ücretsiz plan güvenilirlik katmanı (5 Kasım 2026, dal `ai-guvenilirlik`)
+
+Bağlam: hesap ödeme yapmıyor; Workers AI ücretsiz planı günde 10.000 Neuron verir.
+Kaynak: `reports/Mihenk ücretsiz güvenilir altyapı.md`, bölüm (d) ve (g), adım 2–5.
+İstemler (`prompts.ts`), sıcaklık ve `max_tokens` DEĞİŞMEDİ. `public/app.js`'e
+dokunulmadı. Push, deploy ve model çağrısı YAPILMADI.
+
+**1. Hata ayrımı (`src/lib/ai.ts` `aiHatasiniSinifla`).**
+- Kota: iç kod 3036 ya da "daily free allocation" / "Account limited" metni.
+  Sonuç 503 `ai_kota_bitti`, `Retry-After` 00:00 UTC'ye kalan saniye. Yeniden
+  deneme yok. Yedek de Workers AI ise Scout'a geçilmez (aynı havuz). Harici bir
+  yedeğe geçiş sürer (başka havuz).
+- 503 seçildi, 429 değil: `app.js` toplu çözmede 429 görünce 60 sn bekleyip 3 kez
+  yeniden deniyor (§56). Kota gün sonuna kadar açılmadığı için bu bekleme boşa olurdu.
+- Hız sınırı: iç kod 3040, yapısal `status: 429` ya da "rate limit / too many
+  requests / capacity temporarily exceeded". Kısa bekleme (`AI_HIZ_BEKLEME_MS`,
+  varsayılan 2000 ms, tahmin) ve en fazla 1 tekrar. Yine düşerse eski davranış
+  (yedeğe geç).
+- Mesajda yalnız "429" geçmesi kota SAYILMAZ. Bu test/rota.test.ts README §3.1
+  testini korur.
+- Ayrıştırıcı birden çok yere bakar: `code`, `errors[].code`, `cause`, mesajdaki
+  "3036: …" biçimi ve mesaja gömülü JSON gövdesi.
+- **Doğrulanmadı:** binding'in kota ve dakikalık sınırda fırlattığı hatanın gerçek
+  biçimi. Kod ve metin Cloudflare hata tablosundan alındı (5 Kasım'da okundu).
+  Dakikalık sınırın kendi iç kodu tabloda yok.
+
+**2. `meta.source`.** Her başarılı model yanıtında `source` ve `yedekModel` var.
+- `source` değerleri: `workers-ai-70b`, `workers-ai-scout`, diğer Workers AI
+  modeli için `workers-ai`, harici sağlayıcıda sağlayıcı adı.
+- `yedekModel` = yapılandırılmış yedeğin yanıtladığı durum (`fellBack`).
+- Eski meta alanları aynen duruyor.
+- `/solve` çapraz modda Scout bilerek seçilen çözücüdür. Orada
+  `source: "workers-ai-scout"` ama `yedekModel: false`. Düşüp 70B devralırsa true.
+- Model çağırmayan kısayol yanıtlarına (boş yanıt, <2 yanıt) `source` eklenmedi.
+
+**3. Şema doğrulaması.** `callModelJson(env, istem, ops, sema)` her uçta o ucun
+zod şemasını alır. Yanıt sunucuda doğrulanır. Zincir şöyle:
+- 70B: en fazla 2 deneme.
+- Scout: en fazla 2 deneme, aynı şemayla katı doğrulanır.
+- Sonra açık hata: şema → 502 `model_output_invalid` (eski kod), ayrışmayan
+  metin → 502 `ai_call_failed`.
+
+Onarım iki ayrı yolla yapılır:
+- JSON ayrışmadıysa mevcut ek talimatlı ikinci deneme aynen sürer (§51b).
+- JSON ayrıştı ama şemaya uymadıysa ikinci deneme AYNI istemle yapılır. Gerekçe:
+  mevcut ek talimat "JSON değildi" diyor, şema hatasında yanlış olur; yeni bir
+  talimat istem değişikliği olur ve ölçülmüş kalite sayılarını geçersizleştirir.
+  Sıcaklık > 0 olduğu için tekrar farklı bir örnek üretir.
+
+Onarımın ne kadar işe yaradığı **ölçülmedi**.
+
+Davranış değişikliği: eskiden şemaya uymayan yanıt tek çağrıdan sonra 502
+dönüyordu. Şimdi önce aynı modelle bir onarım denenir, sonra Scout'a geçilir.
+
+**4. IP başına günlük sınır (`src/lib/gunluk-sinir.ts`).**
+- Sınır aşılınca 429 `gunluk_sinir` + `Retry-After`. Değer
+  `AI_GUNLUK_IP_SINIRI`'ndan, varsayılan 40.
+- 40 neden: rapor (c) birim maliyetleriyle ortalama ~150 Neuron ≈ 6.000, yani tek
+  adres havuzun tamamını değil ~%60'ını tüketebilir. Bu bir tahmindir; okul NAT'ı
+  için değer yükseltilebilir.
+- Model çağrısından hemen önce sayılır. Doğrulama hatası, boş yanıt ve dakikalık
+  ret hak yemez. Onarım ve yedek denemeleri tek hak sayılır.
+- `cf-connecting-ip` yoksa günlük sınır uygulanmaz. Üretimde Cloudflare bu başlığı
+  koyar; `wrangler dev`'in koyup koymadığı **doğrulanmadı**.
+
+Yöntem seçimi (belgelerden, 5 Kasım):
+
+| Seçenek | Durum | Neden |
+|---|---|---|
+| Rate Limiting binding | Elendi | Pencere yalnız 10 ya da 60 sn, konum başına ve sonradan tutarlı |
+| KV | Elendi | Ücretsiz planda 1.000 yazma/gün ve sonradan tutarlı |
+| Durable Object (SQLite) | Seçildi | Ücretsiz planda var (100.000 istek/gün, 100.000 satır yazma/gün), güçlü tutarlı |
+
+- **KAYNAK OLUŞTURMA BEKLİYOR:** `GunlukSayac` sınıfı yazıldı ve `src/index.ts`'ten
+  dışa aktarılıyor. `durable_objects` + `migrations` (`new_sqlite_classes`) blokları
+  `wrangler.demo.jsonc`'ta yorum olarak bekliyor.
+- Bağlama yokken sayaç bellek içidir (isolate başına). `/api/ai/status`
+  `gunlukSinir: { limit, mod: "bellek" }` döner, yani durum sessiz değil.
+- DO hata verirse bellek sayacına düşülür ve `ev: "gunluk_sinir_do_hata"` loglanır.
+
+**5. AI Gateway (isteğe bağlı, KAPALI).**
+- `AI_GATEWAY_ID` boşsa `env.AI.run` üçüncü argümansız, eskisi gibi çağrılır.
+- Doluysa `{ gateway: { id, cacheTtl, skipCache } }` geçer. TTL varsayılanı 3 gün
+  (tahmin), 60 sn – 30 gün aralığına kırpılır.
+- `/status` `gateway: true/false` söyler.
+- `cache` kaynağı İŞARETLENMEZ. Binding'in normal dönüşü gövdedir, başlık değil;
+  belgeler (`ai-gateway/usage/worker-binding-methods`) `cf-aig-cache-status`'un
+  binding'den okunabildiğini söylemiyor.
+- `@cloudflare/workers-types`'ta `returnRawResponse: true` seçeneği var (`Response`
+  döner). Başlığın onunla gelip gelmediği **doğrulanmadı** ve gövde ayrıştırma
+  yolunu değiştireceği için kullanılmadı.
+- Gateway'in binding ile önbelleğe alıp almadığı da **doğrulanmadı**.
+
+**Ölçüm:**
+- Testler 413 → 453 (`test/guvenilirlik.test.ts`, 40 test, sahte AI bağlamasıyla):
+  - 3036'nın 7 biçimi
+  - dakikalık 429 + başarılı tekrar, iki kez 429 → Scout, bekleme süresi
+  - şema dışı → aynı istemle onarım
+  - bozuk JSON → onarım, bozuk → Scout → geçerli, Scout da bozuk → açık hata
+  - IP sınırı (uçtan, DO sınıfı, DO arızası)
+  - gateway kapalı/açık
+- Mevcut 413 test değişmeden geçiyor. `tsc --noEmit` 0 hata. Öz-kontrol 521 ad %100.
+- `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketledi (yükleme yok).
+- Canlıda hiçbir şey ölçülmedi.
