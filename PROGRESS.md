@@ -10190,3 +10190,87 @@ toplam ≤ 9.000 Neuron.
     olması gereken betik depoya (tools/) alınmalı.
   - `_redirects`, `_headers` gibi varlık olarak sunulmaz; SHA listesinde
     ikisi de atlanır.
+
+## 88. KVKK: ad temizleme ve aydınlatma (5 Kasım 2026, dal `kvkk-ad-temizleme`)
+
+Kaynak: `reports/Mihenk ücretsiz güvenilir altyapı.md` (f) ve (g) adım 8.
+Hedef: öğrenciyi tanımlayan bilgi (ad-soyad, numara, sınıf/şube, okul) hiçbir
+`/api/ai/*` isteğine girmesin. Push/deploy/model çağrısı YOK.
+
+**Denetim (kod öncesi).** `public/app.js`'te 7 `apiPost(AI_API.*)` çağrısı:
+
+| Uç | Gönderilen alanlar | Kişisel veri riski |
+|---|---|---|
+| generate-questions | mode, guidance, materialName, sourceText, subject, grade, kaynakTuru, outcomeCode/Label, mcCount, openCount, optionCount, docKey, topicArea, bloomFocus, excludeQuestions | Öğrenci alanı yok. sourceText/guidance öğretmen metni (öğretmen sınıf listesi yapıştırırsa risk; maskelenmiyor) |
+| evaluate | questionBody, outcomeLabel, **studentAnswer**, maxScore, criteria{label,weight} | Alan yok; **serbest metin** öğrencinin kendi/arkadaşının adını içerebilir → maskelendi |
+| rubric | questionBody, outcomeLabel, subject, grade, maxScore | Yok |
+| sample-answers | questionBody, outcomeLabel, grade, levels | Yok (simülasyon) |
+| misconceptions | questionBody, outcomeLabel, **answers[]** | Alan yok (miscAnswers isim taşımaz); **serbest metin** → maskelendi |
+| outcome-alignment | outcomeCode, outcomeLabel, questions{type,body}, candidates{kod,metin} | Yok |
+| solve | questionBody, options{key,text}, anahtar, outcomeLabel | Yok |
+
+Öğrenci kaydı yalnız `{id, name, sinif, demo}`; okul numarası/okul adı alanı
+yok (e-Okul yapıştırmada numaralar zaten atılıyor). `sid`/öğrenci kimliği hiçbir
+gövdeye girmiyor → yerel rastgele kimlik eşlemesi GEREKMEDİ.
+
+**İstemci (`kisiselMaskele`).** evaluate.studentAnswer ve misconceptions.answers
+gönderimden önce: sınıf listesindeki adlar `[ÖĞRENCİ]`, "okul numaram 123"/"no: 57"
+`[NUMARA]`. Türkçe duyarlı (her harf tr büyük/küçük + klavyesiz yazım ş/s ı/i ğ/g
+ü/u ö/o ç/c), ekler ("Ayşe'nin", "ayşenin", "AYŞE'YE"). Puanı bozmamak için
+sözcük de olan adlar (Deniz, Ada, Ege, Aydın, Elif…; `KISISEL_SOZCUK_ADLAR`) tek
+başına yalnız Büyük harf + kesme işaretiyle maskelenir; ad+soyad birlikte her
+biçimde. Maskeleme ekrandaki cevabı ve önbellek anahtarını değiştirmez.
+Maskeleme olursa değerlendirme kartında ve yanılgı analizinde "🔒 Ad bilgisi
+yapay zekâya gönderilmedi." notu (`adMaskeNotuHtml`, `.ad-maske-not`).
+
+**Sunucu ikinci katmanı (`src/lib/kisisel.ts`, yeni dosya).** `kisiselKoruma`
+ara katmanı: (1) iç içe dahil kişisel alan ANAHTARI (studentName, ad, soyad,
+okulNo, sinif, sube, okulAdi, tc… normalize edilerek) → 400 `kisisel_veri`,
+modele gitmez, log'a yalnız alan yolu; (2) studentAnswer/answers'ta "benim adım
+…", "Ad Soyad: …", "okul numaram 123" kalıpları maskelenir ("ilk adım",
+"adımı" dokunulmaz). Bağlama `src/index.ts`'te (routes/ai.ts'e DOKUNULMADI):
+`app.use('/api/ai/*', kisiselKoruma); // §88 KVKK` + import satırı.
+TUZAK: hono 4.x `c.req.json()` her çağrıda önbellekteki METNİ yeniden ayrıştırır;
+yerinde değişiklik zValidator'a ulaşmıyordu (uçtan test yakaladı). Çözüm:
+`bodyCache = { text: maskeli JSON }`.
+Zod kanıtı: 7 şemanın hepsi bilinmeyen kişisel alanı (üst düzey ve iç içe) atıyor
+(`test/kvkk-sunucu.test.ts`).
+
+**Metinler.** `public/privacy-policy.html` m.10'a göre: veri sorumlusu yer
+tutucu, yapay zekâya giden/gitmeyen kutusu, amaç + toplama yöntemi + hukuki
+sebep (yer tutucu), yurt dışına aktarım (Cloudflare, Inc., ABD; Workers AI beyanı
+linkli; ücretsiz katmanda standart sözleşme yok → bilgilendirilmiş açık rıza,
+hukuk teyidi yer tutucu), saklama (sunucuda yok; tarayıcıda), m.11 dokuz hak,
+m.13/m.14. Gerçeğe uymayan "şifreler hash'lenir", "auto-save erişim günlükleri",
+"bireysel açık rıza yerine kurum" ifadeleri çıkarıldı. `docs/kvkk/`: veli rıza
+formu (iki ayrı rıza, reddetme dezavantajsız) ve pilot öğretmen kontrol listesi
+(sentetik demo, YAZEK beyanı, sağlayıcı koşullarının tarihli kopyası). Hukuki
+görüş değildir.
+
+**Doğrulama.** `npm test` 22 dosya / 437 test geçti (yeni: kvkk-ad-maske 10,
+kvkk-sunucu 14); `npx tsc --noEmit` temiz; `node tools/ozkontrol-dogrula.mjs`
+%100 (4 yeni ad listeye eklendi). Tarayıcıda gerçek tıklamayla rehberli demo:
+yerel yakalayıcı sunucu (port 8871, `public/` + sahte `/api/ai/*`, model yok,
+gövdeyi kayda yazar). Öğrenci Ada Yılmaz cevabına "Benim adım Ada Yılmaz, okul
+numaram 4821. KEREM AYDIN'la birlikte düşündük, Elif'in fikri de aynı." yazıldı,
+sınav bitirildi; ardından yanılgı analizi çalıştırıldı. Yakalanan gövdeler:
+- evaluate: `"studentAnswer":"Benim adım [ÖĞRENCİ], okul numaram [NUMARA]. [ÖĞRENCİ] birlikte düşündük, [ÖĞRENCİ] fikri de aynı. Tekerlekli…"`
+- misconceptions: answers[0] aynı biçimde maskeli.
+- Her iki gövdede Ada/Yılmaz/Kerem/Aydın/Elif/Şahin/Mert/Doğan/4821/7-A/7-B: YOK;
+  anahtarlar yalnız questionBody, outcomeLabel, studentAnswer|answers, maxScore, criteria.
+- Öğretmen kartında ve yanılgı bloğunda not görüldü; ekrandaki cevap değişmedi.
+
+**Açık riskler.**
+1. Rıza vermeyen öğrenci için uygulamada "bu öğrenciyi yapay zekâya gönderme"
+   anahtarı YOK; değerlendirme sınav bitince otomatik çağrılıyor. Form "elle
+   değerlendirilir" diyor → pilottan önce öğrenci başına bayrak gerekir.
+2. Liste dışı adlar (aile, öğretmen, başka okul) ve dolaylı ayrıntılar
+   maskelenmez; maskeleme sezgiseldir, anonimleştirme değildir.
+3. Sözcük-ad listesi sınırlı: listede olmayan ve aynı zamanda sözcük olan bir ad
+   (ör. "Kumru", "Serçe") cevapta içerik sözcüğü olarak geçerse maskelenir ve
+   puanı etkileyebilir; listeye eklenmeli.
+4. generate-questions sourceText/guidance maskelenmiyor (öğretmen metni).
+5. Workers Logs'ta `ai_failed`/`ai_call` hata iletisi model çıktısından ≤500
+   karakter içerebilir (model cevabı yankılarsa maskeli metin parçası).
+6. Google Fonts / jsDelivr IP aktarımı (aydınlatmada yazıldı; `cdn-yerel` dalı çözüyor).
+7. Hukuki dayanak (m.9 arızi açık rıza düzenli kullanım için zayıf) hukuk teyidi ister.
