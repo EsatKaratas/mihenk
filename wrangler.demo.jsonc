@@ -120,10 +120,10 @@
   //     Ücretsiz planda YALNIZ "new_sqlite_classes" kabul edilir
   //     ("new_classes" = anahtar-değer arka ucu, ücretli).
   //
-  // , "durable_objects": {
-  //     "bindings": [{ "name": "GUNLUK_SAYAC", "class_name": "GunlukSayac" }]
-  //   }
-  // , "migrations": [{ "tag": "v1-gunluk-sayac", "new_sqlite_classes": ["GunlukSayac"] }]
+  "durable_objects": {
+      "bindings": [{ "name": "GUNLUK_SAYAC", "class_name": "GunlukSayac" }]
+    },
+  "migrations": [{ "tag": "v1-gunluk-sayac", "new_sqlite_classes": ["GunlukSayac"] }],
   //
   // (2) "vars" içine eklenebilecek ayarlar (hepsi isteğe bağlı):
   //   "AI_GUNLUK_IP_SINIRI": "60"      // adres başına günlük MODEL ÇAĞRISI (varsayılan 60)
