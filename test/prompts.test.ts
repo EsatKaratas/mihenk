@@ -11,7 +11,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
-import { buildQuestionPrompt, matematikDersiMi, istemSurumu, ISTEM_SURUMU, ISTEM_SURUMU_MATEMATIK, type QuestionSpec } from '../src/lib/prompts';
+import { buildQuestionPrompt, matematikDersiMi, matematikV4Yolu, istemSurumu, ISTEM_SURUMU, ISTEM_SURUMU_MATEMATIK, type QuestionSpec } from '../src/lib/prompts';
 
 const temelSpec: QuestionSpec = {
   subject: 'Fen Bilimleri',
@@ -493,9 +493,10 @@ describe('buildQuestionPrompt — kaynakTuru (§51b) + istem sürümü 2 (§55),
   });
 });
 
-// §89 — İSTEM v4 YALNIZ MATEMATİK. Parmak izi ölçülen kodun (dal
-// mat-kazanim-anahtar bb575f5, ön kayıtlı mat-v2 koşumu) istemiyle aynıdır.
-describe('buildQuestionPrompt — istem v4 yalnız Matematik (§89)', () => {
+// §89 — İSTEM v4 YALNIZ MATEMATİK + KAZANIM MODU (ölçüldüğü yer). Parmak izi
+// ölçülen kodun (dal mat-kazanim-anahtar bb575f5, ön kayıtlı mat-v2 koşumu)
+// istemiyle aynıdır. Matematik metin/materyal modu v2'de kalır.
+describe('buildQuestionPrompt — istem v4 yalnız Matematik + kazanım (§89)', () => {
   const matSpec: QuestionSpec = {
     subject: 'Matematik', grade: 8, outcomeCode: 'MAT.8.3.5', outcomeLabel: 'Dik üçgen',
     mcCount: 2, openCount: 1, optionCount: 4, mode: 'kazanim',
@@ -515,11 +516,11 @@ describe('buildQuestionPrompt — istem v4 yalnız Matematik (§89)', () => {
   it('ders adı varyantları Matematik sayılır; başka ders sayılmaz', () => {
     for (const s of ['Matematik', '  matematik ', 'MATEMATİK', 'MATEMATIK', 'Matematik Uygulamaları']) {
       expect(matematikDersiMi(s), s).toBe(true);
-      expect(istemSurumu({ subject: s })).toBe(ISTEM_SURUMU_MATEMATIK);
+      expect(istemSurumu({ subject: s, mode: 'kazanim' })).toBe(ISTEM_SURUMU_MATEMATIK);
     }
     for (const s of ['Fen Bilimleri', 'Türkçe', 'Deneyap Atölyeleri', 'Keşif Kampüsü', 'Mat', '', 'Fen ve Matematik']) {
       expect(matematikDersiMi(s), s).toBe(false);
-      expect(istemSurumu({ subject: s })).toBe(ISTEM_SURUMU);
+      expect(istemSurumu({ subject: s, mode: 'kazanim' })).toBe(ISTEM_SURUMU);
     }
     expect(ISTEM_SURUMU).toBe(2);
     expect(ISTEM_SURUMU_MATEMATIK).toBe(4);
@@ -532,5 +533,26 @@ describe('buildQuestionPrompt — istem v4 yalnız Matematik (§89)', () => {
       expect(p, subject).not.toContain('ÖNCE ÇÖZ');
       expect(p, subject).not.toContain('"cozum"');
     }
+  });
+
+  /* Matematik metin ve materyal modu v2 ile BAYT BAYT aynı: parmak izleri
+     değişiklikten ÖNCEKİ kodla (main bf07df0) aynı spec ve kaynakla alındı;
+     rastgele sınır belirteçleri "X" ile sabitlenir. */
+  it('Matematik metin/materyal modu (ve Deneyap kaynağı) v2 kalır, sürüm 2', () => {
+    const temizle = (s: string) => s.replace(/(KAYNAK|ONCEKI|YONERGE)-[0-9a-f]{12}/g, 'X');
+    const ms: QuestionSpec = { subject: 'Matematik', grade: 7, outcomeCode: 'MAT.7.1.4', outcomeLabel: 'Oran',
+      mcCount: 2, openCount: 1, optionCount: 4, materialName: 'Ders 1' };
+    const metin = temizle(buildQuestionPrompt({ ...ms, mode: 'kaynak' }, 'Bir kutu 30 N ile çekiliyor.'));
+    const materyal = temizle(buildQuestionPrompt({ ...ms, mode: 'materyal' }, 'Ders metni.'));
+    expect(metin.length).toBe(10740);
+    expect(sha(metin)).toBe('f46482beba958e2840971d2b34869e6db2072b89db998592cc8c25b86432cb5f');
+    expect(materyal.length).toBe(10790);
+    expect(sha(materyal)).toBe('aa1364907ae67eca1a08e939a0b507b1ff6e302f6bb4856201be73c1c7360b7d');
+    for (const mode of ['kaynak', 'materyal', undefined] as const) {
+      expect(matematikV4Yolu({ subject: 'Matematik', mode }), String(mode)).toBe(false);
+      expect(istemSurumu({ subject: 'Matematik', mode })).toBe(ISTEM_SURUMU);
+    }
+    expect(matematikV4Yolu({ subject: 'Matematik', mode: 'kazanim', kaynakTuru: 'deneyap' })).toBe(false);
+    expect(istemSurumu({ subject: 'Matematik', mode: 'kazanim', kaynakTuru: 'meb' })).toBe(ISTEM_SURUMU_MATEMATIK);
   });
 });

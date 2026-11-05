@@ -20,15 +20,18 @@
  * §55 — SORU ÜRETİM İSTEMİNİN SÜRÜMÜ. Yanıtın meta.istemSurumu alanında döner.
  *   1: §51b'ye kadar (MEB kazanım istemi SHA-256 f9f636a4…, 10.147 karakter)
  *   2: §55 A2 — ÇSS için isteğe bağlı "hesap" alanı (Kural 10 + JSON örneği)
- *   4: §89 — YALNIZ MATEMATİK dersinde: "önce çöz, sonra şıkları kur". Şablonda
+ *   4: §89 — YALNIZ MATEMATİK + KAZANIM modunda (MEB; ölçüldüğü yer): "önce çöz,
+ *      sonra şıkları kur". Şablonda
  *      body → cozum (ara sonuçlarıyla adımlar) → sonuc (yalnız sayı) → hesap →
  *      options → correctKey. cozum/sonuc şemada YOK: sunucu atar, yalnız modelin
  *      düşünme sırasını değiştirir. Ön kayıtlı ölçüm (mat-v2, 5 Kasım, n=24, tek
  *      kodlayıcı): anahtar doğruluğu %91,7 (taban v2 %45,8). (3 = deneysel
  *      "hesap önce", yayına alınmadı.)
- *   Matematik DIŞI her yol (Türkçe, Fen, Deneyap, metin/materyal modu) sürüm 2
- *   ile BAYT BAYT aynı kalır: A5 (%77,7) ve dil sızıntısı ölçümleri v2'ye
- *   dayanır, v4 o yollarda ölçülmedi.
+ *   Diğer her yol (Türkçe, Fen, Deneyap; Matematik'te de metin ve materyal
+ *   modu) sürüm 2 ile BAYT BAYT aynı kalır: A5 (%77,7) ve dil sızıntısı
+ *   ölçümleri v2'ye dayanır, v4 o yollarda ölçülmedi. Matematik metin/materyal
+ *   modu kapsam dışı bırakıldı: v4'ün "VERİLERİ DEĞİŞTİR" kuralı kaynak
+ *   metne sadakatle çelişebilir; ileride ~10 üretimlik ölçümle açılır.
  * Ölçümler (tools/olcum) bu alana göre ayrılmalı: istem değiştiği için sürüm 1
  * ile sürüm 2 sonuçlarının karşılaştırması istem değişikliğiyle KARIŞIKTIR.
  */
@@ -45,9 +48,14 @@ export function matematikDersiMi(subject: string | null | undefined): boolean {
   return String(subject ?? '').trim().toLocaleLowerCase('tr').replace(/ı/g, 'i').startsWith('matematik');
 }
 
+/** §89 — istem v4'ün yolu: Matematik + kazanım modu + MEB kaynağı (yalnız ölçüldüğü yer). */
+export function matematikV4Yolu(spec: Pick<QuestionSpec, 'subject' | 'mode' | 'kaynakTuru'>): boolean {
+  return matematikDersiMi(spec.subject) && spec.mode === 'kazanim' && spec.kaynakTuru !== 'deneyap';
+}
+
 /** Bu üretimin istem sürümü (yanıtın meta.istemSurumu alanı). */
-export function istemSurumu(spec: Pick<QuestionSpec, 'subject'>): number {
-  return matematikDersiMi(spec.subject) ? ISTEM_SURUMU_MATEMATIK : ISTEM_SURUMU;
+export function istemSurumu(spec: Pick<QuestionSpec, 'subject' | 'mode' | 'kaynakTuru'>): number {
+  return matematikV4Yolu(spec) ? ISTEM_SURUMU_MATEMATIK : ISTEM_SURUMU;
 }
 
 export type QuestionSpec = {
@@ -183,8 +191,8 @@ export function buildQuestionPrompt(spec: QuestionSpec, sourceText: string): str
      "Metne göre..." yazar ve öğrenci ekranında cevaplanamaz bir soru çıkardı;
      yalnızca 'kazanim' olsaydı belge hiç kullanılmaz, kilit anlamsız kalırdı. */
   const materyalModu = spec.mode === 'materyal';
-  // §89: istem v4 (önce çöz) yalnız Matematik dersinde; diğer yollar v2 metni.
-  const matematikV4 = matematikDersiMi(spec.subject);
+  // §89: istem v4 (önce çöz) yalnız Matematik + kazanım modunda; diğer yollar v2 metni.
+  const matematikV4 = matematikV4Yolu(spec);
   const belgeAdi = String(spec.materialName || '').replace(/[<>]/g, '').slice(0, 160).trim();
 
   /* §31 — YÖNERGE. Öğretmenin serbest isteği. Kaynak metinle AYNI korumaya

@@ -10222,7 +10222,7 @@ Model çağrısı yok (ölçüm aşağıda, ayrı gün).
   - Birim farkı 0.
 - Neuron: gün başı 223 → 6.627 (+6.404; içinde W8'in payı da olabilir).
 
-### 89.2 Kapsam kararı (Orchestrator 2) — v4 YALNIZ Matematik
+### 89.2 Kapsam kararı (Orchestrator 2) — v4 YALNIZ Matematik + kazanım modu
 
 - Kod okumasında v4'ün Kural 10'u ve JSON şablonu tek üretim isteminde KOŞULSUZDU:
   tüm dersler ve modlar etkileniyordu.
@@ -10231,14 +10231,20 @@ Model çağrısı yok (ölçüm aşağıda, ayrı gün).
 - **Uygulama:**
   - `prompts.ts`'te `matematikDersiMi(subject)`: kırp, Türkçe küçük harf, ı→i,
     "matematik" ile başlıyor mu ("MATEMATİK", "Matematik Uygulamaları" dahil).
-  - `istemSurumu(spec)`: Matematik → `ISTEM_SURUMU_MATEMATIK` = 4; diğer dersler →
+  - `matematikV4Yolu(spec)`: Matematik **ve** `mode === 'kazanim'` **ve** kaynak MEB
+    (Deneyap değil). Yani yalnız ölçüldüğü yer. İkinci karar (aynı gün): Matematik
+    metin ve materyal modu da v2'de kalır.
+  - `istemSurumu(spec)`: bu yolda `ISTEM_SURUMU_MATEMATIK` = 4, her yerde başka
     `ISTEM_SURUMU` = 2.
   - Kural 10 ve JSON örneği `${matematikV4 ? v4 : v2}`; v2 metnine dokunulmadı.
   - `meta.istemSurumu` yola göre 4 ya da 2.
 - **Bayt düzeyinde doğrulandı (model çağrısı yok):**
   - 11 spec (Mat kazanım/metin/materyal/varyant, Fen kazanım/metin, Türkçe
-    kazanım/materyal, Deneyap, Keşif): Matematik yolları ölçülen dalın (bb575f5)
-    istemiyle, diğer 6 yol main bf07df0'ın istemiyle BİREBİR aynı.
+    kazanım/materyal, Deneyap, Keşif): 3 Matematik kazanım yolu ölçülen dalın
+    (bb575f5) istemiyle, diğer 8 yol (Mat metin ve materyal dahil) main bf07df0'ın
+    istemiyle BİREBİR aynı.
+  - Mat metin `f46482be…` (10.740 karakter) ve Mat materyal `aa136490…` (10.790
+    karakter) parmak izleri eski kodla alındı; rastgele sınır belirteci sabitlendi.
   - Parmak izleri: Fen v2 `afdfc8f1…` (10.554 karakter), Fen v1 `bab4bd87…` (A2
     ekleri çıkarılınca), Mat v4 `7383b2c1…` (11.410 karakter).
 - **A2:** `sayisalCevapliMi`, `hesapBirimFarki` (yalnız true iken yanıtta) ve §8
@@ -10255,7 +10261,7 @@ Model çağrısı yok (ölçüm aşağıda, ayrı gün).
     satırı.
   - `istemSurumu: istemSurumu({ subject: b.subject })`.
   - Ölçüm dalının `meta.hamModel` eki ALINMADI (ürüne gerekmiyor).
-- Testler 413 → **424**: Fen v2/v1 parmak izi, Mat v4 parmak izi, ders adı
+- Testler 413 → **425**: Mat metin/materyal v2 parmak izi, Fen v2/v1 parmak izi, Mat v4 parmak izi, ders adı
   varyantları, matematik dışında v4 sızmaz, A2 sırası, uçtan istemSurumu 4 +
   hesapBirimFarki, Yunan harfi muafiyeti. tsc temiz; öz-kontrol %100.
 
@@ -10263,14 +10269,13 @@ Model çağrısı yok (ölçüm aşağıda, ayrı gün).
 
 - **Matematikte dayanak n = 24, tek kodlayıcı** (Claude, insan uzman değil);
   kazanım başına 2 tekrar.
-- Ölçüm yalnız **kazanım modunda** yapıldı. Matematik + metin/materyal modu v4 alır
-  ama ölçülmedi.
-- **AÇIK RİSK — "VERİLERİ DEĞİŞTİR":** v4 Kural 10, çözüm tam çıkmıyorsa ya da veri
-  eksikse modele verileri değiştirmesini söylüyor. Matematikte METİN/MATERYAL
-  modunda bu, kaynak metindeki sayıların değiştirilmesi demek olabilir: kaynak
-  sadakatiyle çelişir, öğrenci metinle soru arasında tutarsızlık görür.
-  Ölçülmedi. Öneri: metin modunda kuralı "veriyi metinden al, değiştirme"
-  biçiminde koşullamak ya da küçük bir ölçüm (Mat metin modu, ~10 üretim).
+- Ölçüm yalnız **kazanım modunda** yapıldı; v4 de yalnız orada.
+- **"VERİLERİ DEĞİŞTİR" — KAPSAM DIŞI BIRAKILDI:** v4 Kural 10, çözüm tam çıkmıyorsa
+  ya da veri eksikse modele verileri değiştirmesini söylüyor. Metin/materyal
+  modunda bu, kaynak metindeki sayıların değişmesi demek olabilir; kaynak
+  sadakatiyle çelişir. Bu yüzden Matematik metin/materyal modu v2'de kaldı (bayt
+  aynı). Bu modlarda v4 ileride ~10 üretimlik bir ölçümle açılabilir (kural
+  "veriyi metinden al, değiştirme" diye koşullanarak ya da olduğu gibi).
 - A5 (%77,7) ve dil sızıntısı oranları matematikte artık geçerli değil: v4 yanlış
   anahtar dağılımını değiştiriyor. Matematik dışında geçerli.
 - İstemci (`public/app.js`) `hesapBirimFarki`'yı henüz göstermiyor; alan yalnız
