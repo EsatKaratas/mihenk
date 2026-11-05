@@ -10221,3 +10221,115 @@ Yöntem seçimi (belgelerden, 5 Kasım):
 - Mevcut 413 test değişmeden geçiyor. `tsc --noEmit` 0 hata. Öz-kontrol 521 ad %100.
 - `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketledi (yükleme yok).
 - Canlıda hiçbir şey ölçülmedi.
+
+---
+
+## 90. Yapay zekâ kaynak rozeti, kota mesajı, demo tohumu (5 Kasım 2026, dal `ai-rozet-tohum`)
+
+**Taban:** `ai-guvenilirlik` (6972e9c, §86). İstemci yalnız (`public/app.js`,
+`public/css/kabuk.css`); `src/`'ye dokunulmadı. Push, yayın ve model çağrısı yok.
+
+**1. Kaynak rozeti (`aiKaynak`, `aiKaynakMetinleri`, `aiKaynakRozetiHtml`).**
+- `meta.yedekModel === true` → "Yedek model (Llama 4 Scout) — kalitesi ölçülmedi".
+  Scout dışı bir yedekte parantez içinde model adı yazar. Eski sunucu
+  `yedekModel` göndermezse `fellBack` kullanılır.
+- İstemci önbelleği isabeti (`evalCache`) → "Önbellekten (aynı modelin önceki yanıtı)".
+  `source === "cache"` de aynı rozeti verir; bugün sunucu bunu üretmiyor (§86).
+  Özgün yanıt yedek modeldense iki rozet birlikte çıkar.
+- `source === "seed"` → "Önceden hazırlanmış örnek yanıt".
+- Ana model (`workers-ai-70b`) rozet göstermez.
+- Biçim: `.pill.pill-accent` (lacivert bilgi), `role="note"` +
+  `aria-label="Yapay zekâ yanıtının kaynağı"`, dar ekranda sarar.
+- Bağlandığı yerler:
+  - onay kartı (üretilen soru, `q.kaynak`);
+  - puan önerisi kartı;
+  - bağımsız çözüm satırı (ÇAPRAZ modda sunucu `yedekModel=false` döner, rozet yok);
+  - rubrik taslağı şeridi;
+  - kazanım denetimi satırı.
+- Kavram yanılgısı bloğu zaten `fellBack` için "yedek model" rozeti gösteriyordu;
+  çakışmasın diye (`kvkk-ad-temizleme` aynı satırı değiştiriyor) dokunulmadı.
+- Simüle sınıfın örnek yanıtlarında (`sample-answers`) rozet yok: bunlar ekranda
+  model çıktısı olarak değil, simüle öğrenci yanıtı olarak görünüyor.
+
+**2. Hata eşlemesi (`aiHataMetni`, `apiPost` içinde, tek yerde).**
+- `ai_kota_bitti` (503) → "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir.
+  Bu arada elle devam edebilirsiniz."
+- `gunluk_sinir` (429) → "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu;
+  03:00'te yenilenir. Bu arada elle devam edebilirsiniz."
+- `model_output_invalid` (502) → "Model geçerli yanıt üretemedi, tekrar deneyin."
+- Diğer kodlarda eski davranış sürer: sunucunun mesajı, gövde yoksa "HTTP nnn".
+- Hata nesnesi artık `kod` taşıyor.
+- Kota ya da günlük sınırda değerlendirme kartında "Elle Puanla ve Onayla"
+  birincil düğme olur; "Yeniden Dene" ikincil kalır ama kaldırılmaz.
+- Canlı modda sessiz yerel simülasyon YOK: koddaki tüm `simulate*` çağrıları
+  yalnız `mode !== "live"` dalında. "Değerlendirme yapılamadı" korunuyor.
+- Elle soru yazma: içerik uzmanı panelinde ayrı bir "boş soru ekle" yolu yok.
+  Üretim hatasında "elle devam" bugün mevcut soruları düzenlemek ya da havuzdaki
+  onaylı sorularla sınav kurmak demek. **Açık madde.**
+
+**3. Toplu çözme (`bekleyenleriCoz`).**
+- Kota (503 `ai_kota_bitti`) ya da günlük sınır (429 `gunluk_sinir`) gelince
+  döngü HEMEN durur: bekleme yok, yeniden deneme yok, kalan sorular işlenmez.
+- Çubukta kota/sınır cümlesi + "Toplu çözme durduruldu: N sorudan M tanesi
+  çözüldü, K soru işlenmedi" yazar.
+- Yalnız gerçek dakikalık hız sınırında (429, kod başka) eski davranış kalır:
+  60 sn × 2 bekleme, 3 deneme.
+
+**3b. Birim farkı rozeti (`birimFarkiRozetiHtml`, müdür ek görevi).**
+- Sunucu `hesapBirimFarki: true` döndürürse onay kartında lacivert bilgi rozeti
+  çıkar: "Birim farkı olası (ör. m³ ↔ L) — anahtarı kontrol edin".
+- `SUPHE_TURLERI`'ne girmez, §71 ikinci onayı açmaz, alan yoksa hiçbir şey çizilmez.
+- Sunucu tarafı başka dalda (`mat-v4-yalniz-matematik`); istemci alanı şimdiden okuyor.
+
+**4. Demo tohumu (`DEMO_TOHUM_DEGERLENDIRME`, `demoTohumEslesir`, `demoTohumDegerlendirmesi`).**
+
+Bugünkü davranış (kodda çıkarıldı):
+- Demo soruları, ders notu, demo yanıtı ve simüle sınıf istemcide elle yazılmış
+  (§48b), sunucudan geçmiyor.
+- 5 adımda modele giden TEK çağrı, adım 3'te sınav bitince `DEMO_YANIT`'ın
+  `/api/ai/evaluate` ile puanlanması.
+- Önceden hazırlanmış bir puan önerisi YOKTU: çağrı başarısızsa "Değerlendirme
+  yapılamadı" çıkıyordu.
+
+Yeni davranış:
+- Canlı çağrı başarısız olursa (kota, ağ, 5xx) ve girdi BİREBİR demo girdisiyse,
+  hazır yanıt "Önceden hazırlanmış örnek yanıt" rozeti ve kırmızı kenarlı bir
+  uyarıyla gösterilir. Uyarı: "Canlı yapay zekâ çağrısı başarısız oldu … bu yanıt
+  için model şimdi çağrılmadı" + hata cümlesi.
+- Birebir girdi şunların hepsi demek:
+  - `q.demo === true`;
+  - açık uçlu demo sorusunun metni;
+  - `DEMO_YANIT`;
+  - varsayılan rubrik (20 puan, 40/30/30).
+- Tek harf değişirse tohum kullanılmaz; normal hata kartı çıkar.
+- Tohum yanıtı önbelleğe alınmaz.
+- Denetim izine "önceden hazırlanmış örnek yanıt (model çağrılmadı)" yazılır.
+- Karar yine öğretmenin: Tek Tıkla Onayla / Puanı Güncelle.
+
+İçeriğin kaynağı (uydurulmadı):
+- main'deki `tools/dogrula/ornek-evaluate-yanit.json` (bf07df0) dosyasıdır:
+  5 Kasım canlı, llama-3.3-70b, `fellBack false`, 16/20, 6/8 + 5/6 + 5/6.
+- Alanlar dosyayla bayt bayt eşit (betikle karşılaştırıldı); yalnız `meta` çıkarıldı.
+- **Açık risk:** isteğin gövdesi kayıtlı değil, yani girdinin `DEMO_YANIT` ile
+  bayt bayt aynı olduğu doğrulanmadı. Gerekçeler demo sorusuna ve demo yanıtına
+  atıf yapıyor; kriter tavanları varsayılan rubrikle aynı.
+- §85'teki demo koşusu aynı girdiye 20/20 vermişti. Model aynı girdiye farklı
+  puan verebiliyor.
+- Sunumda "bu yanıt şimdi üretildi" denmemeli; rozet ve uyarı bunu zaten söylüyor.
+
+**Ölçüm:**
+- Testler 453 → 475 (`test/ai-rozet-tohum.test.ts`, 22 test). Sınananlar:
+  - rozet metinleri ve erişilebilirlik;
+  - hata eşlemesi;
+  - insan yolu düğmesi;
+  - toplu çözme davranışı (sahte `bagimsizCoz` ile çağrı ve bekleme sayısı);
+  - tohum eşleşmesi;
+  - birim farkı rozeti.
+- `tsc --noEmit` 0 hata. Öz-kontrol 534 ad, %100.
+- Statik sunucuda (127.0.0.1:8881, kendi PID'im; sunulan `app.js` SHA-256 =
+  disk), Playwright, `/api/ai/*` sahte. Demo 5 adım gerçek tıklama, 1280 ve 390 px:
+  - yedek 11/11 (puan kartı + bağımsız çözüm + birim farkı rozeti; §71 penceresi açılmadı);
+  - kota 11/11 (bağımsız çözüm mesajı; toplu çözme 1 istekte durdu; demo kartında tohum rozeti + uyarı, 16/20);
+  - günlük sınır 9/9 (demo dışı girdi: tohum yok, mesaj, "Elle Puanla" birincil);
+  - 502 9/9.
+- Hepsinde konsol hatası 0, yatay taşma 0. Model çağrısı 0.
