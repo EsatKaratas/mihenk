@@ -148,7 +148,7 @@
       <a href="#s4"><span class="num">4</span> Yapay Zekâ ve İnsan Onayı</a>
       <a href="#s5"><span class="num">5</span> Küçüklerin Verileri</a>
       <a href="#s6"><span class="num">6</span> Saklama Süresi</a>
-      <a href="#s7"><span class="num">7</span> Veri Paylaşımı</a>
+      <a href="#s7"><span class="num">7</span> Yurt Dışına Aktarım</a>
       <a href="#s8"><span class="num">8</span> Güvenlik Tedbirleri</a>
       <a href="#s9"><span class="num">9</span> Veri Sahibi Hakları</a>
       <a href="#s10"><span class="num">10</span> Başvuru Yöntemi</a>
@@ -160,8 +160,8 @@
     <div class="doc-head">
       <h1>Gizlilik Politikası ve KVKK Aydınlatma Metni</h1>
       <div class="meta">
-        <span>Sürüm <span class="mono">1.0</span></span>
-        <span>Son güncelleme: <span class="mono">[GG.AA.YYYY]</span></span>
+        <span>Sürüm <span class="mono">1.1</span></span>
+        <span>Son güncelleme: <span class="mono">05.11.2026</span></span>
         <span>Kapsam: <span class="mono">Mihenk — Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi</span></span>
       </div>
     </div>
@@ -171,7 +171,10 @@
       <div>Bu metin, T3 Vakfı Creathon — Problem 2 kapsamında geliştirilen sistem için <b>örnek/taslak</b> bir gizlilik
       politikasıdır. <span class="fill">[Kurum/Okul Adı]</span>, <span class="fill">[adres]</span> ve
       <span class="fill">[iletişim e-postası]</span> gibi köşeli parantezli alanlar, gerçek kullanıma geçmeden önce
-      kurumunuzun bilgileriyle doldurulmalı ve nihai metin bir hukuk danışmanına onaylatılmalıdır.</div>
+      kurumunuzun bilgileriyle doldurulmalı ve nihai metin bir hukuk danışmanına onaylatılmalıdır.
+      Metin, KVKK m.10'daki aydınlatma unsurlarına (veri sorumlusunun kimliği, işleme amacı, aktarılan
+      kişiler ve aktarım amacı, toplama yöntemi ve hukuki sebep, m.11 hakları) göre düzenlenmiştir.
+      <b>Bu metin hukuki görüş değildir.</b></div>
     </div>
 
     <article>
@@ -181,12 +184,23 @@
         <span class="fill">[Kurum/Okul Adı]</span>'dır (<span class="mono">"biz"</span>). Bu Sistemi kullanan
         İçerik Uzmanı, Öğretmen, Öğrenci ve Eğitim Yöneticisi rolündeki tüm kullanıcıların kişisel verileri, aşağıda
         açıklanan amaç ve kapsamda işlenir.</p>
+        <ul>
+          <li><b>Veri sorumlusu:</b> <span class="fill">[Kurum/Okul Adı]</span></li>
+          <li><b>Adres:</b> <span class="fill">[adres]</span></li>
+          <li><b>İletişim:</b> <span class="fill">[iletişim e-postası]</span> · <span class="fill">[telefon]</span></li>
+          <li><b>Varsa veri sorumlusu temsilcisi / VERBİS kaydı:</b> <span class="fill">[temsilci / VERBİS bilgisi ya da "yükümlü değil"]</span></li>
+        </ul>
+        <p>Mihenk yazılımını geliştiren ekip, okulun verisine erişmez: sınav ve öğrenci verisi okulun/öğretmenin
+        kendi tarayıcısında tutulur (bkz. bölüm 2 ve 6).</p>
       </section>
 
       <section id="s2">
         <h2><span class="n">2</span> Toplanan Veriler</h2>
         <ul>
-          <li><b>Kimlik ve iletişim verisi:</b> ad-soyad, e-posta, kurum/okul, sınıf-şube bilgisi.</li>
+          <li><b>Kimlik verisi:</b> öğretmenin sınıf listesine girdiği öğrenci ad-soyadı ve sınıf-şube bilgisi.
+          Bu bilgiler <b>yalnızca kullanılan tarayıcıda</b> tutulur ve <b>yapay zekâ isteklerine hiçbir koşulda
+          girmez</b> (bkz. aşağıdaki kutu). Bu prototip e-posta, okul numarası, T.C. kimlik numarası ya da
+          telefon <b>toplamaz</b>.</li>
           <li><b>Eğitim içeriği verisi:</b> içerik uzmanınca yüklenen ders notları, konu/kazanım etiketleri.</li>
           <li><b>Sınav verisi:</b> çoktan seçmeli işaretlemeler, açık uçlu yanıt metinleri, harcanan çözüm süresi, auto-save geçmişi.</li>
           <li><b>Değerlendirme verisi:</b> yapay zekâ tarafından üretilen puan/gerekçe önerileri ve öğretmenin nihai puan kararı.</li>
@@ -270,6 +284,23 @@
           Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim
           kullanıcı hesabıyla belirlenecektir.
         </div>
+
+        <div class="hitl-box" id="yz-giden">
+          <span class="tag">Yapay zekâya ne gider, ne gitmez</span>
+          <p><b>Gider (yalnızca işin gerektirdiği metin):</b> soru metni, rubrik ölçütleri, ölçülen kazanım,
+          öğrencinin cevap metni; soru üretiminde öğretmenin verdiği kaynak metin ya da yönerge.</p>
+          <p><b>Gitmez:</b> öğrencinin adı, soyadı, okul numarası, sınıfı/şubesi, okul adı, sistem içi öğrenci
+          kimliği. Bu alanlar istek gövdesine hiç konmaz.</p>
+          <p><b>Cevap metnindeki ad:</b> Öğrenci cevabına kendi ya da bir arkadaşının adını yazmış olabilir. Bu
+          nedenle cevap gönderilmeden önce, tarayıcıdaki sınıf listesinde kayıtlı adlar <code>[ÖĞRENCİ]</code>,
+          "okul numaram 123" gibi ifadeler <code>[NUMARA]</code> ile değiştirilir; sunucu da "benim adım …"
+          gibi açık tanıtım kalıplarını ikinci kez maskeler ve öğrenciyi tanımlayan bir alan adı taşıyan isteği
+          reddeder. Maskeleme yapıldığında öğretmen ekranında "Ad bilgisi yapay zekâya gönderilmedi" notu görünür.
+          Ekranda ve cihazda cevap olduğu gibi kalır.</p>
+          <p><b>Sınırı:</b> Takma adlandırma ve maskeleme tek başına anonimleştirme değildir; çocukların serbest
+          metni kendini ele veren başka ayrıntılar (aile, mahalle, olay) içerebilir. Bu yüzden cevap metni
+          kişisel veri sayılabilecek biçimde ele alınır ve bölüm 7'deki aktarım kuralları uygulanır.</p>
+        </div>
       </section>
 
       <section id="s3">
@@ -277,6 +308,14 @@
         <p>Veriler; soru üretimi ve sınav oluşturma süreçlerinin yürütülmesi, açık uçlu yanıtların değerlendirilmesi,
         öğrenci gelişiminin ve kazanım bazlı başarı durumunun izlenmesi, kurum içi raporlama ve sistemin güvenliğinin
         sağlanması amacıyla, KVKK'nın 5. ve 6. maddelerinde belirtilen işleme şartlarına dayanılarak işlenir.</p>
+        <p><b>Yapay zekâ işlemesinin amacı</b> yalnızca şudur: öğretmene soru taslağı, rubrik taslağı, puan önerisi,
+        sınıf düzeyinde kavram yanılgısı özeti ve bağımsız çözüm denetimi sunmak. Yapay zekâya giden metin
+        pazarlama, profil çıkarma ya da model eğitimi amacıyla kullanılmaz.</p>
+        <p><b>Toplama yöntemi:</b> Veriler, öğretmenin ve öğrencinin uygulamaya tarayıcıda yazdığı ya da yüklediği
+        içerikten, kısmen otomatik yollarla elde edilir.</p>
+        <p><b>Hukuki sebep:</b> <span class="fill">[kurumun dayandığı KVKK m.5/m.6 işleme şartı — hukuk danışmanıyla
+        belirlenecek]</span>. Pilot kullanımda öğrenci cevabının yapay zekâ ile işlenmesi ve yurt dışına aktarılması
+        için veliden <b>iki ayrı açık rıza</b> alınması öngörülmüştür (bkz. bölüm 5 ve 7).</p>
       </section>
 
       <section id="s4">
@@ -313,8 +352,13 @@
         <h2><span class="n">5</span> Küçüklerin Verilerinin Korunması</h2>
         <p>Öğrenci kullanıcıların önemli bir kısmı 18 yaşından küçük olabilir. Bu nedenle:</p>
         <ul>
-          <li>Öğrenci hesapları, kurumun (okulun) veli/vasi ile yaptığı kayıt sözleşmesi kapsamında oluşturulur;
-          bireysel açık rıza yerine kurumun eğitim faaliyetini yürütme yükümlülüğüne dayanılır.</li>
+          <li>KVKK'da çocuklara özgü ayrı bir madde yoktur; çocuk adına veli/vasi hareket eder. Pilot kullanımda
+          veliden (1) öğrenci cevabının yapay zekâ ile işlenmesi ve (2) bu metnin yurt dışına aktarılması için
+          <b>iki ayrı, belirli açık rıza</b> istenir. Rızalar birbirine bağlı değildir.</li>
+          <li><b>Rıza vermemek öğrenciyi hiçbir şekilde dezavantajlı duruma düşürmez:</b> rıza verilmeyen
+          öğrencinin cevabı yapay zekâya gönderilmez, öğretmen tarafından elle değerlendirilir.</li>
+          <li>Tanıtım ve demolarda yalnızca sentetik (uydurma) ya da öğretmenin kendi yazdığı cevaplar kullanılır;
+          gerçek öğrenci cevabı kullanılmaz.</li>
           <li>Öğrenci verileri, pazarlama amacıyla kullanılmaz ve üçüncü taraflara satılmaz.</li>
           <li>Veli/vasiler, çocuklarına ait verilerin görüntülenmesi, düzeltilmesi veya silinmesi talebiyle
           <span class="fill">[iletişim e-postası]</span> üzerinden kuruma başvurabilir.</li>
@@ -323,28 +367,55 @@
 
       <section id="s6">
         <h2><span class="n">6</span> Saklama Süresi</h2>
-        <p>Sınav ve değerlendirme verileri, ilgili eğitim-öğretim döneminin sonundan itibaren
-        <span class="fill">[X]</span> yıl süreyle; kimlik ve iletişim verileri ise kullanıcının kurumla ilişkisi
-        sona erdiği tarihten itibaren mevzubahis mevzuatta belirlenen yasal saklama süresi boyunca muhafaza edilir.
-        Süre sonunda veriler silinir, yok edilir veya anonim hâle getirilir.</p>
+        <ul>
+          <li><b>Sunucuda:</b> Mihenk sunucusu (Cloudflare Workers) yapay zekâ isteğini modele iletir ve yanıtı
+          geri döndürür; istek gövdesini, cevap metnini ya da öğrenci bilgisini <b>saklamaz</b>, veritabanı
+          kullanmaz. İşletim kayıtlarına (Workers Logs) yalnızca teknik meta veri yazılır (uç adı, model, istem
+          uzunluğu, deneme sayısı, başarı). Bir model hatasında kısa bir teknik hata iletisi kaydedilir; bu ileti
+          model çıktısından kısa bir parça içerebilir.</li>
+          <li><b>Tarayıcıda:</b> Sınıf listesi, cevaplar, puanlar ve karar günlüğü kullanılan cihazın tarayıcısında
+          (<code>localStorage</code>/<code>IndexedDB</code>) kullanıcı silene kadar kalır. "Verileri sıfırla"
+          düğmesi hepsini siler. Kurum bu veriler için bir süre belirlemelidir:
+          <span class="fill">[eğitim-öğretim dönemi sonu + X ay]</span>.</li>
+          <li><b>Yapay zekâ sağlayıcısında:</b> Cloudflare, Workers AI'da müşteri içeriğini, ayrı bir depolama
+          ürünü eklenmedikçe saklamadığını belirtmektedir (bkz. bölüm 7).</li>
+        </ul>
       </section>
 
       <section id="s7">
-        <h2><span class="n">7</span> Veri Paylaşımı ve Alt Yükleniciler</h2>
-        <p>Verileriniz, sistemin çalışması için gerekli olduğu ölçüde barındırma ve yapay zekâ çıkarım hizmeti
-        sağlayan alt yükleniciler (örn. Cloudflare Workers / Workers AI altyapısı) ile paylaşılır; bu paylaşım
-        yalnızca hizmetin sunulması amacıyla ve sözleşmesel gizlilik yükümlülükleri altında gerçekleşir. Veri
-        yurt dışına aktarılıyorsa, aktarımın hukuki dayanağı ve alınan ek tedbirler bu bölümde ayrıca belirtilir:
-        <span class="fill">[aktarım mekanizması / SCC / yeterlilik kararı]</span>.</p>
+        <h2><span class="n">7</span> Yurt Dışına Aktarım ve Alt Yükleniciler</h2>
+        <ul>
+          <li><b>Alıcı:</b> Cloudflare, Inc. (Amerika Birleşik Devletleri) — barındırma (Cloudflare Workers) ve
+          yapay zekâ çıkarımı (Workers AI, Meta Llama modelleri).</li>
+          <li><b>Aktarılan veri:</b> yalnızca bölüm 2'deki "Gider" listesi: soru, rubrik, kazanım ve ad bilgisi
+          maskelenmiş cevap metni. Öğrenci adı, numarası, sınıfı ve okulu aktarılmaz.</li>
+          <li><b>Amaç:</b> öğretmene puan önerisi, rubrik/soru taslağı ve sınıf düzeyi yanılgı özeti üretmek.</li>
+          <li><b>Sağlayıcının beyanı:</b> Cloudflare, Workers AI'da müşteri içeriğini müşterinin açık izni olmadan
+          model eğitiminde kullanmadığını ve ayrı bir depolama ürünü eklenmedikçe içeriği saklamadığını
+          belirtmektedir (<a href="https://developers.cloudflare.com/workers-ai/platform/privacy/" rel="noopener" target="_blank">Cloudflare
+          Workers AI — Privacy</a>, 05.11.2026'da erişildi). Bu bir sağlayıcı beyanıdır; Mihenk tarafından
+          bağımsız olarak doğrulanmamıştır.</li>
+          <li><b>Hukuki dayanak:</b> Bu tür bir gönderim KVKK m.9 kapsamında yurt dışına aktarım sayılır. Ücretsiz
+          hizmet katmanında sağlayıcıyla KVKK standart sözleşmesi imzalanmamaktadır. Pilot kullanımda m.9'da
+          sayılan istisnai (arızi) aktarım hâllerinden, <b>muhtemel riskler hakkında bilgilendirilmiş açık rızaya</b>
+          dayanılması öngörülmüştür; bu rıza veliden işleme rızasından ayrı olarak alınır.
+          <span class="fill">[kurumun nihai aktarım dayanağı — hukuk danışmanıyla teyit edilecek]</span></li>
+          <li><b>Teknik bağlantılar:</b> Sayfa açılırken yazı tipleri (Google Fonts) ve bazı kütüphaneler (jsDelivr)
+          bu sağlayıcıların sunucularından indirilebilir; bu sırada tarayıcının IP adresi ve tarayıcı bilgisi bu
+          sağlayıcılara ulaşır. Öğrenci verisi bu bağlantılarla gönderilmez.</li>
+        </ul>
       </section>
 
       <section id="s8">
         <h2><span class="n">8</span> Güvenlik Tedbirleri</h2>
         <ul>
-          <li>Rol bazlı erişim kontrolü — her kullanıcı yalnızca kendi paneline ve yetkili olduğu veriye erişir.</li>
-          <li>Şifreler tek yönlü özetlenerek (hash) saklanır; düz metin şifre hiçbir yerde tutulmaz.</li>
-          <li>Sınav süresince alınan yanıtlar şifreli bağlantı üzerinden iletilir ve auto-save kayıtları erişim
-          günlükleriyle izlenir.</li>
+          <li><b>Veri en aza indirme:</b> öğrenci adı, numarası, sınıfı ve okulu yapay zekâ isteklerine girmez;
+          cevap metnindeki kayıtlı adlar gönderimden önce tarayıcıda maskelenir (bkz. bölüm 2).</li>
+          <li><b>Sunucuda ikinci katman:</b> öğrenciyi tanımlayan bir alan adı (ör. ad, soyad, okul numarası,
+          sınıf) taşıyan istek reddedilir ve modele iletilmez; "benim adım …" gibi açık tanıtım kalıpları maskelenir.</li>
+          <li>Tüm bağlantılar şifrelidir (HTTPS). Sunucu istek gövdesini kaydetmez.</li>
+          <li>Bu prototipte kullanıcı hesabı ve şifre yoktur; veriler kullanılan cihazdadır. Cihaza erişimi olan
+          kişi verilere erişebilir; okul cihazlarında oturum ve cihaz güvenliği kurumun sorumluluğundadır.</li>
         </ul>
       </section>
 
@@ -352,13 +423,17 @@
         <h2><span class="n">9</span> Veri Sahibinin Hakları</h2>
         <p>KVKK'nın 11. maddesi uyarınca her kullanıcı (ve öğrenciler için veli/vasisi) aşağıdaki haklara sahiptir:</p>
         <div class="rights-grid">
-          <div class="right-card"><b>Bilgi talep etme</b>Verinin işlenip işlenmediğini öğrenme</div>
-          <div class="right-card"><b>Erişim</b>İşlenen verilere ilişkin bilgi talep etme</div>
-          <div class="right-card"><b>Düzeltme</b>Eksik/yanlış verinin düzeltilmesini isteme</div>
-          <div class="right-card"><b>Silme</b>Sebebin ortadan kalkması hâlinde silinmesini isteme</div>
-          <div class="right-card"><b>İtiraz</b>Analiz sonucuna itiraz etme</div>
-          <div class="right-card"><b>Zarar talebi</b>Kanuna aykırı işleme sebebiyle zararın giderilmesini isteme</div>
+          <div class="right-card"><b>Öğrenme</b>Kişisel verinin işlenip işlenmediğini öğrenme</div>
+          <div class="right-card"><b>Bilgi talep etme</b>İşlenmişse buna ilişkin bilgi talep etme</div>
+          <div class="right-card"><b>Amaç</b>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</div>
+          <div class="right-card"><b>Aktarılan kişiler</b>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme</div>
+          <div class="right-card"><b>Düzeltme</b>Eksik veya yanlış işlenmişse düzeltilmesini isteme</div>
+          <div class="right-card"><b>Silme</b>KVKK m.7 çerçevesinde silinmesini veya yok edilmesini isteme</div>
+          <div class="right-card"><b>Bildirim</b>Düzeltme/silme işlemlerinin aktarılan üçüncü kişilere bildirilmesini isteme</div>
+          <div class="right-card"><b>İtiraz</b>Münhasıran otomatik sistemlerle analiz sonucu aleyhe bir sonuca itiraz etme</div>
+          <div class="right-card"><b>Zarar talebi</b>Kanuna aykırı işleme sebebiyle zararın giderilmesini talep etme</div>
         </div>
+        <p>Mihenk'te hiçbir puan yalnızca yapay zekâ ile kesinleşmez; nihai karar öğretmenindir (bkz. bölüm 4).</p>
         <div class="hitl-box">
           <span class="tag">Bu prototipte silme hakkı</span>
           Silme hakkı bu prototipte <b>başvuru beklemeden, doğrudan arayüzden</b> kullanılabilir:
@@ -372,7 +447,9 @@
         <h2><span class="n">10</span> Başvuru Yöntemi</h2>
         <p>Haklarınızı kullanmak için <span class="fill">[iletişim e-postası]</span> adresine kimliğinizi
         doğrulayan bilgilerle birlikte yazılı olarak başvurabilirsiniz. Başvurunuz KVKK'da belirtilen süre
-        içinde (en geç 30 gün) ücretsiz olarak sonuçlandırılır.</p>
+        içinde (en geç 30 gün) ücretsiz olarak sonuçlandırılır (KVKK m.13). Başvurunun reddedilmesi, cevabın
+        yetersiz bulunması ya da süresinde cevap verilmemesi hâlinde Kişisel Verileri Koruma Kurulu'na şikâyette
+        bulunabilirsiniz (KVKK m.14).</p>
       </section>
 
       <section id="s11">
