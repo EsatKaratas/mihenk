@@ -10137,8 +10137,16 @@ dokunulmadı. Push, deploy ve model çağrısı YAPILMADI.
   (yedeğe geç).
 - Mesajda yalnız "429" geçmesi kota SAYILMAZ. Bu test/rota.test.ts README §3.1
   testini korur.
-- Ayrıştırıcı birden çok yere bakar: `code`, `errors[].code`, `cause`, mesajdaki
-  "3036: …" biçimi ve mesaja gömülü JSON gövdesi.
+- Ayrıştırıcı yalnız iki tür kanıt kabul eder: YAPISAL kod (hata nesnesinin sayısal
+  `code` alanı, yapısal `errors[].code`, `cause`) ya da AÇIK metin (kota: "daily free
+  allocation", "used up your daily", "Account limited"; hız: sözcük sınırlı
+  "rate limit", "too many requests", "capacity temporarily exceeded").
+- **Düzeltme (bağımsız doğrulama):** ilk sürüm metindeki çıplak `3036`'yı ve mesaja
+  gömülü JSON'u da sayıyordu. "The input (3036 tokens)…", "requested 3036 tokens",
+  "timed out after 3036 ms" kota sanılıyordu. OpenAI uyumlu yol sağlayıcı gövdesini
+  mesaja gömdüğü için oradaki sayılar da yanlış kanıttı. "rate limit" sözcük
+  sınırsızdı ("moderate limit", "separate_limit"). Artık mesajdaki sayılara ve gömülü
+  gövdeye bakılmıyor. 12 yanlış pozitif örneği testte.
 - **Doğrulanmadı:** binding'in kota ve dakikalık sınırda fırlattığı hatanın gerçek
   biçimi. Kod ve metin Cloudflare hata tablosundan alındı (5 Kasım'da okundu).
   Dakikalık sınırın kendi iç kodu tabloda yok.
@@ -10154,8 +10162,11 @@ dokunulmadı. Push, deploy ve model çağrısı YAPILMADI.
 
 **3. Şema doğrulaması.** `callModelJson(env, istem, ops, sema)` her uçta o ucun
 zod şemasını alır. Yanıt sunucuda doğrulanır. Zincir şöyle:
-- 70B: en fazla 2 deneme.
-- Scout: en fazla 2 deneme, aynı şemayla katı doğrulanır.
+- **İstek başına en çok 3 gerçek model çağrısı** (düzeltme; ilk sürümde 4'tü).
+- 70B: en çok 2 çağrı. Dakikalık hız tekrarı da bu 2'nin içindedir: 429 + tekrar
+  olduysa JSON onarımına yer kalmaz, Scout'a geçilir.
+- Scout: en çok 1 çağrı (hız tekrarı yok), aynı şemayla katı doğrulanır.
+- Kesilmiş JSON yolunda 2. denemede bütçe büyütme (en çok 8000) korunur.
 - Sonra açık hata: şema → 502 `model_output_invalid` (eski kod), ayrışmayan
   metin → 502 `ai_call_failed`.
 
@@ -10173,12 +10184,36 @@ dönüyordu. Şimdi önce aynı modelle bir onarım denenir, sonra Scout'a geçi
 
 **4. IP başına günlük sınır (`src/lib/gunluk-sinir.ts`).**
 - Sınır aşılınca 429 `gunluk_sinir` + `Retry-After`. Değer
-  `AI_GUNLUK_IP_SINIRI`'ndan, varsayılan 40.
-- 40 neden: rapor (c) birim maliyetleriyle ortalama ~150 Neuron ≈ 6.000, yani tek
-  adres havuzun tamamını değil ~%60'ını tüketebilir. Bu bir tahmindir; okul NAT'ı
-  için değer yükseltilebilir.
-- Model çağrısından hemen önce sayılır. Doğrulama hatası, boş yanıt ve dakikalık
-  ret hak yemez. Onarım ve yedek denemeleri tek hak sayılır.
+  `AI_GUNLUK_IP_SINIRI`'ndan, varsayılan **60**.
+- **Birim İSTEK değil, GERÇEK MODEL ÇAĞRISI** (düzeltme; ilk sürüm isteği sayıyordu).
+  Kanca her binding/sağlayıcı çağrısından hemen önce çalışır; onarım, hız tekrarı ve
+  yedek çağrısı da birer hak. Zincirin ortasında hak biterse yedek çağrılmaz.
+- Doğrulama hatası, boş yanıt kısayolu ve dakikalık ret model çağırmadığı için hak
+  yemez. **3036 dönen çağrının hakkı iade edilir:** kota bitmişken dönen 503 hak yemez.
+- 60 neden (tahmin, trafik ölçümü yok): karma bir öğretmen günü ≈ 50 çağrı. Bu gün
+  ~30 puanlama, ~%10 onarım, 5 üretim ve 10 çözümden oluşur; Neuron karşılığı
+  ≈ 6.200. Yalnız puanlama yapan bir adres 60 çağrıda ≈ 6.600 Neuron harcar (%66).
+
+En kötü durum Neuron hesabı. 70B birim fiyatları: giriş 26.668, çıkış 204.805
+Neuron/M token (rapor (c)). Scout için de 70B fiyatı kullanıldı; rapora göre Scout
+daha ucuz, bu yüzden hesap bir üst sınırdır. Scout fiyatı **doğrulanmadı**.
+
+| Durum | Neuron | Günlük havuza oranı |
+|---|---|---|
+| Üretim çağrısı: ~4k giriş + 5.600 çıkış | ≈ 1.254 | %13 |
+| Kesilme tekrarı: 8.000 çıkış | ≈ 1.745 | %17 |
+| En kötü üretim isteği (3 çağrı: 1.254 + 1.745 + 1.254) | ≈ 4.250 | %43 |
+| En kötü puanlama isteği (820 / 1.640 / 820 çıkış, ~1,5k giriş) | ≈ 790 | %8 |
+| 60 çağrı, kuramsal üst sınır (60 × 1.745) | ≈ 105.000 | ≈ 10,5 kat |
+| 60 çağrı, yalnız üretim, ölçülen ~400/çağrı | ≈ 24.000 | 2,4 kat |
+| 60 çağrı, yalnız puanlama, ölçülen ~110 | ≈ 6.600 | %66 |
+
+- **Dürüst sınır:** günlük IP sınırı tek bir adresin havuzu bitirmesini GARANTİ
+  ENGELLEMEZ. Üretim ağırlıklı kullanım 60 çağrının çok altında havuzu bitirebilir.
+- Sınırın koruduğu şeyler: kaba döngüler ve puanlama ağırlıklı aşırı kullanım. Üretimi
+  ayrıca belge başına 5/dk ve IP başına 60/dk sınırları keser.
+- Kesin bütçe koruması için ileride günlük Neuron bütçe sayacı gerekir; bu iş
+  rapor (g) adım 4'ün ikinci yarısı ve yapılmadı.
 - `cf-connecting-ip` yoksa günlük sınır uygulanmaz. Üretimde Cloudflare bu başlığı
   koyar; `wrangler dev`'in koyup koymadığı **doğrulanmadı**.
 
@@ -10193,9 +10228,44 @@ Yöntem seçimi (belgelerden, 5 Kasım):
 - **KAYNAK OLUŞTURMA BEKLİYOR:** `GunlukSayac` sınıfı yazıldı ve `src/index.ts`'ten
   dışa aktarılıyor. `durable_objects` + `migrations` (`new_sqlite_classes`) blokları
   `wrangler.demo.jsonc`'ta yorum olarak bekliyor.
-- Bağlama yokken sayaç bellek içidir (isolate başına). `/api/ai/status`
-  `gunlukSinir: { limit, mod: "bellek" }` döner, yani durum sessiz değil.
-- DO hata verirse bellek sayacına düşülür ve `ev: "gunluk_sinir_do_hata"` loglanır.
+- Bağlama yokken sayaç bellek içidir. `/api/ai/status` bu durumda
+  `gunlukSinir: { limit, mod: "bellek" }` döner. **Bugün bu moddayız.**
+- **⚠ Bellek modunda sınır GEVŞEKTİR.**
+  - Her Workers isolate'i kendi sayacını tutar. Aynı adresin istekleri farklı
+    isolate'lere ya da veri merkezlerine düşebilir, bu yüzden gerçek sınır yazılı
+    değerin birkaç katı olabilir.
+  - Isolate yenilenince (deploy, boşta kalma, bellek baskısı) sayaç sıfırlanır.
+  - Bu mod kötü niyete karşı garanti değildir; yalnız tek isolate içindeki döngüyü
+    keser.
+  - Gevşeklik `GUNLUK_SAYAC` (Durable Object) bağlaması açılınca kalkar.
+- DO hata verirse bellek sayacına düşülür ve `ev: "gunluk_sinir_do_hata"` loglanır
+  (yalnız hata sınıfı).
+
+**6. KVKK: Workers Logs içerik taşımaz** (müdür ek görevi).
+- Eski durum: `ai_failed` hata mesajından 500 karaktere, `ai_call`, `ai_fallback` ve
+  `ai_hiz_tekrar` 200 karaktere, `ai_kota_bitti` 300 karaktere kadar metin yazıyordu.
+- Bu metin üç kaynaktan gelebiliyordu:
+  - `extractJson` ön izlemesinde model çıktısı,
+  - OpenAI uyumlu yolda sağlayıcı yanıt gövdesi,
+  - zod'un "received '…'" değeri.
+- Bu metinler öğrenci yanıtından alıntı taşıyabilir. `unhandled_error` ham
+  `err.message` yazıyordu; bu da istek gövdesinden parça taşıyabilir.
+- Artık bütün kayıtlar yalnız `hataOzeti()` (`src/lib/ai.ts`) alanlarını yazar:
+  - `ai_call`: uç/model, deneme, `sureMs`, `approxPromptChars`, `maxTokens`,
+    `yanitUzunlugu`.
+  - Hata özeti: `hataSinifi`, `tur`, `neden`, yapısal `kod`, HTTP `durum`,
+    `mesajUzunlugu`. `neden` kendi kodumuzun etiketidir: `json_yok`, `json_kesik`,
+    `json_sozdizimi`, `sema`, `kota`, `model`, `yapilandirma`…
+- Şema hatası özeti zod mesajı değil, sorun sayısı ve sorun kodlarıdır. İçerik
+  parçası yok.
+- Eklenmeyenler:
+  - SHA-256 öneki: kayıtlar eşzamanlı, `crypto.subtle` eşzamansız; isteğe bağlıydı.
+  - Token sayıları: binding yanıtındaki `usage` alanı okunmuyor.
+- `test/rota.test.ts`'te log'da ham "quota" metni BEKLEYEN tek satır bu kurala göre
+  tersine çevrildi.
+- Yeni test şu durumlarda hiçbir log satırında içerik bulunmadığını sabitler: uzun
+  sahte çıktı, şema dışı değer, sağlayıcı gövdesi, kota mesajı ve hız mesajı.
+  Öğrenci yanıtındaki işaretleyici metin ve ad hiçbir satırda yok.
 
 **5. AI Gateway (isteğe bağlı, KAPALI).**
 - `AI_GATEWAY_ID` boşsa `env.AI.run` üçüncü argümansız, eskisi gibi çağrılır.
@@ -10211,13 +10281,18 @@ Yöntem seçimi (belgelerden, 5 Kasım):
 - Gateway'in binding ile önbelleğe alıp almadığı da **doğrulanmadı**.
 
 **Ölçüm:**
-- Testler 413 → 453 (`test/guvenilirlik.test.ts`, 40 test, sahte AI bağlamasıyla):
-  - 3036'nın 7 biçimi
+- Testler 413 → 472 (`test/guvenilirlik.test.ts`, 59 test, sahte AI bağlamasıyla):
+  - 3036'nın 6 biçimi, 12 yanlış pozitif
   - dakikalık 429 + başarılı tekrar, iki kez 429 → Scout, bekleme süresi
+  - istek başına 3 çağrı tavanı (hız tekrarı dahil, Scout'ta tekrar yok,
+    kesilme bütçesi 820 → 1640)
   - şema dışı → aynı istemle onarım
   - bozuk JSON → onarım, bozuk → Scout → geçerli, Scout da bozuk → açık hata
-  - IP sınırı (uçtan, DO sınıfı, DO arızası)
+  - IP sınırı çağrı başına: uçtan, zincir ortasında dolma, 3036 iadesi, DO sınıfı +
+    iade, DO arızası
+  - KVKK log içeriği
   - gateway kapalı/açık
-- Mevcut 413 test değişmeden geçiyor. `tsc --noEmit` 0 hata. Öz-kontrol 521 ad %100.
+- Mevcut testler geçiyor. Tek istisna `rota.test.ts`'te log'da ham metin bekleyen
+  satırdı; KVKK gereği tersine çevrildi. `tsc --noEmit` 0 hata. Öz-kontrol 521 ad %100.
 - `wrangler deploy --dry-run -c wrangler.demo.jsonc` paketledi (yükleme yok).
 - Canlıda hiçbir şey ölçülmedi.
