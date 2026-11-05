@@ -20,10 +20,35 @@
  * §55 — SORU ÜRETİM İSTEMİNİN SÜRÜMÜ. Yanıtın meta.istemSurumu alanında döner.
  *   1: §51b'ye kadar (MEB kazanım istemi SHA-256 f9f636a4…, 10.147 karakter)
  *   2: §55 A2 — ÇSS için isteğe bağlı "hesap" alanı (Kural 10 + JSON örneği)
+ *   4: §89 — YALNIZ MATEMATİK dersinde: "önce çöz, sonra şıkları kur". Şablonda
+ *      body → cozum (ara sonuçlarıyla adımlar) → sonuc (yalnız sayı) → hesap →
+ *      options → correctKey. cozum/sonuc şemada YOK: sunucu atar, yalnız modelin
+ *      düşünme sırasını değiştirir. Ön kayıtlı ölçüm (mat-v2, 5 Kasım, n=24, tek
+ *      kodlayıcı): anahtar doğruluğu %91,7 (taban v2 %45,8). (3 = deneysel
+ *      "hesap önce", yayına alınmadı.)
+ *   Matematik DIŞI her yol (Türkçe, Fen, Deneyap, metin/materyal modu) sürüm 2
+ *   ile BAYT BAYT aynı kalır: A5 (%77,7) ve dil sızıntısı ölçümleri v2'ye
+ *   dayanır, v4 o yollarda ölçülmedi.
  * Ölçümler (tools/olcum) bu alana göre ayrılmalı: istem değiştiği için sürüm 1
  * ile sürüm 2 sonuçlarının karşılaştırması istem değişikliğiyle KARIŞIKTIR.
  */
 export const ISTEM_SURUMU = 2;
+export const ISTEM_SURUMU_MATEMATIK = 4;
+
+/**
+ * §89 — istem v4 yalnız Matematik dersinde. Ders adı istemciden serbest metin
+ * gelir (varsayılan "Matematik"; kullanıcı kendi dersini ekleyebilir): boşluk
+ * kırpılır, Türkçe küçük harfe çevrilir (İ→i, I→ı), ı→i eşlenir ("MATEMATIK"),
+ * "matematik" ile BAŞLAYAN her ad sayılır ("Matematik Uygulamaları" dahil).
+ */
+export function matematikDersiMi(subject: string | null | undefined): boolean {
+  return String(subject ?? '').trim().toLocaleLowerCase('tr').replace(/ı/g, 'i').startsWith('matematik');
+}
+
+/** Bu üretimin istem sürümü (yanıtın meta.istemSurumu alanı). */
+export function istemSurumu(spec: Pick<QuestionSpec, 'subject'>): number {
+  return matematikDersiMi(spec.subject) ? ISTEM_SURUMU_MATEMATIK : ISTEM_SURUMU;
+}
 
 export type QuestionSpec = {
   subject: string;
@@ -158,6 +183,8 @@ export function buildQuestionPrompt(spec: QuestionSpec, sourceText: string): str
      "Metne göre..." yazar ve öğrenci ekranında cevaplanamaz bir soru çıkardı;
      yalnızca 'kazanim' olsaydı belge hiç kullanılmaz, kilit anlamsız kalırdı. */
   const materyalModu = spec.mode === 'materyal';
+  // §89: istem v4 (önce çöz) yalnız Matematik dersinde; diğer yollar v2 metni.
+  const matematikV4 = matematikDersiMi(spec.subject);
   const belgeAdi = String(spec.materialName || '').replace(/[<>]/g, '').slice(0, 160).trim();
 
   /* §31 — YÖNERGE. Öğretmenin serbest isteği. Kaynak metinle AYNI korumaya
@@ -395,11 +422,28 @@ ${materyalModu ? `9. BELGEYE ATIF YAPMAK BU MODDA YASAKTIR. Öğrenci ders belge
    işaretlersen öğrenci cevaplanamayacak bir soruyla karşılaşır.
    Metne atıf yapmak YASAK DEĞİLDİR — özellikle okuma kazanımlarında gereklidir;
    yalnızca doğru işaretlenmelidir.`}
-10. HESAP ALANI (isteğe bağlı): Doğru cevabı sayısal bir işlemle bulunan
+${matematikV4 ? `10. ÖNCE ÇÖZ, SONRA ŞIKLARI KUR (her çoktan seçmeli soru): Soruyu bir
+   öğrenci gibi ÖNCE kendin çöz, şıkları ve doğru harfi SONRA yaz.
+   - "cozum": işlemi ADIM ADIM, her adımın SONUCUNU yazarak çöz
+     (ör. "2 x 15 = 30; 30 + 5 + 2 = 37"). Sayısal olmayan soruda doğru
+     cevabın neden doğru olduğunu tek cümleyle yaz.
+   - "sonuc": sayısal sorularda YALNIZCA bulduğun sayıyı yaz (ör. "37").
+     Sayısal olmayan soruda bu alanı yazma.
+   - Sonuç tam ya da sonlu bir ondalık değilse, ya da çözüm için gövdede
+     eksik veri varsa: VERİLERİ DEĞİŞTİR ve yeniden çöz.
+   - Doğru şıkkı TAM OLARAK "sonuc" değeriyle (birimiyle) yaz; çeldiricileri
+     belirli işlem hatalarından türet; "correctKey" alanına sonucun yazdığı
+     şıkkın harfini koy. Şıkları ya da harfi çözümden önce belirleme.
+   HESAP ALANI: sayısal sorularda "hesap" alanına aynı işlemi tek ifade
+   olarak yaz.
+   "hesap" yalnızca sayılar, + - * / ve parantez içerir (ör. "(30 - 10) * 2").
+   Birim, harf, değişken, üs (^), kök ya da eşittir işareti yazma; ondalık
+   için nokta kullan. Sonuç tam ya da sonlu ondalık çıkmıyorsa verileri
+   değiştir. Hesap gerektirmeyen sorularda bu alanı yazma.` : `10. HESAP ALANI (isteğe bağlı): Doğru cevabı sayısal bir işlemle bulunan
    çoktan seçmeli sorularda "hesap" alanına O İŞLEMİ yaz: yalnızca sayılar,
    + - * / ve parantez (ör. "(30 - 10) * 2"). Birim, harf, değişken ya da
    eşittir işareti yazma; ondalık için nokta kullan. İşlemin sonucu doğru
-   şıktaki sayıya eşit olmalı. Hesap gerektirmeyen sorularda bu alanı yazma.
+   şıktaki sayıya eşit olmalı. Hesap gerektirmeyen sorularda bu alanı yazma.`}
 
 ÇIKTI BİÇİMİ — yalnızca aşağıdaki şemaya uyan geçerli JSON döndür.
 Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin ekleme.
@@ -409,9 +453,13 @@ Açıklama, giriş cümlesi, markdown kod bloğu veya başka hiçbir metin eklem
     {
       "type": "mc",
       "body": "önce 2-5 cümlelik günlük hayat bağlamı ve verisi, sonra görev cümlesi",
-      "options": [{"key": "A", "text": "..."}, {"key": "B", "text": "..."}],
-      "correctKey": "A",
+${matematikV4 ? `      "cozum": "30 - 10 = 20; 20 x 2 = 40",
+      "sonuc": "40",
       "hesap": "(30 - 10) * 2",
+      "options": [{"key": "A", "text": "40"}, {"key": "B", "text": "..."}],
+      "correctKey": "A",` : `      "options": [{"key": "A", "text": "..."}, {"key": "B", "text": "..."}],
+      "correctKey": "A",
+      "hesap": "(30 - 10) * 2",`}
       "distractorRationale": {"B": "Sürtünmeyi hareketi başlatan kuvvet sanıyor; oysa harekete zıt yönde etki eder"},
       "difficulty": "medium",
       "bloom": "uygulama",

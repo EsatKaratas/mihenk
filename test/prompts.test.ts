@@ -11,7 +11,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
-import { buildQuestionPrompt, type QuestionSpec } from '../src/lib/prompts';
+import { buildQuestionPrompt, matematikDersiMi, istemSurumu, ISTEM_SURUMU, ISTEM_SURUMU_MATEMATIK, type QuestionSpec } from '../src/lib/prompts';
 
 const temelSpec: QuestionSpec = {
   subject: 'Fen Bilimleri',
@@ -443,20 +443,26 @@ describe("buildQuestionPrompt — 'materyal' modu (belgeye kilitli kazanım)", (
 // yani istemde A2 dışında hiçbir şey değişmedi (aşağıdaki test).
 // Bedel: §54 (sürüm 1) ile A5 (sürüm 2) anahtar doğruluğu karşılaştırması
 // istem değişikliğiyle karışıktır; meta.istemSurumu ölçümde ayırmak içindir.
-describe('buildQuestionPrompt — kaynakTuru (§51b) + istem sürümü 2 (§55)', () => {
+//
+// §89 — Matematik artık istem v4 alıyor (aşağıda ayrı test). Yukarıdaki
+// parmak izleri Matematik spec'iyle alınmıştı (v1 f9f636a4…, v2 6659c1e8…);
+// v2'nin matematik DIŞINDA bayt bayt korunduğu artık Fen spec'iyle
+// sabitlenir. Fen parmak izleri DEĞİŞİKLİKTEN ÖNCEKİ kodla alındı:
+// v2 = main bf07df0, v1 = main 4e40c76 (aynı spec, model çağrısı yok).
+describe('buildQuestionPrompt — kaynakTuru (§51b) + istem sürümü 2 (§55), matematik dışı', () => {
   const kazanimSpec: QuestionSpec = {
-    subject: 'Matematik', grade: 8, outcomeCode: 'MAT.8.3.5', outcomeLabel: 'Dik üçgen',
+    subject: 'Fen Bilimleri', grade: 7, outcomeCode: 'FEN.7.1.2', outcomeLabel: 'Kuvvet',
     mcCount: 2, openCount: 1, optionCount: 4, mode: 'kazanim',
   };
-  const MEB_ISTEMI_V1_SHA256 = 'f9f636a45ecf3a669921540d71c4ec7e5ffc690d1d1fc44d03c7c5cfafdef631';
-  const MEB_ISTEMI_V2_SHA256 = '6659c1e8c4d295cadb1103037c8c80f2f5b73fc62617030e871685a87467e62f';
+  const MEB_ISTEMI_V1_SHA256 = 'bab4bd87b2c4083d6c784e99c6adfc2650d753fdf929a53be18497852b3cace1';
+  const MEB_ISTEMI_V2_SHA256 = 'afdfc8f149ab7522d4f3a73da845b62057798b997e4d53ac1747f0aedfd3e174';
   const sha = (s: string) => createHash('sha256').update(s).digest('hex');
   const a2EkleriniCikar = (p: string) =>
     p.replace(/\n10\. HESAP ALANI[\s\S]*?bu alanı yazma\./, '').replace('\n      "hesap": "(30 - 10) * 2",', '');
 
   it('alan verilmezse istem sürüm 2 MEB istemiyle BİREBİR aynıdır', () => {
     const p = buildQuestionPrompt(kazanimSpec, '');
-    expect(p.length).toBe(10553);
+    expect(p.length).toBe(10554);
     expect(sha(p)).toBe(MEB_ISTEMI_V2_SHA256);
   });
 
@@ -484,5 +490,47 @@ describe('buildQuestionPrompt — kaynakTuru (§51b) + istem sürümü 2 (§55)'
     // Rastgele sınır belirteçleri dışında aynı olmalı.
     const temizle = (s: string) => s.replace(/(KAYNAK|ONCEKI|YONERGE)-[0-9a-f]{12}/g, 'X');
     expect(temizle(dny)).toBe(temizle(meb));
+  });
+});
+
+// §89 — İSTEM v4 YALNIZ MATEMATİK. Parmak izi ölçülen kodun (dal
+// mat-kazanim-anahtar bb575f5, ön kayıtlı mat-v2 koşumu) istemiyle aynıdır.
+describe('buildQuestionPrompt — istem v4 yalnız Matematik (§89)', () => {
+  const matSpec: QuestionSpec = {
+    subject: 'Matematik', grade: 8, outcomeCode: 'MAT.8.3.5', outcomeLabel: 'Dik üçgen',
+    mcCount: 2, openCount: 1, optionCount: 4, mode: 'kazanim',
+  };
+  const MAT_ISTEMI_V4_SHA256 = '7383b2c1aa64a79a4c613989369a3ca4827350ba4671659c13a2dd6cd506dd52';
+  const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+
+  it('Matematik kazanım istemi ölçülen v4 ile BİREBİR aynı', () => {
+    const p = buildQuestionPrompt(matSpec, '');
+    expect(p.length).toBe(11410);
+    expect(sha(p)).toBe(MAT_ISTEMI_V4_SHA256);
+    expect(p).toContain('10. ÖNCE ÇÖZ, SONRA ŞIKLARI KUR');
+    expect(p).not.toContain('10. HESAP ALANI (isteğe bağlı)');
+    expect(p.indexOf('"cozum"')).toBeLessThan(p.indexOf('"options"'));
+  });
+
+  it('ders adı varyantları Matematik sayılır; başka ders sayılmaz', () => {
+    for (const s of ['Matematik', '  matematik ', 'MATEMATİK', 'MATEMATIK', 'Matematik Uygulamaları']) {
+      expect(matematikDersiMi(s), s).toBe(true);
+      expect(istemSurumu({ subject: s })).toBe(ISTEM_SURUMU_MATEMATIK);
+    }
+    for (const s of ['Fen Bilimleri', 'Türkçe', 'Deneyap Atölyeleri', 'Keşif Kampüsü', 'Mat', '', 'Fen ve Matematik']) {
+      expect(matematikDersiMi(s), s).toBe(false);
+      expect(istemSurumu({ subject: s })).toBe(ISTEM_SURUMU);
+    }
+    expect(ISTEM_SURUMU).toBe(2);
+    expect(ISTEM_SURUMU_MATEMATIK).toBe(4);
+  });
+
+  it('matematik dışı her mod v2 kuralını alır, v4 kuralı sızmaz', () => {
+    for (const [subject, mode] of [['Türkçe', 'kaynak'], ['Fen Bilimleri', 'materyal'], ['Deneyap Atölyeleri', 'kazanim']] as const) {
+      const p = buildQuestionPrompt({ ...matSpec, subject, mode, materialName: 'Ders 1' }, 'Kaynak metin.');
+      expect(p, subject).toContain('10. HESAP ALANI (isteğe bağlı)');
+      expect(p, subject).not.toContain('ÖNCE ÇÖZ');
+      expect(p, subject).not.toContain('"cozum"');
+    }
   });
 });
