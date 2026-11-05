@@ -10799,3 +10799,57 @@ Yeni davranış:
   - günlük sınır 9/9 (demo dışı girdi: tohum yok, mesaj, "Elle Puanla" birincil);
   - 502 9/9.
 - Hepsinde konsol hatası 0, yatay taşma 0. Model çağrısı 0.
+
+---
+
+## 91. YAYIN — §86–§90 tek yayında + günlük sayaç Durable Object'i açıldı (5–6 Kasım 2026, birleştirme sorumlusu)
+
+**Birleştirme** (dal `entegrasyon-5kasim`, sırayla `--no-ff`; her adımda `npm test` + `tsc`):
+ai-guvenilirlik (§86) → ai-rozet-tohum (§90) → mat-v4-yalniz-matematik (§89) →
+kvkk-ad-temizleme (§88, §88b) → cdn-yerel (§87). Çakışmalar yalnız PROGRESS.md'deydi
+(her dal sona bölüm eklemişti): iki taraf birleştirildi, bölümler numara sırasına
+dizildi, her bölüm kaynak dalıyla birebir karşılaştırıldı (kayıp/tekrar yok).
+cdn-yerel'in başlığı `## §87` biçimindeydi → `## 87.` yapıldı (metin aynı).
+`src/routes/ai.ts` kendiliğinden birleşti; `istemSurumu({subject, mode, kaynakTuru})`,
+A2 alanları (`hesapBirimFarki`) ve §86'nın `source`/kota kodları birlikte duruyor.
+
+**Dallar arası kırılma (ürün değil, test):** §88b'nin `test/kvkk-yz-izin.test.ts`'i
+`aiEvaluate`'i app.js'ten söküp sabit bir bağımlılık listesiyle çalıştırıyordu; §90 ile
+gelen `aiKaynak` ve `demoTohumDegerlendirmesi` listede yoktu → başarı yolu ReferenceError.
+Donanıma gerçek `aiKaynak` + tohum saplaması eklendi (39454c5). Ürün kodu değişmedi.
+
+**Durable Object açıldı (62d13fe):** `wrangler.demo.jsonc`'te `GUNLUK_SAYAC` →
+`GunlukSayac`, migration `v1-gunluk-sayac` + `new_sqlite_classes` (ücretsiz planda tek
+geçerli arka uç). İlk yayında migration hatasız uygulandı. Canlı `/api/ai/status`:
+`"gunlukSinir": {"limit": 60, "mod": "durable-object"}`, `"gateway": false`.
+
+**Ö1 (ana checkout, main 62d13fe = entegrasyon ucu, bf07df0'dan ileri sarma):**
+- 538/538 test (25 dosya), lint temiz, öz-kontrol 542 ad %100, check:config, `node --check`.
+- Bayt: `git ls-files public` 200 dosya, disk = blob 200/200; `public/vendor/SHA256SUMS` 0 sapma.
+- Sır taraması: `origin/main..HEAD` eklenen satırları + 26 ikili dosya (woff2, traineddata.gz
+  açılarak) anahtar desenleriyle tarandı → 0.
+- dry-run: GUNLUK_SAYAC (DO) + AI + ASSETS + vars; `OLCUM_*` yok.
+
+**Yayın:** `npm run deploy:demo` → Version **b7a47bb1-b0dc-4b81-a703-c4cb2de95449**
+(154 yeni varlık + 44 mevcut). GitHub **62d13fe** (= canlı `public/`).
+
+**Canlı A (0 Neuron):**
+- health 200; bozuk JSON 400 (`/evaluate`, `/solve`); solve şeması 400; `/favicon.ico` 301.
+- `sha-karsilastir.sh HEAD`: 198/198 canlı = disk = blob (`_headers`, `_redirects` atlandı).
+- CR 0: `/`, `/404`, `/mimari`, `/privacy-policy`. CSP başlığında dış alan adı yok.
+- `kontroller.mjs` 28/28 (1280) ve 28/28 (390); demo 5 adım 390 gerçek tıklama, konsol hatası 0.
+- Dış istek 0 ve CSP ihlali (`securitypolicyviolation`) 0: `/`, `/mimari` (mermaid 2 diyagram),
+  `/privacy-policy`, `/404`.
+- OCR canlıda: metin katmanı olmayan sentetik tek sayfalık PDF → pdf.js + tesseract yerel
+  dosyalarla 1,9 sn'de okundu, Türkçe karakterler doğru; dış istek 0, CSP ihlali 0.
+  İçerik türleri: `.mjs` → text/javascript, `.gz` → application/gzip, woff2 → font/woff2.
+
+**Canlı B (1 model çağrısı):** `demo-yuru.mjs … 1280 --model-evaluate` → `/evaluate` 200,
+20/20, `meta.source` workers-ai-70b, `yedekModel` false, `fellBack` false, attempts 1;
+4. adımda "Tek Tıkla Onayla" gerçek öneriyle. Neuron ölçeri yayından hemen sonra hâlâ
+6.627 gösteriyordu (analitik gecikmesi); tek çağrı ≈ 110 Neuron.
+
+**Bulgu (performans, hata değil):** Cloudflare, yolunda `@` olan varlıkları
+(`/vendor/pdfjs-dist@4.7.76/…`) 307 ile `%40` biçimine yönlendiriyor. Tarayıcı izliyor,
+dosyalar geliyor; ama her vendor dosyası için bir fazla gidiş-dönüş var (yazı tipleri
+etkilenmez). İleride klasör adlarından `@` kaldırılabilir (SHA256SUMS ve yollar birlikte).

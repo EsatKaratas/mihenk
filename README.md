@@ -493,7 +493,7 @@ bağlantısına bakın.
 │   ├── ozkontrol-dogrula.mjs   # app.js öz-kontrol listesi tutarlı mı (CI)
 │   ├── anahtar-dogrula.mjs     # yedek anahtarı sağlayıcıya sorup Cloudflare'e yükler
 │   └── anahtar-ekran.mjs       # aynısı için yerel tarayıcı ekranı
-├── .github/workflows/ci.yml    # lint · 413 test · yapılandırma · öz-kontrol
+├── .github/workflows/ci.yml    # lint · 538 test · yapılandırma · öz-kontrol
 ├── seed/turkishmmlu/      # dataset dönüştürme katmanı (demoda kullanılmıyor)
 └── public/
     ├── index.html         # ~2 KB iskelet
@@ -746,15 +746,15 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   bu **her isolate için ayrıdır**, dağıtık bir garanti değildir (`agents.md`
   §7.4 buna açıkça izin veriyor). Pratik koruma, ön ödemeli kredi ve otomatik
   yüklemenin kapalı olmasıdır.
-- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile 20 dosyada **413 test**
-  koşar (`test/guards.test.ts` 122 · `test/prompts.test.ts` 52 · `test/schemas.test.ts` 49 ·
-  `test/ai-lib.test.ts` 24 · `test/prompts-guvenlik.test.ts` 19 ·
-  `test/yonetici-filtre.test.ts` 19 · `test/rota.test.ts` 16 ·
-  `test/sayac-ve-yedek.test.ts` 15 · `test/cozucu.test.ts` 12 · `test/onay-modal.test.ts` 11 ·
-  `test/mufredat.test.ts` 11 · `test/hesap.test.ts` 11 · `test/denetimler.test.ts` 10 ·
-  `test/atolye-ve-materyal.test.ts` 9 · `test/ogretmen-toplu.test.ts` 8 ·
-  `test/ogretmen-onay.test.ts` 7 · `test/ogretmen-analitik.test.ts` 4 ·
-  `test/deploy-guard.test.ts` 6 · `test/odak-dil-uyari.test.ts` 5 ·
+- **Birim testleri saf yardımcılarla sınırlı:** `npm test` ile 25 dosyada **538 test**
+  koşar (`test/guards.test.ts` 123 · `test/guvenilirlik.test.ts` 59 · `test/prompts.test.ts` 56 ·
+  `test/schemas.test.ts` 49 · `test/ai-lib.test.ts` 24 · `test/ai-rozet-tohum.test.ts` 22 ·
+  `test/yonetici-filtre.test.ts` 19 · `test/prompts-guvenlik.test.ts` 19 · `test/hesap.test.ts` 18 ·
+  `test/rota.test.ts` 16 · `test/sayac-ve-yedek.test.ts` 15 · `test/kvkk-sunucu.test.ts` 14 ·
+  `test/cozucu.test.ts` 12 · `test/onay-modal.test.ts` 11 · `test/mufredat.test.ts` 11 ·
+  `test/kvkk-ad-maske.test.ts` 10 · `test/denetimler.test.ts` 10 · `test/atolye-ve-materyal.test.ts` 9 ·
+  `test/ogretmen-toplu.test.ts` 8 · `test/kvkk-yz-izin.test.ts` 8 · `test/ogretmen-onay.test.ts` 7 ·
+  `test/deploy-guard.test.ts` 6 · `test/odak-dil-uyari.test.ts` 5 · `test/ogretmen-analitik.test.ts` 4 ·
   `test/ce-kapasite.test.ts` 3) —
   kaynak tespiti, hız sınırı, yabancı alfabe denetimi, Zod şema sınırları,
   JSON onarımı, istem enjeksiyonu savunması ve sağlayıcı/yedek seçimi kapsanır.
@@ -911,7 +911,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 5 Kasım 2026, ücretsiz planda yayın (canlı sürüm `7f1ed075` · 413 test · öz-kontrol 521 ad %100)
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 6 Kasım 2026, ücretsiz planda yayın (canlı sürüm `b7a47bb1` · 538 test · öz-kontrol 542 ad %100)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)
