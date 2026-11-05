@@ -936,6 +936,112 @@ async function apiPost(url, body) {
   return j;
 }
 
+/* ===========================================================================
+   §88 KVKK — ÖĞRENCİ ADI YAPAY ZEKÂYA GİTMEZ (istemci katmanı).
+   Denetim (PROGRESS §88): /api/ai/* gövdelerinde ad/sınıf/okul ALANI yok;
+   tek risk serbest metin — öğrenci cevabına kendi ya da arkadaşının adını
+   yazabilir. Gönderimden ÖNCE kayıtlı öğrenci listesindeki (yalnız tarayıcıda)
+   adlar "[ÖĞRENCİ]", "okul numaram 123" türü ifadeler "[NUMARA]" olur.
+   - Türkçe duyarlı: her harf tr büyük/küçük biçimi ve klavyesiz yazımı
+     (ş/s, ı/i, ğ/g, ü/u, ö/o, ç/c) ile eşleşir; ekler ("Ayşe'nin", "ayşenin",
+     "AYŞE'YE") de maskelenir.
+   - Puanı bozmamak için: aynı zamanda sözcük olan adlar (Deniz, Ada, Ege,
+     Bulut, Toprak…) TEK BAŞINA yalnız büyük harfle ve kesme işaretiyle
+     ("Deniz'in") maskelenir; "deniz suyu" dokunulmaz. Ad+soyad birlikte her
+     biçimde maskelenir.
+   - Maskeleme yerel önbelleği ve ekranda gösterilen cevabı DEĞİŞTİRMEZ; yalnız
+     istek gövdesine girer. Öğretmen arayüzünde küçük bir not gösterilir. */
+const KISISEL_SOZCUK_ADLAR = ["ada", "ege", "deniz", "su", "can", "nur", "gül", "bulut", "toprak", "yıldız",
+  "demir", "kaya", "aydın", "ay", "güneş", "umut", "barış", "sevgi", "bahar", "yağmur", "doğa", "ekin", "çınar",
+  "defne", "nehir", "ırmak", "derya", "mavi", "tuna", "ceylan", "şimşek", "kartal", "aslan", "kurt", "kılıç",
+  "özgür", "inci", "elmas", "meltem", "poyraz", "rüzgar", "rüzgâr", "ateş", "alev", "kumsal", "taş", "çelik",
+  "altın", "gümüş", "şahin", "doğan", "akın", "coşkun", "mert", "tan", "yaz", "kar", "lale", "menekşe",
+  "papatya", "orkide", "yasemin", "ilke", "sema", "erdem", "onur", "cesur", "sevinç", "ümit", "zafer",
+  "kıvanç", "güven", "başak", "berk", "tuğba", "ılgın", "çiçek", "dal", "fidan", "pınar", "şeker", "bal",
+  "elif", "kaan", "arı", "ova", "dağ", "göl", "bora", "volkan", "kuzey", "güney", "batı", "doğu"];
+const KISISEL_HARF_SINIFI = { "i": "iİıI", "ı": "ıIiİ", "ş": "şŞsS", "ğ": "ğĞgG", "ü": "üÜuU", "ö": "öÖoO",
+  "ç": "çÇcC", "s": "sSşŞ", "g": "gGğĞ", "u": "uUüÜ", "o": "oOöÖ", "c": "cCçÇ", "â": "âÂaA", "î": "îÎiİ", "û": "ûÛuU" };
+const KISISEL_EK = "(?:['’`ʼ][\\p{L}]{0,10}|nin|nın|nun|nün|in|ın|un|ün|yi|yı|yu|yü|ye|ya|de|da|te|ta|den|dan|ten|tan|le|la|yle|yla|ler|lar|e|a|i|ı|u|ü)?";
+
+function kisiselDesen(sozcuk) {
+  return Array.from(String(sozcuk).toLocaleLowerCase("tr")).map(function (h) {
+    const s = KISISEL_HARF_SINIFI[h];
+    if (s) return "[" + s + "]";
+    if (/\p{L}/u.test(h)) return "[" + h + h.toLocaleUpperCase("tr") + "]";
+    return h.replace(/[.*+?^${}()|[\]\\\-]/g, "\\$&");
+  }).join("");
+}
+
+/** Bir adı (ör. "Ayşe Nur Yılmaz") maske kalıplarına çevirir. */
+function kisiselAdKaliplari(ad) {
+  const parca = String(ad || "").split(/\s+/).map(function (p) { return p.replace(/[^\p{L}'’-]/gu, ""); })
+    .filter(function (p) { return /\p{L}{2,}/u.test(p); });
+  const kaliplar = [];
+  const sinir = "(?<![\\p{L}\\p{N}])", son = "(?![\\p{L}\\p{N}])";
+  if (parca.length >= 2) {
+    kaliplar.push({ re: new RegExp(sinir + parca.map(kisiselDesen).join("\\s+") + KISISEL_EK + son, "gu"), tam: true });
+  }
+  parca.forEach(function (p) {
+    const kucuk = p.toLocaleLowerCase("tr");
+    if (kucuk.length < 3 && parca.length > 1) return;          // "Su", "Ay" tek başına maskelenmez
+    const sozcukAd = KISISEL_SOZCUK_ADLAR.indexOf(kucuk) >= 0;
+    kaliplar.push({ re: new RegExp(sinir + kisiselDesen(p) + KISISEL_EK + son, "gu"), tam: false, sozcukAd: sozcukAd });
+  });
+  return kaliplar;
+}
+
+/** Metindeki kayıtlı öğrenci adlarını ve okul numarası ifadelerini maskeler.
+    Döner: { metin, maskelendi }. `ogrenciler` verilmezse state.students. */
+function kisiselMaskele(metin, ogrenciler) {
+  let m = String(metin == null ? "" : metin);
+  let degisti = false;
+  const liste = ogrenciler || (typeof state !== "undefined" && state.students) || [];
+  const tumKaliplar = [];
+  liste.forEach(function (s) { kisiselAdKaliplari(s && s.name).forEach(function (k) { tumKaliplar.push(k); }); });
+  // Önce ad+soyad (uzun kalıp), sonra tek parçalar.
+  tumKaliplar.sort(function (a, b) { return (b.tam ? 1 : 0) - (a.tam ? 1 : 0); });
+  tumKaliplar.forEach(function (k) {
+    m = m.replace(k.re, function (bulunan) {
+      if (!k.tam && k.sozcukAd) {
+        // Sözcük de olan ad: yalnız büyük harfle başlıyor VE kesme işaretli ise özel ad sayılır.
+        const ilk = bulunan.charAt(0);
+        const buyuk = ilk !== ilk.toLocaleLowerCase("tr");
+        if (!(buyuk && /['’`ʼ]/.test(bulunan))) return bulunan;
+      }
+      degisti = true;
+      return "[ÖĞRENCİ]";
+    });
+  });
+  // Okul numarası / öğrenci numarası ifadeleri ("okul numaram 1234", "no: 57").
+  m = m.replace(/((?:okul|öğrenci|ogrenci)\s*(?:numaram|numarası|numarasi|numaramız|no|nosu|numara)\s*[:=]?\s*|(?<![\p{L}])numaram\s*[:=]?\s*|(?<![\p{L}])no\s*[:=]\s*)\d{1,11}(?![\d])/giu,
+    function (_t, on) { degisti = true; return on + "[NUMARA]"; });
+  return { metin: m, maskelendi: degisti };
+}
+
+/** Öğretmen arayüzü notu: ad bilgisi istekten çıkarıldıysa gösterilir. */
+function adMaskeNotuHtml(ev) {
+  if (!ev || !ev.adMaskelendi) return "";
+  return '<div class="ad-maske-not" title="Öğrenci cevabında kayıtlı bir ad ya da numara vardı; yapay zekâya giden metinde [ÖĞRENCİ]/[NUMARA] ile değiştirildi. Ekranda cevap olduğu gibi duruyor.">' +
+    "🔒 Ad bilgisi yapay zekâya gönderilmedi.</div>";
+}
+
+/* §88b KVKK — ÖĞRENCİ BAŞINA YAPAY ZEKÂ İZNİ.
+   Veli rıza formu: rıza verilmeyen öğrencinin cevabı yapay zekâya GÖNDERİLMEZ,
+   öğretmen elle puanlar. Alan: student.yzIzniYok === true. Alan YOKSA = izin var
+   (mevcut davranış, demo tohumu ve eski kayıtlar etkilenmez; loadState göçü
+   GEREKMEZ — öğrenci nesnesi KALICI_ALANLAR'da olduğu gibi saklanır). */
+function yzIzniVar(sid) {
+  const s = (state.students || []).find(function (x) { return x.id === Number(sid); });
+  return !(s && s.yzIzniYok === true);
+}
+
+/** İzin yoksa aiEvaluate'in döndürdüğü kayıt: model ÇAĞRILMAZ, kuyrukta elle puanlanır. */
+function yzIzinsizSonuc(rubric) {
+  return { failed: true, izinYok: true, maxScore: rubric.maxScore, aiScore: null, justification: "",
+           confidence: null, breakdown: [],
+           error: "Bu öğrenci için yapay zekâ değerlendirmesi kapalı (izin yok); elle puanlanacak." };
+}
+
 /* Paket 4c — Tekrar Önleme (dedup) girdisi.
    Aynı kaynak/kazanım için bu OTURUMDA (state.questions içinde, henüz
    sayfa yenilenmemiş/localStorage'dan geleni de dahil) daha önce üretilmiş
@@ -1175,7 +1281,14 @@ function evalCachePut(key, value) {
 function evalCacheCount() { return Object.keys(state.evalCache || {}).length; }
 function evalCacheClear() { state.evalCache = {}; renderAll(); }
 
-async function aiEvaluate(q, answerText, rubric, force) {
+async function aiEvaluate(q, answerText, rubric, force, sid) {
+  /* §88b: izin yoksa HİÇBİR şey gönderilmez (simülasyon dahil) — elle puanlama kuyruğu. */
+  const ogrId = sid != null ? sid : state.activeStudentId;
+  if (!yzIzniVar(ogrId)) {
+    auditKaydet("yz_izni_yok", { qid: q.id, sid: ogrId, soru: auditKisalt(q.body),
+      not: "cevap yapay zekâya gönderilmedi; elle puanlanacak" });
+    return yzIzinsizSonuc(rubric);
+  }
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır.
   if (state.ai.mode !== "live") {
     const sim = simulateAIEvaluation(q, answerText, rubric);
@@ -1203,11 +1316,13 @@ async function aiEvaluate(q, answerText, rubric, force) {
     }
   }
 
+  // §88 KVKK: cevaptaki kayıtlı ad/numara yalnız istek gövdesinde maskelenir.
+  const maske = kisiselMaskele(answerText || "");
   try {
     const j = await apiPost(AI_API.evaluate, {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
-      studentAnswer: answerText || "",
+      studentAnswer: maske.metin,
       maxScore: rubric.maxScore,
       criteria: rubric.criteria.map(function (c) { return { label: c.label, weight: Number(c.weight) || 0 }; }),
     });
@@ -1227,7 +1342,8 @@ async function aiEvaluate(q, answerText, rubric, force) {
                        canlıda geri bildirim taslağına CJK karakteri sızdığı
                        ölçüldü. Otomatik düzeltilmez, öğretmene gösterilir. */
                     dilUyarisi: !!j.dilUyarisi,
-                    dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [] };
+                    dilSozcukler: (j.meta && j.meta.dilUyarisiSozcukler) || [],
+                    adMaskelendi: maske.maskelendi || undefined };
     // Yalnızca BAŞARILI değerlendirme önbelleğe alınır.
     evalCachePut(cacheKey, sonuc);
     // Denetim izi: yapay zekâ PUAN ÖNERDİ. Nihai puan değil — öğretmen
@@ -1270,7 +1386,7 @@ async function retryEvaluation(qid, sid) {
   try {
     await probeAiMode();
     // Öğretmen bilinçli olarak yeniden deniyor: önbelleği atla.
-    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid], true);
+    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid], true, ogrId);
     const yeni = Object.assign({}, readSession(ogrId).aiEvals || {});
     yeni[qid] = sonuc;
     writeSession(ogrId, { aiEvals: yeni });
@@ -3785,6 +3901,7 @@ var AUDIT_ETIKET = {
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
   degerlendirme_onerildi:{ad: "Puan önerildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   degerlendirme_basarisiz:{ad:"Değerlendirme yapılamadı", sinif: "pill-warning", aktor: "sistem" },
+  yz_izni_yok:          { ad: "YZ izni yok — elle puanlanacak", sinif: "pill-neutral", aktor: "sistem" },
   puan_karari:          { ad: "Puan kararı",              sinif: "pill-success", aktor: "öğretmen" },
   geri_bildirim_aktarildi:{ad:"Geri bildirim aktarıldı",  sinif: "pill-neutral", aktor: "öğretmen" },
   /* Dikkat sinyalinin veliye iletilmesi bir İNSAN KARARIDIR ve denetim izine
@@ -6820,6 +6937,11 @@ function sinifYonetimHtml() {
           return '<div class="sy-satir"><span class="sy-ad">' + escapeHtml(o2.name) + '</span>' +
             (!sf && o2.sinif ? '<span class="pill pill-neutral">' + escapeHtml(o2.sinif) + '</span>' : "") +
             (o2.demo ? '<span class="pill pill-warning">örnek</span>' : "") +
+            /* §88b: yapay zekâ izni — varsayılan "izin var"; tıklayınca değişir. */
+            '<button type="button" class="btn btn-sm sy-yz' + (o2.yzIzniYok ? " sy-yz-yok" : "") + '" data-yz-izin="' + o2.id +
+            '" aria-pressed="' + (o2.yzIzniYok ? "false" : "true") + '" title="Veli rızasına göre: izin yoksa cevap yapay zekâya gönderilmez, elle puanlanır" aria-label="' +
+            escapeHtml(o2.name) + ' — yapay zekâ değerlendirmesi: ' + (o2.yzIzniYok ? "izin yok" : "izin var") + '">' +
+            (o2.yzIzniYok ? "YZ: izin yok" : "YZ: izin var") + '</button>' +
             '<button class="icon-btn" data-ogrenci-sil="' + o2.id + '" title="Öğrenciyi çıkar" aria-label="' +
             escapeHtml(o2.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
         }).join("") + '</div>'
@@ -6853,6 +6975,15 @@ function wireSinifYonetim() {
       saveState(); renderAll();
     });
   };
+  document.querySelectorAll("[data-yz-izin]").forEach(function (b) {
+    b.onclick = function () {
+      var ogr = (state.students || []).find(function (x) { return x.id === Number(b.dataset.yzIzin); });
+      if (!ogr) return;
+      // Alan yalnız "izin yok" iken tutulur; izin geri açılınca silinir (alan yok = izin var).
+      if (ogr.yzIzniYok) delete ogr.yzIzniYok; else ogr.yzIzniYok = true;
+      saveState(); renderAll();
+    };
+  });
   document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
     b.onclick = function () {
       var id = Number(b.dataset.ogrenciSil);
@@ -8243,7 +8374,7 @@ async function simulateClass(adet) {
         const q = opens[oi];
         simProgress(ogr.name + " değerlendiriliyor (" + (i + 1) + "/" + yeniler.length + ")…",
           0.35 + 0.6 * ((i * opens.length + oi) / Math.max(1, yeniler.length * opens.length)));
-        oturum.aiEvals[q.id] = await aiEvaluate(q, oturum.answers[q.id].text || "", state.rubrics[q.id]);
+        oturum.aiEvals[q.id] = await aiEvaluate(q, oturum.answers[q.id].text || "", state.rubrics[q.id], false, ogr.id);
       }
 
       const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
@@ -8530,7 +8661,8 @@ function studentChip(student) {
   return '<span class="student-chip' + (student.demo ? " sim" : "") + '">' +
     escapeHtml(student.name) +
     (student.sinif ? ' <span class="sc-class">' + escapeHtml(student.sinif) + '</span>' : "") +
-    (student.demo ? ' <span class="sc-tag">simüle</span>' : "") + '</span>';
+    (student.demo ? ' <span class="sc-tag">simüle</span>' : "") +
+    (student.yzIzniYok ? ' <span class="sc-tag">YZ izni yok</span>' : "") + '</span>';
 }
 
 function evalCardHtml(q, student, ev) {
@@ -8549,6 +8681,7 @@ function evalCardHtml(q, student, ev) {
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
     injectionWarnHtml(ev) +
+    adMaskeNotuHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + ondalikTr(b.points) + '/' + ondalikTr(b.max) + '</span></div>' +
@@ -8566,7 +8699,33 @@ function evalCardHtml(q, student, ev) {
 }
 
 // Değerlendirme yapılamadıysa: ne olduğunu söyle, iki çıkış yolu ver.
+/* §88b: izin yok → "elle değerlendirilecek" kartı. Hata değil; yeniden deneme
+   düğmesi yalnız öğretmen izni sonradan AÇTIYSA çıkar. */
+function evalElleCardHtml(q, student, ans, rub) {
+  const izinAcildi = yzIzniVar(student.id);
+  return '<div class="eval-card eval-elle" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
+    '<div class="q-meta">' + studentChip(student) +
+    '<span class="pill pill-neutral">Elle değerlendirilecek</span>' +
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + '</div>' +
+    '<div class="eval-block" style="margin-top:12px;"><h4>Öğrenci Yanıtı</h4>' +
+    '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
+    '<div class="elle-note">🔒 Bu öğrenci için yapay zekâ değerlendirmesi kapalı (izin yok). ' +
+    'Cevap hiçbir yapay zekâ isteğine gönderilmedi; puanı rubriğe göre siz verin.' +
+    (izinAcildi ? ' <b>İzin sonradan açıldı;</b> isterseniz yapay zekâ önerisi isteyebilirsiniz.' : "") + '</div>' +
+    '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
+    '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
+    '<input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
+    '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label>' +
+    '<input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
+    '<div class="actions">' +
+    '<button class="btn btn-primary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Elle Puanla ve Onayla</button>' +
+    (izinAcildi ? '<button class="btn btn-secondary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ Önerisi İste</button>' : "") +
+    '</div></div>';
+}
+
 function evalFailedCardHtml(q, student, ans, ev, rub) {
+  if (ev && ev.izinYok) return evalElleCardHtml(q, student, ans, rub);
   return '<div class="eval-card eval-failed" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
     '<div class="q-meta">' + studentChip(student) +
     '<span class="pill pill-critical">Değerlendirme yapılamadı</span>' +
@@ -8754,7 +8913,8 @@ function teacherTab3Html() {
   });
   const pending = tumDegerlendirmeler.filter(function (x) { return !x.review; });
   const done = tumDegerlendirmeler.filter(function (x) { return x.review; });
-  const basarisiz = pending.filter(function (x) { return (x.ev || {}).failed; }).length;
+  const basarisiz = pending.filter(function (x) { return (x.ev || {}).failed && !(x.ev || {}).izinYok; }).length;
+  const elleBekleyen = pending.filter(function (x) { return (x.ev || {}).izinYok; }).length;   // §88b
 
   // Çoktan seçmeli: sınıf geneli doğru sayısı.
   let mcDogru = 0, mcToplam = 0;
@@ -8784,7 +8944,8 @@ function teacherTab3Html() {
     '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcToplam + '</div><div class="s-sub">' + gonderenler.length + ' öğrenci · cevap anahtarıyla puanlandı</div></div>' +
     '<div class="stat-tile' + (basarisiz ? ' tile-alert' : '') + '"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' +
     (basarisiz ? basarisiz + ' değerlendirme yapılamadı — yeniden deneyin'
-      : (pending.length ? "Yapay zekâ puan önerdi, karar sizde" : "tümü incelendi")) + '</div></div>' +
+      : (pending.length ? (elleBekleyen === pending.length ? "yapay zekâ izni yok, elle puanlayın" : "Yapay zekâ puan önerdi, karar sizde") : "tümü incelendi")) +
+    (elleBekleyen && elleBekleyen < pending.length ? " · " + elleBekleyen + " yanıt elle puanlanacak (izin yok)" : "") + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? gonderenler.length + " öğrenci karnesini görebiliyor" : "siz yayınlayana kadar gizli") + '</div></div>' +
     '</div></div>';
 
@@ -9709,9 +9870,11 @@ function miscQuestions() {
     .filter(function (q) { return q && q.type === "open"; });
 }
 
-/** Sınıfın o soruya verdiği DOLU yanıtları toplar (isim taşımaz). */
+/** Sınıfın o soruya verdiği DOLU yanıtları toplar (isim taşımaz).
+    §88b: yapay zekâ izni olmayan öğrencinin yanıtı analize HİÇ girmez. */
 function miscAnswers(qid) {
   return submittedStudents()
+    .filter(function (st) { return yzIzniVar(st.id); })
     .map(function (st) { return ((readSession(st.id).answers || {})[qid] || {}).text || ""; })
     .map(function (t) { return String(t).trim(); })
     .filter(function (t) { return t.length > 0; });
@@ -9731,11 +9894,18 @@ async function runMisconceptions(qid) {
     saveState(); renderAll(); return;
   }
 
+  // §88 KVKK: sınıf yanıtlarındaki kayıtlı ad/numara istekten önce maskelenir.
+  let adMaskelendi = false;
+  const gidenYanitlar = yanitlar.map(function (t) {
+    const m = kisiselMaskele(t);
+    if (m.maskelendi) adMaskelendi = true;
+    return m.metin;
+  });
   try {
     const j = await apiPost(AI_API.misconceptions, {
       questionBody: q.body,
       outcomeLabel: outcomeLabel(q.outcome),
-      answers: yanitlar
+      answers: gidenYanitlar
     });
     state.misconceptions[key] = {
       clusters: j.clusters || [],
@@ -9743,6 +9913,7 @@ async function runMisconceptions(qid) {
       analyzed: j.analyzed || yanitlar.length,
       model: (j.meta && j.meta.model) || "",
       fellBack: !!(j.meta && j.meta.fellBack),
+      adMaskelendi: adMaskelendi || undefined,
       at: Date.now()
     };
   } catch (e) {
@@ -9758,6 +9929,7 @@ function misconceptionHtml() {
   if (!sorular.length) return "";
   const gonderen = submittedStudents().length;
   if (gonderen < 2) return "";
+  const izinsizSayi = submittedStudents().filter(function (st) { return !yzIzniVar(st.id); }).length;   // §88b
 
   const bloklar = sorular.map(function (q) {
     const key = miscKey(q.id);
@@ -9773,7 +9945,7 @@ function misconceptionHtml() {
     } else if (d && d.clusters) {
       if (!d.clusters.length) {
         govde = '<div class="mis-durum mis-temiz">Tekrarlayan bir kavram yanılgısı bulunamadı. ' +
-          d.analyzed + " yanıt incelendi.</div>";
+          d.analyzed + " yanıt incelendi.</div>" + adMaskeNotuHtml(d);
       } else {
         govde = d.clusters.map(function (k) {
           const oran = d.analyzed ? Math.round(k.studentCount / d.analyzed * 100) : 0;
@@ -9793,7 +9965,8 @@ function misconceptionHtml() {
         '<div class="mis-ozet">' + d.analyzed + " yanıt incelendi · " + d.correctCount +
           " yanıt kazanımı doğru biçimde ifade etmiş" +
           (d.model ? ' · <span class="mis-model">' + escapeHtml(d.model) + "</span>" : "") +
-          (d.fellBack ? ' <span class="pill pill-warning">yedek model</span>' : "") + "</div>";
+          (d.fellBack ? ' <span class="pill pill-warning">yedek model</span>' : "") + "</div>" +
+        adMaskeNotuHtml(d);
       }
     } else {
       govde = '<div class="mis-durum">Bu soruya ' + yanitSayisi +
@@ -9806,7 +9979,8 @@ function misconceptionHtml() {
       govde +
       '<div class="mis-alt"><button class="btn btn-secondary btn-sm mis-run" data-qid="' + q.id + '"' +
       (d && d.loading ? " disabled" : "") + ">" + (d && d.loading ? "Analiz ediliyor…" : dugmeMetni) + "</button>" +
-      '<span class="mis-alt-not">' + yanitSayisi + " yanıt · isimler gönderilmez</span></div>" +
+      '<span class="mis-alt-not">' + yanitSayisi + " yanıt · isimler gönderilmez" +
+      (izinsizSayi ? " · " + izinsizSayi + " öğrenci analize dahil değil (yapay zekâ izni yok)" : "") + "</span></div>" +
       "</div>";
   }).join("");
 
@@ -13522,6 +13696,8 @@ function bosDurumHtml(mesaj) {
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
     "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
+    "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
+    "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
     "ensureAudit", "auditKaydet", "auditKisalt", "auditOzet", "auditZaman",
     "auditCsv", "auditIndir", "auditSatirHtml", "auditGunluguHtml", "wireAudit",
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
