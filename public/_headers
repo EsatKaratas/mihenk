@@ -31,10 +31,12 @@
 #    data: bir ağ hedefi DEĞİLDİR: içerik istemcide üretilir, bu izinle
 #    dışarıya hiçbir veri gönderilemez. Aynı politika img-src'de data:'ya
 #    zaten izin veriyor.
-#  - cdn.jsdelivr.net: pdf.js (PDF okuma) ve mermaid (mimari diyagramları)
-#    buradan yükleniyor. worker-src, pdf.js'in ayrı worker dosyası için;
-#    Tesseract.js worker'ını blob: üzerinden kurup jsdelivr'den importScripts
-#    ediyor, ikisi de zaten izinli (tarayıcıda doğrulandı).
+#  - DIŞ KAYNAK YOK (§87): pdf.js, mermaid, mammoth, Tesseract.js (+ çekirdek
+#    ve Türkçe dil verisi) ve fontlar artık public/vendor/ altından, yani
+#    'self'ten sunuluyor. cdn.jsdelivr.net, fonts.googleapis.com ve
+#    fonts.gstatic.com politikadan ÇIKARILDI. worker-src 'self' pdf.js'in
+#    worker dosyası için; blob: Tesseract.js içindir (worker'ı blob: URL'si
+#    olarak kurup içinden yerel worker.min.js'i importScripts ediyor).
 #  Bu izinlerle CSP'nin XSS koruması zayıflar; asıl XSS savunması
 #  escapeHtml'dir (14 alanda payload testi yapıldı, sızma yok). CSP burada
 #  ikinci katman: clickjacking, form hijack, plugin ve base-uri saldırılarını
@@ -44,4 +46,4 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' data: https://cdn.jsdelivr.net; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'

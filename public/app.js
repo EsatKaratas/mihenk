@@ -2970,11 +2970,21 @@ function wireSecimSekmeleri() {
 let pdfPages = null;      // [{ n, text }]
 let pdfLibPromise = null;
 
+/* Tarayıcı kütüphaneleri (pdf.js, mammoth, Tesseract.js + çekirdek + Türkçe
+   dil verisi) uygulamanın KENDİ statik varlıklarından sunulur: public/vendor/
+   (PROGRESS §87). Eskiden cdn.jsdelivr.net'ten geliyordu; demo günü dış CDN
+   bağımlılığı kalktı ve öğretmen tarayıcısı üçüncü tarafa bağlanmıyor.
+   Mutlak URL üretilir: Tesseract worker'ı blob: içinden importScripts ettiği
+   için göreli yol orada çözülemez. */
+function vendorUrl(yol) {
+  return new URL("/vendor/" + yol, location.origin).href;
+}
+
 function loadPdfLib() {
   if (!pdfLibPromise) {
-    pdfLibPromise = import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.min.mjs")
+    pdfLibPromise = import(vendorUrl("pdfjs-dist@4.7.76/pdf.min.mjs"))
       .then(function (lib) {
-        lib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.mjs";
+        lib.GlobalWorkerOptions.workerSrc = vendorUrl("pdfjs-dist@4.7.76/pdf.worker.min.mjs");
         return lib;
       });
   }
@@ -3001,8 +3011,8 @@ async function extractPdf(file) {
    (bkz. privacy-policy.html, PDF bölümü). mammoth.js'in resmî bir ESM/.mjs
    dağıtımı olmadığı için pdf.js'teki gibi dinamik `import()` kullanılamıyor;
    bunun yerine klasik <script> etiketi enjekte edilip `window.mammoth`
-   üzerinden okunuyor. CSP zaten cdn.jsdelivr.net'e izin veriyor
-   (public/_headers), yeni bir izin gerekmiyor. */
+   üzerinden okunuyor. Dosya yerelden (public/vendor/) gelir; CSP'de
+   script-src 'self' yeterli. */
 let mammothLibPromise = null;
 
 function loadMammothLib() {
@@ -3010,7 +3020,7 @@ function loadMammothLib() {
   if (!mammothLibPromise) {
     mammothLibPromise = new Promise(function (resolve, reject) {
       const s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js";
+      s.src = vendorUrl("mammoth@1.8.0/mammoth.browser.min.js");
       s.onload = function () { resolve(window.mammoth); };
       s.onerror = function () { reject(new Error("Word okuma kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
       document.head.appendChild(s);
@@ -3053,7 +3063,7 @@ function loadTesseractLib() {
   if (!tesseractLibPromise) {
     tesseractLibPromise = new Promise(function (resolve, reject) {
       const s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.src = vendorUrl("tesseract.js@5.1.1/tesseract.min.js");
       s.onload = function () { resolve(window.Tesseract); };
       s.onerror = function () { reject(new Error("OCR kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
       document.head.appendChild(s);
@@ -3069,10 +3079,11 @@ async function ocrPdfSayfalari(file, ilerlemeCb) {
   const doc = await pdfLib.getDocument({ data: buf }).promise;
   const toplamSayfa = doc.numPages;
   const islenecek = Math.min(toplamSayfa, OCR_MAX_SAYFA);
-  // CSP yalnızca cdn.jsdelivr.net'e izin veriyor (public/_headers); Tesseract.js
-  // varsayılan olarak worker/core/dil dosyalarını başka barındırıcılardan
-  // çekebiliyor. Sessizce engellenmesin diye üçü de burada açıkça jsdelivr'e
-  // sabitleniyor.
+  // Tesseract.js varsayılan olarak worker/core/dil dosyalarını jsdelivr'den
+  // çeker. CSP artık yalnız 'self'e izin veriyor (public/_headers, §87);
+  // sessizce engellenmesin diye üçü de burada açıkça yerel kopyalara
+  // (public/vendor/) sabitleniyor. Dil verisi aynı paketin aynı dosyası:
+  // @tesseract.js-data/tur@1.0.0/4.0.0_best_int/tur.traineddata.gz.
   /* 🔴 DÜZELTME — langPath 404 veriyordu (ölçüldü).
      Eski değer ".../@tesseract.js-data/tur/4.0.0_best" idi. Tesseract.js v5
      bu yola "/<dil>.traineddata.gz" ekliyor (kütüphane kaynağından
@@ -3089,9 +3100,9 @@ async function ocrPdfSayfalari(file, ilerlemeCb) {
      (ölçüldü): paylaşılan bir sunum ağında 4 kat daha az indirme.
      Hız öncelikliyse tek yapılacak "_best_int" yerine "4.0.0" yazmaktır. */
   const worker = await Tesseract.createWorker("tur", 1, {
-    workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
-    corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js",
-    langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/tur@1.0.0/4.0.0_best_int"
+    workerPath: vendorUrl("tesseract.js@5.1.1/worker.min.js"),
+    corePath: vendorUrl("tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js"),
+    langPath: vendorUrl("tesseract-tur@1.0.0/4.0.0_best_int")
   });
   const sayfalar = [];
   try {
@@ -13369,7 +13380,7 @@ function bosDurumHtml(mesaj) {
     "evalCacheKey", "hash32", "evalCacheGet", "evalCachePut", "evalCacheCount", "evalCacheClear",
     "ogrenciSilGuard", "varsayilanListeMi", "sinifYonetimHtml", "wireSinifYonetim", "kaynakKitapligaKaydet",
     "bosDurumHtml",
-    "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
+    "vendorUrl", "loadMammothLib", "extractDocx", "loadTesseractLib", "ocrPdfSayfalari", "ocrOneriHtml", "runOcrOnScannedPdf",
     "subeRozetiHtml", "outcomeAlan", "pendingRubricCount", "pendingReviewCount",
     "girisKapisiKartlariHtml", "girisKapisiKur",
     /* §33 — rol izolasyonu ve çıkış akışı. rolCikisYap üst çubuktaki tek

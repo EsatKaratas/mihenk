@@ -10116,3 +10116,98 @@ Orchestrator 2 kararı; dal `odak-dil-uyari`, taban main 37610f2. Model çağrı
   varsa kalır.
 - Testler 407/407 (beklenti güncellendi + 4 sözcük → 3 gösterim). Lint temiz;
   öz-kontrol %100.
+
+## §87 Tarayıcı bağımlılıkları yerelden (5 Kasım, dal `cdn-yerel`)
+
+**Neden:** Demo günü dış CDN'e bağımlılık güvenilirlik riskiydi; öğretmen tarayıcısı
+jsdelivr ve Google'a bağlanıyordu (KVKK açısından üçüncü taraf aktarımı: IP, Referer).
+Workers statik varlık istekleri ücretsiz; dosya başına sınır 25 MiB.
+
+**Ne değişti:**
+- `public/vendor/` altına npm tarball'larından (registry.npmjs.org, `npm pack`) yalnız
+  gereken dağıtım dosyaları + lisanslar kopyalandı; `package.json` DEĞİŞMEDİ.
+- `app.js`: pdf.js, mammoth, Tesseract (`workerPath`, `corePath`, `langPath`) yerel
+  yollara; yeni yardımcı `vendorUrl()` mutlak URL üretir (Tesseract worker'ı blob:
+  içinden `importScripts` ettiği için göreli yol çözülemezdi). Öz-kontrol listesine eklendi.
+- `mimari.js`: `mermaid@11` aralığı → TAM **11.17.2** (jsdelivr'in 05.11.2026'da `@11`
+  için çözdüğü sürüm; npm `latest` 12.3.0 ama 12'ye geçilmedi).
+- Fontlar: 4 HTML'deki Google Fonts `<link>` + 2 preconnect → `/vendor/fonts/fonts.css`.
+  CSS, fonts.googleapis.com/css2'nin Chrome UA'ya verdiği yanıtın aynısı (55 `@font-face`,
+  tüm alt kümeler, `unicode-range` korundu), yalnız URL'ler yerel. Index'in istediği
+  aile/ağırlık birleşimi kullanıldı (Source Sans 3 400–700); diğer sayfalar eskiden
+  400–600 istiyordu (aşağıda risk).
+- CSP (`public/_headers`): `cdn.jsdelivr.net` (script/worker/connect),
+  `fonts.googleapis.com` (style), `fonts.gstatic.com` (font) çıkarıldı. Taramada
+  başka dış adres yalnız `yayinlar.tubitak.gov.tr` çıktı — `<a href>` bağlantıları,
+  CSP ilgilendirmez. `blob:` (Tesseract worker), `data:` (çekirdek gömülü WASM),
+  `'wasm-unsafe-eval'` kaldı.
+
+**Sürümler, kaynaklar, lisanslar** (tarball sha512 = npm `integrity`):
+
+| Paket | Kaynak | Dosyalar | Lisans |
+|---|---|---|---|
+| mermaid 11.17.2 | npm `mermaid-11.17.2.tgz` (sha512-V6K3C8EB…BBg==) | `dist/mermaid.esm.min.mjs` + `dist/chunks/mermaid.esm.min/*.mjs` (116 parça, .map yok) | MIT |
+| pdfjs-dist 4.7.76 | npm (sha512-8y6wUgC/…Mtqw==) | `build/pdf.min.mjs`, `build/pdf.worker.min.mjs` | Apache-2.0 |
+| tesseract.js 5.1.1 | npm (sha512-lzVl/Ar3…ldcYQ==) | `dist/tesseract.min.js`, `dist/worker.min.js` | Apache-2.0 |
+| tesseract.js-core 5.1.1 | npm (sha512-KX3bYSU5…tvX5uQ==) | `tesseract-core-simd.wasm.js` (eskiyle aynı varyant) | Apache-2.0 |
+| @tesseract.js-data/tur 1.0.0 | npm (sha512-510AUJda…lSlXrkw==) | `4.0.0_best_int/tur.traineddata.gz` (eskiyle aynı dosya) | paket MIT; veri tessdata_best Apache-2.0 (LICENSE github.com/tesseract-ocr/tessdata_best) |
+| mammoth 1.8.0 | npm (sha512-pJNfxSk9…ImKqTGDVlbA==) | `mammoth.browser.min.js` | BSD-2-Clause |
+| Archivo, Source Sans 3, IBM Plex Mono | fonts.googleapis.com/css2 → fonts.gstatic.com (25 woff2) | `vendor/fonts/` | OFL-1.1 (OFL-*.txt, github.com/google/fonts) |
+
+İngilizce dil verisi alınmadı: kod yalnız `createWorker("tur", …)` kullanıyor.
+
+**SHA-256** (tam liste: `public/vendor/SHA256SUMS`, 146 dosya):
+- `mermaid@11.17.2/mermaid.esm.min.mjs` 462d6f73fc9833044bca6dc08e62e0ee83f5a2b09583f588f95d5fd91b1960ed
+- `pdfjs-dist@4.7.76/pdf.min.mjs` 49e26487d87a86cb96f6a21740cf7e678bd43db0ccf4e82a6877a806c4d7d5e4
+- `pdfjs-dist@4.7.76/pdf.worker.min.mjs` d2e6ef4cbc6f0e2c1ccb8a4a71d92d09f6242a96a0af07991f08f31e62cc7181
+- `tesseract.js@5.1.1/tesseract.min.js` a8e29918d098b2b06e1012bdaeffb4aec0445c5d5654709023e0bd1f442a80e8
+- `tesseract.js@5.1.1/worker.min.js` aca1229639fc9907d86f96e825955a2b7c5716d17f3bc3acd71f9c7ab66181fc
+- `tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js` 63f232c4f7a97b04e52eb940202700b2c6239783a75d0ff0553274fac530cd5c
+- `tesseract-tur@1.0.0/4.0.0_best_int/tur.traineddata.gz` 384ba0dc28040451b7818d7d60e0a88df0d3003fa5a01d713a468779bc3d8c04
+- `mammoth@1.8.0/mammoth.browser.min.js` deb07bf230d1cb3e190bc5adc6743f35c6531b6571d1e5469b24f452a7f0f4ab
+- `fonts/fonts.css` 605e7e17d5130010455f6ac7329aa2f9db840a70f7153ea5bd2e341c965be7f3 (LF)
+- `.gitattributes`: `public/vendor/** -text` — satır sonu dönüştürülmez, SHA256SUMS
+  her checkout'ta tutar (`sha256sum -c` geçti).
+
+**Boyut** (ölçüldü, `du -sb`): toplam 13.398.059 bayt (~12,8 MiB), 146 dosya (+ SHA256SUMS).
+Tesseract çekirdek 4,75 MB · tur verisi 2,15 MB · pdf.js 1,71 MB · mermaid 3,52 MB ·
+mammoth 0,64 MB · fontlar 0,42 MB · tesseract.js 0,20 MB. En büyük tek dosya
+4.735.153 bayt (25 MiB sınırının çok altında). `public/` dosya sayısı 53 → 200.
+
+**Doğrulama** (model çağrısı yok; `/api/**` engelli). Sunucu: `public/_headers`'taki `/*`
+başlıklarını (CSP dahil) her yanıta ekleyen yerel Python statik sunucu — yani CSP de
+sınandı. Önce = main 244f1a5 (port 8861), sonra = bu dal (port 8860). Sunulan `app.js`
+SHA-256'sı diskle aynı (ölçümden önce bakıldı). Playwright + sistem Chrome:
+- **Dış istek:** önce 60 (cdn.jsdelivr.net 37, fonts.gstatic.com 20,
+  fonts.googleapis.com 3), sonra **0** — aynı akış, 86 istek; worker içindeki
+  istekler (worker.min.js, çekirdek, tur.traineddata.gz) kayda düştü.
+- **Mermaid:** mimari.html'de 2/2 diyagram SVG olarak çizildi.
+- **pdf.js:** `dersler/sinirlar.pdf` → 5 sayfa, 10.393 karakter (önce/sonra aynı).
+- **OCR:** metin katmanı olmayan, Pillow ile üretilmiş Türkçe görüntü-PDF →
+  `ocrPdfSayfalari` (pdf.js render + Tesseract tur) → "Öğrenciler çığ gibi büyüyen
+  şehirde ılık güneşi izledi. Işık, gölge ve ağaç." — birebir doğru (önce/sonra aynı).
+- **mammoth:** elle üretilmiş .docx → "Mihenk docx sınaması: ğüşıöç İĞÜŞÖÇ / İkinci
+  paragraf." (önce/sonra aynı).
+- **CSP ihlali:** 0. **Konsol hatası:** uygulamadan 0; görünen tek satırlar test
+  düzeneğinin kendisi (bilerek engellenen `/api/ai/status` ve Python sunucusunun
+  `404.html` sunmadığı olmayan-yol denemesi) — önce/sonra aynı.
+- `npm test` 20 dosya, 413/413. `tsc --noEmit` temiz. `ozkontrol-dogrula` 522 ad %100.
+- `gorsel-fark --dolu`, taban main 244f1a5: **38 ekranın 38'inde fark %0,000**;
+  konsol hatası, yinelenen id, taşma 0. Font dosyaları Google'ın sunduğuyla aynı olduğu
+  için piksel farkı beklenmiyordu ve çıkmadı.
+
+**Ölçülmedi / açık riskler:**
+- Canlı Cloudflare'de denenmedi (push/deploy yok). Cloudflare'in `.mjs` ve `.gz`
+  içerik türleri yerel sunucudan farklı olabilir; Tesseract `.gz`'yi kendisi açar
+  (sihirli bayt denetimi), ama yayından sonra OCR bir kez canlıda denenmeli.
+- `privacy-policy.html`, `mimari.html`, `404.html` eskiden Source Sans 3'ü 400–600
+  istiyordu; artık 700 yüzü de tanımlı (aynı değişken dosya). Bu sayfalarda 700
+  kullanan Source Sans metni varsa sahte kalın yerine gerçek 700 çizilir; `gorsel-fark`
+  bu sayfaları çekmediği için ölçülmedi.
+- `tesseract.min.js`/`worker.min.js` sonunda `sourceMappingURL` var, .map dosyaları
+  kopyalanmadı: yalnız DevTools açıkken 404 görülür, uygulamayı etkilemez.
+- Tesseract dil verisini IndexedDB'de `./tur.traineddata` anahtarıyla saklar (yoldan
+  bağımsız, worker.min.js'te görüldü); daha önce OCR yapmış tarayıcı eski önbelleği
+  kullanır. Dosya aynı olduğu için sorun beklenmez.
+- Yeni paket sürümü gerekirse: yeni `vendor/<paket>@<sürüm>/` klasörü + `app.js`/
+  `mimari.js` yolu + SHA256SUMS güncellenir; aralık (`@11`) bilerek yok.

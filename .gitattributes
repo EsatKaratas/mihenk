@@ -17,6 +17,9 @@
 # İkili dosyalar dönüştürülmez.
 *.png binary
 *.pdf binary
+# Üçüncü taraf dağıtım dosyaları (PROGRESS §87) bayt bayt korunur: satır sonu
+# dönüştürülmez, böylece public/vendor/SHA256SUMS her makinede tutar.
+public/vendor/** -text
 
 # Linguist dil istatistiği düzeltmesi.
 #
