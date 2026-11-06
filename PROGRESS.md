@@ -10972,3 +10972,90 @@ tükendi, zaman aşımında rezerv kalır, usage yokken metin tahmini + log, **b
 kapattığı için). Öz-kontrol listesine `aiGunlukKapaliMetni`, `aiElleDevam`, `aiButceYenile`,
 `aiButceMetni`, `aiButceIpucu` eklendi (W6 P1; `tools/ozkontrol-dogrula.mjs` çıkış 0).
 `npm test` 563/563, `tsc --noEmit` temiz, `check:config` iki yapılandırmada GEÇERLİ.
+
+## 94. DEMO ŞERİDİ — TIKLANABİLİR ADIMLAR (6 Kasım 2026, W9, dal `demo-tiklanir`)
+
+§72'deki şerit yalnız şu anki adımı gösteriyordu ("Adım n/5"). Yalnız ileri gidilebiliyordu, o da `hazir()` koşulu sağlandıysa. Şimdi
+beş adım `<nav aria-label="Demo adımları"><ol>` içinde yerel düğmeler olarak duruyor.
+
+- **Adıma tıklamak yalnız `demoAdimaGit(no)` çalıştırır**, yani rol ve sekmeyi değiştirir.
+  Onay, yayın ve bitirme hiçbir koşulda otomatik yapılmaz (agents.md §1). Tıklama tohumu yeniden yüklemez.
+- **Açılma kuralı** (`demoAdimDurumu`, saf fonksiyon): n. adım, daha önce ulaşıldıysa (`n ≤ state.demoEnUzak`)
+  ya da 1..n-1 adımlarının hepsinde `hazir()` doğruysa açılır. Geriye her zaman gidilir. İleriye
+  ancak önceki insan eylemleri yapıldıysa gidilir. Gezinme veri yazmaz; ekran her zaman gerçek
+  durumu gösterir, bu yüzden adım atlanınca tutarsızlık oluşmaz.
+- `demoEnUzak` kalıcı değildir (`KALICI_ALANLAR`'da yok). `loadDemoScenario` onu 1 yapar, `demoBitir`
+  null yapar. Sıfırla zaten sayfayı yeniden yüklüyor, bu yüzden çakışma yok.
+- **Durumlar:** şu anki adım `aria-current="step"` ve altın dolguyla gösterilir; tamamlanan ✓, --success çerçeve ve
+  "tamamlandı" yazısıyla; açılabilen adım --accent2 çerçeveyle; kilitli adım kesikli çizgi ve `aria-disabled` ile
+  (disabled değil, §64b). Kilitli adımın nedeni `aria-describedby` ile okunur. Kilitli adıma tıklanınca ya da
+  Enter'a basılınca sessiz kalınmaz: mevcut kilit metni duyurulur ("Adım 4 kilitli. Önce …").
+  Duyuru bölgesi (`#demoDuyuru`, role=status) şeridin dışında ve kalıcıdır. Adım değişimi de
+  duyurulur. Şerit yeniden çizilince odak aynı adım düğmesine geri konur.
+- Yalnız şu anki adımın adı yazılır (≤1100 px'te o da yazılmaz); diğerleri numara dairesidir. Ad
+  aria-label ve title'da durur. 760 px ve altında (kabuk.css `@media (max-width: 760px)` bloğu) "Demo Akışı" rozeti görsel olarak gizlenir.
+  Dokunma hedefi 28 px (≤1100 px'te 24 px, WCAG 2.5.8).
+- Dokunulan dosyalar yalnız şunlar: demo şeridi aralığı (app.js `loadDemoScenario` sonu,
+  `DEMO_ADIMLARI.kisaAd`, `demoAdimaGit`…`renderDemoSerit`), `state.demoEnUzak`, öz-kontrol listesi;
+  app.css'te şerit kuralları; kabuk.css'te 760 px bloğundaki şerit kuralları. Şeridin dışında üst çubuğa dokunulmadı.
+
+**Ölçüm** (statik sunucu, `/api` engelli; her adıma doğrudan geçildi, kilit metni görünür; px):
+
+| Genişlik | Önce: üst çubuk (adım 1–5) | Sonra: üst çubuk (adım 1–5) | Önce şerit | Sonra şerit |
+|---|---|---|---|---|
+| 1280 | 126 · 120 · 126 · 126 · 119 | 126 · 120 · 126 · 126 · 119 | 56/50/56/56/49 | aynı |
+| 768 | 166 · 166 · 166 · 184 · 126 | 184 · 166 · 166 · 166 · 126 | 96/96/96/114/56 | 114/96/96/96/56 |
+| 390 | 171 · 171 · 171 · 191 · 171 | 178 · 178 · 178 · 199 · 178 | 109/109/109/129/109 | 116/116/116/137/116 |
+
+Yatay taşma her genişlikte 0. 390 px'te +7/+8 px oluyor: 24 px'lik dairelerin satırı, eski "Adım n/5" yazısının
+satırından yüksek. 768 px'te adım 1 +18, adım 4 −18. İlk denemelerde ölçülüp geri alınanlar:
+- bütün adların yazılması: 1280'de şerit 56 → 96;
+- 390 px'te rozetin görünmesi: kilit metni ayrı satıra iniyor, şerit 109 → 139.
+
+**Kontrast** (hesaplanmış renklerle, şerit zemini üzerinde; açık / koyu tema):
+- şu anki adımın metni: 5,75 / 7,77 (dolgu üstünde --surface; koyu temada beyaz yerine koyu
+  metin, çünkü turuncu üstünde beyaz yetersiz kalırdı)
+- dolgu sınırı: 4,92 / 6,55
+- ✓ ve tamamlanan sınır: 5,50 / 5,71
+- açılabilen adım sınırı: 4,92 / 6,55; metni: 10,77 / 12,88
+- kilitli adım metni ve sınırı: 4,96 / 6,42
+
+Metin değerlerinin hepsi ≥4,5, sınırların hepsi ≥3. Koyu tema `data-theme="dark"` ile ölçüldü; ürün açık temaya sabit.
+Not: mevcut "Demo Akışı" rozeti koyu temada turuncu üstünde beyaz yazıyor; bu §38'den kalma ve
+bu işin kapsamında değil.
+
+**Doğrulama:**
+- `npm test`: 551 test, 26 dosya. Yeni `test/demo-serit.test.ts` 13 test içeriyor: saf kural ve HITL kaynak denetimi.
+- Lint temiz. Öz-kontrol 546 ad, kapsama %100.
+- `demo-yuru.mjs` 1280 ve 390 px'te 5/5 geçti; konsol hatası 0.
+- `kontroller.mjs` 1280 ve 390 px'te 28/28 geçti.
+- W9 betiği 1280 ve 390 px'te 32/32 geçti, gerçek tıklama ve tuşlarla. Denetlenenler:
+  - kilitli adıma tıklama ve Enter duyuruluyor; rol de veri de değişmiyor;
+  - 1 tamamlanınca 2 açılıyor, 3 kapalı kalıyor;
+  - Enter ile adıma geçiliyor, odak geri konuyor;
+  - 5 → 2 geri ve 2 → 5 ileri gezinme veri yazmıyor;
+  - kontrast denetimi geçiyor.
+- Model çağrısı 0.
+
+### 94b (W9) — W10 doğrulaması sonrası: kilit uyarısı görünür, iki kapsam notu
+
+W10, `demo-tiklanir` dalını doğruladı: GEÇTİ, P1 yok. Üç madde kapatıldı:
+
+- **P2, kilitli adım görsel olarak sessizdi.** Şu anki adım hazırken şeritte kilit metni yoktu. Kilitli adıma
+  tıklanınca ya da Enter'a basılınca yalnız aria-live duyurusu oluyordu; ekranda hiçbir şey değişmiyordu,
+  dokunmatikte title da görünmüyordu. Şimdi `demoKilitUyar(no)` kilit metninin yerinde
+  "Adım 3 kilitli: Önce sınavı yayınlayın" uyarısını gösteriyor (`.demo-kilit-uyari`: gövde rengi,
+  kalın yazı, altın sol çizgi). Uyarı 6 sn (`DEMO_KILIT_UYARI_MS`) ya da adım değişene kadar duruyor.
+  aria-live duyurusu kaldı. Uyarı state'e yazılmıyor, yalnız modül değişkeninde duruyor; `demoAdimaGit`
+  (adım değişince), `demoBitir` ve `loadDemoScenario` onu temizliyor.
+  - Ölçüm (gerçek tıklama ve Enter, adım 1 hazır, 3 ve 4 kilitli): 1280 px'te şerit 56 → 56 px,
+    390 px'te 116 → 116 px. Uyarı kilit metninin satırına yerleşiyor, yükseklik değişmiyor.
+    6 sn sonra uyarı kalkıyor, yükseklik geri dönüyor; konsol hatası 0. Uzun kilit metni
+    (adım 4'ün nedeni) gösterildiğinde yükseklik, kilitli adım düzeninin ölçülen değeri kadar
+    olur (390 px'te 137 px).
+- **P3, bilinçli istisna (kabul):** ulaşılmış bir adım, ilgili `hazir()` koşulu sonradan bozulsa da açık kalır.
+  Örnek: adım 1'e dönüp yeni soru üretilirse adım 2–4 kilitlenmez. Gerekçe: gezinme veri yazmıyor,
+  ekran her zaman gerçek durumu gösteriyor. Geri dönüşü kilitlemek demoyu sunum ortasında kırardı.
+- **P3, kapsam notu:** yukarıdaki "560 px" ifadeleri gerçeğe göre "760 px bloğu" olarak düzeltildi. Şerit
+  kuralları kabuk.css'teki `@media (max-width: 760px)` bloğunda.
+- Doğrulama: `test/demo-serit.test.ts` 14 test (+1: uyarı görünür, süreli, temizlenir, veri yazmaz).

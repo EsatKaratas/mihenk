@@ -205,6 +205,16 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
   .kabuk-ust .demo-serit .demo-kilit { order: 1; font-size: var(--fs-1); }
   .kabuk-ust .demo-serit .demo-dugmeler { order: 3; flex: 1 1 100%; }
   .kabuk-ust .demo-serit .demo-dugmeler .btn { flex: 1 1 auto; padding: var(--sp-1) var(--sp-2); }
+  /* §94 (W9) — tıklanabilir adımlar "Adım n/5" yazısından ~180 px geniş;
+     rozet + adımlar + kilit 390'da tek satıra sığmıyor, şerit 109 → 139 px
+     oluyordu (ölçüldü). Dar ekranda rozet ve şu anki adımın adı görsel olarak
+     düşer: altın şerit + numaralı adımlar demoyu zaten belirtiyor, açıklama
+     satırı rol adıyla başlıyor; ikisi de erişilebilir adda kalır. */
+  .kabuk-ust .demo-serit .demo-rozet { display: none; }
+  .kabuk-ust .demo-serit .demo-adim-btn.is-simdiki { padding: 2px; }
+  .kabuk-ust .demo-serit .demo-adim-btn.is-simdiki .demo-ad { display: none; }
+  .kabuk-ust .demo-serit .demo-adim-btn { min-height: 24px; padding: 1px; }   /* WCAG 2.5.8: ≥24 px */
+  .kabuk-ust .demo-serit .demo-kilit { max-width: none; }
   .kb-rol-liste { min-width: 0; width: min(calc(var(--sp-8) * 10), calc(100vw - var(--sp-6))); }
 }
 
