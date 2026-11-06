@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- §45: favicon YOKTU. Tarayıcı her sayfa açılışında /favicon.ico ister;
+       ölçüldü: canlıda 404 dönüyordu ve sekmede ikon çıkmıyordu (jüri
+       ekranında görünen bir eksik). Logo zaten depoda, ayrı bir dosya
+       üretmeye gerek yok. -->
+  <link rel="icon" href="/mihenk-logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="/mihenk-logo.png">
+<title>Veriniz Nereye Gider? — Mihenk</title>
+<link rel="stylesheet" href="/vendor/fonts/fonts.css">
+<style>
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e2e8f2;
+    --text: #131a26;
+    --text-muted: #505a6b;
+    --border: #dde3ed;
+    --border-strong: #b9c2d4;
+    --accent: #2e4c8a;
+    --accent-strong: #1f3766;
+    --accent-soft: #dee7f7;
+    --accent2: #9a5410;
+    --accent2-soft: #fdeadb;
+    --success: #256b44;
+    --success-soft: #deefe4;
+    --shadow: 0 1px 2px rgba(20,30,60,0.06), 0 8px 24px rgba(20,30,60,0.05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --text: #e8ebf3; --text-muted: #8d96ad;
+      --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+      --accent-soft: #1c2a4a; --accent2: #F2994A; --accent2-soft: #3a2410;
+      --success: #4fb488; --success-soft: #163526;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0f18; --surface: #131826; --surface-2: #1a2033; --text: #e8ebf3; --text-muted: #8d96ad;
+    --border: #262d42; --border-strong: #333c58; --accent: #7ea0e8; --accent-strong: #a9c2f2;
+    --accent-soft: #1c2a4a; --accent2: #F2994A; --accent2-soft: #3a2410;
+    --success: #4fb488; --success-soft: #163526;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  h1, h2, h3 { font-family: "Archivo", sans-serif; font-weight: 700; text-wrap: balance; margin: 0; color: var(--text); }
+  a { color: var(--accent-strong); }
+  a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  .shell { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0,1fr); }
+  .sidebar { padding: 40px 20px 40px 32px; position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; }
+  .sidebar .eyebrow { font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: block; }
+  .sidebar h2.doc-title { font-size: 16px; margin-bottom: 20px; }
+  nav.toc { display: flex; flex-direction: column; gap: 1px; }
+  nav.toc a { display: flex; gap: 8px; padding: 6px 8px; border-radius: 6px; color: var(--text-muted); font-size: 13px; text-decoration: none; }
+  nav.toc a:hover { background: var(--surface-2); color: var(--text); }
+  nav.toc a .num { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); flex: none; width: 18px; }
+
+  main { padding: 40px 32px 100px; min-width: 0; }
+  .doc-head { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .doc-head h1 { font-size: 26px; }
+  .doc-head .meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 12.5px; color: var(--text-muted); }
+  .doc-head .meta .mono { color: var(--accent-strong); }
+
+  .callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border-radius: 10px;
+    background: var(--accent2-soft); border: 1px solid var(--accent2);
+    margin-bottom: 32px; font-size: 14px;
+  }
+  .callout .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-top: 6px; flex: none; }
+
+  article section { margin-bottom: 34px; scroll-margin-top: 20px; }
+  article section h2 {
+    font-size: 17px; display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px;
+  }
+  article section h2 .n {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent);
+    border: 1px solid var(--border-strong); padding: 1px 7px; border-radius: 5px; background: var(--surface);
+  }
+  article section p, article section li { color: var(--text); font-size: 14.5px; max-width: 74ch; }
+  article section p { margin: 0 0 10px; }
+  article section ul { margin: 0 0 10px; padding-left: 22px; }
+  article section li { margin-bottom: 4px; }
+  .fill { background: var(--surface-2); border-radius: 4px; padding: 0 4px; font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent-strong); }
+
+  .hitl-box {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent2);
+    border-radius: 8px; padding: 14px 16px; box-shadow: var(--shadow); margin: 12px 0;
+  }
+  .hitl-box .tag { font-size: 11px; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+
+  .rights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; margin: 10px 0 6px; }
+  .right-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--surface); font-size: 13.5px; }
+  .right-card b { display: block; font-size: 13px; color: var(--accent-strong); margin-bottom: 2px; }
+
+  .consent-demo {
+    margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--border);
+  }
+  .consent-demo h2 { font-size: 15px; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .consent-preview {
+    border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 16px; box-shadow: var(--shadow); max-width: 420px;
+  }
+  .consent-preview label { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--text-muted); }
+  .consent-preview input { margin-top: 2px; }
+  .consent-preview button {
+    margin-top: 14px; width: 100%; padding: 10px; border-radius: 7px; border: none;
+    background: var(--accent-strong); color: #fff; font-family: "Source Sans 3", sans-serif; font-weight: 600; font-size: 13.5px; cursor: pointer;
+  }
+  pre.snippet { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 12px; overflow-x: auto; margin-top: 14px; }
+
+  footer.colophon { margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; padding: 20px; }
+    main { padding: 24px 18px 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <span class="eyebrow">Örnek Belge</span>
+    <h2 class="doc-title">Veriniz Nereye Gider?</h2>
+    <nav class="toc">
+      <a href="#v1"><span class="num">1</span> Kısa Cevap</a>
+      <a href="#v2"><span class="num">2</span> Tarayıcıda Kalanlar</a>
+      <a href="#v3"><span class="num">3</span> Yapay Zekâya Gidenler</a>
+      <a href="#v4"><span class="num">4</span> Ad Maskeleme: Kapsam</a>
+      <a href="#v5"><span class="num">5</span> Ad Maskeleme: Sınırlar</a>
+      <a href="#v6"><span class="num">6</span> "YZ: İzin Yok" Ayarı</a>
+      <a href="#v7"><span class="num">7</span> CSP Ne Gösterir?</a>
+      <a href="#v8"><span class="num">8</span> Kendiniz Doğrulayın</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="doc-head">
+      <h1>Veriniz Nereye Gider?</h1>
+      <div class="meta">
+        <span>Sürüm <span class="mono">0.1 (taslak)</span></span>
+        <span>Tarih: <span class="mono">06.11.2026</span></span>
+        <span>Ayrıntılı metin: <a href="/privacy-policy">Gizlilik Politikası ve KVKK Aydınlatma Metni</a></span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="dot"></span>
+      <div>Bu sayfa, Mihenk'te hangi verinin cihazınızda kaldığını ve hangisinin <b>yurt dışına gittiğini</b>
+      kısa ve dürüst biçimde anlatır. <b>"Her şey cihazınızda kalır" demiyoruz, çünkü doğru değil:</b>
+      yapay zekâ düğmelerine bastığınızda ve öğrenci açık uçlu soru içeren bir sınavı bitirdiğinde ilgili metin
+      Cloudflare'in yapay zekâ hizmetine (ABD) gönderilir.
+      Bu sayfa bir aydınlatma metni değildir; hukuki bilgi için
+      <a href="/privacy-policy">Gizlilik Politikası</a>'na bakın.</div>
+    </div>
+
+    <article>
+      <section id="v1">
+        <h2><span class="n">1</span> Kısa Cevap</h2>
+        <ul>
+          <li><b>Kayıtlar tarayıcıda kalır.</b> Sınıf listesi, cevaplar, puanlar ve karar günlüğü yalnız
+          kullandığınız tarayıcıda saklanır. Mihenk'in veritabanı yoktur; sunucu bu kayıtları saklamaz.</li>
+          <li><b>Yapay zekâ çağrıları dışarı çıkar.</b> Soru üretirken verdiğiniz <b>kaynak metin</b> (ya da
+          yönerge) ve puan önerisi isterken <b>öğrencinin cevap metni</b>, Mihenk sunucusu üzerinden
+          <b>Cloudflare Workers AI</b>'ya iletilir. Bu hizmeti Cloudflare, Inc. (Amerika Birleşik Devletleri)
+          sağlar. KVKK açısından bu gönderim <b>yurt dışına aktarım</b> sayılır.</li>
+          <li><b>Öğrencinin adı gönderilmez.</b> Ad, soyad, sınıf, okul ve sistem içi kimlik istek gövdesine
+          konmaz. Cevap metninin içinde geçen kayıtlı adlar da maskelenir. Ama maskeleme her adı yakalayamaz
+          (bkz. bölüm 5).</li>
+          <li><b>Sayfayı açmak bile bir bağlantıdır.</b> Site Cloudflare'de barındırılır. Her sayfa açılışında
+          tarayıcınızın IP adresi ve tarayıcı bilgisi Cloudflare'e ulaşır. Başka bir üçüncü taraf (yazı tipi,
+          kütüphane ya da analitik sunucusu) çağrılmaz (bkz. bölüm 7).</li>
+        </ul>
+      </section>
+
+      <section id="v2">
+        <h2><span class="n">2</span> Tarayıcıda Kalanlar</h2>
+        <p>Aşağıdakiler cihazınızdaki tarayıcının deposunda (<code>localStorage</code> ve
+        <code>IndexedDB</code>) tutulur. Sunucuya hiç gönderilmez.</p>
+        <ul>
+          <li>Öğrenci listesi: ad-soyad, sınıf-şube, "YZ: izin var / izin yok" ayarı.</li>
+          <li>Sınavlar, soru havuzu, rubrikler, öğrenci cevapları ve öğretmenin nihai puanları.</li>
+          <li>Yapay Zekâ Karar Günlüğü: hangi öneriye ne karar verildiği. Bu günlükte öğrenci adı yok.</li>
+          <li>Müfredat Kitaplığı: yüklenen PDF ve Word dosyalarından çıkarılan metin. Dosyalar tarayıcıda
+          açılır, taranmış sayfalar da tarayıcıda OCR ile okunur. <b>Dosyanın kendisi sunucuya
+          gönderilmez.</b></li>
+          <li>Dışa aktarılan dosyalar (CSV, e-Okul puan tablosu) doğrudan cihazınıza iner. İndirdikten
+          sonra bu dosyalar sizin sorumluluğunuzdadır, çünkü öğrenci adı içerebilir.</li>
+        </ul>
+        <div class="hitl-box">
+          <span class="tag">Dikkat: "tarayıcıda" ne demek</span>
+          Tarayıcı verisi o cihazdaki herkesin erişimine açıktır. Hesap ve şifre yoktur. Ortak okul
+          bilgisayarında işiniz bitince "Verileri sıfırla" düğmesini kullanın ya da tarayıcı verisini silin.
+          Tarayıcı verisi temizlenirse kayıtlar geri getirilemez; sunucuda yedeği yoktur.
+        </div>
+      </section>
+
+      <section id="v3">
+        <h2><span class="n">3</span> Yapay Zekâya (Yurt Dışına) Gidenler</h2>
+        <p>Yapay zekâ isteklerinin hepsi aynı yoldan gider: tarayıcı → Mihenk sunucusu
+        (<code>/api/ai/…</code>, Cloudflare Workers) → Cloudflare Workers AI (Meta Llama modelleri).
+        Her işlemde gönderilen metin şunlardır:</p>
+        <ul>
+          <li><b>Soru üretimi:</b> kaynak metin <b>ya da</b> öğretmenin yazdığı yönerge, ders, sınıf, kazanım
+          kodu ve metni, istenen soru sayısı. <b>Bu metin maskelenmez.</b> Kaynak metne sınıf listesi
+          ya da öğrenci adı yapıştırmayın.</li>
+          <li><b>Puan önerisi:</b> soru metni, rubrik ölçütleri, kazanım ve <b>öğrencinin cevap metni</b>.
+          Cevaptaki kayıtlı adlar gönderimden önce maskelenir. Bu istek, öğrenci açık uçlu soru içeren
+          sınavı bitirdiğinde <b>kendiliğinden</b> gider; öğretmenin ayrıca düğmeye basması gerekmez.
+          İzni olmayan öğrencinin cevabı gönderilmez (bkz. bölüm 6).</li>
+          <li><b>Kavram yanılgısı analizi:</b> soru, kazanım ve sınıftaki cevap metinleri (maskeli). İzni
+          olmayan öğrencinin cevabı bu analize girmez.</li>
+          <li><b>Rubrik taslağı, örnek cevaplar, kazanım uyum denetimi, bağımsız çözüm:</b> yalnız soru metni,
+          şıklar, cevap anahtarı ve kazanım. Bu isteklerde öğrenci verisi yoktur.</li>
+        </ul>
+        <p><b>Mihenk sunucusu ne saklar?</b> İstek gövdesini saklamaz. İşletim kaydına (Workers Logs) uç adı,
+        model, istem uzunluğu ve başarı gibi teknik bilgiler yazılır. Bir model hatasında kısa bir hata
+        iletisi de yazılır. Bu ileti model çıktısından kısa bir parça içerebilir.</p>
+        <p><b>Cloudflare ne saklar?</b> Cloudflare'in beyanına göre Workers AI müşteri içeriğini izin almadan
+        model eğitiminde kullanmaz ve ayrı bir depolama ürünü eklenmedikçe saklamaz
+        (<a href="https://developers.cloudflare.com/workers-ai/platform/privacy/" rel="noopener" target="_blank">Workers AI — Privacy</a>).
+        Bu bir sağlayıcı beyanıdır; Mihenk bunu bağımsız olarak doğrulamadı. Ücretsiz katmanda
+        sağlayıcıyla KVKK standart sözleşmesi imzalanmamıştır. Bu yüzden pilotta veliden ayrı bir
+        aktarım rızası öngörülmüştür.</p>
+      </section>
+
+      <section id="v4">
+        <h2><span class="n">4</span> Ad Maskeleme: Neyi Kapsar?</h2>
+        <p>Öğrenci cevabına kendi adını ya da bir arkadaşının adını yazmış olabilir. Bu yüzden cevap iki
+        katmanda temizlenir:</p>
+        <ul>
+          <li><b>Tarayıcıda, gönderimden önce:</b> sınıf listesinde kayıtlı adlar <code>[ÖĞRENCİ]</code>,
+          "okul numaram 123" ya da "no: 57" gibi ifadeler <code>[NUMARA]</code> olur. Türkçe büyük-küçük
+          harf, ş/s, ı/i gibi klavyesiz yazımlar ve ekler ("Ayşe'nin", "ayşenin") de yakalanır.</li>
+          <li><b>Sunucuda, ikinci katman:</b> "benim adım …", "Ad Soyad: …" gibi açık tanıtım kalıpları
+          maskelenir. İstekte ad, soyad, okul numarası, sınıf gibi bir alan adı varsa istek reddedilir ve
+          modele hiç gitmez.</li>
+          <li>Maskeleme olduğunda öğretmen ekranında "Ad bilgisi yapay zekâya gönderilmedi" notu görünür.
+          Ekrandaki ve cihazdaki cevap değişmez.</li>
+        </ul>
+        <p>Kapsam: puan önerisine giden öğrenci cevabı ve yanılgı analizine giden cevaplar.</p>
+      </section>
+
+      <section id="v5">
+        <h2><span class="n">5</span> Ad Maskeleme: Neyi Kapsamaz?</h2>
+        <ul>
+          <li><b>Listede olmayan adlar:</b> aile üyeleri, öğretmenler, başka okuldan kişiler maskelenmez.</li>
+          <li><b>Dolaylı ayrıntılar:</b> mahalle, yaşanan bir olay, bir yakının mesleği gibi kişiyi
+          tanıtabilecek ayrıntılar maskelenmez.</li>
+          <li><b>Sözcük olan adlar:</b> Deniz, Ada, Ege, Elif gibi aynı zamanda sözcük olan adlar, yalnız
+          tek başına geçtiklerinde ancak büyük harf ve kesme işaretiyle yazılmışsa ("Deniz'in")
+          maskelenir. Ad ve soyad birlikte yazıldığında her biçimde maskelenir. Listede olmayan
+          sözcük-adlar yanlışlıkla maskelenebilir ve puanı etkileyebilir.</li>
+          <li><b>Soru üretimindeki kaynak metin ve yönerge:</b> hiç maskelenmez (bkz. bölüm 3).</li>
+        </ul>
+        <div class="hitl-box">
+          <span class="tag">Sonuç</span>
+          Maskeleme bir <b>anonimleştirme değildir</b>. Çocukların serbest yazdığı metin kişisel veri
+          sayılabilir. Bu nedenle cevap metni, yurt dışına aktarılan kişisel veri gibi ele alınır.
+        </div>
+      </section>
+
+      <section id="v6">
+        <h2><span class="n">6</span> "YZ: İzin Yok" Ayarı</h2>
+        <p>Öğretmen, Öğrenciler listesinde her öğrenci için "YZ: izin yok" seçebilir. Bu ayar açıkken:</p>
+        <ul>
+          <li>Öğrencinin cevabı <b>hiçbir yapay zekâ isteğine girmez</b>: ne puan önerisine ne yanılgı
+          analizine.</li>
+          <li>Cevap kuyrukta "Elle değerlendirilecek" olarak görünür ve öğretmen elle puanlar. Öğrenci bundan
+          dezavantajlı duruma düşmez.</li>
+          <li><b>Sınır:</b> izin sonradan kapatılırsa, daha önce gönderilmiş cevaplar geri alınamaz.</li>
+        </ul>
+      </section>
+
+      <section id="v7">
+        <h2><span class="n">7</span> CSP <code>connect-src 'self'</code> Ne Gösterir, Ne Göstermez?</h2>
+        <p>Site her sayfayla birlikte bir İçerik Güvenliği Politikası (Content-Security-Policy) başlığı
+        gönderir. İlgili kısımlar şunlardır:</p>
+        <pre class="snippet"><span class="mono">connect-src 'self' data:
+script-src 'self' 'wasm-unsafe-eval'
+font-src 'self'
+form-action 'none'</span></pre>
+        <p><b>Ne gösterir:</b></p>
+        <ul>
+          <li>Tarayıcı, sayfanın kodunun <b>yalnız Mihenk'in kendi adresine</b> veri göndermesine izin verir.
+          (<code>data:</code> bir ağ adresi değildir; tarayıcının kendi içinde ürettiği veridir.) Sayfa
+          kodu başka bir sunucuya, örneğin bir analitik ya da reklam hizmetine istek atamaz. Atmaya
+          çalışırsa tarayıcı isteği engeller.</li>
+          <li>Betikler ve yazı tipleri de yalnız Mihenk'in kendi adresinden yüklenir. Kütüphaneler ve yazı
+          tipleri sitenin içinde barındırılır (Google Fonts ya da jsDelivr çağrılmaz).</li>
+          <li>Sayfada hiçbir form başka bir adrese gönderilemez.</li>
+        </ul>
+        <p><b>Ne göstermez:</b></p>
+        <ul>
+          <li><b>Sunucunun veriyi nereye ilettiğini göstermez.</b> CSP yalnız tarayıcıyı sınırlar.
+          <code>/api/ai/…</code> isteği Mihenk'in kendi adresine gider (bu yüzden <code>'self'</code>
+          izin verir); oradan Cloudflare Workers AI'ya iletilmesi sunucuda olur ve CSP'nin kapsamı
+          dışındadır. Yani <code>connect-src 'self'</code>, "veri yurt dışına çıkmaz" demek
+          <b>değildir</b>.</li>
+          <li>Barındırma sağlayıcısının (Cloudflare) bağlantı bilgilerini (IP adresi gibi) görmesini
+          engellemez.</li>
+          <li>Sizin bağlantıya tıklayarak başka bir siteye gitmenizi engellemez. Bu sayfadaki Cloudflare
+          bağlantısı yeni sekmede açılan normal bir bağlantıdır.</li>
+        </ul>
+      </section>
+
+      <section id="v8">
+        <h2><span class="n">8</span> Kendiniz Doğrulayın</h2>
+        <ul>
+          <li>Tarayıcıda geliştirici araçlarını açın (F12) → <b>Ağ</b> (Network) sekmesi. Bir yapay zekâ
+          düğmesine basın. Giden istek <code>/api/ai/…</code> adresine yapılan bir POST'tur. "Yük"
+          (Payload) bölümünde tam olarak ne gönderildiğini görürsünüz.</li>
+          <li><b>Yanıt Başlıkları</b> (Response Headers) bölümünde <code>Content-Security-Policy</code>
+          satırını görebilirsiniz.</li>
+          <li>Elle soru yazıp yapay zekâ düğmelerine basmadığınızda <code>/api/ai/…</code> POST isteği
+          görmemeniz gerekir. İki istisna vardır: öğrenci açık uçlu soru içeren bir sınavı bitirdiğinde
+          puan önerisi isteği kendiliğinden gider ("YZ: izin yok" öğrenciler hariç), ve sayfa yapay
+          zekânın durumunu ve günlük kotasını öğrenmek için kişisel veri içermeyen GET istekleri atar.
+          Bunların dışında bir istek görürseniz lütfen bildirin:
+          <span class="fill">[iletişim e-postası]</span>.</li>
+        </ul>
+      </section>
+    </article>
+
+    <footer class="colophon">
+      T3 Vakfı Creathon — Problem 2 · Bu sayfa taslaktır ve hukuki görüş değildir. Hukuki çerçeve:
+      <a href="/privacy-policy">Gizlilik Politikası ve KVKK Aydınlatma Metni</a>.
+    </footer>
+  </main>
+</div>
+</body>
+</html>
