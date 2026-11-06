@@ -99,10 +99,27 @@ export const ISTEK_BASINA_CAGRI_TAVANI = 3;
 const BIRINCIL_CAGRI_TAVANI = 2;
 const YEDEK_CAGRI_TAVANI = 1;
 
+/** §93: kancaya verilen çağrı bilgisi (bütçe rezervi bununla hesaplanır). */
+export type CagriBilgisi = { provider: string; model: string; istemKarakter: number; maxTokens: number };
+
 export type CagriKancasi = {
-  cagriOncesi?: () => Promise<void>;
+  cagriOncesi?: (b: CagriBilgisi) => Promise<void>;
+  /** 3036: model iş yapmadı (adres hakkı ve bütçe rezervi iade; gün "tükendi"). */
   kotaIade?: () => Promise<void>;
+  /** §93: dakikalık hız hatası: model iş yapmadı, bütçe rezervi iade. */
+  hizIade?: () => Promise<void>;
+  /** §93: başarılı çağrı; `kullanim` Workers AI'ın token sayıları (yoksa null),
+      `cikisKarakter` yanıt metninin uzunluğu (usage yoksa tahmin için). */
+  cagriSonrasi?: (b: CagriBilgisi, kullanim: { prompt_tokens?: number; completion_tokens?: number } | null, cikisKarakter: number) => Promise<void>;
 };
+
+/** §93: hesap düzeyi tahmini Neuron bütçesi eşikte: zincir durur, yedeğe geçilmez. */
+export class AiButceHatasi extends Error {
+  constructor(public readonly esik: number, public readonly tahmini: number) {
+    super(`Günlük tahmini Neuron bütçesi doldu (${tahmini}/${esik})`);
+    this.name = 'AiButceHatasi';
+  }
+}
 
 /** Günlük IP sınırı doldu: zincir durur, yedeğe geçilmez. */
 export class AiGunlukSinirHatasi extends Error {
@@ -359,7 +376,11 @@ export function modelName(env: AiEnv): string {
  * bazı Workers AI modelleri `response` alanında zaten ayrıştırılmış bir nesne
  * döndürür (String(...) uygulanırsa "[object Object]" olur ve JSON.parse patlar).
  */
-async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise<string | object> {
+async function callModel(
+  env: AiEnv, prompt: string, opts: CallOptions,
+  // §93: Workers AI yanıtındaki token kullanımı (Neuron bütçesi için); yoksa null.
+  kullanimBildir?: (u: { prompt_tokens?: number; completion_tokens?: number } | null) => void
+): Promise<string | object> {
   const provider = providerName(env);
   const model = modelName(env);
   const temperature = opts.temperature ?? 0.4;
@@ -377,6 +398,7 @@ async function callModel(env: AiEnv, prompt: string, opts: CallOptions): Promise
     const res: any = gw
       ? await env.AI.run(model as any, girdi as any, gw)
       : await env.AI.run(model as any, girdi as any);
+    kullanimBildir?.(res?.usage ?? res?.result?.usage ?? null);
     const r = res?.response ?? res?.result?.response ?? res;
     return typeof r === 'string' ? r : (r as object);
   }
@@ -578,6 +600,8 @@ export async function callModelJson(
   } catch (birincilHata) {
     // Günlük adres sınırı doldu: yedek de bir çağrı olurdu, zincir durur.
     if (birincilHata instanceof AiGunlukSinirHatasi) throw birincilHata;
+    // §93: hesap bütçesi eşikte: yedek de aynı havuzdan yer, zincir durur.
+    if (birincilHata instanceof AiButceHatasi) throw birincilHata;
     const yedek = fallbackEnv(env);
     if (!yedek || !fallbackConfigured(env)) throw birincilHata;
     /* §86: kota bittiyse ve yedek de Workers AI ise yedek AYNI hesabın AYNI
@@ -618,14 +642,25 @@ type CagriHakki = { kalan: number };
 async function callModelHizKorumali(
   env: AiEnv, prompt: string, opts: CallOptions, hak: CagriHakki, kanca?: CagriKancasi
 ): Promise<string | object> {
+  const bilgi: CagriBilgisi = { provider: providerName(env), model: modelName(env), istemKarakter: prompt.length, maxTokens: opts.maxTokens };
   for (let tekrar = 0; ; tekrar++) {
-    if (kanca?.cagriOncesi) await kanca.cagriOncesi();  // AiGunlukSinirHatasi fırlatabilir
+    // AiGunlukSinirHatasi ya da AiButceHatasi fırlatabilir (model çağrılmaz).
+    if (kanca?.cagriOncesi) await kanca.cagriOncesi(bilgi);
     hak.kalan--;
     try {
-      return await callModel(env, prompt, opts);
+      let kullanim: { prompt_tokens?: number; completion_tokens?: number } | null = null;
+      const yanit = await callModel(env, prompt, opts, (u) => { kullanim = u; });
+      if (kanca?.cagriSonrasi) {
+        const cikisKarakter = typeof yanit === 'string' ? yanit.length : JSON.stringify(yanit ?? '').length;
+        await kanca.cagriSonrasi(bilgi, kullanim, cikisKarakter);
+      }
+      return yanit;
     } catch (e) {
       const tur = aiHatasiniSinifla(e);
       const mesaj = e instanceof Error ? e.message : String(e);
+      // §93: hız hatasında model iş yapmadı; bütçe rezervi iade edilir.
+      // Diğer hatalarda (zaman aşımı dahil) rezerv KALIR: bilinen fazla sayım.
+      if (tur === 'hiz' && kanca?.hizIade) await kanca.hizIade();
       if (tur === 'kota') {
         // Kota bitmişken model iş yapmadı: günlük adres hakkı geri verilir.
         if (kanca?.kotaIade) await kanca.kotaIade();

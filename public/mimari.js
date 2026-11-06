@@ -22,7 +22,7 @@ try {
   // Yerel, TAM sürüme sabit kopya (PROGRESS §87). Eskiden jsdelivr'den
   // `mermaid@11` aralığıyla geliyordu; aralık her yeni 11.x'te sessizce
   // değişebiliyordu. 11.17.2 = jsdelivr'in 05.11.2026'da @11 için çözdüğü sürüm.
-  const m = await import('/vendor/mermaid@11.17.2/mermaid.esm.min.mjs');
+  const m = await import('/vendor/mermaid-11.17.2/mermaid.esm.min.mjs');
   const koyu = matchMedia('(prefers-color-scheme: dark)').matches
     && document.documentElement.getAttribute('data-theme') !== 'light';
   m.default.initialize({ startOnLoad: false, theme: koyu ? 'dark' : 'default' });

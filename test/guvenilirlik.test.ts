@@ -15,6 +15,7 @@ import {
   gunlukHakKullan, gunlukSinirDegeri, sayacAdimi, bellekSayaciniSifirla, utcGun, GunlukSayac,
   GUNLUK_SINIR_VARSAYILAN,
 } from '../src/lib/gunluk-sinir';
+import { bellekButcesiniSifirla } from '../src/lib/neuron-butce';
 
 const M70 = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const SCOUT = '@cf/meta/llama-4-scout-17b-16e-instruct';
@@ -63,6 +64,7 @@ const post = (yol: string, g: unknown, env: object, ip?: string) =>
   }, env);
 
 beforeEach(() => {
+  bellekButcesiniSifirla();  // §93: bellek bütçesi testler arasında taşınmasın
   vi.spyOn(console, 'log').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
@@ -448,6 +450,9 @@ describe('§86 madde 4 — IP başına günlük sınır', () => {
     const env1 = { ...zincirEnv(kota.AI), AI_GUNLUK_IP_SINIRI: '1' };
     expect((await post('/api/ai/evaluate', govde(), env1, '203.0.113.11')).status).toBe(503);
     expect((await post('/api/ai/evaluate', govde(), env1, '203.0.113.11')).status).toBe(503);
+    // §93: 3036 günü bütçede "tükendi" işaretler (bkz. neuron-butce.test.ts). Bu
+    // test yalnız ADRES hakkının iadesini sınar; bütçe bayrağı sıfırlanır.
+    bellekButcesiniSifirla();
     const ok = sahteAi({ [M70]: [() => DEGERLENDIRME] });
     const env2 = { ...zincirEnv(ok.AI), AI_GUNLUK_IP_SINIRI: '1' };
     expect((await post('/api/ai/evaluate', govde(), env2, '203.0.113.11')).status).toBe(200);

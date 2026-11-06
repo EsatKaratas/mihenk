@@ -65,3 +65,7 @@ export default app;
    henüz YORUM olarak bekliyor — bağlanmadıkça bu dışa aktarım hiçbir şey
    oluşturmaz ve sayaç bellek içi çalışır. */
 export { GunlukSayac } from './lib/gunluk-sinir';
+
+/* §93 — hesap düzeyi günlük Neuron bütçesi Durable Object sınıfı
+   (bağlama NEURON_BUTCE, migration v2-neuron-butce). */
+export { NeuronButce } from './lib/neuron-butce';

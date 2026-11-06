@@ -23,9 +23,13 @@ import {
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
   fallbackSorunu, saglayiciHazirMi, type AiEnv,
-  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
+  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, AiButceHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
   type CagriKancasi,
 } from '../lib/ai';
+import {
+  butceRezerv, butceKapat, butceDurumu, butceModu, butceEsigi, rezervTahmini, neuronTahmini, metindenTahmin, katsayi,
+  type ButceEnv,
+} from '../lib/neuron-butce';
 import {
   gunlukHakKullan, gunlukHakIade, gunlukSinirDegeri, gunlukSinirModu, type GunlukSinirEnv,
 } from '../lib/gunluk-sinir';
@@ -75,7 +79,7 @@ import {
 
 /* §55: APP_ENV ve iki ölçüm ayarı yalnız `olcumAyarlari()` üzerinden okunur
    (guards.ts — APP_ENV === "olcum" izin listesi; canlıda kapalı). */
-type Bindings = AiEnv & GunlukSinirEnv & { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string };
+type Bindings = AiEnv & GunlukSinirEnv & ButceEnv & { APP_ENV?: string; OLCUM_SICAKLIK?: string; OLCUM_HAM?: string };
 
 // Hız sınırı, kaynak metin tespiti ve sayısal yardımcılar ayrı bir modülde:
 // dışa açık olmadıkları için test edilemiyorlardı (agents.md §6 birim testi
@@ -145,6 +149,19 @@ function modelHatasiYaniti(c: any, e: unknown) {
       503
     );
   }
+  if (e instanceof AiButceHatasi) {
+    // §93: hesap düzeyi tahmini bütçe eşikte; model çağrılmadı. 503 (429 değil):
+    // istemci gün sonuna kadar yeniden denemesin (bkz. yukarıdaki kota notu).
+    console.error(JSON.stringify({ ev: 'gunluk_butce', uc: c.req.path, tahmini: e.tahmini, esik: e.esik }));
+    c.header('Retry-After', String(saniyeUtcGunSonuna()));
+    return c.json(
+      {
+        error: 'gunluk_butce',
+        message: `Bugünkü yapay zekâ bütçesi doldu (tahmini ${e.tahmini.toLocaleString('tr-TR')}/${e.esik.toLocaleString('tr-TR')} Neuron); 03:00'te (TR) yenilenir. O saate kadar yeniden denemek işe yaramaz.`,
+      },
+      503
+    );
+  }
   if (e instanceof AiGunlukSinirHatasi) {
     c.header('Retry-After', String(saniyeUtcGunSonuna()));
     return c.json(
@@ -174,19 +191,57 @@ function modelHatasiYaniti(c: any, e: unknown) {
  * için hak yemez; 3036 (kota bitti) dönen çağrının hakkı İADE edilir.
  * Sınır dolunca AiGunlukSinirHatasi → 429 `gunluk_sinir` (modelHatasiYaniti).
  * `cf-connecting-ip` yoksa (yalnız `app.request` testleri ve olası yerel
- * çalıştırma) günlük sınır UYGULANMAZ: üretimde Cloudflare bu başlığı her
- * isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
+ * çalıştırma) günlük ADRES sınırı uygulanmaz (§93: Neuron bütçesi YİNE
+ * uygulanır): üretimde Cloudflare bu başlığı her isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
  * sürmeye devam eder.
  */
-function gunlukKanca(c: any): CagriKancasi | undefined {
+function gunlukKanca(c: any): CagriKancasi {
   const ip = (c.req.header('cf-connecting-ip') || '').trim();
-  if (!ip) return undefined;
+  /* §93 (W10, W6 P3-d): bütçe GLOBALDİR, başlık yoksa da uygulanır; başlık
+     yoksa yalnız ADRES sınırı atlanır (adres bilinmiyor).
+     §93 — HESAP DÜZEYİ NEURON BÜTÇESİ (src/lib/neuron-butce.ts). Yalnız
+     workers-ai çağrıları (aynı havuz). Bir isteğin çağrıları SIRAYLA yapıldığı
+     için açık rezerv tek değişkende tutulur. Sıra: önce adres hakkı, sonra
+     bütçe; bütçe reddederse yenen adres hakkı iade edilir (model çağrılmadı). */
+  let acikRezerv = 0;
+  const rezerviKapat = async (gercek: number, tukendi = false) => {
+    const r = acikRezerv;
+    acikRezerv = 0;
+    if (r > 0 || tukendi) await butceKapat(c.env, r, gercek, tukendi);
+  };
   return {
-    cagriOncesi: async () => {
-      const s = await gunlukHakKullan(c.env, ip);
-      if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
+    cagriOncesi: async (b) => {
+      if (ip) {
+        const s = await gunlukHakKullan(c.env, ip);
+        if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
+      }
+      if (b.provider !== 'workers-ai') return;
+      if (!katsayi(b.model).bilinen) {
+        console.log(JSON.stringify({ ev: 'butce_bilinmeyen_model', model: b.model }));
+      }
+      const miktar = Math.ceil(rezervTahmini(b.model, b.istemKarakter, b.maxTokens));
+      const r = await butceRezerv(c.env, miktar);
+      if (!r.izin) {
+        if (ip) await gunlukHakIade(c.env, ip);
+        throw new AiButceHatasi(r.durum.esik, r.durum.tahminiNeuron);
+      }
+      acikRezerv = miktar;
     },
-    kotaIade: () => gunlukHakIade(c.env, ip),
+    cagriSonrasi: async (b, kullanim, cikisKarakter) => {
+      if (b.provider !== 'workers-ai') return;
+      let n = neuronTahmini(b.model, kullanim);
+      if (n == null) {
+        // W6 P2-a: usage yoksa rezervi tam harcama SAYMA; metin uzunluğundan tahmin.
+        n = metindenTahmin(b.model, b.istemKarakter, cikisKarakter);
+        console.log(JSON.stringify({ ev: 'butce_usage_yok', model: b.model, tahmin: Math.ceil(n), rezerv: acikRezerv }));
+      }
+      await rezerviKapat(Math.ceil(n));
+    },
+    hizIade: () => rezerviKapat(0),
+    kotaIade: async () => {
+      if (ip) await gunlukHakIade(c.env, ip);
+      await rezerviKapat(0, true);
+    },
   };
 }
 
@@ -225,6 +280,20 @@ ai.use('*', async (c, next) => {
   return next();
 });
 
+/**
+ * §93 — GÜNLÜK NEURON BÜTÇESİ DURUMU (salt okunur). DO'da yalnız okuma yapılır,
+ * yazma YOK. Model çağırmaz. DO istek kotasını korumak için adres başına
+ * dakikada 30 ile sınırlı (arayüz yalnız açılışta ve AI çağrısından sonra sorar).
+ */
+ai.get('/butce', async (c) => {
+  const adres = (c.req.header('cf-connecting-ip') || '').trim() || 'yerel';
+  if (rateLimited(`butce:${adres}`, 30)) {
+    return c.json({ error: 'rate_limited', message: 'Bütçe durumu dakikada en fazla 30 kez sorulabilir.' }, 429);
+  }
+  c.header('Cache-Control', 'no-store');
+  return c.json(await butceDurumu(c.env));
+});
+
 /** Sağlayıcı/model bilgisi — arayüzdeki "AI modu" rozeti bunu okur. */
 ai.get('/status', (c) => {
   const yedek = fallbackEnv(c.env);
@@ -246,6 +315,8 @@ ai.get('/status', (c) => {
     /* §86: günlük adres sınırı ve sayacın nerede tutulduğu ("bellek" =
        Durable Object bağlaması henüz yok, isolate başına sayaç). */
     gunlukSinir: { limit: gunlukSinirDegeri(c.env), mod: gunlukSinirModu(c.env) },
+    // §93: hesap düzeyi tahmini Neuron bütçesi (ayrıntı: GET /api/ai/butce).
+    gunlukButce: { esik: butceEsigi(c.env), mod: butceModu(c.env) },
     // §86: AI Gateway açık mı (AI_GATEWAY_ID). Bugün kapalı.
     gateway: !!gatewaySecenekleri(c.env),
   });

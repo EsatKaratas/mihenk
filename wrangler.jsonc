@@ -56,6 +56,21 @@
   ],
 
   // ---------------------------------------------------------------------
+  // §86/§93 — Durable Object sayaçları. Bağlama adları wrangler.demo.jsonc ile
+  // AYNI. Ücretsiz planda yalnız "new_sqlite_classes" kabul edilir.
+  // ---------------------------------------------------------------------
+  "durable_objects": {
+    "bindings": [
+      { "name": "GUNLUK_SAYAC", "class_name": "GunlukSayac" },
+      { "name": "NEURON_BUTCE", "class_name": "NeuronButce" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1-gunluk-sayac", "new_sqlite_classes": ["GunlukSayac"] },
+    { "tag": "v2-neuron-butce", "new_sqlite_classes": ["NeuronButce"] }
+  ],
+
+  // ---------------------------------------------------------------------
   // Workers AI — soru üretimi ve açık uçlu yanıt ön-değerlendirmesi.
   // routes.ts içinde `c.env.AI.run(...)` ile çağrılır.
   // ---------------------------------------------------------------------
