@@ -42,6 +42,9 @@
     "anahtar:ekran": "node tools/anahtar-ekran.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "olcum:dogrula": "node tools/olcum/dogrula.mjs",
+    "olcum:uyum": "node tools/olcum/uyum.mjs",
+    "etiket:veri": "node tools/etiket/veri-uret.mjs",
     "dev:deneme": "wrangler dev -c wrangler.deneme.jsonc",
     "deploy:deneme": "wrangler deploy -c wrangler.deneme.jsonc"
   },

@@ -71,3 +71,18 @@ jobs:
       # fonksiyonların silinmesi bu projede bir kez yaşandı (AKTARIM §6.3-1).
       - name: Öz-kontrol listesi tutarlı mı
         run: node tools/ozkontrol-dogrula.mjs
+
+      # ARASTIRMA.md'deki manşet sayılar depodaki ham veriden yeniden üretilir
+      # (PROGRESS §109). Bir sayı tutmazsa betik 1 ile çıkar. Ardından üretilen
+      # pano depodakiyle aynı mı bakılır: veri ya da belge değişip pano
+      # güncellenmediyse CI kırmızı olur. Model çağrısı ve ağ yok.
+      - name: Ölçüm sayıları yeniden üretiliyor mu (olcum:dogrula)
+        run: |
+          npm run olcum:dogrula -- --sessiz
+          git diff --exit-code docs/olcum/PANO.md
+
+      # Kör etiketleme aracının veri dosyası etiket-kor.json'dan güncel mi.
+      - name: Kör etiketleme verisi güncel mi
+        run: |
+          npm run etiket:veri
+          git diff --exit-code tools/etiket/sorular.js
