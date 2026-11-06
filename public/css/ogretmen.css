@@ -216,3 +216,45 @@
 #panel-teacher .kr-etiket { display: inline-flex; align-items: center; gap: var(--sp-1); font-weight: 600; }
 #panel-teacher .kr-nihai { width: 64px; min-height: var(--hedef-min); text-align: center; font: inherit; }
 #panel-teacher .kr-nihai.kr-gecersiz { border: 2px solid var(--critical); }
+
+/* ===========================================================================
+   §114 — OYSS senaryosundan kur (sihirbaz 1. adım) ve senaryo karşılaştırması
+   (2. adım). Tablo geniş ekranda tablo; 640 px altında satır başına kart olur
+   (yatay kaydırma yok). Eksik soru uyarısı renk + metinle ("Havuzda yok").
+   =========================================================================== */
+#panel-teacher .oyss-kur { margin-top: var(--sp-4); border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface); padding: var(--sp-2) var(--sp-3); }
+#panel-teacher .oyss-kur > summary { cursor: pointer; font-size: var(--fs-3); font-weight: 600; color: var(--accent-strong);
+  min-height: var(--hedef-min); display: flex; align-items: center; gap: var(--sp-1); }
+#panel-teacher .oyss-kur-ek { font-weight: 400; color: var(--text-muted); font-size: var(--fs-2); }
+#panel-teacher .oyss-kur input[type="file"] { max-width: 100%; }
+#panel-teacher .oyss-seciciler { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--sp-2); }
+#panel-teacher .oyss-seciciler .field { min-width: 0; }
+#panel-teacher .oyss-seciciler select { width: 100%; min-width: 0; }
+#panel-teacher .oyss-kur-ozet { margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-2); line-height: 1.5; }
+#panel-teacher .oyss-kur-kap { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+#panel-teacher .oyss-kur-tablo { width: 100%; border-collapse: collapse; font-size: var(--fs-2); }
+#panel-teacher .oyss-kur-tablo th { text-align: left; font-weight: 600; color: var(--text-muted); background: var(--surface-2);
+  padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); }
+#panel-teacher .oyss-kur-tablo td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); vertical-align: top; }
+#panel-teacher .oyss-kur-tablo tr:last-child td { border-bottom: 0; }
+#panel-teacher .oyss-kur-tablo td:first-child { width: 42%; }
+#panel-teacher .oyss-kur-sayi { text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; width: 72px; }
+#panel-teacher .oyss-kur-metin { color: var(--text-muted); line-height: 1.45; margin-top: 2px; overflow-wrap: anywhere; }
+#panel-teacher .oyss-kur-aday { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
+#panel-teacher .oyss-kur-aday li { display: flex; align-items: flex-start; gap: var(--sp-2); }
+#panel-teacher .oyss-kur-aday input { width: 18px; height: 18px; margin-top: 2px; flex: 0 0 auto; }
+#panel-teacher .oyss-kur-aday label { min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
+#panel-teacher .oyss-kur-eksik { color: var(--warning); font-weight: 600; }
+#panel-teacher .oyss-kur-zorluk { margin: var(--sp-2) 0; }
+#panel-teacher .oyss-kur .pill-blok { margin: var(--sp-2) 0; }
+#panel-teacher .oyss-plan { margin-top: var(--sp-3); }
+#panel-teacher .oyss-plan-liste { list-style: none; margin: var(--sp-1) 0 var(--sp-2); padding: 0; display: grid; gap: 2px; font-size: var(--fs-2); }
+#panel-teacher .oyss-plan-liste .is-eksik { color: var(--warning); }
+@media (max-width: 640px) {
+  #panel-teacher .oyss-kur-tablo thead { display: none; }
+  #panel-teacher .oyss-kur-tablo tr { display: block; padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); }
+  #panel-teacher .oyss-kur-tablo tr:last-child { border-bottom: 0; }
+  #panel-teacher .oyss-kur-tablo td { display: block; width: auto !important; padding: var(--sp-1) 0; border: 0; text-align: left; }
+  #panel-teacher .oyss-kur-sayi::before { content: attr(data-etiket) ": "; font-weight: 400; color: var(--text-muted); }
+}

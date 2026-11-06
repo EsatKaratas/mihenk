@@ -12107,3 +12107,128 @@ Bu doğru davranış (§88b izin yolu).
   - Analitik sekmesinde bölüm görünüyor. Taşma 0, konsol hatası 0, POST 0.
 - `kagit.mjs` (§106) 46/46; `kontroller.mjs` 28/28 + 28/28; `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0.
 - Kanıt: `side-session-notes\local_fbcef29b-…\W9-kriter-puan\` (kart ve rapor 1280/390, loglar, betik).
+
+---
+
+## §114 — OYSS senaryosundan sınav kurma (W10, 6.11; dal `feature/oyss-senaryo`, taban 290d579)
+
+**Ne:** Sınav sihirbazının 1. adımında **"OYSS senaryosundan kur"** bölümü (isteğe bağlı, katlı).
+1. Öğretmen ÖDSGM'den kendi indirdiği konu-soru dağılım tablosunu (xlsx) seçer.
+2. Sınıf sayfasını, sınavı ve senaryoyu seçer.
+3. Kazanım başına istenen soru sayısını görür.
+4. Havuzdaki **onaylı** sorulardan kazanım koduna göre öneri gelir. Eksik kalan kazanımda
+   "Havuzda yok: N soru eksik" yazar.
+5. Öğretmen işaretleri değiştirir ve "taslağa yaz" der. Bu düğme:
+   - işaretli soruları sınava **ekler** (var olanlar silinmez);
+   - senaryo tablosunu yazar;
+   - 2. adıma geçer.
+   - Yayın YOK.
+
+2. adımda "Kazanım kapsaması" kutusunun altında senaryo karşılaştırması durur: istenen / sınavda / eksik /
+fazla. Eksik sayısı yayını engellemez. Bağ "Senaryo bağını kaldır" ile çözülür.
+
+**Gizlilik ve lisans:** Tablolar "Tüm hakları saklıdır" ibaresi taşıyor; araştırma notu 6.11'e göre depoya konmadı.
+- Dosya yalnız tarayıcıda okunur: `file.arrayBuffer()`.
+  - Ölçüldü: dosya seçildikten sonraki tek istek kendi statik kataloğumuz `GET /mufredat/turkce-5.json`.
+  - POST yok, gövdeli istek yok.
+- Okunan tablo `state.ogt.oyss`'te durur. `state.ogt` KALICI_ALANLAR'da yok, yenileyince düşer.
+  - Ölçüldü: localStorage'da tablo metni yok.
+- Sınava yazılan alan `state.exam.oyssSenaryo` (isteğe bağlı; eski kayıtta yok, **göç yok**). İçeriği:
+  - `{ders, sinif, sayfa, sinav, senaryo, satirlar:[{kod, istenen}], kaynak, yazildi}`;
+  - dosya adı ve kazanım metni yazılmaz (testli).
+- `activateExam` alan listesine eklendi; sınav değiştirince kaybolmaz.
+- Denetim izi `oyss_senaryo_yazildi`: senaryo, kazanimSay, eklenen, eksik, rol.
+- `privacy-policy.html` §2 "Eğitim içeriği verisi" maddesine tek cümle eklendi.
+
+**xlsx okuyucu (dış bağımlılık YOK), app.js:**
+- Okuma katmanı:
+  - zip merkez dizinini `xlsxZipDizini` okur;
+  - girdiyi `xlsxGirdiMetni` açar: yöntem 0 olduğu gibi okunur, yöntem 8 `DecompressionStream("deflate-raw")` ile açılır;
+  - XML'i `DOMParser` çözer;
+  - `xlsxOku` → `{sayfalar:[{ad, hucreler:{"r,c"}, birlesik}]}`.
+- Okunan yapılar:
+  - paylaşılan metin (okunuş rPh hariç);
+  - satır içi metin;
+  - birleşik hücre;
+  - mutlak/göreli sayfa hedefi;
+  - `x:` önekli ad alanı (`getElementsByTagNameNS("*")`).
+- Ölçülen tuzak: gerçek Türkçe dosyada **ayrık (NFD) ¨ işaretli harfler** var (6 adet U+0308).
+  - Tüm hücreler NFC'ye çevrilir, boşluklar teklenir.
+- Sınırlar ve hatalar:
+  - 5 MB dosya, 20 MB açılmış toplam (zip bombası).
+  - ZIP64 ve parolalı dosya reddedilir.
+  - Hata türleri (hepsi anlaşılır Türkçe `xlsxHata`):
+    - zip değil;
+    - yarıda kalmış indirme;
+    - xl/workbook.xml yok (ör. Word dosyası);
+    - bozuk XML;
+    - bozuk sıkıştırma;
+    - eksik sayfa;
+    - senaryosuz sayfa.
+- Tablo ayıklama (`oyssTabloAyikla`):
+  - "Senaryo N" satırı bulunur; sınav adı bir üst satırdaki (birleşik) hücreden okunur.
+  - Kod deseni gerçek yazımları kapsar: `T.O.5.6.`, baştaki/çift boşluk, `MAT.6.1.4.  …`, `M.8.1.1.1`, `T.8.3.1`, `FB.6.2.1`.
+  - Kodsuz ama sayılı satır ("TOPLAM") hesaba katılmaz ve listelenir.
+  - "Ülke Geneli" birleşik alanı senaryo sayılmaz; not olarak gösterilir.
+  - Ders ve sınıf kodların çoğunluğundan çıkarılır, çünkü sayfa adı yazımı tutarsız.
+
+**Eşleştirme (`oyssEslestir`):**
+- Kod normalleştirilir (NFC, boşluksuz, sondaki nokta atılır) ve tam eşitlik aranır. `T.O.5.60` ≠ `T.O.5.6`.
+- Yalnız `approved` sorular aday olur; sınavda zaten olan öne alınır.
+- Katalog karşılaştırması mevcut `public/mufredat` kataloğuyla yapılır. Eşleşmeyen kod satırda "müfredatta yok"
+  rozeti ve altta liste olarak gösterilir.
+- Kataloğu olmayan derste (Din, Sosyal, İngilizce) "karşılaştırılamadı" yazar.
+- Zorluk dağılımı yalnız gösterilir; seçimi değiştirmez (testli).
+
+**Gerçek ÖDSGM dosyalarıyla yerel deneme:**
+- Dosyalar: `turkce2.xlsx` ve `ilkmat2.xlsx`, cdn.eba.gov.tr, 6.11.
+- Dosyalar depo DIŞINDA, oturum scratchpad'inde; depoya girmedi.
+- Gerçek Chromium DOMParser ile okundu. 8 sayfanın 8'i de ayıklandı, atlanan satır 0.
+- Türkçe:
+
+  | Sınıf | Kazanım | Senaryo (1. sınav / 2. sınav) | Katalogda bulunmayan |
+  |---|---|---|---|
+  | 5 | 27 | 6 / 7 | 0 |
+  | 6 | 32 | 6 / 7 | 3 (T.O.6.27, T.Y.6.21, T.Y.6.22) |
+  | 7 | 17 | 6 / "Ülke Geneli" notu | 3 (T.O.7.28, T.Y.7.21, T.Y.7.22) |
+  | 8 | 54 | 7 / 7 | 54 (eski program kodları `T.8.3.x`) |
+
+- Matematik:
+
+  | Sınıf | Kazanım | Senaryo (1. sınav / 2. sınav) | Katalogda bulunmayan |
+  |---|---|---|---|
+  | 5 | 11 | 5 / 5 | 0 |
+  | 6 | 10 | yalnız 2. sınav 5 + "Ülke Geneli" notu | 0 |
+  | 7 | 12 | 4 / 5 | 0 |
+  | 8 | 24 | 6 / 6 | 24 (eski program `M.8.x.x.x`) |
+
+- 8. sınıf OYSS kapsamında değil.
+- **Açık bulgu (karar Esat/O3):** Türkçe 6-7. sınıf kataloğumuzda 6 kod yok. Ya katalog eksik ya da
+  numaralandırma farklı; elle bakılmalı.
+  - Örnek: tabloda "T.Y.7.21 Yazım kuralları ve noktalama…" var, kataloğumuzda T.Y.7.21 yok.
+  - Bu kazanım için havuzdaki soru yine kodla eşleşir, yalnız "müfredatta yok" rozeti çıkar.
+
+**Bilinen sınırlar:**
+- Yeni program kodu aynı kazanımı farklı numarayla verirse eşleşme olmaz, metin benzerliği aranmaz. Bu bilinçli
+  bir karar: sessiz tahmin yok.
+- Okunan tablo sayfa yenilenince unutulur (gizlilik gereği).
+- Eski .xls ve PDF okunmaz.
+- 2. dönem tabloları (Ocak 2027) aynı biçimdeyse ek iş gerekmez; denenmedi.
+
+**Doğrulama:**
+- `npm test` **893/893** (43 dosya). +22 test: `test/oyss-senaryo.test.ts`.
+  - Fikstür el yapımı: `test/fixtures/oyss-sentetik.xlsx` (3,4 KB), üretici `tools/oyss-sentetik-xlsx.mjs`.
+  - Fikstür MEB dosyası değil; Python zipfile CRC testinden geçti.
+  - Node'da DOMParser olmadığından XML katmanını testte küçük bir şim çözer. Zip ve deflate-raw katmanı gerçek.
+  - Aynı fikstür gerçek Chromium DOMParser'ında da aynı sonucu verdi: NFD → NFC, rPh hariç, TOPLAM atlandı,
+    "Ülke Geneli" notu.
+- lint temiz; öz-kontrol %100 (**738 ad**).
+- Tarayıcı `oyss-akis.mjs`, 1280 ve 390 px (/api taklit):
+  - Gerçek Türkçe dosya, 7. SINIF / Senaryo 3: 6 kazanım, 7 soru isteniyor, havuzda 2 eksik (T.O.7.7, T.Y.7.3).
+  - Onaysız soru aday değil.
+  - Öğretmen bir öneriyi kaldırdı; o soru sınava girmedi.
+  - Taslağa yaz → 2. adım, sınav `draft`, plan 6 satır, iz 1 kayıt.
+  - Yarım dosya → "zip dizini bulunamadı" mesajı.
+  - Konsol hatası 0, yatay taşma 0, /api/ai çağrısı 0.
+- Ekran: `Downloads\Mihenk\ekran-oyss-senaryo\` (1280 ve 390; 1. adım senaryo, 2. adım plan).
+- Push, deploy, /api/ai ve main birleştirme YOK.
