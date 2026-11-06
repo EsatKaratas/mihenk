@@ -11330,6 +11330,29 @@ yazamadığı bir soru gerektiğinde soru havuzuna insan eliyle soru eklemenin y
   sokmadan değiştiriyor.
 - §97 (W10 usage ölçümü) ve §98 (W9) başka dallarda; birleştirmede sıralanacak.
 
+## 100. KOTA DAYANIKLILIĞI — yapay zekâsız mod, kapasite ön hesabı, kalıcı depolama (6 Kasım 2026, P1, dal `feature/kota-dayaniklilik`)
+
+Hepsi 0 Neuron. Model çağrısı, /api/ai POST'u, deploy, push yapılmadı.
+
+**1. Kota doluyken yapay zekâsız mod.** Kaynak: zaten çekilen `state.ai.butce` (açılışta + her AI çağrısından sonra 1 GET; periyodik sorgu YOK). Yeni olan tek şey: bütçe "dolu" gelirse sıfırlanma anına (`sifirlanmaUtc` + 5 sn) tek `setTimeout` ile bir GET daha. `doldu` ya da `tukendi` ve sıfırlanma anı geçmemişse (`aiKotaDolu`, yalnız `mode === "live"`):
+- Kabukta tek şerit (`#aiKotaSeritYuva`, `role="status"`, lacivert bilgi rengi; kırmızı değil): "Yapay zekâ bugünlük kotasını doldurdu; 03:00'te (TR) açılır. Elle soru, havuz, elle puanlama ve analiz çalışıyor."
+- AI düğmeleri pasif (`aiDugmeleriniKilitle`, renderAll sonunda tek geçiş): `disabled`, `aria-disabled`, `title`, `aria-describedby="aiKotaSerit"`. Kapsam: üretim, telafi üretimi, kazanım denetimi, bağımsız çözüm (tek + toplu), rubrik taslağı, sınıf simülasyonu, yeniden değerlendir, kavram yanılgısı. Test, seçicinin POST atan 7 çağrı yerinin bütün düğmelerini kapsadığını wire satırlarından doğrular.
+- Açık uçlu kuyrukta "Elle Puanla ve Onayla" hata kodundan bağımsız baştan birincil; "yeniden dene" pasif; özet kutusu "elle puanlayın (yapay zekâ 03:00'te açılır)".
+- **Sessiz yedek yok:** `apiPost`, `aiEvaluate`, `aiGenerateQuestions` modu bilmez (testle sabit). Öğrenci sınavı bitirince değerlendirme isteği yine gider; sunucu bütçe reddinde modeli çağırmaz (503 `gunluk_butce`, §93). Kart bu durumda zaten elle yolu önerir. Demo tohumu davranışı değişmedi.
+
+**2. Sihirbaz 3. adım kapasite ön hesabı** (yalnız bilgi; yayın düğmesinin koşulu değişmedi): "N öğrenci × M açık uçlu = K değerlendirme ≈ X Neuron; günlük sınır ~9.000; bugün kalan ≈ Y". N = hedef sınıfta yapay zekâ izni olan öğrenci (izinsizler ayrıca yazılır). `KAPASITE_DEGERLENDIRME_NEURON = 110` tek yerde; kaynağı §86 tablosu (yalnız puanlama, ölçülen ~110; rapor (c)). Onarım/yedek çağrısı bu ortalamada yok. Eşik `/api/ai/butce`'den, yoksa 9.000; kalan = eşik − tahmini (bütçe yoksa "bilinmiyor"). Adres sınırı `/api/ai/status` `gunlukSinir.limit`'ten (yoksa 60); aşılıyorsa "(bu sınav en az K çağrı ister)".
+
+**3. `navigator.storage.persist()`** açılışta bir kez (`depoKaliciIste`). Destek yoksa sessiz; zaten kalıcıysa yeniden istemez; sonuç state'e yazılmaz. Ret → yalnız `console.info` (aşağıdaki düzeltme). `renderDepoUyarisi` main ile aynı: yalnız gerçek kayıt hatası (`depoHatasi`), kırmızı `alert`. Gözlem: headless Chrome 1280/390'da `persist()` false döndü (Chrome site etkileşimi azken reddeder).
+- **Düzeltme (Orchestrator 3):** ilk commit'teki ret bilgi kutusu kaldırıldı — Chrome çoğu ilk ziyarette reddediyor, kullanıcının yapabileceği bir şey yok, demoda gürültü; ret artık yalnız `console.info`, app.css ve `renderDepoUyarisi` main'e döndü (testler 619/619).
+
+**4. `/vendor/*` immutable — YAPILMADI.** `public/vendor/fonts/` (`fonts.css` + woff2) ve `public/vendor/SHA256SUMS` sürüm adı taşımıyor; içerik değişirse yol aynı kalır, bir yıllık immutable eski fontu kilitlerdi. `_headers` değişmedi (diğer dosyalarda Cloudflare varsayılanı `max-age=0, must-revalidate`, §68). Seçenek: yalnız sürüm adlı 6 klasöre ayrı kural ya da fontları `fonts-<tarih>/` altına taşımak; müdür kararı. Test (`§100-4`) sürümsüz yol varken `_headers`'ta immutable olmamasını sabitler.
+
+**Ölçüm (yerel):**
+- `npm test` 595 → **619** (29 dosya; yeni `test/kota-dayaniklilik.test.ts` 24 test; `ai-rozet-tohum` düzeneğine `state` saplaması eklendi). `tsc --noEmit` temiz. Öz-kontrol 569 → **577** ad, %100. `check:config` geçti, `node --check` temiz, FFFD 0.
+- Tarayıcı (Playwright + sistem Chrome, 127.0.0.1:8801, `/api/ai/status` + `/api/ai/butce` taklidi `doldu+tukendi`; bütün POST'lar sayfada yakalanıp 503 `gunluk_butce` ile yanıtlandı, ağa çıkmadı): 1280 ve 390'da 15/15 kontrol (düzeltmeden sonra yeniden: 16/16, depo bilgi kutusu yok). Şerit tek ve metin birebir; üret, rubrik taslağı, yeniden dene, sınıf simülasyonu ve 4. sekmedeki 5 AI düğmesi pasif; kuyrukta elle düğmesi birincil ve çalıştı (1→0); taşma 0; konsol hatası 0 (taklit 503 kaynak satırı hariç). Yakalanan POST: her genişlikte 1 (öğrenci bitirince değerlendirme). Kota normal taklidinde şerit yok, pasif düğme 0, "üret" açık, POST 0.
+- Ekranlar: `C:\Users\ASUS\Downloads\Mihenk\ekran-p1\kota-dolu-{1280,390}-{1-icerik-uzmani,2-sihirbaz-kapasite,3-puanlama-elle}.png`.
+- Canlıda ölçülmedi. 110 Neuron ortalaması canlı `usage` ölçümüyle (E-1, 7.11) güncellenmeli.
+
 ## 104. RED NEDENİ + KARAR KAYDININ GENİŞLETİLMESİ (6 Kasım 2026, W10, dal `feature/karar-kaydi`, Orchestrator 3 emriyle)
 
 **Neden:** Karar Günlüğü insanın **ne** karar verdiğini tutuyordu ama **neden** reddettiğini ve onaydan
