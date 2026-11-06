@@ -34,11 +34,11 @@ const SABITLER = ['AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'A
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const k: any = new Function('escapeHtml',
   SABITLER + '\n' +
-  ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiElleDevam', 'aiButceMetni', 'aiButceIpucu',
+  ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiElleDevam', 'aiButceMetni', 'aiButceKisa', 'aiButceIpucu',
    'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml']
     .map(tanim).join('\n') +
   '\nreturn { aiKaynak, aiKaynakMetinleri, aiKaynakRozetiHtml, aiHataMetni, aiGunlukKapali, topluCozDurdurmaKodu,' +
-  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceIpucu, aiElleDevam };'
+  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceKisa, aiButceIpucu, aiElleDevam };'
 )(escapeHtml);
 
 describe('§90 kaynak rozeti', () => {
@@ -320,6 +320,10 @@ describe('§93 bütçe metni ve göstergesi', () => {
     expect(k.aiButceMetni(b)).toBe('Bugün ≈%37 (tahmini)');
     expect(k.aiButceMetni({ ...b, doldu: true })).toBe('Bugünkü bütçe doldu (tahmini)');
     expect(k.aiButceMetni(null)).toBe('');
+    // W6 P2-a: çipte kısa biçim; tam biçim ipucunda ve erişilebilir adda kalır.
+    expect(k.aiButceKisa(b)).toBe('· ≈%37');
+    expect(k.aiButceKisa({ ...b, doldu: true })).toBe('· doldu');
+    expect(k.aiButceKisa(null)).toBe('');
     const ip = k.aiButceIpucu(b);
     expect(ip).toContain('token');
     expect(ip).toContain('yalnız bu uygulamanın');

@@ -10935,6 +10935,11 @@ adres birlikte havuzu bitirip modeli 3036 ile herkese kapatabilir.
 - **Gösterge:** öğretmen ve içerik uzmanı panelinde model çipinin içinde "Bugün ≈%X (tahmini)" (yüzde
   10.000'lik havuza göre), eşikte "Bugünkü bütçe doldu (tahmini)". İpucu ve ayrıntı paneli kaynağı açıklar:
   token'dan tahmin, yalnız bu uygulamanın çağrıları. Periyodik sorgu yok: açılışta ve her AI çağrısından sonra 1 GET.
+  **W6 P2-a düzeltmesi (entegrasyon):** uzun biçim masaüstünde çipi 212 → 355 px yapıp akış menüsüne
+  biniyordu. Çipte artık yalnız kısa biçim ("· ≈%43" / "· doldu"); tam biçim ("Bugün ≈%43 (tahmini)") ipucunda
+  ve ekran okuyucu metninde. Ölçüldü (1280/1366/1440 × öğretmen/içerik uzmanı/yönetici): çip 256 px (taban
+  212), çip ile akış menüsü/rol menüsü kesişmesi 0, beş akış etiketi de görünür. 390 px'te ⋯ menüsündeki
+  "Model durumu" satırının altında "Günlük bütçe: Bugün ≈%43 (tahmini)" (W6 P3-a).
 - **Sıralama:** DO istekleri platformda giriş kapısıyla sıralı; ayrıca nesne içi söz kuyruğu her işlemi
   sırayla çalıştırır (test ortamında da kanıtlanabilsin diye).
 - **Ücretsiz plan:** çağrı başına ≤ 2 DO yazması (rezerv + kapat), durum okuması yazmaz. 10.000 Neuron'luk

@@ -953,6 +953,13 @@ function aiButceMetni(b) {
   return b.doldu ? "Bugünkü bütçe doldu (tahmini)" : "Bugün ≈%" + b.yuzde + " (tahmini)";
 }
 
+/** §93 (W6 P2-a): çipte görünen KISA biçim; tam metin ipucunda ve erişilebilir adda.
+    Uzun biçim masaüstünde çipi ~212 → 355 px yapıp akış menüsünün üstüne bindiriyordu. */
+function aiButceKisa(b) {
+  if (!b) return "";
+  return b.doldu ? "· doldu" : "· ≈%" + b.yuzde;
+}
+
 function aiButceIpucu(b) {
   if (!b) return "";
   return "Hesabın günlük " + Number(b.havuz).toLocaleString("tr-TR") + " Neuron'luk yapay zekâ havuzundan bugün tahminen ≈" +
@@ -1539,7 +1546,10 @@ function renderAiBadge() {
       '<span class="ai-metin">' + escapeHtml(txt) + "</span>" +
       (live && state.ai.butce && (state.role === "teacher" || state.role === "content_expert")
         ? '<span class="ai-butce' + (state.ai.butce.doldu ? " ai-butce-doldu" : "") + '" title="' +
-          escapeHtml(aiButceIpucu(state.ai.butce)) + '">' + escapeHtml(aiButceMetni(state.ai.butce)) + "</span>"
+          escapeHtml(aiButceMetni(state.ai.butce) + " — " + aiButceIpucu(state.ai.butce)) + '" aria-hidden="true">' +
+          escapeHtml(aiButceKisa(state.ai.butce)) + "</span>" +
+          /* Ekran okuyucu tam biçimi duyar ("tahmini" kaybolmaz); ⋯ menüsü de bunu okur. */
+          '<span class="ai-butce-tam">' + escapeHtml(", " + aiButceMetni(state.ai.butce)) + "</span>"
         : "") +
       '<span class="ai-ok">' + (state.aiAyrintiAcik ? "▴" : "▾") + "</span></button>" +
       aiAyrintiHtml();
@@ -13116,6 +13126,9 @@ function renderKabukEk() {
      renderAll'da bundan ÖNCE çalışır. */
   const cip = document.querySelector("#aiModeSlot .ai-metin");
   const modelMetni = cip ? cip.textContent : "";
+  /* §93 (W6 P3-a): bütçe de çipten okunur (tam biçim, "tahmini" ile). */
+  const butceCip = document.querySelector("#aiModeSlot .ai-butce-tam");
+  const butceMetni = butceCip ? butceCip.textContent.replace(/^,\s*/, "") : "";
   yuva.innerHTML =
     '<button type="button" class="btn btn-secondary btn-sm kb-ek-btn js-ek-menu" data-kb="ek-btn" aria-haspopup="menu"' +
     ' aria-expanded="' + (acik ? "true" : "false") + '" aria-label="Diğer işlemler" title="Diğer işlemler">⋯</button>' +
@@ -13123,7 +13136,8 @@ function renderKabukEk() {
       /* §64b (P2-8): dar ekranda çip gizli; model durumu menüde etiketli bir
          satır. role="none": menü öğesi değil, bilgi satırı. */
       (okul && modelMetni ? '<div class="kb-oge-bilgi kb-yalniz-dar" role="none">' +
-        '<span class="kb-oge-etiket">Model durumu</span> ' + escapeHtml(modelMetni) + '</div>' : "") +
+        '<span class="kb-oge-etiket">Model durumu</span> ' + escapeHtml(modelMetni) +
+        (butceMetni ? '<br><span class="kb-oge-etiket">Günlük bütçe</span> ' + escapeHtml(butceMetni) : "") + '</div>' : "") +
       '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-demo" data-kb="ek:demo"' +
       ' aria-label="Rehberli demo, 5 adım — örnek veriyle soru onayından analize">' +
       '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
@@ -14305,7 +14319,7 @@ function bosDurumHtml(mesaj) {
     /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
     /* §93 (W10) — Neuron bütçesi göstergesi ve uca göre elle devam metni. */
-    "aiGunlukKapaliMetni", "aiElleDevam", "aiButceYenile", "aiButceMetni", "aiButceIpucu",
+    "aiGunlukKapaliMetni", "aiElleDevam", "aiButceYenile", "aiButceMetni", "aiButceKisa", "aiButceIpucu",
     "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
     "topluCozDurdurmaKodu", "topluCozBeklenirMi", "topluCozSonucMetni", "birimFarkiRozetiHtml",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
