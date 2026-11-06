@@ -12474,7 +12474,7 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oys
 - 20 kod iki programda da var ama başka kazanımı gösteriyor (6. sınıfta 16, 7. sınıfta 4). Örnek:
   - 2024 `T.O.6.23` = "Okuduğunu özetleyebilme" (2026'daki karşılığı `T.O.6.21`);
   - 2026 `T.O.6.23` = "Metni eleştirebilme".
-- Araştırma raporu (depo dışında): `Downloads\Mihenk	urkce-eksik-kodlar.md`.
+- Araştırma raporu (depo dışında): `Downloads\Mihenk\turkce-eksik-kodlar.md`.
 
 **Karar (O3):** Kataloğa eski kod EKLENMEDİ. Eşleme yalnız OYSS akışında uygulanıyor.
 
