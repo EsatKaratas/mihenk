@@ -112,7 +112,8 @@ describe('arayüz ve kayıt şekli', () => {
   });
   it('tüm aiEvaluate çağrıları öğrenci kimliğini geçirir ya da aktif öğrenciyi kullanır', () => {
     const cagrilar = app.match(/await aiEvaluate\([^;]*\);/g) || [];
-    expect(cagrilar.length).toBe(3);
-    expect(cagrilar.filter((c) => /, (ogrId|ogr\.id)\)/.test(c))).toHaveLength(2);
+    // §106: kâğıt sınavın "YZ puan önerisi iste" çağrısı (kagitOneriIste) öğrenci kimliğini `sid` ile geçirir.
+    expect(cagrilar.length).toBe(4);
+    expect(cagrilar.filter((c) => /, (ogrId|ogr\.id|sid)\)/.test(c))).toHaveLength(3);
   });
 });
