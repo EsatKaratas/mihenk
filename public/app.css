@@ -287,6 +287,9 @@
   /* Adım listesi "Adım n/5"ten ~135 px geniş; uzun kilit metni (adım 4) tek
      satırda kalınca açıklama 3 satıra iniyordu (1280'de 56 → 74 px, ölçüldü). */
   .demo-serit .demo-kilit { max-width: 180px; line-height: 1.35; }
+  /* Kilitli adıma tıklanınca kilit metninin yerinde görünen uyarı (W10 P2):
+     italik/soluk değil, gövde rengi + kalın + altın sol çizgi. */
+  .demo-serit .demo-kilit-uyari { color: var(--text); font-style: normal; font-weight: 600; border-left: 3px solid var(--accent2); padding-left: 6px; }
   /* 768'de şu anki adımın adı da açıklamayı bir satır aşağı itiyordu
      (adım 3: 166 → 184 px, ölçüldü); ≤1100 px'te o da yalnız numara. */
   @media (max-width: 1100px) {

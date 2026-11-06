@@ -80,7 +80,21 @@ describe('demo şeridi — HITL ve erişilebilirlik (kaynak)', () => {
     expect(liste).toContain('aria-disabled="true"');
     expect(liste).toContain('aria-describedby="demoKilitNeden"');
     expect(liste).not.toMatch(/[" ]disabled[ ">]/);
-    expect(tik).toMatch(/aria-disabled[\s\S]{0,80}demoDuyur\([^)]*demoKilitNedeni\(\)/);
+    expect(tik).toMatch(/aria-disabled[\s\S]{0,120}demoKilitUyar\(no\)/);
+    const u = govde('demoKilitUyar');
+    expect(u).toMatch(/demoDuyur\([\s\S]*_demoKilitUyari\.metin/);
+    expect(u).toContain('demoKilitNedeni()');
+  });
+
+  it('W10 P2: kilit uyarısı şeritte GÖRÜNÜR, süreli, adım değişince temizlenir, veri yazmaz', () => {
+    const u = govde('demoKilitUyar');
+    expect(u).toContain('setTimeout(');
+    expect(u).toContain('DEMO_KILIT_UYARI_MS');
+    expect(u).toContain('renderDemoSerit()');
+    expect(u).not.toMatch(/state\./);                       // yalnız geçici modül değişkeni
+    expect(govde('demoSeridiHtml')).toContain('demo-kilit-uyari');
+    expect(govde('demoAdimaGit')).toMatch(/if \(degisti\)[^\n]*_demoKilitUyari = null/);
+    expect(govde('demoBitir')).toContain('_demoKilitUyari = null');
   });
 
   it('şu anki adım aria-current="step"; liste nav + ol içinde; yerel düğme', () => {

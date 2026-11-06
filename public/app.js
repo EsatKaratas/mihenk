@@ -1920,6 +1920,7 @@ function loadDemoScenario() {
      sınav şartı arar); öğretmen adım 2'de yayınlayınca eksiksiz görünür. */
   state.demoAdim = 1;
   state.demoEnUzak = 1;   // §9x (W9): yeni demo, tıklanabilir adımlar baştan
+  _demoKilitUyari = null;
   demoAdimaGit(1);
   return;
 }
@@ -1961,6 +1962,7 @@ function demoAdimaGit(no) {
   const a = DEMO_ADIMLARI.find(function (x) { return x.no === no; });
   if (!a) return;
   const degisti = state.demoAdim !== no;
+  if (degisti) { _demoKilitUyari = null; if (_demoKilitZaman) { clearTimeout(_demoKilitZaman); _demoKilitZaman = null; } }
   state.demoAdim = no;
   state.demoEnUzak = Math.max(state.demoEnUzak || 1, no);
   if (degisti) demoDuyur("Adım " + no + "/" + DEMO_ADIMLARI.length + ": " + a.roleAd);
@@ -1979,6 +1981,7 @@ function demoAdimaGit(no) {
 function demoBitir() {
   state.demoAdim = null;
   state.demoEnUzak = null;
+  _demoKilitUyari = null;
   renderAll();
 }
 
@@ -2007,6 +2010,22 @@ function demoAdimDurumu(no, simdiki, enUzak, hazirlar) {
 function demoKilitNedeni() {
   const ilk = DEMO_ADIMLARI.find(function (x) { return !x.hazir(); });
   return ilk && ilk.kilit ? ilk.kilit : "";
+}
+
+/* §9x (W9, W10 P2) — kilitli adıma tıklama GÖRSEL olarak da sessiz kalmaz.
+   aria-live duyurusu yalnız ekran okuyucuya gidiyordu; şu anki adım hazırken
+   şeritte kilit metni de yoktu, dokunmatikte title da görünmez. Uyarı, kilit
+   metninin yerinde DEMO_KILIT_UYARI_MS kadar ya da adım değişene kadar durur.
+   Kalıcı değil, state'e yazılmaz. */
+const DEMO_KILIT_UYARI_MS = 6000;
+let _demoKilitUyari = null;
+let _demoKilitZaman = null;
+function demoKilitUyar(no) {
+  _demoKilitUyari = { no: no, metin: demoKilitNedeni() };
+  if (_demoKilitZaman) clearTimeout(_demoKilitZaman);
+  _demoKilitZaman = setTimeout(function () { _demoKilitUyari = null; _demoKilitZaman = null; renderDemoSerit(); }, DEMO_KILIT_UYARI_MS);
+  demoDuyur("Adım " + no + " kilitli. " + _demoKilitUyari.metin);
+  renderDemoSerit();
 }
 
 /** Ekran okuyucuya kısa duyuru. Bölge şeridin DIŞINDA ve kalıcıdır: innerHTML
@@ -2059,7 +2078,9 @@ function demoSeridiHtml() {
     '<span class="demo-rozet">Demo Akışı</span>' +
     demoAdimListesiHtml() +
     '<span class="demo-metin"><b>' + escapeHtml(a.roleAd) + ":</b> " + escapeHtml(a.aciklama) + "</span>" +
-    (!acik && a.kilit ? '<span class="demo-kilit">' + escapeHtml(a.kilit) + "</span>" : "") +
+    (_demoKilitUyari
+      ? '<span class="demo-kilit demo-kilit-uyari">' + escapeHtml("Adım " + _demoKilitUyari.no + " kilitli: " + _demoKilitUyari.metin) + "</span>"
+      : !acik && a.kilit ? '<span class="demo-kilit">' + escapeHtml(a.kilit) + "</span>" : "") +
     '<span class="demo-dugmeler">' +
     '<button type="button" class="btn btn-primary btn-sm js-demo-ileri"' + (acik ? "" : " disabled") +
       (acik ? "" : ' title="' + escapeHtml(a.kilit) + '"') + ">" + escapeHtml(a.sonraki) + "</button>" +
@@ -2082,8 +2103,8 @@ function renderDemoSerit() {
   document.querySelectorAll(".js-demo-adim").forEach(function (b) {
     b.onclick = function () {
       const no = Number(b.getAttribute("data-demo-adim"));
-      if (b.getAttribute("aria-disabled") === "true") {   // sessiz kalmaz: nedeni duyurulur
-        demoDuyur("Adım " + no + " kilitli. " + demoKilitNedeni());
+      if (b.getAttribute("aria-disabled") === "true") {   // sessiz kalmaz: şeritte görünür + duyurulur
+        demoKilitUyar(no);
         return;
       }
       if (no === state.demoAdim) return;
@@ -13854,7 +13875,7 @@ function bosDurumHtml(mesaj) {
        şerit sessizce kaybolur ve sunum ortasında rehber ölür. */
     "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
     /* §9x (W9) — tıklanabilir demo adımları. */
-    "demoAdimDurumu", "demoKilitNedeni", "demoDuyur", "demoAdimListesiHtml",
+    "demoAdimDurumu", "demoKilitNedeni", "demoKilitUyar", "demoDuyur", "demoAdimListesiHtml",
     /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
     "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
