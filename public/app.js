@@ -3241,9 +3241,9 @@ function vendorUrl(yol) {
 
 function loadPdfLib() {
   if (!pdfLibPromise) {
-    pdfLibPromise = import(vendorUrl("pdfjs-dist@4.7.76/pdf.min.mjs"))
+    pdfLibPromise = import(vendorUrl("pdfjs-dist-4.7.76/pdf.min.mjs"))
       .then(function (lib) {
-        lib.GlobalWorkerOptions.workerSrc = vendorUrl("pdfjs-dist@4.7.76/pdf.worker.min.mjs");
+        lib.GlobalWorkerOptions.workerSrc = vendorUrl("pdfjs-dist-4.7.76/pdf.worker.min.mjs");
         return lib;
       });
   }
@@ -3279,7 +3279,7 @@ function loadMammothLib() {
   if (!mammothLibPromise) {
     mammothLibPromise = new Promise(function (resolve, reject) {
       const s = document.createElement("script");
-      s.src = vendorUrl("mammoth@1.8.0/mammoth.browser.min.js");
+      s.src = vendorUrl("mammoth-1.8.0/mammoth.browser.min.js");
       s.onload = function () { resolve(window.mammoth); };
       s.onerror = function () { reject(new Error("Word okuma kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
       document.head.appendChild(s);
@@ -3322,7 +3322,7 @@ function loadTesseractLib() {
   if (!tesseractLibPromise) {
     tesseractLibPromise = new Promise(function (resolve, reject) {
       const s = document.createElement("script");
-      s.src = vendorUrl("tesseract.js@5.1.1/tesseract.min.js");
+      s.src = vendorUrl("tesseract.js-5.1.1/tesseract.min.js");
       s.onload = function () { resolve(window.Tesseract); };
       s.onerror = function () { reject(new Error("OCR kütüphanesi yüklenemedi (ağ bağlantısını kontrol edin).")); };
       document.head.appendChild(s);
@@ -3359,9 +3359,9 @@ async function ocrPdfSayfalari(file, ilerlemeCb) {
      (ölçüldü): paylaşılan bir sunum ağında 4 kat daha az indirme.
      Hız öncelikliyse tek yapılacak "_best_int" yerine "4.0.0" yazmaktır. */
   const worker = await Tesseract.createWorker("tur", 1, {
-    workerPath: vendorUrl("tesseract.js@5.1.1/worker.min.js"),
-    corePath: vendorUrl("tesseract.js-core@5.1.1/tesseract-core-simd.wasm.js"),
-    langPath: vendorUrl("tesseract-tur@1.0.0/4.0.0_best_int")
+    workerPath: vendorUrl("tesseract.js-5.1.1/worker.min.js"),
+    corePath: vendorUrl("tesseract.js-core-5.1.1/tesseract-core-simd.wasm.js"),
+    langPath: vendorUrl("tesseract-tur-1.0.0/4.0.0_best_int")
   });
   const sayfalar = [];
   try {
