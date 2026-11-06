@@ -5754,7 +5754,21 @@ function kzDurumMetni(kimlik) {
   if (!String(h.ara || "").trim()) return "";
   if (!r.eslesen) return "Aramaya uyan kazanım yok.";
   return r.eslesen + " kazanım bulundu" +
-    (r.gizli ? " — ilk " + KZ_SINIR + " tanesi gösteriliyor, aramayı daraltın." : ".");
+    (r.gizli ? " — ilk " + KZ_SINIR + " tanesi gösteriliyor, aramayı daraltın." : ".") +
+    (kzAramaAdayi(r.ogeler, h.ara) != null ? " Enter ile seçebilirsiniz." : "");
+}
+
+/** W9 (P3-2) — arama kutusunda Enter'ın seçeceği kazanım. YALNIZ iki
+    belirgin durumda bir değer döner: (1) aramaya tek kazanım uyuyor;
+    (2) aranan metin bir eşleşmenin KODUNA birebir eşit ve bu kod tek.
+    Başka her durumda null: Enter hiçbir şey yapmaz (tahmin yok). */
+function kzAramaAdayi(ogeler, metin) {
+  const a = String(metin || "").trim().toLocaleLowerCase("tr");
+  if (!a) return null;
+  const es = kazanimAra(ogeler || [], a);
+  if (es.length === 1) return es[0].deger;
+  const tam = es.filter(function (x) { return String(x.kod).toLocaleLowerCase("tr") === a; });
+  return tam.length === 1 ? tam[0].deger : null;
 }
 
 /**
@@ -5787,7 +5801,11 @@ function kazanimSeciciHtml(o) {
   }
   const dugme = o.acilir
     ? '<button type="button" class="kz-ac" id="' + k + '-ac" aria-expanded="' + !!h.panel + '" aria-controls="' + k + '-govde"' +
-      (o.etiketId ? ' aria-labelledby="' + escapeHtml(o.etiketId) + " " + k + '-metin"' : "") +
+      /* Görünür etiket varsa etiket + değer (A1, A2). Yoksa (B2) ad bileşenin
+         etiketidir, eski <select>'in aria-label'ı ("… kazanım ekle"); düğme
+         metni (yükleniyor / yüklenemedi / N kazanım) açıklama olarak okunur. (W9 P3-3) */
+      (o.etiketId ? ' aria-labelledby="' + escapeHtml(o.etiketId) + " " + k + '-metin"'
+        : ' aria-label="' + escapeHtml(o.etiket) + '" aria-describedby="' + k + '-metin"') +
       (bos ? " disabled" : "") + '><span class="kz-ac-metin" id="' + k + '-metin">' + escapeHtml(o.dugmeMetni || "") + "</span>" +
       '<span class="kz-ok" aria-hidden="true"></span></button>'
     : "";
@@ -5861,7 +5879,14 @@ function kazanimSeciciBagla(kimlik, secildi) {
       } else if (e.key === "Escape") {
         if (ara.value) { e.preventDefault(); ara.value = ""; h.ara = ""; tazele(); }
         else if (ac && h.panel) { e.preventDefault(); paneli(false, true); }
-      } else if (e.key === "Enter") e.preventDefault();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        /* W9 (P3-2): tek ya da kodu birebir eşleşen kazanım varsa onu seç;
+           yoksa hiçbir şey yapma. */
+        const aday = kzAramaAdayi(r.ogeler, ara.value);
+        const li = aday != null && agac ? kzBul(agac, "k:" + aday) : null;
+        if (li) sec(li);
+      }
     };
   }
   if (!agac) return;
@@ -14090,7 +14115,7 @@ function bosDurumHtml(mesaj) {
     // §75c soru havuzu ağacı (W3)
     "havuzFiltresi", "soruKaynakTuru", "soruAgacYolu", "havuzDugumu", "havuzSorulari", "dugumIcinde",
     "havuzAgaciHtml", "kzHal", "kazanimUnitesi", "kazanimOgesi", "kazanimAgaci", "kazanimAra",
-    "kazanimAgacHtml", "kzDurumMetni", "kazanimSeciciHtml", "kzBul", "kzGeziciSekme", "kzOdakla",
+    "kazanimAgacHtml", "kzDurumMetni", "kzAramaAdayi", "kazanimSeciciHtml", "kzBul", "kzGeziciSekme", "kzOdakla",
     "kazanimSeciciBagla", "ogtKazanimFiltresiHtml", "peKazanimSeciciHtml", "havuzSecimHtml", "havuzSoruHtml", "wireCeHavuz",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",

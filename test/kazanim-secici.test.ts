@@ -14,7 +14,7 @@ function fonksiyonMetni(ad: string): string {
   return app.slice(bas, son + 3);
 }
 
-const BILESEN = ['kzHal', 'kazanimUnitesi', 'kazanimAgaci', 'kazanimAra', 'kazanimAgacHtml', 'kzDurumMetni', 'kazanimSeciciHtml'];
+const BILESEN = ['kzHal', 'kazanimUnitesi', 'kazanimAgaci', 'kazanimAra', 'kazanimAgacHtml', 'kzDurumMetni', 'kzAramaAdayi', 'kazanimSeciciHtml'];
 
 type Oge = { deger: string; kod: string; etiket: string; ders: string; sinif: string; sinifAd?: string; unite: string; sayi?: number };
 
@@ -23,7 +23,7 @@ function kur(outcomes: any[] = [], katalog: any = {}) {
   // eslint-disable-next-line no-new-func
   return new Function('state', 'OUTCOMES_LIST', 'escapeHtml',
     'const KZ_SINIR = 200; const _kzHal = {}; const _kzKayit = {};\n' + kod +
-    '\nreturn { kzHal, kazanimUnitesi, kazanimAgaci, kazanimAra, kazanimAgacHtml, kzDurumMetni, kazanimSeciciHtml, _kzKayit };')(
+    '\nreturn { kzHal, kazanimUnitesi, kazanimAgaci, kazanimAra, kazanimAgacHtml, kzDurumMetni, kzAramaAdayi, kazanimSeciciHtml, _kzKayit };')(
     { katalog },
     () => outcomes,
     (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
@@ -189,5 +189,54 @@ describe('matematikV4Yolu — B2 üzerinden seçilen kazanımla bozulmaz', () =>
     const kaynakTuru = uretimKaynakTuru({ mode: 'kazanim', outcome: 'DNY.R.1', subject: 'Matematik' });
     expect(kaynakTuru).toBe('deneyap');
     expect(matematikV4Yolu({ subject: 'Matematik', mode: 'kazanim', kaynakTuru })).toBe(false);
+  });
+});
+
+describe('W9 P3 — B2 erişilebilir ad ve aramada Enter', () => {
+  it('P3-3: görünür etiket yoksa düğmenin adı bileşen etiketi ("… kazanım ekle"), metin açıklama', () => {
+    const k = kur();
+    const html = k.kazanimSeciciHtml({ kimlik: 'kz-ce-ekle', mod: 'ekle', acilir: true, etiket: 'MEB öğretim programından kazanım ekle',
+      ogeler: [oge('A', 'Fen', '7', '')], dugmeMetni: 'MEB öğretim programından kazanım ekleyin… (1 kazanım)' });
+    expect(html).toContain('aria-label="MEB öğretim programından kazanım ekle" aria-describedby="kz-ce-ekle-metin"');
+    expect(html).not.toContain('aria-labelledby');
+    // etiketId verilen yerlerde (A1, A2) eski davranış
+    const a1 = k.kazanimSeciciHtml({ kimlik: 'kz-a1', mod: 'filtre', acilir: true, etiket: 'K', etiketId: 'lbl', ogeler: [oge('A', 'Fen', '7', '')] });
+    expect(a1).toContain('aria-labelledby="lbl kz-a1-metin"');
+    expect(a1).not.toMatch(/<button[^>]*aria-label=/);
+    // B2 gerçekten etiketsiz çağrılıyor ve etiketi "… kazanım ekle"
+    expect(fonksiyonMetni('ceKazanimEkleSeciciHtml')).toMatch(/etiket: kaynakAd \+ " kazanım ekle"/);
+    expect(fonksiyonMetni('ceKazanimEkleSeciciHtml')).not.toContain('etiketId');
+  });
+
+  it('P3-2: Enter adayı yalnız tek eşleşmede ya da kod birebir eşleşince; başka durumda null', () => {
+    const { kzAramaAdayi } = kur();
+    const l = [oge('MAT.7.1.1', 'Matematik', '7', ''), oge('MAT.7.1.10', 'Matematik', '7', ''), oge('MAT.7.2.1', 'Matematik', '7', '')];
+    expect(kzAramaAdayi(l, '')).toBeNull();
+    expect(kzAramaAdayi(l, '   ')).toBeNull();
+    expect(kzAramaAdayi(l, 'mat.7.2')).toBe('MAT.7.2.1');           // tek eşleşme
+    expect(kzAramaAdayi(l, 'MAT.7.1.1')).toBe('MAT.7.1.1');         // 2 eşleşme, kod birebir
+    expect(kzAramaAdayi(l, 'mat.7.1.1 ')).toBe('MAT.7.1.1');        // büyük/küçük harf, boşluk
+    expect(kzAramaAdayi(l, 'mat.7.1')).toBeNull();                  // belirsiz: hiçbir şey seçilmez
+    expect(kzAramaAdayi(l, 'yok')).toBeNull();
+    // C: değer "ders|sınıf|kod" biçimindedir; dönen değer KOD değil değerdir
+    const c = [{ ...oge('FEN.7.1.2', 'Fen', '7', ''), deger: 'Fen|7|FEN.7.1.2' }];
+    expect(kzAramaAdayi(c, 'fen.7.1.2')).toBe('Fen|7|FEN.7.1.2');
+  });
+
+  it('P3-2: durum satırı Enter’ı söyler; bağlama başka hiçbir şeyi otomatik yapmaz', () => {
+    const k = kur();
+    k.kazanimSeciciHtml({ kimlik: 'kz-d', mod: 'ekle', etiket: 'E', ogeler: [oge('A1', 'F', '7', ''), oge('B2', 'F', '7', '')] });
+    k.kzHal('kz-d').ara = 'a1';
+    k.kazanimAgacHtml('kz-d');
+    expect(k.kzDurumMetni('kz-d')).toBe('1 kazanım bulundu. Enter ile seçebilirsiniz.');
+    k.kzHal('kz-d').ara = 'zz';
+    k.kazanimAgacHtml('kz-d');
+    expect(k.kzDurumMetni('kz-d')).toBe('Aramaya uyan kazanım yok.');
+    const bag = fonksiyonMetni('kazanimSeciciBagla');
+    const enterBas = bag.indexOf('e.key === "Enter"');
+    const enter = bag.slice(enterBas, bag.indexOf('};', enterBas));
+    expect(enter).toContain('kzAramaAdayi(r.ogeler, ara.value)');
+    expect(enter).toMatch(/if \(li\) sec\(li\);/);
+    expect(enter).not.toMatch(/renderAll|kazanimSecildi|poolFilter|cePool/);
   });
 });

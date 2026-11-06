@@ -10963,3 +10963,17 @@ SHA-256: app.js, css/kazanim-secici.css, index.html.
 (kırpıldı): select'in ok simgesi ▸ oldu ve kutu 1 px uzadı, alttaki içerik 1 px
 kaydı. Kapalı düğme select ile aynı ölçüye getirildi (44 px; ilk denemede 32 px
 idi ve fark %11,2'ydi). Diğer ekranlar %0; konsol hatası 0, yinelenen id 0.
+
+**W9 bağımsız doğrulaması (6 Kasım) sonrası iki P3 kapatıldı:**
+- **P3-3:** B2 düğmesinin erişilebilir adı artık eski `<select>`'teki "… kazanım ekle". Görünür etiket verilmediğinde
+  `aria-label` = bileşen etiketi, düğme metni (yükleniyor / N kazanım) `aria-describedby` ile açıklama olarak okunuyor.
+- **P3-2:** arama kutusunda Enter yalnız iki belirgin durumda seçim yapıyor (`kzAramaAdayi`): aramaya tek kazanım
+  uyuyorsa ya da aranan metin tek bir eşleşmenin koduna birebir eşitse. Başka durumda hiçbir şey olmuyor;
+  durum satırı bunu "Enter ile seçebilirsiniz." diye söylüyor.
+- Doğrulama:
+  - `npm test` 556/556; öz-kontrol %100 (558); FFFD 0.
+  - Tarayıcıda 1280 ve 390 px 9/9: belirsiz "MAT.7.1" + Enter hiçbir şey eklemiyor; tek eşleşme + Enter
+    MAT.7.1.3'ü ekliyor, odak düğmeye dönüyor.
+  - `kontroller.mjs` 28/28, `demo-yuru.mjs` 5/5.
+- **Sonraki tura:** P3-1 (ağaçta ilk harfle atlama), P3-4 (A2'de okul listesinde olmayan kazanımda seçili satır yok)
+  ve P3-5 (Deneyap geçişindeki tek 6,2 sn ölçümü; W9 tabanda ve dalda yeniden üretemedi, en çok 6 ms).
