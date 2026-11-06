@@ -4850,6 +4850,8 @@ var AUDIT_ETIKET = {
   onayli_soru_duzenlendi:{ ad: "Onaylı soru düzenlendi",   sinif: "pill-warning", aktor: "öğretmen" },
   /* §107: öğretmenin rıza formu alınan öğrencileri toplu işaretlemesi. */
   yz_izni_toplu:        { ad: "YZ izni toplu işaretlendi", sinif: "pill-neutral", aktor: "öğretmen" },
+  /* §114: OYSS senaryosu sınav taslağına yazıldı (dosya adı/içeriği kayda girmez). */
+  oyss_senaryo_yazildi: { ad: "OYSS senaryosu taslağa yazıldı", sinif: "pill-neutral", aktor: "öğretmen" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
@@ -8220,7 +8222,9 @@ function activateExam(id) {
                  // ekranda hâlâ önceki öğretmenin adı görünürdü.
                  teacherName: kayit.teacherName || "",
                  // §106: kâğıtta uygulandı mı — eksik kalırsa sınav değiştirilince kaybolur.
-                 uygulama: kayit.uygulama || "" };
+                 uygulama: kayit.uygulama || "",
+                 // §114: OYSS senaryo tablosu — eksik kalırsa sınav değiştirilince kaybolur.
+                 oyssSenaryo: kayit.oyssSenaryo || null };
   state.activeTeacherName = state.exam.teacherName;
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
@@ -9071,7 +9075,7 @@ function sihirbazAdim1Html() {
     '<span class="field-note">Yalnız bu sınıftaki öğrenciler sınavı görür; “Tüm sınıflar” herkese açar.</span></div></div>' +
     (locked ? '<div class="pill pill-blok pill-warning">Öğrenciler sınava başladı: süre ve sınıf artık değiştirilemez.</div>' : "") +
     (o.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(o.hata) + '</div>' : "") +
-    '</div>';
+    '</div>' + oyssKurHtml();   // §114
 }
 
 /** 2. adım: havuzdan soru + sınavdaki sorular + (açık uçlu varsa) rubrik. */
@@ -9110,7 +9114,7 @@ function sihirbazAdim2Html() {
         '</div>') + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınavdaki sorular</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     (soruKilidi ? '<div class="lbl-hint">Sınav yayında: soru listesi değişmez. Değiştirmek için önce yayından kaldırın.</div>' : "") +
-    '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() + '</div></div>' +
+    '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() + oyssPlanHtml() + '</div></div>' +
     (acikVar
       ? '<div class="ogt-rubrik" id="ogtRubrik"><h3 class="ogt-bolum">Rubrik — açık uçlu soruların puanlama anahtarı</h3>' + teacherTab2Html() + '</div>'
       : '<div class="lbl-hint ogt-rubrik-yok">Sınavda açık uçlu soru yok; rubrik gerekmiyor.</div>') +
@@ -9244,6 +9248,7 @@ function wireOgtSihirbaz() {
   const yHedef = document.getElementById("ogtYeniHedef");
   if (yHedef) yHedef.onchange = function () { o.yeniHedef = yHedef.value; };
   if (document.getElementById("ogtRubrik")) wireTeacherTab2();
+  wireOyssKur();   // §114
 }
 
 /* ============================== Öğretmen ============================== */
@@ -10609,6 +10614,567 @@ function wireOyss() {
   });
   const b = document.getElementById("btnOyssKopyala");
   if (b) b.onclick = oyssKopyala;
+}
+
+/* =====================================================================
+   §114 — OYSS SENARYOSUNDAN SINAV KUR
+   Öğretmen ÖDSGM'nin "konu-soru dağılım tablosu"nu (xlsx) KENDİSİ indirir
+   ve sihirbazın 1. adımında seçer. Tablolar "Tüm hakları saklıdır" ibaresi
+   taşıdığı için depoya KONMAZ (araştırma notu, 6.11).
+   GİZLİLİK: dosya YALNIZ bu tarayıcıda okunur — ağa gitmez, saklanmaz.
+   Okunan tablo state.ogt'de durur (KALICI_ALANLAR'da yok; sayfa
+   yenilenince düşer). Sınav taslağına yalnız seçilen senaryonun
+   {kod, istenen} listesi yazılır: state.exam.oyssSenaryo (isteğe bağlı alan;
+   eski kayıtlarda yoktur, göç yok).
+   DIŞ BAĞIMLILIK YOK: zip merkez dizini burada okunur, sıkıştırma
+   DecompressionStream("deflate-raw"), XML DOMParser ile çözülür.
+   Öneri yalnız ONAYLI sorulardan gelir; öğretmen her şeyi değiştirir,
+   otomatik yayın yoktur, zorluk dengesi yalnız gösterilir.
+   ===================================================================== */
+const XLSX_EN_BUYUK_DOSYA = 5 * 1024 * 1024;   // ÖDSGM dosyaları ~30 KB
+const XLSX_EN_BUYUK_ACIK = 20 * 1024 * 1024;   // açılmış toplam — zip bombası koruması
+const XLSX_ANA_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+const XLSX_REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+/* Kod biçimleri (gerçek dosyalardan): T.O.5.6 · T.Y.7.21 · MAT.5.3.1 ·
+   M.8.1.1.1 · T.8.3.1 · FB.6.2.1. Sondaki nokta ve baştaki boşluk atılır. */
+const OYSS_KOD_DESENI = /^([A-ZÇĞİÖŞÜ]{1,4}(?:\.[A-ZÇĞİÖŞÜ]{1,3})?(?:\.\d{1,2}){2,4})\.?(?:\s+([\s\S]*))?$/;
+const OYSS_DERS_ONEKI = { T: "Türkçe", MAT: "Matematik", M: "Matematik", FB: "Fen Bilimleri", F: "Fen Bilimleri", FEN: "Fen Bilimleri" };
+
+function xlsxHata(mesaj) { const e = new Error(mesaj); e.xlsx = true; return e; }
+
+/** Zip merkez dizini → { ad: { yontem, sikisik, boyut, yerel, bayrak } }. */
+function xlsxZipDizini(bayt) {
+  const b = bayt instanceof Uint8Array ? bayt : new Uint8Array(bayt);
+  if (b.length < 22) throw xlsxHata("Dosya boş ya da çok kısa; xlsx değil.");
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  if (dv.getUint32(0, true) !== 0x04034b50) throw xlsxHata("Bu bir xlsx dosyası değil (zip imzası yok). Excel'den “.xlsx” olarak kaydedilmiş dosyayı seçin.");
+  let son = -1;
+  for (let i = b.length - 22; i >= Math.max(0, b.length - 22 - 65535); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { son = i; break; }
+  }
+  if (son < 0) throw xlsxHata("Dosya eksik ya da bozuk: zip dizini bulunamadı (indirme yarıda kalmış olabilir).");
+  const adet = dv.getUint16(son + 10, true);
+  let p = dv.getUint32(son + 16, true);
+  const cozucu = new TextDecoder("utf-8");
+  const girdiler = {};
+  for (let k = 0; k < adet; k++) {
+    if (p + 46 > b.length || dv.getUint32(p, true) !== 0x02014b50) throw xlsxHata("Dosya bozuk: zip dizini okunamadı.");
+    const adUz = dv.getUint16(p + 28, true), ekUz = dv.getUint16(p + 30, true), notUz = dv.getUint16(p + 32, true);
+    const g = { bayrak: dv.getUint16(p + 8, true), yontem: dv.getUint16(p + 10, true),
+      sikisik: dv.getUint32(p + 20, true), boyut: dv.getUint32(p + 24, true), yerel: dv.getUint32(p + 42, true) };
+    if (g.sikisik === 0xffffffff || g.boyut === 0xffffffff || g.yerel === 0xffffffff) throw xlsxHata("Dosya çok büyük (ZIP64); konu-soru tablosu böyle olmaz.");
+    girdiler[cozucu.decode(b.subarray(p + 46, p + 46 + adUz))] = g;
+    p += 46 + adUz + ekUz + notUz;
+  }
+  return girdiler;
+}
+
+/** Bir zip girdisini metin olarak açar. sayac.acik: açılan toplam bayt (sınırlı). */
+async function xlsxGirdiMetni(bayt, girdiler, ad, sayac) {
+  const g = girdiler[ad];
+  if (!g) return null;
+  const b = bayt instanceof Uint8Array ? bayt : new Uint8Array(bayt);
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  if (g.bayrak & 1) throw xlsxHata("Dosya parola korumalı; açılamaz. Korumasız kopyasını seçin.");
+  if (g.yerel + 30 > b.length || dv.getUint32(g.yerel, true) !== 0x04034b50) throw xlsxHata("Dosya bozuk: " + ad + " bulunamadı.");
+  const bas = g.yerel + 30 + dv.getUint16(g.yerel + 26, true) + dv.getUint16(g.yerel + 28, true);
+  const ham = b.subarray(bas, bas + g.sikisik);
+  if (ham.length !== g.sikisik) throw xlsxHata("Dosya eksik: " + ad + " yarıda kesilmiş.");
+  let acik;
+  if (g.yontem === 0) acik = ham;
+  else if (g.yontem === 8) {
+    if (typeof DecompressionStream === "undefined") throw xlsxHata("Bu tarayıcı xlsx açamıyor. Chrome, Edge, Firefox ya da Safari'nin güncel sürümünü kullanın.");
+    const okuyucu = new Blob([ham]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+    const parcalar = [];
+    let top = 0;
+    try {
+      for (;;) {
+        const r = await okuyucu.read();
+        if (r.done) break;
+        top += r.value.length;
+        sayac.acik += r.value.length;
+        if (sayac.acik > XLSX_EN_BUYUK_ACIK) { try { okuyucu.cancel(); } catch (e) { /* zaten kapanmış */ } throw xlsxHata("Dosyanın içeriği beklenenden çok büyük; açılmadı."); }
+        parcalar.push(r.value);
+      }
+    } catch (e) {
+      if (e && e.xlsx) throw e;
+      throw xlsxHata("Dosya bozuk: " + ad + " açılamadı.");
+    }
+    acik = new Uint8Array(top);
+    let o = 0;
+    parcalar.forEach(function (p) { acik.set(p, o); o += p.length; });
+  } else throw xlsxHata("Desteklenmeyen sıkıştırma yöntemi (" + g.yontem + ").");
+  return new TextDecoder("utf-8").decode(acik);
+}
+
+function xlsxXml(metin, ad) {
+  const d = new DOMParser().parseFromString(metin, "application/xml");
+  if (d.getElementsByTagName("parsererror").length) throw xlsxHata("Dosya bozuk: " + ad + " okunamadı.");
+  return d;
+}
+
+/** Ad alanından bağımsız (öneki x: olan dosyalar da var) eleman listesi. */
+function xlsxElemanlar(kok, yerelAd) {
+  return Array.prototype.slice.call(kok.getElementsByTagNameNS("*", yerelAd));
+}
+
+/** <si>/<is> içindeki metin: <t> parçaları; okunuş (rPh) parçaları hariç. */
+function xlsxMetin(el) {
+  return xlsxElemanlar(el, "t").filter(function (t) {
+    return !(t.parentNode && t.parentNode.localName === "rPh");
+  }).map(function (t) { return t.textContent || ""; }).join("");
+}
+
+/** "AB12" → { r: 12, c: 28 } (1 tabanlı). */
+function xlsxHucreAdresi(ref) {
+  const m = /^([A-Z]{1,3})(\d{1,7})$/.exec(String(ref || "").toUpperCase());
+  if (!m) return null;
+  let c = 0;
+  for (let i = 0; i < m[1].length; i++) c = c * 26 + (m[1].charCodeAt(i) - 64);
+  return { r: Number(m[2]), c: c };
+}
+
+/** Hücre metnini sadeleştirir: NFC (dosyada ayrık ¨ işaretli harf var, ölçüldü), boşluk tekleme. */
+function xlsxSade(s) {
+  return String(s == null ? "" : s).normalize("NFC").replace(/[ \s]+/g, " ").trim();
+}
+
+/**
+ * xlsx → { sayfalar: [{ ad, hucreler: {"r,c": metin}, birlesik: [{r1,c1,r2,c2}] }] }.
+ * Bozuk ya da beklenmeyen dosyada xlsxHata (anlaşılır Türkçe) fırlatır.
+ */
+async function xlsxOku(bayt) {
+  const b = bayt instanceof Uint8Array ? bayt : new Uint8Array(bayt);
+  if (b.length > XLSX_EN_BUYUK_DOSYA) throw xlsxHata("Dosya çok büyük (" + Math.round(b.length / 1024) + " KB); konu-soru tablosu birkaç on KB olur.");
+  const girdiler = xlsxZipDizini(b);
+  const sayac = { acik: 0 };
+  const metin = function (ad) { return xlsxGirdiMetni(b, girdiler, ad, sayac); };
+  const wbMetin = await metin("xl/workbook.xml");
+  if (wbMetin == null) throw xlsxHata("Bu bir Excel çalışma kitabı değil (xl/workbook.xml yok). Word ya da başka bir zip dosyası seçilmiş olabilir.");
+  const wb = xlsxXml(wbMetin, "workbook.xml");
+  const relMetin = await metin("xl/_rels/workbook.xml.rels");
+  if (relMetin == null) throw xlsxHata("Dosya bozuk: sayfa bağlantıları (workbook.xml.rels) yok.");
+  const hedefler = {};
+  xlsxElemanlar(xlsxXml(relMetin, "workbook.xml.rels"), "Relationship").forEach(function (r) {
+    const h = String(r.getAttribute("Target") || "");
+    hedefler[r.getAttribute("Id")] = h.charAt(0) === "/" ? h.slice(1) : "xl/" + h.replace(/^\.\//, "");
+  });
+  const ortak = [];
+  const ssMetin = await metin("xl/sharedStrings.xml");
+  if (ssMetin != null) xlsxElemanlar(xlsxXml(ssMetin, "sharedStrings.xml"), "si").forEach(function (si) { ortak.push(xlsxMetin(si)); });
+  const sayfaEl = xlsxElemanlar(wb, "sheet");
+  if (!sayfaEl.length) throw xlsxHata("Çalışma kitabında sayfa yok.");
+  const sayfalar = [];
+  for (let i = 0; i < sayfaEl.length; i++) {
+    const s = sayfaEl[i];
+    const rid = s.getAttributeNS(XLSX_REL_NS, "id") || s.getAttribute("r:id");
+    const yol = hedefler[rid];
+    const shMetin = yol ? await metin(yol) : null;
+    if (shMetin == null) throw xlsxHata("Dosya bozuk: “" + xlsxSade(s.getAttribute("name")) + "” sayfası bulunamadı.");
+    const sh = xlsxXml(shMetin, yol);
+    const hucreler = {};
+    let satirNo = 0;
+    xlsxElemanlar(sh, "row").forEach(function (row) {
+      satirNo = Number(row.getAttribute("r")) || satirNo + 1;
+      let sutunNo = 0;
+      xlsxElemanlar(row, "c").forEach(function (c) {
+        const adr = xlsxHucreAdresi(c.getAttribute("r"));
+        sutunNo = adr ? adr.c : sutunNo + 1;
+        const r = adr ? adr.r : satirNo;
+        const t = c.getAttribute("t");
+        const v = xlsxElemanlar(c, "v")[0];
+        let deger = "";
+        if (t === "s") { const n = Number(v && v.textContent); deger = Number.isInteger(n) && ortak[n] != null ? ortak[n] : ""; }
+        else if (t === "inlineStr") { const is = xlsxElemanlar(c, "is")[0]; deger = is ? xlsxMetin(is) : ""; }
+        else deger = v ? v.textContent || "" : "";
+        deger = xlsxSade(deger);
+        if (deger) hucreler[r + "," + sutunNo] = deger;
+      });
+    });
+    const birlesik = [];
+    xlsxElemanlar(sh, "mergeCell").forEach(function (m) {
+      const p = String(m.getAttribute("ref") || "").split(":");
+      const a = xlsxHucreAdresi(p[0]), z = xlsxHucreAdresi(p[1] || p[0]);
+      if (a && z) birlesik.push({ r1: a.r, c1: a.c, r2: z.r, c2: z.c });
+    });
+    sayfalar.push({ ad: xlsxSade(s.getAttribute("name")) || ("Sayfa " + (i + 1)), hucreler: hucreler, birlesik: birlesik });
+  }
+  return { sayfalar: sayfalar };
+}
+
+/** Kodu karşılaştırma biçimine getirir: "  T.O.5.6. " → "T.O.5.6". */
+function oyssKodNormal(k) {
+  return String(k == null ? "" : k).normalize("NFC").replace(/\s+/g, "").replace(/\.+$/, "").toLocaleUpperCase("tr-TR");
+}
+
+/** Koddan ders ve sınıf: önek → ders, ilk sayı → sınıf. Bilinmeyen önekte ders "". */
+function oyssDersSinif(kod) {
+  const p = oyssKodNormal(kod).split(".");
+  const sayiYer = p.findIndex(function (x) { return /^\d+$/.test(x); });
+  return { ders: OYSS_DERS_ONEKI[p[0]] || "", sinif: sayiYer > 0 ? Number(p[sayiYer]) : null };
+}
+
+/**
+ * Bir sayfadan senaryo tablosunu çıkarır (saf).
+ * Dönüş: { baslik, sinavlar: [{ ad, senaryolar: [{ ad, sutun }] }], notlar: [],
+ *          satirlar: [{ kod, metin, sayilar: { sutun: n } }], atlanan: [], ders, sinif } ya da { hata }.
+ * Senaryo satırı: "Senaryo N" yazan hücrelerin satırı. Sınav adı bir üst
+ * satırdaki (birleşik olabilir) hücreden okunur.
+ */
+function oyssTabloAyikla(sayfa) {
+  const h = sayfa.hucreler || {};
+  const hucre = function (r, c) { return h[r + "," + c] || ""; };
+  const birlesikDeger = function (r, c) {
+    const m = (sayfa.birlesik || []).find(function (x) { return r >= x.r1 && r <= x.r2 && c >= x.c1 && c <= x.c2; });
+    return m ? hucre(m.r1, m.c1) : hucre(r, c);
+  };
+  const satirNolari = {};
+  Object.keys(h).forEach(function (k) { const p = k.split(","); (satirNolari[p[0]] = satirNolari[p[0]] || []).push(Number(p[1])); });
+  const satirlarSirali = Object.keys(satirNolari).map(Number).sort(function (a, b) { return a - b; });
+  const senaryoMu = function (m) { return /^senaryo\s*\d+$/i.test(m); };
+  const sRow = satirlarSirali.find(function (r) { return satirNolari[r].some(function (c) { return senaryoMu(hucre(r, c)); }); });
+  if (sRow == null) return { hata: "Bu sayfada “Senaryo” sütunları bulunamadı. ÖDSGM konu-soru dağılım tablosunu seçtiğinizden emin olun." };
+  const sinavlar = [];
+  const notlar = [];
+  satirNolari[sRow].slice().sort(function (a, b) { return a - b; }).forEach(function (c) {
+    const m = hucre(sRow, c);
+    const blok = birlesikDeger(sRow - 1, c) || "Sınav";
+    if (senaryoMu(m)) {
+      let s = sinavlar.find(function (x) { return x.ad === blok; });
+      if (!s) { s = { ad: blok, senaryolar: [] }; sinavlar.push(s); }
+      s.senaryolar.push({ ad: "Senaryo " + m.replace(/\D+/g, ""), sutun: c });
+    } else if (m) notlar.push(blok + ": senaryo yok — " + m);
+  });
+  const sutunlar = [];
+  sinavlar.forEach(function (s) { s.senaryolar.forEach(function (x) { sutunlar.push(x.sutun); }); });
+  const satirlar = [];
+  const atlanan = [];
+  satirlarSirali.filter(function (r) { return r > sRow; }).forEach(function (r) {
+    let kod = "", metin = "";
+    satirNolari[r].slice().sort(function (a, b) { return a - b; }).some(function (c) {
+      if (sutunlar.indexOf(c) !== -1) return false;
+      const m = OYSS_KOD_DESENI.exec(hucre(r, c));
+      if (m) { kod = oyssKodNormal(m[1]); metin = xlsxSade(m[2] || ""); return true; }
+      return false;
+    });
+    const sayilar = {};
+    let sayiVar = false;
+    sutunlar.forEach(function (c) {
+      const v = hucre(r, c);
+      if (!v) return;
+      const n = Number(v.replace(",", "."));
+      if (Number.isInteger(n) && n > 0 && n < 100) { sayilar[c] = n; sayiVar = true; }
+    });
+    if (kod) satirlar.push({ kod: kod, metin: metin, sayilar: sayilar });
+    else if (sayiVar) atlanan.push("Satır " + r + (hucre(r, satirNolari[r][0]) ? " (" + hucre(r, satirNolari[r][0]).slice(0, 40) + ")" : ""));
+  });
+  if (!satirlar.length) return { hata: "Bu sayfada öğrenme çıktısı kodu (ör. T.O.5.6, MAT.5.1.1) bulunamadı." };
+  let baslik = "";
+  satirlarSirali.filter(function (r) { return r < sRow - 1; }).some(function (r) {
+    const c = satirNolari[r].slice().sort(function (a, b) { return a - b; })[0];
+    baslik = hucre(r, c); return !!baslik;
+  });
+  /* Ders/sınıf: kodların çoğunluğu (sayfa adının yazımı tutarsız: "5. Sınıf", "6. SINIF", "5.sınıf"). */
+  const say = {};
+  satirlar.forEach(function (s) { const d = oyssDersSinif(s.kod); const a = d.ders + "|" + d.sinif; say[a] = (say[a] || 0) + 1; });
+  const en = Object.keys(say).sort(function (a, b) { return say[b] - say[a]; })[0].split("|");
+  return { baslik: baslik, sinavlar: sinavlar, notlar: notlar, satirlar: satirlar, atlanan: atlanan,
+           ders: en[0], sinif: en[1] === "null" ? null : Number(en[1]) };
+}
+
+/** Seçilen senaryonun satırları: yalnız soru isteyen kazanımlar. */
+function oyssSenaryoSatirlari(tablo, sinavNo, senaryoNo) {
+  const s = tablo && tablo.sinavlar && tablo.sinavlar[sinavNo];
+  const x = s && s.senaryolar[senaryoNo];
+  if (!x) return [];
+  return tablo.satirlar.filter(function (r) { return r.sayilar[x.sutun]; })
+    .map(function (r) { return { kod: r.kod, metin: r.metin, istenen: r.sayilar[x.sutun] }; });
+}
+
+/**
+ * Senaryo satırlarını havuzla eşleştirir (saf). Yalnız ONAYLI sorular aday olur;
+ * sınavda zaten olanlar öne alınır, sonra havuz sırası. katalog: {kod: true} ya da null
+ * (katalog yoksa karşılaştırma yapılamaz → katalogda: null).
+ */
+function oyssEslestir(satirlar, sorular, sinavdakiIdler, katalog) {
+  const sinavda = {};
+  (sinavdakiIdler || []).forEach(function (id) { sinavda[id] = true; });
+  const onayli = (sorular || []).filter(function (q) { return q.status === "approved"; });
+  return satirlar.map(function (s) {
+    const kod = oyssKodNormal(s.kod);
+    const adaylar = onayli.filter(function (q) { return oyssKodNormal(q.outcome) === kod; })
+      .sort(function (a, b) { return (sinavda[b.id] ? 1 : 0) - (sinavda[a.id] ? 1 : 0); });
+    return { kod: kod, metin: s.metin, istenen: s.istenen,
+             adaylar: adaylar.map(function (q) { return q.id; }),
+             onerilen: adaylar.slice(0, s.istenen).map(function (q) { return q.id; }),
+             eksik: Math.max(0, s.istenen - adaylar.length),
+             katalogda: katalog ? !!katalog[kod] : null };
+  });
+}
+
+/** Zorluk dağılımı — yalnız bilgi; seçim buna göre ZORLANMAZ. */
+function oyssZorlukDagilimi(sorular) {
+  const d = { easy: 0, medium: 0, hard: 0, diger: 0 };
+  (sorular || []).forEach(function (q) { if (d[q.difficulty] != null && q.difficulty !== "diger") d[q.difficulty]++; else d.diger++; });
+  return d;
+}
+
+/** Arayüz durumu (kalıcı değil: state.ogt KALICI_ALANLAR'da yok). */
+function oyssKurDurum() {
+  const o = ogtDurum();
+  if (!o.oyss) o.oyss = { acik: false, dosya: "", tablolar: null, sayfa: 0, sinav: 0, senaryo: 0, secim: null, hata: "", yukleniyor: false };
+  return o.oyss;
+}
+
+function oyssSeciliTablo() {
+  const d = oyssKurDurum();
+  const t = d.tablolar && d.tablolar[d.sayfa];
+  return t && !t.hata ? t : null;
+}
+
+/** Seçili tablonun müfredat kataloğu: {kod: true} | null (yok/gelmedi). */
+function oyssKatalogKodlari(t) {
+  if (!t || !t.ders || !t.sinif) return null;
+  const k = (state.katalog || {})[katalogAnahtari(t.ders, t.sinif)];
+  if (!k || !Array.isArray(k.kazanimlar)) return null;
+  const m = {};
+  k.kazanimlar.forEach(function (x) { m[oyssKodNormal(x.kod)] = true; });
+  return m;
+}
+
+/** Katalog gerekiyorsa yükler (yalnız kendi statik dosyamız; /api çağrısı değil). */
+function oyssKatalogHazirla() {
+  const t = oyssSeciliTablo();
+  if (!t || !t.ders || !t.sinif) return;
+  const a = katalogAnahtari(t.ders, t.sinif);
+  if (!MUFREDAT_KATALOGLARI[a] || (state.katalog || {})[a]) return;
+  katalogYukle(a).then(function () { renderAll(); }, function () { oyssKurDurum().katalogHata = a; renderAll(); });
+}
+
+/** Geçerli eşleşme + öğretmenin seçimi (secim null → öneri). */
+function oyssGorunum() {
+  const d = oyssKurDurum();
+  const t = oyssSeciliTablo();
+  if (!t) return null;
+  const satirlar = oyssSenaryoSatirlari(t, d.sinav, d.senaryo);
+  const es = oyssEslestir(satirlar, state.questions, state.exam.questionIds, oyssKatalogKodlari(t));
+  const secili = {};
+  es.forEach(function (r) {
+    r.adaylar.forEach(function (id) {
+      secili[id] = d.secim ? !!d.secim[id] : r.onerilen.indexOf(id) !== -1;
+    });
+  });
+  return { tablo: t, eslesme: es, secili: secili };
+}
+
+function oyssSecimListesi(g) {
+  const ids = [];
+  g.eslesme.forEach(function (r) { r.adaylar.forEach(function (id) { if (g.secili[id] && ids.indexOf(id) === -1) ids.push(id); }); });
+  return ids;
+}
+
+function oyssKurHtml() {
+  const o = ogtDurum();
+  const d = oyssKurDurum();
+  const kilit = !o.yeni && state.exam.status === "published";
+  let govde = '<p class="lbl-hint">ÖDSGM\'nin yayımladığı konu-soru dağılım tablosunu (xlsx) kendi bilgisayarınızdan seçin. ' +
+    "<b>Dosya yalnız bu tarayıcıda okunur; hiçbir yere gönderilmez ve saklanmaz.</b> Sınav taslağına yalnız seçtiğiniz " +
+    "senaryonun kazanım–soru sayısı tablosu yazılır. Sorular havuzdaki <b>onaylı</b> sorulardan önerilir; hepsini değiştirebilirsiniz.</p>" +
+    '<div class="field"><label for="oyssDosya">Konu-soru dağılım tablosu (.xlsx)</label>' +
+    '<input id="oyssDosya" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"' + (kilit ? " disabled" : "") + ">" +
+    (d.dosya ? '<span class="field-note">Okunan dosya: ' + escapeHtml(d.dosya) + " (yalnız bu sayfada; yenileyince unutulur)</span>" : "") + "</div>" +
+    (d.yukleniyor ? '<div class="lbl-hint" role="status">Dosya okunuyor…</div>' : "") +
+    (d.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(d.hata) + "</div>" : "");
+  if (d.tablolar) govde += oyssSecicilerHtml(d) + oyssTabloHtml(kilit);
+  return '<details class="oyss-kur" id="oyssKurKart"' + (d.acik ? " open" : "") + ">" +
+    "<summary>OYSS senaryosundan kur <span class=\"oyss-kur-ek\">(isteğe bağlı)</span></summary>" + govde + "</details>";
+}
+
+function oyssSecicilerHtml(d) {
+  const t = oyssSeciliTablo();
+  const sec = function (id, etiket, secenekler, secili) {
+    return '<div class="field"><label for="' + id + '">' + etiket + "</label><select id=\"" + id + '">' +
+      secenekler.map(function (s, i) { return '<option value="' + i + '"' + (i === secili ? " selected" : "") + ">" + escapeHtml(s) + "</option>"; }).join("") +
+      "</select></div>";
+  };
+  return '<div class="field-row oyss-seciciler">' +
+    sec("oyssSayfa", "Sınıf sayfası", d.tablolar.map(function (x) { return x.ad + (x.hata ? " — okunamadı" : ""); }), d.sayfa) +
+    (t ? sec("oyssSinav", "Sınav", t.sinavlar.map(function (s) { return s.ad; }), d.sinav) +
+         sec("oyssSenaryo", "Senaryo", (t.sinavlar[d.sinav] || { senaryolar: [] }).senaryolar.map(function (s) { return s.ad; }), d.senaryo) : "") +
+    "</div>" +
+    (d.tablolar[d.sayfa] && d.tablolar[d.sayfa].hata ? '<div class="sy-hata" role="alert">' + escapeHtml(d.tablolar[d.sayfa].hata) + "</div>" : "") +
+    (t && t.notlar.length ? '<div class="lbl-hint">' + t.notlar.map(escapeHtml).join("<br>") + "</div>" : "");
+}
+
+function oyssTabloHtml(kilit) {
+  const g = oyssGorunum();
+  if (!g) return "";
+  const d = oyssKurDurum();
+  const o = ogtDurum();
+  const soru = function (id) { return state.questions.find(function (q) { return q.id === id; }); };
+  const istenenTop = g.eslesme.reduce(function (a, r) { return a + r.istenen; }, 0);
+  const eksikTop = g.eslesme.reduce(function (a, r) { return a + r.eksik; }, 0);
+  const secIds = oyssSecimListesi(g);
+  const zd = oyssZorlukDagilimi(secIds.map(soru).filter(Boolean));
+  const katalogsuz = g.eslesme.filter(function (r) { return r.katalogda === false; });
+  const katalogYok = g.eslesme.length && g.eslesme[0].katalogda === null;
+  const satirlar = g.eslesme.map(function (r) {
+    const secSay = r.adaylar.filter(function (id) { return g.secili[id]; }).length;
+    const adaylar = r.adaylar.map(function (id) {
+      const q = soru(id);
+      const eid = "oyssQ-" + id;
+      return '<li><input type="checkbox" class="js-oyss-kur-sec" id="' + eid + '" data-qid="' + id + '"' + (g.secili[id] ? " checked" : "") + (kilit ? " disabled" : "") + ">" +
+        '<label for="' + eid + '">' + escapeHtml(truncate(q.body || "", 80)) + ' <span class="pill pill-neutral">' + diffLabel(q.difficulty) + "</span></label></li>";
+    }).join("");
+    return '<tr><td><span class="oyss-kod">' + escapeHtml(r.kod) + "</span>" +
+      (r.katalogda === false ? ' <span class="pill pill-warning">müfredatta yok</span>' : "") +
+      '<div class="oyss-kur-metin">' + escapeHtml(truncate(r.metin, 110)) + "</div></td>" +
+      '<td class="oyss-kur-sayi" data-etiket="İstenen soru">' + r.istenen + "</td>" +
+      '<td class="oyss-kur-sorular">' + (adaylar ?'<ul class="oyss-kur-aday">' + adaylar + "</ul>" : "") +
+      (r.eksik ? '<div class="oyss-kur-eksik">Havuzda yok: ' + r.eksik + " soru eksik</div>"
+        : secSay !== r.istenen ? '<div class="lbl-hint">' + secSay + "/" + r.istenen + " seçili</div>" : "") + "</td></tr>";
+  }).join("");
+  const yaz = o.yeni ? "Sınavı oluştur ve senaryoyu taslağa yaz" : "Seçili soruları ve senaryo tablosunu taslağa yaz";
+  return '<div class="oyss-kur-ozet" role="status">' + escapeHtml(g.tablo.baslik || g.tablo.ad || "") + " · " +
+    g.eslesme.length + " kazanım · " + istenenTop + " soru isteniyor · " + secIds.length + " soru seçili" +
+    (eksikTop ? ' · <b class="oyss-kur-eksik">havuzda ' + eksikTop + " soru eksik</b>" : "") + "</div>" +
+    '<div class="oyss-kur-kap"><table class="oyss-kur-tablo"><thead><tr><th scope="col">Kazanım</th><th scope="col">İstenen</th>' +
+    '<th scope="col">Havuzdaki onaylı sorular</th></tr></thead><tbody>' + satirlar + "</tbody></table></div>" +
+    '<div class="lbl-hint oyss-kur-zorluk">Seçili soruların zorluğu — Kolay <b>' + zd.easy + "</b> · Orta <b>" + zd.medium + "</b> · Zor <b>" + zd.hard + "</b>" +
+    (zd.diger ? " · Belirsiz <b>" + zd.diger + "</b>" : "") + ". Yalnız bilgi içindir; denge zorlanmaz.</div>" +
+    (katalogsuz.length ? '<div class="pill pill-blok pill-warning">Müfredat kataloğunda bulunamayan kodlar: ' +
+      katalogsuz.map(function (r) { return escapeHtml(r.kod); }).join(", ") + ". Kod tablo ile katalog arasında farklı yazılmış ya da eski programdan olabilir; bu kazanımlar için havuzda soru eşleşmez.</div>" : "") +
+    (katalogYok ? '<div class="lbl-hint">' + escapeHtml((g.tablo.ders || "Bu ders") + (g.tablo.sinif ? " " + g.tablo.sinif + ". sınıf" : "")) +
+      (d.katalogHata ? " müfredat kataloğu yüklenemedi; " : " için müfredat kataloğu yok; ") + "kodlar katalogla karşılaştırılamadı.</div>" : "") +
+    (g.tablo.atlanan.length ? '<div class="lbl-hint">Kodu okunamayan ve hesaba katılmayan satırlar: ' + g.tablo.atlanan.map(escapeHtml).join("; ") + "</div>" : "") +
+    (kilit ? '<div class="pill pill-blok pill-warning">Sınav yayında: soru listesi değişmez. Önce yayından kaldırın.</div>'
+      : '<div class="oyss-eylem"><button type="button" class="btn btn-primary btn-sm" id="btnOyssKurYaz"' + (g.eslesme.length ? "" : " disabled") + ">" + yaz + "</button>" +
+        '<span class="lbl-hint">Sınav yayınlanmaz; 2. adımda gözden geçirirsiniz.</span></div>');
+}
+
+/** Seçilen senaryoyu ve işaretli soruları aktif sınav taslağına yazar. */
+function oyssTaslagaYaz() {
+  const g = oyssGorunum();
+  if (!g || state.exam.status === "published") return false;
+  const d = oyssKurDurum();
+  const sinav = g.tablo.sinavlar[d.sinav];
+  const senaryo = sinav && sinav.senaryolar[d.senaryo];
+  const onayli = {};
+  state.questions.forEach(function (q) { if (q.status === "approved") onayli[q.id] = true; });
+  const ekle = oyssSecimListesi(g).filter(function (id) { return onayli[id] && state.exam.questionIds.indexOf(id) === -1; });
+  state.exam.questionIds = state.exam.questionIds.concat(ekle);
+  state.exam.oyssSenaryo = {
+    ders: g.tablo.ders || "", sinif: g.tablo.sinif || null, sayfa: g.tablo.ad || "",
+    sinav: sinav ? sinav.ad : "", senaryo: senaryo ? senaryo.ad : "",
+    satirlar: g.eslesme.map(function (r) { return { kod: r.kod, istenen: r.istenen }; }),
+    kaynak: "ÖDSGM konu-soru dağılım tablosu (öğretmenin yüklediği dosya; dosyanın kendisi saklanmadı)",
+    yazildi: new Date().toISOString(),
+  };
+  auditKaydet("oyss_senaryo_yazildi", { senaryo: (sinav ? sinav.ad + " · " : "") + (senaryo ? senaryo.ad : ""),
+    kazanimSay: g.eslesme.length, eklenen: ekle.length,
+    eksik: g.eslesme.reduce(function (a, r) { return a + r.eksik; }, 0), rol: rolAdi(state.role) });
+  aktifOturumuYaz();
+  saveState();
+  return true;
+}
+
+/** Sınavdaki soruların senaryo tablosuna göre durumu (2. adım; saf). */
+function oyssPlanKarsilastir(plan, sorular, questionIds) {
+  const say = {};
+  (questionIds || []).forEach(function (id) {
+    const q = (sorular || []).find(function (x) { return x.id === id; });
+    if (q) { const k = oyssKodNormal(q.outcome); say[k] = (say[k] || 0) + 1; }
+  });
+  return ((plan && plan.satirlar) || []).map(function (r) {
+    const n = say[oyssKodNormal(r.kod)] || 0;
+    return { kod: r.kod, istenen: r.istenen, sinavda: n, eksik: Math.max(0, r.istenen - n), fazla: Math.max(0, n - r.istenen) };
+  });
+}
+
+function oyssPlanHtml() {
+  const p = state.exam.oyssSenaryo;
+  if (!p || !Array.isArray(p.satirlar)) return "";
+  const k = oyssPlanKarsilastir(p, state.questions, state.exam.questionIds);
+  const eksik = k.reduce(function (a, r) { return a + r.eksik; }, 0);
+  /* coverage-box: .cv-* sınıfları yalnız onun içinde biçimlenir (app.css, kapsayıcı tuzağı). */
+  return '<div class="coverage-box oyss-plan" id="oyssPlan"><div class="cv-head">OYSS senaryosu: <b>' + escapeHtml([p.sayfa, p.sinav, p.senaryo].filter(Boolean).join(" · ")) + "</b></div>" +
+    '<ul class="oyss-plan-liste">' + k.map(function (r) {
+      return '<li class="' + (r.eksik ? "is-eksik" : "is-tam") + '"><span class="oyss-kod">' + escapeHtml(r.kod) + "</span> " +
+        r.sinavda + "/" + r.istenen + (r.eksik ? " · " + r.eksik + " soru eksik" : "") + (r.fazla ? " · " + r.fazla + " fazla" : "") + "</li>";
+    }).join("") + "</ul>" +
+    (eksik ? '<div class="cv-warn">Senaryoya göre <b>' + eksik + "</b> soru eksik. Havuza soru ekleyip onayladıktan sonra seçebilirsiniz; yayın engellenmez.</div>"
+      : '<div class="cv-ok">Senaryonun istediği soru sayıları karşılanıyor.</div>') +
+    (state.exam.status === "published" ? "" : '<button type="button" class="btn btn-secondary btn-sm" id="btnOyssPlanKaldir">Senaryo bağını kaldır</button>') +
+    "</div>";
+}
+
+async function oyssDosyaOku(dosya) {
+  const d = oyssKurDurum();
+  d.hata = ""; d.tablolar = null; d.secim = null; d.sayfa = 0; d.sinav = 0; d.senaryo = 0; d.katalogHata = "";
+  d.dosya = dosya ? xlsxSade(dosya.name).slice(0, 80) : "";
+  if (!dosya) { renderAll(); return; }
+  if (!/\.xlsx$/i.test(dosya.name || "")) { d.hata = "Yalnız .xlsx dosyası okunur (eski .xls ya da PDF değil)."; renderAll(); return; }
+  if (dosya.size > XLSX_EN_BUYUK_DOSYA) { d.hata = "Dosya çok büyük (" + Math.round(dosya.size / 1024) + " KB); konu-soru tablosu birkaç on KB olur."; renderAll(); return; }
+  d.yukleniyor = true; renderAll();
+  try {
+    const kitap = await xlsxOku(new Uint8Array(await dosya.arrayBuffer()));
+    const tablolar = kitap.sayfalar.map(function (s) { const t = oyssTabloAyikla(s); t.ad = s.ad; return t; });
+    if (!tablolar.some(function (t) { return !t.hata; })) throw xlsxHata("Dosyada senaryo tablosu bulunamadı. ÖDSGM'nin konu-soru dağılım tablosunu seçin.");
+    d.tablolar = tablolar;
+    d.sayfa = Math.max(0, tablolar.findIndex(function (t) { return !t.hata; }));
+  } catch (e) {
+    d.hata = e && e.xlsx ? e.message : "Dosya okunamadı: " + String((e && e.message) || e);
+  } finally {
+    d.yukleniyor = false;
+  }
+  renderAll();
+  oyssKatalogHazirla();
+}
+
+function wireOyssKur() {
+  const kart = document.getElementById("oyssKurKart");
+  if (kart) kart.addEventListener("toggle", function () { oyssKurDurum().acik = kart.open; });
+  const d = oyssKurDurum();
+  const f = document.getElementById("oyssDosya");
+  if (f) f.onchange = function () { oyssDosyaOku(f.files && f.files[0]); };
+  const secici = function (id, alan, sifirla) {
+    const el = document.getElementById(id);
+    if (el) el.onchange = function () {
+      d[alan] = Number(el.value) || 0;
+      sifirla.forEach(function (a) { d[a] = 0; });
+      d.secim = null;
+      renderAll();
+      if (alan === "sayfa") oyssKatalogHazirla();
+    };
+  };
+  secici("oyssSayfa", "sayfa", ["sinav", "senaryo"]);
+  secici("oyssSinav", "sinav", ["senaryo"]);
+  secici("oyssSenaryo", "senaryo", []);
+  document.querySelectorAll(".js-oyss-kur-sec").forEach(function (cb) {
+    cb.onchange = function () {
+      const g = oyssGorunum();
+      if (!g) return;
+      if (!d.secim) d.secim = Object.assign({}, g.secili);
+      d.secim[Number(cb.dataset.qid)] = cb.checked;
+      renderAll();
+    };
+  });
+  const yaz = document.getElementById("btnOyssKurYaz");
+  if (yaz) yaz.onclick = function () {
+    const o = ogtDurum();
+    if (o.yeni) {
+      const t = oyssSeciliTablo();
+      if (!String(o.yeniAd || "").trim() && t) {
+        const s = t.sinavlar[d.sinav], x = s && s.senaryolar[d.senaryo];
+        o.yeniAd = [t.baslik || t.ad, s && s.ad, x && x.ad].filter(Boolean).join(" · ").slice(0, 120);
+      }
+      yeniSinavOlustur();
+      if (o.yeni) return;            // ad hatası: oluşmadı
+    }
+    if (oyssTaslagaYaz()) sihirbazAdimaGit(2);
+  };
+  const kaldir = document.getElementById("btnOyssPlanKaldir");
+  if (kaldir) kaldir.onclick = function () { state.exam.oyssSenaryo = null; aktifOturumuYaz(); saveState(); renderAll(); };
 }
 
 function wireTeacherTab1() {
@@ -17069,7 +17635,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz", "xlsxHata", "xlsxZipDizini", "xlsxGirdiMetni", "xlsxXml", "xlsxElemanlar", "xlsxMetin", "xlsxHucreAdresi", "xlsxSade", "xlsxOku", "oyssKodNormal", "oyssDersSinif", "oyssTabloAyikla", "oyssSenaryoSatirlari", "oyssEslestir", "oyssZorlukDagilimi", "oyssKurDurum", "oyssSeciliTablo", "oyssKatalogKodlari", "oyssKatalogHazirla", "oyssGorunum", "oyssSecimListesi", "oyssKurHtml", "oyssSecicilerHtml", "oyssTabloHtml", "oyssTaslagaYaz", "oyssPlanKarsilastir", "oyssPlanHtml", "oyssDosyaOku", "wireOyssKur",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
