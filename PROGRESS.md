@@ -11690,7 +11690,7 @@ Kod yok: `app.js`, `src/` değişmedi. Model çağrısı, push, deploy ve main b
 - **Tasarım:** tek model (llama-3.3-70b, yedek kapalı); 55 kazanım (5–7. sınıf, 4 ders) × 2 mod × 3 tekrar = 330 çağrı ≈ 597 ÇSS. Dönen ÇSS'lerin hepsi etiketlenir, ağırlık yok.
 - **Güç:** beklenen "yanlış" madde ≈ 55–85.
   - δ = 10 ile güç ≈ %46–56, savunulamaz.
-  - **δ = 15 önerildi:** 60 "yanlış" maddeyle güç ≈ %80. Karar Esat'ın.
+  - **δ = 15 (müdür kararı, 6.11):** 60 "yanlış" maddeyle güç ≈ %80.
 - **Etiketleme:** 2 öğretmen, kör; %25'ine ikinci etiketleyici bakar (κ); insan–YZ κ ikincil.
   - `tools/etiket/` henüz YOK; gereksinimleri belgede yazılı.
 - **Analiz:** Wilson GA + kazanım kümesinde bootstrap; H1 kararı tutucu yönteme göre verilir.
@@ -11718,6 +11718,7 @@ Kod yok: `app.js`, `src/` değişmedi. Model çağrısı, push, deploy ve main b
   - §7'deki eski "Google Fonts / jsDelivr indirilebilir" cümlesi §87'den beri yanlıştı; düzeltildi (yalnız barındırıcı Cloudflare).
 
 **3. OYSS tablo araştırması** (Madde 2 ön koşulu): 2026-2027 1. dönem tabloları ÖDSGM'de açık (xlsx, ders başına, senaryo sütunlu), 2. dönem henüz yok, lisans "Tüm hakları saklıdır" → ayrıntı `C:\Users\ASUS\Downloads\Mihenk\oyss-tablo-arastirma.md` (depo dışı).
+- **Karar (Orchestrator 3, 6.11):** OYSS tabloları depoya konmayacak; öğretmen kendi indirdiği xlsx'i tarayıcıda yükleyecek (dağıtım yok). Uygulama sonraki tur.
 
 **Doğrulanmayanlar:**
 - Yeni sayfa tarayıcıda açılıp ekran görüntüsüyle denetlenmedi; yalnız `<script` yokluğu kontrol edildi.

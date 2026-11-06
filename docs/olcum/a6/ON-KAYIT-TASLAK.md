@@ -28,9 +28,8 @@ A6 bu bulguyu üç yönden sınar:
 Tüm oranlar **insan etiketine** göre hesaplanır (§6).
 
 - **H1 (birincil, eşdeğer-altı olmama):** İki modun birleşik örnekleminde, A1v2 ∪ A2'nin "yanlış" anahtarlı ÇSS'leri yakalama oranının %95 GA **alt sınırı > %77,7 − δ**.
-  - δ (eşdeğerlik payı) = **15 puan** önerilir; bu durumda eşik **%62,7** olur.
-  - Gerekçe §5'te: δ = 10 seçilirse bu örneklemle güç yaklaşık %55'te kalır.
-  - `[Esat kararı: δ = 15 / 10]`
+  - δ (eşdeğerlik payı) = **15 puan**; eşik **%62,7**.
+  - **Karar: δ = 15 (müdür, 6.11; gerekçe: δ=10 ile güç %46–56, δ=15 ile ≈%80).** Ayrıntı §5.
   - **H0:** yakalama oranı ≤ %77,7 − δ.
 - **H2 (ikincil, yönlü):** Kaynak metin modunda "yanlış" anahtar oranı kazanım modundan **düşüktür**.
   - Gerekçe: modelin dayanacağı bir metin vardır.
@@ -92,7 +91,7 @@ Normal yaklaşımla, gerçek yakalama oranının A5 düzeyinde (%77,7) olduğu v
 
 - Hesap: SE = √(0,777·0,223/n), güç = Φ(δ/SE − 1,96).
 - **Bu bütçeyle δ = 10 savunulamaz.** δ = 10 için %80 güç ≈ 136 "yanlış" madde ister, yani ≈ 1.000–1.500 ÇSS.
-- **Öneri: δ = 15 ve en az 60 "yanlış" madde.**
+- **Karar (müdür, 6.11): δ = 15 ve en az 60 "yanlış" madde.**
 - Aynı nedenle mod başına H1 testi yapılmaz; mod kırılımı keşifseldir.
 - H2 için güç hesabı yapılmadı. Bir mod farkını yakalamak için örneklem küçüktür. H2'de "fark gösterilemedi" sonucu "fark yok" diye **yorumlanmaz**.
 
