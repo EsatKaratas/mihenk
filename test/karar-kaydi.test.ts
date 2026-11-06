@@ -242,10 +242,10 @@ describe('CSV', () => {
       { tur: 'soru_onaylandi', at: 0, anahtarIzlendi: true },
     ];
     const satirlar = auditCsv().replace(/^﻿/, '').split('\n');
-    expect(satirlar[0]).toBe('zaman;olay;aktor;model;yedekMi;soru;ogrenciNo;aiPuan;nihaiPuan;degisti;guven;not;supheler;redKodu;anahtarDegisimi;rozetA1A2');
-    expect(satirlar[1].split(';').slice(12)).toEqual(['kaynakYok', 'ANH-YOK', '', '']);
-    expect(satirlar[2].split(';').slice(13)).toEqual(['', 'B→C', 'A1,A2']);
-    expect(satirlar[3].split(';').slice(13)).toEqual(['', 'aynı', '']);
+    expect(satirlar[0]).toBe('zaman;olay;aktor;model;yedekMi;soru;ogrenciNo;aiPuan;nihaiPuan;degisti;guven;not;supheler;redKodu;anahtarDegisimi;rozetA1A2;oncekiDurum;rol');   // §104b: iki sütun daha sonda
+    expect(satirlar[1].split(';').slice(12, 16)).toEqual(['kaynakYok', 'ANH-YOK', '', '']);
+    expect(satirlar[2].split(';').slice(13, 16)).toEqual(['', 'B→C', 'A1,A2']);
+    expect(satirlar[3].split(';').slice(13, 16)).toEqual(['', 'aynı', '']);
   });
 });
 
