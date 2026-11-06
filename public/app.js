@@ -8393,7 +8393,7 @@ function sihirbazAdim3Html() {
       (!items.length ? '<div class="lbl-hint" style="margin-top:8px;">Yayınlamak için 2. adımda en az bir soru seçin.</div>' : "")
     ) +
     (state.poolError ? '<div class="pill pill-blok pill-critical" role="alert" style="margin-top:8px;">' + escapeHtml(state.poolError) + '</div>' : "") +
-    yazdirCubuguHtml() + '</div>';
+    yazdirCubuguHtml() + oyssPaketHtml() + '</div>';   // §101 OYSS
 }
 
 function sihirbazAdimaGit(n) {
@@ -9219,11 +9219,152 @@ function wireYazdir() {
   });
 }
 
+/* §101 — OYSS PAKETİ
+   MEB Ortak Yazılı Sınav Sistemi'nde zümre, senaryodaki iki öğrenme çıktısı
+   için iki açık uçlu soru ve PUANLAMA ANAHTARI yazar; "Soru Yaz" paneli
+   harici belgeden kopyala-yapıştırı destekler (kılavuz s. 12). Bu kart
+   sınavdaki açık uçlu soruları o panele yapıştırılacak düz metne çevirir.
+   Alan adları kılavuzdaki gibidir: Öğrenme çıktısı, Güçlük düzeyi, Soru,
+   Puanlama anahtarı. Yalnız ONAYLI soru ve öğretmenin kabul ettiği rubrik
+   seçilebilir (agents.md §1): yapay zekâ taslağı resmî sınava gitmez.
+   Metin yalnız bu cihazda panoya alınır; hiçbir yere gönderilmez. */
+
+/** Sınavdaki açık uçlu sorular; seçilemeyenin nedeni `engel`de. */
+function oyssAdaylari() {
+  return (state.exam.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(function (q) { return q && q.type !== "mc"; })
+    .map(function (q) {
+      const rub = state.rubrics[q.id];
+      let engel = "";
+      if (q.status !== "approved") engel = "Soru onaylı değil";
+      else if (!rub || !(rub.criteria || []).length) engel = "Puanlama anahtarı (rubrik) tanımlı değil";
+      else if (rub.aiDraft) engel = "Rubrik yapay zekâ taslağı — önce kabul edin";
+      return { q: q, engel: engel };
+    });
+}
+
+/** Düz metin paket (saf): sorular sırayla; kazanimAdi(kod) ve kaynakMetni(q) dışarıdan. */
+function oyssMetni(sorular, rubrikler, kazanimAdi, kaynakMetni) {
+  const sayi = function (x) { return String(Math.round(Number(x) * 10) / 10).replace(".", ","); };
+  const guclik = { easy: "Kolay", medium: "Orta", hard: "Zor" };
+  return sorular.map(function (q, i) {
+    const rub = rubrikler[q.id] || { maxScore: 0, criteria: [] };
+    /* Katalog etiketi çoğu zaman kodla başlar ("FEN.7.1.2 — Kuvvet …"): kod iki kez yazılmasın. */
+    const ad = String((kazanimAdi ? kazanimAdi(q.outcome) : "") || "").trim()
+      .replace(new RegExp("^" + String(q.outcome || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*[—–-]?\\s*"), "");
+    const kaynak = kaynakMetni ? kaynakMetni(q) : "";
+    const satir = [(i + 1) + ". SORU",
+      "Öğrenme çıktısı: " + (q.outcome || "—") + (ad ? " — " + ad : "")];
+    if (guclik[q.difficulty]) satir.push("Güçlük düzeyi: " + guclik[q.difficulty]);
+    if (kaynak) satir.push("Kaynak metin:", kaynak);
+    satir.push("Soru:", String(q.body || "").trim(), "");
+    satir.push("Puanlama anahtarı (toplam " + sayi(rub.maxScore) + " puan):");
+    (rub.criteria || []).forEach(function (c) {
+      const acik = String(c.description || "").trim();
+      satir.push("- " + c.label + " (" + sayi(rub.maxScore * Number(c.weight) / 100) + " puan)" + (acik ? ": " + acik : ""));
+    });
+    return satir.join("\n");
+  }).join("\n\n\n");
+}
+
+/** Seçim durumu sınava bağlı; ilk açılışta seçilebilen her soru seçili gelir. */
+function oyssSecimi() {
+  const o = ogtDurum();
+  if (!o.oyss || o.oyss.sinav !== state.activeExamId) o.oyss = { sinav: state.activeExamId, secim: null, acik: false };
+  const adaylar = oyssAdaylari();
+  if (!o.oyss.secim) {
+    o.oyss.secim = {};
+    adaylar.forEach(function (a) { if (!a.engel) o.oyss.secim[a.q.id] = true; });
+  }
+  const secili = adaylar.filter(function (a) { return !a.engel && o.oyss.secim[a.q.id]; })
+    .map(function (a) { return a.q; });
+  return { durum: o.oyss, adaylar: adaylar, secili: secili };
+}
+
+function oyssGuncelMetin(secili) {
+  return oyssMetni(secili, state.rubrics, function (kod) {
+    const k = OUTCOMES_LIST().filter(function (x) { return x.code === kod; })[0];
+    return k ? (k.label || "") : "";
+  }, function (q) {
+    if (!soruKaynakIster(q)) return "";
+    const k = kaynakBul(q.srcId);
+    return k ? String(k.text || "").trim() : "";
+  });
+}
+
+function oyssPaketHtml() {
+  const s = oyssSecimi();
+  if (!s.adaylar.length) return "";
+  const liste = s.adaylar.map(function (a) {
+    const id = "oyssSec-" + a.q.id;
+    return '<li class="oyss-aday' + (a.engel ? " is-kapali" : "") + '"><input type="checkbox" class="js-oyss-sec" id="' + id +
+      '" data-qid="' + a.q.id + '"' + (a.engel ? " disabled" : (s.durum.secim[a.q.id] ? " checked" : "")) + ">" +
+      '<label for="' + id + '"><span class="oyss-kod">' + escapeHtml(a.q.outcome || "—") + "</span> " +
+      escapeHtml(truncate(a.q.body || "", 90)) + "</label>" +
+      (a.engel ? ' <span class="pill pill-warning">' + escapeHtml(a.engel) + "</span>" : "") + "</li>";
+  }).join("");
+  const metin = oyssGuncelMetin(s.secili);
+  return '<details class="oyss-kart" id="oyssKart"' + (s.durum.acik ? " open" : "") + ">" +
+    "<summary>OYSS paketi — açık uçlu sorular ve puanlama anahtarı</summary>" +
+    '<p class="lbl-hint">Ortak Yazılı Sınav Sistemi\'nde zümre, iki öğrenme çıktısı için iki açık uçlu soru ve ' +
+    "puanlama anahtarı yazar; “Soru Yaz” paneli kopyala-yapıştırı destekler. Yalnız onaylı soru ve kabul edilmiş " +
+    "rubrik seçilebilir. Metin bu cihazda panoya alınır, hiçbir yere gönderilmez.</p>" +
+    '<ul class="oyss-liste">' + liste + "</ul>" +
+    '<label for="oyssOnizleme" class="oyss-etiket">Önizleme</label>' +
+    '<textarea id="oyssOnizleme" class="oyss-onizleme" readonly rows="10">' + escapeHtml(metin) + "</textarea>" +
+    '<div class="oyss-eylem"><button type="button" class="btn btn-primary btn-sm" id="btnOyssKopyala"' +
+    (s.secili.length ? "" : " disabled") + ">OYSS için kopyala</button>" +
+    '<span id="oyssNot" class="lbl-hint" role="status" aria-live="polite">' + oyssSayiNotu(s.secili.length) + "</span></div>" +
+    "</details>";
+}
+
+function oyssSayiNotu(n) {
+  if (!n) return "Kopyalamak için en az bir onaylı soru seçin.";
+  return n + " soru seçili" + (n !== 2 ? " · OYSS'de zümre sorusu 2 adettir." : ".");
+}
+
+function oyssKopyala() {
+  const ta = document.getElementById("oyssOnizleme");
+  const not = function (m) { const e = document.getElementById("oyssNot"); if (e) e.textContent = m; };
+  if (!ta || !ta.value) return;
+  const elle = function () {
+    ta.focus(); ta.select();
+    not("Panoya erişilemedi. Metin seçildi; Ctrl+C ile kopyalayın.");
+  };
+  if (!navigator.clipboard || !navigator.clipboard.writeText) { elle(); return; }
+  navigator.clipboard.writeText(ta.value).then(function () {
+    not("Panoya kopyalandı. OYSS'de “Soru Yaz” paneline yapıştırın ve zümreyle birlikte son kez okuyun.");
+  }, elle);
+}
+
+function wireOyss() {
+  const kart = document.getElementById("oyssKart");
+  if (!kart) return;
+  kart.addEventListener("toggle", function () { oyssSecimi().durum.acik = kart.open; });
+  document.querySelectorAll(".js-oyss-sec").forEach(function (cb) {
+    cb.onchange = function () {
+      const s0 = oyssSecimi();
+      s0.durum.secim[Number(cb.dataset.qid)] = cb.checked;
+      const s = oyssSecimi();
+      const ta = document.getElementById("oyssOnizleme");
+      if (ta) ta.value = oyssGuncelMetin(s.secili);
+      const b = document.getElementById("btnOyssKopyala");
+      if (b) b.disabled = !s.secili.length;
+      const not = document.getElementById("oyssNot");
+      if (not) not.textContent = oyssSayiNotu(s.secili.length);
+    };
+  });
+  const b = document.getElementById("btnOyssKopyala");
+  if (b) b.onclick = oyssKopyala;
+}
+
 function wireTeacherTab1() {
   wireExamSwitcher();
   wireOgtSihirbaz();   // §62
   wireRejectedPool("teacher");
   wireYazdir();   // §59
+  wireOyss();     // §101
   // Boş durumdaki yönlendirme düğmeleri.
   const git = document.getElementById("btnIcerikUzmaninaGit");
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
@@ -10588,6 +10729,165 @@ function itemAnalysisHtml() {
 }
 
 /* ===========================================================================
+   §101 — SINAV GÜVENİRLİĞİ (iç tutarlılık)
+   ===========================================================================
+   Madde analizi tek tek sorulara bakar; bu bölüm sınavın BÜTÜNÜNE bakar:
+   maddeler aynı yapıyı tutarlı biçimde ölçüyor mu?
+
+     KR-20 (Kuder ve Richardson, 1937) = k/(k-1) · (1 - Σ p·q / σ²_X)
+       yalnız 0/1 puanlanan çoktan seçmeli maddeler.
+     Cronbach alfa (Cronbach, 1951)    = k/(k-1) · (1 - Σ σ²_i / σ²_X)
+       açık uçlu madde de varsa; tüm maddeler, öğretmenin onayladığı NİHAİ
+       puanlarla (ÇSS doğruysa ÇSS puanı, değilse 0).
+
+   VARYANS KURALI: tüm varyanslar n'ye bölünür (p·q de n'ye bölünmüş madde
+   varyansıdır). Pay ve payda aynı kuralla hesaplandığı için 0/1 verisinde
+   KR-20 = alfa olur ve sonuç n-1'e bölen istatistik paketleriyle aynıdır
+   (oran değişmez). Bazı ders kitapları σ²_X'i n-1'e bölüp p·q'yu n'ye böler;
+   o karışık kural küçük sınıfta katsayıyı şişirir (test/guvenirlik-
+   katsayilari.test.ts'te kaynağıyla birlikte gösterildi).
+
+   Yapay zekâ kullanılmaz; saf hesap. Onaylanmamış açık uçlu puan hesaba
+   GİRMEZ (yapay zekâ önerisi nihai sayılmaz, agents.md §1); o öğrenci alfa
+   hesabından çıkar ve kaç öğrencinin çıktığı ekranda yazar.
+   =========================================================================== */
+
+/** Ana kütle varyansı (n'ye bölünür). */
+function varyansN(dizi) {
+  const n = dizi.length;
+  if (!n) return 0;
+  let t = 0;
+  for (let i = 0; i < n; i++) t += dizi[i];
+  const o = t / n;
+  let s = 0;
+  for (let i = 0; i < n; i++) s += (dizi[i] - o) * (dizi[i] - o);
+  return s / n;
+}
+
+/** Cronbach alfa. matris: satır = öğrenci, sütun = madde, eksiksiz sayılar. */
+function cronbachAlfa(matris) {
+  const n = (matris || []).length;
+  const k = n ? matris[0].length : 0;
+  if (n < 2) return { deger: null, n: n, k: k, neden: "en az 2 öğrenci gerekir" };
+  if (k < 2) return { deger: null, n: n, k: k, neden: "en az 2 madde gerekir" };
+  const toplamlar = matris.map(function (r) { return r.reduce(function (a, b) { return a + b; }, 0); });
+  const toplamVaryans = varyansN(toplamlar);
+  let maddeVaryansToplami = 0;
+  for (let j = 0; j < k; j++) maddeVaryansToplami += varyansN(matris.map(function (r) { return r[j]; }));
+  if (!(toplamVaryans > 0)) {
+    return { deger: null, n: n, k: k, neden: "tüm öğrencilerin toplam puanı aynı (varyans sıfır)" };
+  }
+  return { deger: k / (k - 1) * (1 - maddeVaryansToplami / toplamVaryans), n: n, k: k,
+           maddeVaryansToplami: maddeVaryansToplami, toplamVaryans: toplamVaryans };
+}
+
+/** KR-20. matris yalnız 0/1 içerir (satır = öğrenci, sütun = madde). */
+function kr20(matris) {
+  const n = (matris || []).length;
+  const k = n ? matris[0].length : 0;
+  if (n < 2) return { deger: null, n: n, k: k, neden: "en az 2 öğrenci gerekir" };
+  if (k < 2) return { deger: null, n: n, k: k, neden: "en az 2 çoktan seçmeli madde gerekir" };
+  const ikili = matris.every(function (r) { return r.every(function (x) { return x === 0 || x === 1; }); });
+  if (!ikili) return { deger: null, n: n, k: k, neden: "KR-20 yalnız 0/1 puanlanan maddelere uygulanır" };
+  let pqToplami = 0;
+  for (let j = 0; j < k; j++) {
+    let d = 0;
+    for (let i = 0; i < n; i++) d += matris[i][j];
+    const p = d / n;
+    pqToplami += p * (1 - p);
+  }
+  const toplamVaryans = varyansN(matris.map(function (r) { return r.reduce(function (a, b) { return a + b; }, 0); }));
+  if (!(toplamVaryans > 0)) {
+    return { deger: null, n: n, k: k, neden: "tüm öğrencilerin doğru sayısı aynı (varyans sıfır)" };
+  }
+  return { deger: k / (k - 1) * (1 - pqToplami / toplamVaryans), n: n, k: k,
+           pqToplami: pqToplami, toplamVaryans: toplamVaryans };
+}
+
+/** Aktif sınavın güvenirlik girdileri: sınavı gönderen öğrenciler × sınav maddeleri. */
+function sinavGuvenirligi() {
+  const sorular = (state.exam.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const mcs = sorular.filter(function (q) { return q.type === "mc"; });
+  const acik = sorular.filter(function (q) { return q.type !== "mc"; });
+  const ogrenciler = submittedStudents();
+  const mcP = mcPuani();
+  const krMatris = [], alfaMatris = [];
+  let onaysiz = 0;
+  const tam = function (x) { return x != null; };
+  ogrenciler.forEach(function (st) {
+    const ss = readSession(st.id) || {};
+    const mcSatir = mcs.map(function (q) {
+      const r = (ss.mcResults || {})[q.id];
+      return r ? (r.correct ? 1 : 0) : null;
+    });
+    const acikSatir = acik.map(function (q) {
+      const rv = (ss.reviews || {})[q.id];
+      return rv && rv.finalScore != null && isFinite(Number(rv.finalScore)) ? Number(rv.finalScore) : null;
+    });
+    if (mcSatir.every(tam)) krMatris.push(mcSatir);
+    if (mcSatir.every(tam) && acikSatir.every(tam)) {
+      alfaMatris.push(mcSatir.map(function (x) { return x * mcP; }).concat(acikSatir));
+    } else if (!acikSatir.every(tam)) {
+      onaysiz++;
+    }
+  });
+  return {
+    ogrenci: ogrenciler.length, maddeSayisi: sorular.length, mcSayisi: mcs.length, acikSayisi: acik.length,
+    kr20: mcs.length ? kr20(krMatris) : null,
+    alfa: acik.length ? cronbachAlfa(alfaMatris) : null,
+    onaysiz: onaysiz
+  };
+}
+
+/** Katsayı yorumu — sınıf içi sınavlarda yaygın kullanılan eşikler. */
+function guvenirlikYorum(r) {
+  if (r < 0) return { s: "pill-critical", t: "negatif — maddeler birbiriyle çelişiyor; cevap anahtarını kontrol edin" };
+  if (r < 0.50) return { s: "pill-critical", t: "zayıf iç tutarlılık" };
+  if (r < 0.70) return { s: "pill-warning", t: "sınırda iç tutarlılık" };
+  return { s: "pill-success", t: "kabul edilebilir iç tutarlılık" };
+}
+
+function guvenirlikHtml() {
+  const g = sinavGuvenirligi();
+  if (!g.ogrenci || !g.maddeSayisi) return "";
+  const satir = function (ad, aciklama, s) {
+    if (!s) return "";
+    const ek = " <span class=\"ia-opt-pct\">(" + s.n + " öğrenci · " + s.k + " madde)</span>";
+    if (s.deger == null) {
+      return '<div class="ia-item guv-satir"><div class="ia-metrics"><span class="ia-metric"><b>' + ad + "</b> = hesaplanamadı" + ek +
+        "</span></div><div class=\"ia-note\">" + escapeHtml(s.neden) + ".</div></div>";
+    }
+    const y = guvenirlikYorum(s.deger);
+    return '<div class="ia-item guv-satir"><div class="ia-metrics"><span class="ia-metric"><b>' + ad + "</b> = " +
+      ondalikTr(s.deger, 2) + ' <span class="pill ' + y.s + '">' + y.t + "</span>" + ek + "</span></div>" +
+      '<div class="ia-legend">' + aciklama + "</div></div>";
+  };
+  const gosterilen = [g.kr20, g.alfa].filter(Boolean);
+  const az = gosterilen.some(function (s) { return s.n < 10 || s.k < 5; });
+  const uyari = az
+    ? '<div class="ia-warn"><b>Bu sayılar gösterge niteliğindedir.</b> Hesaba giren öğrenci ya da madde sayısı az; ' +
+      "güvenirlik katsayısının istatistiksel olarak anlamlı olması için genellikle en az 10 öğrenci ve 5 madde gerekir. " +
+      "Yön gösterir, karar vermez - kararı siz verirsiniz.</div>"
+    : "";
+  return '<div class="card guv-kart" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>Sınav Güvenirliği</h3>' +
+    '<span class="hint">iç tutarlılık · yapay zekâ kullanılmaz, saf hesap</span></div>' +
+    '<div class="ia-legend">Maddeler aynı şeyi tutarlı biçimde ölçüyor mu? 0 ile 1 arası; 0,70 ve üzeri sınıf içi ' +
+    "sınavlarda yaygın olarak kabul edilebilir sayılır.</div>" +
+    uyari +
+    satir("KR-20", "Yalnız 0/1 puanlanan çoktan seçmeli maddeler: k/(k−1) · (1 − Σpq / σ²). " +
+      "p = doğru oranı, q = 1 − p, σ² = doğru sayılarının varyansı.", g.kr20) +
+    satir("Cronbach α", "Tüm maddeler, öğretmenin onayladığı nihai puanlarla: k/(k−1) · (1 − Σσ²ᵢ / σ²).", g.alfa) +
+    (g.alfa && g.onaysiz
+      ? '<div class="ia-note">' + g.onaysiz + " öğrencinin açık uçlu puanı henüz onaylanmadığı için alfa hesabına girmedi " +
+        "(yapay zekâ önerisi nihai puan sayılmaz).</div>"
+      : "") +
+    "</div>";
+}
+
+/* ===========================================================================
    ÖĞRETMEN - YAPAY ZEKÂ UYUMU (kalibrasyon)
    ===========================================================================
    NEDEN: Brief'in problem tanımındaki cümle şudur - "değerlendiriciler
@@ -11187,6 +11487,8 @@ function teacherTab4Html() {
     '<div class="stat-tile"><div class="s-label">Öğrenci</div><div class="s-value tabular">' + bitiren + '/' + tumOgr + '</div><div class="s-sub">tamamladı</div></div></div>' +
     '<div class="card"><div class="card-head"><h3>Kazanım Başarı Grafiği — ' + escapeHtml(subeEtiketi) + '</h3><span class="hint">şubeler yan yana · kritik eşik %55</span></div><div id="teacherHeatmap"></div></div>' +
     itemAnalysisHtml() +
+    guvenirlikHtml() +   // §101
+    eokulTabloHtml() +   // §101
     calibrationHtml() +
     kararRaporuHtml("ogretmen", calibrationKayitlari(), "bu sınav · onaylanan açık uçlu kararlar") +
     misconceptionHtml() +
@@ -11330,7 +11632,7 @@ function renderTeacher() {
     const veriVar = state.exam.status === "published" && submittedStudents().length > 0;
     /* P2-4: veri yokken "Dikkat Sinyali" kartı boş bir iddia gibi duruyordu. */
     content.innerHTML = sinavSeciciHtml() + teacherTab4Html() + (veriVar ? dikkatPanelHtml() : "");
-    wireSinavSecici(); wireMisconceptions(); if (veriVar) wireDikkat(); wireKararRaporu();
+    wireSinavSecici(); wireMisconceptions(); if (veriVar) wireDikkat(); wireKararRaporu(); wireEokulTablo();
     if (veriVar) renderKazanimGrafigi("teacherHeatmap", teacherHeatmapRows());
   }
 }
@@ -14829,6 +15131,89 @@ function wireDisaAktar() {
   };
 }
 
+/* §101 — e-OKUL SORU BAZLI PUAN TABLOSU
+   OYSS kılavuzu (s. 16): öğretmen her sorudan alınan puanı e-Okul'a girer ve
+   puanlar SINAV KÂĞIDINDAKİ SORU SIRASIYLA girilmelidir. Bu tablo o ekranın
+   aynası: öğrenci başına bir satır, S1…Sn kâğıttaki sırayla, sonda toplam.
+   Sütun sırası yazdirSorulari()'dan gelir — sinavYazdir() kâğıdı da aynı
+   listeden basar; ikisi ayrı sıralanamaz (test/eokul-oyss.test.ts kanıtlar).
+   Yalnız NİHAİ puan yazılır: ÇSS cevap anahtarıyla puanlanmışsa ÇSS puanı,
+   açık uçluda yalnız öğretmenin onayladığı puan. Onaylanmamış hücre BOŞ,
+   o öğrencinin toplamı da boş kalır; dosyaya açıklama satırı konmaz (e-Okul'a
+   aktarırken satır kaymasın diye), uyarı indirmeden önce ekranda verilir.
+   Var olan uzun öğrenci CSV'si (ogrenciCsv) değişmedi; bu ek seçenektir. */
+function eokulPuanCsv(sorular, ogrenciler, oturumOku, mcP) {
+  const basliklar = ["Okul No", "Ad Soyad"]
+    .concat(sorular.map(function (q, i) { return "S" + (i + 1); }))
+    .concat(["Toplam"]);
+  let bekleyen = 0;
+  const satirlar = (ogrenciler || []).map(function (o) {
+    const ss = oturumOku(o.id) || {};
+    let toplam = 0, eksik = false;
+    const hucreler = sorular.map(function (q) {
+      let v = null;
+      if (q.type === "mc") {
+        const r = (ss.mcResults || {})[q.id];
+        if (r) v = r.correct ? mcP : 0;
+      } else {
+        const rv = (ss.reviews || {})[q.id];
+        if (rv && rv.finalScore != null && isFinite(Number(rv.finalScore))) v = Number(rv.finalScore);
+      }
+      if (v == null) { eksik = true; bekleyen++; return ""; }
+      toplam += v;
+      return csvSayi(v);
+    });
+    return [o.okulNo || "", o.name || ""].concat(hucreler).concat([eksik ? "" : csvSayi(toplam)]);
+  });
+  return { csv: csvSatirlar(basliklar, satirlar), satir: satirlar.length, bekleyen: bekleyen, basliklar: basliklar };
+}
+
+/** Aktif sınav için: kâğıt sırası, sınavı gönderen öğrenciler. */
+function eokulVerisi() {
+  return eokulPuanCsv(yazdirSorulari().sorular, submittedStudents(), readSession, mcPuani());
+}
+
+function eokulTabloHtml() {
+  const y = yazdirSorulari();
+  if (!y.sorular.length || !submittedStudents().length) return "";
+  const r = eokulVerisi();
+  return '<div class="card eokul-kart" style="margin-top:18px;"><div class="card-head"><h3>e-Okul Puan Tablosu</h3>' +
+    '<span class="hint">soru bazlı · kâğıttaki sırayla</span></div>' +
+    '<p class="lbl-hint" style="margin-top:0;">e-Okul not girişinde puanlar <b>sınav kâğıdındaki soru sırasıyla</b> girilir. ' +
+    "Bu tabloda S1…S" + y.sorular.length + " yazdırılan kâğıttaki numaralarla aynıdır; öğrenci başına bir satır, sonda toplam. " +
+    "Yalnız nihai puanlar yazılır: onaylanmamış açık uçlu cevabın hücresi ve o öğrencinin toplamı boş kalır.</p>" +
+    (r.bekleyen
+      ? '<div class="pill pill-blok pill-warning" role="status">' + r.bekleyen + " cevap onay bekliyor — Puanlama sekmesinde onaylayın.</div>"
+      : '<div class="pill pill-success">Tüm cevaplar onaylı</div>') +
+    '<div class="eokul-eylem"><button type="button" class="btn btn-secondary btn-sm" id="btnEokulCsv">e-Okul puan tablosu (CSV)</button>' +
+    '<span class="lbl-hint">' + r.satir + " öğrenci · " + y.sorular.length + " soru</span></div>" +
+    '<div class="lbl-hint">Dosya <b>ad-soyad içerir</b> ve yalnız bu cihaza iner. Mihenk okul numarası saklamaz; ' +
+    "Okul No sütunu boş gelir, e-Okul'da adla eşleyin." +
+    (y.dusen ? " Onaylı olmadığı için kâğıda girmeyen " + y.dusen + " soru tabloda da yok." : "") + "</div>" +
+    '<div id="eokulNot" class="lbl-hint" role="status" aria-live="polite" style="margin-top:6px;"></div></div>';
+}
+
+function wireEokulTablo() {
+  const b = document.getElementById("btnEokulCsv");
+  if (!b) return;
+  b.onclick = async function () {
+    const not = function (m) { const e = document.getElementById("eokulNot"); if (e) e.textContent = m; };
+    const r = eokulVerisi();
+    if (!r.satir) { not("Henüz sınavı gönderen öğrenci yok — dosya boş olurdu, indirilmedi."); return; }
+    if (r.bekleyen) {
+      const tamam = await onaylaModal({
+        baslik: r.bekleyen + " cevap onay bekliyor",
+        metin: "Onaylanmamış cevapların hücreleri dosyada boş kalır ve o öğrencilerin toplamı yazılmaz. " +
+          "Önce Puanlama sekmesinde onaylamanız önerilir.",
+        onayEtiketi: "Yine de indir"
+      });
+      if (!tamam) { not("İndirilmedi."); return; }
+    }
+    auditIndir(r.csv, disaAktarimAdi("eokul-puanlar"), "text/csv;charset=utf-8");
+    not(r.satir + " öğrenci satırı indirildi" + (r.bekleyen ? " (" + r.bekleyen + " hücre boş)." : "."));
+  };
+}
+
 /* ==================== BOŞ DURUM ====================
    §43'e kadar bu fonksiyon senkron modülünün içindeydi ve boş durum mesajının
    yanına bir SINIF KODU GİRİŞ FORMU basıyordu. Sınıf kodu kaldırıldı (§43);
@@ -14854,7 +15239,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
@@ -14863,7 +15248,7 @@ function bosDurumHtml(mesaj) {
     "studentTab1Html", "studentTab2Html", "studentTab3Html", "wireStudentTab1", "wireStudentTab2",
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderKazanimGrafigi",
-    "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum",
+    "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum", "varyansN", "cronbachAlfa", "kr20", "sinavGuvenirligi", "guvenirlikYorum", "guvenirlikHtml",
     "bloomDagilimi", "bloomBalanceHtml",
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",
