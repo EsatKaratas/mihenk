@@ -12635,3 +12635,83 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oys
 - `/api/ai/butce` yayından önce ve sonra aynı: `harcanan 0`; `doldu/tukendi: true` bayrağı §116'dan beri böyle.
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-118\`. İçinde PDF denetimi (`denetim.txt`, `eslem_denetle.py`), karşılaştırma betikleri ve JSON çıktıları, axe, OYSS, SHA, kontroller ve demo kayıtları var.
+
+## 122. ADSIZ VE SORU SORU PUANLAMA + KÂĞIDA GERİ BİLDİRİM FİŞİ (7 Kasım 2026, P4, dal `feature/adsiz-puanlama`, Orchestrator 3 emriyle)
+
+**Taban:** main `0f186f3`. Worktree `Downloads\Mihenk\mihenk-p4-adsiz` (`mihenk-p4` yolu başka dalda dolu olduğu için).
+Yalnız istemci: `public/app.js` (Puanlama bölgesi + §106 ızgara başlığı), `css/ogretmen.css`,
+`privacy-policy.html`, yeni `test/adsiz-puanlama.test.ts`. Sunucu, şema, `src/` değişmedi. Model çağrısı 0;
+`/api/ai` POST 0. Fikir kaynakları: fikir2-B madde 2, fikir2-A madde 4.
+
+**Ne yapıldı:**
+1. **"Adları gizle"** (Puanlama → açık uçlu kuyruğun üstünde araç çubuğu; `role="switch"`).
+   - Varsayılan **kapalı**. Tercih kalıcı: ayrı anahtar `mihenk.puanlama.tercih.v1` (try/catch; §74 yönetici
+     filtresi deseni). KALICI_ALANLAR'a girmedi: tercih ürün verisi değil, paralel worker'larla çakışma da olmasın.
+   - Açıkken ad yerine **"Yanıt N"**. Numaralar tohumla karıştırılır: mulberry32 + Fisher–Yates. Tohum sekme
+     oturumunda sabit (sessionStorage, yenilemede aynı), sınav kimliğiyle karışır (her sınavda başka numara).
+     Aynı öğrenci bütün kartlarda aynı numarayı taşır.
+   - Taban sıra karışık numaraya göre kurulur, ardından var olan güven sıralaması (kararlı) aynen uygulanır.
+     Onaylananlar listesi de karışık sırada; sınıf listesi sırası adı ele vermez.
+   - Kart, `adsizCiz` içinde **aynı** `evalCardHtml`/`doneCardHtml` ile çizilir: `studentChip` bağlam varsa
+     "Yanıt N" döner. Yanıtta ya da notta geçen kayıtlı adlar `kisiselMaskele` (§88) ile `[ÖĞRENCİ]` görünür.
+   - Onaylanmış kartta **"Adı göster"**: yalnız puanı verilmiş yanıtta ve yalnız o kartta açılır (bellekte, kalıcı
+     değil). Anahtarı kapatmak hepsini gösterir.
+   - Kâğıt sınavda ad kâğıdın üzerinde; bu durumda çubukta "gizleme yalnız ekrandaki kuyruk içindir" yazar.
+2. **"Soru soru"** (aynı çubukta radyo: Tek liste / Soru soru; tercih kalıcı).
+   - Bekleyenler sınav sırasıyla soruya göre gruplanır; grup içinde güven sıralaması korunur.
+   - Grubun başında **yapışkan rubrik**: soru no, bekleyen sayısı, tavan, ölçüt adı %ağırlık ve açıklama.
+     `top: var(--kabuk-yuk)`. ≤600 px'te açıklamalar gizli, soru metni iki satır.
+   - Kartlar aynı: §112 ölçüt düzeltme, §103 enjeksiyon kısıtı, §113 savunma ve not alanı değişmedi.
+3. **Geri bildirim fişi** (kâğıt sınav, §106). Düğme iki yerde: kâğıt ızgarasının başlığında ve Puanlama'da
+   kâğıt sonucu varsa "Geri bildirim fişleri" kartında. Ortak `yazdirKabindanBas` (`data-tur="fis"`) kullanılır.
+   - **Kaynak yalnız** `reviews` (öğretmen kararı: nihai puan, not, `kriterler`), `mcResults` ve işaretlenen
+     şıktır. **`aiEvals` hiç okunmaz.** Onaysız YZ puanı, gerekçesi, taslağı ve dökümü fişe giremez (test + tarayıcı).
+   - Onay bekleyen açık uçlu "onay bekliyor" yazar, toplam "kesinleşmedi" olur.
+   - Ölçüt puanları yalnız öğretmen düzelttiyse vardır (§112 kaydı). Tek Tıkla onaylananda döküm `aiEvals`'ta
+     kaldığı için fişe yalnız toplam girer.
+   - İbare "Yapay zekâ önerisi öğretmen tarafından gözden geçirildi" **yalnız** YZ önerisi vardı (`aiScore`) ve
+     karar onay kartında verildiyse (`approved_as_is`/`revised`) basılır. Izgarada elle yazılan (`kagit_elle`) ve
+     önerisiz elle puanlamada basılmaz.
+   - Baskı: fiş bölünmez, alt kenarı kesik çizgi + ✂. 30 öğrenci × 20 soru (17 ÇSS + 3 açık uçlu) →
+     **8 A4 sayfa** (sayfada 4 fiş; hedef ≤15).
+4. **Yan düzeltme (ölçüldü):** `doneCardHtml` `style="opacity:0.75"` hap ve sınıf etiketini AA kontrastının
+   altına düşürüyordu. axe `color-contrast` main'de de aynı (onaylı kart görünür olunca). Yerine soluk zemin +
+   yeşil sol kenar (`.eval-onayli`).
+5. `privacy-policy.html` "Sınav verisi" maddesine fiş ve adsız tercih cümlesi (agents.md §7).
+
+**Değişmeyen (testle):** tercih yokken kuyruk `pending.map(evalCardHtml).join("")` ile birebir aynı ve aynı
+sırada; ipucu metni aynı. Onay işleyicileri (§103/§112/§113 savunmaları, `finalizeReview`) aynı. §122 bloğunda
+`finalizeReview`, `writeSession`, `auditKaydet`, `aiEvaluate`, `apiPost` çağrısı 0. Otomatik puan ya da onay yok.
+
+**Ölçüldü (yerel statik sunucu 127.0.0.1:8861, PID 33908; servis edilen app.js SHA = disk; PID ile durduruldu,
+[::1] dahil port boş):**
+- `npm test` **985/985** (48 dosya; +24 `test/adsiz-puanlama.test.ts`). Gerçek `evalCardHtml` ile:
+  adsız modda kuyrukta ad ve parçaları 0; karıştırma deterministik ve girdi sırasından bağımsız; fişte onaysız
+  içerik 0; başka öğrencinin adı 0; ibare koşulları; eski akış birebir.
+- lint (`tsc --noEmit`) 0; öz-kontrol **776 ad %100** (+21); `olcum:dogrula` 37/37; `node --check`; FFFD 0.
+- Tarayıcı `adsiz.mjs` (30 öğrenci, 17 ÇSS + 3 açık uçlu, 24 bekleyen; gerçek tıklama): **1280 44/44, 390 43/43**;
+  koyu temada da 44/44 + 43/43.
+  - adsız kuyruk ve onaylananlarda 30 adın tamamı ve 3+ harfli parçaları 0; yanıttaki ad `[ÖĞRENCİ]`;
+  - yenilemede aynı sıra ve numara; yeni sekme oturumunda yeni numaralar, tercih açık;
+  - soru soru 3×8, grup içi güven sırası; rubrik yapışkan (kaydırınca üst = `--kabuk-yuk` 57 px);
+  - adsız modda Tek Tıkla ve §112 "Puanı Güncelle ve Onayla" çalışıyor. 2 tıklama = 2 karar, kendiliğinden 0;
+  - "Adı göster" yalnız o kartta;
+  - fiş: 30 fiş, `print` 1 kez, YZ gerekçe/taslak 0, her fişte yalnız kendi adı, ibare 24/24 beklenen,
+    PDF 8 sayfa; ızgaradaki düğme de çalışıyor;
+  - axe (varsayılan ve adsız + soru soru, açık/koyu) **0**; 12 px altı **0**; yatay taşma 0; konsol hatası 0; POST 0.
+- `tools/erisilebilirlik-tara.mjs` 52 ekran (5 rol, 1280/390, açık/koyu): critical/serious/moderate/minor **0**,
+  12 px altı **0**. `kontroller.mjs` 28/28 ×2; `demo-yuru.mjs` 1280 + 390: 5 adım, konsol hatası 0, POST 0.
+- axe-core node_modules'ta yok (§115 notu); tarama `MIHENK_AXE_YOLU` ile 4.14.0 kopyasından yapıldı
+  (yalnız okundu, kurulum yapılmadı).
+- Ekranlar ve kanıt: `Downloads\Mihenk\ekran-p4\adsiz-{1280,390}-1…7-*.png`, `adsiz-fis-30-ogrenci.pdf`,
+  `adsiz-fis-pdf-sayfa1.png`, `adsiz-kanit\` (betikler + loglar), `axe-adsiz\`.
+
+**Bilinen sınırlar:**
+- Adsızlık yalnız açık uçlu kuyruğu ve onaylananlar listesini kapsar. Puanlama sayfasının katlı alt bölümleri
+  (Sınav bütünlüğü kaydı vb.), kâğıt ızgarası ve diğer sekmeler adları göstermeye devam eder. Kâğıt sınavda ad
+  zaten kâğıtta.
+- Maskeleme kayıtlı adlarla sınırlı (§88 kuralları). Sözcük de olan adlar (ör. "Deniz") yalnız büyük harf +
+  kesme ile maskelenir; ekranda kesme `&#39;` olduğu için bu ek biçimi kaçabilir.
+- Güven değerleri farklıysa sıra güvene göredir; karıştırma eşitleri ve numaraları belirler.
+- Fiş yalnız kâğıt oturumları (`kaynak: "kagit"`) içindir. Çevrimiçi öğrenci sonucunu karnede görür.
+- Ekran okuyucuyla (NVDA) dinleme yapılmadı. Yapışkan başlık 390 px'te ~140 px yer kaplıyor.
