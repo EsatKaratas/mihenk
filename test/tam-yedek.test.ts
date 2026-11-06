@@ -32,8 +32,10 @@ const ISLEVLER = ['yedekHata', 'yedekDurumAl', 'yedekKitaplikAl', 'yedekKitaplik
   'yedekB64Coz', 'yedekSha256', 'yedekAnahtar', 'yedekAad', 'yedekShaGirdisi', 'yedekOlustur', 'yedekCoz',
   'yedekOzet', 'yedekOzetMetni', 'yedekUygula', 'yedekGeriYukle', 'yedekDosyaAdi', 'kisiselDesen', 'kisiselAdKaliplari'];
 
-const SEKME = ['SURUM_KEY', 'SEKME_KIMLIGI'].map(sabit).join('\n') + '\n' +
-  ['depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz'].map(tanim).join('\n');
+// §123: §120 demo alanı — yedek akışları demo dışında çalışır.
+const SEKME = 'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\n' +
+  ['SURUM_KEY', 'SEKME_KIMLIGI'].map(sabit).join('\n') + '\n' +
+  ['surumAnahtari', 'depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz'].map(tanim).join('\n');
 
 type Kayit = { id: number; pages: unknown };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -246,7 +248,9 @@ describe('§108 sürüm ve göç', () => {
     const KALICI = ['outcomes', 'subjects', 'ceForm', 'students', 'questions', 'exams', 'gocDeneyapDersi'];
     const sonuc = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR',
       'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null;\n' +
-      [sabit('SURUM_KEY'), tanim('depoSurumOku')].join('\n') + '\n' +
+      // §120: loadState kayıt anahtarını demo bayrağına göre seçer; burada demo dışı.
+      'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\n' +
+      [sabit('SURUM_KEY'), tanim('surumAnahtari'), tanim('depoSurumOku')].join('\n') + '\n' +
       ['KESIF_SINIFI', 'ATOLYELER', 'DENEYAP_DERSI'].map(sabit).join('\n') +
       '\nconst VARSAYILAN_KAZANIMLAR = [];\n' + tanim('loadState') +
       '\nreturn { ok: loadState(), qIdSeq, KESIF_SINIFI, DENEYAP_DERSI, surum: _bilinenSurum };'

@@ -132,11 +132,17 @@ describe('3 · onay yolu — tek yol, kestirme yok (agents.md §1)', () => {
     expect(g).toMatch(/eksik\.length \? ' disabled aria-describedby="elleEksik-/);
   });
 
-  it('status = "approved" yalnız soruyuOnayla ve demo tohumunda atanır (ikinci yol yok)', () => {
+  it('status = "approved" yalnız soruyuOnayla, demo tohumu ve ekibin örnek paketinde atanır (ikinci yol yok)', () => {
     const atamalar = app.split('\n').filter((s) => /\.status\s*=\s*"approved"/.test(s));
-    expect(atamalar).toHaveLength(2);
+    expect(atamalar).toHaveLength(3);
     expect(govde('soruyuOnayla')).toMatch(/q\.status = "approved"/);
     expect(govde('loadDemoScenario')).toMatch(/kopya\.status = "approved"/);
+    // §120: örnek paket yapay zekâ çıktısı DEĞİL (ekip yazdı): modelsiz ve işaretli.
+    const paket = govde('ornekPaketSorulari');
+    expect(paket).toMatch(/k\.status = "approved"/);
+    expect(paket).toContain('k.ornekPaket = true');
+    expect(paket).toContain('k.uretenModel = null');
+    expect(paket).toContain('DEMO_SORULAR[i]');
     expect(govde('elleSoruOlustur')).not.toMatch(/approved/);
   });
 

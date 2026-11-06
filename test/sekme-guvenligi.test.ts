@@ -49,16 +49,18 @@ function paylasilanDepo() {
   return { ls, sekmeler, depo };
 }
 
-const KOD = ['SURUM_KEY', 'SEKME_KIMLIGI'].map(sabit).join('\n') + '\n' +
-  ['depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz', 'sekmeDepoOlayi', 'saveState', 'dbIslem'].map(tanim).join('\n');
+// §123: kayıt alanı (§120 demo) — sürüm kaydı da alana göre ayrı.
+const KOD = ['SURUM_KEY', 'SEKME_KIMLIGI', 'DEMO_STORE_KEY'].map(sabit).join('\n') + '\n' +
+  ['depoAnahtari', 'surumAnahtari', 'depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz', 'sekmeDepoOlayi', 'saveState', 'dbIslem'].map(tanim).join('\n');
 
 /** Bir sekme: kendi state'i, paylaşılan localStorage; açılışta loadState'in sürüm kısmı. */
-function sekmeAc(P: ReturnType<typeof paylasilanDepo>) {
+function sekmeAc(P: ReturnType<typeof paylasilanDepo>, demo = false) {
   const s: Any = { olaylar: [], kutu: 0, idbYazim: 0 };
   P.sekmeler.push(s);
   const localStorage = P.depo(s);
   const state: Any = { questions: [], role: '' };
-  const k = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR', 'kutuSay', 'idbYaz',
+  const k = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR', 'kutuSay', 'idbYaz', 'demoBayrak',
+    'function demoAlaniMi() { return demoBayrak; }\nfunction saveSoon() { saveState(); }\n' +
     'let qIdSeq = 1; let _resetting = false; let _saveTimer = null; let depoHatasi = ""; const KITAPLIK_STORE = "kitaplar";\n' +
     'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null;\n' +
     'function renderSekmeCakismasi() { kutuSay(); }\n' +
@@ -66,10 +68,10 @@ function sekmeAc(P: ReturnType<typeof paylasilanDepo>) {
     ' setTimeout(function () { tx.oncomplete && tx.oncomplete(); }, 0); return tx; } }); }\n' +
     KOD +
     '\n// loadState açılışı (yalnız §119 kısmı + veri)\n' +
-    'const _m = depoSurumOku(); _bilinenSurum = _m ? _m.rev : null; const _raw = localStorage.getItem(STORE_KEY); _sonYazilanMetin = _raw;\n' +
+    'const _m = depoSurumOku(); _bilinenSurum = _m ? _m.rev : null; const _raw = localStorage.getItem(depoAnahtari(demoAlaniMi())); _sonYazilanMetin = _raw;\n' +
     'if (_raw) { const d = JSON.parse(_raw); KALICI_ALANLAR.forEach(function (a) { if (d[a] !== undefined) state[a] = d[a]; }); }\n' +
     'return { saveState, sekmeDepoOlayi, dbIslem, cakisma: function () { return sekmeCakismasi; }, surum: function () { return _bilinenSurum; } };'
-  )(state, localStorage, STORE_KEY, ['questions', 'role'], () => { s.kutu++; }, () => { s.idbYazim++; });
+  )(state, localStorage, STORE_KEY, ['questions', 'role'], () => { s.kutu++; }, () => { s.idbYazim++; }, demo);
   s.k = k; s.state = state;
   // Tarayıcıdaki gibi: bekleyen storage olaylarını bu sekmenin dinleyicisine ver.
   s.olaylariIsle = () => { while (s.olaylar.length) k.sekmeDepoOlayi(Object.assign({ storageArea: localStorage }, s.olaylar.shift())); };
@@ -175,13 +177,76 @@ describe('§119 kaynak sözleşmesi', () => {
   });
   it('saveState sürüm denetiminden geçmeden yazmaz; doğrudan STORE_KEY yazımı yalnız sürümlü yazıcıda', () => {
     expect(tanim('saveState')).toMatch(/if \(!depoSurumuBizimMi\(\)\) return;/);
-    const yazimlar = app.match(/localStorage\.setItem\(STORE_KEY,/g) || [];
+    // §123: durum kaydına (kullanıcı ya da demo alanı) doğrudan yazım yalnız sürümlü yazıcıda.
+    const yazimlar = app.match(/localStorage\.setItem\((STORE_KEY|DEMO_STORE_KEY|depoAnahtari\()/g) || [];
     expect(yazimlar.length).toBe(1);
-    expect(tanim('depoyaSurumluYaz')).toMatch(/localStorage\.setItem\(STORE_KEY,/);
+    expect(tanim('depoyaSurumluYaz')).toMatch(/localStorage\.setItem\(depoAnahtari\(demo\), metin\)/);
   });
   it('yedek geri yükleme çakışmada reddedilir; sıfırlama sürüm kaydını da siler', () => {
     expect(tanim('yedekGeriYukle')).toMatch(/depoSurumuBizimMi\(\)\) throw yedekHata\("sekme_cakisma"\)/);
     expect(tanim('resetState')).toMatch(/removeItem\(SURUM_KEY\)/);
     expect(tanim('dbAc')).toMatch(/onversionchange/);
+  });
+});
+
+// ============================================================================
+// §123 — entegrasyon: §119 sekme koruması × §120 demo alanı
+// ============================================================================
+describe('§123 sekme koruması demo alanında', () => {
+  const DEMO = STORE_KEY + '-demo';
+  it('demo sekmesi çoğaltıldıysa (iki sekme aynı demo alanında) koruma aynen çalışır', () => {
+    const P = paylasilanDepo();
+    const A = sekmeAc(P, true); const B = sekmeAc(P, true);
+    A.state.questions = [{ id: 1 }, { id: 2 }, { id: 3 }]; A.k.saveState(); B.olaylariIsle();
+    B.state.role = 'teacher'; B.k.saveState();                       // eski bellekle yazmaya çalışır
+    expect(JSON.parse(P.ls[DEMO]).questions.length).toBe(3);
+    expect(B.kutu).toBe(1);
+    expect(P.ls[STORE_KEY]).toBeUndefined();                          // kullanıcı alanına hiç yazılmadı
+  });
+  it('olay kaçsa bile demo alanının sürüm damgası eski demo sekmesini durdurur', () => {
+    const P = paylasilanDepo();
+    const A = sekmeAc(P, true); const B = sekmeAc(P, true);
+    A.state.questions = [{ id: 1 }]; A.k.saveState();                 // B olayları işlemedi
+    B.state.questions = []; B.k.saveState();
+    expect(JSON.parse(P.ls[DEMO]).questions.length).toBe(1);
+    expect(B.kutu).toBe(1);
+  });
+  it('demo yazımları kullanıcının kaydını ve SÜRÜMÜNÜ değiştirmez; iki taraf birbirini kilitlemez', () => {
+    const P = paylasilanDepo();
+    const U = sekmeAc(P, false);
+    U.state.questions = [{ id: 7 }]; U.k.saveState();
+    const kayit = P.ls[STORE_KEY]; const surum = P.ls[STORE_KEY + ':surum'];
+    const D = sekmeAc(P, true);
+    for (let i = 0; i < 5; i++) { D.state.questions = Array.from({ length: i + 1 }, (_, j) => ({ id: j })); D.k.saveState(); }
+    U.olaylariIsle();
+    expect(P.ls[STORE_KEY]).toBe(kayit);
+    expect(P.ls[STORE_KEY + ':surum']).toBe(surum);
+    expect(JSON.parse(P.ls[DEMO + ':surum']).rev).toBe(5);
+    expect(U.kutu).toBe(0);
+    U.state.questions = [{ id: 7 }, { id: 8 }]; U.k.saveState();     // kullanıcı yazmaya devam eder
+    D.olaylariIsle();
+    expect(JSON.parse(P.ls[STORE_KEY]).questions.length).toBe(2);
+    expect(D.kutu).toBe(0); expect(U.kutu).toBe(0);
+  });
+  it('yeni normal sekme artık kalan demo kaydını silince demo sekmesi çakışma saymaz, kaydını geri yazar', () => {
+    const P = paylasilanDepo();
+    const D = sekmeAc(P, true);
+    D.state.questions = [{ id: 1 }, { id: 2 }]; D.k.saveState();
+    const yeni: Any = { olaylar: [] }; P.sekmeler.push(yeni);
+    P.depo(yeni).removeItem(DEMO);                                   // demoAlaniniOku temizliği
+    D.olaylariIsle();
+    expect(D.kutu).toBe(0);
+    expect(JSON.parse(P.ls[DEMO]).questions.length).toBe(2);
+  });
+  it('kullanıcı alanındaki sıfırlama/clear demo sekmesini etkilemez; clear() (anahtar null) yine çakışmadır', () => {
+    const P = paylasilanDepo();
+    const U = sekmeAc(P, false); U.state.questions = [{ id: 1 }]; U.k.saveState();
+    const D = sekmeAc(P, true); D.state.questions = [{ id: 9 }]; D.k.saveState();
+    const S = sekmeAc(P, false);
+    P.depo(S).removeItem(STORE_KEY); P.depo(S).removeItem(STORE_KEY + ':surum');
+    D.olaylariIsle(); U.olaylariIsle();
+    expect(D.kutu).toBe(0); expect(U.kutu).toBe(1);
+    D.olaylar.push({ key: null, newValue: null, oldValue: null }); D.olaylariIsle();
+    expect(D.kutu).toBe(1);
   });
 });

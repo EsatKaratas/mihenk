@@ -253,7 +253,7 @@
   .demo-serit .demo-rozet {
     font-family: "Archivo", sans-serif; font-weight: 700; font-size: 12px;
     letter-spacing: .04em; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 999px; background: var(--accent2); color: #fff;
+    padding: 2px 8px; border-radius: 999px; background: var(--accent2); color: var(--on-accent);   /* §120: koyuda #fff 2,22:1 idi */
   }
   .demo-serit .demo-adim { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent2); }
   .demo-serit .demo-metin { flex: 1 1 220px; min-width: 0; line-height: 1.5; }
@@ -649,7 +649,9 @@
   .student-chip .sc-class, .sp-btn .sc-class { font-size: 12px; font-weight: 700;
     padding: 1px 6px; border-radius: 10px; background: rgba(127,127,127,.18); }
   .student-chip .sc-tag { font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .04em; opacity: .75; }
+    letter-spacing: .04em; }   /* §120: opacity .75 kontrastı 4,24:1'e düşürüyordu */
+  .eval-card.eval-tamam { background: var(--surface-2); }   /* §120: soluklaştırma yerine zemin */
+  .student-chip.sim .sc-class { color: var(--text); }   /* §120: açık temada 3,89:1 idi */
 
   .conf-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: -2px 0 10px; }
   .conf-row .conf-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
@@ -964,6 +966,8 @@
   .fail-note { margin-top: 12px; padding: 11px 13px; border-radius: 8px;
     background: var(--surface-2); border-left: 3px solid var(--critical);
     font-size: 12.5px; line-height: 1.6; color: var(--text); }
+  /* §120: demo alanındaki "örnek veri" notu hata DEĞİL, bilgi: kırmızı yalnız hatalar için. */
+  .fail-note.demo-ornek-not { background: var(--accent-soft); border-color: var(--accent); }
   .fail-note .mono-err { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     color: var(--text-muted); }
 

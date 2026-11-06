@@ -64,7 +64,7 @@ await cek('00-giris.png', 'giriş ekranı — logo, palet ve tek giriş düğmes
 // Giriş kapısını kapat + demo senaryosunu yükle (rehber şeridi kapalı: görüntü sade kalsın).
 await sayfa.evaluate(() => {
   loadDemoScenario();
-  demoBitir();
+  demoSeridiniKapat();
 });
 await bekle(500);
 

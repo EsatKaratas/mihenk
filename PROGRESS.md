@@ -12749,3 +12749,81 @@ Kaynak: `fikir2-C-urun.md` madde 1 ve 7, `fikir2-A-ogretmen-meb.md` madde 5. Mod
 **Gizlilik:** Bu tur toplanan ya da sunucuya giden veriyi değiştirmiyor. Yeni anahtar `t3-olcme-durum-v1:surum` yalnız sürüm sayısı, sekme kimliği ve zaman taşır, kişisel veri yok. Bu yüzden `privacy-policy.html` değişmedi (AGENTS §7).
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-p1-119\`. İçinde taban ve dal ölçüm çıktıları, betikler ve ekran görüntüleri var.
+
+---
+
+## §120 — Demo: güvenli ve dolu (W10, 6.11; dal `feature/demo-alani`, taban main 0f186f3)
+
+Paket P2. Kanıt: `Downloads\Mihenk\fikir2-C-urun.md` madde 2, 3 ve 5. Push, deploy ve `/api/ai` POST yapılmadı.
+
+**1. Demo ayrı kayıt alanında (madde 3).**
+- Demo artık `t3-olcme-durum-v1-demo` anahtarına yazıyor; kullanıcının `t3-olcme-durum-v1` kaydına hiç dokunmuyor. Bayrak sekmeye özel (`sessionStorage`): yenilemede demo kaldığı adımdan sürüyor, yeni sekme kullanıcının kendi verisiyle açılıyor.
+- Girişte bellek, açılışta (loadState'ten önce) saklanan varsayılan duruma dönüyor. Kullanıcının soruları, öğrencileri ve kitaplık listesi demoda görünmüyor. Kullanıcının kaydına dokunulan tek an şu: bekleyen bir kayıt zamanlayıcısı varsa o kayıt önce kendi anahtarına yazılıyor (zaten 400 ms içinde yazılacaktı).
+- Demo alanında şunlar kapalı:
+  - kitaplığa yazma ve silme (`dbIslem` en alt katmanda reddediyor; açık kalsaydı demo kitap kimlikleri 1'den başladığı için kullanıcının 1 numaralı kitabının üstüne yazabilirdi);
+  - yedek, geri yükleme ve sıfırlama (menüde yoklar; yerlerinde "Demodan çık" var). Kestirme yollar da kapalı; sıfırlama demo alanında yalnız demodan çıkıyor;
+  - yapay zekâya her POST (`apiPost` tek giriş noktası, `kod: demo_alani`).
+- "Demoyu Bitir" demo kaydını siliyor, bayrağı kaldırıyor ve sayfayı yeniden yüklüyor. Kullanıcının verisi kaydından olduğu gibi okunuyor; giriş ekranında tek seferlik "Demodan çıktınız…" satırı çıkıyor.
+- Giriş penceresi artık "korunur" diyor ("değiştirilir" yok). Şeritte "Örnek veri · kendi veriniz korunuyor" yazıyor. Rehber kapalıyken "Demo alanı" bilgi şeridi ve "Kendi verime dön" düğmesi görünüyor (`demoSeridiniKapat`).
+- Ölçüm: kendi 5 sorusu olan tarayıcıda kullanıcı kaydının SHA-256'sı demo öncesinde, demo başında, 5 adımın sonunda, çıkıştan sonra ve rol seçiminden sonra **aynı** (10.574 bayt, bayt bayt). Demo kaydı ~106 KB; çıkışta siliniyor. Ölçüm hem 1280 hem 390 px'te yapıldı.
+
+**2. Dolu sınıf (madde 2).**
+- 24 uydurma öğrenci, hepsi "Örnek" soyadlı, `demo: true` ve "simüle" rozetli. Sınav 8 ÇSS + 2 açık uçlu; ayrıca onay bekleyen 1 ÇSS (adım 1).
+- Yeni sorular 2026 Fen 7 "Kuvvet ve Enerjiyi Keşfedelim" ünitesinin üç kazanımına bağlı (FB.7.2.1–3; kod ve metin `fen-7.json` ile birebir, testte doğrulanıyor). Ekip elle yazdı. İlk üç soru ve sıraları değişmedi (§90 tohumu ve testleri).
+- Yanıt deseni deterministik: mulberry32, tohum 2026, lojistik yetenek–güçlük modeli. `Math.random` kullanılmıyor; aynı tohum her seferinde aynı sınıfı veriyor.
+- Ölçülen analitik (1280 ve 390 aynı): **KR-20 = 0,78**, **Cronbach α = 0,88** (24 öğrenci, 8/10 madde).
+  - "Gösterge niteliğindedir" uyarısı 0, "hesaplanamadı" 0, işlevsiz çeldirici 0.
+  - p değerleri 0,29–0,75; d değerleri 0,50–1,00.
+  - Isı haritası 7-A × 4 kazanım: FEN.7.1.2 %60, FB.7.2.1 %57, FB.7.2.2 %54, FB.7.2.3 %44.
+- Açık uçlu puan önerileri demo alanında **kayıtlı örnek veriden** geliyor (0 Neuron).
+  - 1. soru: 5 Kasım'da kaydedilmiş canlı yanıt (§90 tohumu).
+  - 2. soru: ekibin elle yazdığı örnek öneri; ekranda kaynak olarak "model yanıtı değildir" yazıyor.
+  - Rozet "Örnek veri — demo alanı, model çağrılmadı". Not kutusu bilgi renginde (kırmızı yalnız hata için).
+  - Yalnız birebir demo girdisi eşleşiyor. Başka bir yanıt yazılırsa öneri uydurulmuyor, "elle puanlayın" sonucu dönüyor.
+  - Öğretmen onayı (adım 4) aynen korunuyor.
+
+**3. Boş havuz çıkmazı (madde 5).**
+- 2. adımda havuz boşsa iki çıkış var; İçerik Uzmanı yolu da duruyor.
+  - **"Örnek soruları içe al":** ekibin yazdığı 8 soru (6 ÇSS + 2 açık uçlu). `ornekPaket: true`, modelsiz. Havuzda "Örnek" rozetiyle, İçerik Uzmanı havuzunda "Örnek paket" kaynağıyla görünüyor; denetim izine `ornek_paket_alindi` yazılıyor. Demo alanından bağımsız; ikinci kez alınınca çoğalmıyor; eksik kazanım listeye ekleniyor (silme yok).
+  - **"Elle soru yaz":** §99 taslağı sihirbazın içinde açılıyor. Aynı onay kartı ve aynı `soruyuOnayla` yolu kullanılıyor; günlükte "rol: Öğretmen" görünüyor.
+- AGENTS §1: yapay zekâ çıktısını onaysız havuza alan yeni bir yol yok. Örnek paket insan yazımı ve işaretli; elle soru insan onayından geçiyor. `status = "approved"` atanan satır sayısı 2 → 3 (yeni olan `ornekPaketSorulari`); test buna göre güncellendi ve paketin modelsiz/işaretli olduğunu doğruluyor.
+- Ölçüm: boş tarayıcıdan ilk yayınlanmış sınava, yalnız Öğretmen rolüyle:
+  - örnek paket yolu **8 tık** (`kontroller.mjs`) ya da 3 soruyla **10 tık**;
+  - elle soru yolu **10 tık**.
+  - İki yol da 1280 ve 390 px'te ölçüldü; hedef ≤ 12 tıktı.
+
+**Yan düzeltmeler** (main'de de vardı; dolu sınıfla belirginleşti):
+- Koyu temada "Demo" rozetinin kontrastı 2,22:1 idi; `--on-accent` ile düzeldi.
+- Puanlamada onaylanmış kartlar `opacity:0.75` ile soluklaştırılıyordu. 24 kişide 257 düğümde kontrast ihlali vardı; artık `.eval-tamam` zemini kullanılıyor.
+- Simüle çipin "SİMÜLE" etiketi (opaklık .75) ve sınıf hapı (açık temada 3,89:1) düzeltildi.
+- Demo adım düğmesinin erişilebilir adı artık görünen metinle başlıyor (axe `label-content-name-mismatch`).
+
+**Araçlar:**
+- `kontroller.mjs` 28 → 38 denetim:
+  - kendi veri + bayt bayt hash;
+  - demo menüsü;
+  - dolu sınıf analitiği;
+  - çıkış;
+  - Sıfırla denetimleri artık kendi veride;
+  - boş havuz ×2.
+- `demo-yuru.mjs` adım 5'te analitiği, sonunda çıkışı yazıyor.
+- `erisilebilirlik-tara`, `gorsel-fark` ve `ekran-goruntusu-al` artık `demoSeridiniKapat` kullanıyor (demo alanında kalır).
+- Gizlilik metnine demo kaydı cümlesi eklendi (AGENTS §7).
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **989/989**, 48 dosya (yeni `demo-alani.test.ts`: 28 test) |
+| Mutasyon (5 koruma tek tek bozuldu) | 5 test kırıldı |
+| Öz-kontrol | %100, 775 ad |
+| Lint | temiz |
+| `kontroller.mjs` | 38/38, 1280 ve 390; konsol hatası 0; engellenen POST 0 |
+| Demo 5 adım (`demo-yuru.mjs`) | 1280 ve 390; `/api/ai` POST **0**; konsol hatası 0 |
+| axe, `erisilebilirlik-tara` (52 ekran, 1280/390 × açık/koyu) | ihlal 0; 12 px altı 0 (main de 0) |
+| Yeni ekranlar (6 ekran × 4) | axe 0, 12 px altı 0, taşma 0, konsol 0; klavye odağı 2 px solid |
+
+Sınırlar ve açık noktalar:
+- Demo alanı sekmeye özel. İki sekmede eşzamanlı demo ya da sekme çakışması (fikir2-C madde 1) bu paketin konusu değil.
+- Örnek paket yalnız Fen 7. Başka ders ya da sınıf seçen öğretmen filtreyi temizlemeli.
+- 2. açık uçlu sorunun örnek önerisi model çıktısı değil. Canlı model yanıtı istenirse aynı girdiyle 1 `/evaluate` çağrısı gerekiyor; bu görevde POST yasaktı.
+
+Ekranlar: `Downloads\Mihenk\ekran-demo-120\`.
