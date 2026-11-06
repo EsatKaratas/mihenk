@@ -1603,16 +1603,28 @@ async function retryEvaluation(qid, sid) {
   const a = (ss.answers || {})[qid] || { text: "" };
   ensureRubric(qid);
   state.ai.busy = true; busySince = Date.now(); renderAll();
+  durumDuyur("Yapay zekâdan puan önerisi isteniyor; bu 10–20 saniye sürebilir.");   // §115
+  let sonuc = null;
   try {
     await probeAiMode();
     // Öğretmen bilinçli olarak yeniden deniyor: önbelleği atla.
-    const sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid], true, ogrId);
+    sonuc = await aiEvaluate(q, a.text || "", state.rubrics[qid], true, ogrId);
     const yeni = Object.assign({}, readSession(ogrId).aiEvals || {});
     yeni[qid] = sonuc;
     writeSession(ogrId, { aiEvals: yeni });
   } finally {
     state.ai.busy = false; renderAll();
+    durumDuyur(puanOnerisiDuyuruMetni(sonuc));
   }
+}
+
+/** §115 — puan önerisi bitiş duyurusu (saf; test edilir). */
+function puanOnerisiDuyuruMetni(sonuc) {
+  if (sonuc && !sonuc.failed && sonuc.aiScore != null) {
+    return "Puan önerisi geldi: " + sonuc.aiScore + " / " + sonuc.maxScore + ". Karar sizin; onaylamadan kesinleşmez.";
+  }
+  return "Puan önerisi alınamadı" + (sonuc && sonuc.error ? ": " + sonuc.error : "") +
+    ". Yeniden deneyebilir ya da elle puanlayabilirsiniz.";
 }
 
 /**
@@ -2752,22 +2764,29 @@ function demoKilitUyar(no) {
   renderDemoSerit();
 }
 
-/** Ekran okuyucuya kısa duyuru. Bölge şeridin DIŞINDA ve kalıcıdır: innerHTML
-    ile yeniden çizilen bir aria-live bölgesi güvenilir okunmaz. Aynı metin
-    art arda gelirse de okunsun diye önce boşaltılır. */
-function demoDuyur(metin) {
-  let el = document.getElementById("demoDuyuru");
+/** §115 — TEK ORTAK durum duyuru bölgesi (ekran okuyucu). Demo kilidi ve
+    model bekleme/bitiş durumları (soru üretimi, değerlendirme, bağımsız
+    çözüm, puan ve rubrik önerisi) hep buradan duyurulur; ikinci bir bölge
+    açılmaz. Bölge body'nin doğrudan çocuğu ve kalıcıdır: innerHTML ile
+    yeniden çizilen bir aria-live bölgesi güvenilir okunmaz, .app inert
+    olduğunda (modal açık) da susmaz. Aynı metin art arda gelirse de
+    okunsun diye önce boşaltılır. Görsel olarak gizlidir (.demo-duyuru). */
+function durumDuyur(metin) {
+  let el = document.getElementById("durumDuyuru");
   if (!el) {
     el = document.createElement("div");
-    el.id = "demoDuyuru";
+    el.id = "durumDuyuru";
     el.className = "demo-duyuru";
     el.setAttribute("role", "status");
     el.setAttribute("aria-live", "polite");
+    el.setAttribute("aria-atomic", "true");
     document.body.appendChild(el);
   }
   el.textContent = "";
   setTimeout(function () { el.textContent = metin; }, 30);
 }
+/** Demo şeridi duyurusu: ortak bölgeye gider (§115). */
+function demoDuyur(metin) { durumDuyur(metin); }
 
 /** Adım listesi: 5 yerel düğme. Kilitli olan `disabled` DEĞİL aria-disabled
     (§64b): odaklanır, nedeni aria-describedby ile okunur, tıklanınca duyurulur. */
@@ -5094,7 +5113,7 @@ function auditGunluguHtml() {
     arastirmaOnizlemeHtml() +   // §111
 
     '<div class="au-liste-bas">Son ' + Math.min(25, o.toplamKayit) + " kayıt (yeniden eskiye)</div>" +
-    '<div class="au-liste">' + sonKayitlar + "</div></div>";
+    '<div class="au-liste" tabindex="0" role="region" aria-label="Karar günlüğü kayıtları (kaydırılabilir)">' + sonKayitlar + "</div></div>";
 }
 
 function wireAudit() {
@@ -5437,8 +5456,11 @@ async function onGenerateQuestions() {
   state.ai.busy = true;
   busySince = Date.now();
   renderAll();
+  let duyuruSonu = "";   // §115: bitiş duyurusu
+  durumDuyur("Yapay zekâ soru üretiyor; bu 10–20 saniye sürebilir.");
   try {
     const qs = await aiGenerateQuestions(doc);
+    if (qs.length) duyuruSonu = qs.length + " soru üretildi; İçerik Uzmanı onayını bekliyor.";
     if (qs.length) {
       /* §104: modelin verdiği anahtar saklanır (onayda eski → yeni harf
          kaydı için). Anahtar geçersizse (anahtarBelirsiz) iz tutulmaz:
@@ -5469,6 +5491,9 @@ async function onGenerateQuestions() {
   } finally {
     state.ai.busy = false;
     renderAll();
+    const hata = state.ceForm.error || "";
+    durumDuyur(duyuruSonu || (hata ? (/^Soru üretilemedi/.test(hata) ? hata : "Soru üretilemedi: " + hata)
+      : "Soru üretimi bitti; yeni soru eklenmedi."));
   }
 }
 
@@ -5771,6 +5796,9 @@ async function bagimsizCoz(q) {
   if (!q || q.type !== "mc") return;
   state.cozuluyor = state.cozuluyor || {};
   state.cozuluyor[q.id] = true; renderAll();
+  // §115: toplu çözümde her soru ayrı duyurulmaz (bekleyenleriCoz özetler).
+  const tekil = !state.topluCoz;
+  if (tekil) durumDuyur("Yapay zekâ soruyu bağımsız çözüyor; bu 10–20 saniye sürebilir.");
   const imza = cozumImzasi(q);
   try {
     const j = await apiPost(AI_API.solve, {
@@ -5794,7 +5822,16 @@ async function bagimsizCoz(q) {
   } finally {
     delete state.cozuluyor[q.id];
     saveSoon(); renderAll();
+    if (tekil) durumDuyur(bagimsizCozumDuyuruMetni(q.bagimsizCozum, q.correctKey));
   }
+}
+
+/** §115 — bağımsız çözüm bitiş duyurusu (saf; test edilir). */
+function bagimsizCozumDuyuruMetni(c, anahtar) {
+  if (!c || c.hata) return "Bağımsız çözüm yapılamadı" + (c && c.hata ? ": " + c.hata : "") + ".";
+  if (c.cozulemedi) return "Bağımsız çözüm bitti: model soruyu çözemedi.";
+  return "Bağımsız çözüm bitti: model " + c.secilenSik + " şıkkını seçti" +
+    (c.anahtarUyusmazligi === true ? "; anahtar " + anahtar + " ile UYUŞMUYOR, kontrol edin." : "; anahtarla uyumlu.");
 }
 
 /* §56 — Bekleyenlerin hepsini SIRAYLA çözer (eşzamanlı değil: hız sınırı
@@ -5805,6 +5842,7 @@ async function bekleyenleriCoz() {
   const liste = state.questions.filter(function (q) { return q.status === "ai_generated" && q.type === "mc"; });
   state.topluCoz = { bitti: 0, toplam: liste.length, hata: 0 };
   renderAll();
+  durumDuyur("Yapay zekâ " + liste.length + " bekleyen soruyu sırayla bağımsız çözüyor.");   // §115
   let durduran = "";
   for (let i = 0; i < liste.length; i++) {
     /* §56: hız sınırı (429: soru başına 5/dk, IP başına 60/dk) gelirse
@@ -5831,6 +5869,7 @@ async function bekleyenleriCoz() {
   const s = state.topluCoz; state.topluCoz = null;
   state.topluCozSonuc = topluCozSonucMetni(s, durduran);
   renderAll();
+  durumDuyur(state.topluCozSonuc);   // §115
 }
 
 /** §90: döngüyü HEMEN durduran hata kodu (gün sonuna kadar açılmayan). */
@@ -7148,14 +7187,17 @@ function kazanimSeciciHtml(o) {
   const dugme = o.acilir
     ? '<button type="button" class="kz-ac" id="' + k + '-ac" aria-expanded="' + !!h.panel + '" aria-controls="' + k + '-govde"' +
       /* Görünür etiket varsa etiket + değer (A1, A2). Yoksa (B2) ad bileşenin
-         etiketidir, eski <select>'in aria-label'ı ("… kazanım ekle"); düğme
-         metni (yükleniyor / yüklenemedi / N kazanım) açıklama olarak okunur. (W9 P3-3) */
+         etiketiyle BAŞLAR ("… kazanım ekle", W9 P3-3) ve görünür düğme metnini
+         (yükleniyor / yüklenemedi / N kazanım) İÇERİR: §115 axe
+         label-content-name-mismatch (WCAG 2.5.3) — aria-label görünür metni
+         içermiyordu. Etiket düğmenin dışında gizli bir span'de. */
       (o.etiketId ? ' aria-labelledby="' + escapeHtml(o.etiketId) + " " + k + '-metin"'
-        : ' aria-label="' + escapeHtml(o.etiket) + '" aria-describedby="' + k + '-metin"') +
+        : ' aria-labelledby="' + k + "-ad " + k + '-metin"') +
       (bos ? " disabled" : "") + '><span class="kz-ac-metin" id="' + k + '-metin">' + escapeHtml(o.dugmeMetni || "") + "</span>" +
       '<span class="kz-ok" aria-hidden="true"></span></button>'
     : "";
-  return '<div class="kz-secici kz-' + o.mod + (o.acilir ? " kz-acilir" : "") + '" id="' + k + '">' + dugme +
+  return '<div class="kz-secici kz-' + o.mod + (o.acilir ? " kz-acilir" : "") + '" id="' + k + '">' +
+    (o.acilir && !o.etiketId ? '<span id="' + k + '-ad" hidden>' + escapeHtml(o.etiket || "") + "</span>" : "") + dugme +
     '<div class="kz-govde" id="' + k + '-govde"' + (o.acilir && !h.panel ? " hidden" : "") + ">" + govde + "</div></div>";
 }
 
@@ -8709,7 +8751,7 @@ function sinifYonetimHtml() {
                "rıza bekleniyor" ile doğar (izin yok gibi davranır, etiketi ayrı). */
             '<button type="button" class="btn btn-sm sy-yz' + (o2.yzIzniYok ? " sy-yz-yok" : "") + '" data-yz-izin="' + o2.id +
             '" aria-pressed="' + (o2.yzIzniYok ? "false" : "true") + '" title="Veli rızasına göre: izin yoksa cevap yapay zekâya gönderilmez, elle puanlanır" aria-label="' +
-            escapeHtml(o2.name) + ' — yapay zekâ değerlendirmesi: ' + yzIzinEtiketi(o2).toLowerCase() + '">' +
+            escapeHtml("YZ: " + yzIzinEtiketi(o2).toLowerCase() + " — " + o2.name + " için yapay zekâ değerlendirmesi") + '">' +   // §115 WCAG 2.5.3
             "YZ: " + yzIzinEtiketi(o2).toLowerCase() + '</button>' +
             '<button class="icon-btn" data-ogrenci-sil="' + o2.id + '" title="Öğrenciyi çıkar" aria-label="' +
             escapeHtml(o2.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
@@ -9273,9 +9315,11 @@ async function aiSuggestRubric(qid) {
   if (state.ai.mode !== "live") {
     state.rubricError = "Rubrik önerisi için gerçek model bağlantısı gerekiyor.";
     renderAll();
+    durumDuyur(state.rubricError);   // §115
     return;
   }
   state.ai.busy = true; busySince = Date.now(); state.rubricError = ""; renderAll();
+  durumDuyur("Yapay zekâ rubrik taslağı hazırlıyor; bu 10–20 saniye sürebilir.");   // §115
   try {
     // §42: ders/sınıf içerik uzmanı formundan DEĞİL, sorunun kazanımından
     // türetilir (bkz. soruDersSinif).
@@ -9305,6 +9349,8 @@ async function aiSuggestRubric(qid) {
   } finally {
     state.ai.busy = false;
     renderAll();
+    durumDuyur(state.rubricError || ("Rubrik taslağı hazır: " + ((state.rubrics[qid] || {}).criteria || []).length +
+      " ölçüt. Kabul etmeden kullanılmaz."));
   }
 }
 
@@ -9689,8 +9735,10 @@ function poolEditHtml(q) {
         (q.options || []).map(function (o) {
           return '<div class="opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
             '<span class="opt-key">' + o.key + '</span>' +
-            '<input type="text" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkının metni" value="' + escapeHtml(o.text) + '" style="flex:1;">' +
-            '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);white-space:nowrap;">' +
+            /* §115: <input> tek satırdı; 390 px'te şık metni kırpılıyordu (113 px gizli).
+               §75b'deki gibi textarea satıra sarar; sınıf, veri ve .value aynı. */
+            '<textarea rows="1" class="pe-opt" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkının metni">' + escapeHtml(o.text) + '</textarea>' +
+            '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);white-space:nowrap;">' +
             '<input type="radio" name="pe-correct-' + q.id + '" class="pe-correct" data-qid="' + q.id + '" data-okey="' + o.key + '" aria-label="' + o.key + ' şıkkı doğru cevap"' +
             (o.key === q.correctKey ? " checked" : "") + '> doğru</label></div>';
         }).join("") + '</div>'
@@ -10634,7 +10682,7 @@ function wireTeacherTab1() {
       // burada zaten hazırdır — ekstra bir setTimeout/RAF gerekmez.
       const maxEl = document.getElementById("rubMax");
       if (maxEl) {
-        maxEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        maxEl.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); // §115 hareket azaltma
         maxEl.focus({ preventScroll: true });
       }
     };
@@ -11966,7 +12014,7 @@ function trendHtml(gecmisVerilen) {
     '<div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">' +
     'Kazanım yüzdeleri, öğretmen onayından geçmiş gerçek sonuçlardan hesaplanır. ' +
     'Son sütun, <b>' + escapeHtml(son.baslik) + '</b> ile <b>' + escapeHtml(onceki.baslik) + '</b> arasındaki farktır.</div>' +
-    '<div class="heatmap-wrap"><table class="heatmap trend-table"><tr><th>Kazanım</th>' +
+    '<div class="heatmap-wrap" tabindex="0" role="region" aria-label="Sınavlar arası gelişim tablosu (kaydırılabilir)"><table class="heatmap trend-table"><tr><th>Kazanım</th>' +
     gecmis.map(function (g) { return '<th>' + escapeHtml(truncate(g.baslik, 18)) + '</th>'; }).join("") +
     '<th>Değişim</th></tr>' +
     liste.map(function (k) {
@@ -13159,8 +13207,11 @@ async function finishExam() {
   state.ai.busy = true;
   busySince = Date.now();
   renderAll();
+  const opens = items.filter(function (q) { return q.type !== "mc"; });
+  // §115: bekleme ve bitiş ekran okuyucuya duyurulur.
+  durumDuyur("Sınav teslim edildi." + (opens.length
+    ? " " + opens.length + " açık uçlu yanıt yapay zekâ ile ön değerlendiriliyor; bu biraz sürebilir." : ""));
   try {
-    const opens = items.filter(function (q) { return q.type !== "mc"; });
     for (let i = 0; i < opens.length; i++) {
       const q = opens[i];
       const a = state.answers[q.id] || { text: "" };
@@ -13170,6 +13221,11 @@ async function finishExam() {
   } finally {
     state.ai.busy = false;
     renderAll();
+    if (opens.length) {
+      const basarisiz = opens.filter(function (q) { return state.aiEvals[q.id] && state.aiEvals[q.id].failed; }).length;
+      durumDuyur("Ön değerlendirme bitti" + (basarisiz ? "; " + basarisiz + " yanıt değerlendirilemedi" : "") +
+        ". Puanlar öğretmen onayından sonra kesinleşir.");
+    }
   }
 }
 
@@ -13621,7 +13677,7 @@ function studentTab3Html() {
         '<div class="rr-answer"><div class="rr-answer-lbl">Senin yanıtın</div>' +
         '<div class="rr-answer-txt' + (yanitMetni ? "" : " bos") + '">' +
         (yanitMetni ? escapeHtml(yanitMetni) : "Bu soruya yanıt yazmamışsın.") + '</div></div>' +
-        '<div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">' +
+        '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">' +
         /* DÜRÜSTLÜK: ortada hiç yapay zekâ önerisi yokken öğrenciye "yapay zekâ
            önerisi onaylandı" demek yanlış beyandır. Öğretmen elle puanladıysa
            (AI çağrısı başarısız olduğu için ya da tercihen) bunu olduğu gibi
@@ -13632,7 +13688,7 @@ function studentTab3Html() {
           : revize
             ? 'Yapay zekâ ' + aiOneri + ' puan önermişti; öğretmenin yanıtını okuyup puanı ' + rv.finalScore + ' olarak belirledi.'
             : 'Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı.') + '</div>' +
-        ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
+        ((ev.breakdown || []).length ? '<div style="margin-top:10px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Puanın nereden geldiği</div>' : "") +
         /* §51 — ÖĞRENCİYE YALNIZCA ÖĞRETMENİN ONAYLADIĞI METİN GİDER.
            Eskiden karne `ev.justification` ile ölçüt `reason`larını da
            gösteriyordu: modelin ÖĞRETMENE 3. şahısla yazdığı gerekçe
@@ -13836,7 +13892,7 @@ function kazanimGrafigiSvg(rows, cols) {
     '<tspan x="' + (cizimSag + 6) + '">kritik eşik</tspan>' +
     '<tspan x="' + (cizimSag + 6) + '" dy="12">%' + KRITIK_ESIK + "</tspan></text>";
 
-  return '<div class="heatmap-wrap"><svg class="kazanim-grafik" viewBox="0 0 ' + W + " " + H +
+  return '<div class="heatmap-wrap" tabindex="0" role="region" aria-label="Kazanım grafiği (kaydırılabilir)"><svg class="kazanim-grafik" viewBox="0 0 ' + W + " " + H +
     '" width="' + W + '" height="' + H + '" role="img" ' +
     'aria-label="Kazanım başarı yüzdeleri, şubelere göre gruplu sütun grafiği">' +
     "<desc>Her kazanım için şubelerin başarı yüzdeleri. Kesikli kırmızı çizgi %" +
@@ -13926,7 +13982,7 @@ function renderKazanimGrafigi(targetId, rows, bosMesaj) {
         state.ceTab = 1;
         renderAll();
         const banner = document.getElementById("remedialBanner");
-        if (banner) banner.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (banner) banner.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); // §115
       };
     });
   }
@@ -15335,11 +15391,16 @@ function renderRoleNav() {
   const acik = _kabukMenu === "rol";
   nav.innerHTML = '<div class="kb-menu">' +
     '<button type="button" class="kb-rol-btn js-rol-menu" data-kb="rol-btn" aria-haspopup="menu" aria-expanded="' + (acik ? "true" : "false") + '"' +
-    ' aria-label="' + escapeHtml("Panel: " + aktif.label + (badges[aktif.id] ? " (" + badges[aktif.id] + " bekleyen)" : "") + " — değiştir") + '"' +
+    /* §115 (WCAG 2.5.3): ad görünür metinle aynı sırada başlar: "Panel İçerik
+       Uzmanı 3" (dar ekranda "Panel" gizli, "İçerik Uzmanı 3" yine içinde). */
+    ' aria-label="' + escapeHtml("Panel " + aktif.label + (badges[aktif.id] ? " " + badges[aktif.id] + " bekleyen" : "") + ", paneli değiştir") + '"' +
     ' title="Paneli değiştir">' +
-    '<span class="kb-rol-on">Panel</span>' +
+    /* §115: parçalar arasında boşluk — görünür metin "PanelÖğretmen" okunuyordu,
+       aria-label ("Panel: Öğretmen …") onu içermiyordu (WCAG 2.5.3). Esnek
+       kutuda boşluk düzeni değiştirmez. */
+    '<span class="kb-rol-on">Panel</span> ' +
     '<span class="r-label">' + escapeHtml(aktif.label) + '</span>' +
-    (badges[aktif.id] ? '<span class="badge">' + badges[aktif.id] + '</span>' : "") +
+    (badges[aktif.id] ? ' <span class="badge">' + badges[aktif.id] + '</span>' : "") +
     '<span class="kb-ok" aria-hidden="true">▾</span></button>' +
     (acik ? panelMenuHtml(badges) : "") + '</div>';
 
@@ -15747,7 +15808,7 @@ function girisKapisiKartlariHtml() {
       '<span class="gk-ikon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
       (ikonlar[r.id] || "") + '</svg></span>' +
       '<span class="gk-kart-metin">' +
-      '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span>' +
+      '<span class="gk-kart-ad">' + escapeHtml(r.label) + '</span> ' +   // §115 WCAG 2.5.3
       '<span class="gk-kart-not">' + escapeHtml(eylem) + '</span></span>' +
       '<span class="gk-kart-alt" aria-hidden="true">→</span>' +
       '</button>';
@@ -15906,6 +15967,8 @@ function renderAll() {
   renderAdmin();
   renderParent();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
+  const panelBaslik = document.getElementById("panelBaslik");   // §115
+  if (panelBaslik) { const r = ROLES.find(function (x) { return x.id === state.role; }); panelBaslik.textContent = r ? r.label + " paneli" : ""; }
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
   aiDugmeleriniKilitle();   // §100 — kota doluyken yapay zekâ düğmeleri pasif
   bindFieldLabels();
@@ -15943,7 +16006,11 @@ function renderOdaginiKurtar(iz) {
   modalOdagiGeriVer(iz, { preventScroll: true });
 }
 function initPanels() {
-  document.getElementById("panels").innerHTML = ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
+  /* §115: sayfa başlığı h1 (marka) → panel içi h3'ler arasında h2 yoktu (axe
+     heading-order). Etkin panelin adı görsel olarak gizli TEK h2'de; görünüm
+     değişmez. Panel içerikleri innerHTML ile yazıldığı için h2 dışarıda. */
+  document.getElementById("panels").innerHTML = '<h2 class="gorsel-gizli" id="panelBaslik"></h2>' +
+    ROLES.map(function (r) { return '<section class="panel" id="panel-' + r.id + '"></section>'; }).join("");
 }
 
 setInterval(function () {
@@ -17026,7 +17093,7 @@ function bosDurumHtml(mesaj) {
        şerit sessizce kaybolur ve sunum ortasında rehber ölür. */
     "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
     /* §94 (W9) — tıklanabilir demo adımları. */
-    "demoAdimDurumu", "demoKilitNedeni", "demoKilitUyar", "demoDuyur", "demoAdimListesiHtml",
+    "demoAdimDurumu", "demoKilitNedeni", "demoKilitUyar", "demoDuyur", "durumDuyur", "puanOnerisiDuyuruMetni", "bagimsizCozumDuyuruMetni", "demoAdimListesiHtml",
     /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
     /* §93 (W10) — Neuron bütçesi göstergesi ve uca göre elle devam metni. */

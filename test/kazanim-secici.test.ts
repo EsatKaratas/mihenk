@@ -193,12 +193,13 @@ describe('matematikV4Yolu — B2 üzerinden seçilen kazanımla bozulmaz', () =>
 });
 
 describe('W9 P3 — B2 erişilebilir ad ve aramada Enter', () => {
-  it('P3-3: görünür etiket yoksa düğmenin adı bileşen etiketi ("… kazanım ekle"), metin açıklama', () => {
+  it('P3-3 + §115: görünür etiket yoksa ad bileşen etiketiyle başlar ve görünür düğme metnini içerir (WCAG 2.5.3)', () => {
     const k = kur();
     const html = k.kazanimSeciciHtml({ kimlik: 'kz-ce-ekle', mod: 'ekle', acilir: true, etiket: 'MEB öğretim programından kazanım ekle',
       ogeler: [oge('A', 'Fen', '7', '')], dugmeMetni: 'MEB öğretim programından kazanım ekleyin… (1 kazanım)' });
-    expect(html).toContain('aria-label="MEB öğretim programından kazanım ekle" aria-describedby="kz-ce-ekle-metin"');
-    expect(html).not.toContain('aria-labelledby');
+    expect(html).toContain('<span id="kz-ce-ekle-ad" hidden>MEB öğretim programından kazanım ekle</span>');
+    expect(html).toContain('aria-labelledby="kz-ce-ekle-ad kz-ce-ekle-metin"');
+    expect(html).not.toMatch(/<button[^>]*aria-label=/);
     // etiketId verilen yerlerde (A1, A2) eski davranış
     const a1 = k.kazanimSeciciHtml({ kimlik: 'kz-a1', mod: 'filtre', acilir: true, etiket: 'K', etiketId: 'lbl', ogeler: [oge('A', 'Fen', '7', '')] });
     expect(a1).toContain('aria-labelledby="lbl kz-a1-metin"');

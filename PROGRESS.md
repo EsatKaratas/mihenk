@@ -12107,3 +12107,100 @@ Bu doğru davranış (§88b izin yolu).
   - Analitik sekmesinde bölüm görünüyor. Taşma 0, konsol hatası 0, POST 0.
 - `kagit.mjs` (§106) 46/46; `kontroller.mjs` 28/28 + 28/28; `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0.
 - Kanıt: `side-session-notes\local_fbcef29b-…\W9-kriter-puan\` (kart ve rapor 1280/390, loglar, betik).
+
+## 115. ERİŞİLEBİLİRLİK CİLASI — hareket, 12 px, ortak durum duyurusu, odak, 390 px düzenleyici, axe (7 Kasım 2026, P7, dal `feature/erisilebilirlik`, Orchestrator 3 emriyle)
+
+Taban `290d579`. 0 Neuron (tüm `/api/ai/*` engelli ya da sahte). Davranış ve
+palet değişmedi (lacivert `#0d3db0`, turuncu `#F2994A`, kırmızı `--critical`).
+Ölçüm yerel statik sunucuda (127.0.0.1:8807; servis = disk SHA eşit).
+
+**Yapılanlar**
+1. **Genel hareket azaltma** (`app.css` sonu): `@media (prefers-reduced-motion: reduce)`
+   içinde `*, *::before, *::after` → animasyon/geçiş süresi `0.01ms !important`,
+   tekrar 1, gecikme 0, `scroll-behavior: auto`. Evrensel + `!important` olduğu
+   için `kabuk.css` (3), `kazanim-secici.css` (1), `ogretmen.css` (1) ve
+   `app.css`'teki (19) hareketin hepsini dosya sırasından bağımsız kapsar.
+   0 değil 0.01ms: `transitionend` yine tetiklenir. JS'deki iki
+   `scrollIntoView({behavior:"smooth"})` de tercihe uyar.
+2. **En küçük yazı 12 px:** ekranda 12 px altı 151 bildirim 12 px'e çekildi
+   (app.css 133, ce.css 1, app.js satır içi 3, mimari/privacy/veri-nereye-gider
+   14; 9/9,5/10/10,5/11/11,5 px). Yazdırma (`@media print`, pt) değişmedi.
+   **Sayfada ölçüldü** (görünür, kendi metni olan öğe, hesaplanan font-size):
+   52 ekranda **688 → 0** (en çok: `.pill` 11 px ×152, `.sc-class` 10 px ×72).
+   Taşma 0 (gorsel-fark 38 ekran + kontroller 12 ekran × 2 genişlik).
+3. **Tek ortak durum bölgesi:** `durumDuyur(metin)` → body'nin doğrudan çocuğu
+   `#durumDuyuru` (`role="status"`, `aria-live="polite"`, `aria-atomic`,
+   görsel gizli). `demoDuyur` artık ona gider; ikinci bölge yok (çalışma
+   anında `#durumDuyuru` = 1). Başlangıç + bitiş (hata dahil, `finally`'de)
+   duyuruları — gerçek tarayıcıda ölçüldü, sahte yanıt 1,5 sn (1280 ve 390 aynı):
+
+   | Akış | Başta | Bitişte (≈1,5 sn sonra) |
+   |---|---|---|
+   | Soru üretimi (`onGenerateQuestions`, 503 kota) | "Yapay zekâ soru üretiyor; bu 10–20 saniye sürebilir." | "Soru üretilemedi: Bugünkü yapay zekâ kotası doldu; …" (başarıda "N soru üretildi; İçerik Uzmanı onayını bekliyor.") |
+   | Değerlendirme (`finishExam`) | "Sınav teslim edildi. 1 açık uçlu yanıt yapay zekâ ile ön değerlendiriliyor; …" | "Ön değerlendirme bitti. Puanlar öğretmen onayından sonra kesinleşir." |
+   | Çözdürme (`bagimsizCoz`; toplu `bekleyenleriCoz` başta + özet) | "Yapay zekâ soruyu bağımsız çözüyor; …" | "Bağımsız çözüm bitti: model A şıkkını seçti; anahtarla uyumlu." |
+   | Puan önerisi (`retryEvaluation`) | "Yapay zekâdan puan önerisi isteniyor; …" | "Puan önerisi geldi: 16 / 20. Karar sizin; onaylamadan kesinleşmez." |
+   | Rubrik önerisi (`aiSuggestRubric`, ek) | "Yapay zekâ rubrik taslağı hazırlıyor; …" | "Rubrik taslağı hazır: 2 ölçüt. Kabul etmeden kullanılmaz." |
+
+   Betik: `Downloads\Mihenk\ekran-p7\duyuru-olc.mjs`, çıktı `duyuru-1280.json`, `duyuru-390.json`.
+4. **outline:none kalan 3 yer:** `.panel[tabindex="-1"]`, `.kz-oge`, `.kz-grup`
+   → `:focus:not(:focus-visible)`; klavye odağında görünür 2 px halka (panel
+   içe çizilir; grup halkası satıra). Ek: kaydırılan iki kap (`.heatmap-wrap`,
+   `.au-liste`) `tabindex="0" role="region" aria-label` + görünür odak.
+5. **Soru düzenleyici 390 px** (öğretmen sihirbazı 2. adım, havuz "Düzenle"):
+   şık `<input>` → `<textarea rows="1" class="pe-opt">` (§75b ile aynı;
+   `.value`/sınıf/veri aynı), `field-sizing: content`. ≤600 px'te düzenleyici
+   tam satır, kazanım alanı tam genişlik. Ölçüldü: kart 208 → 304 px, şık
+   kutusu 102 px'te **113 px gizli metin → 0**; kazanım düğmesi harf harf
+   kırılıyordu → tek satır. Ekran: `kart-once\`, `kart-sonra\`.
+6. **axe-core** `4.14.0` (2026-10-05) devDependency (`--save-exact`); yalnız
+   `tools/erisilebilirlik-tara.mjs` Playwright ile enjekte eder, `public/`'e
+   girmez (testle korunur). 5 rol + giriş, 13 ekran × 1280/390 × açık/koyu = 52
+   tarama, etiketler wcag2a/aa, 21a/aa, 22aa, best-practice. **Koyu tema:**
+   `index.html` `<html data-theme="light">` açığı sabitler (prefers-color-scheme
+   tek başına koyuyu açmaz; ürün kararı, değiştirilmedi) → betik koyuyu
+   `data-theme="dark"` ile zorlar (zemin `#0d1117` doğrulandı).
+
+**axe önce/sonra (düğüm sayısı, 52 ekran)**
+
+| Kural | Etki | Önce | Sonra | Düzeltme |
+|---|---|---|---|---|
+| label-content-name-mismatch (WCAG 2.5.3) | serious | 68 | 0 | Panel düğmesi ve giriş kartlarında görünür parçalar arası boşluk + ad görünür metinle başlar; YZ izni düğmesi "YZ: … — <ad> için …"; B2 kazanım düğmesi `aria-labelledby` (gizli etiket + görünür metin) |
+| scrollable-region-focusable | serious | 6 | 0 | `.au-liste`, `.heatmap-wrap` odaklanır |
+| page-has-heading-one | moderate | 48 | 0 | marka adı `<h1 class="name">` (dar ekranda display:none yerine görsel gizli) |
+| region | moderate | 48 | 0 | `.colophon` → `<footer>` |
+| heading-order | moderate | 0 → (h1 eklenince 8) | 0 | `#panels` başında görsel gizli tek `<h2 id="panelBaslik">` ("<rol> paneli") |
+| color-contrast (AA) | serious | 0 | 0 | açık + koyu; axe'in karar veremediği (incomplete) 296 düğüm ikisinde de aynı — çoğu yalnız simge karakterli öğe (▾, ●) |
+| **Toplam** | | **critical 0 · serious 74 · moderate 96** | **0 · 0 · 0** | |
+
+Kontrast denetiminin çalıştığı ayrıca sınandı: koyu temada sayfaya bilerek
+`#777` / `#666` metin konunca axe 1,28:1 ihlalini yakaladı.
+
+**Doğrulama:** `npm test` **888/888** (+17 `test/erisilebilirlik.test.ts`;
+3 test dosyası yeni ortak bölgeye uyarlandı) · `npm run lint` temiz · öz-kontrol
+%100 (+3 ad: `durumDuyur`, `puanOnerisiDuyuruMetni`, `bagimsizCozumDuyuruMetni`) ·
+`kontroller.mjs` **28/28** (1280) + **28/28** (390) · `demo-yuru.mjs` 5 adım
+1280 + 390, konsol hatası 0, POST 0 · axe serious/critical 0 (çıkış 0).
+
+**Görsel fark** (`tools/gorsel-fark.mjs --dolu`, taban = aynı dalda değişiklik
+öncesi, 38 ekran): konsol hatası 0, yinelenen id 0, taşma 0 her ekranda. Giriş
+%0,000 (1280/390). Diğer farkların tamamı 12 px yazıdan: haplar/rozetler 1–2 px
+büyüdü, satırlar uzadı ve aşağısı kaydı ("kırpıldı" = sayfa boyu değişti; ör.
+dolu öğretmen analitik 390: 5072 → 5233 px). En büyükler veri dolu, hap yoğun
+ekranlar (dolu-teacher-4-390 %33,9, dolu-admin-1-390 %28,0); hap yoğun olmayan
+öğretmen ekranları %0,65–1,4. Renk ve düzen değişmedi (yan yana:
+`ekran-p7\yanyana-*.png`).
+
+**Yapılmayan / not:**
+- Koyu tema ürün içinde açılamıyor (`data-theme="light"` sabit) — bilinçli,
+  dokunulmadı; yalnız tarandı.
+- Junction'lı `node_modules` ana depoya ait olduğu için oraya kurulum
+  YAPILMADI (lock-only); betik `axe-core`'u bulamazsa `MIHENK_AXE_YOLU=<axe.min.js>`
+  ile çalışır. Birleştirme sonrası `npm ci` paketi getirir.
+- Bekleme göstergesi (`⏳ … N sn` sayacı) her saniye değişir; canlı bölge
+  DEĞİL (saniye saniye okunmasın diye) — yalnız başta ve sonda duyuru.
+- Model çağrısı 0; canlıda ekran okuyucuyla (NVDA) dinleme yapılmadı.
+
+Ekranlar ve ham çıktılar: `C:\Users\ASUS\Downloads\Mihenk\ekran-p7\`
+(`axe\axe-once.json`, `axe\axe-sonra.json`, `gorsel-once\`, `gorsel-sonra\rapor.md`,
+`kart-once\`, `kart-sonra\`, `kontroller-*.log`, `demo\`, `duyuru-*.json`).
