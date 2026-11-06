@@ -11191,3 +11191,97 @@ ASSETS + vars, `OLCUM_*` yok.
 - `butce_usage_yok` logu yok, çünkü model çalışmadı. **Binding'in `usage` döndürüp döndürmediği hâlâ
   ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
 - Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
+
+## 103. İSTEMCİ TARAFI ENJEKSİYON İŞARETİ + YÖNETİCİ DÖNEM FİLTRESİ (6 Kasım 2026, W9, dal `feature/enjeksiyon-donem`)
+
+Taban `main` 1458c5a. Orchestrator 3 emri. Yalnız istemci: `public/app.js`, `public/css/yonetici.css`, testler.
+Sunucu değişmedi. Model çağrısı ve `/api/ai` POST yapılmadı.
+
+### 1. Enjeksiyon işareti
+
+**Neden:** Öğretmen uyarısı yalnız modelin `injectionAttempt` bayrağına bağlıydı. Model kaçırırsa öğretmen
+hiçbir şey görmüyordu.
+
+**Ne yapıldı:**
+- `ENJEKSIYON_KALIPLARI` + `enjeksiyonKalipBul(metin)`: basit kalıp eşleme. Kalıplar:
+  - "tam puan"
+  - "yok say" (edilgen "yok sayıl…" hariç)
+  - "önceki talimat / yönerge / komut / kural"
+  - "sistem talimat / mesaj / istem / komut"
+  - "ignore"
+  - "full marks / score / points"
+  - sınır belirteci `<YANIT…`, `</KAYNAK…` (istemdeki gerçek etiketler: `prompts.ts`)
+- Bayrak = model **VEYA** kalıp (`enjeksiyonIsareti`).
+- **Türkçe harf:** metin önce `toLocaleLowerCase("tr")`, sonra ı→i ile katlanır, boşluklar tekleşir.
+  Böylece "SİSTEM TALİMATI", "IGNORE" (tr'de "ıgnore" olur) ve satır sonuyla bölünmüş ifadeler aynı kalıba
+  düşer. Kalıplar sözcük başına bağlı (`\p{L}` sınırı): "tamsayı", "sistemi talimatsız", "ignorans" eşleşmez.
+- **Uyarı metni nedeni söylüyor:** "⚠ Cevapta puanlamaya yönelik talimat ifadesi var. Bulunan ifade: …".
+  - Model bayrağı varsa: "Yapay zekâ bu ifadeyi uygulamadı …".
+  - Yalnız kalıp yakalandıysa bunu **iddia etmiyor**: "Yapay zekâ bunu ayrıca işaretlemedi; önerilen puanın
+    rubriğe uyduğunu kendiniz kontrol edin."
+- **Onay:** işaretli cevapta "✓ Tek Tıkla Onayla" çizilmiyor. Ayrıca tıklama işleyicisinde savunma var:
+  işaret varsa yazmıyor. "Puanı Güncelle ve Onayla" kalıyor.
+- **Puan değişmiyor:** nihai puan alanı YZ önerisiyle dolu geliyor. Engelleme yok (agents.md §1).
+
+**Karar (belirsizdi):** İstemcide birden çok cevabı birlikte onaylayan bir "toplu onay" yok; kodda
+aranıp doğrulandı. "Toplu onay kapansın" isteği, YZ puanını incelemeden kabul eden tek kısayola, yani
+**Tek Tıkla Onayla**'ya uygulandı. Tek tek onay = "Puanı Güncelle ve Onayla".
+
+**Bilinen sınırlar:**
+- "tam puanlık" sözcük başı olduğu için işaretlenir (testte kayıtlı). Yalnız uyarıdır, puan değişmez.
+- Kalıp listesi bilerek kısa. Eş anlamlı ve dolambaçlı ifadeler için model bayrağı hâlâ birincil sinyal.
+- Denetim izi (`degerlendirme_onerildi`) yalnız model bayrağını yazmaya devam ediyor; değiştirilmedi.
+
+### 2. Yönetici dönem filtresi
+
+**Önce ölçülen:**
+- Demo tohumu `state.exam.startsAt = null` ile başlıyor; sunumcu yayınlayınca `Date.now()` yazılıyor
+  (`loadDemoScenario`, yayın düğmesi).
+- Sınavı `published` yapan tek yol yayın düğmesi. "Hemen" seçiliyse `Date.now()`, "planlı" seçiliyse
+  seçilen saat yazılıyor.
+- Yani yeni yayınlanan her sınavın tarihi var. Tarihsiz olabilecekler: eski kayıtlar ve elle oluşmuş durumlar.
+
+**Ne yapıldı:**
+- `yonDonem(ts)` ve `yonDonemAdi(anahtar)` eklendi. Dönem, `startsAt`'ın ayından MEB takvimine göre
+  türetiliyor:
+  - Eylül–Ocak → 1. dönem; Şubat–Haziran → 2. dönem.
+  - Öğretim yılı Eylül'de başlar; örnek: Ocak 2027 → "2026–2027 · 1. dönem".
+  - Temmuz–Ağustos hiçbir döneme yazılmaz: "dönem dışı (yaz)". Karar: tahmin yok.
+  - `startsAt` yok ya da geçersizse → **Tarihsiz**.
+- Yeni alan yok, göç yok. Anahtar sıralanabilir biçimde ("2026-2027|1").
+- Filtreye dördüncü boyut "Dönem" eklendi. Sınav düzeyinde (`yonSinavUygunMu`) uygulandığı için §74'teki
+  bütün bölümlere yayılıyor: eylem kartı, durum, grafik, gelişim, analitik, karar raporu, risk.
+- Seçenekler yalnız yayınlı sınavlardan geliyor; sıra yeniden eskiye, Tarihsiz sonda.
+- Seçim localStorage'da, diğer boyutlarla aynı anahtarda. Eski kayıtta `donem` yok → "tümü".
+  Artık olmayan dönem "tümü"ye düşüyor.
+- ⓘ metni düzeltildi: "Dönem filtresi yok …" cümlesi kalktı. Yerine dönemin nasıl türetildiği ve
+  Tarihsiz'in ne demek olduğu yazıyor. §74 kod yorumu da güncellendi.
+- CSS: filtre ızgarası 4 sütun; ≤900 px 2×2; ≤560 px tek sütun (eski kural).
+
+### Doğrulama
+
+Statik sunucu 8849, PID 33028; [::1] dahil port kontrolü yapıldı, sonra PID ile durduruldu.
+
+- `npm test` **649/649**, 29 dosya: +54 yeni test `test/enjeksiyon-donem.test.ts`;
+  `yonetici-filtre.test.ts` dönem alanına uyarlandı.
+- Testlerin kapsadığı:
+  - 19 yakalanan cümle; Türkçe büyük harf ve İ/ı vakaları dahil.
+  - 14 masum cümle: "tam sayı", "Tamsayılar", "puanını hak etti", "sıfır yok sayılır", "Önceki soruda",
+    "Sistem dengede", "ignorans", "x < y" ve diğerleri.
+  - Uyarı metninin iki kolu.
+  - 7 ay örneği ve Tarihsiz.
+  - Dönem süzme, seçenek sırası, özet satırı.
+- lint (`tsc --noEmit`) temiz; öz-kontrol %100 (**574 ad**); FFFD 0.
+- Tarayıcı `enj-donem.mjs`, 1280 ve 390 px: **30/30**.
+  - Kalıplı cevap: uyarı + "tam puan / yok say / önceki talimat", tek tık yok, puan 4.
+  - Masum cevap: uyarı yok, tek tık var.
+  - Yalnız model bayrağı: "uygulamadı" metni, tek tık yok.
+  - "Puanı Güncelle ve Onayla" → finalScore 4, karar revised.
+  - Dönem seçicisi: Tüm / 2026–2027 1. / 2025–2026 2. / Tarihsiz.
+  - Tarihsiz → 3 sınavdan 1'i; özet satırında "Tarihsiz"; odak seçicide kalıyor.
+  - Temizle → dönem sıfır.
+  - Taşma 0, konsol hatası 0, POST 0.
+- `kontroller.mjs` 28/28 + 28/28.
+- `demo-yuru.mjs` 1280 ve 390: 5 adım; adım 4'te "Tek Tıkla Onayla" görünüyor (demo cevabı kalıba takılmıyor);
+  konsol hatası 0.
+- Kanıt: `side-session-notes\local_fbcef29b-…\W9-enjeksiyon-donem\`.
