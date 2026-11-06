@@ -12543,3 +12543,95 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oys
 - 2. dönem tabloları gelince eşleme yeniden denetlenmeli.
 - 2026 programının yürürlük kararı (Talim ve Terbiye Kurulu) bulunamadı.
 - Push, deploy, /api/ai ve main birleştirme YOK.
+
+## 118. §117 BAĞIMSIZ DENETİMİ + DÖRDÜNCÜ YAYIN (6 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Denetim:** W10'un iddiaları W10'un dosyaları kullanılmadan, ayrı ölçüldü. Dal `fix/oyss-turkce-eslem` 3d279a6, taban ee797a6.
+
+**1. Kaynaklar**
+- İki MEB PDF'i resmî adreslerinden yeniden indirildi.
+- SHA-256 değerleri koddaki yorumla ve W10'un kopyalarıyla aynı:
+  - 2026: `f9c44b10…`
+  - 2024: `7aa679b8…`
+
+**2. Katalog 2026 programıyla aynı mı**
+- `pdftotext` ile 6–7. sınıf T.O/T.Y çıktı listeleri çıkarıldı.
+- `turkce-6.json` (44 kod) ve `turkce-7.json` (46 kod) 2026 PDF'iyle karşılaştırıldı: uyuşmayan 0.
+
+**3. Eşleme tablosu** (`OYSS_TURKCE_2024_2026`, 49 satırın hepsi)
+- Her satırın 2024 metni, 2024 PDF'indeki o koda karşılık geliyor.
+  - Otomatik karşılaştırmada 46 satır birebir tuttu.
+  - Kalan 3 satır elle doğrulandı: T.O.6.27, T.Y.6.22 ve T.O.7.28. Bu satırlarda metinde "/" geçtiği için ayrıştırıcım satırı atladı.
+- Her satırın 2026 karşılığı 2026 PDF'iyle tutuyor. Özellikle bakılanlar:
+  - 2024 T.O.6.23 "Okuduğunu özetleyebilme" → 2026 T.O.6.21 aynı metin. 2026 T.O.6.23 = "Metni eleştirebilme".
+  - 2024 T.O.6.10 (metin içi) ve T.O.6.11 (metinler arası) → 2026 T.O.6.10 "Okuduklarını karşılaştırabilme". 2026 açıklaması karşılaştırmayı "Birincisinde metnin kendi içinde … İkincisinde ise metinler arası" diye iki yolla tanımlıyor; birleşme doğru.
+  - T.O.6.12→6.11, T.Y.6.7→6.5, T.Y.6.10→6.8, T.O.7.15→7.14, T.Y.7.18→7.16 ve diğerleri tutuyor.
+- T.Y.6.5 "Yazılı etkileşiminde uygun tepki verebilme": "uygun tepki" ifadesi 2026 PDF'inde hiç geçmiyor. Bu yüzden `null` (karşılık yok) doğru.
+
+**4. Davranış** (gerçek ÖDSGM `turkce2.xlsx` ve `ilkmat2.xlsx`; taban ve dal yan yana; her kod için 3 onaylı soruluk aynı havuz)
+
+| Ders / sınıf | Senaryo | Sonuç |
+|---|---|---|
+| Matematik 5–8 | 36 | iki sürüm birebir aynı (öneri, katalog işareti, düğme) |
+| Türkçe 5 | 13 | aynı |
+| Türkçe 8 | 14 | aynı |
+| Türkçe 6–7 | 19 | taban çakışan 18 ÖDSGM kodundan 67 soruyu yanlış kazanımdan öneriyordu; dalda 118 satırın eşlemeye aykırı olanı 0 |
+
+- **Karışık tablo** (T.O.6.12 satırının metni 2026 metniyle değiştirildi):
+  - algı `karisik`;
+  - öneri 0;
+  - `#btnOyssKurYaz` disabled ve `role="alert"` uyarısı çıkıyor;
+  - `oyssTaslagaYaz()` false dönüyor, sınav değişmiyor.
+- **Katalog yüklenemezse** (`turkce-6.json` engellendi):
+  - algı `katalogYok`;
+  - öneri 0;
+  - düğme kapalı ve `alert` uyarısı çıkıyor;
+  - yazma false dönüyor, sınav değişmiyor.
+- **Sentetik satırlar:**
+  - T.O.6.10 ve 6.11 tek satıra birleşiyor (istenen 1 + 2 = 3, çeviri izi 6.11→6.10);
+  - T.Y.6.5 `eslesmeYok` işaretleniyor ve öneri gelmiyor;
+  - metni uyuşmayan satır `belirsiz` işaretleniyor ve öneri gelmiyor;
+  - elle seçilecek satırlar plana `kod: ""` ve `elle: true` ile yazılıyor.
+  - Gerçek 1. dönem tablosunda T.Y.6.5 ya da 6.10 ile 6.11'in birlikte geçtiği bir senaryo yok; bu yollar yalnız sentetik satırlarla sınandı.
+- **Eski sınav kaydı** (§114 biçiminde, yalnız `{kod, istenen}`): `oyssPlanKarsilastir` sonucu ve plan kutusu metni iki sürümde aynı.
+  - Not: §114 sürümüyle canlıda 16:15–17:25 arasında Türkçe 6–7 tablosundan yazılmış bir taslak varsa, o kayıttaki 2024 kodları yeniden çevrilmez ve uyarı da gösterilmez.
+  - Veri yalnız kullanıcının tarayıcısında durduğu için ölçülemedi.
+
+**5. Kod incelemesi:** sessiz yedek bulunmadı.
+- Katalog yok ya da tablo karışıksa bütün satırlarda öneri duruyor ve yazma kapalı (işleyicide de `oyssTaslagaYaz` reddediyor).
+- Uyuşmayan satır `belirsiz`, karşılığı olmayan satır `eslesmeYok` olarak işaretleniyor; ikisi de görünür bir uyarı alıyor.
+- Türkçe 6–7 dışındaki derslerde §114 yolu değişmeden çalışıyor (`denetimYok`).
+
+**Yayın:**
+- main ff-only `ee797a6` → `3d279a6`.
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **961/961**, 47 dosya |
+| Öz-kontrol | %100, 755 ad |
+| `olcum:dogrula` | 37/37 |
+| Lint, `check:config` | temiz; GEÇERLİ ×2 |
+| Sır taraması | 0 |
+| Bu turda eklenen 64 hex | 2; ikisi de koddaki yorumda geçen MEB PDF özetleri |
+| public | 202 dosya, disk = blob |
+| vendor | SHA256SUMS OK |
+| axe (52 ekran) | ihlal 0 |
+| Taramada 12 px altı yazı | 0 |
+| `kontroller.mjs` | 28/28, hem 1280 hem 390 |
+| Demo | 5 adım, hem 1280 hem 390 |
+| OYSS kartı (2024 uyarısı ve çeviri iziyle) | axe 0, 12 px altı 0, taşma 0, 1280 ve 390 |
+
+- `npm run deploy:demo` → **Version `7496cf7d-ba92-467e-9717-626ba02742f7`**, 17:25.
+
+**Canlı doğrulama** (model çağrısı yapılmadı):
+- SHA: 200 dosya, canlı = disk = blob, 200/200.
+- `/`, `/veri-nereye-gider`, `/privacy-policy`, `/robots.txt`: 200. Beş güvenlik başlığı yerinde.
+- `/veri-nereye-gider` 1280 ve 390 px'te: CSP ihlali 0.
+- `kontroller.mjs` ve demo canlıda 1280 ve 390 px'te: 28/28 ve 5 adım. Her genişlikte 1 evaluate POST'u Playwright'ta kesildi.
+- Gerçek ÖDSGM Türkçe dosyasıyla canlıda OYSS:
+  - 6. sınıf (13 senaryo) ve 7. sınıf (6 senaryo) 2024 numaralandırması olarak algılanıyor; eşlemeye aykırı satır 0. Türkçe 5 değişmemiş.
+  - Karışık tablo ve katalogsuz durum yereldeki sonuçların aynısı: öneri 0, düğme kapalı, yazma reddediliyor.
+  - 390 ve 1280 px'te kart: axe 0, 12 px altı 0, POST 0.
+- `/api/ai/butce` yayından önce ve sonra aynı: `harcanan 0`; `doldu/tukendi: true` bayrağı §116'dan beri böyle.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-118\`. İçinde PDF denetimi (`denetim.txt`, `eslem_denetle.py`), karşılaştırma betikleri ve JSON çıktıları, axe, OYSS, SHA, kontroller ve demo kayıtları var.
