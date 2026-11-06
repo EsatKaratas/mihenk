@@ -11632,3 +11632,47 @@ yazılmıyordu. Bir insan kararı iz bırakmıyordu.
   - Konsol hatası 0. Ekran: `Downloads\Mihenk\ekran-karar-kaydi\havuza-al-1280-gunluk.png`.
 
 ---
+
+## 105. YAYIN — §98–§104b tek yayında (6 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Yayın:** `npm run deploy:demo` → **Version `66bfea92-04ed-4ebc-9bdf-82341cf9524d`**.
+
+**main:** `1458c5a` → `43ddfe0` (`entegrasyon-7kasim` ucu), `git merge --ff-only`. Sekiz dal birleşti:
+- B3 katalog (§98);
+- elle soru;
+- karar kaydı ve havuza al izi (§104, §104b);
+- kota dayanıklılığı (§100);
+- öğretmen çıktıları;
+- öğrenci/veli kartı (§102);
+- enjeksiyon/dönem (§103).
+
+`src/`, `wrangler*.jsonc` ve `public/_headers` farkı `1458c5a..43ddfe0` boyunca **boş**.
+
+**Yayın öncesi (ana checkout `mihenk-final`, 43ddfe0) — entegrasyon sayılarıyla birebir, sapma yok:**
+- `npm test` **783/783** (37 dosya); lint (`tsc --noEmit`) temiz; öz-kontrol **633 ad %100**.
+- `check:config`: iki dosya GEÇERLİ. `node --check public/app.js`; FFFD 0.
+- Bayt: `git ls-files public` 201 dosyada disk = blob. `public/vendor/SHA256SUMS` 0 sapma.
+- Sır taraması: `origin/main..HEAD` eklenen 3.814 satır (SHA256SUMS hariç), anahtar desenleriyle →
+  **0**. Eklenen ikili dosya yok.
+- Dry-run bağlamaları: GUNLUK_SAYAC + NEURON_BUTCE (DO) + AI + ASSETS + vars. `OLCUM_*` yok; §96 ile aynı.
+
+**Canlı (model çağrısız, ölçüldü):**
+- `sha-karsilastir.sh HEAD`: 43ddfe0 · **199 dosya** · canlı = disk 199 · canlı = blob (bayt) 199.
+- Başlıklar: CSP (değişmedi), `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
+- Yollar: `/`, `/404`, `/mimari`, `/privacy-policy`, `/robots.txt` → 200; olmayan yol → 404;
+  `/favicon.ico` → 301 `/mihenk-logo.png`.
+- `GET /api/ai/status`: ready, `gunlukSinir.mod` ve `gunlukButce.mod` "durable-object", eşik 9.000.
+- `GET /api/ai/butce`: 200, `Cache-Control: no-store`. Değeri `{harcanan 0, rezerv 0, doldu true,
+  tukendi true}`; §96'daki 3036 kapanışının devamı, 00:00 UTC'de sıfırlanır.
+  Doğrulamalardan **sonra da aynı**: sayaç tabanı bozulmadı.
+- `kontroller.mjs` (kayıtlı örnek yanıtla, POST engelli) 1280 ve 390: **28/28 + 28/28**, konsol hatası 0,
+  dialog 0, engellenen POST 0.
+- `demo-yuru.mjs` 1280 ve 390: **5/5 adım**, konsol hatası 0, dialog 0.
+  - Her genişlikte **1 POST Playwright'ta kesildi**: `/api/ai/evaluate`. Canlıda status ready olduğu
+    için demo puanlamayı modele göndermeye çalışıyor; istek kesilince demo tohumuyla (§90) devam ediyor.
+  - Model çağrısı 0. `/api/ai` POST'u bu yayında hiç yapılmadı (03:00'teki W10 bütçe ölçümü için).
+- Kanıt (loglar): `side-session-notes\local_fbcef29b-…\W9-yayin-105\`.
+
+**GitHub:** bu kayıt commit'lenip `git push origin main` ile gönderildi. Canlıdaki `public/` = 43ddfe0
+(bu commit yalnız PROGRESS.md'yi değiştiriyor).
+
