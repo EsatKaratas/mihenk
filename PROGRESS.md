@@ -11676,3 +11676,49 @@ yazılmıyordu. Bir insan kararı iz bırakmıyordu.
 **GitHub:** bu kayıt commit'lenip `git push origin main` ile gönderildi. Canlıdaki `public/` = 43ddfe0
 (bu commit yalnız PROGRESS.md'yi değiştiriyor).
 
+
+## 110. TASLAKLAR — A6 ön kayıt, öğretmen onamı, "Veriniz nereye gider?" (6 Kasım 2026, belge worker'ı, dal `docs/taslaklar`, Orchestrator 3 emriyle)
+
+Kod yok: `app.js`, `src/` değişmedi. Model çağrısı, push, deploy ve main birleştirme yok.
+
+**1. A6 ön kayıt TASLAĞI** — `docs/olcum/a6/ON-KAYIT-TASLAK.md` (Madde 16).
+- Belge "TASLAK — Esat onayı ve OSF/Zenodo kaydı bekliyor" bandıyla başlıyor. Yayımlanmadı ve zaman damgası yok.
+- **Hipotezler:**
+  - H1 (birincil, eşdeğer-altı olmama): A1v2∪A2 "yanlış" yakalama oranının %95 GA alt sınırı > %77,7 − δ.
+  - H2 (yönlü): kaynak metin modunda yanlış anahtar oranı kazanım modundan düşük.
+  - H3: yanlış alarm oranının GA üst sınırı ≤ %10.
+- **Tasarım:** tek model (llama-3.3-70b, yedek kapalı); 55 kazanım (5–7. sınıf, 4 ders) × 2 mod × 3 tekrar = 330 çağrı ≈ 597 ÇSS. Dönen ÇSS'lerin hepsi etiketlenir, ağırlık yok.
+- **Güç:** beklenen "yanlış" madde ≈ 55–85.
+  - δ = 10 ile güç ≈ %46–56, savunulamaz.
+  - **δ = 15 önerildi:** 60 "yanlış" maddeyle güç ≈ %80. Karar Esat'ın.
+- **Etiketleme:** 2 öğretmen, kör; %25'ine ikinci etiketleyici bakar (κ); insan–YZ κ ikincil.
+  - `tools/etiket/` henüz YOK; gereksinimleri belgede yazılı.
+- **Analiz:** Wilson GA + kazanım kümesinde bootstrap; H1 kararı tutucu yönteme göre verilir.
+- **Durdurma:**
+  - Sabit N, ara analiz yok.
+  - Tek uzatma (+110 çağrı) yalnız "yanlış" sayısı < 60 ise yapılır ve yalnız bu sayıya bakılarak karar verilir.
+  - Model sürümü değişirse koşum durur.
+- **Neuron:** günde ≤ 8.000; üretim başına 280–1.055 → 92 bin–348 bin Neuron → **12–44 gün**.
+  - **Not:** üst maliyette takvim daha uzun. Çağrılar bölünemediği için 48 gün; mod çifti aynı güne konunca 55 gün.
+
+**2. Öğretmen onamı ve veri sayfası** (Madde 19).
+- **`docs/kvkk/OGRETMEN-ONAM-TASLAK.md`:**
+  - "TASLAK — kurum/hukuk onayı ve MEB izni gerekir" bandıyla başlıyor.
+  - İçerik: (A) etiketleme ve (B) pilot için ayrı onam; gönüllülük; anonimleştirmeye kadar geri çekilme; toplanan/toplanmayan veri tablosu (öğrenci cevap metni varsayılan olarak pakete girmez); saklama; iletişim yer tutucuları.
+  - Anonimleştirme §111 araştırma paketine bağlandı. §111 bu yazımda henüz yoktu; adımların o bölümle eşitlenmesi gerekiyor.
+- **`public/veri-nereye-gider.html`** (yeni sayfa):
+  - "Her şey yerelde" denmiyor. Kayıtlar tarayıcıda; yapay zekâ çağrıları (kaynak metin/yönerge maskesiz, öğrenci cevabı maskeli) Cloudflare Workers AI'ya, ABD'ye gidiyor.
+  - Öğrenci sınavı bitirince puan önerisi isteği kendiliğinden gidiyor.
+  - §88 maskelemesinin kapsamı ve sınırları; §88b "YZ: izin yok" ayarı.
+  - CSP `connect-src 'self'` neyi gösteriyor (tarayıcı yalnız kendi adresine bağlanır) ve neyi göstermiyor (sunucudan Workers AI'ya iletim CSP'nin dışında).
+  - "Kendiniz doğrulayın" adımları (F12 → Ağ).
+  - Stil privacy-policy.html'deki `<style>` bloğunun birebir kopyası. Satır içi `<script>` yok, script de yok. `_headers` değişmedi.
+- **`public/privacy-policy.html` (sürüm 1.1 → 1.2):**
+  - "Yapay zekâya ne gider" kutusundan ve §7'den yeni sayfaya bağlantı verildi.
+  - §7'deki eski "Google Fonts / jsDelivr indirilebilir" cümlesi §87'den beri yanlıştı; düzeltildi (yalnız barındırıcı Cloudflare).
+
+**3. OYSS tablo araştırması** (Madde 2 ön koşulu): 2026-2027 1. dönem tabloları ÖDSGM'de açık (xlsx, ders başına, senaryo sütunlu), 2. dönem henüz yok, lisans "Tüm hakları saklıdır" → ayrıntı `C:\Users\ASUS\Downloads\Mihenk\oyss-tablo-arastirma.md` (depo dışı).
+
+**Doğrulanmayanlar:**
+- Yeni sayfa tarayıcıda açılıp ekran görüntüsüyle denetlenmedi; yalnız `<script` yokluğu kontrol edildi.
+- `npm test` koşulmadı. `public/` altına yeni dosya eklendiği için `tools/dogrula` ve SHA karşılaştırması yayın öncesinde yeniden koşulmalı.
