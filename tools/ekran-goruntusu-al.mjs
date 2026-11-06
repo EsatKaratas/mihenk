@@ -206,7 +206,7 @@ if (deneyap.atla) {
   hatalar.push(`06-deneyap ALINMADI: ${deneyap.atla}`);
   console.log(`  ⚠ 06-deneyap.png alınmadı — ${deneyap.atla}`);
 } else {
-  await sayfa.waitForSelector('#modalBox .kat-satir', { timeout: 15000 });
+  await sayfa.waitForSelector('#modalBox #kz-katalog-agac [role="treeitem"]', { timeout: 15000 });
   const modal = await sayfa.evaluate(() => {
     const kutu = document.getElementById('modalBox');
     const t = kutu ? kutu.innerText : '';

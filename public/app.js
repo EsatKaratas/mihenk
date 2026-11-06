@@ -5781,15 +5781,53 @@ const HAVUZ_KAYNAKLARI = [
    panel) kalıcı olmayan _kzHal'dedir; KALICI_ALANLAR'a girmez, göç yok
    (TUZAK 13). Liste kaynakları yalnız OUTCOMES_LIST()/katalogKazanimlari()
    üzerinden okunur, VARSAYILAN_* doğrudan okunmaz.
-   B3 (katalog penceresi) bu turda bilerek dışarıda: "coklu" mod
-   kazanimAgacHtml'deki öğe dalına aria-checked eklenerek gelir.
+     B3 katalog penceresi                   (mod "coklu",  satır içi; §98)
+   "coklu": tree aria-multiselectable, öğe aria-checked; işaretler _kzHal'de
+   (kzIsaretliler / kzSifirla). Zaten ekli öğe kilitli (aria-disabled).
    ===================================================================== */
 const KZ_SINIR = 200;
 const _kzHal = {};
 const _kzKayit = {};
 
 function kzHal(kimlik) {
-  return _kzHal[kimlik] || (_kzHal[kimlik] = { acik: {}, ara: "", panel: false, odak: "", dugmeOdak: false });
+  return _kzHal[kimlik] || (_kzHal[kimlik] = { acik: {}, ara: "", panel: false, odak: "", dugmeOdak: false, isaret: {} });
+}
+
+/** §98 (B3) — "coklu" modda işaretlenmiş değerler (görünür sıra değil,
+    işaretleme sırası). Kilitli (zaten ekli) öğeler buraya hiç girmez. */
+function kzIsaretliler(kimlik) {
+  const h = kzHal(kimlik);
+  return Object.keys(h.isaret).filter(function (d) { return h.isaret[d]; });
+}
+
+/** §98 (B3) — "coklu" seçicinin geçici hâlini sıfırlar (pencere yeniden açılınca
+    önceki işaretler ve arama kalmasın). Filtre değişimi bunu ÇAĞIRMAZ. */
+function kzSifirla(kimlik) {
+  delete _kzHal[kimlik];
+}
+
+/** §98 (P3-1) — ağaçta ilk harfle atlama (WAI-ARIA tree "type-ahead").
+    metinler: görünür satırların metni (kod + metin / grup adı); bas: şu
+    anki satırın sırası; aranan: birikmiş tuşlar. Tek harfte bir SONRAKİ
+    satırdan, çok harfte şu anki satırdan başlar (yazmaya devam edince yerinde
+    kalır); sona gelince başa sarar. Satırın herhangi bir SÖZCÜĞÜNÜN başı
+    eşleşir (kod "MAT.7.1.3", metin "Oran…"). Bulunamazsa -1. */
+function kzIlkHarfHedefi(metinler, bas, aranan) {
+  let a = String(aranan || "").toLocaleLowerCase("tr");
+  const n = metinler.length;
+  if (!a || !n) return -1;
+  /* Aynı harfe tekrar tekrar basmak ("mmm") o harfle başlayanlar arasında döner. */
+  const tek = a.split("").every(function (c) { return c === a[0]; });
+  if (tek) a = a[0];
+  const uyar = function (m) {
+    return String(m || "").toLocaleLowerCase("tr").split(/\s+/).some(function (w) { return w.indexOf(a) === 0; });
+  };
+  const ilk = tek ? bas + 1 : bas;
+  for (let k = 0; k < n; k++) {
+    const i = ((ilk + k) % n + n) % n;
+    if (uyar(metinler[i])) return i;
+  }
+  return -1;
 }
 
 /** Kazanımın ünitesi. Sıra: yüklü katalogda koda göre grup (Fen/Mat ünite,
@@ -5889,15 +5927,29 @@ function kazanimAgacHtml(kimlik) {
     if (h.acik[g.anahtar] !== undefined) return h.acik[g.anahtar];
     return ogeler.length <= 12 || icerir(g);
   };
+  const coklu = o.mod === "coklu";
   const oge = function (x, seviye) {
     if (kalan <= 0) { r.gizli++; return ""; }
     kalan--;
-    const sec = x.deger === o.secili;
-    return '<li role="treeitem" class="kz-oge' + (sec ? " secili" : "") + '" aria-level="' + seviye +
-      '" aria-selected="' + sec + '" tabindex="-1" data-kz-anahtar="k:' + escapeHtml(x.deger) +
+    /* §98 (B3) "coklu": işaret kutulu ağaç. Seçim aria-checked ile (WAI-ARIA
+       tree, aria-multiselectable); zaten ekli öğe işaretli + aria-disabled. */
+    const sec = coklu ? !!(x.kilitli || h.isaret[x.deger]) : x.deger === o.secili;
+    const durum = coklu
+      ? '" aria-checked="' + sec + '"' + (x.kilitli ? ' aria-disabled="true"' : "")
+      : '" aria-selected="' + sec + '"';
+    return '<li role="treeitem" class="kz-oge' + (sec ? (coklu ? " isaretli" : " secili") : "") + (x.kilitli ? " kilitli" : "") +
+      (x.disi ? " kz-disi" : "") + '" aria-level="' + seviye +
+      durum + ' tabindex="-1" data-kz-anahtar="k:' + escapeHtml(x.deger) +
       '" data-kz-deger="' + escapeHtml(x.deger) + '">' +
+      (coklu ? '<span class="kz-kutu" aria-hidden="true"></span>' : "") +
       '<span class="kz-kod">' + escapeHtml(x.kod) + "</span>" +
       (x.etiket ? '<span class="kz-metin">' + escapeHtml(x.etiket) + "</span>" : "") +
+      (x.rozetler && x.rozetler.length
+        ? '<span class="kz-rozetler">' + x.rozetler.map(function (b) {
+            return '<span class="pill ' + escapeHtml(b.sinif || "pill-neutral") + '"' +
+              (b.title ? ' title="' + escapeHtml(b.title) + '"' : "") + ">" + escapeHtml(b.metin) + "</span>";
+          }).join("") + "</span>"
+        : "") +
       (o.sayac ? '<span class="kz-say">' + (x.sayi || 0) + "</span>" : "") + "</li>";
   };
   const grup = function (g, seviye) {
@@ -5978,7 +6030,8 @@ function kazanimSeciciHtml(o) {
         '-agac" autocomplete="off" spellcheck="false">'
       : "") +
       '<div class="kz-durum" id="' + k + '-durum" role="status" aria-live="polite">' + escapeHtml(bos ? "" : kzDurumMetni(o.kimlik)) + "</div>" +
-      '<ul class="kz-agac" role="tree" id="' + k + '-agac" aria-label="' + escapeHtml(o.etiket) + '">' + satirlar + "</ul>";
+      '<ul class="kz-agac" role="tree" id="' + k + '-agac" aria-label="' + escapeHtml(o.etiket) + '"' +
+      (o.mod === "coklu" ? ' aria-multiselectable="true"' : "") + ">" + satirlar + "</ul>";
   }
   const dugme = o.acilir
     ? '<button type="button" class="kz-ac" id="' + k + '-ac" aria-expanded="' + !!h.panel + '" aria-controls="' + k + '-govde"' +
@@ -6073,9 +6126,29 @@ function kazanimSeciciBagla(kimlik, secildi) {
   if (!agac) return;
   const sec = function (li) {
     if (!li.hasAttribute("data-kz-deger")) return false;
+    if (r.o.mod === "coklu") {
+      /* §98 (B3): işaret aç/kapa yerinde; yeniden çizim yok, odak satırda kalır.
+         Kilitli (zaten ekli) satır değişmez. */
+      if (li.getAttribute("aria-disabled") === "true") return true;
+      const d = li.getAttribute("data-kz-deger");
+      const yeni = !h.isaret[d];
+      if (yeni) h.isaret[d] = true; else delete h.isaret[d];
+      li.setAttribute("aria-checked", String(yeni));
+      li.classList.toggle("isaretli", yeni);
+      secildi(d, yeni);
+      return true;
+    }
     if (ac) { h.panel = false; h.dugmeOdak = true; } else h.odak = li.getAttribute("data-kz-anahtar");
     secildi(li.getAttribute("data-kz-deger"));
     return true;
+  };
+  /* §98 (P3-1): ilk harfle atlama — 600 ms içinde basılan harfler birikir. */
+  let tusTampon = "", tusZaman = 0;
+  const satirMetni = function (el) {
+    const p = el.classList.contains("kz-grup")
+      ? [el.querySelector(":scope > .kz-satir > .kz-grup-ad")]
+      : [el.querySelector(":scope > .kz-kod"), el.querySelector(":scope > .kz-metin")];
+    return p.map(function (x) { return x ? x.textContent : ""; }).join(" ");
   };
   const cevir = function (li, acik) {
     h.acik[li.getAttribute("data-kz-anahtar")] = acik;
@@ -6122,7 +6195,14 @@ function kazanimSeciciBagla(kimlik, secildi) {
       case "Escape":
         if (ac && h.panel) { e.preventDefault(); paneli(false, true); }
         return;
-      default: return;
+      default: {
+        if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey || !/\S/.test(e.key)) return;
+        const simdi = Date.now();
+        tusTampon = (simdi - tusZaman > 600 ? "" : tusTampon) + e.key;
+        tusZaman = simdi;
+        const j = kzIlkHarfHedefi(hepsi.map(satirMetni), i, tusTampon);
+        hedef = j >= 0 ? hepsi[j] : null;
+      }
     }
     e.preventDefault();
     if (hedef) kzOdakla(agac, hedef);
@@ -8422,6 +8502,23 @@ function ogtKazanimFiltresiHtml(kazanimlar) {
   });
 }
 
+/** §98 (P3-4) — A2'nin öğeleri. Sorunun kazanımı okul listesinde YOKSA
+    (silinmiş ya da başka okuldan gelmiş) listenin başına bir öğe olarak
+    eklenir ve seçili görünür; "okul listesinde yok" diye işaretlenir. Kayıt
+    değişmez (OUTCOMES_LIST'e eklenmez, q.outcome aynı kalır); başka bir
+    kazanım seçilince öğe bir sonraki çizimde kendiliğinden kaybolur. */
+function peKazanimOgeleri(q, liste) {
+  const ogeler = liste.map(function (o) { return kazanimOgesi(o.code); });
+  const kod = q && q.outcome;
+  if (kod && !ogeler.some(function (x) { return x.deger === kod; })) {
+    const x = kazanimOgesi(kod);
+    x.etiket = (x.etiket ? x.etiket + " " : "") + "(okul listesinde yok)";
+    x.disi = true;
+    ogeler.unshift(x);
+  }
+  return ogeler;
+}
+
 /** §95 A2 — soru düzenlemede kazanım: ortak seçici (mod "tekli"). Süzgeç
     eskisinin aynısı (§51 ders, §58 atölye; mevcut kod hep listede). */
 function peKazanimSeciciHtml(q) {
@@ -8435,7 +8532,7 @@ function peKazanimSeciciHtml(q) {
   });
   return kazanimSeciciHtml({
     kimlik: "kz-pe-" + q.id, mod: "tekli", acilir: true, etiket: "Sorunun kazanımı", etiketId: "kz-pe-" + q.id + "-lbl",
-    ogeler: liste.map(function (o) { return kazanimOgesi(o.code); }),
+    ogeler: peKazanimOgeleri(q, liste),
     secili: q.outcome, dugmeMetni: truncate(String(outcomeLabel(q.outcome) || q.outcome || "Kazanım seçin"), 60),
   });
 }
@@ -12589,6 +12686,31 @@ function uygunlukNotu(uygunluk, deneyap) {
   return (UYGUNLUK_ETIKET[uygunluk] || {}).not || "";
 }
 
+const KAT_SECICI = "kz-katalog";
+
+/** §98 (B3) — katalog satırlarından seçici öğeleri. Ders ve sınıf tek değerli
+    (bir katalog = bir ders/sınıf) olduğundan ağaçta atlanır; ünite = kataloğun
+    grup'u, yoksa alan'ı. Zaten ekli satır kilitli (işaretli, değiştirilemez). */
+function katalogSeciciOgeleri(satirlar, dny) {
+  return satirlar.map(function (x) {
+    const u = UYGUNLUK_ETIKET[x.uygunluk] || { ad: String(x.uygunluk || ""), sinif: "pill-neutral" };
+    const rozet = [{ metin: x.alan }, { metin: u.ad, sinif: u.sinif }];
+    /* §52: Deneyap'ta her satır kitabın basılı sayfasını gösterir;
+       kaynakta yazım hatası olan satır "kaynakta böyle" der. */
+    if (dny && x.kaynak) rozet.push({ metin: "s." + String(x.kaynak.sayfa), title: x.kaynak.kitap });
+    if (dny && x.not) rozet.push({ metin: "kaynakta böyle yazılmış", title: x.not });
+    if (x.ekli) rozet.push({ metin: "zaten ekli" });
+    return { deger: x.kod, kod: x.kod, etiket: x.metin, ders: "", sinif: "", unite: String(x.grup || x.alan || ""),
+      rozetler: rozet.filter(function (b) { return b.metin; }), kilitli: !!x.ekli };
+  });
+}
+
+/** "Seçilenleri Ekle" düğmesinin metni (işaret sayısıyla). */
+function katalogEkleMetni() {
+  const n = kzIsaretliler(KAT_SECICI).length;
+  return "Seçilenleri Ekle" + (n ? " (" + n + ")" : "");
+}
+
 function katalogModalHtml(k, hata) {
   const f = katalogFiltreDurumu();
   const satirlar = katalogSatirlari(k);
@@ -12598,27 +12720,15 @@ function katalogModalHtml(k, hata) {
   k.kazanimlar.forEach(function (x) { sayim[x.uygunluk]++; });
   const dny = deneyapKatalogMu(k);
 
-  const liste = satirlar.length
-    ? satirlar.map(function (x) {
-        const u = UYGUNLUK_ETIKET[x.uygunluk];
-        return '<label class="kat-satir' + (x.ekli ? " kat-ekli" : "") + '">' +
-          // Katalog şu an depodaki kendi JSON'umuzdan geliyor, ama §5.3-4
-          // başka dersler için katalog eklemeyi planlıyor; kaynağın her zaman
-          // bizim olacağını varsaymak yanlış olur.
-          '<input type="checkbox" class="kat-sec" value="' + escapeHtml(x.kod) + '"' + (x.ekli ? " disabled checked" : "") + ">" +
-          '<span class="kat-icerik"><span class="kat-kod">' + escapeHtml(x.kod) + "</span>" +
-          '<span class="kat-metin">' + escapeHtml(x.metin) + "</span>" +
-          '<span class="kat-etiketler"><span class="pill pill-neutral">' + escapeHtml(x.alan) + "</span>" +
-          '<span class="pill ' + u.sinif + '">' + u.ad + "</span>" +
-          /* §52: Deneyap'ta her satır kitabın basılı sayfasını gösterir;
-             kaynakta yazım hatası olan satır "kaynakta böyle" der. */
-          (dny && x.kaynak ? '<span class="pill pill-neutral" title="' + escapeHtml(x.kaynak.kitap) +
-            '">s.' + escapeHtml(String(x.kaynak.sayfa)) + "</span>" : "") +
-          (dny && x.not ? '<span class="pill pill-neutral" title="' + escapeHtml(x.not) +
-            '">kaynakta böyle yazılmış</span>' : "") +
-          (x.ekli ? '<span class="pill pill-neutral">zaten ekli</span>' : "") + "</span></span></label>";
-      }).join("")
-    : '<div class="kat-bos">Bu filtreyle eşleşen kazanım yok.</div>';
+  /* §98 (B3) — liste artık §95'in ortak kazanım seçicisi (mod "coklu"):
+     ünite/alan ağacı, arama, klavye ve ilk harfle atlama aynı bileşenden.
+     Satır içeriği (alan, uygunluk, Deneyap sayfası, "kaynakta böyle",
+     "zaten ekli") rozet olarak aynen korunur. */
+  const liste = kazanimSeciciHtml({
+    kimlik: KAT_SECICI, mod: "coklu", etiket: "Katalog kazanımları",
+    ogeler: katalogSeciciOgeleri(satirlar, dny),
+    bosMetin: "Bu filtreyle eşleşen kazanım yok.",
+  });
 
   const baslik = dny
     ? '<h3>Deneyap Kazanım Kataloğu — ' + escapeHtml(k.atolye) + "</h3>" +
@@ -12644,13 +12754,12 @@ function katalogModalHtml(k, hata) {
           return '<option value="' + escapeHtml(a) + '"' + (f.alan === a ? " selected" : "") + ">" + escapeHtml(a) + "</option>";
         }).join("") +
       "</select>" +
-      '<input id="katAra" placeholder="kazanım ara…" value="' + escapeHtml(f.ara) + '">' +
     "</div>" +
     (uyari ? '<div class="kat-uyari">' + escapeHtml(uyari) + "</div>" : "") +
     '<div class="kat-liste">' + liste + "</div>" +
     '<div class="kat-not">"Uygunluk" ayrımı bu ürünün değerlendirmesidir, müfredatın parçası değildir.</div>' +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button>' +
-    '<button class="btn btn-primary" id="katEkle">Seçilenleri Ekle</button></div>';
+    '<button class="btn btn-primary" id="katEkle">' + escapeHtml(katalogEkleMetni()) + "</button></div>";
 }
 
 async function katalogAc() {
@@ -12668,6 +12777,7 @@ async function katalogAc() {
         '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
       return;
     }
+    kzSifirla(KAT_SECICI); // yeni açılış temiz: önceki işaretler ve arama kalmaz
     katalogModalGoster(k);
   } catch (e) {
     openModal('<h3>Katalog yüklenemedi</h3><p>' + escapeHtml(String((e && e.message) || e)) +
@@ -12684,20 +12794,21 @@ function katalogModalGoster(k, hata) {
   if (uy) uy.onchange = function () { f.uygunluk = uy.value; yenile(); };
   const al = document.getElementById("katAlan");
   if (al) al.onchange = function () { f.alan = al.value; yenile(); };
-  const ara = document.getElementById("katAra");
-  if (ara) {
-    ara.oninput = function () { f.ara = ara.value; };
-    // Arama kutusunda renderAll/yeniden çizim yapmıyoruz: odak kaybolur
-    // (PROGRESS.md §5'te kayıtlı ders). Enter ile ya da filtre değişince yenilenir.
-    ara.onkeydown = function (ev) { if (ev.key === "Enter") { ev.preventDefault(); yenile(); } };
-  }
   const ekle = document.getElementById("katEkle");
+  /* §98 (B3): arama bileşenin kendi kutusunda (yazarken yeniden çizim yok,
+     §5 dersi). İşaretler _kzHal'de: filtre değişince (yenile) KORUNUR —
+     eskiden onay kutuları her yenilemede sıfırlanıyordu; görünmeyen işaretli
+     kazanım da eklenir, sayısı düğmede yazar. */
+  kazanimSeciciBagla(KAT_SECICI, function () { if (ekle) ekle.textContent = katalogEkleMetni(); });
   if (ekle) ekle.onclick = function () {
-    const secili = Array.prototype.slice.call(document.querySelectorAll(".kat-sec:checked:not(:disabled)"));
+    const mevcut = {};
+    OUTCOMES_LIST().forEach(function (o) { mevcut[o.code] = true; });
+    const secili = kzIsaretliler(KAT_SECICI).filter(function (kod) { return !mevcut[kod]; });
     if (!secili.length) { katalogModalGoster(k, "Hiç kazanım seçmediniz."); return; }
     let eklenen = 0, atlanan = 0;
-    secili.forEach(function (cb) {
-      const kz = k.kazanimlar.filter(function (x) { return x.kod === cb.value; })[0];
+    kzSifirla(KAT_SECICI);
+    secili.forEach(function (kod) {
+      const kz = k.kazanimlar.filter(function (x) { return x.kod === kod; })[0];
       if (!kz) return;
       // addOutcome kodu büyük harfe çevirir ve kod+" — "+ad biçiminde etiketler.
       // Ders ve sınıf katalogdan gelir; böylece kazanım hangi ders/sınıfa ait
@@ -14284,7 +14395,7 @@ function bosDurumHtml(mesaj) {
     "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimEkleVerisi", "ceKazanimEkleSeciciHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
-    "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
+    "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari", "katalogSeciciOgeleri", "katalogEkleMetni",
     "katalogAnahtari", "mevcutKataloglar",
     "katalogKazanimlari", "katalogHazirla", "kazanimSecildi",
     // §61 soru üret sihirbazı (W3)
@@ -14300,7 +14411,7 @@ function bosDurumHtml(mesaj) {
     // §75c soru havuzu ağacı (W3)
     "havuzFiltresi", "soruKaynakTuru", "soruAgacYolu", "havuzDugumu", "havuzSorulari", "dugumIcinde",
     "havuzAgaciHtml", "kzHal", "kazanimUnitesi", "kazanimOgesi", "kazanimAgaci", "kazanimAra",
-    "kazanimAgacHtml", "kzDurumMetni", "kzAramaAdayi", "kazanimSeciciHtml", "kzBul", "kzGeziciSekme", "kzOdakla",
+    "kazanimAgacHtml", "kzDurumMetni", "kzAramaAdayi", "kzIsaretliler", "kzSifirla", "kzIlkHarfHedefi", "peKazanimOgeleri", "kazanimSeciciHtml", "kzBul", "kzGeziciSekme", "kzOdakla",
     "kazanimSeciciBagla", "ogtKazanimFiltresiHtml", "peKazanimSeciciHtml", "havuzSecimHtml", "havuzSoruHtml", "wireCeHavuz",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
