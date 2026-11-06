@@ -156,7 +156,7 @@
 #panel-teacher .oyss-aday input { width: 18px; height: 18px; margin-top: 2px; flex: 0 0 auto; }
 #panel-teacher .oyss-aday label { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
 #panel-teacher .oyss-aday.is-kapali label { color: var(--text-muted); cursor: not-allowed; }
-#panel-teacher .oyss-kod { font-family: var(--font-mono, monospace); font-size: 0.92em; color: var(--text-muted); }
+#panel-teacher .oyss-kod { font-family: var(--font-mono, monospace); font-size: max(var(--fs-1), 0.92em); color: var(--text-muted); } /* §116: 13 px tabloda 0.92em = 11,96 px → en az 12 px (§115) */
 #panel-teacher .oyss-etiket { display: block; font-size: var(--fs-2); font-weight: 600; color: var(--text-muted); margin-bottom: var(--sp-1); }
 #panel-teacher .oyss-onizleme { width: 100%; box-sizing: border-box; font: inherit; font-size: var(--fs-2); line-height: 1.55;
   padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border-strong); border-radius: var(--r-md);
