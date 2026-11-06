@@ -76,20 +76,33 @@ rızası ayrıca alınır. Ayrıntı: [uygulama adresi]/veri-nereye-gider.
 
 ## 5. Anonimleştirme
 
-Araştırma paketi, PROGRESS §111'deki araştırma paketi yöntemiyle hazırlanır.
-> [§111 bu taslak yazılırken henüz yoktu; adımlar o bölümle eşitlenmeli.]
+Araştırma paketi, Mihenk'in kendi **"Araştırma paketi (anonim)"** düğmesiyle (Karar Günlüğü)
+sizin tarayıcınızda hazırlanır (PROGRESS §111, §112). Paket önce ekranda gösterilir; okuyup
+onaylarsanız bilgisayarınıza JSON dosyası olarak iner. Uygulama onu hiçbir yere göndermez;
+yürütücüye siz iletirsiniz.
 
-En az şu adımlar uygulanır:
-1. Karar günlüğündeki **sistem içi öğrenci kimliği**, rastgele yeni bir kimlikle değiştirilir.
-   Eşleme tablosu tutulmaz.
-2. Soru metinlerinin ilk 80 karakteri öğretmen içeriğidir; yine de içinde bir kişi adı
-   geçiyorsa `[AD]` ile değiştirilir.
-3. Zaman damgaları **güne** yuvarlanır. Saat bilgisi atılır, çünkü ders programıyla
-   eşleştirilebilir.
-4. Öğretmen adı yerine kod kullanılır. Kod–ad eşlemesi yalnız yürütücüde, ayrı ve şifreli
-   bir dosyada tutulur. Bu dosya geri çekilme sınırında silinir.
-5. **Öğrenci cevap metni** pakete girmez. Bir alt çalışmada gerekirse ayrıca etik kurul
-   onayı, veli rızası ve elle anonimleştirme gerekir; bu formun kapsamı **dışındadır**.
+Paket şu kurallarla oluşur (kodda böyle; elle bir adım gerekmez):
+1. **Beyaz liste:** Karar günlüğünden yalnız adı geçen alanlar kopyalanır. Bunlar karar
+   türü, zaman, model ve istem sürümü, yapay zekâ puan önerisi ve sizin nihai puanınız,
+   aradaki fark, güven değeri, değiştirip değiştirmediğiniz, değişen alan adları, ret kodu,
+   anahtar değişimi, şüphe ve uyarı işaretleri, rol ve soru türüdür. Günlüğe ileride yeni
+   bir alan eklenirse pakete **kendiliğinden girmez**.
+2. **Çıkarılanlar:** öğrenci adı ve sistem içi öğrenci numarası, soru metni, serbest
+   notlarınız, yapay zekâ gerekçesi ve ölçüt adları pakete girmez. Öğrenci cevap metni
+   karar günlüğünde zaten yoktur. Öğretmen adınız da pakette yoktur.
+3. **Soru kimliği:** her soru, oturuma özgü rastgele bir tuzla (16 bayt) **SHA-256 özeti**
+   olarak yazılır. Tuz pakete yazılmaz ve saklanmaz. Aynı paket içinde aynı soru aynı özeti
+   alır; iki ayrı paket birbiriyle eşleştirilemez.
+4. **Ölçüt bazında fark (`kriterFarklari`):** Bir yanıtta ölçüt puanlarını düzelttiyseniz
+   (§112) yalnız sayılar girer: ölçütün sırası, tavanı, öneri, nihai puan ve fark. Ölçüt
+   **adı girmez**.
+5. **Zaman** dakika hassasiyetindedir (saniye atılır). Yürütücü yayımlanacak analizlerde
+   zamanı ayrıca **güne** yuvarlar, çünkü ders programıyla eşleştirilebilir.
+6. **Öğretmen kodu:** birden çok öğretmenin paketi birleştirilirse yürütücü her pakete bir
+   kod verir. Kod–ad eşlemesi yalnız yürütücüde, ayrı ve şifreli bir dosyada tutulur ve geri
+   çekilme sınırında silinir.
+7. **Öğrenci cevap metni** hiçbir koşulda pakete girmez. Bir alt çalışmada gerekirse ayrıca
+   etik kurul onayı, veli rızası ve elle anonimleştirme gerekir; bu formun kapsamı **dışındadır**.
 
 Bu adımlardan sonra kalan veri büyük olasılıkla kişisel veri sayılmaz. Ama küçük bir
 örneklemde (ör. tek okul, tek branş) dolaylı tanınma riski sıfır değildir. Bu yüzden

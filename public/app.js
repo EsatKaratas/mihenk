@@ -8932,11 +8932,51 @@ function wireExamSwitcher() {
        pencere açmaz (çift tıklama). */
     b.onclick = async function () {
       if (b.dataset.onayBekliyor) return;
+      /* §113: ⋯ menüsünden seçilen işlem menüyü kapatır. Eskiden "Sınav kâğıdı"
+         gibi yeniden çizim yapmayan işlemlerde menü açık kalıyor, 390 px'te
+         "Kâğıt sonuçlarını gir"i örtüyordu. Odak tetikleyiciye (⋯) döner. */
+      const menu = b.closest("details.ogt-menu");
+      if (menu) ogtMenuKapat(menu, true);
       b.dataset.onayBekliyor = "1";
       try { await sinavIslemi(b.dataset.ogtIslem, Number(b.dataset.exam)); }
       finally { delete b.dataset.onayBekliyor; }
     };
   });
+  document.querySelectorAll("details.ogt-menu").forEach(function (m) {
+    m.onkeydown = function (e) {
+      if (e.key === "Escape" && m.open) { e.preventDefault(); e.stopPropagation(); ogtMenuKapat(m, true); }
+    };
+    /* Bir menü açılırken diğer açık ⋯ menüleri kapanır (üst üste binmesin).
+       `toggle` olayı GECİKMELİ gelir: ondan yapılınca, hızlı ardışık açışta
+       eski menünün gecikmiş olayı yeni açılanı kapatıyordu (ölçüldü). Bu
+       yüzden tetikleyicinin tıklamasında (Enter/Space de tıklama üretir)
+       eşzamanlı yapılır. */
+    const tetik = m.querySelector("summary");
+    if (tetik) tetik.onclick = function () {
+      if (m.open) return;   // kapanıyor
+      document.querySelectorAll("details.ogt-menu[open]").forEach(function (x) { if (x !== m) ogtMenuKapat(x, false); });
+    };
+  });
+  ogtMenuDisTiklamaKur();
+}
+
+/** §113: ⋯ menüsünü kapatır; odakDon ise odak tetikleyiciye (summary) döner. */
+function ogtMenuKapat(menu, odakDon) {
+  if (!menu || !menu.open) return;
+  menu.open = false;
+  if (odakDon) { const s = menu.querySelector("summary"); if (s && s.isConnected) s.focus(); }
+}
+
+/** §113: menü dışına tıklama açık ⋯ menülerini kapatır (bir kez kurulur). */
+var _ogtMenuDisKurulu = false;
+function ogtMenuDisTiklamaKur() {
+  if (_ogtMenuDisKurulu) return;
+  _ogtMenuDisKurulu = true;
+  document.addEventListener("pointerdown", function (e) {
+    document.querySelectorAll("details.ogt-menu[open]").forEach(function (m) {
+      if (!m.contains(e.target)) ogtMenuKapat(m, false);
+    });
+  }, true);
 }
 
 /* ==================== YENİ SINAV / DÜZENLE: 3 ADIMLI SİHİRBAZ ==================== */
@@ -11710,6 +11750,8 @@ function wireTeacherTab3() {
       const ev = (ss.aiEvals || {})[qid] || {};
       /* §103: savunma — işaretli cevapta tek tıkla onay çalışmaz (düğme zaten çizilmez). */
       if (enjeksiyonIsareti(ev, ((ss.answers || {})[qid] || {}).text).var) return;
+      /* §113: savunma — ölçüt düzeltildiyse tek tık düzeltmeyi yok sayardı (düğme zaten kapalı). */
+      if (kriterDegisti(qid, sid, ev)) return;
       /* §51 — SESSİZ DÜŞÜŞ KAPATILDI: bu düğme not alanını hiç okumuyor, ""
          yazıyordu. Ölçüldü: "Nota Aktar" ile alınan geri bildirim + "Tek
          Tıkla Onayla" → reviews.comment "" ve karnede not yok. Puan AI
@@ -16960,7 +17002,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
