@@ -837,7 +837,7 @@ function simulateAIEvaluation(q, answerText, rubric) {
 /* ========================= Gerçek AI Katmanı =========================
    Worker üzerindeki /api/ai/* uçlarına bağlanır. Başarısız olursa yerel
    yedeğe düşer ve bu durum kullanıcı arayüzünde açıkça gösterilir.      */
-const AI_API = { status: "/api/ai/status", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions", alignment: "/api/ai/outcome-alignment", solve: "/api/ai/solve" };
+const AI_API = { status: "/api/ai/status", butce: "/api/ai/butce", generate: "/api/ai/generate-questions", evaluate: "/api/ai/evaluate", rubric: "/api/ai/rubric", sampleAnswers: "/api/ai/sample-answers", misconceptions: "/api/ai/misconceptions", alignment: "/api/ai/outcome-alignment", solve: "/api/ai/solve" };
 
 async function probeAiMode() {
   try {
@@ -853,6 +853,7 @@ async function probeAiMode() {
        vaat ettiği emniyet ağı yokken kimse uyarılmıyordu (§6.3-5). */
     state.ai.fallbackSorunu = j.fallbackSorunu || "";
     state.ai.error = j.ready ? "" : "model sağlayıcısı yapılandırılmamış";
+    if (j.ready) aiButceYenile();
   } catch (e) {
     state.ai.mode = "simulation";
     state.ai.fallbackSorunu = "";
@@ -900,22 +901,57 @@ function aiKaynakRozetiHtml(k) {
     "</span>";
 }
 
-/* Sunucu hata kodu → öğretmene gösterilecek cümle. Kota ve günlük sınır
-   03:00'e (00:00 UTC) kadar açılmaz; cümle insan yolunu açıkça söyler. */
-const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir. Bu arada elle devam edebilirsiniz.";
-const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir. Bu arada elle devam edebilirsiniz.";
+/* Sunucu hata kodu → öğretmene gösterilecek cümle. Kota, günlük sınır ve
+   §93 bütçesi 03:00'e (00:00 UTC) kadar açılmaz; cümle insan yolunu söyler.
+   §93: elle devam cümlesi TEK kaynaktan (var olmayan bir yolu vaat etmez). */
+const AI_ELLE_DEVAM = " Bu arada elle devam edebilirsiniz.";
+const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
+const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
+const AI_BUTCE_METNI = "Bugünkü yapay zekâ bütçesi (tahmini) doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
 const AI_GECERSIZ_CIKTI_METNI = "Model geçerli yanıt üretemedi, tekrar deneyin.";
 function aiHataMetni(status, govde) {
   const kod = govde && govde.error;
   if (kod === "ai_kota_bitti") return AI_KOTA_METNI;
   if (kod === "gunluk_sinir") return AI_GUNLUK_SINIR_METNI;
+  if (kod === "gunluk_butce") return AI_BUTCE_METNI;
   if (kod === "model_output_invalid") return AI_GECERSIZ_CIKTI_METNI;
   return (govde && govde.message) || ("HTTP " + status);
 }
 
 /** Gün sonuna kadar açılmayacak hata mı (yeniden denemek boşa)? */
 function aiGunlukKapali(kod) {
-  return kod === "ai_kota_bitti" || kod === "gunluk_sinir";
+  return kod === "ai_kota_bitti" || kod === "gunluk_sinir" || kod === "gunluk_butce";
+}
+
+/** §93: gün sonuna kadar kapalı kodun cümlesi (toplu çözme özeti için). */
+function aiGunlukKapaliMetni(kod) {
+  if (kod === "ai_kota_bitti") return AI_KOTA_METNI;
+  if (kod === "gunluk_butce") return AI_BUTCE_METNI;
+  return AI_GUNLUK_SINIR_METNI;
+}
+
+/* §93 — GÜNLÜK NEURON BÜTÇESİ GÖSTERGESİ. Periyodik sorgu YOK: açılışta ve
+   her yapay zekâ çağrısından sonra bir GET. Yüzde 10.000'lik havuza göre. */
+async function aiButceYenile() {
+  try {
+    const r = await fetch(AI_API.butce, { headers: { accept: "application/json" } });
+    if (!r.ok) return;
+    state.ai.butce = await r.json();
+    renderAiBadge();
+  } catch (e) { /* gösterge yalnız bilgi; hata işi durdurmaz */ }
+}
+
+function aiButceMetni(b) {
+  if (!b) return "";
+  return b.doldu ? "Bugünkü bütçe doldu (tahmini)" : "Bugün ≈%" + b.yuzde + " (tahmini)";
+}
+
+function aiButceIpucu(b) {
+  if (!b) return "";
+  return "Hesabın günlük " + Number(b.havuz).toLocaleString("tr-TR") + " Neuron'luk yapay zekâ havuzundan bugün tahminen ≈" +
+    Number(b.tahminiNeuron).toLocaleString("tr-TR") + " Neuron kullanıldı. Tahmin, yanıtlardaki token sayısından hesaplanır ve " +
+    "yalnız bu uygulamanın çağrılarını kapsar. " + Number(b.esik).toLocaleString("tr-TR") +
+    " Neuron'da yeni çağrılar durur; 03:00'te yenilenir.";
 }
 
 async function apiPost(url, body) {
@@ -927,12 +963,14 @@ async function apiPost(url, body) {
        bu ayrımla kendi genel önerisini ekleyip eklemeyeceğine karar verir.
        Yalnızca bir özellik eklenir; diğer çağıranların davranışı değişmez. */
     /* §90: bilinen kodlar (kota, günlük sınır, geçersiz çıktı) kendi cümlesine çevrilir. */
+    aiButceYenile();  // §93: ret de olsa güncel bütçe gösterilsin
     const hata = new Error(aiHataMetni(r.status, j));
     hata.sunucuMesaji = !!(j && (j.message || j.error));
     hata.status = r.status;
     hata.kod = (j && j.error) || "";
     throw hata;
   }
+  aiButceYenile();  // §93
   return j;
 }
 
@@ -1453,6 +1491,10 @@ function aiAyrintiHtml() {
        (5 Eylül, canlı): /api/ai/status -> fallback:null, oysa konfigde
        AI_FALLBACK_PROVIDER="openai" yazıyor. Kota jüri günü dolarsa bu ancak
        ilk hatayla anlaşılırdı. Artık ayrıntı panelinde açıkça yazar. */
+    if (a.butce) {
+      icerik += satir("Günlük bütçe", aiButceMetni(a.butce));
+      icerik += '<div class="aim-not">' + escapeHtml(aiButceIpucu(a.butce)) + "</div>";
+    }
     if (a.fallbackSorunu) {
       icerik += '<div class="aim-not sync-detay-err">⚠ <b>Yedek model kurulmamış.</b> ' +
         escapeHtml(a.fallbackSorunu) + '</div>';
@@ -1488,6 +1530,10 @@ function renderAiBadge() {
       '" title="Model ayrıntılarını göster/gizle">' +
       '<span class="ai-nokta">' + (live ? "●" : "○") + "</span>" +
       '<span class="ai-metin">' + escapeHtml(txt) + "</span>" +
+      (live && state.ai.butce && (state.role === "teacher" || state.role === "content_expert")
+        ? '<span class="ai-butce' + (state.ai.butce.doldu ? " ai-butce-doldu" : "") + '" title="' +
+          escapeHtml(aiButceIpucu(state.ai.butce)) + '">' + escapeHtml(aiButceMetni(state.ai.butce)) + "</span>"
+        : "") +
       '<span class="ai-ok">' + (state.aiAyrintiAcik ? "▴" : "▾") + "</span></button>" +
       aiAyrintiHtml();
     const btn = document.getElementById("btnAiDetay");
@@ -2146,7 +2192,7 @@ const state = {
   // kalıcı DEĞİL — sayfa yenilenince listeye geri döner).
   adminSelectedTeacher: null,
   // §42: fallbackSorunu — yedek TANIMLI ama kullanılamaz durumunun metni.
-  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false, fallbackSorunu: "" },
+  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false, fallbackSorunu: "", butce: null },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
@@ -4716,7 +4762,7 @@ function topluCozSonucMetni(s, durduran) {
   const cozulen = s.bitti - s.hata;
   if (durduran) {
     const kalan = s.toplam - s.bitti;
-    return (durduran === "ai_kota_bitti" ? AI_KOTA_METNI : AI_GUNLUK_SINIR_METNI) +
+    return aiGunlukKapaliMetni(durduran) +
       " Toplu çözme durduruldu: " + s.toplam + " sorudan " + cozulen + " tanesi çözüldü" +
       (kalan ? ", " + kalan + " soru işlenmedi" : "") + ".";
   }
