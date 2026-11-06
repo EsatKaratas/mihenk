@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mihenk Kör Etiketleme</title>
+<!-- Sunucusuz: çift tıklayıp açın (file://) ya da herhangi bir statik sunucuyla.
+     Ağ isteği yok, dış kaynak yok. İlerleme yalnız bu tarayıcıda (localStorage) durur. -->
+<style>
+  :root {
+    --zemin: #f6f5f1; --kart: #ffffff; --yazi: #1d1f21; --soluk: #5c6166; --cizgi: #dcd9d0;
+    --vurgu: #1f5f8b; --vurgu-yazi: #ffffff; --secili: #e5eff7; --uyari: #9a3412; --uyari-zemin: #fdf0e8; --tamam: #2f6b3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --zemin: #16181a; --kart: #1f2225; --yazi: #e8e6e1; --soluk: #a3a8ad; --cizgi: #34383c;
+      --vurgu: #6aa9d6; --vurgu-yazi: #0d1114; --secili: #1d3140; --uyari: #f2a46b; --uyari-zemin: #3a2618; --tamam: #7cc48a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--zemin); color: var(--yazi); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 64px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  p { margin: 0 0 12px; }
+  .soluk { color: var(--soluk); font-size: .92rem; }
+  .kart { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 10px; padding: 18px; margin: 14px 0; }
+  label.satir { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+  label.satir:hover { background: var(--secili); }
+  label.satir:has(input:checked) { background: var(--secili); border-color: var(--vurgu); }
+  label.satir input { margin-top: 5px; flex: none; }
+  fieldset { border: 0; padding: 0; margin: 0 0 16px; }
+  legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+  input[type=text], textarea, input[type=number] { font: inherit; color: inherit; background: var(--zemin); border: 1px solid var(--cizgi); border-radius: 8px; padding: 8px 10px; width: 100%; }
+  textarea { min-height: 60px; resize: vertical; }
+  button { font: inherit; border-radius: 8px; padding: 9px 16px; border: 1px solid var(--cizgi); background: var(--kart); color: var(--yazi); cursor: pointer; }
+  button.ana { background: var(--vurgu); color: var(--vurgu-yazi); border-color: var(--vurgu); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  .dugmeler { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .ust { position: sticky; top: 0; z-index: 2; background: var(--zemin); border-bottom: 1px solid var(--cizgi); }
+  .ust-ic { max-width: 760px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; }
+  .cubuk { height: 6px; background: var(--cizgi); border-radius: 3px; overflow: hidden; flex: 1 1 160px; min-width: 120px; }
+  .cubuk > i { display: block; height: 100%; background: var(--tamam); width: 0; }
+  .meta { font-size: .88rem; color: var(--soluk); margin-bottom: 6px; }
+  .govde { font-size: 1.06rem; white-space: pre-wrap; margin: 10px 0 14px; }
+  ol.siklar { list-style: none; padding: 0; margin: 0; }
+  ol.siklar li { padding: 6px 0; border-top: 1px dashed var(--cizgi); }
+  ol.siklar b { display: inline-block; min-width: 1.8em; }
+  .kodlar { display: grid; grid-template-columns: 1fr; gap: 2px; }
+  .kodlar small { display: block; color: var(--soluk); }
+  .hata { background: var(--uyari-zemin); color: var(--uyari); border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; }
+  .gizli { display: none !important; }
+  code { font-size: .9em; }
+  .rozet { font-size: .8rem; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--cizgi); color: var(--soluk); }
+  .rozet.tamam { color: var(--tamam); border-color: var(--tamam); }
+</style>
+</head>
+<body>
+
+<div class="ust gizli" id="ustCubuk">
+  <div class="ust-ic">
+    <span><b id="ustKod"></b> · <span id="ustSayac"></span></span>
+    <div class="cubuk" aria-hidden="true"><i id="ustCubukDolu"></i></div>
+    <div class="dugmeler">
+      <button type="button" id="btnIndir">Sonuçları indir (JSON)</button>
+      <button type="button" id="btnCikis">Çıkış</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- Giriş -->
+  <section id="ekranGiris">
+    <h1>Mihenk — kör etiketleme</h1>
+    <p class="soluk">Yapay zekânın ürettiği 225 çoktan seçmeli soruyu bir öğretmen gözüyle değerlendirirsiniz.
+      Sistemin cevap anahtarı, hangi modelin ürettiği ve yapay zekâ etiketleri <b>gösterilmez</b>. Soruların sırası
+      size özeldir. Öğrenci verisi yoktur.</p>
+    <div class="kart">
+      <h2>1. Takma kodunuz</h2>
+      <p class="soluk">Adınızı, e-postanızı ya da okulunuzu <b>yazmayın</b>. Size verilen kodu ya da aşağıdaki düğmeyle
+        üretilen kodu kullanın (büyük harf, rakam ve tire; en az bir rakam). Aynı kodla döndüğünüzde kaldığınız yerden devam edersiniz.</p>
+      <div class="hata gizli" id="girisHata" role="alert"></div>
+      <div class="dugmeler" style="margin-bottom:10px">
+        <input type="text" id="kodGirdi" autocomplete="off" spellcheck="false" maxlength="20" placeholder="ör. OGR-07" style="max-width:220px" aria-label="Takma kod">
+        <button type="button" id="btnKodUret">Rastgele kod üret</button>
+      </div>
+      <div class="dugmeler">
+        <button type="button" class="ana" id="btnBasla">Başla / devam et</button>
+        <label class="soluk" style="cursor:pointer"><input type="file" id="dosyaGirdi" accept="application/json,.json" class="gizli">
+          <span style="text-decoration:underline">İndirdiğim dosyadan devam et</span></label>
+      </div>
+    </div>
+    <p class="soluk">Süre: soru başına 1–2 dakika; 225 soru için toplam ≈ 4–6 saat. Birkaç oturuma bölebilirsiniz.
+      Yönerge: <code>docs/olcum/ETIKETLEME_YONERGESI.md</code>.</p>
+  </section>
+
+  <!-- Soru -->
+  <section id="ekranSoru" class="gizli">
+    <div class="kart" id="soruKart">
+      <div class="meta" id="soruMeta"></div>
+      <div class="soluk" id="soruKazanim"></div>
+      <div class="govde" id="soruGovde"></div>
+      <ol class="siklar" id="soruSiklar"></ol>
+    </div>
+
+    <form class="kart" id="etiketForm" novalidate>
+      <div class="hata gizli" id="formHata" role="alert"></div>
+      <fieldset id="fsDogru">
+        <legend>1. Bu sorunun doğru cevabı hangisi?</legend>
+        <div id="dogruSecenekler"></div>
+      </fieldset>
+      <fieldset>
+        <legend>2. Soru kusurlu mu? <span class="soluk" style="font-weight:400">(öğrenciye bu hâliyle sorulmamalı)</span></legend>
+        <label class="satir"><input type="radio" name="kusurlu" value="hayir"> <span>Hayır, kullanılabilir</span></label>
+        <label class="satir"><input type="radio" name="kusurlu" value="evet"> <span>Evet, kusurlu</span></label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Gördüğünüz sorunlar <span class="soluk" style="font-weight:400">(isteğe bağlı, birden çok seçilebilir)</span></legend>
+        <div class="kodlar" id="kodSecenekler"></div>
+      </fieldset>
+      <fieldset>
+        <legend><label for="notGirdi">Not</label> <span class="soluk" style="font-weight:400">(isteğe bağlı, en çok 300 karakter; kişi adı yazmayın)</span></legend>
+        <textarea id="notGirdi" maxlength="300"></textarea>
+      </fieldset>
+      <div class="dugmeler">
+        <button type="button" id="btnOnceki">← Önceki</button>
+        <button type="submit" class="ana" id="btnKaydet">Kaydet ve sonraki →</button>
+        <button type="button" id="btnBos">İlk boş soruya git</button>
+        <span class="rozet" id="soruDurum"></span>
+      </div>
+    </form>
+  </section>
+
+  <!-- Bitti -->
+  <section id="ekranBitti" class="gizli">
+    <div class="kart">
+      <h1>Teşekkürler — 225 sorunun hepsi etiketlendi</h1>
+      <p>Lütfen <b>"Sonuçları indir (JSON)"</b> düğmesine basın ve inen dosyayı (<code id="bittiDosya"></code>)
+        size yönergeyi gönderen kişiye iletin. Dosyada yalnız takma kodunuz ve etiketleriniz vardır.</p>
+      <div class="dugmeler">
+        <button type="button" class="ana" id="btnIndir2">Sonuçları indir (JSON)</button>
+        <button type="button" id="btnGeriDon">Etiketlere geri dön</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="sorular.js"></script>
+<script src="cekirdek.js"></script>
+<script>
+(function () {
+  'use strict';
+  var V = globalThis.MIHENK_ETIKET_VERI, E = globalThis.MihenkEtiket;
+  var $ = function (id) { return document.getElementById(id); };
+  var ANAHTAR = 'mihenk-etiket:v1:';
+  var maddeById = {}; V.maddeler.forEach(function (m) { maddeById[m.id] = m; });
+  var durum = null, sira = [], konum = 0, acilis = 0;
+
+  function depoOku(k) { try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  function depoYaz(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  function goster(id) { ['ekranGiris', 'ekranSoru', 'ekranBitti'].forEach(function (x) { $(x).classList.toggle('gizli', x !== id); }); $('ustCubuk').classList.toggle('gizli', id === 'ekranGiris'); }
+  function hata(el, metin) { el.textContent = metin || ''; el.classList.toggle('gizli', !metin); }
+  function tamamlanan() { return Object.keys(durum.etiketler).length; }
+  function kaydet() { durum.konum = konum; if (!depoYaz(ANAHTAR + durum.kod, durum)) hata($('formHata'), 'Tarayıcı ilerlemeyi saklayamıyor (gizli pencere?). Sık sık "Sonuçları indir" ile yedek alın.'); }
+
+  function basla(kod, yuklenen) {
+    kod = E.kodNormalle(kod);
+    if (!E.kodGecerliMi(kod)) { hata($('girisHata'), 'Kod 3–20 karakter olmalı; büyük harf, rakam ve tire; en az bir rakam. Ad yazmayın.'); return; }
+    durum = yuklenen || depoOku(ANAHTAR + kod) || { kod: kod, baslangic: new Date().toISOString(), etiketler: {}, konum: 0 };
+    durum.kod = kod;
+    sira = E.karistir(V.maddeler.map(function (m) { return m.id; }), kod, V.veriSurumu);
+    konum = Math.min(Math.max(0, durum.konum | 0), sira.length - 1);
+    depoYaz(ANAHTAR + 'son', kod); kaydet();
+    $('ustKod').textContent = kod;
+    hata($('girisHata'), '');
+    ciz();
+  }
+
+  function sayacGuncelle() {
+    var t = tamamlanan();
+    $('ustSayac').textContent = t + ' / ' + V.n + ' etiketlendi';
+    $('ustCubukDolu').style.width = (100 * t / V.n).toFixed(1) + '%';
+  }
+
+  function ciz() {
+    sayacGuncelle();
+    if (tamamlanan() >= V.n && konum >= sira.length) { $('bittiDosya').textContent = dosyaAdi(); goster('ekranBitti'); return; }
+    konum = Math.min(konum, sira.length - 1);
+    var m = maddeById[sira[konum]], e = durum.etiketler[m.id] || {};
+    goster('ekranSoru');
+    $('soruMeta').textContent = 'Soru ' + (konum + 1) + ' / ' + sira.length + ' · ' + m.ders + ' · ' + (/^\d+$/.test(m.sinif) ? m.sinif + '. sınıf' : m.sinif) + ' · ' + m.kazanim;
+    $('soruKazanim').textContent = 'Öğrenme çıktısı: ' + m.kazanim_metni;
+    $('soruGovde').textContent = m.govde;
+    var ol = $('soruSiklar'); ol.textContent = '';
+    m.siklar.forEach(function (s) { var li = document.createElement('li'), b = document.createElement('b'); b.textContent = s.harf + ')'; li.appendChild(b); li.appendChild(document.createTextNode(' ' + s.metin)); ol.appendChild(li); });
+    var d = $('dogruSecenekler'); d.textContent = '';
+    m.siklar.map(function (s) { return [s.harf, s.harf + ')  ' + s.metin]; })
+      .concat([['YOK', E.OZEL.YOK + ' (doğru cevap şıklarda yok)'], ['BELIRSIZ', E.OZEL.BELIRSIZ + ' (birden çok şık savunulabilir, veri eksik ya da soru tutarsız)']])
+      .forEach(function (x) { d.appendChild(secenek('radio', 'dogruSik', x[0], x[1], e.dogruSik === x[0])); });
+    document.querySelectorAll('input[name=kusurlu]').forEach(function (r) { r.checked = (e.kusurlu === true && r.value === 'evet') || (e.kusurlu === false && r.value === 'hayir'); });
+    var k = $('kodSecenekler'); k.textContent = '';
+    V.taksonomi.kodlar.forEach(function (x) {
+      var l = secenek('checkbox', 'kod', x.kod, '', (e.kodlar || []).indexOf(x.kod) >= 0);
+      var sp = l.querySelector('span'); sp.innerHTML = ''; var c = document.createElement('code'); c.textContent = x.kod; var sm = document.createElement('small'); sm.textContent = x.tanim; sp.appendChild(c); sp.appendChild(sm);
+      k.appendChild(l);
+    });
+    $('notGirdi').value = e.not || '';
+    $('btnOnceki').disabled = konum === 0;
+    var r = $('soruDurum'); r.textContent = durum.etiketler[m.id] ? 'kaydedildi' : 'boş'; r.classList.toggle('tamam', !!durum.etiketler[m.id]);
+    hata($('formHata'), '');
+    acilis = Date.now();
+    window.scrollTo(0, 0);
+  }
+
+  function secenek(tur, ad, deger, metin, secili) {
+    var l = document.createElement('label'); l.className = 'satir';
+    var i = document.createElement('input'); i.type = tur; i.name = ad; i.value = deger; i.checked = !!secili;
+    var s = document.createElement('span'); s.textContent = metin;
+    l.appendChild(i); l.appendChild(s); return l;
+  }
+
+  function formOku() {
+    var d = document.querySelector('input[name=dogruSik]:checked'), k = document.querySelector('input[name=kusurlu]:checked');
+    return {
+      dogruSik: d ? d.value : null, kusurlu: k ? k.value === 'evet' : null,
+      kodlar: Array.prototype.map.call(document.querySelectorAll('input[name=kod]:checked'), function (x) { return x.value; }),
+      not: $('notGirdi').value.trim(),
+    };
+  }
+
+  // Doğru cevap yok/belirlenemiyor seçilince "kusurlu: evet" kendiliğinden işaretlenir.
+  document.addEventListener('change', function (ev) {
+    if (ev.target.form === $('etiketForm')) hata($('formHata'), '');
+    if (ev.target.name === 'dogruSik' && (ev.target.value === 'YOK' || ev.target.value === 'BELIRSIZ')) {
+      document.querySelector('input[name=kusurlu][value=evet]').checked = true;
+    }
+  });
+
+  $('etiketForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var m = maddeById[sira[konum]], e = formOku(), h = E.etiketDenetle(e, m.siklar);
+    if (h.length) { hata($('formHata'), h.join(' ')); return; }
+    var eski = durum.etiketler[m.id];
+    e.sureSn = Math.round(((eski && eski.sureSn) || 0) + (Date.now() - acilis) / 1000);
+    durum.etiketler[m.id] = e;
+    konum++;
+    if (konum >= sira.length && tamamlanan() < V.n) konum = ilkBos();
+    kaydet(); ciz();
+  });
+  function ilkBos() { for (var i = 0; i < sira.length; i++) if (!durum.etiketler[sira[i]]) return i; return sira.length; }
+  $('btnOnceki').addEventListener('click', function () { if (konum > 0) { konum--; kaydet(); ciz(); } });
+  $('btnBos').addEventListener('click', function () { konum = ilkBos(); kaydet(); ciz(); });
+  $('btnGeriDon').addEventListener('click', function () { konum = 0; kaydet(); ciz(); });
+
+  function dosyaAdi() { return 'mihenk-etiket-' + durum.kod + '.json'; }
+  function indir() {
+    var veri = E.disaAktar(durum, V, new Date().toISOString());
+    var blob = new Blob([JSON.stringify(veri, null, 1)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = dosyaAdi();
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  $('btnIndir').addEventListener('click', indir);
+  $('btnIndir2').addEventListener('click', indir);
+  $('btnCikis').addEventListener('click', function () { kaydet(); durum = null; goster('ekranGiris'); });
+
+  $('btnKodUret').addEventListener('click', function () {
+    var harf = 'ABCDEFGHJKLMNPRSTUVYZ', rakam = '23456789', a = new Uint32Array(5); crypto.getRandomValues(a);
+    $('kodGirdi').value = 'OGR-' + harf[a[0] % harf.length] + harf[a[1] % harf.length] + rakam[a[2] % rakam.length] + rakam[a[3] % rakam.length] + harf[a[4] % harf.length];
+  });
+  $('btnBasla').addEventListener('click', function () { basla($('kodGirdi').value); });
+  $('kodGirdi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') basla($('kodGirdi').value); });
+  $('dosyaGirdi').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0]; if (!f) return;
+    f.text().then(function (t) {
+      var j = JSON.parse(t);
+      if (j.arac !== V.arac || j.veriSurumu !== V.veriSurumu) throw new Error('Bu dosya bu araç ya da bu soru seti için değil.');
+      basla(j.etiketleyici, { kod: j.etiketleyici, baslangic: j.baslangic, etiketler: j.etiketler || {}, konum: 0 });
+      konum = ilkBos(); kaydet(); ciz();
+    }).catch(function (e) { hata($('girisHata'), 'Dosya okunamadı: ' + e.message); });
+  });
+
+  var son = depoOku(ANAHTAR + 'son'); if (typeof son === 'string') $('kodGirdi').value = son;
+})();
+</script>
+</body>
+</html>

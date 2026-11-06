@@ -11777,6 +11777,57 @@ rıza formu alınmadan yapay zekâya gidebiliyordu.
 - Ekranlar: `C:\Users\ASUS\Downloads\Mihenk\ekran-p4\yedek-{1280,390}-{1-menu,2-yedekle,3-yanlis-parola,4-onay,5-sonuc,6-geri-yuklendi}.png`.
 - Ölçülmeyen: demoda kitaplık boş (0 kitap) — IndexedDB kitap yazımı/geri yüklemesi yalnız birim testte (sahte depo) sınandı, tarayıcıda dolu kitaplıkla denenmedi; büyük kitaplıkla (20 kitap × 200 sayfa) yedek süresi ve dosya boyutu; Safari/Firefox. PBKDF2 310.000 yineleme Chrome'da fark edilir bekleme yaratmadı (ölçüm sayısı alınmadı).
 
+## 109. ARAŞTIRMA ARAÇLARI — manşet sayıların yeniden üretimi + kör etiketleme aracı (6 Kasım 2026, P5, dal `feature/arastirma-araclari`, Orchestrator 3 emriyle)
+
+Madde 13 + 17. Model çağrısı **0** (0 Neuron), ağ yok, `public/` ve `src/` değişmedi.
+
+**1. `npm run olcum:dogrula`** (`tools/olcum/dogrula.mjs`, ortak istatistik `tools/olcum/uyum-lib.mjs`):
+- Depodaki ham veriden (`elle-kontrol.json`, `anahtar-*`, `a5/a5-birlesik.csv`, `a5/a5-etiketli.csv`,
+  W1/W4/W3 etiketleri, `puanlama-deney/ham.jsonl`) ARASTIRMA §6.2, §6.3, §6.8 manşet sayılarını ve
+  puanlama deneyinin birincil sonucunu bağımsız hesaplar; belgedeki metinden okunan sayıyla belgenin
+  yuvarlama hassasiyetinde karşılaştırır. Tutmazsa çıkış 1.
+- Sonuç **37/37 tuttu.** Bootstrap'ler aynı RNG (mulberry32), aynı tohum (20261019; puanlama 20261023)
+  ve aynı çekim sırasıyla yeniden koşuldu: `a5-bootstrap.json` "Toplam" 36/36 alan 1e-12 içinde birebir.
+  Örnek: A1(v2) ∪ A2 yakalama (yanlış) %77,7 [60,6–98,4], yanlış alarm %5,3 [2,6–8,4]; W3 κ 0,81
+  (45 madde, %88,9); ilk ölçüm κ 0,79 (32/37); puanlama d = −0,018 [−0,042; 0,004] (n = 48).
+- Ağırlıklar `a5-birlesik.csv`'den yeniden kuruldu; `a5-etiketli.csv`'deki yuvarlanmış `agirlik`
+  sütunuyla 225 satırda tutarlı.
+- **Belgeyle ilgili iki not (düzeltilmedi, yalnız kayıt):** (i) puanlama GA'sı ARASTIRMA.md'de **yok**;
+  yalnız `puanlama-deney/OZET.md` ve PROGRESS'teki puanlama deneyi kaydında var — pano ikisiyle karşılaştırır.
+  (ii) §6.8'deki "A2'nin bayrakladığı 51 ÇSS'nin 4'ü" = SIKIFADE **ve** "doğru" etiketli 4; SIKIFADE
+  taşıyan A2 bayrağı toplamda 6 (`a5-basarim.txt` ile aynı). Cümle bu okumayla doğru.
+- Çıktı `docs/olcum/PANO.md` (deterministik, tarih yok): tablo, yöntem, 11 veri dosyasının SHA-256'sı.
+- CI'a iki adım eklendi (mevcut adımlar aynen): `olcum:dogrula` + `git diff --exit-code docs/olcum/PANO.md`,
+  `etiket:veri` + `git diff --exit-code tools/etiket/sorular.js`.
+
+**2. Kör etiketleme aracı** (`tools/etiket/`, sunucusuz; `index.html` + `cekirdek.js` + üretilmiş `sorular.js`):
+- Girdi `docs/olcum/a5/etiket-kor.json`'daki 225 ÇSS; `npm run etiket:veri` beyaz listeyle yalnız
+  ders, sınıf, kazanım, gövde ve şıkları kopyalar. **Anahtar (`isaretli_sik`), model, sıcaklık,
+  bayraklar ve YZ etiketleri dosyada yok** (testle denetleniyor).
+- Sıra etiketleyici koduna göre tohumlu (FNV-1a → mulberry32 → Fisher–Yates), deterministik.
+- Öğretmen: doğru şık (+ "hiçbir şık doğru değil" / "tek doğru belirlenemiyor"), "soru kusurlu mu",
+  taksonomiden çoklu kod (yalnız gövde ve şıklardan görülebilen 12 kod; ANH-* anahtarla karşılaştırmadan
+  türetilir, GRK-*/TKR-* bu görünümde değerlendirilemez), 300 karakterlik not.
+- İlerleme `localStorage`'da; JSON olarak iner (`mihenk-etiket-<KOD>.json`), dosyadan devam edilebilir.
+  Kimlik yalnız takma kod (en az bir rakam zorunlu, ad yazılamaz). Öğrenci verisi yok, ağ isteği yok.
+- Yürüyüş (Playwright, file://, 1280 ve 390): konsol hatası 0, dış istek 0, boş kayıt reddedildi,
+  "belirlenemiyor" seçince kusurlu kendiliğinden "evet", yeniden yüklemede ilerleme korundu,
+  indirilen JSON'da yalnız izinli alanlar. Ekranlar: `Downloads\Mihenk\ekran-p5\`.
+- Uyum: `npm run olcum:uyum -- <dosyalar|klasör>` (`tools/olcum/uyum.mjs`). Öğretmen seçimi anahtarla
+  üç sınıfa çevrilir (W1/W3 karar kuralı). Her çift için Cohen κ (3 sınıf + ikili kusurlu), 2+ insanda
+  Fleiss κ (yalnız insanlar; insanlar + YZ), madde düzeyinde bootstrap %95 GA (2000 tekrar, 20261019).
+  `--sentetik` bilinen gürültülü 3 sanal etiketleyiciyle uçtan uca koşar (gerçek ölçüm değildir).
+- Yönerge: `docs/olcum/ETIKETLEME_YONERGESI.md` (1 sayfa; süre ≈ 4–6 saat, gönderim adımları).
+
+**Test:** `test/arastirma-araclari.test.ts` 20 test — Cohen κ ders kitabı örneği (κ 0,40), Fleiss (1971)
+örneği (κ 0,210), depodaki W3 κ 0,81, karıştırma deterministik ve permütasyon, gizlenen alanlar yok,
+sayfa ağ çağrısı yapmıyor, dışa aktarımda ad alanı yok, sentetik uçtan uca (gürültüsüz κ = 1, rastgele
+κ ≈ 0 ve GA 0'ı içeriyor), `olcum:dogrula` çıkış 0. **npm test 803/803** (38 dosya), lint temiz,
+check:config geçerli, öz-kontrol %100.
+
+**Henüz yapılmadı:** gerçek öğretmen etiketi yok; insan–insan ve insan–YZ κ **ölçülmedi**. ARASTIRMA §6.7
+ve §8.2'deki "etiketleyicilerin hepsi YZ" sınırı aynen geçerli. Push/birleştirme yok.
+
 ## 111. ANONİM ARAŞTIRMA PAKETİ (6 Kasım 2026, W10, dal `feature/iz-izin-paket`, Orchestrator 3 emriyle; Madde 14)
 
 **Neden:** Karar Günlüğü'nün CSV/JSON dışa aktarımı soru metni, öğrenci numarası (`sid`) ve serbest
