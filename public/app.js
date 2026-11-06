@@ -1205,6 +1205,48 @@ function adMaskeNotuHtml(ev) {
    öğretmen elle puanlar. Alan: student.yzIzniYok === true. Alan YOKSA = izin var
    (mevcut davranış, demo tohumu ve eski kayıtlar etkilenmez; loadState göçü
    GEREKMEZ — öğrenci nesnesi KALICI_ALANLAR'da olduğu gibi saklanır). */
+/* §107 (Madde 9) — YENİ GERÇEK ÖĞRENCİDE VARSAYILAN "RIZA BEKLENİYOR".
+   Elle (tekli ya da toplu) eklenen öğrenci yzIzniYok: true + yzRizaBekliyor:
+   true ile doğar: rıza formu alınana kadar cevabı YZ'ye gitmez. yzIzniVar
+   DEĞİŞMEDİ: alan yoksa yine izin var sayılır, yani demo tohumu, simülasyon
+   öğrencileri ve eski kayıtlar etkilenmez (göç yok). yzRizaBekliyor yalnız
+   etiket içindir: "izin yok" (veli reddetti) ile "rıza bekleniyor" ayrışır. */
+function yeniGercekOgrenci(ad, sinif) {
+  return { id: studentIdSeq++, name: ad, sinif: sinif, demo: false, yzIzniYok: true, yzRizaBekliyor: true };
+}
+
+/** Rızası beklenen öğrenciler (verilen liste içinden). */
+function rizaBekleyenler(liste) {
+  return (liste || []).filter(function (s) { return s.yzRizaBekliyor === true && s.yzIzniYok === true; });
+}
+
+/** Toplu işaret: rıza formu alınan öğrencilerin YZ iznini açar; iz yazar. Kaç kişi açıldığını döner. */
+function rizaTopluIsaretle(liste, sinif) {
+  const bekleyen = rizaBekleyenler(liste);
+  bekleyen.forEach(function (s) { delete s.yzIzniYok; delete s.yzRizaBekliyor; });
+  if (bekleyen.length) {
+    // Ad yazılmaz (denetim izi dışa aktarılabilir); kimlik ve sayı yeterli.
+    auditKaydet("yz_izni_toplu", { adet: bekleyen.length, sinif: sinif || null, rol: state.role || null,
+      sidler: bekleyen.map(function (s) { return s.id; }), not: "rıza formu alındı olarak işaretlendi" });
+  }
+  return bekleyen.length;
+}
+
+/** Öğrenci satırındaki izin etiketi. */
+function yzIzinEtiketi(s) {
+  if (!s || !s.yzIzniYok) return "İzin var";
+  return s.yzRizaBekliyor ? "Rıza bekleniyor" : "İzin yok";
+}
+
+/** §107: sınıf sayfasındaki "X öğrencinin rızası bekleniyor" şeridi. */
+function rizaSeridiHtml(ogrenciler) {
+  const n = rizaBekleyenler(ogrenciler).length;
+  if (!n) return "";
+  return '<div class="sy-riza" role="status"><span><b>' + n + " öğrencinin</b> yapay zekâ rızası bekleniyor; " +
+    "bu öğrencilerin cevapları yapay zekâya gönderilmez, elle puanlanır.</span> " +
+    '<button type="button" class="btn btn-secondary btn-sm" id="btnRizaToplu">Tümünü işaretle (rıza formu alındıysa)</button></div>';
+}
+
 function yzIzniVar(sid) {
   const s = (state.students || []).find(function (x) { return x.id === Number(sid); });
   return !(s && s.yzIzniYok === true);
@@ -1359,6 +1401,9 @@ async function aiGenerateQuestions(doc) {
         // Denetim izi icin: bu soruyu HANGI model uretti (§19c: modeller
         // farkli davraniyor, kayitta gorunmeli).
         uretenModel: (j.meta && j.meta.model) || null,
+        /* §111: sunucunun döndürdüğü istem sürümü (meta.istemSurumu, §55) artık
+           saklanıyor; araştırma paketinde soru başına yazılır. Yoksa alan yok. */
+        istemSurumu: j.meta && j.meta.istemSurumu != null ? j.meta.istemSurumu : undefined,
         kaynak: aiKaynak(j.meta),   // §90: yedek model rozeti onay kartında
         // Madde 1: yalnızca etiket — modele hiç gönderilmedi (yukarıdaki
         // apiPost çağrısında "sube" alanı yok), yalnızca burada damgalanıyor.
@@ -4293,6 +4338,9 @@ function rozetA1A2(q) {
   return r;
 }
 
+/* §107: değişen alan kodlarının okunur adları (günlük satırı). */
+const DEGISEN_ALAN_ADI = { govde: "gövde", sik: "şık", anahtar: "anahtar", kazanim: "kazanım" };
+
 var AUDIT_ETIKET = {
   soru_uretildi:        { ad: "Soru üretildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   soru_onaylandi:       { ad: "Soru onaylandı",           sinif: "pill-success", aktor: "içerik uzmanı" },
@@ -4303,6 +4351,10 @@ var AUDIT_ETIKET = {
   /* §104b: reddedilen sorunun doğrudan havuza alınması. Düğme öğretmen panelinde;
      kayıttaki `rol` o anki rolü ayrıca tutar. Kabul oranına GİRMEZ. */
   soru_havuza_alindi:   { ad: "Reddedilen soru havuza alındı", sinif: "pill-warning", aktor: "öğretmen" },
+  /* §107: onaylı sorunun havuzda düzenlenmesi. Onay sürer; kabul oranına GİRMEZ. */
+  onayli_soru_duzenlendi:{ ad: "Onaylı soru düzenlendi",   sinif: "pill-warning", aktor: "öğretmen" },
+  /* §107: öğretmenin rıza formu alınan öğrencileri toplu işaretlemesi. */
+  yz_izni_toplu:        { ad: "YZ izni toplu işaretlendi", sinif: "pill-neutral", aktor: "öğretmen" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
@@ -4386,7 +4438,9 @@ function auditCsv() {
                    /* §104: sona eklendi; eski sütunların sırası değişmedi. */
                    "redKodu", "anahtarDegisimi", "rozetA1A2",
                    /* §104b: havuza alma kaydı için; yine sona. */
-                   "oncekiDurum", "rol"];
+                   "oncekiDurum", "rol",
+                   /* §107: onaylı soru düzenleme izi (değişen alanlar); yine sona. */
+                   "degisenAlanlar"];
   var satirlar = state.auditLog.map(function (k) {
     var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
     return [
@@ -4401,6 +4455,7 @@ function auditCsv() {
       k.anahtarYeni ? k.anahtarEski + "→" + k.anahtarYeni : (k.anahtarIzlendi ? "aynı" : ""),
       Array.isArray(k.rozetA1A2) ? k.rozetA1A2.join(",") : "",
       k.oncekiDurum || "", k.rol || "",
+      Array.isArray(k.alanlar) ? k.alanlar.join(",") : "",
     ].map(function (h) {
       h = String(h == null ? "" : h);
       return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
@@ -4446,6 +4501,11 @@ function auditSatirHtml(k) {
     // §104b: önceki durum ve rol; eski red nedeni aşağıdaki satırda.
     detay.push("önceki durum: " + escapeHtml(k.oncekiDurum === "rejected" ? "reddedilmiş" : String(k.oncekiDurum || "?")) +
       (k.rol ? " · rol: " + escapeHtml(rolAdi(k.rol)) : ""));
+  }
+  if (k.tur === "onayli_soru_duzenlendi" && Array.isArray(k.alanlar)) {
+    // §107: hangi alanlar değişti + rol; anahtar değiştiyse aşağıdaki satırda eski → yeni.
+    detay.push("değişen: " + escapeHtml(k.alanlar.map(function (a) { return DEGISEN_ALAN_ADI[a] || a; }).join(", ")) +
+      (k.rol ? " · rol: " + escapeHtml(rolAdi(k.rol)) : "") + " · onay sürüyor");
   }
   if (k.redKodu) detay.push((k.tur === "soru_havuza_alindi" ? "eski red nedeni: " : "neden: ") + escapeHtml(redKoduAdi(k.redKodu)));
   if (k.anahtarYeni) detay.push("anahtar <b>" + escapeHtml(k.anahtarEski) + " → " + escapeHtml(k.anahtarYeni) + "</b>");
@@ -4547,7 +4607,10 @@ function auditGunluguHtml() {
     '<div class="au-butonlar">' +
     '<button class="btn btn-secondary btn-sm" id="btnAuditCsv">CSV indir (Excel)</button> ' +
     '<button class="btn btn-secondary btn-sm" id="btnAuditJson">JSON indir</button> ' +
-    '<button class="btn btn-secondary btn-sm" id="btnAuditTemizle">Günlüğü temizle</button></div>' +
+    '<button class="btn btn-secondary btn-sm" id="btnAuditTemizle">Günlüğü temizle</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnArastirmaPaketi"' + (_arastirmaOnizleme ? ' aria-expanded="true"' : ' aria-expanded="false"') +
+    '>Araştırma paketi (anonim)</button></div>' +
+    arastirmaOnizlemeHtml() +   // §111
 
     '<div class="au-liste-bas">Son ' + Math.min(25, o.toplamKayit) + " kayıt (yeniden eskiye)</div>" +
     '<div class="au-liste">' + sonKayitlar + "</div></div>";
@@ -4572,6 +4635,111 @@ function wireAudit() {
       onayEtiketi: "Evet, günlüğü sil", tehlikeli: true,
     }, function () { state.auditLog = []; state.auditDusen = 0; renderAll(); });
   };
+  /* §111: önce ekranda göster, sonra indir. Hiçbir şey ağa gitmez. */
+  var ap = document.getElementById("btnArastirmaPaketi");
+  if (ap) ap.onclick = async function () {
+    if (_arastirmaOnizleme) { _arastirmaOnizleme = null; renderAll(); return; }
+    try {
+      _arastirmaOnizleme = JSON.stringify(await arastirmaPaketi(state.auditLog, state.questions, arastirmaTuzu()), null, 2);
+    } catch (e) {
+      _arastirmaOnizleme = JSON.stringify({ hata: "Paket hazırlanamadı: " + String((e && e.message) || e) });
+    }
+    renderAll();
+  };
+  var api = document.getElementById("btnArastirmaIndir");
+  if (api) api.onclick = function () {
+    if (_arastirmaOnizleme) auditIndir(_arastirmaOnizleme, "mihenk-arastirma-paketi-anonim.json", "application/json;charset=utf-8");
+  };
+  var apk = document.getElementById("btnArastirmaKapat");
+  if (apk) apk.onclick = function () { _arastirmaOnizleme = null; renderAll(); };
+}
+
+/* =====================================================================
+   §111 (Madde 14) — ANONİM ARAŞTIRMA PAKETİ (W10).
+   Karar Günlüğü'nden, araştırma (docs/ARASTIRMA.md) için kişisel veri
+   içermeyen bir JSON. BEYAZ LİSTE ile kurulur: yalnız aşağıda adı geçen
+   alanlar kopyalanır; yeni bir günlük alanı eklenirse pakete KENDİLİĞİNDEN
+   GİRMEZ. Çıkarılanlar: öğrenci adı/no (sid), soru metni (soru), öğrenci
+   cevabı (günlükte hiç yok), serbest not (not), YZ gerekçesi.
+   Soru kimliği: SHA-256(oturum tuzu + ":" + qid). Tuz sayfa açılışında
+   rastgele üretilir, pakete YAZILMAZ ve saklanmaz; aynı paket içinde aynı
+   soru aynı özeti alır, oturumlar arası eşleşmez.
+   Önce ekranda gösterilir, sonra indirilir; ağa hiçbir şey gitmez.
+   ===================================================================== */
+var _arastirmaTuz = null;
+var _arastirmaOnizleme = null;   // yalnız arayüz (KALICI_ALANLAR'a girmez)
+
+function arastirmaTuzu() {
+  if (!_arastirmaTuz) {
+    const b = new Uint8Array(16);
+    crypto.getRandomValues(b);
+    _arastirmaTuz = Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  }
+  return _arastirmaTuz;
+}
+
+async function sha256Hex(metin) {
+  const ozet = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(metin)));
+  return Array.prototype.map.call(new Uint8Array(ozet), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+}
+
+/* Günlük kaydından pakete GEÇEN alanlar (beyaz liste). soru, sid, not BİLEREK yok. */
+const ARASTIRMA_ALANLARI = ["model", "fellBack", "istemSurumu", "redKodu", "anahtarIzlendi", "anahtarEski", "anahtarYeni",
+  "rozetA1A2", "supheler", "aiScore", "finalScore", "degisti", "confidence", "elle", "alanlar", "oncekiDurum", "rol",
+  "adet", "injectionAttempt"];
+
+/** Anonim paket (saf; tuz dışarıdan). Dönen nesnede kişisel veri ve metin yoktur. */
+async function arastirmaPaketi(gunluk, sorular, tuz) {
+  const soruBul = function (qid) { return (sorular || []).filter(function (q) { return q.id === qid; })[0] || null; };
+  const ozetler = {};
+  const kayitlar = [];
+  const sayac = {};
+  for (const k of (gunluk || [])) {
+    const r = { tur: k.tur, aktor: (AUDIT_ETIKET[k.tur] || {}).aktor || "",
+      // Dakika hassasiyeti: sıralama ve süre dağılımı için yeter, saniye gerekmez.
+      zaman: k.at ? new Date(k.at).toISOString().slice(0, 16) + "Z" : null };
+    ARASTIRMA_ALANLARI.forEach(function (a) { if (k[a] !== undefined && k[a] !== null) r[a] = k[a]; });
+    if (k.qid != null) {
+      if (!ozetler[k.qid]) ozetler[k.qid] = await sha256Hex(tuz + ":" + k.qid);
+      r.soruKimligi = ozetler[k.qid];
+      const q = soruBul(k.qid);
+      if (q) {
+        r.soruTuru = q.type;
+        if (q.istemSurumu != null && r.istemSurumu == null) r.istemSurumu = q.istemSurumu;
+        if (q.uretenModel && !r.model) r.model = q.uretenModel;
+      }
+    }
+    if (typeof k.aiScore === "number" && typeof k.finalScore === "number") {
+      r.puanFarki = Math.round((k.finalScore - k.aiScore) * 100) / 100;   // nihai − öneri
+    }
+    sayac[k.tur] = (sayac[k.tur] || 0) + 1;
+    kayitlar.push(r);
+  }
+  const modeller = {}, istemler = {};
+  kayitlar.forEach(function (r) {
+    if (r.model) modeller[r.model] = true;
+    if (r.istemSurumu != null) istemler[r.istemSurumu] = true;
+  });
+  return {
+    paket: "mihenk-arastirma-anonim", surum: 1, olusturuldu: new Date().toISOString().slice(0, 10),
+    aciklama: "Kişisel veri ve metin içermez: öğrenci adı/no, soru metni, öğrenci cevabı ve serbest notlar çıkarıldı. " +
+      "Soru kimliği oturuma özgü tuzla SHA-256 özetidir; tuz pakette yoktur.",
+    modeller: Object.keys(modeller), istemSurumleri: Object.keys(istemler).map(Number),
+    kararTurleri: sayac, kayitSayisi: kayitlar.length, dusenKayit: state.auditDusen || 0,
+    kayitlar: kayitlar,
+  };
+}
+
+/** Ekranda önizleme: indirmeden önce öğretmen ne paylaştığını görür. */
+function arastirmaOnizlemeHtml() {
+  if (!_arastirmaOnizleme) return "";
+  return '<div class="au-arastirma" role="region" aria-label="Araştırma paketi önizlemesi">' +
+    '<p class="au-aciklama"><b>Önizleme — indirmeden önce okuyun.</b> Pakette öğrenci adı/numarası, soru metni, ' +
+    "öğrenci cevabı ve serbest not <b>yoktur</b>; soru kimlikleri yalnız bu oturumda geçerli özetlerdir. " +
+    "Dosya bilgisayarınıza iner; hiçbir yere gönderilmez.</p>" +
+    '<pre class="au-arastirma-metin" tabindex="0">' + escapeHtml(_arastirmaOnizleme) + "</pre>" +
+    '<div class="au-butonlar"><button class="btn btn-primary btn-sm" id="btnArastirmaIndir">Paketi indir (JSON)</button> ' +
+    '<button class="btn btn-secondary btn-sm" id="btnArastirmaKapat">Kapat</button></div></div>';
 }
 
 /* ============================== İçerik Uzmanı ============================== */
@@ -4798,6 +4966,7 @@ async function onGenerateQuestions() {
            dolu) o ad kullanılır, aksi hâlde durum açıkça yazılır. */
         model: qs[0].uretenModel || (state.ai.mode === "live" ? (state.ai.model || null) : "yerel simülasyon (model çağrılmadı)"),
         fellBack: state.ai.mode === "live" ? state.ai.usingFallback === true : undefined,
+        istemSurumu: qs[0].istemSurumu,   // §111
         soru: auditKisalt(qs[0].body),
         not: (state.ceForm.subject || "") + " · " + sinifEtiketi(state.ceForm.grade) + " · " +
              (state.ceForm.outcomeCode || "kazanım yok") +
@@ -6749,7 +6918,7 @@ function havuzSecimHtml(ad, liste, secili, veri) {
 
 function havuzSoruHtml(q) {
   const supheler = soruSupheleri(q);
-  const durum = q.status === "approved" ? '<span class="pill pill-success">Onaylı</span>'
+  const durum = q.status === "approved" ? '<span class="pill pill-success">Onaylı</span>' + onaydanSonraHapHtml(q)   // §107
     : q.status === "rejected" ? '<span class="pill pill-critical">Reddedildi</span>' + redKoduRozetiHtml(q)
     : '<span class="pill pill-warning">Onay bekliyor</span>';
   const eylem = q.status === "approved"
@@ -7894,7 +8063,7 @@ function topluOgrenciEkle(metin, sf) {
   const a = topluAdAyikla(metin, sf);
   state.students = state.students || [];
   a.eklenecek.forEach(function (ad) {
-    state.students.push({ id: studentIdSeq++, name: ad, sinif: sf, demo: false });
+    state.students.push(yeniGercekOgrenci(ad, sf));   // §107: rıza bekleniyor
   });
   if (state.activeStudentId == null && state.students.length) state.activeStudentId = state.students[0].id;
   return { eklenen: a.eklenecek.length, metin: topluOzetMetni(a, true) };
@@ -8032,16 +8201,18 @@ function sinifYonetimHtml() {
         'gerçek öğrencileriniz değildir. Kendi sınıfınızı eklerken tek tıkla temizleyebilirsiniz. ' +
         '<button class="btn btn-secondary btn-sm" id="btnOrnekTemizle">Örnek listeyi temizle</button></div>'
       : "") +
+    rizaSeridiHtml(ogrenciler) +   // §107
     (ogrenciler.length
       ? '<div class="sy-liste">' + ogrenciler.map(function (o2) {
           return '<div class="sy-satir"><span class="sy-ad">' + escapeHtml(o2.name) + '</span>' +
             (!sf && o2.sinif ? '<span class="pill pill-neutral">' + escapeHtml(o2.sinif) + '</span>' : "") +
             (o2.demo ? '<span class="pill pill-warning">örnek</span>' : "") +
-            /* §88b: yapay zekâ izni — varsayılan "izin var"; tıklayınca değişir. */
+            /* §88b: yapay zekâ izni; tıklayınca değişir. §107: yeni eklenen öğrenci
+               "rıza bekleniyor" ile doğar (izin yok gibi davranır, etiketi ayrı). */
             '<button type="button" class="btn btn-sm sy-yz' + (o2.yzIzniYok ? " sy-yz-yok" : "") + '" data-yz-izin="' + o2.id +
             '" aria-pressed="' + (o2.yzIzniYok ? "false" : "true") + '" title="Veli rızasına göre: izin yoksa cevap yapay zekâya gönderilmez, elle puanlanır" aria-label="' +
-            escapeHtml(o2.name) + ' — yapay zekâ değerlendirmesi: ' + (o2.yzIzniYok ? "izin yok" : "izin var") + '">' +
-            (o2.yzIzniYok ? "YZ: izin yok" : "YZ: izin var") + '</button>' +
+            escapeHtml(o2.name) + ' — yapay zekâ değerlendirmesi: ' + yzIzinEtiketi(o2).toLowerCase() + '">' +
+            "YZ: " + yzIzinEtiketi(o2).toLowerCase() + '</button>' +
             '<button class="icon-btn" data-ogrenci-sil="' + o2.id + '" title="Öğrenciyi çıkar" aria-label="' +
             escapeHtml(o2.name) + ' öğrencisini sınıftan çıkar">×</button></div>';
         }).join("") + '</div>'
@@ -8081,9 +8252,24 @@ function wireSinifYonetim() {
       if (!ogr) return;
       // Alan yalnız "izin yok" iken tutulur; izin geri açılınca silinir (alan yok = izin var).
       if (ogr.yzIzniYok) delete ogr.yzIzniYok; else ogr.yzIzniYok = true;
+      delete ogr.yzRizaBekliyor;   // §107: elle karar verildi; "bekleniyor" etiketi kalkar
       saveState(); renderAll();
     };
   });
+  /* §107: rıza formu alınan öğrencileri toplu işaretle — onay penceresiyle, iz yazılır. */
+  var rizaToplu = document.getElementById("btnRizaToplu");
+  if (rizaToplu) rizaToplu.onclick = function () {
+    const sf = ogtSinif();
+    const liste = (state.students || []).filter(function (s) { return !sf || (s.sinif || "") === sf; });
+    const n = rizaBekleyenler(liste).length;
+    onayliEylem(rizaToplu, { baslik: n + " öğrencinin yapay zekâ izni açılsın mı?",
+      metin: "Yalnız velisinden yazılı rıza formu ALINMIŞ öğrenciler için yapın. İzin açılınca bu öğrencilerin " +
+        "açık uçlu cevapları puan önerisi için yapay zekâya gönderilir. Bu işlem karar günlüğüne yazılır.",
+      onayEtiketi: "Rıza formları alındı, izni aç" }, function () {
+      rizaTopluIsaretle(liste, sf || null);
+      saveState(); renderAll();
+    });
+  };
   document.querySelectorAll("[data-ogrenci-sil]").forEach(function (b) {
     b.onclick = function () {
       var id = Number(b.dataset.ogrenciSil);
@@ -8112,7 +8298,7 @@ function wireSinifYonetim() {
     }
     state.sy.hata = "";
     state.students = state.students || [];
-    state.students.push({ id: studentIdSeq++, name: ad, sinif: sinif || "7-A", demo: false });
+    state.students.push(yeniGercekOgrenci(ad, sinif || "7-A"));   // §107: rıza bekleniyor
     if (state.activeStudentId == null) state.activeStudentId = state.students[state.students.length - 1].id;
     saveState(); renderAll();
   };
@@ -8318,7 +8504,7 @@ function sihirbazAdim2Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + '</div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + onaydanSonraHapHtml(q) + '</div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -8932,6 +9118,54 @@ function filteredPool() {
 /* Öğretmen havuzdaki bir soruyu düzenleyebilir (brief Rol 02:
    "Soru havuzunu düzenler"). Düzenleme yayınlanmış bir sınavdaki soruyu
    da etkileyeceği için, sınav yayındaysa uyarı gösterilir. */
+/* §107 (Madde 7) — ONAYLI SORU DÜZENLEME İZİ. Anlık görüntü yalnız arayüz
+   durumudur (_duzenlemeAnligi, KALICI_ALANLAR'a girmez): sayfa düzenleme
+   ortasında yenilenirse o düzenlemenin izi düşer (bilinen sınır, §107). */
+var _duzenlemeAnligi = null;
+
+function soruAnligi(q) {
+  return { body: String(q.body || ""), options: (q.options || []).map(function (o) { return o.key + ":" + o.text; }),
+    correctKey: q.correctKey || "", outcome: q.outcome || "" };
+}
+
+function duzenlemeAnligiAl(q) {
+  _duzenlemeAnligi = q ? { qid: q.id, once: soruAnligi(q) } : null;
+}
+
+/** Açılış ile şimdiki hâl arasındaki fark: değişen alan adları + anahtar eski/yeni. */
+function duzenlemeFarki(once, q) {
+  const s = soruAnligi(q);
+  const alanlar = [];
+  if (once.body !== s.body) alanlar.push("govde");
+  if (once.options.join("\u0001") !== s.options.join("\u0001")) alanlar.push("sik");
+  if (once.correctKey !== s.correctKey) alanlar.push("anahtar");
+  if (once.outcome !== s.outcome) alanlar.push("kazanim");
+  return { alanlar: alanlar, anahtarEski: once.correctKey !== s.correctKey ? once.correctKey : null,
+    anahtarYeni: once.correctKey !== s.correctKey ? s.correctKey : null };
+}
+
+/** Düzenleme kapanırken: onaylı soruda fark varsa iz + soru üzerinde işaret. Onay DEĞİŞMEZ. */
+function duzenlemeIziniKapat() {
+  const a = _duzenlemeAnligi;
+  _duzenlemeAnligi = null;
+  if (!a) return null;
+  const q = findQuestion(a.qid);
+  if (!q || q.status !== "approved") return null;
+  const f = duzenlemeFarki(a.once, q);
+  if (!f.alanlar.length) return null;
+  auditKaydet("onayli_soru_duzenlendi", { qid: q.id, soru: auditKisalt(q.body), model: q.uretenModel || null,
+    alanlar: f.alanlar, anahtarEski: f.anahtarEski, anahtarYeni: f.anahtarYeni, rol: state.role || null });
+  q.onaydanSonraDuzenlendi = true;   // isteğe bağlı alan; göç yok
+  return f;
+}
+
+/** Kartlarda küçük hap. */
+function onaydanSonraHapHtml(q) {
+  return q && q.onaydanSonraDuzenlendi
+    ? '<span class="pill pill-warning onay-sonra-hap" title="Bu soru onaylandıktan sonra düzenlendi; ayrıntı Karar Günlüğü\'nde.">onaydan sonra düzenlendi</span>'
+    : "";
+}
+
 function poolEditHtml(q) {
   const kilitli = state.exams.some(function (x) {
     const st = x.id === state.activeExamId ? state.exam.status : x.status;
@@ -9371,15 +9605,21 @@ function wireTeacherTab1() {
   if (fs) fs.onchange = function (e) { state.poolFilter.sube = e.target.value; renderAll(); };
 
   // --- havuzda soru düzenleme ---
+  /* §107 (Madde 7): onaylı soru düzenlenince onay SÜRER (davranış aynı), ama
+     düzenleme kapanırken (Kaydet, Vazgeç, Kapat ya da başka soruyu açma)
+     açılıştaki hâlle fark varsa denetim izine yazılır. Düzenlemeler canlı
+     uygulandığı için "Vazgeç" de geri almaz; o yüzden o da iz bırakır. */
   document.querySelectorAll(".pool-edit-btn").forEach(function (b) {
     b.onclick = function () {
       const id = Number(b.dataset.qid);
+      duzenlemeIziniKapat();
       state.editingQid = state.editingQid === id ? null : id;
+      if (state.editingQid != null) duzenlemeAnligiAl(findQuestion(state.editingQid));
       renderAll();
     };
   });
   const cancelBtn = document.querySelector(".pe-cancel");
-  if (cancelBtn) cancelBtn.onclick = function () { state.editingQid = null; renderAll(); };
+  if (cancelBtn) cancelBtn.onclick = function () { duzenlemeIziniKapat(); state.editingQid = null; renderAll(); };
   // Metin girdileri renderAll ÇAĞIRMAZ (odak kaybolmasın); doğrudan mutasyon.
   document.querySelectorAll(".pe-body").forEach(function (el) {
     el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { q.body = el.value; saveSoon(); } };
@@ -9406,7 +9646,7 @@ function wireTeacherTab1() {
     el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.aiTime = Math.max(15, Math.min(900, Number(el.value) || 60)); renderAll(); } };
   });
   document.querySelectorAll(".pe-save").forEach(function (b) {
-    b.onclick = function () { state.editingQid = null; renderAll(); };
+    b.onclick = function () { duzenlemeIziniKapat(); state.editingQid = null; renderAll(); };
   });
   const titleEl = document.getElementById("examTitle");   // §62: yalnız sihirbazın 1. adımında var
   if (titleEl) titleEl.oninput = function (e) { state.exam.title = e.target.value; };
@@ -9931,7 +10171,7 @@ function studentChip(student) {
     escapeHtml(student.name) +
     (student.sinif ? ' <span class="sc-class">' + escapeHtml(student.sinif) + '</span>' : "") +
     (student.demo ? ' <span class="sc-tag">simüle</span>' : "") +
-    (student.yzIzniYok ? ' <span class="sc-tag">YZ izni yok</span>' : "") + '</span>';
+    (student.yzIzniYok ? ' <span class="sc-tag">' + (student.yzRizaBekliyor ? "YZ rızası bekleniyor" : "YZ izni yok") + '</span>' : "") + '</span>';
 }
 
 function evalCardHtml(q, student, ev) {
@@ -15579,6 +15819,11 @@ function bosDurumHtml(mesaj) {
     "anahtarIzli", "rozetA1A2", "anahtarDuzeltmeHtml",
     // §104b havuza alma izi (W10)
     "havuzaAlindiKaydet", "rolAdi",
+    // §107 onaylı soru düzenleme izi + YZ rızası varsayılanı (W10)
+    "soruAnligi", "duzenlemeAnligiAl", "duzenlemeFarki", "duzenlemeIziniKapat", "onaydanSonraHapHtml",
+    "yeniGercekOgrenci", "rizaBekleyenler", "rizaTopluIsaretle", "yzIzinEtiketi", "rizaSeridiHtml",
+    // §111 anonim araştırma paketi (W10)
+    "arastirmaTuzu", "sha256Hex", "arastirmaPaketi", "arastirmaOnizlemeHtml",
     // §75 kısa metin ön uyarısı (W3)
     "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
     // §75b onay kartı sadeleşmesi (W3)

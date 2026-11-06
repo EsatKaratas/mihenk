@@ -102,9 +102,13 @@ describe('arayüz ve kayıt şekli', () => {
     expect(tanim('sinifYonetimHtml')).toContain('data-yz-izin="');
     expect(tanim('wireSinifYonetim')).toContain('if (ogr.yzIzniYok) delete ogr.yzIzniYok; else ogr.yzIzniYok = true;');
   });
-  it('e-Okul toplu ekleme ve tek ekleme izin alanı YAZMAZ (varsayılan izin var)', () => {
-    expect(tanim('topluOgrenciEkle')).not.toContain('yzIzniYok');
-    expect(app).toMatch(/state\.students\.push\(\{ id: studentIdSeq\+\+, name: ad, sinif: sf, demo: false \}\)/);
+  /* §107 (Madde 9): bu test §88b'de "yeni öğrenci izin alanı YAZMAZ" diyordu. Emirle
+     değişti: yeni GERÇEK öğrenci (tekli + e-Okul toplu) "rıza bekleniyor" ile doğar.
+     Demo tohumu ve simülasyon öğrencileri değişmedi (göç yok); bkz. test/iz-izin-paket.test.ts. */
+  it('e-Okul toplu ekleme ve tek ekleme yeni öğrenciyi "rıza bekleniyor" ile ekler (§107)', () => {
+    expect(tanim('topluOgrenciEkle')).toContain('state.students.push(yeniGercekOgrenci(ad, sf));');
+    expect(app).toContain('state.students.push(yeniGercekOgrenci(ad, sinif || "7-A"));');
+    expect(tanim('ensureStudents')).not.toContain('yeniGercekOgrenci');
   });
   it('tüm aiEvaluate çağrıları öğrenci kimliğini geçirir ya da aktif öğrenciyi kullanır', () => {
     const cagrilar = app.match(/await aiEvaluate\([^;]*\);/g) || [];

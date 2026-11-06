@@ -16,9 +16,9 @@
 - [ ] Rıza vermeyen öğrencilerin listesi tutuluyor; bu öğrencilerin cevapları **yapay zekâya gönderilmeyecek,
       elle puanlanacak**.
 - [ ] Bu öğrenciler için, **sınav başlamadan önce**, Öğretmen → Öğrenciler listesinde "YZ: izin yok" seçildi
-      (iki rızadan biri eksikse de). Varsayılan "izin var"dır; e-Okul'dan toplu yapıştırılan öğrenciler de
-      "izin var" olarak eklenir, ayarı ayrıca yapın. Ayar sonradan kapatılırsa önceden gönderilmiş cevap
-      geri alınamaz.
+      (iki rızadan biri eksikse de). Listeye yeni eklenen öğrenci (tekli ya da e-Okul'dan toplu) "YZ: rıza
+      bekleniyor" ile başlar; rıza formu alınanları tek tek ya da "Tümünü işaretle (rıza formu alındıysa)"
+      düğmesiyle açın (§107). Ayar sonradan kapatılırsa önceden gönderilmiş cevap geri alınamaz.
 - [ ] **Sağlayıcı koşullarının tarihli kopyası** alındı ve saklandı (PDF ya da ekran görüntüsü, tarih görünür):
   - [ ] Cloudflare Workers AI Privacy — <https://developers.cloudflare.com/workers-ai/platform/privacy/>
   - [ ] Cloudflare Workers AI fiyat/kota sayfası — <https://developers.cloudflare.com/workers-ai/platform/pricing/>
