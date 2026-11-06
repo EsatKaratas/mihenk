@@ -246,6 +246,9 @@
 #panel-teacher .oyss-kur-aday input { width: 18px; height: 18px; margin-top: 2px; flex: 0 0 auto; }
 #panel-teacher .oyss-kur-aday label { min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
 #panel-teacher .oyss-kur-eksik { color: var(--warning); font-weight: 600; }
+#panel-teacher .oyss-iz { margin-top: 2px; font-size: var(--fs-2); color: var(--warning); font-weight: 600; overflow-wrap: anywhere; } /* §117: ÖDSGM 2024 → 2026 çeviri izi */
+#panel-teacher .oyss-surum { display: block; margin: var(--sp-3) 0 var(--sp-2); line-height: 1.5; }
+#panel-teacher .oyss-iz-satir { color: var(--text-muted); }
 #panel-teacher .oyss-kur-zorluk { margin: var(--sp-2) 0; }
 #panel-teacher .oyss-kur .pill-blok { margin: var(--sp-2) 0; }
 #panel-teacher .oyss-plan { margin-top: var(--sp-3); }

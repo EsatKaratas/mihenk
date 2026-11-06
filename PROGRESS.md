@@ -12464,3 +12464,82 @@ npm, `esbuild` ve `workerd` kurulum betiklerini yeni onay politikası yüzünden
   Canlı CSP satır içi axe enjeksiyonunu engelledi (CSP'nin çalıştığını gösteriyor). Ölçüm için yalnız test bağlamında `bypassCSP` açıldı.
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oyss-once, oyss, oyss-canli, sha.log, kontroller, demo logları ve betikler var.
+
+---
+
+## §117 — OYSS: Türkçe 6–7'de ÖDSGM 2024 kodu → 2026 kodu (W10, 6.11; dal `fix/oyss-turkce-eslem`, taban main ee797a6)
+
+**Sorun:** Yayın 3'teki §114 (canlı 35c57d6b) Türkçe 6–7'de 20 kodda yanlış kazanımdan soru önerebiliyordu ve bunu hiçbir uyarı göstermeden yapıyordu. §1'e aykırıydı, öncelikli düzeltildi.
+- ÖDSGM tabloları 2024 programının numaralarını kullanıyor. Katalog ise MEB'in şu an yayındaki 2026 programına göre.
+- 20 kod iki programda da var ama başka kazanımı gösteriyor (6. sınıfta 16, 7. sınıfta 4). Örnek:
+  - 2024 `T.O.6.23` = "Okuduğunu özetleyebilme" (2026'daki karşılığı `T.O.6.21`);
+  - 2026 `T.O.6.23` = "Metni eleştirebilme".
+- Araştırma raporu (depo dışında): `Downloads\Mihenk	urkce-eksik-kodlar.md`.
+
+**Karar (O3):** Kataloğa eski kod EKLENMEDİ. Eşleme yalnız OYSS akışında uygulanıyor.
+
+**Ne yapıldı (`public/app.js`, §114 bloğu içinde):**
+- `OYSS_TURKCE_2024_2026`: 49 satır, `[2024 kodu, 2026 kodu | null, 2024 metni]`.
+  - Yorumda kaynak URL'leri ve iki PDF'in SHA-256 özetleri var.
+  - Eşlemeyi metin karşılaştırması ve elle denetimle W10 çıkardı. MEB'in yayımladığı bir eşleme değil.
+  - `T.Y.6.5` ("Yazılı etkileşiminde uygun tepki verebilme") → `null`; 2026 programında ayrı karşılığı yok.
+- Algılama, `oyssSurumAlgila`:
+  - Yalnız Türkçe 6–7'de çalışır.
+  - Her satırın kod+metin çiftine bakılır. Metin, eşleme tablosundaki 2024 metniyle ve katalogdaki 2026 metniyle karşılaştırılır (kelime kümesi Dice benzerliği ≥ 0,8).
+  - Sonuç:
+    - yalnız 2024'e uyan satır var, yalnız 2026'ya uyan yok → **"2024"**;
+    - tersi ya da hepsi iki programa da uyuyor → **"2026"**;
+    - ikisi birden → **"karisik"**;
+    - katalog yok/gelmedi → **"katalogYok"**.
+- Uygulama, `oyssSurumUygula`:
+  - "2024": kod 2026 karşılığına çevrilir ve her satıra iz eklenir.
+  - Aynı 2026 koduna düşen satırlar birleşir ve istenen soru sayıları toplanır (`T.O.6.10` + `T.O.6.11` → `T.O.6.10`).
+  - **Öneri ÜRETİLMEZ** (`oneriYok`) şu durumlarda:
+    - karşılıksız satır ("eşleşme yok, elle seçin");
+    - metni programla uyuşmayan satır ("belirsiz");
+    - karışık tablo ya da kataloğun yüklenmediği durum: tüm satırlarda öneri durur ve taslağa yazma kapalı olur.
+  - Sessiz yedek yok.
+- Kart:
+  - "2024" algılanınca açık uyarı: "Bu tablo 2024 program numaralarını kullanıyor; kodlar 2026 programına çevrildi."
+  - Her çevrilen satırda görünür iz: "ÖDSGM T.O.6.23 → T.O.6.21 (Okuduğunu özetleyebilme)".
+  - Karışık tabloda `role="alert"` uyarı çıkar ve düğme kapanır.
+  - Özette "N kazanımda öneri yok, elle seçin" yazar.
+- Plan (`oyssPlanSatiri`):
+  - Normal satır eskisi gibi `{kod, istenen}`.
+  - Çevrilen satıra `odsgm` eklenir.
+  - Öneri üretilmeyen satır `{kod: "", odsgm, elle: true}` olarak yazılır; yanlış 2026 koduyla sayılmasın diye. 2. adımda "eşleşme yok, soruları elle seçin" görünür.
+  - Plana `numaralandirma` eklenir.
+  - Denetim izine `cevrilen` ve `elleSecilecek` alanları eklenir.
+  - **Göç yok**: eski plan kayıtları aynı sonucu verir (testli).
+- Türkçe 5, Türkçe 8 ve diğer derslerin davranışı değişmedi (`denetimYok`).
+
+**Doğrulama:**
+- `npm test`: **961/961** (47 dosya).
+  - +41 test: `test/oyss-turkce-eslem.test.ts`. Kapsadıkları:
+    - 20 çakışan kodun her biri: aynı numaralı ama başka anlamlı 2026 sorusu önerilmiyor;
+    - 6 eksik kod;
+    - T.Y.6.5;
+    - birleşme, belirsiz satır, karışık tablo, katalog yok;
+    - 5. sınıf ve Matematik değişmeden kalıyor;
+    - taslağa yazma, kart HTML'i, eski plan.
+  - Mutasyon denemesi: algılama devre dışı bırakılınca bu 41 testin 35'i kırıldı.
+- lint temiz; öz-kontrol %100 (**755 ad**).
+- **Gerçek ÖDSGM `turkce2.xlsx`** (depo dışında), gerçek Chromium:
+  - Türkçe 6: "2024" (yalnız-2024 23, yalnız-2026 0, ikisinde 9) → 18 satır çevrildi, 1 satır eşleşme yok (T.Y.6.5).
+  - Türkçe 7: "2024" (10 / 0 / 7) → 7 satır çevrildi.
+  - Türkçe 5 ve 8 ile Matematik 5–8 (`ilkmat2.xlsx`): `denetimYok`, değişmedi.
+  - 6. sınıfın 13 senaryosunun hepsinde: havuza konan ve 2026'da başka anlamlı `T.O.6.23` (eleştiri) sorusu hiç önerilmedi. `T.O.6.20` ve `T.Y.6.18` soruları doğru satırlara geldi.
+  - 1280 ve 390 px, açık ve koyu tema; ölçüm kart (`#oyssKurKart`) üzerinde:
+    - axe ihlali 0;
+    - 12 px altı yazı 0;
+    - konsol hatası 0, yatay taşma 0;
+    - klavye odağında `:focus-visible` 2 px.
+  - Dosya seçildikten sonraki istekler yalnız `GET /mufredat/turkce-5.json` ve `turkce-6.json`.
+  - Taslağa yaz → 2. adım planında "T.O.6.20 (ÖDSGM T.O.6.21)" izi ve "Kodlar … çevrildi" notu görünüyor.
+  - Ekran görüntüleri: `Downloads\Mihenk\ekran-oyss-117\`.
+
+**Bilinen sınırlar:**
+- Eşleme yalnız ÖDSGM'nin 1. dönem tablosunda geçen 49 kodu kapsıyor. 2024 programında olup tabloda geçmeyen bir kod gelirse "belirsiz" sayılır ve öneri üretilmez.
+- 2. dönem tabloları gelince eşleme yeniden denetlenmeli.
+- 2026 programının yürürlük kararı (Talim ve Terbiye Kurulu) bulunamadı.
+- Push, deploy, /api/ai ve main birleştirme YOK.

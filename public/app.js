@@ -10902,14 +10902,175 @@ function oyssEslestir(satirlar, sorular, sinavdakiIdler, katalog) {
   const onayli = (sorular || []).filter(function (q) { return q.status === "approved"; });
   return satirlar.map(function (s) {
     const kod = oyssKodNormal(s.kod);
+    /* §117: numaralandırması belirsiz/karşılıksız satırda öneri ÜRETİLMEZ (sessiz yedek yok). */
+    if (s.oneriYok) {
+      return { kod: kod, metin: s.metin, istenen: s.istenen, adaylar: [], onerilen: [], eksik: 0,
+               katalogda: katalog ? !!katalog[kod] : null, oneriYok: s.oneriYok, odsgmKodlar: s.odsgmKodlar || [kod], izler: s.izler || [] };
+    }
     const adaylar = onayli.filter(function (q) { return oyssKodNormal(q.outcome) === kod; })
       .sort(function (a, b) { return (sinavda[b.id] ? 1 : 0) - (sinavda[a.id] ? 1 : 0); });
     return { kod: kod, metin: s.metin, istenen: s.istenen,
              adaylar: adaylar.map(function (q) { return q.id; }),
              onerilen: adaylar.slice(0, s.istenen).map(function (q) { return q.id; }),
              eksik: Math.max(0, s.istenen - adaylar.length),
-             katalogda: katalog ? !!katalog[kod] : null };
+             katalogda: katalog ? !!katalog[kod] : null,
+             oneriYok: "", odsgmKodlar: s.odsgmKodlar || [kod], izler: s.izler || [] };
   });
+}
+
+/*
+ * §117 — TÜRKÇE 6–7: ÖDSGM 2024 KODU → 2026 KODU (yalnız OYSS akışında; katalog DEĞİŞMEZ)
+ * ÖDSGM konu-soru tabloları (2026–27, 1. dönem) Türkçe 6–7'de 2024 programının numaralarını kullanıyor;
+ * müfredat kataloğumuz (public/mufredat/turkce-6|7.json) 2026 programına göre. 20 kod iki programda
+ * da var ama başka kazanımı gösteriyor (ör. 2024 T.O.6.23 "Okuduğunu özetleyebilme" = 2026 T.O.6.21;
+ * 2026 T.O.6.23 "Metni eleştirebilme"). Birebir kod eşlemesi sessizce yanlış kazanımdan soru önerirdi.
+ * Kaynaklar (6.11.2026'da indirildi; dosyalar depoda DEĞİL):
+ *   2024: https://mufredat.meb.gov.tr/ProgramDetay.aspx?PID=1979
+ *         PDF "202582516532361-ortaokul türkçe.pdf" SHA-256 7aa679b8f8f33790d99a7eca98f2712f16951b56a2ed4a608ec3ad0e5ebc0970
+ *   2026: https://mufredat.meb.gov.tr/ProgramDetay.aspx?PID=2352
+ *         PDF "202681493819891-Türkçe (5-8) DÖP.pdf" SHA-256 f9c44b1059a0d5a7a5aa4e0de3dce6821fce3d873c256ca86219e2347f07497a
+ *         (https://tymm.meb.gov.tr/assets/pdf/ortaokul-turkce-dersi_20260902_111157_977.pdf ile aynı dosya)
+ * Satır: [2024 kodu, 2026 kodu | null (karşılığı yok), 2024 metni]. Eşleme metin karşılaştırması + elle
+ * denetimle çıkarıldı (W10, Downloads\Mihenk\turkce-eksik-kodlar.md); MEB'in yayımladığı bir eşleme DEĞİLDİR.
+ * Öz yansıtma çıktıları (2024 T.O.6.27 vb.) 2026'da "… sürecini değerlendirebilme" açıklamasında yaşıyor.
+ * T.Y.6.5'in 2026'da ayrı karşılığı yok → null (öneri yapılmaz, öğretmen elle seçer).
+ */
+const OYSS_TURKCE_2024_2026 = [
+  ["T.O.6.1", "T.O.6.1", "Okumada materyal seçimini yönetebilme"],
+  ["T.O.6.2", "T.O.6.2", "Sesli ve sessiz okurken akıcı okuma unsurlarını yönetebilme"],
+  ["T.O.6.3", "T.O.6.3", "Okumada strateji ve yöntem seçimlerini yönetebilme"],
+  ["T.O.6.4", "T.O.6.4", "Okuyacağı metnin içeriğine yönelik tahminde bulunabilme"],
+  ["T.O.6.5", "T.O.6.5", "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme"],
+  ["T.O.6.6", "T.O.6.6", "Metnin yüzey anlamını belirleyebilme"],
+  ["T.O.6.7", "T.O.6.7", "Görselle iletilen anlamı belirleyebilme"],
+  ["T.O.6.8", "T.O.6.8", "Metnin derin anlamını belirlemeye yönelik basit çıkarımlar yapabilme"],
+  ["T.O.6.9", "T.O.6.9", "Metnin derin anlamını belirlemeye yönelik üst düzey çıkarımlar yapabilme"],
+  ["T.O.6.10", "T.O.6.10", "Metin içi karşılaştırma yapabilme"],
+  ["T.O.6.11", "T.O.6.10", "Metinler arası karşılaştırma yapabilme"],
+  ["T.O.6.12", "T.O.6.11", "Metindeki unsurları sınıflandırabilme"],
+  ["T.O.6.16", "T.O.6.15", "Bilgilendirici metinde anahtar kelimeleri belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.6.17", "T.O.6.16", "Metnin bölümlerini belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.6.18", "T.O.6.17", "Şiirin biçim özelliklerini belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.6.19", "T.O.6.18", "Bilgilendirici metinde düşünceyi geliştirme yollarını belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.6.21", "T.O.6.20", "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme"],
+  ["T.O.6.23", "T.O.6.21", "Okuduğunu özetleyebilme"],
+  ["T.O.6.27", "T.O.6.25", "Okuma sürecine yönelik öz yansıtma yapabilme/kendini uyarlayabilme"],
+  ["T.Y.6.1", "T.Y.6.1", "Yazma sürecini yönetebilme"],
+  ["T.Y.6.2", "T.Y.6.2", "Yazma strateji, yöntem ve tekniklerine yönelik seçimlerini yönetebilme"],
+  ["T.Y.6.3", "T.Y.6.3", "Yazısında içerik ve yapıya yönelik seçimlerini yönetebilme"],
+  ["T.Y.6.4", "T.Y.6.6", "Yazılı üretim ve yazılı etkileşiminde ön bilgilerinden yararlanabilme"],
+  ["T.Y.6.5", null, "Yazılı etkileşiminde uygun tepki verebilme"],
+  ["T.Y.6.7", "T.Y.6.5", "Yaratıcı yazı yazabilme"],
+  ["T.Y.6.9", "T.Y.6.7", "Yazısında karşılaştırma yapabilme"],
+  ["T.Y.6.10", "T.Y.6.8", "Yazısında sınıflandırma yapabilme"],
+  ["T.Y.6.11", "T.Y.6.9", "Yorumunu yazılı olarak ifade edebilme"],
+  ["T.Y.6.17", "T.Y.6.14", "Yazısında düşünceyi geliştirme yollarını kullanabilme"],
+  ["T.Y.6.18", "T.Y.6.15", "Yazısını zenginleştirecek biçimde söz varlığını kullanabilme"],
+  ["T.Y.6.21", "T.Y.6.18", "Yazım kuralları ve noktalama işaretlerini uygulayabilme"],
+  ["T.Y.6.22", "T.Y.6.19", "Yazma sürecine yönelik öz yansıtma yapabilme/kendini uyarlayabilme"],
+  ["T.O.7.1", "T.O.7.1", "Okumada materyal seçimini yönetebilme"],
+  ["T.O.7.2", "T.O.7.2", "Okumada strateji ve yöntem seçimlerini yönetebilme"],
+  ["T.O.7.3", "T.O.7.3", "Okuyacağı metnin içeriğine yönelik tahminde bulunabilme"],
+  ["T.O.7.4", "T.O.7.4", "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme"],
+  ["T.O.7.5", "T.O.7.5", "Metnin yüzey anlamını belirleyebilme"],
+  ["T.O.7.7", "T.O.7.7", "Metnin derin anlamını belirlemeye yönelik basit çıkarımlar yapabilme"],
+  ["T.O.7.8", "T.O.7.8", "Metnin derin anlamını belirlemeye yönelik üst düzey çıkarımlar yapabilme"],
+  ["T.O.7.14", "T.O.7.13", "Bilgilendirici metinlerde metin yapılarından hareketle önemli bilgileri belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.7.15", "T.O.7.14", "Bilgilendirici metinde anahtar kelimeleri belirlemeye yönelik çözümleme yapabilme"],
+  ["T.O.7.21", "T.O.7.20", "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme"],
+  ["T.O.7.28", "T.O.7.26", "Okuma sürecine yönelik öz yansıtma yapabilme/kendini uyarlayabilme"],
+  ["T.Y.7.1", "T.Y.7.1", "Yazma sürecini yönetebilme"],
+  ["T.Y.7.2", "T.Y.7.2", "Yazma strateji, yöntem ve tekniklerine yönelik seçimlerini yönetebilme"],
+  ["T.Y.7.3", "T.Y.7.3", "Yazısında içerik ve yapıya yönelik seçimlerini yönetebilme"],
+  ["T.Y.7.18", "T.Y.7.16", "Yazısını zenginleştirecek biçimde söz varlığını kullanabilme"],
+  ["T.Y.7.21", "T.Y.7.19", "Yazım kuralları ve noktalama işaretlerini uygulayabilme"],
+  ["T.Y.7.22", "T.Y.7.20", "Yazma sürecine yönelik öz yansıtma yapabilme/kendini uyarlayabilme"]
+];
+const OYSS_BENZERLIK_ESIGI = 0.8;
+
+/** Metni kelime listesine çevirir (NFC, Türkçe küçük harf, noktalama atılır). */
+function oyssMetinAnahtar(m) {
+  return String(m == null ? "" : m).normalize("NFC").toLocaleLowerCase("tr-TR")
+    .replace(/[^0-9a-zçğıöşüâîû\s]/g, " ").split(/\s+/).filter(Boolean);
+}
+
+/** Kelime kümesi Dice benzerliği (0–1). Boş metin → 0 (boş metin hiçbir programla "uyuşmaz"). */
+function oyssMetinBenzerlik(a, b) {
+  const x = Array.from(new Set(oyssMetinAnahtar(a)));
+  const y = new Set(oyssMetinAnahtar(b));
+  if (!x.length || !y.size) return 0;
+  const ortak = x.filter(function (w) { return y.has(w); }).length;
+  return (2 * ortak) / (x.length + y.size);
+}
+
+function oyssEslemKaydi(kod) {
+  const k = oyssKodNormal(kod);
+  const r = OYSS_TURKCE_2024_2026.find(function (x) { return x[0] === k; });
+  return r ? { eski: r[0], yeni: r[1], metin: r[2] } : null;
+}
+
+/** Numaralandırma denetimi yalnız eşleme tablosu olan derste/sınıfta yapılır: Türkçe 6–7. */
+function oyssSurumDenetimi(t) {
+  return !!t && t.ders === "Türkçe" && (t.sinif === 6 || t.sinif === 7);
+}
+
+/**
+ * Sayfadaki kod+metin çiftlerinden numaralandırmayı algılar (saf). katalogMetin: 2026 {kod: metin} | null.
+ * Satır "2024'e uyar": eşleme tablosunda o kod var ve metin 2024 metniyle uyuşuyor; "2026'ya uyar": katalogda
+ * o kod var ve metin katalog metniyle uyuşuyor. Durum:
+ *  "denetimYok" (Türkçe 6–7 değil; davranış §114'teki gibi) · "katalogYok" (karşılaştırılamadı → öneri durur)
+ *  "2024" (en az bir satır yalnız 2024'e uyuyor, hiçbiri yalnız 2026'ya değil) · "2026" (tersi ya da ikisine de)
+ *  "karisik" (iki türden de satır var → çeviri YAPILMAZ, öneri durur).
+ */
+function oyssSurumAlgila(t, katalogMetin) {
+  if (!oyssSurumDenetimi(t)) return { durum: "denetimYok" };
+  if (!katalogMetin) return { durum: "katalogYok" };
+  const n = { yalniz2024: 0, yalniz2026: 0, ikisinde: 0, hicbirinde: 0 };
+  (t.satirlar || []).forEach(function (r) {
+    const e = oyssEslemKaydi(r.kod);
+    const m24 = !!e && oyssMetinBenzerlik(r.metin, e.metin) >= OYSS_BENZERLIK_ESIGI;
+    const k26 = katalogMetin[oyssKodNormal(r.kod)];
+    const m26 = !!k26 && oyssMetinBenzerlik(r.metin, k26) >= OYSS_BENZERLIK_ESIGI;
+    if (m24 && m26) n.ikisinde++; else if (m24) n.yalniz2024++; else if (m26) n.yalniz2026++; else n.hicbirinde++;
+  });
+  const durum = n.yalniz2024 && n.yalniz2026 ? "karisik" : n.yalniz2024 ? "2024" : "2026";
+  return { durum: durum, sayilar: n };
+}
+
+/**
+ * Senaryo satırlarını algılanan numaralandırmaya göre hazırlar (saf). Her satıra odsgmKodlar, izler
+ * ve oneriYok ("" | "eslesmeYok" | "belirsiz" | "durdu") eklenir. "2024"te kod 2026 karşılığına çevrilir
+ * (iz: {eski, yeni, metin}); aynı 2026 koduna düşen satırlar birleşir, istenen toplanır.
+ */
+function oyssSurumUygula(satirlar, algi, katalogMetin) {
+  const durum = algi && algi.durum;
+  const kopya = function (s, oneriYok) {
+    return { kod: oyssKodNormal(s.kod), metin: s.metin, istenen: s.istenen, odsgmKodlar: [oyssKodNormal(s.kod)], izler: [], oneriYok: oneriYok };
+  };
+  if (durum === "denetimYok") return satirlar.map(function (s) { return kopya(s, ""); });
+  if (durum !== "2024" && durum !== "2026") return satirlar.map(function (s) { return kopya(s, "durdu"); });
+  const cikti = [];
+  satirlar.forEach(function (s) {
+    const kod = oyssKodNormal(s.kod);
+    if (durum === "2026") {
+      const k26 = katalogMetin[kod];
+      cikti.push(kopya(s, k26 && oyssMetinBenzerlik(s.metin, k26) >= OYSS_BENZERLIK_ESIGI ? "" : "belirsiz"));
+      return;
+    }
+    const e = oyssEslemKaydi(kod);
+    if (!e || oyssMetinBenzerlik(s.metin, e.metin) < OYSS_BENZERLIK_ESIGI) { cikti.push(kopya(s, "belirsiz")); return; }
+    if (!e.yeni || !katalogMetin[e.yeni]) { cikti.push(kopya(s, "eslesmeYok")); return; }
+    const iz = { eski: kod, yeni: e.yeni, metin: katalogMetin[e.yeni] };
+    const onceki = cikti.find(function (x) { return !x.oneriYok && x.kod === e.yeni; });
+    if (onceki) {
+      onceki.istenen += s.istenen; onceki.odsgmKodlar.push(kod);
+      if (kod !== e.yeni) onceki.izler.push(iz);
+      return;
+    }
+    cikti.push({ kod: e.yeni, metin: katalogMetin[e.yeni], istenen: s.istenen, odsgmKodlar: [kod],
+                 izler: kod !== e.yeni ? [iz] : [], oneriYok: "" });
+  });
+  return cikti;
 }
 
 /** Zorluk dağılımı — yalnız bilgi; seçim buna göre ZORLANMAZ. */
@@ -10942,6 +11103,16 @@ function oyssKatalogKodlari(t) {
   return m;
 }
 
+/** §117: seçili tablonun 2026 katalog metinleri {kod: metin} | null (yok/gelmedi). */
+function oyssKatalogMetinleri(t) {
+  if (!t || !t.ders || !t.sinif) return null;
+  const k = (state.katalog || {})[katalogAnahtari(t.ders, t.sinif)];
+  if (!k || !Array.isArray(k.kazanimlar)) return null;
+  const m = {};
+  k.kazanimlar.forEach(function (x) { m[oyssKodNormal(x.kod)] = String(x.metin || ""); });
+  return m;
+}
+
 /** Katalog gerekiyorsa yükler (yalnız kendi statik dosyamız; /api çağrısı değil). */
 function oyssKatalogHazirla() {
   const t = oyssSeciliTablo();
@@ -10956,7 +11127,9 @@ function oyssGorunum() {
   const d = oyssKurDurum();
   const t = oyssSeciliTablo();
   if (!t) return null;
-  const satirlar = oyssSenaryoSatirlari(t, d.sinav, d.senaryo);
+  const katalogMetin = oyssKatalogMetinleri(t);
+  const algi = oyssSurumAlgila(t, katalogMetin);
+  const satirlar = oyssSurumUygula(oyssSenaryoSatirlari(t, d.sinav, d.senaryo), algi, katalogMetin);
   const es = oyssEslestir(satirlar, state.questions, state.exam.questionIds, oyssKatalogKodlari(t));
   const secili = {};
   es.forEach(function (r) {
@@ -10964,7 +11137,52 @@ function oyssGorunum() {
       secili[id] = d.secim ? !!d.secim[id] : r.onerilen.indexOf(id) !== -1;
     });
   });
-  return { tablo: t, eslesme: es, secili: secili };
+  return { tablo: t, eslesme: es, secili: secili, algi: algi };
+}
+
+/** Taslağa yazma kapalı mı: numaralandırma belirlenemediyse (karışık / katalog yok) evet. */
+function oyssYazmaKapali(algi) {
+  return !!algi && (algi.durum === "karisik" || algi.durum === "katalogYok");
+}
+
+/** §117: kartın üstündeki numaralandırma uyarısı. */
+function oyssSurumUyariHtml(g, d) {
+  const a = g.algi || {};
+  const sinif = "Türkçe " + (g.tablo.sinif || "") + ". sınıf";
+  if (a.durum === "2024") {
+    return '<div class="pill pill-blok pill-warning oyss-surum" role="status"><b>Bu tablo 2024 program numaralarını kullanıyor; kodlar 2026 programına çevrildi.</b> ' +
+      "Her satırdaki “ÖDSGM … →” izini kontrol edin. Karşılığı bulunamayan satırlarda öneri yapılmadı; o kazanımların sorularını elle seçin.</div>";
+  }
+  if (a.durum === "karisik") {
+    return '<div class="sy-hata oyss-surum" role="alert"><b>Numaralandırma belirlenemedi:</b> bu tablodaki kodların bir kısmı 2024, bir kısmı 2026 programına uyuyor. ' +
+      "Yanlış kazanımdan soru önermemek için öneri durduruldu ve taslağa yazma kapalı. Soruları 2. adımda elle seçin.</div>";
+  }
+  if (a.durum === "katalogYok") {
+    return d.katalogHata
+      ? '<div class="sy-hata oyss-surum" role="alert">' + escapeHtml(sinif) + " müfredat kataloğu yüklenemedi; tablonun hangi program numaralarını kullandığı denetlenemedi. Öneri durduruldu.</div>"
+      : '<div class="lbl-hint oyss-surum" role="status">' + escapeHtml(sinif) + " müfredat kataloğu yükleniyor; numaralandırma denetlenince öneriler gelecek.</div>";
+  }
+  return "";
+}
+
+/** §117: satırın kod hücresi (çeviri izi / eşleşmeme). */
+function oyssKodHucresiHtml(r) {
+  if (r.oneriYok) {
+    return '<span class="oyss-kod">ÖDSGM ' + escapeHtml(r.odsgmKodlar.join(", ")) + "</span>" +
+      (r.oneriYok === "durdu" ? "" : ' <span class="pill pill-warning">' + (r.oneriYok === "eslesmeYok" ? "eşleşme yok" : "belirsiz") + "</span>");
+  }
+  return '<span class="oyss-kod">' + escapeHtml(r.kod) + "</span>" +
+    (r.katalogda === false ? ' <span class="pill pill-warning">müfredatta yok</span>' : "") +
+    r.izler.map(function (z) {
+      return '<div class="oyss-iz">ÖDSGM ' + escapeHtml(z.eski) + " → " + escapeHtml(z.yeni) + " (" + escapeHtml(truncate(z.metin, 90)) + ")</div>";
+    }).join("");
+}
+
+/** §117: öneri üretilmeyen satırın açıklaması. */
+function oyssOneriYokMetni(r) {
+  if (r.oneriYok === "eslesmeYok") return "Eşleşme yok: 2026 programında karşılığı bulunamadı. Soruları elle seçin.";
+  if (r.oneriYok === "belirsiz") return "Belirsiz: kod ile metin programla uyuşmuyor. Öneri yapılmadı; soruları elle seçin.";
+  return "Öneri durduruldu (yukarıdaki uyarıya bakın). Soruları elle seçin.";
 }
 
 function oyssSecimListesi(g) {
@@ -11016,8 +11234,10 @@ function oyssTabloHtml(kilit) {
   const eksikTop = g.eslesme.reduce(function (a, r) { return a + r.eksik; }, 0);
   const secIds = oyssSecimListesi(g);
   const zd = oyssZorlukDagilimi(secIds.map(soru).filter(Boolean));
-  const katalogsuz = g.eslesme.filter(function (r) { return r.katalogda === false; });
-  const katalogYok = g.eslesme.length && g.eslesme[0].katalogda === null;
+  const katalogsuz = g.eslesme.filter(function (r) { return r.katalogda === false && !r.oneriYok; });
+  const katalogYok = g.eslesme.length && oyssKatalogKodlari(g.tablo) === null && !oyssSurumDenetimi(g.tablo);
+  const elle = g.eslesme.filter(function (r) { return r.oneriYok; }).length;
+  const yazmaKapali = oyssYazmaKapali(g.algi);
   const satirlar = g.eslesme.map(function (r) {
     const secSay = r.adaylar.filter(function (id) { return g.secili[id]; }).length;
     const adaylar = r.adaylar.map(function (id) {
@@ -11026,18 +11246,20 @@ function oyssTabloHtml(kilit) {
       return '<li><input type="checkbox" class="js-oyss-kur-sec" id="' + eid + '" data-qid="' + id + '"' + (g.secili[id] ? " checked" : "") + (kilit ? " disabled" : "") + ">" +
         '<label for="' + eid + '">' + escapeHtml(truncate(q.body || "", 80)) + ' <span class="pill pill-neutral">' + diffLabel(q.difficulty) + "</span></label></li>";
     }).join("");
-    return '<tr><td><span class="oyss-kod">' + escapeHtml(r.kod) + "</span>" +
-      (r.katalogda === false ? ' <span class="pill pill-warning">müfredatta yok</span>' : "") +
+    return '<tr><td>' + oyssKodHucresiHtml(r) +
       '<div class="oyss-kur-metin">' + escapeHtml(truncate(r.metin, 110)) + "</div></td>" +
       '<td class="oyss-kur-sayi" data-etiket="İstenen soru">' + r.istenen + "</td>" +
       '<td class="oyss-kur-sorular">' + (adaylar ?'<ul class="oyss-kur-aday">' + adaylar + "</ul>" : "") +
-      (r.eksik ? '<div class="oyss-kur-eksik">Havuzda yok: ' + r.eksik + " soru eksik</div>"
+      (r.oneriYok ? '<div class="oyss-kur-eksik">' + oyssOneriYokMetni(r) + "</div>"
+        : r.eksik ? '<div class="oyss-kur-eksik">Havuzda yok: ' + r.eksik + " soru eksik</div>"
         : secSay !== r.istenen ? '<div class="lbl-hint">' + secSay + "/" + r.istenen + " seçili</div>" : "") + "</td></tr>";
   }).join("");
   const yaz = o.yeni ? "Sınavı oluştur ve senaryoyu taslağa yaz" : "Seçili soruları ve senaryo tablosunu taslağa yaz";
-  return '<div class="oyss-kur-ozet" role="status">' + escapeHtml(g.tablo.baslik || g.tablo.ad || "") + " · " +
+  return oyssSurumUyariHtml(g, d) +
+    '<div class="oyss-kur-ozet" role="status">' + escapeHtml(g.tablo.baslik || g.tablo.ad || "") + " · " +
     g.eslesme.length + " kazanım · " + istenenTop + " soru isteniyor · " + secIds.length + " soru seçili" +
-    (eksikTop ? ' · <b class="oyss-kur-eksik">havuzda ' + eksikTop + " soru eksik</b>" : "") + "</div>" +
+    (eksikTop ? ' · <b class="oyss-kur-eksik">havuzda ' + eksikTop + " soru eksik</b>" : "") +
+    (elle ? ' · <b class="oyss-kur-eksik">' + elle + " kazanımda öneri yok, elle seçin</b>" : "") + "</div>" +
     '<div class="oyss-kur-kap"><table class="oyss-kur-tablo"><thead><tr><th scope="col">Kazanım</th><th scope="col">İstenen</th>' +
     '<th scope="col">Havuzdaki onaylı sorular</th></tr></thead><tbody>' + satirlar + "</tbody></table></div>" +
     '<div class="lbl-hint oyss-kur-zorluk">Seçili soruların zorluğu — Kolay <b>' + zd.easy + "</b> · Orta <b>" + zd.medium + "</b> · Zor <b>" + zd.hard + "</b>" +
@@ -11048,14 +11270,14 @@ function oyssTabloHtml(kilit) {
       (d.katalogHata ? " müfredat kataloğu yüklenemedi; " : " için müfredat kataloğu yok; ") + "kodlar katalogla karşılaştırılamadı.</div>" : "") +
     (g.tablo.atlanan.length ? '<div class="lbl-hint">Kodu okunamayan ve hesaba katılmayan satırlar: ' + g.tablo.atlanan.map(escapeHtml).join("; ") + "</div>" : "") +
     (kilit ? '<div class="pill pill-blok pill-warning">Sınav yayında: soru listesi değişmez. Önce yayından kaldırın.</div>'
-      : '<div class="oyss-eylem"><button type="button" class="btn btn-primary btn-sm" id="btnOyssKurYaz"' + (g.eslesme.length ? "" : " disabled") + ">" + yaz + "</button>" +
-        '<span class="lbl-hint">Sınav yayınlanmaz; 2. adımda gözden geçirirsiniz.</span></div>');
+      : '<div class="oyss-eylem"><button type="button" class="btn btn-primary btn-sm" id="btnOyssKurYaz"' + (g.eslesme.length && !yazmaKapali ? "" : " disabled") + ">" + yaz + "</button>" +
+        '<span class="lbl-hint">' + (yazmaKapali ? "Numaralandırma belirlenmeden taslağa yazılmaz." : "Sınav yayınlanmaz; 2. adımda gözden geçirirsiniz.") + "</span></div>");
 }
 
 /** Seçilen senaryoyu ve işaretli soruları aktif sınav taslağına yazar. */
 function oyssTaslagaYaz() {
   const g = oyssGorunum();
-  if (!g || state.exam.status === "published") return false;
+  if (!g || state.exam.status === "published" || oyssYazmaKapali(g.algi)) return false;
   const d = oyssKurDurum();
   const sinav = g.tablo.sinavlar[d.sinav];
   const senaryo = sinav && sinav.senaryolar[d.senaryo];
@@ -11066,16 +11288,34 @@ function oyssTaslagaYaz() {
   state.exam.oyssSenaryo = {
     ders: g.tablo.ders || "", sinif: g.tablo.sinif || null, sayfa: g.tablo.ad || "",
     sinav: sinav ? sinav.ad : "", senaryo: senaryo ? senaryo.ad : "",
-    satirlar: g.eslesme.map(function (r) { return { kod: r.kod, istenen: r.istenen }; }),
+    satirlar: g.eslesme.map(oyssPlanSatiri),
     kaynak: "ÖDSGM konu-soru dağılım tablosu (öğretmenin yüklediği dosya; dosyanın kendisi saklanmadı)",
     yazildi: new Date().toISOString(),
   };
-  auditKaydet("oyss_senaryo_yazildi", { senaryo: (sinav ? sinav.ad + " · " : "") + (senaryo ? senaryo.ad : ""),
+  if (g.algi && g.algi.durum === "2024") state.exam.oyssSenaryo.numaralandirma = "ÖDSGM 2024 → 2026 programı";
+  const iz = { senaryo: (sinav ? sinav.ad + " · " : "") + (senaryo ? senaryo.ad : ""),
     kazanimSay: g.eslesme.length, eklenen: ekle.length,
-    eksik: g.eslesme.reduce(function (a, r) { return a + r.eksik; }, 0), rol: rolAdi(state.role) });
+    eksik: g.eslesme.reduce(function (a, r) { return a + r.eksik; }, 0), rol: rolAdi(state.role) };
+  if (g.algi && g.algi.durum === "2024") {
+    iz.cevrilen = g.eslesme.reduce(function (a, r) { return a + r.izler.length; }, 0);
+    iz.elleSecilecek = g.eslesme.filter(function (r) { return r.oneriYok; }).length;
+  }
+  auditKaydet("oyss_senaryo_yazildi", iz);
   aktifOturumuYaz();
   saveState();
   return true;
+}
+
+/**
+ * §117: plana yazılan satır. Normal satır yalnız {kod, istenen}. Çevrilen satıra ÖDSGM kodu (odsgm),
+ * öneri üretilmeyen satıra kod "" + odsgm + elle: true eklenir (yanlış 2026 koduyla sayılmasın diye).
+ */
+function oyssPlanSatiri(r) {
+  const p = { kod: r.oneriYok ? "" : r.kod, istenen: r.istenen };
+  const odsgm = (r.odsgmKodlar || []).join(", ");
+  if (r.oneriYok || (odsgm && odsgm !== r.kod)) p.odsgm = odsgm;
+  if (r.oneriYok) p.elle = true;
+  return p;
 }
 
 /** Sınavdaki soruların senaryo tablosuna göre durumu (2. adım; saf). */
@@ -11086,8 +11326,11 @@ function oyssPlanKarsilastir(plan, sorular, questionIds) {
     if (q) { const k = oyssKodNormal(q.outcome); say[k] = (say[k] || 0) + 1; }
   });
   return ((plan && plan.satirlar) || []).map(function (r) {
+    if (r.elle || !r.kod) return { kod: "", odsgm: r.odsgm || "", istenen: r.istenen, sinavda: null, eksik: 0, fazla: 0, elle: true };
     const n = say[oyssKodNormal(r.kod)] || 0;
-    return { kod: r.kod, istenen: r.istenen, sinavda: n, eksik: Math.max(0, r.istenen - n), fazla: Math.max(0, n - r.istenen) };
+    const o = { kod: r.kod, istenen: r.istenen, sinavda: n, eksik: Math.max(0, r.istenen - n), fazla: Math.max(0, n - r.istenen) };
+    if (r.odsgm) o.odsgm = r.odsgm;
+    return o;
   });
 }
 
@@ -11098,12 +11341,19 @@ function oyssPlanHtml() {
   const eksik = k.reduce(function (a, r) { return a + r.eksik; }, 0);
   /* coverage-box: .cv-* sınıfları yalnız onun içinde biçimlenir (app.css, kapsayıcı tuzağı). */
   return '<div class="coverage-box oyss-plan" id="oyssPlan"><div class="cv-head">OYSS senaryosu: <b>' + escapeHtml([p.sayfa, p.sinav, p.senaryo].filter(Boolean).join(" · ")) + "</b></div>" +
+    (p.numaralandirma ? '<div class="lbl-hint">Kodlar ' + escapeHtml(p.numaralandirma) + " numaralarına çevrildi.</div>" : "") +
     '<ul class="oyss-plan-liste">' + k.map(function (r) {
+      if (r.elle) {
+        return '<li class="is-eksik"><span class="oyss-kod">ÖDSGM ' + escapeHtml(r.odsgm) + "</span> · " + r.istenen +
+          " soru · eşleşme yok, soruları elle seçin</li>";
+      }
       return '<li class="' + (r.eksik ? "is-eksik" : "is-tam") + '"><span class="oyss-kod">' + escapeHtml(r.kod) + "</span> " +
+        (r.odsgm ? '<span class="oyss-iz-satir">(ÖDSGM ' + escapeHtml(r.odsgm) + ")</span> " : "") +
         r.sinavda + "/" + r.istenen + (r.eksik ? " · " + r.eksik + " soru eksik" : "") + (r.fazla ? " · " + r.fazla + " fazla" : "") + "</li>";
     }).join("") + "</ul>" +
     (eksik ? '<div class="cv-warn">Senaryoya göre <b>' + eksik + "</b> soru eksik. Havuza soru ekleyip onayladıktan sonra seçebilirsiniz; yayın engellenmez.</div>"
-      : '<div class="cv-ok">Senaryonun istediği soru sayıları karşılanıyor.</div>') +
+      : k.some(function (r) { return r.elle; }) ? "" : '<div class="cv-ok">Senaryonun istediği soru sayıları karşılanıyor.</div>') +
+    (k.some(function (r) { return r.elle; }) ? '<div class="cv-warn">Eşleşmeyen kazanımların soruları sayılamaz; bunları elle seçip kontrol edin.</div>' : "") +
     (state.exam.status === "published" ? "" : '<button type="button" class="btn btn-secondary btn-sm" id="btnOyssPlanKaldir">Senaryo bağını kaldır</button>') +
     "</div>";
 }
@@ -17635,7 +17885,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz", "xlsxHata", "xlsxZipDizini", "xlsxGirdiMetni", "xlsxXml", "xlsxElemanlar", "xlsxMetin", "xlsxHucreAdresi", "xlsxSade", "xlsxOku", "oyssKodNormal", "oyssDersSinif", "oyssTabloAyikla", "oyssSenaryoSatirlari", "oyssEslestir", "oyssZorlukDagilimi", "oyssKurDurum", "oyssSeciliTablo", "oyssKatalogKodlari", "oyssKatalogHazirla", "oyssGorunum", "oyssSecimListesi", "oyssKurHtml", "oyssSecicilerHtml", "oyssTabloHtml", "oyssTaslagaYaz", "oyssPlanKarsilastir", "oyssPlanHtml", "oyssDosyaOku", "wireOyssKur",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz", "xlsxHata", "xlsxZipDizini", "xlsxGirdiMetni", "xlsxXml", "xlsxElemanlar", "xlsxMetin", "xlsxHucreAdresi", "xlsxSade", "xlsxOku", "oyssKodNormal", "oyssDersSinif", "oyssTabloAyikla", "oyssSenaryoSatirlari", "oyssEslestir", "oyssMetinAnahtar", "oyssMetinBenzerlik", "oyssEslemKaydi", "oyssSurumDenetimi", "oyssSurumAlgila", "oyssSurumUygula", "oyssKatalogMetinleri", "oyssYazmaKapali", "oyssSurumUyariHtml", "oyssKodHucresiHtml", "oyssOneriYokMetni", "oyssPlanSatiri", "oyssZorlukDagilimi", "oyssKurDurum", "oyssSeciliTablo", "oyssKatalogKodlari", "oyssKatalogHazirla", "oyssGorunum", "oyssSecimListesi", "oyssKurHtml", "oyssSecicilerHtml", "oyssTabloHtml", "oyssTaslagaYaz", "oyssPlanKarsilastir", "oyssPlanHtml", "oyssDosyaOku", "wireOyssKur",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
