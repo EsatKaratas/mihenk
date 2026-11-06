@@ -4082,10 +4082,84 @@ function auditKisalt(s) {
   return s.length > 80 ? s.slice(0, 79) + "…" : s;
 }
 
+/* §104 — RED NEDENİ (isteğe bağlı). Kodlar docs/HATA_TAKSONOMISI.md v0.2.1'in
+   soru üretimine ait A–G bölümlerinden birebir alındı (H = açık uçlu
+   değerlendirme, soru reddiyle ilgisiz, alınmadı). Eşitlik
+   test/karar-kaydi.test.ts'te denetlenir. Etiket ZORUNLU DEĞİL: tek
+   tıkla reddetme olduğu gibi kalır. */
+const RED_KODLARI = [
+  { grup: "Cevap anahtarı", kodlar: [
+    ["ANH-OLGU", "Anahtar yanlış şıkkı gösteriyor"], ["ANH-BIRIM", "Birim dönüşümü hatası"],
+    ["ANH-YOK", "Doğru cevap hiçbir şıkta yok"], ["ANH-GECERSIZ", "Anahtar geçersiz"]] },
+  { grup: "Çeldirici ve gerekçe", kodlar: [
+    ["GRK-KALIP", "Gerekçe kalıp cümle"], ["GRK-TEKRAR", "İki gerekçe aynı"], ["GRK-GENEL", "Gerekçe genel geçer"],
+    ["GRK-TUTARSIZ", "Gerekçe şıkla çelişiyor"], ["SIK-SACMA", "Saçma çeldirici"], ["SIK-SAYI", "Şık sayısı eksik"],
+    ["SIK-ESANLAM", "Birden çok şık savunulabilir"]] },
+  { grup: "Tekrar", kodlar: [["TKR-GOVDE", "Başka bir soruyla aynı"], ["TKR-SIK", "Şık kümesi başka soruyla aynı"]] },
+  { grup: "Dil", kodlar: [["DIL-ALFABE", "Yabancı alfabeden harf"], ["DIL-LATIN", "Yabancı kelime"]] },
+  { grup: "Gövde ve soru niteliği", kodlar: [
+    ["GVD-KISA", "Gövde çok kısa"], ["GVD-KALIP", "Klasik hatırlatma kalıbı"], ["GVD-TEKADIM", "Tek adımlı, akıl yürütme yok"],
+    ["GVD-YINELEME", "Soru cümlesi tekrarlanıyor"], ["GVD-VERIFAZLA", "Gereksiz veri"], ["GVD-KOKYOK", "Soru kökü yok"]] },
+  { grup: "Müfredat", kodlar: [["KZN-DISI", "Kazanımı ölçmüyor"], ["SNF-DISI", "Sınıf düzeyine uymuyor"]] },
+  { grup: "Kaynak metin", kodlar: [["KYN-ATIF", "Metne atıf var, metin bağlı değil"]] },
+  { grup: "Diğer", kodlar: [["DIGER", "Diğer"]] },
+];
+
+/** Red kodunun okunur adı ("ANH-OLGU — Anahtar yanlış şıkkı gösteriyor"); bilinmeyen kod olduğu gibi. */
+function redKoduAdi(kod) {
+  for (let i = 0; i < RED_KODLARI.length; i++) {
+    const k = RED_KODLARI[i].kodlar.filter(function (x) { return x[0] === kod; })[0];
+    if (k) return kod === "DIGER" ? k[1] : kod + " — " + k[1];
+  }
+  return String(kod || "");
+}
+
+/** Reddedilen soruda neden hapı (kod yoksa hiçbir şey). */
+function redKoduRozetiHtml(q) {
+  if (!q || !q.redKodu) return "";
+  return '<span class="pill pill-neutral red-kodu-rozet" title="' + escapeHtml(redKoduAdi(q.redKodu)) + '">neden: ' +
+    escapeHtml(q.redKodu === "DIGER" ? "diğer" : q.redKodu) + "</span>";
+}
+
+/** Bekleyen karttaki isteğe bağlı red nedeni seçicisi. */
+function redKoduSeciciHtml(q) {
+  return '<select class="red-kodu" data-qid="' + q.id + '" aria-label="Red nedeni (isteğe bağlı)" title="Red nedeni (isteğe bağlı)">' +
+    '<option value="">Red nedeni (isteğe bağlı)</option>' +
+    RED_KODLARI.map(function (g) {
+      return '<optgroup label="' + escapeHtml(g.grup) + '">' + g.kodlar.map(function (k) {
+        return '<option value="' + k[0] + '">' + escapeHtml(k[0] === "DIGER" ? k[1] : k[0] + " · " + k[1]) + "</option>";
+      }).join("") + "</optgroup>";
+    }).join("") + "</select>";
+}
+
+/* §104 — A1/A2 rozeti, onay ANINDAKİ şüphe listesinden BAĞIMSIZ hesaplanır.
+   Neden: uzman anahtarı düzeltince "Anahtar muhtemelen X" rozeti kendiliğinden
+   kalkar (var() güncel anahtara bakar), bağımsız çözüm de bayatlar. Onay
+   kaydındaki `supheler` bu yüzden "düzeltilen" soruları kaçırırdı. Burada
+   sunucunun üretimde koyduğu ham alanlara bakılır:
+     A2 = hesapBaskaSik dolu ya da hesapUyusmazligi === true
+     A1 = bağımsız çözüm (bayat olsa da) anahtardan farklı şık seçmişti. */
+/** Soru için anahtar izi var mı: YZ'nin geçerli anahtar verdiği ÇSS (eski kayıtta yok). */
+function anahtarIzli(q) {
+  return !!(q && q.type === "mc" && q.yazan !== "insan" && q.ilkAnahtar);
+}
+
+function rozetA1A2(q) {
+  if (!q || q.type !== "mc") return [];
+  const r = [];
+  const c = q.bagimsizCozum;
+  if (c && !c.hata && c.anahtarUyusmazligi === true) r.push("A1");
+  if (q.hesapBaskaSik || q.hesapUyusmazligi === true) r.push("A2");
+  return r;
+}
+
 var AUDIT_ETIKET = {
   soru_uretildi:        { ad: "Soru üretildi",            sinif: "pill-accent",  aktor: "yapay zekâ" },
   soru_onaylandi:       { ad: "Soru onaylandı",           sinif: "pill-success", aktor: "içerik uzmanı" },
   soru_reddedildi:      { ad: "Soru reddedildi",          sinif: "pill-critical",aktor: "içerik uzmanı" },
+  /* §99: elle yazılan soru taslağı. İnsan olayıdır; model sayımına (MODEL_URETIMI)
+     GİRMEZ. Onayı yine ayrı bir "soru_onaylandi" kaydıdır (elle: true). */
+  soru_elle_yazildi:    { ad: "Soru elle yazıldı",        sinif: "pill-neutral", aktor: "içerik uzmanı" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
@@ -4113,8 +4187,20 @@ function auditOzet() {
   var elle = kararlar.filter(function (k) { return k.aiScore == null; }).length;
   var uretilen = g.filter(function (k) { return k.tur === "soru_uretildi"; })
                   .reduce(function (t, k) { return t + (k.adet || 0); }, 0);
-  var onaylanan = g.filter(function (k) { return k.tur === "soru_onaylandi"; }).length;
-  var reddedilen = g.filter(function (k) { return k.tur === "soru_reddedildi"; }).length;
+  /* §99: elle yazılan soruların onayı YZ önerisinin kabulü değildir; ayrı
+     sayılır, yoksa "YZ soru önerdi ↔ insan onayladı" oranı şişerdi. */
+  var onaylanan = g.filter(function (k) { return k.tur === "soru_onaylandi" && !k.elle; }).length;
+  var elleOnay = g.filter(function (k) { return k.tur === "soru_onaylandi" && k.elle; }).length;
+  var reddedilen = g.filter(function (k) { return k.tur === "soru_reddedildi" && !k.elle; }).length;
+  /* §104: A1/A2 rozetli (bağımsız çözüm farklı / hesap tutmuyor) YZ sorularında
+     uzman anahtarı ne sıklıkla değiştirdi? Payda yalnız anahtar izi olan
+     onaylar (anahtarIzlendi); eski kayıtlar ve elle sorular girmez. */
+  var izli = g.filter(function (k) { return k.tur === "soru_onaylandi" && k.anahtarIzlendi && !k.elle; });
+  var rozetli = izli.filter(function (k) { return Array.isArray(k.rozetA1A2) && k.rozetA1A2.length; });
+  var rozetsiz = izli.filter(function (k) { return !(Array.isArray(k.rozetA1A2) && k.rozetA1A2.length); });
+  var duzeltilenSay = function (l) { return l.filter(function (k) { return !!k.anahtarYeni; }).length; };
+  var anahtarDuzeltme = { rozetli: rozetli.length, rozetliDuzeltilen: duzeltilenSay(rozetli),
+    rozetsiz: rozetsiz.length, rozetsizDuzeltilen: duzeltilenSay(rozetsiz) };
 
   /* Hangi modeller kullanılmış? (§19c: model farkı puanı etkiliyor)
      🔴 DÜZELTİLEN SAYIM HATASI: Eskiden `model` alanı TAŞIYAN her kayıt
@@ -4135,7 +4221,8 @@ function auditOzet() {
   return {
     toplamKayit: g.length, dusen: state.auditDusen || 0,
     oneri: oneri, aynen: aynen, degisen: degisen, elle: elle,
-    uretilen: uretilen, onaylanan: onaylanan, reddedilen: reddedilen,
+    uretilen: uretilen, onaylanan: onaylanan, reddedilen: reddedilen, elleOnay: elleOnay,
+    anahtarDuzeltme: anahtarDuzeltme,
     modeller: modeller,
     ilk: g.length ? g[0].at : null, son: g.length ? g[g.length - 1].at : null,
   };
@@ -4150,7 +4237,9 @@ function auditZaman(ts) {
 function auditCsv() {
   ensureAudit();
   var basliklar = ["zaman", "olay", "aktor", "model", "yedekMi", "soru", "ogrenciNo",
-                   "aiPuan", "nihaiPuan", "degisti", "guven", "not", "supheler"];
+                   "aiPuan", "nihaiPuan", "degisti", "guven", "not", "supheler",
+                   /* §104: sona eklendi; eski sütunların sırası değişmedi. */
+                   "redKodu", "anahtarDegisimi", "rozetA1A2"];
   var satirlar = state.auditLog.map(function (k) {
     var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
     return [
@@ -4161,6 +4250,9 @@ function auditCsv() {
       k.confidence != null ? k.confidence : "", k.not || "",
       // §56: onay anındaki şüphe türleri (araştırma: şüpheye rağmen onay)
       Array.isArray(k.supheler) ? k.supheler.join(",") : "",
+      k.redKodu || "",
+      k.anahtarYeni ? k.anahtarEski + "→" + k.anahtarYeni : (k.anahtarIzlendi ? "aynı" : ""),
+      Array.isArray(k.rozetA1A2) ? k.rozetA1A2.join(",") : "",
     ].map(function (h) {
       h = String(h == null ? "" : h);
       return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
@@ -4201,6 +4293,10 @@ function auditSatirHtml(k) {
   if (k.adet) detay.push(k.adet + " soru");
   if (k.injectionAttempt) detay.push('<span class="au-inj">yanıt modele talimat vermeye çalışmış</span>');
   if (k.not) detay.push(escapeHtml(k.not));
+  // §104: red nedeni ve anahtar değişimi günlük satırında da görünür.
+  if (k.redKodu) detay.push("neden: " + escapeHtml(redKoduAdi(k.redKodu)));
+  if (k.anahtarYeni) detay.push("anahtar <b>" + escapeHtml(k.anahtarEski) + " → " + escapeHtml(k.anahtarYeni) + "</b>");
+  if (Array.isArray(k.rozetA1A2) && k.rozetA1A2.length) detay.push("rozet: " + escapeHtml(k.rozetA1A2.join(", ")));
 
   return '<div class="au-satir">' +
     '<div class="au-ust"><span class="pill ' + e.sinif + '">' + escapeHtml(e.ad) + "</span>" +
@@ -4209,6 +4305,27 @@ function auditSatirHtml(k) {
     (k.soru ? '<div class="au-soru">' + escapeHtml(k.soru) + "</div>" : "") +
     (detay.length ? '<div class="au-detay">' + detay.join(" · ") + "</div>" : "") +
     "</div>";
+}
+
+/* §104: bu sayının altında oran yalnız GÖSTERGEDİR (küçük örneklem). Eşik
+   bir istatistik testi değil, yaygın kaba kuraldır; uyarı metni bunu söyler. */
+const ORAN_ALT_ORNEKLEM = 30;
+
+/** §104: "A1/A2 rozetli sorularda anahtar düzeltilme oranı" satırı.
+    Cümle sayı eki almayacak biçimde kurulur (bkz. au-oran notu, §6.3-14). */
+function anahtarDuzeltmeHtml(d) {
+  if (!d || !d.rozetli) return "";
+  const yuzde = Math.round((d.rozetliDuzeltilen / d.rozetli) * 100);
+  const kiyas = d.rozetsiz
+    ? " Rozetsiz sorularda: " + d.rozetsizDuzeltilen + "/" + d.rozetsiz + " (%" + Math.round((d.rozetsizDuzeltilen / d.rozetsiz) * 100) + ")."
+    : "";
+  return '<div class="au-oran au-anahtar">A1/A2 rozetli (bağımsız çözüm farklı ya da hesap tutmuyor) ' +
+    "onaylı sorularda uzman cevap anahtarını değiştirdi: <b>" + d.rozetliDuzeltilen + "/" + d.rozetli +
+    " (%" + yuzde + ")</b>." + kiyas +
+    (d.rozetli < ORAN_ALT_ORNEKLEM
+      ? ' <span class="au-gosterge">Örneklem küçük (' + d.rozetli + " < " + ORAN_ALT_ORNEKLEM +
+        "): oran yalnız gösterge niteliğindedir.</span>"
+      : "") + "</div>";
 }
 
 function auditGunluguHtml() {
@@ -4243,6 +4360,7 @@ function auditGunluguHtml() {
     '<div class="au-kutu"><div class="au-sayi">' + o.uretilen + '</div><div class="au-etiket">YZ soru önerdi</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.onaylanan + '</div><div class="au-etiket">insan onayladı</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.reddedilen + '</div><div class="au-etiket">insan reddetti</div></div>' +
+    (o.elleOnay ? '<div class="au-kutu"><div class="au-sayi">' + o.elleOnay + '</div><div class="au-etiket">elle yazılan onaylandı</div></div>' : "") +
     '<div class="au-kutu"><div class="au-sayi">' + o.oneri + '</div><div class="au-etiket">YZ puan önerdi</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.aynen + '</div><div class="au-etiket">aynen onaylandı</div></div>' +
     '<div class="au-kutu au-vurgu"><div class="au-sayi">' + o.degisen + '</div><div class="au-etiket">öğretmen değiştirdi</div></div>' +
@@ -4261,6 +4379,8 @@ function auditGunluguHtml() {
         "</b> oranında değişiklik yaptı. Bu oran sıfırsa insan onayı biçimsel " +
         "kalıyor demektir; çok yüksekse modelin rubriğe uyumu gözden geçirilmelidir.</div>"
       : "") +
+
+    anahtarDuzeltmeHtml(o.anahtarDuzeltme) +
 
     /* Sayının NEYİ saydığı yazıyor: yalnızca modelin ürettiği çıktılar
        (soru üretimi, rubrik taslağı, puan önerisi). İnsan kararları bu
@@ -4505,6 +4625,12 @@ async function onGenerateQuestions() {
   try {
     const qs = await aiGenerateQuestions(doc);
     if (qs.length) {
+      /* §104: modelin verdiği anahtar saklanır (onayda eski → yeni harf
+         kaydı için). Anahtar geçersizse (anahtarBelirsiz) iz tutulmaz:
+         uzmanın seçimi "düzeltme" değil ilk karardır. */
+      qs.forEach(function (q) {
+        if (q.type === "mc" && q.correctKey && !q.anahtarBelirsiz) q.ilkAnahtar = q.correctKey;
+      });
       state.questions = state.questions.concat(qs);
       state.ceForm.error = "";
       // Denetim izi: yapay zekâ öneri üretti. Bu kaydın karşılığı, İçerik
@@ -4721,8 +4847,11 @@ const SUPHE_TURLERI = [
         (c.gerekce ? "Gerekçesi: " + c.gerekce + " " : "") + "Karar sizin; çözüm yalnız bir ikinci görüştür."; } },
   { anahtar: "anahtarBelirsiz", etiket: "Cevap anahtarı yok", ciddiyet: "yuksek",
     var: function (q) { return !!q.anahtarBelirsiz; },
-    aciklama: "Model geçerli bir cevap anahtarı vermedi. İşaretli görünen şık YALNIZCA bir yer tutucudur — " +
-      "doğru olduğu DOĞRULANMAMIŞTIR. Onaylamadan önce doğru şıkkı kendiniz seçin." },
+    aciklama: function (q) {
+      // §99: elle yazılan soruda anahtarı model değil uzman verecek.
+      if (q.yazan === "insan") return "Doğru şık henüz seçilmedi. Şıkları yazıp doğru olanı işaretleyin.";
+      return "Model geçerli bir cevap anahtarı vermedi. İşaretli görünen şık YALNIZCA bir yer tutucudur — " +
+        "doğru olduğu DOĞRULANMAMIŞTIR. Onaylamadan önce doğru şıkkı kendiniz seçin."; } },
   { anahtar: "kaynakYok", etiket: "Kaynak metin yok", ciddiyet: "yuksek",
     var: function (q) { return soruKaynakIster(q) && !kaynakBul(q.srcId); },
     aciklama: "Soru bir kaynak metne dayanıyor ama metin bulunamadı; öğrenci soruyu metinsiz göremez. " +
@@ -4771,7 +4900,14 @@ function denetimDurumHtml(q) {
   /* §58: demo tohumu sorusu ELLE yazıldı ve sunucudan geçmedi (tuzak 11).
      "denetlenmedi" jüriye "sistem denetlemiyor" gibi okunuyordu; demo
      sorusunda nedeni söylenir. Gerçek sorularda davranış aynı. */
-  if (q.demo && q.hesapUyusmazligi === undefined) {
+  /* §99: elle yazılan soru sunucudan hiç geçmez; "eklenmeden önce üretildi"
+     demek yanlış olurdu. Nedeni söylenir. */
+  if (q.yazan === "insan" && q.hesapUyusmazligi === undefined) {
+    p.push(ip("<b>elle yazıldı</b> — sunucu denetiminden geçmedi",
+      "Bu soruyu içerik uzmanı elle yazdı; yapay zekâ üretmediği için sunucudaki hesap ve dil denetimleri uygulanmadı. " +
+      "İsterseniz 'Bağımsız çöz' ile ikinci görüş alabilirsiniz."));
+  }
+  else if (q.demo && q.hesapUyusmazligi === undefined) {
     p.push(ip("<b>demo sorusu</b> — elle yazıldı, sunucu denetiminden geçmedi",
       "Demo soruları gösterim için elle yazıldı; yapay zekâ üretmediği için sunucudaki hesap denetimi bu soruya uygulanmadı. " +
       "Gerçek üretimde her ÇSS sunucu denetiminden geçer."));
@@ -4930,8 +5066,36 @@ function soruyuOnayla(q) {
   const supheler = soruSupheleri(q).map(function (t) { return t.anahtar; });
   auditKaydet("soru_onaylandi", { qid: q.id, soru: auditKisalt(q.body),
     model: q.uretenModel || null, not: q.duzenlendi ? "onaylamadan önce düzenlendi" : null,
-    supheler: supheler.length ? supheler : null });
+    supheler: supheler.length ? supheler : null,
+    /* §99: elle yazılan sorunun onayı; denetim özetinde ayrı sayılır. */
+    elle: q.yazan === "insan" ? true : null,
+    /* §104: anahtar izi. Yalnız modelin geçerli bir anahtar verdiği ÇSS'de
+       (ilkAnahtar, şık taşımalarıyla birlikte yeniden harflenir). Anahtar
+       değiştiyse eski → yeni harf; A1/A2 rozeti de bu soruların paydasıdır. */
+    anahtarIzlendi: anahtarIzli(q) ? true : null,
+    anahtarEski: anahtarIzli(q) && q.correctKey !== q.ilkAnahtar ? q.ilkAnahtar : null,
+    anahtarYeni: anahtarIzli(q) && q.correctKey !== q.ilkAnahtar ? q.correctKey : null,
+    rozetA1A2: anahtarIzli(q) && rozetA1A2(q).length ? rozetA1A2(q) : null });
+  delete q.elleTaslak;
   q.status = "approved"; renderAll();
+}
+
+/** §104: kartta seçili red kodu ("" = seçilmedi). Bilinmeyen değer kabul edilmez. */
+function redKoduOku(qid) {
+  const el = document.querySelector('.red-kodu[data-qid="' + qid + '"]');
+  const v = el ? el.value : "";
+  return RED_KODLARI.some(function (g) { return g.kodlar.some(function (k) { return k[0] === v; }); }) ? v : "";
+}
+
+/** İnsan reddi: denetim izi + durum. Tek yol. §104: isteğe bağlı red kodu ve
+    o anki şüphe rozetleri kayda yazılır; kod soruda da saklanır (havuzda gösterim). */
+function soruyuReddet(q, redKodu) {
+  const supheler = soruSupheleri(q).map(function (t) { return t.anahtar; });
+  auditKaydet("soru_reddedildi", { qid: q.id, soru: auditKisalt(q.body), model: q.uretenModel || null,
+    redKodu: redKodu || null, supheler: supheler.length ? supheler : null,
+    elle: q.yazan === "insan" ? true : null });
+  if (redKodu) q.redKodu = redKodu; else delete q.redKodu;
+  q.status = "rejected"; renderAll();
 }
 
 /** §70: yüksek ciddiyetli şüpheli soruda ikinci onay penceresi. */
@@ -5114,6 +5278,10 @@ function remapCorrectKeyAndRationale(q, eskiHarfToYeniHarf) {
   if (q.correctKey != null && eskiHarfToYeniHarf[q.correctKey] != null) {
     q.correctKey = eskiHarfToYeniHarf[q.correctKey];
   }
+  // §104: modelin ilk anahtarı şıkla birlikte taşınır; taşıma "anahtar değişti" sayılmaz.
+  if (q.ilkAnahtar != null && eskiHarfToYeniHarf[q.ilkAnahtar] != null) {
+    q.ilkAnahtar = eskiHarfToYeniHarf[q.ilkAnahtar];
+  }
   if (q.distractorRationale) {
     const yeni = {};
     Object.keys(q.distractorRationale).forEach(function (eskiHarf) {
@@ -5156,6 +5324,8 @@ function shuffleQuestionOptions(q) {
 }
 
 function renderPendingQuestionCard(q) {
+  const elle = q.yazan === "insan";          // §99
+  const eksik = elleSoruEksikleri(q);        // YZ sorusunda her zaman []
   const optsHtml = q.type === "mc" ? q.options.map(function (o, i) {
     // Paket 4a: satır sürüklenebilir (draggable) + erişilebilir yukarı/aşağı
     // düğmeleri. data-index HER RENDER'DA güncel diziye göre yazılır; harf
@@ -5183,24 +5353,122 @@ function renderPendingQuestionCard(q) {
     '<span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
     bloomPill(q.bloom) +
-    '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
+    // §99: kazanımsız soruda boş hap çiziliyordu; havuzdaki gibi açıkça yazılır.
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome || "kazanımsız") + '</span>' +
     subeRozetiHtml(q) +
     kaynakRozetHtml(q) +
-    '<span class="time-tag">⏱ YZ önerisi: ' + q.aiTime + ' sn</span></div>' +
+    (elle ? '<span class="pill pill-neutral elle-rozet">✍ Elle yazıldı</span>' : "") +
+    '<span class="time-tag">⏱ ' + (elle ? "Süre" : "YZ önerisi") + ': ' + q.aiTime + ' sn</span></div>' +
     supheSeridiHtml(q) +            // §56 (B1): eski üç uyarı kutusunun yerine
     kaynakBlokHtml(q, "review") +
-    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2">' + escapeHtml(q.body) + '</textarea>' +
+    (elle ? elleSoruBilgiHtml(q) : "") +
+    '<textarea class="q-body-input" aria-label="Soru metni" data-qid="' + q.id + '" data-field="body" rows="2"' +
+    (elle ? ' placeholder="Soru metnini yazın…"' : "") + '>' + escapeHtml(q.body) + '</textarea>' +
     '<div class="q-opts">' + optsHtml + '</div>' +
     /* §75b: çeldirici gerekçeleri ve kazanım denetimi katlanır (varsayılan
        KAPALI); özet satırı ne içerdiğini söyler. Şüphe şeridi yukarıda,
        katlanmaz: şüpheli rozet her zaman görünür. */
     kartDetayHtml(q) +
     '<div class="actions">' +
-    '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '">✓ Onayla → Havuza Aktar</button>' +
+    /* §99: elle taslak yapısal olarak eksikse (boş gövde/şık, anahtar yok)
+       düğme pasif, nedeni yanında. Yalnız elle sorular; YZ sorusunda eksik
+       listesi her zaman boştur ve davranış değişmez. */
+    '<button class="btn btn-success btn-sm approve-btn" data-qid="' + q.id + '"' +
+    (eksik.length ? ' disabled aria-describedby="elleEksik-' + q.id + '"' : "") + '>✓ Onayla → Havuza Aktar</button>' +
     '<button class="btn btn-critical btn-sm reject-btn" data-qid="' + q.id + '">Reddet</button>' +
+    redKoduSeciciHtml(q) +            // §104: isteğe bağlı; tek tıkla red aynen
     /* §56: bilgi amaçlı sayaç — onay düğmesini ENGELLEMEZ (agents.md §1). */
     (soruSupheleri(q).length ? '<span class="suphe-sayac">' + soruSupheleri(q).length + ' şüphe işareti var</span>' : "") +
+    (elle ? '<span class="elle-eksik" id="elleEksik-' + q.id + '" role="status">' + elleEksikMetni(eksik) + '</span>' : "") +
     '</div></div>';
+}
+
+/* =====================================================================
+   §99 — ELLE SORU YAZ (W10). Tasarım: Downloads\Mihenk\mihenk-elle-soru-tasarim.md.
+   Elle yazılan soru, YZ sorusuyla AYNI bekleme kuyruğuna girer
+   (status "ai_generated" = "onay bekliyor") ve AYNI onay kartından,
+   AYNI soruyuOnayla yolundan geçer (agents.md §1). Yeni durum değeri,
+   "kaydet ve onayla" ya da doğrudan havuza kestirme YOKTUR.
+   Soruya iki isteğe bağlı alan eklenir: yazan:"insan", elleTaslak:true.
+   Eski kayıtlarda yoktur → YZ sorusu okunur; KALICI_ALANLAR değişmedi, göç yok.
+   ===================================================================== */
+const ELLE_SIKLAR = ["A", "B", "C", "D"];
+
+/** Boş elle taslak oluşturur, bekleyenlere ekler. Onay AYRI eylemdir. */
+function elleSoruOlustur(tur) {
+  const mc = tur !== "open";
+  const q = {
+    id: qIdSeq++, type: mc ? "mc" : "open", status: "ai_generated",
+    body: "", options: mc ? ELLE_SIKLAR.map(function (k) { return { key: k, text: "" }; }) : [],
+    correctKey: "", difficulty: "medium", bloom: "", aiTime: mc ? 90 : 240,
+    outcome: state.ceForm.outcomeCode || "", sube: state.ceForm.sube || "",
+    distractorRationale: {}, refKeywords: [], needsSource: false, srcId: null,
+    uretenModel: null,               // model çağrılmadı; denetim izi yalan söylemesin
+    /* Var olan "Cevap anahtarı yok" şüphesi: doğru şık seçilene dek görünür;
+       seçilince wirePendingCards'taki var olan bağlayıcı düşürür. */
+    anahtarBelirsiz: mc,
+    yazan: "insan", elleTaslak: true,
+  };
+  state.questions = state.questions.concat([q]);
+  auditKaydet("soru_elle_yazildi", { qid: q.id, not: mc ? "çoktan seçmeli" : "açık uçlu" });
+  state.ceElleOdak = q.id;           // yalnız arayüz: çizimden sonra gövdeye odak
+  renderAll();
+  return q;
+}
+
+/** Yalnız YAPISAL eksikler (şüphe değil). YZ sorusunda her zaman []. */
+function elleSoruEksikleri(q) {
+  if (!q || q.yazan !== "insan") return [];
+  const e = [];
+  if (!String(q.body || "").trim()) e.push("soru metni boş");
+  if (q.type === "mc") {
+    const bos = (q.options || []).filter(function (o) { return !String(o.text || "").trim(); }).length;
+    if (bos) e.push(bos + " şık boş");
+    const anahtarVar = (q.options || []).some(function (o) { return o.key === q.correctKey; });
+    if (!anahtarVar || q.anahtarBelirsiz) e.push("doğru şık seçilmedi");
+  }
+  return e;
+}
+
+function elleEksikMetni(eksik) {
+  return eksik.length ? "Onay için: " + eksik.join(", ") + "." : "";
+}
+
+/** Gövde/şık yazılırken kartı yeniden çizmeden düğmeyi ve eksik metnini günceller. */
+function elleEksikYenile(q) {
+  if (!q || q.yazan !== "insan") return;
+  const eksik = elleSoruEksikleri(q);
+  const m = document.getElementById("elleEksik-" + q.id);
+  if (m) m.textContent = elleEksikMetni(eksik);
+  const b = document.querySelector('.approve-btn[data-qid="' + q.id + '"]');
+  if (b) {
+    b.disabled = eksik.length > 0;
+    if (eksik.length) b.setAttribute("aria-describedby", "elleEksik-" + q.id);
+    else b.removeAttribute("aria-describedby");
+  }
+}
+
+/** Elle sorunun bilgi satırı: zorluk, bilişsel düzey, süre, kazanım.
+    Alanlar havuz düzenlemesindekiyle (poolEditHtml) aynı; kazanım için
+    A2 tekli seçici (peKazanimSeciciHtml) OLDUĞU GİBİ çağrılır. */
+function elleSoruBilgiHtml(q) {
+  const id = escapeHtml(String(q.id));
+  return '<div class="elle-bilgi field-row">' +
+    '<div class="field"><label for="elleZorluk-' + id + '">Zorluk</label>' +
+    '<select id="elleZorluk-' + id + '" class="elle-zorluk" data-qid="' + id + '">' +
+    [["easy", "Kolay"], ["medium", "Orta"], ["hard", "Zor"]].map(function (d) {
+      return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
+    }).join("") + '</select></div>' +
+    '<div class="field"><label for="elleBloom-' + id + '">Bilişsel düzey</label>' +
+    '<select id="elleBloom-' + id + '" class="elle-bloom" data-qid="' + id + '">' +
+    '<option value=""' + (!q.bloom ? " selected" : "") + '>Belirtilmedi</option>' +
+    Object.keys(BLOOM_TR).map(function (b) {
+      return '<option value="' + b + '"' + (q.bloom === b ? " selected" : "") + '>' + BLOOM_TR[b] + '</option>';
+    }).join("") + '</select></div>' +
+    '<div class="field"><label for="elleSure-' + id + '">Süre (sn)</label>' +
+    '<input id="elleSure-' + id + '" type="number" class="elle-sure" data-qid="' + id + '" min="15" max="900" value="' + q.aiTime + '"></div>' +
+    '<div class="field field-kz"><label id="kz-pe-' + id + '-lbl">Kazanım</label>' + peKazanimSeciciHtml(q) + '</div>' +
+    '</div>';
 }
 
 /** §75b: onay kartının katlanır ayrıntısı. İçerik yoksa hiçbir şey çizilmez. */
@@ -5257,11 +5525,30 @@ function moveOption(q, eskiIndex, yeniIndex) {
 
 function wirePendingCards() {
   document.querySelectorAll(".q-body-input").forEach(function (el) {
-    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) q.body = el.value; };
+    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { q.body = el.value; elleEksikYenile(q); } };
   });
   document.querySelectorAll(".opt-input").forEach(function (el) {
-    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { const o = q.options.find(function (x) { return x.key === el.dataset.okey; }); if (o) o.text = el.value; } };
+    el.oninput = function () { const q = findQuestion(el.dataset.qid); if (q) { const o = q.options.find(function (x) { return x.key === el.dataset.okey; }); if (o) o.text = el.value; elleEksikYenile(q); } };
   });
+  /* §99: elle sorunun bilgi satırı (havuz düzenlemesindeki pe-* bağlayıcılarıyla aynı kalıp). */
+  document.querySelectorAll(".elle-zorluk").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.difficulty = el.value; renderAll(); } };
+  });
+  document.querySelectorAll(".elle-bloom").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.bloom = el.value; renderAll(); } };
+  });
+  document.querySelectorAll(".elle-sure").forEach(function (el) {
+    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.aiTime = Math.max(15, Math.min(900, Number(el.value) || 60)); renderAll(); } };
+  });
+  document.querySelectorAll('.elle-bilgi .kz-secici[id^="kz-pe-"]').forEach(function (el) {
+    const qid = el.id.slice(6);
+    kazanimSeciciBagla(el.id, function (kod) { const q = findQuestion(qid); if (q) { q.outcome = kod; renderAll(); } });
+  });
+  if (state.ceElleOdak != null) {
+    const odak = document.querySelector('.q-body-input[data-qid="' + state.ceElleOdak + '"]');
+    state.ceElleOdak = null;
+    if (odak) { odak.focus(); if (odak.scrollIntoView) odak.scrollIntoView({ block: "center" }); }
+  }
   document.querySelectorAll(".correct-radio").forEach(function (el) {
     el.onchange = function () {
       const q = findQuestion(el.dataset.qid);
@@ -5270,6 +5557,7 @@ function wirePendingCards() {
       /* §41 Madde 2: İçerik Uzmanı doğru şıkkı ELLE seçtiği an belirsizlik
          ortadan kalkar — uyarı kartta durmaya devam etmemeli. */
       if (q.anahtarBelirsiz) { q.anahtarBelirsiz = false; renderAll(); }
+      else elleEksikYenile(q);   // §99
     };
   });
   // Paket 4a — erişilebilir yukarı/aşağı düğmeleri (sürükle-bırak yapılamayan
@@ -5332,6 +5620,8 @@ function wirePendingCards() {
     el.onclick = function () {
       const q = findQuestion(el.dataset.qid);
       if (!q) return;
+      // §99: pasif düğme atlatılsa bile yapısal olarak eksik elle taslak onaylanmaz.
+      if (elleSoruEksikleri(q).length) { elleEksikYenile(q); return; }
       /* §70: yüksek ciddiyetli şüphe varsa ikinci onay istenir. ENGELLEMEZ ve
          otomatik karar vermez (agents.md §1): yalnız insanın şüpheyi gördüğünü
          onaylatır. Canlıda (§69) 2/2 şüpheli anahtarlı soru tek tıkla onaylanabildi. */
@@ -5344,8 +5634,7 @@ function wirePendingCards() {
     el.onclick = function () {
       const q = findQuestion(el.dataset.qid);
       if (q) {
-        auditKaydet("soru_reddedildi", { qid: q.id, soru: auditKisalt(q.body), model: q.uretenModel || null });
-        q.status = "rejected"; renderAll();
+        soruyuReddet(q, redKoduOku(q.id));
       }
     };
   });
@@ -5734,6 +6023,12 @@ function ceCreateHtml() {
     ceAdimHtml(1, "Ne için?", ceAdim1Html(), true) +
     ceAdimHtml(2, "Neye dayansın?", ceAdim2Html(), true) +
     ceAdimHtml(3, "Kaç soru?", ceAdim3Html(), false) +
+    /* §99: elle yazma yolu. Taslak bekleyenlere düşer; onay AYRI eylemdir. */
+    '<div class="ce-elle" role="group" aria-label="Elle soru yaz">' +
+    '<span class="ce-elle-bas">Ya da soruyu kendiniz yazın:</span> ' +
+    '<button type="button" class="btn btn-secondary btn-sm" id="btnElleMc">✍ Çoktan seçmeli</button> ' +
+    '<button type="button" class="btn btn-secondary btn-sm" id="btnElleOpen">✍ Açık uçlu</button>' +
+    '<span class="ce-elle-not">Yazdığınız soru da aşağıda onayınızı bekler.</span></div>' +
     '</div>' +
     ceOzetHtml() +
     '</div>' +
@@ -5742,7 +6037,7 @@ function ceCreateHtml() {
     topluCozBarHtml(pending) +
     '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
     (pending.length ? pending.map(renderPendingQuestionCard).join("")
-      : '<div class="empty-state">Henüz taslak yok. Üretilen sorular burada onayınızı bekler.</div>') +
+      : '<div class="empty-state">Henüz taslak yok. Üretilen ya da elle yazılan sorular burada onayınızı bekler.</div>') +
     '</div></div></div>';
 }
 
@@ -5766,6 +6061,7 @@ const HAVUZ_KAYNAKLARI = [
   { id: "kazanim", ad: "Yalnız kazanım" },
   { id: "deneyap", ad: "Deneyap kitabı" },
   { id: "demo", ad: "Demo örneği" },
+  { id: "elle", ad: "Elle yazılan" },   // §99
 ];
 
 /* =====================================================================
@@ -6140,6 +6436,7 @@ function havuzFiltresi() {
 /** Sorunun kaynak türü — var olan alanlardan (yeni alan yok). */
 function soruKaynakTuru(q) {
   if (q.demo) return "demo";
+  if (q.yazan === "insan") return "elle";   // §99
   if (q.srcId != null) return "metin";
   if (/^DNY\./.test(q.outcome || "")) return "deneyap";
   return "kazanim";
@@ -6219,7 +6516,7 @@ function havuzSecimHtml(ad, liste, secili, veri) {
 function havuzSoruHtml(q) {
   const supheler = soruSupheleri(q);
   const durum = q.status === "approved" ? '<span class="pill pill-success">Onaylı</span>'
-    : q.status === "rejected" ? '<span class="pill pill-critical">Reddedildi</span>'
+    : q.status === "rejected" ? '<span class="pill pill-critical">Reddedildi</span>' + redKoduRozetiHtml(q)
     : '<span class="pill pill-warning">Onay bekliyor</span>';
   const eylem = q.status === "approved"
     ? '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Bu soruyu havuzdan sil">Sil</button>'
@@ -6408,6 +6705,11 @@ function renderContentExpert() {
   const rd = document.getElementById("btnRemedialDismiss");
   if (rd) rd.onclick = function () { state.remedial = null; renderAll(); };
   document.getElementById("btnGenerate").onclick = onGenerateQuestions;
+  // §99: elle soru yaz — yalnız boş taslak oluşturur, onaylamaz.
+  const elleMc = document.getElementById("btnElleMc");
+  if (elleMc) elleMc.onclick = function () { elleSoruOlustur("mc"); };
+  const elleAcik = document.getElementById("btnElleOpen");
+  if (elleAcik) elleAcik.onclick = function () { elleSoruOlustur("open"); };
   var kks = document.getElementById("btnKaynakKaydet");
   if (kks) kks.onclick = kaynakKitapligaKaydet;
   wireAlignment();
@@ -6710,7 +7012,7 @@ function rejectedPoolHtml(mod) {
             '<div class="p-tags"><span class="pill pill-neutral">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
             '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' +
             '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' +
-            '<span class="pill pill-critical">Reddedildi</span></div></div>' +
+            '<span class="pill pill-critical">Reddedildi</span>' + redKoduRozetiHtml(q) + '</div></div>' +
             '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">' +
             btn.replace(/QID/g, q.id) +
             '<button class="btn btn-secondary btn-sm del-q" data-qid="' + q.id + '" title="Kalıcı olarak sil">Sil</button></div></div>';
@@ -6735,6 +7037,7 @@ function wireRejectedPool(mod) {
     b.onclick = function () {
       const q = findQuestion(b.dataset.qid);
       if (!q) return;
+      delete q.redKodu;   // §104: artık reddedilmiş değil; neden denetim izinde kalır
       q.status = b.dataset.mode === "approve" ? "approved" : "ai_generated";
       renderAll();
     };
@@ -14293,6 +14596,11 @@ function bosDurumHtml(mesaj) {
     "ceSayacHtml", "ceAdim3Html", "ceUyarilari", "ceOzetHtml", "wireCeSihirbaz",
     // §70 şüpheli soruda ikinci onay (W3)
     "soruyuOnayla", "supheliOnayModali",
+    // §99 elle soru yaz (W10)
+    "elleSoruOlustur", "elleSoruEksikleri", "elleEksikMetni", "elleEksikYenile", "elleSoruBilgiHtml",
+    // §104 red nedeni + karar kaydı (W10)
+    "redKoduAdi", "redKoduRozetiHtml", "redKoduSeciciHtml", "redKoduOku", "soruyuReddet",
+    "anahtarIzli", "rozetA1A2", "anahtarDuzeltmeHtml",
     // §75 kısa metin ön uyarısı (W3)
     "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
     // §75b onay kartı sadeleşmesi (W3)

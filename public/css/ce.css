@@ -250,3 +250,18 @@
   #panel-content_expert .havuz-oge { flex-direction: column; align-items: stretch; }
   #panel-content_expert .havuz-eylem { justify-content: flex-start; }
 }
+
+/* §99 — elle soru yaz: sihirbazın altında ikincil yol + elle kartın bilgi satırı. */
+#panel-content_expert .ce-elle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2);
+  margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px dashed var(--border); }
+#panel-content_expert .ce-elle-bas { font-size: var(--fs-2); font-weight: 600; }
+#panel-content_expert .ce-elle-not { flex: 1 1 100%; font-size: var(--fs-2); color: var(--text-muted); }
+#panel-content_expert .elle-bilgi { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+#panel-content_expert .elle-bilgi .field { flex: 1 1 140px; min-width: 0; margin-bottom: 0; }
+#panel-content_expert .elle-bilgi .field-kz { flex: 2 1 240px; }
+#panel-content_expert .elle-eksik { align-self: center; font-size: 11.5px; color: var(--text-muted); }
+#panel-content_expert .elle-eksik:empty { display: none; }
+
+/* §104 — isteğe bağlı red nedeni (Reddet'in yanında) ve reddedilen sorudaki neden hapı. */
+#panel-content_expert .red-kodu { max-width: 100%; min-width: 0; flex: 0 1 240px; font-size: 12px;
+  padding: 4px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface, #fff); color: var(--text); }
