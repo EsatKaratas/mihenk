@@ -12920,7 +12920,9 @@ function itemAnalysis() {
   const mcs = (state.exam.questionIds || [])
     .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
     .filter(function (q) { return q && q.type === "mc"; });
-  if (!n || !mcs.length) return { n: n, maddeler: [] };
+  /* §121: açık uçlu maddeler ayrı (onaylı nihai puanla); ÇSS olmasa da görünür. */
+  const acikMaddeler = n ? acikMaddeAnalizi() : null;
+  if (!n || !mcs.length) return { n: n, maddeler: [], acik: acikMaddeler, guvenilir: n >= 10 };
 
   // Sıralama ölçütü: öğrencinin bu sınavdaki çoktan seçmeli doğru sayısı.
   const sirali = gonderenler.map(function (st) {
@@ -12958,13 +12960,107 @@ function itemAnalysis() {
     const islevsiz = (q.options || [])
       .filter(function (o) { return o.key !== q.correctKey && !secim[o.key]; })
       .map(function (o) { return o.key; });
+    /* §121: şık bazında üst/alt grup dağılımı ve çeldirici etkinliği (%5 kuralı). */
+    const secimleri = function (grup) { return grup.map(function (sid) { return secilenSik(sid, q.id); }); };
+    const celdirici = celdiriciAnalizi(Object.keys(secim), q.correctKey,
+      secimleri(gonderenler.map(function (st) { return st.id; })), secimleri(ustGrup), secimleri(altGrup));
     return {
       q: q, p: dogruSayisi / n, d: grupOrani(ustGrup, q) - grupOrani(altGrup, q),
-      secim: secim, bos: bos, dogruSayisi: dogruSayisi, islevsiz: islevsiz
+      secim: secim, bos: bos, dogruSayisi: dogruSayisi, islevsiz: islevsiz, celdirici: celdirici
     };
   });
 
-  return { n: n, k: k, maddeler: maddeler, guvenilir: n >= 10 };
+  return { n: n, k: k, maddeler: maddeler, acik: acikMaddeler, guvenilir: n >= 10 };
+}
+
+/* §121 — ÇELDİRİCİ ETKİNLİĞİ (saf). İşlevsel çeldirici: en az %5 seçilir VE alt
+   grupta üst gruptan daha çok seçilir (Downing 1993 çizgisi; tartışma:
+   https://doi.org/10.1007/s10459-018-9855-9). Üst grubun daha çok seçtiği
+   çeldirici "ters çalışıyor": anahtar ya da ifade belirsiz olabilir.
+   tum/ust/alt: o gruptaki öğrencilerin seçtiği şık (boş = null/""). Oranlar
+   grubun TÜM öğrencilerine bölünür (boş bırakan da paydadadır). */
+function celdiriciAnalizi(sikler, dogru, tum, ust, alt) {
+  const say = function (dizi, key) { return dizi.filter(function (x) { return x === key; }).length; };
+  const n = tum.length;
+  return sikler.map(function (key) {
+    const adet = say(tum, key);
+    const oran = n ? adet / n : 0;
+    const ustO = ust.length ? say(ust, key) / ust.length : 0;
+    const altO = alt.length ? say(alt, key) / alt.length : 0;
+    const celdirici = key !== dogru;
+    return {
+      key: key, dogru: !celdirici, adet: adet, oran: oran, ust: ustO, alt: altO,
+      hicSecilmedi: celdirici && adet === 0,
+      dusukSecilme: celdirici && adet > 0 && oran < 0.05,
+      tersCalisiyor: celdirici && ustO > altO,
+      islevsel: celdirici && oran >= 0.05 && altO > ustO
+    };
+  });
+}
+
+/** Çeldirici satırının durum metni (yalnız bilgi). */
+function celdiriciDurumu(c) {
+  if (c.dogru) return { s: "pill-success", t: "anahtar" };
+  if (c.hicSecilmedi) return { s: "pill-warning", t: "hiç seçilmedi" };
+  if (c.dusukSecilme) return { s: "pill-warning", t: "%5'in altında seçildi: işlevsiz sayılır" };
+  if (c.tersCalisiyor) return { s: "pill-warning", t: "üst grup daha çok seçti: anahtar ya da ifade belirsiz olabilir" };
+  if (c.islevsel) return { s: "pill-neutral", t: "işlevsel (alt grup daha çok seçti)" };
+  return { s: "pill-neutral", t: "üst ve alt grup eşit seçti: ayırt etmiyor" };
+}
+
+/** Düzeltilmiş madde–toplam korelasyonu: j. sütun ile (satır toplamı − j. sütun). */
+function maddeToplamKorelasyonu(matris, j) {
+  if (!matris || matris.length < 2) return null;
+  const madde = matris.map(function (r) { return r[j]; });
+  const kalan = matris.map(function (r) {
+    return r.reduce(function (a, b) { return a + b; }, 0) - r[j];
+  });
+  return pearsonR(madde, kalan);
+}
+
+/** Açık uçlu güçlük = ortalama nihai puan / tam puan. */
+function acikMaddeGuclugu(puanlar, tavan) {
+  if (!puanlar || !puanlar.length || !(Number(tavan) > 0)) return null;
+  return ortalamaDizi(puanlar) / Number(tavan);
+}
+
+/** §121 — açık uçlu madde istatistiği. Yalnız ÖĞRETMENİN ONAYLADIĞI nihai puan
+    kullanılır (YZ önerisi nihai sayılmaz, agents.md §1). Satır = tüm maddeleri
+    puanlı öğrenci (Cronbach alfa ile aynı kural); ÇSS doğruysa ÇSS puanı. */
+function acikMaddeAnalizi() {
+  const sorular = (state.exam.questionIds || [])
+    .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const acik = sorular.filter(function (q) { return q.type !== "mc"; });
+  if (!acik.length) return null;
+  const mcs = sorular.filter(function (q) { return q.type === "mc"; });
+  const mcP = mcPuani();
+  const matris = [];
+  let disarida = 0;
+  submittedStudents().forEach(function (st) {
+    const ss = readSession(st.id) || {};
+    const mc = mcs.map(function (q) {
+      const r = (ss.mcResults || {})[q.id];
+      return r ? (r.correct ? mcP : 0) : null;
+    });
+    const ac = acik.map(function (q) {
+      const rv = (ss.reviews || {})[q.id];
+      return rv && rv.finalScore != null && isFinite(Number(rv.finalScore)) ? Number(rv.finalScore) : null;
+    });
+    const satir = ac.concat(mc);
+    if (satir.every(function (x) { return x != null; })) matris.push(satir); else disarida++;
+  });
+  const tekMadde = acik.length + mcs.length < 2;
+  return {
+    n: matris.length, disarida: disarida, tekMadde: tekMadde,
+    maddeler: acik.map(function (q, j) {
+      const rub = state.rubrics[q.id];
+      const tavan = rub && rub.maxScore > 0 ? rub.maxScore : null;
+      const puanlar = matris.map(function (r) { return r[j]; });
+      return { q: q, tavan: tavan, gucluk: acikMaddeGuclugu(puanlar, tavan),
+        ort: ortalamaDizi(puanlar), r: tekMadde ? null : maddeToplamKorelasyonu(matris, j) };
+    })
+  };
 }
 
 /* p (güçlük) yorumu - yaygın kullanılan aralıklar. */
@@ -12988,7 +13084,8 @@ function dYorum(d) {
 
 function itemAnalysisHtml() {
   const a = itemAnalysis();
-  if (!a.maddeler.length) return "";
+  const acikVar = !!(a.acik && a.acik.maddeler.length);
+  if (!a.maddeler.length && !acikVar) return "";
 
   const satirlar = a.maddeler.map(function (m) {
     const py = pYorum(m.p), dy = dYorum(m.d);
@@ -13017,10 +13114,17 @@ function itemAnalysisHtml() {
         ? '<div class="ia-note">İşlevsiz çeldirici: <b>' + m.islevsiz.map(escapeHtml).join(", ") +
           "</b> - hiçbir öğrenci seçmedi, bu şık soruyu zorlaştırmıyor. Daha inandırıcı bir çeldiriciyle değiştirmeyi düşünün.</div>"
         : "") +
+      celdiriciTabloHtml(m.celdirici, a.guvenilir) +
       "</div>";
   }).join("");
 
   const grupAcik = a.guvenilir ? "%27 alınarak" : "yarıya bölünerek";
+  if (!a.maddeler.length) {
+    return '<div class="card" style="margin-top:18px;">' +
+      '<div class="card-head"><h3>Madde Analizi</h3>' +
+      '<span class="hint">klasik test kuramı · yapay zekâ kullanılmaz, saf hesap</span></div>' +
+      acikMaddeHtml(a.acik) + "</div>";
+  }
   const uyari = !a.guvenilir
     ? '<div class="ia-warn"><b>Bu sayılar gösterge niteliğindedir.</b> Sınıfta ' + a.n +
       " öğrenci var; madde analizinin istatistiksel olarak anlamlı olması için genellikle en az 10 " +
@@ -13034,7 +13138,53 @@ function itemAnalysisHtml() {
     "<b>d</b> = ayırt edicilik (üst grup - alt grup doğru oranı). " +
     "Gruplar, sınavdaki çoktan seçmeli doğru sayısına göre sıralanıp uçlardan " +
     grupAcik + " oluşturuldu (" + a.k + " + " + a.k + " öğrenci).</div>" +
-    uyari + satirlar + "</div>";
+    uyari + satirlar + (acikVar ? acikMaddeHtml(a.acik) : "") + "</div>";
+}
+
+/** §121: şık × grup tablosu (tümü / üst / alt seçilme oranı + durum). */
+function celdiriciTabloHtml(liste, guvenilir) {
+  if (!liste || !liste.length) return "";
+  const yz = function (x) { return "%" + Math.round(x * 100); };
+  const grup = guvenilir ? "%27" : "yarı";
+  return '<div class="table-wrap ia-sik-wrap"><table class="karar-tablo ia-sik-tablo">' +
+    "<caption>Şık dağılımı: tüm sınıf, üst ve alt grup (" + grup + ")</caption>" +
+    '<thead><tr><th scope="col">Şık</th><th scope="col">Tümü</th><th scope="col">Üst</th><th scope="col">Alt</th><th scope="col">Durum</th></tr></thead><tbody>' +
+    liste.map(function (c) {
+      const d = celdiriciDurumu(c);
+      return '<tr><th scope="row">' + escapeHtml(c.key) + '</th><td class="tabular">' + c.adet + " (" + yz(c.oran) + ')</td><td class="tabular">' +
+        yz(c.ust) + '</td><td class="tabular">' + yz(c.alt) + '</td><td><span class="pill ' + d.s + '">' + d.t + "</span></td></tr>";
+    }).join("") + "</tbody></table></div>" +
+    '<div class="ia-legend">İşlevsel çeldirici: sınıfın en az %5\'i seçer ve alt grup üst gruptan daha çok seçer.</div>';
+}
+
+/** §121: açık uçlu madde istatistiği bölümü. */
+function acikMaddeHtml(ac) {
+  if (!ac || !ac.maddeler.length) return "";
+  const bas = '<div class="ia-alt-baslik">Açık uçlu sorular</div>' +
+    '<div class="ia-legend"><b>Güçlük</b> = ortalama nihai puan / tam puan &nbsp;·&nbsp; <b>r</b> = ayırt edicilik ' +
+    "(düzeltilmiş madde–toplam korelasyonu: bu sorunun puanı ile sınavın geri kalanının toplamı). Yalnız öğretmenin onayladığı puanlar; " +
+    ac.n + " öğrenci.</div>";
+  const not = ac.disarida
+    ? '<div class="ia-note">' + ac.disarida + " öğrencinin en az bir puanı henüz onaylanmadığı için hesaba girmedi (yapay zekâ önerisi nihai puan sayılmaz).</div>"
+    : "";
+  const uyari = ac.n < 10
+    ? '<div class="ia-warn"><b>Bu sayılar gösterge niteliğindedir.</b> Hesaba giren öğrenci sayısı ' + ac.n +
+      "; genellikle en az 10 öğrenci gerekir. Yön gösterir, karar vermez - kararı siz verirsiniz.</div>"
+    : "";
+  if (!ac.n) return bas + not;
+  return bas + uyari + not + ac.maddeler.map(function (m) {
+    const py = m.gucluk != null ? pYorum(m.gucluk) : null;
+    const ry = m.r != null ? dYorum(m.r) : null;
+    return '<div class="ia-item ia-acik">' +
+      '<div class="ia-body">' + escapeHtml(m.q.body) + "</div>" +
+      '<div class="ia-metrics">' +
+        '<span class="ia-metric"><b>Güçlük</b> = ' + (m.gucluk != null ? ondalikTr(m.gucluk, 2) +
+          ' <span class="ia-opt-pct">(ort. ' + ondalikTr(m.ort, 1) + " / " + m.tavan + ")</span>" +
+          ' <span class="pill ' + py.s + '">' + py.t + "</span>" : "hesaplanamadı (tam puan yok)") + "</span>" +
+        '<span class="ia-metric"><b>r</b> = ' + (m.r != null ? ondalikTr(m.r, 2) + ' <span class="pill ' + ry.s + '">' + ry.t + "</span>"
+          : (ac.tekMadde ? "hesaplanamadı (sınavda tek madde var)" : "hesaplanamadı (puanlarda değişkenlik yok)")) + "</span>" +
+      "</div></div>";
+  }).join("");
 }
 
 /* ===========================================================================
@@ -13635,6 +13785,258 @@ function calibrationHtml() {
 }
 
 /* ===========================================================================
+   §121 — YZ PUANLAYICI DENETİMİ (QWK, SMD, uzunluk–fark ilişkisi, sıra kayması)
+   ===========================================================================
+   NEDEN: "Uyum %" kartı alanda kabul gören bir ölçü değildir. Otomatik puanlama
+   değerlendirmesinde kullanılan ölçüler bunlardır:
+     QWK  = karesel ağırlıklı kappa (Cohen 1968). Puanlar 0,5 adımlı olduğu için
+            ×2 ile tamsayı kategoriye çevrilir; kategori aralığı 0 … 2×tavan.
+     SMD  = (ort_YZ − ort_öğretmen) / √((s²_YZ + s²_öğretmen) / 2), s² örneklem
+            varyansı (n−1). Havuzlanmış ss tanımı: https://arxiv.org/abs/2505.22771
+     Uzunluk–fark: yanıt uzunluğu (karakter) ile (YZ − nihai) arasında Spearman ρ.
+            YÖN VARSAYILMAZ: literatürde iki yönde de bulgu var (uzun yanıt fazla
+            puanlanıyor: arXiv 2504.18413; kısa yanıt fazla puanlanıyor: arXiv
+            2603.23714). Ölçülür ve işaretine göre yazılır.
+     Sıra kayması: kararlar Karar Günlüğü'ndeki puan_karari sırasına göre dizilir;
+            ilk yarı ile son yarının ortalama (YZ − nihai) farkı. Zaman tutulmaz.
+
+   EŞİKLER (kaynakta önerilen; KARAR DEĞİL): QWK ≥ 0,70 ve |SMD| ≤ 0,15 —
+   Williamson, Xi ve Breyer (2012), "A Framework for Evaluation and Use of
+   Automated Scoring", EM:IP 31(1). Eşikler ikincil kaynaklardan alındı, özgün
+   metinde birebir DOĞRULANAMADI:
+     https://arxiv.org/abs/2505.22771
+     https://www.act.org/content/dam/act/unsecured/documents/R2304-CRASE-Essay-Scoring-Model-Performance-02-2023.pdf
+   QWK bilinen örnek: Cohen (1968) 3×3 tablosu, karesel ağırlık κ = 0,4545
+   (https://cran.r-universe.dev/DMAR/doc/weighted_kappa.html) — test/yz-denetim.test.ts.
+
+   KÜÇÜK n: 20 çiftten az veride HİÇBİR sayı gösterilmez ("yorum için yetersiz
+   veri"). Kart karar vermez: hiçbir puanı değiştirmez, onayı engellemez,
+   otomatik eylem yoktur (agents.md §1). Yapay zekâ çağrısı yok; saf hesap.
+   =========================================================================== */
+
+/** §121 sabitleri (tek yer; testler de buradan okur). */
+function yzDenetimSabitleri() {
+  return { altN: 20, qwkEsik: 0.70, smdEsik: 0.15, iliskiAlt: 0.10 };
+}
+
+function ortalamaDizi(d) {
+  if (!d || !d.length) return null;
+  let t = 0;
+  for (let i = 0; i < d.length; i++) t += d[i];
+  return t / d.length;
+}
+
+/** Örneklem varyansı (n−1'e bölünür). */
+function varyansOrneklem(d) {
+  if (!d || d.length < 2) return null;
+  const o = ortalamaDizi(d);
+  let s = 0;
+  for (let i = 0; i < d.length; i++) s += (d[i] - o) * (d[i] - o);
+  return s / (d.length - 1);
+}
+
+/** Pearson r. Uzunluk farklıysa, n < 2 ise ya da bir değişkenin varyansı sıfırsa null. */
+function pearsonR(x, y) {
+  if (!x || !y || x.length !== y.length || x.length < 2) return null;
+  const ox = ortalamaDizi(x), oy = ortalamaDizi(y);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < x.length; i++) {
+    sxy += (x[i] - ox) * (y[i] - oy);
+    sxx += (x[i] - ox) * (x[i] - ox);
+    syy += (y[i] - oy) * (y[i] - oy);
+  }
+  if (!(sxx > 0) || !(syy > 0)) return null;
+  return sxy / Math.sqrt(sxx * syy);
+}
+
+/** Sıra numaraları (1 tabanlı); eşit değerlere ortalama sıra verilir. */
+function siraNumaralari(d) {
+  const ind = d.map(function (v, i) { return i; }).sort(function (a, b) { return d[a] - d[b]; });
+  const sira = new Array(d.length);
+  let i = 0;
+  while (i < ind.length) {
+    let j = i;
+    while (j + 1 < ind.length && d[ind[j + 1]] === d[ind[i]]) j++;
+    const ort = (i + j) / 2 + 1;
+    for (let k = i; k <= j; k++) sira[ind[k]] = ort;
+    i = j + 1;
+  }
+  return sira;
+}
+
+/** Spearman ρ = sıralar üzerinde Pearson r (eşitlikler ortalama sırayla). */
+function spearmanRho(x, y) {
+  if (!x || !y || x.length !== y.length) return null;
+  return pearsonR(siraNumaralari(x), siraNumaralari(y));
+}
+
+/** 0,5 adımlı puanı tamsayı kategoriye çevirir (×2, yuvarlanır). */
+function yarimPuanKategori(x) {
+  return Math.round(Number(x) * 2);
+}
+
+/** Karesel ağırlıklı kappa. a, b: tamsayı kategori dizileri (aynı uzunlukta).
+    enAz/enCok verilirse kategori aralığı onlarla genişletilir (gözlenen değer
+    aralık dışındaysa aralık yine gözlenene kadar uzar). */
+function qwk(a, b, enAz, enCok) {
+  const n = (a || []).length;
+  if (!n || !b || b.length !== n) return { deger: null, n: n, neden: "eşleşen puan çifti yok" };
+  let lo = Math.min.apply(null, a.concat(b)), hi = Math.max.apply(null, a.concat(b));
+  if (enAz != null && enAz < lo) lo = enAz;
+  if (enCok != null && enCok > hi) hi = enCok;
+  const K = hi - lo + 1;
+  if (K < 2) return { deger: null, n: n, neden: "tek puan kategorisi var" };
+  const O = [], ha = [], hb = [];
+  for (let i = 0; i < K; i++) { O.push(new Array(K).fill(0)); ha.push(0); hb.push(0); }
+  for (let t = 0; t < n; t++) {
+    O[a[t] - lo][b[t] - lo]++; ha[a[t] - lo]++; hb[b[t] - lo]++;
+  }
+  let pay = 0, payda = 0;
+  for (let i = 0; i < K; i++) {
+    for (let j = 0; j < K; j++) {
+      const w = (i - j) * (i - j) / ((K - 1) * (K - 1));
+      pay += w * O[i][j];
+      payda += w * ha[i] * hb[j] / n;
+    }
+  }
+  if (!(payda > 0)) return { deger: null, n: n, neden: "iki puanlayıcı da hep aynı puanı vermiş (beklenen uyumsuzluk sıfır)" };
+  return { deger: 1 - pay / payda, n: n, kategori: K };
+}
+
+/** Standartlaştırılmış ortalama farkı (havuzlanmış ss, n−1). Pozitif: YZ daha yüksek. */
+function smdHesapla(yz, ogretmen) {
+  const n = (yz || []).length;
+  if (n < 2 || !ogretmen || ogretmen.length !== n) return { deger: null, n: n, neden: "en az 2 çift gerekir" };
+  const ss = Math.sqrt((varyansOrneklem(yz) + varyansOrneklem(ogretmen)) / 2);
+  const fark = ortalamaDizi(yz) - ortalamaDizi(ogretmen);
+  if (!(ss > 0)) return { deger: null, n: n, neden: "puanlarda değişkenlik yok (standart sapma sıfır)" };
+  return { deger: fark / ss, n: n, ortFark: fark, havuzSs: ss };
+}
+
+/** Sıra kayması. farklar karar sırasıyla dizili; ilk yarı = ilk ⌊n/2⌋ karar. */
+function siraKaymasi(farklar) {
+  const n = (farklar || []).length;
+  if (n < 2) return null;
+  const yari = Math.floor(n / 2);
+  const ilk = ortalamaDizi(farklar.slice(0, yari)), son = ortalamaDizi(farklar.slice(yari));
+  return { ilkOrt: ilk, sonOrt: son, degisim: son - ilk, nIlk: yari, nSon: n - yari };
+}
+
+/** Toplu denetim özeti (saf). kayitlar: {ai, nihai, maxScore, uzunluk?, sira?, qid?}.
+    n < altN ise yalnız sayım döner — sayı uydurulmaz. */
+function yzDenetimOzeti(kayitlar, sabit) {
+  const s = sabit || yzDenetimSabitleri();
+  const k = (kayitlar || []).filter(function (r) { return isFinite(Number(r.ai)) && isFinite(Number(r.nihai)) && r.ai !== null && r.nihai !== null; });
+  const n = k.length;
+  if (n < s.altN) return { n: n, yeterli: false, altN: s.altN };
+  const ai = k.map(function (r) { return Number(r.ai); }), ni = k.map(function (r) { return Number(r.nihai); });
+  const tavanlar = k.map(function (r) { return Number(r.maxScore); }).filter(function (v) { return v > 0; });
+  const ust = tavanlar.length ? yarimPuanKategori(Math.max.apply(null, tavanlar)) : null;
+  const ka = ai.map(yarimPuanKategori), kn = ni.map(yarimPuanKategori);
+  let tam = 0, bitisik = 0;
+  for (let i = 0; i < n; i++) { const f = Math.abs(ka[i] - kn[i]); if (f === 0) tam++; if (f <= 1) bitisik++; }
+  const fark = function (r) { return Number(r.ai) - Number(r.nihai); };
+  const uz = k.filter(function (r) { return r.uzunluk != null && isFinite(Number(r.uzunluk)); });
+  const sr = k.filter(function (r) { return r.sira != null && isFinite(Number(r.sira)); })
+    .slice().sort(function (x, y) { return Number(x.sira) - Number(y.sira); });
+  return {
+    n: n, yeterli: true, altN: s.altN, esik: { qwk: s.qwkEsik, smd: s.smdEsik },
+    qwk: qwk(kn, ka, 0, ust), tamUyum: tam / n, bitisikUyum: bitisik / n,
+    smd: smdHesapla(ai, ni),
+    uzunluk: uz.length >= s.altN
+      ? { n: uz.length, rho: spearmanRho(uz.map(function (r) { return Number(r.uzunluk); }), uz.map(fark)) }
+      : { n: uz.length, rho: null },
+    kayma: sr.length >= s.altN ? Object.assign({ n: sr.length }, siraKaymasi(sr.map(fark))) : { n: sr.length, degisim: null }
+  };
+}
+
+/** Eşik etiketi: yalnız bilgi. Kırmızı (hata) rengi kullanılmaz; karar değildir. */
+function yzDenetimEsikEtiketi(tur, deger, sabit) {
+  const s = sabit || yzDenetimSabitleri();
+  if (deger == null) return null;
+  const tutar = tur === "qwk" ? deger >= s.qwkEsik : Math.abs(deger) <= s.smdEsik;
+  const esik = tur === "qwk" ? "≥ " + ondalikTr(s.qwkEsik, 2) : "|SMD| ≤ " + ondalikTr(s.smdEsik, 2);
+  return { s: tutar ? "pill-success" : "pill-warning",
+    t: (tutar ? "kaynakta önerilen " + esik + " karşılanıyor" : "kaynakta önerilen " + esik + " karşılanmıyor") };
+}
+
+/** Uzunluk–fark ilişkisinin düz cümlesi. fark = YZ − nihai. Yön ölçümden gelir. */
+function uzunlukIliskiMetni(rho, sabit) {
+  const s = sabit || yzDenetimSabitleri();
+  if (rho == null) return "Hesaplanamadı (yanıt uzunluğu ya da fark sabit).";
+  if (Math.abs(rho) < s.iliskiAlt) return "Yanıt uzunluğu ile fark arasında belirgin bir ilişki görülmedi.";
+  return rho > 0
+    ? "Uzun yanıtlarda yapay zekâ önerisi sizin puanınızdan daha yüksek kalma eğiliminde (kısa yanıtlarda daha düşük)."
+    : "Kısa yanıtlarda yapay zekâ önerisi sizin puanınızdan daha yüksek kalma eğiliminde (uzun yanıtlarda daha düşük).";
+}
+
+/** Kart kayıtları: uyum kartıyla AYNI kayıtlar + yanıt uzunluğu + karar sırası.
+    Sıra, Karar Günlüğü'ndeki aynı (öğrenci, soru) için SON puan_karari kaydının
+    zamanıdır; günlükte yoksa sıra boş kalır ve o karar kayma hesabına girmez. */
+function yzDenetimKayitlari() {
+  const zaman = {};
+  (state.auditLog || []).forEach(function (g) {
+    if (g && g.tur === "puan_karari" && g.sid != null && g.qid != null) zaman[String(g.sid) + "|" + String(g.qid)] = g.at;
+  });
+  return calibrationKayitlari().map(function (k) {
+    const yanit = ((readSession(k.sid).answers || {})[k.qid] || {}).text;
+    return Object.assign({}, k, {
+      uzunluk: yanit != null ? String(yanit).trim().length : null,
+      sira: zaman[String(k.sid) + "|" + String(k.qid)] != null ? zaman[String(k.sid) + "|" + String(k.qid)] : null
+    });
+  });
+}
+
+function yzDenetimHtml() {
+  const kayitlar = yzDenetimKayitlari();
+  if (!kayitlar.length) return "";
+  const o = yzDenetimOzeti(kayitlar);
+  const bas = '<div class="card yzd-kart" style="margin-top:18px;">' +
+    '<div class="card-head"><h3>YZ Puanlayıcı Denetimi</h3>' +
+    '<span class="hint">alanda kullanılan uyum ölçüleri · saf hesap, karar vermez</span></div>';
+  const bilgi = '<details class="alan-bilgi yzd-bilgi"><summary>ⓘ Bu ölçüler ve eşikler nereden?</summary>' +
+    '<div class="ia-legend">Eşikler <b>kaynakta önerilen</b> değerlerdir (Williamson, Xi ve Breyer, 2012): QWK ≥ 0,70, ' +
+    "|SMD| ≤ 0,15. İkincil kaynaktan alındı, özgün metinde birebir doğrulanmadı " +
+    '(<a href="https://arxiv.org/abs/2505.22771" target="_blank" rel="noopener">arXiv 2505.22771</a>). ' +
+    "Bu kart hiçbir puanı değiştirmez ve onayı engellemez; nihai puan her zaman sizindir.</div></details>";
+  if (!o.yeterli) {
+    return bas + '<div class="ia-warn"><b>Yorum için yetersiz veri.</b> Bu sınavda onayladığınız ' + o.n +
+      " yapay zekâ puan önerisi var; bu ölçüler en az " + o.altN + " çiftte hesaplanır. O zamana kadar sayı gösterilmez.</div>" +
+      bilgi + "</div>";
+  }
+  const yuzde = function (x) { return "%" + Math.round(x * 100); };
+  const satir = function (ad, deger, etiket, aciklama) {
+    return '<div class="ia-item yzd-satir"><div class="ia-metrics"><span class="ia-metric"><b>' + ad + "</b> = " + deger +
+      (etiket ? ' <span class="pill ' + etiket.s + '">' + etiket.t + "</span>" : "") + "</span></div>" +
+      '<div class="ia-legend">' + aciklama + "</div></div>";
+  };
+  const isaretli = function (x, b) { return (x > 0.0005 ? "+" : "") + ondalikTr(x, b); };
+  const q = o.qwk, m = o.smd;
+  const qSatir = q.deger == null
+    ? satir("QWK", "hesaplanamadı", null, escapeHtml(q.neden) + ".")
+    : satir("QWK", ondalikTr(q.deger, 2), yzDenetimEsikEtiketi("qwk", q.deger),
+      "Karesel ağırlıklı kappa, " + o.n + " çift. Tam uyum " + yuzde(o.tamUyum) + ", en çok 0,5 puan fark " + yuzde(o.bitisikUyum) + ".");
+  const mSatir = m.deger == null
+    ? satir("SMD", "hesaplanamadı", null, escapeHtml(m.neden) + ".")
+    : satir("SMD", isaretli(m.deger, 2), yzDenetimEsikEtiketi("smd", m.deger),
+      "Ortalama fark (YZ − sizin puanınız) " + isaretli(m.ortFark, 2) + " puan, havuzlanmış standart sapmaya bölündü. Pozitif: yapay zekâ ortalamada daha yüksek.");
+  const u = o.uzunluk;
+  const uSatir = u.rho == null && u.n < o.altN
+    ? satir("Uzunluk–fark ρ", "yetersiz veri", null, "Yanıt metni olan " + u.n + " karar var; en az " + o.altN + " gerekir.")
+    : satir("Uzunluk–fark ρ", u.rho == null ? "hesaplanamadı" : isaretli(u.rho, 2), null,
+      "Spearman, yanıt uzunluğu (karakter) ile YZ − sizin puanınız arasında (" + u.n + " karar). " + uzunlukIliskiMetni(u.rho) +
+      " İlişki neden göstermez.");
+  const ky = o.kayma;
+  const kSatir = ky.degisim == null
+    ? satir("Sıra kayması", "yetersiz veri", null, "Karar Günlüğü'nde sırası bulunan " + ky.n + " karar var; en az " + o.altN + " gerekir.")
+    : satir("Sıra kayması", isaretli(ky.degisim, 2) + " puan", null,
+      "Ortalama YZ − sizin puanınız: ilk " + ky.nIlk + " kararda " + isaretli(ky.ilkOrt, 2) + ", son " + ky.nSon + " kararda " +
+      isaretli(ky.sonOrt, 2) + ". Karar sırası Karar Günlüğü'nden; süre tutulmaz.");
+  return bas + '<div class="ia-legend">Öğretmen nihai puanınız ile yapay zekâ önerisi arasında. Farklı tam puanlı sorular birlikte hesaplanır.</div>' +
+    qSatir + mSatir + uSatir + kSatir + bilgi + "</div>";
+}
+
+/* ===========================================================================
    KAVRAM YANILGISI KÜMELEME (arayüz)
    ===========================================================================
    NEDEN: Isı haritası "hangi kazanım zayıf" der. Bu bölüm "NEDEN zayıf" der.
@@ -13842,6 +14244,7 @@ function teacherTab4Html() {
     guvenirlikHtml() +   // §101
     eokulTabloHtml() +   // §101
     calibrationHtml() +
+    yzDenetimHtml() +    // §121
     kararRaporuHtml("ogretmen", calibrationKayitlari(), "bu sınav · onaylanan açık uçlu kararlar") +
     misconceptionHtml() +
     trendHtml();
@@ -17895,6 +18298,12 @@ function bosDurumHtml(mesaj) {
     "poolFilterHtml", "poolEditHtml", "coverageHtml", "examSwitcherHtml", "trendHtml",
     "integrityNoticeHtml", "integritySummaryHtml", "remedialBannerHtml", "renderKazanimGrafigi",
     "itemAnalysis", "itemAnalysisHtml", "pYorum", "dYorum", "varyansN", "cronbachAlfa", "kr20", "sinavGuvenirligi", "guvenirlikYorum", "guvenirlikHtml",
+    /* §121 YZ puanlayıcı denetimi + madde analizinin tamamlanması */
+    "yzDenetimSabitleri", "ortalamaDizi", "varyansOrneklem", "pearsonR", "siraNumaralari", "spearmanRho",
+    "yarimPuanKategori", "qwk", "smdHesapla", "siraKaymasi", "yzDenetimOzeti", "yzDenetimEsikEtiketi",
+    "uzunlukIliskiMetni", "yzDenetimKayitlari", "yzDenetimHtml",
+    "celdiriciAnalizi", "celdiriciDurumu", "maddeToplamKorelasyonu", "acikMaddeGuclugu", "acikMaddeAnalizi",
+    "celdiriciTabloHtml", "acikMaddeHtml",
     "bloomDagilimi", "bloomBalanceHtml",
     "runAlignment", "alignmentRowHtml", "alignmentBarHtml", "wireAlignment", "alignAdaylari",
     "kodDanDers", "kodDanSinif", "ensureOutcomeMeta", "outcomeUyar", "uygunKazanimlar",

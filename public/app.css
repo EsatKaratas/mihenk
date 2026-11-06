@@ -1318,8 +1318,10 @@
     color: var(--text-muted); border: 1px solid transparent; }
   .ia-opt-correct { background: var(--success-soft); color: var(--success);
     border-color: var(--success); font-weight: 600; }
-  .ia-opt-dead { border-style: dashed; border-color: var(--border-strong); opacity: .75; }
-  .ia-opt-pct { opacity: .7; }
+  /* §121: opaklık kaldırıldı — yayınlanmış sınavın Analitik sekmesinde axe color-contrast ihlaliydi
+     (ölçüm: P3 tarayıcı denetimi; standart taramada sınav yayınlanmadığı için görünmüyordu). */
+  .ia-opt-dead { border-style: dashed; border-color: var(--border-strong); }
+  .ia-opt-pct { opacity: 1; }
   .ia-note { margin-top: 9px; font-size: 12px; line-height: 1.55;
     color: var(--warning); }
 
