@@ -1729,10 +1729,11 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
    devam ederken hiçbir şey kaydedilmiyor olabilirdi. Sessiz düşüş yasağı
    (§6.3-5) burada da geçerlidir. */
 var depoHatasi = "";
-/* §100: navigator.storage.persist() reddedildiyse kısa bilgi (state'e YAZILMAZ;
-   her açılışta tarayıcıya yeniden sorulur). */
-var depoKaliciBilgi = "";
-const DEPO_KALICI_RET_METNI = "Bilgi: Tarayıcı bu siteye kalıcı depolama izni vermedi; disk dolarsa tarayıcı kayıtları silebilir. Önemli sonuçları dışa aktarmayı unutmayın.";
+/* §100: navigator.storage.persist() sonucu state'e YAZILMAZ; her açılışta
+   tarayıcıya yeniden sorulur. Ret arayüzde GÖSTERİLMEZ (Orchestrator 3 kararı):
+   Chrome çoğu ilk ziyarette reddeder, kullanıcının yapabileceği bir şey yok;
+   yalnız console.info. Gerçek kayıt hatası renderDepoUyarisi'yle eskisi gibi. */
+const DEPO_KALICI_RET_METNI = "Mihenk: tarayıcı kalıcı depolama izni vermedi (navigator.storage.persist() = false); veriler yine kaydediliyor, disk dolarsa tarayıcı silebilir.";
 
 /** §100: kalıcı depolama iste. Destek yoksa null, izin varsa true, ret false. */
 async function depoKaliciIste(nav) {
@@ -1741,7 +1742,7 @@ async function depoKaliciIste(nav) {
   try {
     if (typeof st.persisted === "function" && await st.persisted()) return true;
     const ok = await st.persist();
-    if (!ok) { depoKaliciBilgi = DEPO_KALICI_RET_METNI; renderDepoUyarisi(); }
+    if (!ok) console.info(DEPO_KALICI_RET_METNI);
     return !!ok;
   } catch (e) { return null; }
 }
@@ -13628,26 +13629,15 @@ function bindFieldLabels(kok) {
  */
 function renderDepoUyarisi() {
   var el = document.getElementById("depoUyari");
-  if (!depoHatasi && !depoKaliciBilgi) { if (el) el.remove(); return; }
+  if (!depoHatasi) { if (el) el.remove(); return; }
   if (!el) {
     el = document.createElement("div");
     el.id = "depoUyari";
-    document.body.appendChild(el);
-  }
-  if (depoHatasi) {
     el.className = "depo-uyari";
     el.setAttribute("role", "alert");
-    el.textContent = "⚠ " + depoHatasi;
-    return;
+    document.body.appendChild(el);
   }
-  /* §100: kalıcı depolama reddi HATA değil, bilgi: kırmızı değil, kapatılabilir. */
-  if (el.dataset.tur === "bilgi") return;
-  el.className = "depo-uyari depo-bilgi";
-  el.setAttribute("role", "status");
-  el.dataset.tur = "bilgi";
-  el.innerHTML = '<span>' + escapeHtml(depoKaliciBilgi) + '</span>' +
-    '<button type="button" class="btn btn-secondary btn-sm" id="depoBilgiKapat">Tamam</button>';
-  document.getElementById("depoBilgiKapat").onclick = function () { depoKaliciBilgi = ""; renderDepoUyarisi(); };
+  el.textContent = "⚠ " + depoHatasi;
 }
 
 function renderAll() {

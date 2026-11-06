@@ -231,45 +231,48 @@ describe('§100-2 sihirbaz 3. adım kapasite ön hesabı', () => {
 describe('§100-3 navigator.storage.persist()', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function yukleDepo(): any {
-    return new Function('escapeHtml', 'document',
-      'var depoHatasi = ""; var depoKaliciBilgi = ""; let cizim = 0;\n' + sabit('DEPO_KALICI_RET_METNI') +
-      '\nfunction renderDepoUyarisi() { cizim++; }\n' + tanim('depoKaliciIste') +
-      '\nreturn { depoKaliciIste, bilgi: () => depoKaliciBilgi, cizim: () => cizim };')(escapeHtml, {});
+    const info = vi.fn();
+    const render = vi.fn();
+    const f = new Function('console', 'renderDepoUyarisi',
+      sabit('DEPO_KALICI_RET_METNI') + '\n' + tanim('depoKaliciIste') + '\nreturn depoKaliciIste;')({ info }, render);
+    return { depoKaliciIste: f, info, render };
   }
   it('destek yoksa null, sessiz', async () => {
     const d = yukleDepo();
     expect(await d.depoKaliciIste(null)).toBeNull();
     expect(await d.depoKaliciIste({})).toBeNull();
     expect(await d.depoKaliciIste({ storage: {} })).toBeNull();
-    expect(d.cizim()).toBe(0);
+    expect(d.info).not.toHaveBeenCalled();
   });
   it('zaten kalıcıysa yeniden istemez', async () => {
     const d = yukleDepo();
     const persist = vi.fn(async () => true);
     expect(await d.depoKaliciIste({ storage: { persisted: async () => true, persist } })).toBe(true);
     expect(persist).not.toHaveBeenCalled();
-    expect(d.bilgi()).toBe('');
   });
-  it('ret → kısa bilgi renderDepoUyarisi ile; kabul → bilgi yok; hata → null', async () => {
+  it('ret → yalnız console.info, arayüzde kutu YOK; kabul → sessiz; hata → null', async () => {
     const d = yukleDepo();
     expect(await d.depoKaliciIste({ storage: { persisted: async () => false, persist: async () => false } })).toBe(false);
-    expect(d.bilgi()).toContain('kalıcı depolama izni vermedi');
-    expect(d.cizim()).toBe(1);
+    expect(d.info).toHaveBeenCalledTimes(1);
+    expect(String(d.info.mock.calls[0][0])).toContain('kalıcı depolama izni vermedi');
+    expect(d.render).not.toHaveBeenCalled();
     const d2 = yukleDepo();
     expect(await d2.depoKaliciIste({ storage: { persist: async () => true } })).toBe(true);
-    expect(d2.bilgi()).toBe('');
+    expect(d2.info).not.toHaveBeenCalled();
     const d3 = yukleDepo();
     expect(await d3.depoKaliciIste({ storage: { persist: async () => { throw new Error('x'); } } })).toBeNull();
+    expect(d3.render).not.toHaveBeenCalled();
   });
-  it('sonuç state\'e yazılmaz; açılışta bir kez çağrılır; bilgi kırmızı değil, kapatılabilir', () => {
-    expect(tanim('depoKaliciIste')).not.toContain('state.');
+  it("sonuç state'e yazılmaz; açılışta bir kez; renderDepoUyarisi main ile aynı (yalnız gerçek kayıt hatası)", () => {
+    const g = tanim('depoKaliciIste');
+    expect(g).not.toContain('state.');
+    expect(g).not.toContain('renderDepoUyarisi');
     expect(app).toMatch(/\nprobeAiMode\(\);\ndepoKaliciIste\(typeof navigator !== "undefined" \? navigator : null\);/);
     const r = tanim('renderDepoUyarisi');
-    expect(r).toContain('el.className = "depo-uyari depo-bilgi";');
-    expect(r).toContain('el.setAttribute("role", "status");');
-    expect(r).toContain('id="depoBilgiKapat">Tamam</button>');
-    // Gerçek kayıt hatası her zaman önceliklidir ve alert olarak kalır.
-    expect(r.indexOf('if (depoHatasi) {')).toBeLessThan(r.indexOf('depo-bilgi'));
+    expect(r).toContain('if (!depoHatasi) { if (el) el.remove(); return; }');
+    expect(r).toContain('el.setAttribute("role", "alert");');
+    expect(r).not.toMatch(/depo-bilgi|depoKaliciBilgi|role", "status/);
+    expect(app).not.toContain('depoKaliciBilgi');
   });
 });
 

@@ -1566,11 +1566,6 @@
     padding: 11px 15px; border-radius: 10px; background: var(--critical);
     color: #fff; font-size: 12.5px; font-weight: 600; line-height: 1.55;
     box-shadow: 0 4px 18px rgba(0,0,0,.32); }
-  /* §100: kalıcı depolama reddi — bilgi (kırmızı değil), kapatılabilir. */
-  .depo-uyari.depo-bilgi { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    background: var(--surface); color: var(--text); font-weight: 400;
-    border: 1px solid var(--border-strong); }
-  .depo-uyari.depo-bilgi span { flex: 1 1 240px; }
 
   /* Model çıktısında yabancı alfabe uyarısı — kapsayıcıdan bağımsız (§6.3-2). */
   .dil-uyari { margin: 8px 0 4px; padding: 9px 12px; border-radius: 8px;
