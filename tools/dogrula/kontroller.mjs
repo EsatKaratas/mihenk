@@ -77,13 +77,15 @@ const kz = () => p.evaluate(() => OUTCOMES_LIST().length);
 const k0 = await kz(); const katBtn = p.locator('#btnKatalog');
 if (!(await katBtn.isVisible())) { await p.getByText(/Ne için\?/).first().click().catch(() => {}); await bekle(); }
 const katAc = async () => { await katBtn.scrollIntoViewIfNeeded(); await katBtn.click(); await p.waitForSelector('#katEkle', { timeout: 15000 }); await bekle(300); };
+// §98 (B3): katalog listesi ortak seçici (coklu); kapalı ünite dalını açıp ilk işaretsiz kazanımı işaretler.
+const katIsaretle = async () => { const bos = '#kz-katalog-agac .kz-oge[aria-checked="false"]'; if (!(await p.locator(bos).count())) { await p.locator('#kz-katalog-agac .kz-grup[aria-expanded="false"]').first().click(); await bekle(100); } await p.locator(bos).first().click(); };
 await katAc();
 const rK = await rol(); ok('katalog açık, dialog', await acik() && rK.join() === 'dialog,true', `${rK}`);
-await p.locator('.kat-sec:not(:disabled)').first().check(); await bekle(100);
+await katIsaretle(); await bekle(100);
 ok('katalog Tab döngüsü', (await tabDongu()) === '9/9');
 await p.keyboard.press('Escape'); await bekle(400);
 ok('katalog Escape (seçim yapılmışken): eklenmedi, odak açana döndü', !(await acik()) && (await kz()) === k0 && (await odak()) === 'btnKatalog', `${k0}→${await kz()} ${await odak()}`);
-await katAc(); await p.locator('.kat-sec:not(:disabled)').first().check(); await p.locator('#modalCancel').focus(); await p.keyboard.press('Enter'); await bekle(400);
+await katAc(); await katIsaretle(); await p.locator('#modalCancel').focus(); await p.keyboard.press('Enter'); await bekle(400);
 ok('katalog Enter@Kapat: eklenmedi', !(await acik()) && (await kz()) === k0, `${k0}→${await kz()}`);
 
 console.log(`\n[Sınavı bitir + odak] ${W}px`);

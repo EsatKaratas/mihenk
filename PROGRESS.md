@@ -11192,6 +11192,91 @@ ASSETS + vars, `OLCUM_*` yok.
   ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
 - Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
 
+## 98. B3 KATALOG PENCERESİ ORTAK SEÇİCİDE + P3-1 / P3-4 / P3-5 (6 Kasım 2026, W9, dal `feature/b3-katalog-kazanim`)
+
+Taban `main` 1458c5a. Orchestrator 3 emri. Yalnız istemci (app.js, CSS), iki doğrulama betiğinde seçici
+güncellemesi. Model çağrısı ve `/api/ai` POST yapılmadı.
+
+**B3 — katalog penceresi §95'in bileşenine bağlandı (yeni seçici yazılmadı):**
+- `kazanimSeciciHtml`'e beşinci mod **"coklu"** eklendi. Ağaçta `aria-multiselectable="true"`, öğelerde
+  `aria-checked`. Bu modda `aria-selected` yok, işaret kutusu yalnız görsel (`aria-hidden`).
+- Zaten ekli kazanım **kilitli**: işaretli, `aria-disabled="true"`, tıklama ve Space onu değiştirmez.
+- İşaretler geçici `_kzHal`'de durur (`kzIsaretliler`, `kzSifirla`), kalıcı değil. KALICI_ALANLAR ve
+  kayıt şekli değişmedi; göç yok.
+- Diğer dört mod (A1, A2, B2, C) değişmedi; testle sabitlendi.
+- Pencere: `katalogSeciciOgeleri` katalog satırlarını öğeye çevirir. Ünite, kataloğun `grup`'u; yoksa
+  `alan`'ı. Ders ve sınıf tek değerli olduğu için ağaçta atlanır.
+- Eski satırdaki bilgi rozet olarak aynen duruyor: alan, uygunluk, Deneyap sayfası (`s.N`, title = kitap),
+  "kaynakta böyle yazılmış", "zaten ekli".
+- Uygunluk ve alan açılır listeleri kaldı. `#katAra` ve `.kat-sec` onay kutuları kalktı; arama artık
+  bileşenin kendi kutusunda.
+- Ekleme yolu aynı: `addOutcome` (MEB ve Deneyap kolları değişmedi), §82 satır içi bildirim.
+
+**B3 kararları (belirsizdi; gerekçeleriyle):**
+1. **Filtre değişince işaretler korunur.** Eskiden uygunluk/alan değişimi ve aramada Enter pencereyi
+   yeniden çiziyor, işaretli kutular sıfırlanıyordu. Görünmeyen işaretli kazanım da eklenir. Kullanıcı
+   neyin ekleneceğini kaybetmesin diye sayı düğmede yazar: "Seçilenleri Ekle (3)".
+2. **Pencere her açılışta temiz.** `katalogAc` → `kzSifirla`: önceki işaret ve arama kalmaz (Kapat ya da
+   Escape = vazgeç).
+3. **Grup (ünite) düzeyinde toplu işaret yok.** Üç durumlu (mixed) dal, kazara 30 kazanım ekleme riski
+   taşır ve şimdiki akışta istenmedi. Gerekirse sonraki tur.
+4. **Escape pencerede aramayı temizlemez, pencereyi kapatır.** §77 kuralı (Escape = `#modalCancel`)
+   yakalama evresinde çalışıyor; bilerek değiştirilmedi.
+5. **Arama kutusunda Enter, P3-2 kuralıyla işaretler** (tek eşleşme ya da kod birebir). Başka durumda bir
+   şey yapmaz.
+6. **Kaydırma:** ağaç pencere içinde kendi kayar (`max-height` 42vh, ≤760 px'te 46vh). Arama kutusu üstte kalır.
+
+**P3-1 — ağaçta ilk harfle atlama (bütün modlarda):**
+- `kzIlkHarfHedefi(metinler, bas, aranan)` saf fonksiyon. 600 ms içinde basılan harfler birikir.
+- Tek harf bir sonraki satırdan aranır, sona gelince başa sarar. Aynı harfi tekrarlamak ("mmm") o harfle
+  başlayanlar arasında döner. Çok harfte arama şu anki satırdan başlar.
+- Satırdaki herhangi bir sözcüğün başı eşleşir (kod, metin ya da grup adı); karşılaştırma tr küçük harfle.
+- Ctrl/Alt/Meta ve boşluk karışmaz; Space seçimde kaldı.
+
+**P3-4 — A2'de okul listesinde olmayan kazanım:**
+- `peKazanimOgeleri`, sorunun kodu okul listesinde yoksa onu listenin başına ekler. Satır
+  "(okul listesinde yok)" etiketiyle, italik ve seçili görünür.
+- Kayıt değişmez: OUTCOMES_LIST'e eklenmez, `q.outcome` aynı kalır. Başka kazanım seçilince satır kalkar
+  (tarayıcıda ölçüldü).
+- **Yan bulgu, düzeltildi (yalnız CSS):** A2 paneli 390 px'te açılınca 54 px'e sıkışıyordu. Bu §95'ten
+  beri böyleydi; normal kazanımda da ölçüldü. Panel açıkken alan artık `.field-row` satırının tamamını
+  kaplıyor (A1'deki kuralın eşi): 390'da düzenleyici genişliği 182 px, 1280'de 375 px.
+- Düzenleyici kartının 390'da dar olması (şık kutuları kırpılıyor) §98'in kapsamı dışında; dokunulmadı.
+
+**P3-5 — Deneyap geçişindeki tek 6,2 sn ölçümü: KAPATILDI, kod değişikliği yok.**
+- Yeni kodda yeniden ölçüldü. Soğuk sayfa, `#ceGrade` → Deneyap, 4 sn izlendi, 5 tekrar:
+  - 390 px, B2 paneli açık: renderAll en çok **7 ms**, uzun görev **0**.
+  - 1280 px: renderAll en çok **5 ms**, uzun görev **0**.
+- W9'un taban/dal ölçümüyle (en çok 6 ms) birlikte üç bağımsız ölçüm bunu yeniden üretmedi.
+- Karar: tek ölçüm, bölme arka plandayken alınmıştı. Arka plan sekmesindeki zamanlayıcı kısıtlaması en
+  olası açıklama; bu **ölçülmedi**, varsayım olarak yazıldı. Yeniden görülürse ön planda `kz-perf`
+  betiğiyle ölçülmeli.
+
+**Doğrulama (statik sunucu 8849, PID ile durduruldu; [::1] dahil port kontrolü):**
+- `npm test` **610/610**, 29 dosya: +15 yeni test, `test/b3-katalog.test.ts`.
+- lint (`tsc --noEmit`) temiz; öz-kontrol %100 (**575 ad**); FFFD 0.
+- Tarayıcı `b3.mjs` 1280 ve 390 px: **40/40**. Kapsadığı akış:
+  - role=tree + multiselectable;
+  - ilk harfle dala atlama;
+  - → → Space ile işaret, odak satırda kalıyor;
+  - tık;
+  - filtre değişiminde işaretler korunuyor;
+  - arama yazarken odak kutuda, Enter tam kodu işaretliyor;
+  - kilitli satır değişmiyor;
+  - Ekle → 31→34 kazanım, kayıt Matematik|7, bildirim "3 kazanım eklendi.";
+  - yeniden açılış temiz;
+  - seçimsiz Ekle → "Hiç kazanım seçmediniz.";
+  - Escape → eklenmedi;
+  - Deneyap sayfa rozeti;
+  - P3-4.
+  Her genişlikte yatay taşma 0, konsol hatası 0.
+- `kontroller.mjs` 28/28 + 28/28. `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0, engellenen POST 0.
+- Betik güncellemesi: `kontroller.mjs` katalogda `.kat-sec` yerine ağaçta ilk işaretsiz kazanımı
+  işaretliyor (kapalı dalı açarak). Tab döngüsü yine 9/9. `ekran-goruntusu-al.mjs` bekleme seçicisi
+  `#kz-katalog-agac [role=treeitem]` oldu.
+- Kanıt (ekran görüntüleri, loglar, betikler):
+  `side-session-notes\local_fbcef29b-…\W9-b3-katalog\`.
+
 ## 99. İÇERİK UZMANI "ELLE SORU YAZ" (6 Kasım 2026, W10, dal `feature/elle-soru`, Orchestrator 3 emriyle)
 
 **Neden:** İçerik uzmanı soruyu yalnız modele ürettirebiliyordu. Kota dolunca (§96, 3036) ya da modelin

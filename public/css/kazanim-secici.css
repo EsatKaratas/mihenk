@@ -60,8 +60,33 @@
 .input-with-actions:has(> .kz-secici .kz-ac[aria-expanded="true"]) { align-items: flex-start; }
 .field-outcome .input-with-actions > .kz-secici { flex: 1 1 60%; }
 .pool-filter .field-kz:has(.kz-ac[aria-expanded="true"]) { grid-column: 1 / -1; }
+/* §98 — A2 (soru düzenleme, .field-row flex): panel açıkken alan tüm satırı
+   kaplar. Ölçüldü: 390 px'te açık panel 54 px'e sıkışıyordu (§95'ten beri). */
+.field-row:has(> .field-kz .kz-ac[aria-expanded="true"]) { flex-wrap: wrap; }
+.field-row > .field-kz:has(.kz-ac[aria-expanded="true"]) { flex: 1 0 100%; }
 @media (max-width: 760px) {
   .field-outcome .input-with-actions > .kz-secici { flex: 1 0 100%; }
   /* Dokunmatik: satır ve düğme en az 44 px (tasarım onayı, §95). */
   .kz-ac, .kz-ara, .kz-oge, .kz-satir { min-height: 44px; }
+}
+
+/* §98 (B3) — "coklu" mod: katalog penceresi. İşaret kutusu görseldir
+   (aria-hidden); durum li'nin aria-checked'idir. Kilitli = zaten ekli. */
+.kz-coklu .kz-oge { grid-template-columns: auto minmax(0, 1fr); }
+.kz-coklu .kz-kod, .kz-coklu .kz-metin, .kz-coklu .kz-rozetler { grid-column: 2; }
+.kz-kutu { grid-column: 1; grid-row: 1 / span 3; align-self: start; margin-top: 2px; width: 16px; height: 16px;
+  border: 1.5px solid var(--border-strong); border-radius: 4px; background: var(--surface); position: relative; }
+.kz-oge.isaretli > .kz-kutu { background: var(--accent); border-color: var(--accent); }
+.kz-oge.isaretli > .kz-kutu::after { content: ""; position: absolute; left: 4px; top: 0; width: 5px; height: 9px;
+  border: solid var(--surface); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.kz-oge.isaretli { background: var(--accent-soft); }
+.kz-oge.kilitli { opacity: .6; cursor: default; }
+.kz-oge.kilitli:hover { background: transparent; }
+.kz-rozetler { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
+.kz-oge.kz-disi .kz-metin { font-style: italic; }
+/* Pencerede kaydırma ağacın kendisinde; arama kutusu üstte sabit kalır. */
+.kat-liste:has(> .kz-secici) { max-height: none; overflow: visible; padding: var(--sp-2); }
+.kat-liste .kz-agac { max-height: 42vh; }
+@media (max-width: 760px) {
+  .kat-liste .kz-agac { max-height: 46vh; }
 }
