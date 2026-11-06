@@ -1,5 +1,8 @@
-// W8 — demo 5 adım GERÇEK TIKLAMA. /api/ai/ POST engelli (0 model çağrısı);
-// --model-evaluate verilirse yalnız /api/ai/evaluate geçer (1 çağrı) ve yanıt kaydedilir.
+// W8 + §120 — demo 5 adım GERÇEK TIKLAMA. /api/ai/ POST engelli (0 model çağrısı).
+// §120: demo ayrı kayıt alanında çalışır ve modele HİÇ istek göndermez (örnek veri);
+// --model-evaluate artık demoda çağrı üretmez (bayrak geriye uyum için duruyor).
+// Adım 5'te dolu sınıf analitiği (KR-20, gösterge uyarısı, ısı haritası), sonda
+// demodan çıkış (kendi veriye dönüş, demo kaydının silinmesi) yazılır.
 // Kullanım: node demo-yuru.mjs <url> <ciktiKlasoru> [genislik] [--model-evaluate]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright-core';
@@ -52,9 +55,14 @@ while (await elle.count()) { const g = p.getByLabel(/Puanı elle girin/).first()
 await tikla(p.getByRole('button', { name: /Sonuçları Öğrenciye Yayınla/ }).first(), 'Sonuçları Öğrenciye Yayınla');
 await ileri();
 L('ADIM 5: ' + await serit());
+L('  analitik: ' + JSON.stringify(await p.evaluate(() => { const g = sinavGuvenirligi(); const ia = itemAnalysis();
+  return { kr20: g.kr20 && Math.round(g.kr20.deger * 100) / 100, alfa: g.alfa && g.alfa.deger != null ? Math.round(g.alfa.deger * 100) / 100 : null,
+    ogrenci: g.ogrenci, madde: g.maddeSayisi, guvenilir: ia.guvenilir, isiHaritasi: classOutcomeScores('7-A') }; })));
 L('  Kazanım Başarı Grafiği: ' + (await p.locator('h2:visible, h3:visible').allInnerTexts()).some((b) => /Kazanım Başarı Grafiği/.test(b)));
-await ileri();
-L('demo sonrası: ' + await serit());
+await Promise.all([p.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => {}), ileri()]);
+await p.waitForTimeout(600);
+L('demo sonrası: ' + await serit() + ' · ' + JSON.stringify(await p.evaluate(() => ({ demoAlani: demoAlaniMi(),
+  demoKaydi: localStorage.getItem('t3-olcme-durum-v1-demo') !== null, bilgi: (document.getElementById('gkDemoDonus') || {}).textContent || '' }))));
 L(`SONUÇ ${W}: konsol hatası ${hatalar.length}, yerel dialog ${dialoglar.length}, engellenen /api/ai POST ${engellenen.length}`);
 hatalar.forEach((h) => L('  hata: ' + h));
 writeFileSync(`${out}/log-${W}.txt`, log.join('\n'));

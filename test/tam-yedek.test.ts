@@ -240,7 +240,10 @@ describe('§108 sürüm ve göç', () => {
     const KALICI = ['outcomes', 'subjects', 'ceForm', 'students', 'questions', 'exams', 'gocDeneyapDersi'];
     const sonuc = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR',
       'let qIdSeq = 1;\n' + ['KESIF_SINIFI', 'ATOLYELER', 'DENEYAP_DERSI'].map(sabit).join('\n') +
-      '\nconst VARSAYILAN_KAZANIMLAR = [];\n' + tanim('loadState') +
+      '\nconst VARSAYILAN_KAZANIMLAR = [];\n' +
+      // §120: loadState kayıt anahtarını demo bayrağına göre seçer; burada demo dışı.
+      'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\n' +
+      tanim('loadState') +
       '\nreturn { ok: loadState(), qIdSeq, KESIF_SINIFI, DENEYAP_DERSI };'
     )(state, { getItem: (key: string) => e.ls[key] ?? null }, 't3-olcme-durum-v1', KALICI);
     expect(sonuc.ok).toBe(true);

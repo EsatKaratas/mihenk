@@ -887,6 +887,7 @@ function aiKaynakMetinleri(k) {
   if (!k) return [];
   const m = [];
   if (k.source === "seed") m.push("Önceden hazırlanmış örnek yanıt");
+  if (k.source === "demo") m.push("Örnek veri — demo alanı, model çağrılmadı");   // §120
   if (k.source === "cache" || k.onbellek) m.push("Önbellekten (aynı modelin önceki yanıtı)");
   if (k.yedekModel) {
     const scout = k.source === "workers-ai-scout" || /scout/i.test(k.model || "");
@@ -1092,6 +1093,13 @@ function kapasiteHtml(h, izinsiz) {
 }
 
 async function apiPost(url, body) {
+  /* §120: demo alanından modele istek ÇIKMAZ (0 Neuron). Tek giriş noktası
+     burası; çağıranlar bu hatayı her zamanki gibi ekranda gösterir. */
+  if (typeof demoAlaniMi === "function" && demoAlaniMi()) {
+    const h = new Error(DEMO_AI_KAPALI_METNI);
+    h.kod = "demo_alani"; h.sunucuMesaji = true; h.status = 0;
+    throw h;
+  }
   const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const j = await r.json().catch(function () { return null; });
   if (!r.ok) {
@@ -1509,6 +1517,9 @@ async function aiEvaluate(q, answerText, rubric, force, sid) {
       not: "cevap yapay zekâya gönderilmedi; elle puanlanacak" });
     return yzIzinsizSonuc(rubric);
   }
+  /* §120: demo alanında model ÇAĞRILMAZ. Yalnız birebir demo girdisine kayıtlı
+     örnek öneri döner; başka bir yanıt yazılmışsa öneri uydurulmaz, elle puanlanır. */
+  if (typeof demoAlaniMi === "function" && demoAlaniMi()) return demoAlaniDegerlendirmesi(q, answerText, rubric, ogrId);
   // Hiç gerçek model yoksa (statik/çevrimdışı prototip) yerel yedek kullanılır.
   if (state.ai.mode !== "live") {
     const sim = simulateAIEvaluation(q, answerText, rubric);
@@ -1763,6 +1774,42 @@ function renderAiBadge() {
    her şeyi baştan yaptırıyordu. Durum artık tarayıcıda saklanıyor.
    (Kalıcı veritabanı değildir; yalnızca bu tarayıcıya özeldir.)              */
 const STORE_KEY = "t3-olcme-durum-v1";
+
+/* §120 — DEMO AYRI KAYIT ALANINDA ÇALIŞIR.
+   Eskiden loadDemoScenario kullanıcının soru havuzunu ve etkin sınavını
+   örnek veriyle DEĞİŞTİRİYORDU ve değişiklik STORE_KEY'e yazılıyordu: demoyu
+   meslektaşına gösteren öğretmen verisini kaybediyordu (fikir2-C madde 3).
+   Artık demo:
+     • DEMO_STORE_KEY'e yazar; STORE_KEY'e hiç dokunmaz (giriş anında
+       bekleyen kaydı önce kendi anahtarına yazar, o kadar),
+     • kitaplığa (IndexedDB) yazmaz/silmez — kitap kimlikleri çakışırdı,
+     • yedek, geri yükleme ve sıfırlamayı kapatır,
+     • yapay zekâya POST göndermez (0 Neuron, §120-2).
+   Bayrak sekmeye özeldir (sessionStorage): yenilemede demo sürer, yeni
+   sekme kullanıcının kendi verisiyle açılır. Demodan çıkış sayfayı yeniden
+   yükler; kullanıcının verisi STORE_KEY'den olduğu gibi okunur. */
+const DEMO_STORE_KEY = STORE_KEY + "-demo";
+const DEMO_ALAN_BAYRAGI = "mihenk-demo-alani";      // sessionStorage
+const DEMO_CIKIS_BAYRAGI = "mihenk-demo-cikti";      // sessionStorage, tek seferlik bilgi
+const DEMO_KORUMA_METNI = "Kendi verileriniz ayrı saklanıyor ve değişmiyor; demodan çıkınca olduğu gibi geri gelir.";
+const DEMO_AI_KAPALI_METNI = "Demo alanında yapay zekâya istek gönderilmez (0 Neuron); önceden kaydedilmiş örnek veri kullanılır.";
+let _demoAlani = false;
+
+/** Demo alanında mı? (sekmeye özel) */
+function demoAlaniMi() { return _demoAlani === true; }
+
+/** Kaydın yazılacağı/okunacağı anahtar. SAF: yalnız bayrağa bakar. */
+function depoAnahtari(demo) { return demo ? DEMO_STORE_KEY : STORE_KEY; }
+
+/** Açılışta sekmenin demo bayrağını okur. Demo dışındaysa artık demo kaydını siler. */
+function demoAlaniniOku() {
+  let bayrak = false;
+  try { bayrak = sessionStorage.getItem(DEMO_ALAN_BAYRAGI) === "1"; } catch (e) { bayrak = false; }
+  _demoAlani = bayrak;
+  if (!bayrak) { try { localStorage.removeItem(DEMO_STORE_KEY); } catch (e) { /* önemsiz */ } }
+  return bayrak;
+}
+
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
   "remainingSec", "aiEvals", "reviews", "mcResults", "kaynak", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
@@ -1809,7 +1856,10 @@ function saveState() {
   try {
     const d = { _qIdSeq: qIdSeq };
     KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
-    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    /* §120: demo alanında rehberin adımı da saklanır (yenilemede şerit kaybolmasın).
+       Kullanıcının kaydına bu alanlar hiç yazılmaz. */
+    if (demoAlaniMi()) { d._demoAdim = state.demoAdim || null; d._demoEnUzak = state.demoEnUzak || null; }
+    localStorage.setItem(depoAnahtari(demoAlaniMi()), JSON.stringify(d));
     depoHatasi = "";
   } catch (e) {
     // Kota dolu ya da gizli sekme. Sessizce geçilirse kullanıcı çalışmasının
@@ -1823,11 +1873,12 @@ function saveState() {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORE_KEY);
+    const raw = localStorage.getItem(depoAnahtari(demoAlaniMi()));
     if (!raw) return false;
     const d = JSON.parse(raw);
     KALICI_ALANLAR.forEach(function (k) { if (d[k] !== undefined) state[k] = d[k]; });
     if (d._qIdSeq) qIdSeq = d._qIdSeq;
+    if (demoAlaniMi()) { state.demoAdim = d._demoAdim || null; state.demoEnUzak = d._demoEnUzak || null; }   // §120
 
     /* ---- GÖÇ (§50): atölye SINIF olmaktan çıktı ----------------------------
        Önceki sürümde Keşif kazanımlarının `grade` alanı doğrudan atölye adını
@@ -1900,6 +1951,9 @@ function loadState() {
 
 let _resetting = false;
 function resetState() {
+  /* §120: demo alanında "sıfırla" kullanıcının kaydını ve kitaplığını SİLMEZ;
+     yalnız demo kaydı atılır ve kullanıcının kendi verisine dönülür. */
+  if (demoAlaniMi()) { demoAlanindanCik(); return; }
   // saveState() ile localStorage.removeItem arasında yarış vardı: bekleyen bir
   // kayıt zamanlayıcısı, temizlikten SONRA eski durumu geri yazabiliyordu.
   _resetting = true;
@@ -2255,6 +2309,7 @@ function yedekDosyaAdi(adsiz, simdi) {
 /** ⋯ → "Yedekle…" penceresi. kaynak verilirse (geri al kopyası) o indirilir;
  *  donus verilirse Vazgeç/indirme sonrası oraya dönülür. */
 function yedekAlAc(kaynak, donus) {
+  if (demoAlaniMi()) return;   // §120: demo verisi yedeklenmez
   _kabukMenu = null;
   renderKabukEk();
   const geriAl = !!kaynak;
@@ -2327,6 +2382,7 @@ function yedekAlAc(kaynak, donus) {
 
 /** ⋯ → "Yedekten geri yükle…" penceresi: dosya + (şifreliyse) parola. */
 function yedekGeriYukleAc() {
+  if (demoAlaniMi()) return;   // §120: geri yükleme kullanıcının kaydına yazar
   _kabukMenu = null;
   renderKabukEk();
   openModal('<h3>Yedekten geri yükle</h3>' +
@@ -2496,8 +2552,165 @@ const DEMO_SORULAR = [
           "tartışılıyor: kolileri zeminde doğrudan itmek ya da tekerlekli bir platforma koyup çekmek. " +
           "Hangi seçeneği önerirsin? Kararını kuvvet ve sürtünme kavramlarını kullanarak gerekçelendir.",
     refKeywords: ["sürtünme", "kuvvet", "tekerlek", "yuvarlanma"]
+  },
+  /* §120 — DOLU SINIF: 8 ÇSS + 2 açık uçlu sınav. İlk üç soru (yukarıda) sıra ve
+     metin olarak AYNI kaldı (§90 tohumu ve testleri DEMO_SORULAR[2]'ye bağlı).
+     Yeni sorular 2026 Fen Bilimleri 7. sınıf programının "Kuvvet ve Enerjiyi
+     Keşfedelim" ünitesindeki üç kazanıma bağlı (public/mufredat/fen-7.json);
+     ısı haritası dört sütunla dolsun diye. Ekip tarafından elle yazıldı. */
+  {
+    type: "mc", difficulty: "easy", bloom: "anlama", aiTime: 70, outcome: "FB.7.2.1",
+    body: "Ece 20 N'luk kuvvetle bir kutuyu yatay zeminde kuvvet doğrultusunda 3 m itiyor. Deniz ise aynı " +
+          "büyüklükte kuvvet uyguladığı hâlde kutuyu yerinden kıpırdatamıyor. Buna göre fiziksel anlamda iş " +
+          "için ne söylenebilir?",
+    options: [
+      { key: "A", text: "Yalnız Ece iş yapmıştır" },
+      { key: "B", text: "İkisi de eşit miktarda iş yapmıştır" },
+      { key: "C", text: "Yalnız Deniz iş yapmıştır, çünkü daha çok zorlanmıştır" },
+      { key: "D", text: "İkisi de iş yapmamıştır" }
+    ],
+    correctKey: "A",
+    distractorRationale: {
+      B: "Kuvvetlerin eşit olmasını yeterli sayıyor; yer değiştirmenin iş için şart olduğunu atlamış.",
+      C: "Günlük dildeki \"çalışmak, yorulmak\" anlamını fiziksel işle karıştırıyor.",
+      D: "Yer değiştirme olduğu hâlde kuvvetin iş yapabilmesi için ayrıca hız gerektiğini düşünüyor."
+    },
+    refKeywords: ["iş", "kuvvet", "yer değiştirme"]
+  },
+  {
+    type: "mc", difficulty: "medium", bloom: "uygulama", aiTime: 80, outcome: "FB.7.2.1",
+    body: "Bir taşıma görevlisi aynı koliyi aynı büyüklükte yatay kuvvetle önce 2 m, sonra 6 m itiyor. " +
+          "Buna göre ikinci durumda yapılan iş birinciye göre nasıldır?",
+    options: [
+      { key: "A", text: "Eşittir, çünkü kuvvet değişmemiştir" },
+      { key: "B", text: "Üç katıdır" },
+      { key: "C", text: "Üçte biridir" },
+      { key: "D", text: "İki katıdır" }
+    ],
+    correctKey: "B",
+    distractorRationale: {
+      A: "İşi yalnız kuvvete bağlıyor; yolun da işi belirlediğini hesaba katmamış.",
+      C: "Oranı ters kurmuş; yol uzadıkça işin azaldığını sanıyor.",
+      D: "Yollar arasındaki 4 m'lik farkı 2 m'ye bölerek oranı yanlış hesaplamış."
+    },
+    refKeywords: ["iş", "alınan yol", "orantı"]
+  },
+  {
+    type: "mc", difficulty: "hard", bloom: "analiz", aiTime: 100, outcome: "FB.7.2.1",
+    body: "Bir öğrenci çantasını yerden kaldırmadan elinde sabit yükseklikte tutarak koridorda sabit hızla " +
+          "10 m yürüyor. Çantayı tutmak için uyguladığı yukarı yönlü kuvvetin bu yürüyüş sırasında yaptığı " +
+          "iş için hangisi doğrudur?",
+    options: [
+      { key: "A", text: "Çantanın ağırlığı ile 10 m'nin çarpımı kadardır" },
+      { key: "B", text: "Öğrenci yorulduğu için yürüdükçe artar" },
+      { key: "C", text: "Sıfırdır; kuvvet yukarı yönlü, yer değiştirme yatay yönlüdür" },
+      { key: "D", text: "Yalnız yürümeye başladığı anda yapılır" }
+    ],
+    correctKey: "C",
+    distractorRationale: {
+      A: "Kuvvetle yolu doğrultularına bakmadan çarpıyor; kuvvet doğrultusundaki yer değiştirmeyi aramamış.",
+      B: "Yorgunluğu, yani biyolojik enerji harcamasını fiziksel iş sanıyor.",
+      D: "Hızlanma anındaki etkiyi çantayı tutan kuvvetin işi gibi yorumluyor."
+    },
+    refKeywords: ["iş", "kuvvet doğrultusu", "sıfır iş"]
+  },
+  {
+    type: "mc", difficulty: "easy", bloom: "anlama", aiTime: 70, outcome: "FB.7.2.2",
+    body: "Bir kitap, kitaplığın alt rafından iki raf yukarıdaki rafa kaldırılıyor. Buna göre kitabın çekim " +
+          "potansiyel enerjisi için ne söylenebilir?",
+    options: [
+      { key: "A", text: "Azalır, çünkü kitap hareketsizdir" },
+      { key: "B", text: "Değişmez, çünkü kitabın kütlesi aynıdır" },
+      { key: "C", text: "Yalnız kaldırılırken artar, rafa konunca sıfırlanır" },
+      { key: "D", text: "Artar, çünkü yerden yüksekliği artmıştır" }
+    ],
+    correctKey: "D",
+    distractorRationale: {
+      A: "Hareketsiz cismin enerjisi olmayacağını düşünüyor; potansiyel enerjiyi kinetik enerjiyle karıştırıyor.",
+      B: "Potansiyel enerjiyi yalnız kütleye bağlıyor, yüksekliği hesaba katmamış.",
+      C: "Enerjiyi yalnız hareket sırasında var sayıyor; depolanmış enerji fikrini kurmamış."
+    },
+    refKeywords: ["çekim potansiyel enerjisi", "yükseklik", "kütle"]
+  },
+  {
+    type: "mc", difficulty: "medium", bloom: "analiz", aiTime: 90, outcome: "FB.7.2.2",
+    body: "Aynı yokuştan aşağı inen bir bisiklet ile bir kamyonet, yokuşun sonunda aynı hıza ulaşıyor. " +
+          "Buna göre yokuşun sonunda kinetik enerjisi daha büyük olan hangisidir ve neden?",
+    options: [
+      { key: "A", text: "Kamyonet, çünkü kütlesi daha büyüktür" },
+      { key: "B", text: "Bisiklet, çünkü daha hafiftir ve kolay hızlanır" },
+      { key: "C", text: "İkisi eşittir, çünkü hızları aynıdır" },
+      { key: "D", text: "Bisiklet, çünkü sürtünmesi daha azdır" }
+    ],
+    correctKey: "A",
+    distractorRationale: {
+      B: "Kolay hızlanmayı daha çok enerji sanıyor; kütle ile kinetik enerji ilişkisini ters kurmuş.",
+      C: "Kinetik enerjiyi yalnız hıza bağlıyor; kütlenin etkisini atlamış.",
+      D: "Sorunun dışında kalan sürtünmeyi gerekçe yapıyor; aynı hız verisini kullanmamış."
+    },
+    refKeywords: ["kinetik enerji", "kütle", "sürat"]
+  },
+  {
+    type: "mc", difficulty: "medium", bloom: "uygulama", aiTime: 80, outcome: "FB.7.2.3",
+    body: "Salıncakta sallanan bir çocuk en yüksek noktadan en alçak noktaya iniyor. Bu sırada çocuğun " +
+          "enerjisinde hangi dönüşüm gerçekleşir?",
+    options: [
+      { key: "A", text: "Kinetik enerji potansiyel enerjiye dönüşür" },
+      { key: "B", text: "Potansiyel enerji kinetik enerjiye dönüşür" },
+      { key: "C", text: "Enerji dönüşümü olmaz, yalnız hız değişir" },
+      { key: "D", text: "Potansiyel enerji tamamen yok olur" }
+    ],
+    correctKey: "B",
+    distractorRationale: {
+      A: "Dönüşümün yönünü ters kurmuş; inişi çıkışla karıştırıyor.",
+      C: "Hız değişimini enerjiyle ilişkilendirmiyor; kinetik enerjinin hıza bağlı olduğunu kullanmamış.",
+      D: "Enerjinin yok olabildiğini düşünüyor; korunum fikrine henüz ulaşmamış."
+    },
+    refKeywords: ["enerji dönüşümü", "salıncak", "potansiyel enerji"]
+  },
+  {
+    type: "mc", difficulty: "hard", bloom: "degerlendirme", aiTime: 110, outcome: "FB.7.2.3",
+    body: "Sürtünmesi ve hava direnci önemsiz kabul edilen U biçimli bir rampanın bir ucundan bir bilye " +
+          "serbest bırakılıyor. Bilye rampanın diğer kolunda en fazla hangi yüksekliğe çıkar?",
+    options: [
+      { key: "A", text: "Bırakıldığı yüksekliğin yarısına" },
+      { key: "B", text: "Bırakıldığı yükseklikten daha yükseğe" },
+      { key: "C", text: "Rampanın en alt noktasında kalır" },
+      { key: "D", text: "Bırakıldığı yüksekliğe" }
+    ],
+    correctKey: "D",
+    distractorRationale: {
+      A: "Sürtünme önemsiz verildiği hâlde enerjinin yarısının kaybolduğunu varsayıyor.",
+      B: "İnişte kazanılan hızın ek enerji yarattığını sanıyor; korunumu aşan bir sonuç seçmiş.",
+      C: "Bilyenin enerjisinin en alt noktada tükendiğini düşünüyor."
+    },
+    refKeywords: ["enerjinin korunumu", "rampa", "yükseklik"]
+  },
+  {
+    type: "open", difficulty: "hard", bloom: "degerlendirme", aiTime: 300, outcome: "FB.7.2.3",
+    body: "Bir lunapark treninin tasarımında ilk tepe en yüksek yapılıyor ve sonraki tepeler giderek alçalıyor. " +
+          "Mühendis, sonraki tepelerin ilkinden yüksek yapılamayacağını söylüyor. Bu kararı enerji dönüşümü ve " +
+          "sürtünme kavramlarını kullanarak değerlendir.",
+    refKeywords: ["enerji dönüşümü", "potansiyel enerji", "kinetik enerji", "sürtünme", "ısı"]
   }
 ];
+
+/* §120 — Demo kazanımları. FEN.7.1.2 zaten varsayılan listede; diğer üçü 2026
+   programının resmî kodları ve metinleri (public/mufredat/fen-7.json). Yalnız
+   DEMO ALANINDAKİ kazanım listesine eklenir; "Örnek soruları içe al" da eksik
+   olanları kullanıcının listesine ekler (yalnız ekler, hiçbir şey silmez). */
+const DEMO_KAZANIMLAR = [
+  { code: "FB.7.2.1", label: "FB.7.2.1 — Fiziksel anlamda yapılan işin bağlı olduğu faktörlere ilişkin bilimsel çıkarım yapabilme", subject: "Fen Bilimleri", grade: 7 },
+  { code: "FB.7.2.2", label: "FB.7.2.2 — Enerji çeşitlerinden kinetik ve potansiyel enerjiyi karşılaştırabilme", subject: "Fen Bilimleri", grade: 7 },
+  { code: "FB.7.2.3", label: "FB.7.2.3 — Enerji dönüşümünden hareketle enerjinin korunduğuna yönelik tümevarımsal akıl yürütebilme", subject: "Fen Bilimleri", grade: 7 }
+];
+
+/* §120 — Örnek sınıf: 24 UYDURMA ad. Soyadı bilerek "Örnek": listede, karnede,
+   e-Okul dosyasında gerçek bir öğrenci sanılmasın. Hepsi demo: true ("simüle"). */
+const DEMO_OGRENCI_ADLARI = ["Ada", "Baran", "Ceren", "Doruk", "Ece", "Efe", "Elif", "Emir", "Eylül", "Kaan",
+  "Lina", "Mert", "Naz", "Ozan", "Pelin", "Rüzgar", "Selin", "Tuna", "Umut", "Yağmur", "Yiğit", "Zehra", "Arda", "Defne"]
+  .map(function (a) { return a + " Örnek"; });
+const DEMO_SINIF = "7-A";
 
 /* Demo ders notu. Beceri temelli soruların dayanağı burada: yalnızca tanım
    değil, günlük hayatta ölçülebilir bir durum da anlatır. */
@@ -2557,6 +2770,76 @@ const DEMO_TOHUM_DEGERLENDIRME = {
   },
 };
 
+/* §120 — İKİNCİ AÇIK UÇLU SORUNUN ÖRNEK ÖNERİSİ. Bu bir model yanıtı DEĞİLDİR:
+   demo alanından istek çıkmadığı ve bu görevde /api/ai POST yasak olduğu için
+   Mihenk ekibi elle yazdı; ekranda kaynak olarak bu cümle görünür (uydurma
+   "model yanıtı" iddiası yok). Kriter tavanları varsayılan rubrikle aynı (8/6/6). */
+const DEMO_YANIT_2 = "Tren ilk tepede en çok potansiyel enerjiye sahiptir. Aşağı inerken bu enerji kinetik " +
+  "enerjiye dönüşür ve tren hızlanır. Ama raylarla sürtünme ve hava direnci yüzünden enerjinin bir kısmı " +
+  "ısıya dönüşür. Bu yüzden tren sonraki tepeye çıkarken ilk enerjisinin tamamına sahip olmaz ve ilk " +
+  "tepeden daha yükseğe çıkamaz.";
+const DEMO_ORNEK_DEGERLENDIRME_2 = {
+  kaynakNotu: "Mihenk ekibinin elle yazdığı örnek öneri; model yanıtı değildir",
+  rubrik: { maxScore: 20, criteria: [["Kavram doğruluğu", 40], ["Örnek / uygulama", 30], ["Anlatım açıklığı", 30]] },
+  yanit: {
+    aiScore: 17,
+    justification: "Potansiyel enerjinin kinetik enerjiye dönüştüğünü ve sürtünmeyle bir kısmının ısıya geçtiğini doğru ilişkilendirmiş; sayısal ya da günlük hayattan ikinci bir örnek yok.",
+    studentFeedback: "Enerji dönüşümünü ve sürtünmenin etkisini doğru açıklamışsın. Bir sonraki adımda, örneğin frenlemede ısınan tekerlek gibi ikinci bir örnek ekleyebilirsin.",
+    confidence: 0.82, injectionAttempt: false, dilUyarisi: false, dilSozcukler: [],
+    breakdown: [
+      { label: "Kavram doğruluğu", weight: 40, max: 8, points: 7,
+        reason: "Potansiyel → kinetik dönüşümü ve sürtünmeyle ısıya geçen enerjiyi doğru kurmuş." },
+      { label: "Örnek / uygulama", weight: 30, max: 6, points: 5,
+        reason: "Lunapark treni bağlamında açıklamış; ikinci bir somut örnek vermemiş." },
+      { label: "Anlatım açıklığı", weight: 30, max: 6, points: 5,
+        reason: "Neden-sonuç zinciri açık; son cümle kararı açıkça bağlıyor." },
+    ],
+  },
+};
+
+/** §120: demo alanının açık uçlu örnekleri — DEMO_SORULAR'daki açık uçlu sorularla AYNI sırada. */
+function demoAcikOrnekleri() {
+  return [
+    { yanit: DEMO_YANIT, kaynakNotu: "5 Kasım 2026'da kaydedilmiş canlı model yanıtı", tohum: DEMO_TOHUM_DEGERLENDIRME },
+    { yanit: DEMO_YANIT_2, kaynakNotu: DEMO_ORNEK_DEGERLENDIRME_2.kaynakNotu, tohum: DEMO_ORNEK_DEGERLENDIRME_2 },
+  ];
+}
+
+/** §120 SAF: bu girdiye ait örnek öneri (kopya) ya da null. Soru demo olmalı,
+ *  gövdesi i. demo açık uçlu soruyla, yanıt ve rubrik o örnekle birebir aynı olmalı. */
+function demoOrnekBul(q, answerText, rubric) {
+  if (!q || q.demo !== true || q.type !== "open" || !rubric) return null;
+  const aciklar = DEMO_SORULAR.filter(function (x) { return x.type === "open"; });
+  const i = aciklar.findIndex(function (x) { return x.body.trim() === String(q.body || "").trim(); });
+  const o = demoAcikOrnekleri()[i];
+  if (i < 0 || !o || !o.tohum || !o.tohum.yanit) return null;
+  if (String(answerText || "").trim() !== o.yanit.trim()) return null;
+  const t = o.tohum.rubrik, c = rubric.criteria || [];
+  if (Number(rubric.maxScore) !== t.maxScore || c.length !== t.criteria.length) return null;
+  const ayni = t.criteria.every(function (k, j) { return String(c[j].label || "").trim() === k[0] && Number(c[j].weight) === k[1]; });
+  if (!ayni) return null;
+  const sonuc = JSON.parse(JSON.stringify(o.tohum.yanit));
+  sonuc.maxScore = t.maxScore;
+  sonuc.kaynak = { source: "demo", yedekModel: false, model: "" };
+  sonuc.demoOrnek = true;
+  sonuc.ornekKaynak = o.kaynakNotu;
+  return sonuc;
+}
+
+/** §120: demo alanında aiEvaluate'in yerine geçer. Model çağrılmaz; örnek yoksa
+ *  öneri uydurulmaz, "elle puanlayın" sonucu döner (öğretmen yine karar verir). */
+function demoAlaniDegerlendirmesi(q, answerText, rubric, sid) {
+  const ornek = demoOrnekBul(q, answerText, rubric);
+  auditKaydet("degerlendirme_onerildi", {
+    qid: q.id, sid: sid, soru: auditKisalt(q.body),
+    aiScore: ornek ? ornek.aiScore : null, confidence: ornek ? ornek.confidence : null,
+    model: ornek ? "örnek veri — demo alanı (model çağrılmadı)" : "demo alanı — örnek yok, elle puanlanacak (model çağrılmadı)",
+  });
+  if (ornek) return ornek;
+  return { failed: true, demoAlani: true, kod: "demo_alani", error: "Bu yanıt için kayıtlı örnek öneri yok ve demo alanında yapay zekâ çağrılmaz; lütfen elle puanlayın.",
+           maxScore: rubric.maxScore, aiScore: null, justification: "", confidence: null, breakdown: [] };
+}
+
 /** Girdi demo tohumuyla BİREBİR aynı mı? (soru metni, yanıt, rubrik) */
 function demoTohumEslesir(q, answerText, rubric) {
   if (!q || q.demo !== true || q.type !== "open" || !rubric) return false;
@@ -2609,10 +2892,18 @@ function demoTohumDegerlendirmesi(q, answerText, rubric, hataMesaji) {
    "yerel simülasyon (model çağrılmadı)". Isı haritasındaki "(örnek)"
    satırları ayrı bir sistemdir (§37) ve buradan etkilenmez. */
 function loadDemoScenario() {
+  /* §120: demo HER ZAMAN ayrı kayıt alanında kurulur (demoAlaninaGec):
+     kullanıcının bekleyen kaydı önce kendi anahtarına yazılır, bellek
+     varsayılan duruma döner, bundan sonraki her kayıt DEMO_STORE_KEY'e gider. */
+  demoAlaninaGec();
+  const mevcutKod = {};
+  state.outcomes.forEach(function (o) { if (o && o.code) mevcutKod[o.code] = true; });
+  state.outcomes = state.outcomes.concat(DEMO_KAZANIMLAR.filter(function (o) { return !mevcutKod[o.code]; })
+    .map(function (o) { return Object.assign({}, o); }));
   state.questions = DEMO_SORULAR.map(function (q) {
     const kopya = JSON.parse(JSON.stringify(q));
     kopya.id = qIdSeq++;
-    kopya.outcome = "FEN.7.1.2";
+    kopya.outcome = q.outcome || "FEN.7.1.2";
     kopya.status = "approved";
     kopya.demo = true;
     return kopya;
@@ -2628,13 +2919,19 @@ function loadDemoScenario() {
   state.ceForm.grade = 7;
   state.ceForm.outcomeCode = "FEN.7.1.2";
   state.ceForm.text = DEMO_METIN;
-  if (state.activeExamId == null) ensureExamList();
-  state.exam.title = "Kuvvet ve Hareket — Kısa Sınav";
+  /* §120: 24 kişilik örnek sınıf (uydurma adlar, hepsi "simüle"). */
+  state.students = DEMO_OGRENCI_ADLARI.map(function (ad) {
+    return { id: studentIdSeq++, name: ad, sinif: DEMO_SINIF, demo: true };
+  });
+  state.sinifKuruldu = true;
+  state.activeStudentId = state.students[0].id;
+  ensureExamList();
+  state.exam.title = "Kuvvet ve Enerji — Ünite Sınavı";
   // Onay bekleyen soru sınava GİRMEZ: onaylanmamış soru sınava konamaz.
   state.exam.questionIds = state.questions
     .filter(function (q) { return q.status === "approved"; })
     .map(function (q) { return q.id; });
-  state.exam.durationMin = 10;
+  state.exam.durationMin = 25;
   state.exam.startDelaySec = 0;
   // Adım 2'nin gerçek aksiyonu: sınavı ÖĞRETMEN yayınlar.
   state.exam.status = "draft";
@@ -2642,10 +2939,14 @@ function loadDemoScenario() {
   state.exam.startMode = "now";
   state.questions.filter(function (q) { return q.type === "open"; }).forEach(function (q) { ensureRubric(q.id); });
   // Yanıtlar hazır ama sınav BAŞLAMADI: adım 3'te sunumcu başlatıp bitirir.
+  const ornekler = demoAcikOrnekleri();
+  let acikSira = 0;
   state.answers = {};
   state.exam.questionIds.forEach(function (qid) {
     const q = state.questions.find(function (x) { return x.id === qid; });
-    if (q) state.answers[q.id] = q.type === "mc" ? { selectedKey: q.correctKey } : { text: DEMO_YANIT };
+    if (!q) return;
+    if (q.type === "mc") state.answers[q.id] = { selectedKey: q.correctKey };
+    else state.answers[q.id] = { text: (ornekler[acikSira++] || ornekler[0]).yanit };
   });
   state.examStatus = "not_started";
   state.remainingSec = state.exam.durationMin * 60;
@@ -2659,6 +2960,74 @@ function loadDemoScenario() {
   _demoKilitUyari = null;
   demoAdimaGit(1);
   return;
+}
+
+/* §120 — Demo alanına geçiş. Açılışta (ilkDurumuSakla) alınan varsayılan
+   durumun kopyası belleğe konur: kullanıcının soruları, öğrencileri,
+   kitaplık listesi demo alanında GÖRÜNMEZ (kitaplık kaydı silinemez de).
+   Kullanıcının kaydına dokunulan TEK an: bekleyen kayıt zamanlayıcısı
+   varsa o kayıt hemen kendi anahtarına yazılır (zaten 400 ms içinde
+   yazılacaktı; demo yüzünden kaybolmasın). */
+let _ilkDurum = null;
+function ilkDurumuSakla() {
+  const d = {};
+  KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
+  _ilkDurum = JSON.stringify(d);
+}
+
+function demoAlaninaGec() {
+  if (!demoAlaniMi()) {
+    if (typeof _saveTimer !== "undefined" && _saveTimer) {
+      clearTimeout(_saveTimer); _saveTimer = null;
+      aktifOturumuYaz(); saveState();
+    }
+    _demoAlani = true;
+    try { sessionStorage.setItem(DEMO_ALAN_BAYRAGI, "1"); } catch (e) { /* özel pencere: yalnız bu sayfa ömrü */ }
+  }
+  const ilk = JSON.parse(_ilkDurum || "{}");
+  KALICI_ALANLAR.forEach(function (k) {
+    state[k] = Object.prototype.hasOwnProperty.call(ilk, k) ? ilk[k] : undefined;
+  });
+  qIdSeq = 1; examIdSeq = 1; studentIdSeq = 1;
+  state.pdf = null; state.editingQid = null; state.remedial = null; state.ogt = null;
+  state.demoAdim = null; state.demoEnUzak = null;
+  ensureOutcomeMeta();
+  ensureSources();
+}
+
+/** §120 — Demodan çıkış: demo kaydı atılır, sekme bayrağı kalkar, sayfa
+ *  yeniden yüklenir; kullanıcının verisi STORE_KEY'den olduğu gibi okunur. */
+function demoAlanindanCik() {
+  _resetting = true;   // aradaki hiçbir kayıt yazılmasın
+  if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  try { localStorage.removeItem(DEMO_STORE_KEY); } catch (e) { /* önemsiz */ }
+  try { sessionStorage.removeItem(DEMO_ALAN_BAYRAGI); sessionStorage.setItem(DEMO_CIKIS_BAYRAGI, "1"); } catch (e) { /* önemsiz */ }
+  _demoAlani = false;
+  location.reload();
+}
+
+/** §120 — Açılışın son adımı: demo alanındaysa giriş kapısı kapanır (rehber
+ *  açıksa kaldığı adıma döner); demodan yeni çıkıldıysa kapıda tek seferlik
+ *  bilgi satırı görünür. */
+function demoAcilisiniTamamla() {
+  if (demoAlaniMi()) {
+    if (state.demoAdim) { demoAdimaGit(state.demoAdim); return; }
+    const kapi = document.getElementById("girisKapisi");
+    if (kapi && !kapi.hidden && state.role) { kapi.hidden = true; document.body.style.overflow = ""; renderAll(); }
+    return;
+  }
+  let cikti = false;
+  try { cikti = sessionStorage.getItem(DEMO_CIKIS_BAYRAGI) === "1"; sessionStorage.removeItem(DEMO_CIKIS_BAYRAGI); } catch (e) { cikti = false; }
+  if (!cikti) return;
+  const kartlar = document.getElementById("gkKartlar");
+  if (kartlar && !document.getElementById("gkDemoDonus")) {
+    const not = document.createElement("p");
+    not.id = "gkDemoDonus";
+    not.className = "gk-demo-donus";
+    not.setAttribute("role", "status");
+    not.textContent = "Demodan çıktınız. Kendi verileriniz olduğu gibi yüklendi; demo verisi silindi.";
+    kartlar.parentNode.insertBefore(not, kartlar);
+  }
 }
 
 /* Demo Akışı'nın beş adımı. Her adım YALNIZCA rol + sekme söyler; hiçbir
@@ -2712,9 +3081,20 @@ function demoAdimaGit(no) {
   renderAll();
 }
 
-/** Rehberli demoyu kapatır. Üretilen veriye DOKUNMAZ; yalnızca yönlendirmeyi
-    sonlandırır. Veriyi temizlemek isteyen mevcut "Sıfırla" düğmesini kullanır. */
+/** Rehberli demoyu bitirir. §120: demo ayrı alanda çalıştığı için bitirmek =
+    demo alanından çıkmak; demo verisi atılır, kullanıcının kendi verisi geri gelir. */
 function demoBitir() {
+  state.demoAdim = null;
+  state.demoEnUzak = null;
+  _demoKilitUyari = null;
+  if (demoAlaniMi()) { demoAlanindanCik(); return; }
+  renderAll();
+}
+
+/** §120: yalnız rehber şeridini kapatır, demo alanında KALIR (örnek veriyle
+    serbest gezinme; ekran görüntüsü ve erişilebilirlik araçları bunu kullanır).
+    Şerit yerine "Demo alanı" bilgi şeridi ve "Kendi verime dön" görünür. */
+function demoSeridiniKapat() {
   state.demoAdim = null;
   state.demoEnUzak = null;
   _demoKilitUyari = null;
@@ -2800,11 +3180,13 @@ function demoAdimListesiHtml() {
       const ek = d.durum === "simdiki" ? "şu anki adım" : d.durum === "tamam" ? "tamamlandı"
         : d.durum === "kilitli" ? "kilitli" : "açık";
       return '<li><button type="button" class="demo-adim-btn js-demo-adim is-' + d.durum + '" data-demo-adim="' + x.no + '"' +
-        ' aria-label="' + escapeHtml("Adım " + x.no + "/" + N + ", " + x.roleAd + " — " + ek) + '"' +
+        /* §120: erişilebilir ad GÖRÜNEN metinle başlar (WCAG 2.5.3, axe
+           label-content-name-mismatch; main'de de vardı). */
+        ' aria-label="' + escapeHtml((d.durum === "tamam" ? "" : x.no + " ") + (x.kisaAd || x.roleAd) + " — adım " + x.no + "/" + N + ", " + x.roleAd + ", " + ek) + '"' +
         ' title="' + escapeHtml(x.no + ". " + x.roleAd + (d.durum === "kilitli" && neden ? " — " + neden : "")) + '"' +
         (d.durum === "simdiki" ? ' aria-current="step"' : "") +
         (d.durum === "kilitli" ? ' aria-disabled="true"' + (neden ? ' aria-describedby="demoKilitNeden"' : "") : "") + ">" +
-        '<span class="demo-no tabular" aria-hidden="true">' + (d.durum === "tamam" ? "✓" : x.no) + "</span>" +
+        '<span class="demo-no tabular" aria-hidden="true">' + (d.durum === "tamam" ? "✓" : x.no) + "</span> " +
         '<span class="demo-ad" aria-hidden="true">' + escapeHtml(x.kisaAd || x.roleAd) + "</span>" +
         "</button></li>";
     }).join("") + "</ol></nav>" +
@@ -2814,12 +3196,20 @@ function demoAdimListesiHtml() {
 /** Üst çubuktaki demo şeridi. Demo kapalıysa boş dizedir. */
 function demoSeridiHtml() {
   const a = DEMO_ADIMLARI.find(function (x) { return x.no === state.demoAdim; });
+  /* §120: rehber kapalı ama demo alanındaysa yalnız bilgi şeridi + dönüş düğmesi. */
+  if (!a && demoAlaniMi()) {
+    return '<div class="demo-serit demo-alan-serit">' +
+      '<span class="demo-rozet">Demo alanı</span>' +
+      '<span class="demo-metin"><b>Örnek veri.</b> ' + escapeHtml(DEMO_KORUMA_METNI) + "</span>" +
+      '<span class="demo-dugmeler"><button type="button" class="btn btn-secondary btn-sm js-demo-bitir">Kendi verime dön</button></span></div>';
+  }
   if (!a) return "";
   const son = a.no === DEMO_ADIMLARI.length;
   const acik = a.hazir();
   return '<div class="demo-serit">' +
     '<span class="demo-rozet">Demo Akışı</span>' +
     demoAdimListesiHtml() +
+    '<span class="demo-alan-not">Örnek veri · kendi veriniz korunuyor</span>' +   // §120
     '<span class="demo-metin"><b>' + escapeHtml(a.roleAd) + ":</b> " + escapeHtml(a.aciklama) + "</span>" +
     (_demoKilitUyari
       ? '<span class="demo-kilit demo-kilit-uyari">' + escapeHtml("Adım " + _demoKilitUyari.no + " kilitli: " + _demoKilitUyari.metin) + "</span>"
@@ -2827,7 +3217,7 @@ function demoSeridiHtml() {
     '<span class="demo-dugmeler">' +
     '<button type="button" class="btn btn-primary btn-sm js-demo-ileri"' + (acik ? "" : " disabled") +
       (acik ? "" : ' title="' + escapeHtml(a.kilit) + '"') + ">" + escapeHtml(a.sonraki) + "</button>" +
-    (son ? "" : '<button type="button" class="btn btn-secondary btn-sm js-demo-bitir">Demoyu Bitir</button>') +
+    (son ? "" : '<button type="button" class="btn btn-secondary btn-sm js-demo-bitir" title="Demo verisi silinir, kendi verinize dönersiniz">Demoyu Bitir</button>') +
     "</span></div>";
 }
 
@@ -2888,80 +3278,147 @@ function renderDemoSerit() {
    - Aktif öğrenci DIŞARIDA bırakılır: sunumu yapan kişi zinciri (çöz → değerlendir
      → onayla → karne) canlı ve gerçek modelle gösterebilsin.
    - Hiçbir sayı sabit değildir; hepsi buradaki oturumlardan HESAPLANIR. */
-function demoSinifOturumlari() {
-  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
-  if (!kayit) return 0;
-  const mcler = state.questions.filter(function (q) { return q.type === "mc"; });
-  const acik = state.questions.find(function (q) { return q.type === "open"; });
-  const rub = acik ? state.rubrics[acik.id] : null;
-  if (!acik || !rub) return 0;
+/* §120 — Deterministik sahte rastgele üreteç (mulberry32). Aynı tohum → aynı
+   sınıf: ekran görüntüleri, testler ve jüri demosu her seferinde aynı sayıyı
+   gösterir. Math.random KULLANILMAZ. */
+const DEMO_SINIF_TOHUMU = 2026;
+function demoRastgele(tohum) {
+  let a = tohum | 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-  const SIMULE_MODEL = "yerel simülasyon (model çağrılmadı)";
-  // Üç farklı başarı düzeyi: ısı haritası ve madde analizi ayrışsın diye
-  // ÇSS doğruluğu da öğrenciden öğrenciye değişir.
-  const desenler = [
-    { mc: [true, true],   ai: 16, nihai: 16, karar: "approved_as_is", guven: 0.88,
-      yanit: "Tekerlekli platformu öneririm. Pürüzlü betonda koli doğrudan itilirse sürtünme kuvveti büyük olur ve harekete zıt yönde etki eder. Tekerlek kayma yerine yuvarlanma sağladığı için sürtünme azalır, aynı koli daha az kuvvetle taşınır.",
-      kirilim: [8, 5, 3],
+/* Açık uçlu yanıt düzeyleri (iyi / orta / zayıf), DEMO_SORULAR'daki açık uçlu
+   sorularla aynı sırada. Gerekçeler kriter sırasıyla (kavram, örnek, anlatım). */
+const DEMO_ACIK_DUZEYLER = [
+  [
+    { yanit: "Tekerlekli platformu öneririm. Pürüzlü betonda koli doğrudan itilirse sürtünme kuvveti büyük olur ve harekete zıt yönde etki eder. Tekerlek kayma yerine yuvarlanma sağladığı için sürtünme azalır, aynı koli daha az kuvvetle taşınır.",
       gerekce: ["Sürtünmenin harekete zıt yönde etki ettiğini ve zeminin pürüzlülüğüyle ilişkisini doğru kurmuş.",
                 "Tekerleğin yuvarlanma sağladığını söylemiş ancak günlük hayattan ikinci bir örnek vermemiş.",
-                "Anlatım anlaşılır fakat cümleler kısa; nedensellik bağlaçları zayıf."] },
-    { mc: [true, false],  ai: 13, nihai: 11, karar: "revised", guven: 0.62,
-      yanit: "Tekerlekli olan daha iyi bence. İtince zor oluyor, tekerlekle daha kolay gidiyor ama nedenini tam bilmiyorum.",
-      kirilim: [5, 3, 3],
+                "Anlatım anlaşılır; nedensellik bağlaçları yerinde."] },
+    { yanit: "Tekerlekli olan daha iyi bence. İtince zor oluyor, tekerlekle daha kolay gidiyor ama nedenini tam bilmiyorum.",
       gerekce: ["Doğru seçeneği işaretlemiş ama kararını sürtünme kavramıyla hiç ilişkilendirmemiş.",
                 "Gözleme dayalı bir gerekçe vermiş; kuvvet ve sürtünme kavramları kullanılmamış.",
                 "İfade açık ancak öğrenci bilmediğini belirterek açıklamayı yarıda bırakmış."] },
-    { mc: [false, true],  ai: 7,  nihai: 7,  karar: "approved_as_is", guven: 0.71,
-      yanit: "Kuvvet itmek ve çekmektir. Depoda sürtünme kuvveti vardır.",
-      kirilim: [4, 1, 2],
+    { yanit: "Kuvvet itmek ve çekmektir. Depoda sürtünme kuvveti vardır.",
       gerekce: ["Kuvvetin tanımını vermiş ama sorunun istediği KARARI hiç belirtmemiş.",
                 "Örnek ya da gerekçe yok; sürtünme yalnızca adıyla anılmış.",
                 "İki cümlelik yanıt kazanımı karşılamak için yeterli değil."] },
-  ];
+  ],
+  [
+    { yanit: "İlk tepede trenin potansiyel enerjisi en büyüktür; inerken kinetik enerjiye dönüşür. Sürtünme ve hava direnci yüzünden enerjinin bir kısmı ısıya geçtiği için tren, ilk tepedeki yüksekliğe bir daha çıkamaz. Sonraki tepe daha yüksek olsaydı tren onu aşamazdı.",
+      gerekce: ["Dönüşümü ve sürtünmeyle ısıya geçen enerjiyi doğru kurmuş.",
+                "Kararı tasarıma bağlamış; tepe yüksekliği ile enerji arasındaki ilişkiyi göstermiş.",
+                "Neden-sonuç zinciri açık ve eksiksiz."] },
+    { yanit: "Tren aşağı inince hızlanıyor, yukarı çıkınca yavaşlıyor. Sonraki tepe yüksek olursa tren çıkamayabilir çünkü yavaşlar.",
+      gerekce: ["Hız değişimini fark etmiş ama potansiyel ve kinetik enerji kavramlarını kullanmamış.",
+                "Sürtünmenin etkisinden hiç söz etmemiş.",
+                "Anlaşılır ama gerekçe yüzeysel kalmış."] },
+    { yanit: "Çünkü mühendis öyle hesaplamış. Yüksek tepe tehlikeli olur.",
+      gerekce: ["Enerji kavramı kullanılmamış; karar güvenlik gerekçesine kaydırılmış.",
+                "Örnek ya da fiziksel açıklama yok.",
+                "Yanıt sorunun istediği değerlendirmeyi yapmıyor."] },
+  ],
+];
 
+/** §120 SAF: n öğrencilik sınıfın deterministik yanıt deseni.
+ *  mcZorluklar: ["easy"|"medium"|"hard"], acikSayisi: açık uçlu soru sayısı.
+ *  Satır: { mc: [{ dogru, celdirici }], acik: [{ nihai, ai, karar, guven, duzey }] }.
+ *  Yetenek (θ) ile madde güçlüğü (b) lojistik ilişkiyle bağlanır (a = 1,3);
+ *  böylece madde analizi ve KR-20 gerçekçi, tutarlı bir sınıf gösterir. */
+function demoSinifVerisi(mcZorluklar, acikSayisi, n, tohum) {
+  const r = demoRastgele(tohum == null ? DEMO_SINIF_TOHUMU : tohum);
+  const taban = { easy: -1.3, medium: -0.1, hard: 1.0 };
+  const b = mcZorluklar.map(function (z, j) { return (taban[z] != null ? taban[z] : 0) + ((j % 3) - 1) * 0.25; });
+  const acikB = [-0.3, 0.3];
+  const lojistik = function (x) { return 1 / (1 + Math.exp(-1.3 * x)); };
+  // Yetenekler: -1,7 … +1,7 arası eşit aralık + küçük sarsıntı, sonra sıra karıştırılır
+  // (listedeki sıra başarıyla ilişkili görünmesin).
+  const teta = [];
+  for (let i = 0; i < n; i++) teta.push(-1.7 + 3.4 * i / Math.max(1, n - 1) + (r() - 0.5) * 0.4);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = teta[i]; teta[i] = teta[j]; teta[j] = t; }
+  return teta.map(function (th) {
+    const mc = b.map(function (bj) {
+      const dogru = r() < lojistik(th - bj);
+      const u = r();
+      return { dogru: dogru, celdirici: dogru ? null : (u < 0.5 ? 0 : u < 0.8 ? 1 : 2) };
+    });
+    const acik = [];
+    for (let k = 0; k < acikSayisi; k++) {
+      const f = lojistik(th - (acikB[k] != null ? acikB[k] : 0));
+      const nihai = Math.max(3, Math.min(19, Math.round(20 * f + (r() - 0.5) * 2)));
+      const u = r();
+      const fark = u < 0.6 ? 0 : u < 0.8 ? 2 : u < 0.9 ? -1 : 1;
+      const ai = Math.max(0, Math.min(20, nihai + fark));
+      acik.push({ nihai: nihai, ai: ai, karar: ai === nihai ? "approved_as_is" : "revised",
+                  guven: Math.round((0.6 + 0.3 * r()) * 100) / 100, duzey: nihai >= 15 ? 0 : nihai >= 9 ? 1 : 2 });
+    }
+    return { mc: mc, acik: acik };
+  });
+}
+
+function demoSinifOturumlari() {
+  const kayit = state.exams.find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return 0;
+  const sinavdakiler = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+    .filter(Boolean);
+  const mcler = sinavdakiler.filter(function (q) { return q.type === "mc"; });
+  const aciklar = sinavdakiler.filter(function (q) { return q.type === "open" && state.rubrics[q.id]; });
+  if (!aciklar.length) return 0;
+
+  const SIMULE_MODEL = "yerel simülasyon (model çağrılmadı)";
   const digerleri = (state.students || []).filter(function (s) { return s.id !== state.activeStudentId; });
+  const veri = demoSinifVerisi(mcler.map(function (q) { return q.difficulty; }), aciklar.length, digerleri.length);
   let yazilan = 0;
 
   digerleri.forEach(function (ogr, i) {
-    const d = desenler[i % desenler.length];
+    const d = veri[i];
     ogr.demo = true;                       // arayüzde "simüle" rozeti
     const ss = sessionOf(kayit, ogr.id);   // ürünün kendi oturum yazıcısı (§3.2)
     ss.answers = {}; ss.mcResults = {}; ss.aiEvals = {}; ss.reviews = {};
 
     mcler.forEach(function (q, j) {
-      const dogruMu = !!d.mc[j % d.mc.length];
-      // Yanlış cevapta doğru şıkkın DIŞINDA bir şık seçilmeli.
-      const yanlisSik = (q.options || []).find(function (o) { return o.key !== q.correctKey; });
-      ss.answers[q.id] = { selectedKey: dogruMu ? q.correctKey : (yanlisSik ? yanlisSik.key : q.correctKey) };
-      ss.mcResults[q.id] = { correct: dogruMu };
+      const m = d.mc[j];
+      // Yanlış cevapta doğru şıkkın DIŞINDA bir şık seçilir (çeldiriciler sırayla).
+      const yanlislar = (q.options || []).filter(function (o) { return o.key !== q.correctKey; });
+      const yanlis = yanlislar[m.celdirici % Math.max(1, yanlislar.length)];
+      ss.answers[q.id] = { selectedKey: m.dogru || !yanlis ? q.correctKey : yanlis.key };
+      ss.mcResults[q.id] = { correct: m.dogru || !yanlis };
     });
 
-    ss.answers[acik.id] = { text: d.yanit, savedAt: Date.now() };
-    ss.aiEvals[acik.id] = {
-      aiScore: d.ai,
-      confidence: d.guven,
-      breakdown: rub.criteria.map(function (c, k) {
+    aciklar.forEach(function (acik, k) {
+      const a = d.acik[k];
+      const rub = state.rubrics[acik.id];
+      const duzey = ((DEMO_ACIK_DUZEYLER[k] || DEMO_ACIK_DUZEYLER[0])[a.duzey]);
+      let kalan = a.ai;
+      const kirilim = rub.criteria.map(function (c, ci) {
         const tavan = Math.round(rub.maxScore * (c.weight / 100) * 10) / 10;
-        return { label: c.label, points: Math.min(d.kirilim[k] != null ? d.kirilim[k] : 0, tavan), max: tavan,
-                 reason: (d.gerekce || [])[k] || "" };
-      }),
-      /* Simüle olduğu ÖZET satırında açıkça yazar; öğrenci çipinde "simüle"
-         rozeti, denetim izinde "model çağrılmadı" kaydı vardır. Kriter
-         gerekçeleri anlamlı yazıldı çünkü yer tutucu metin öğretmene de
-         jüriye de hiçbir şey göstermiyordu (§6.3-5: gizleme yok, ETİKETLE). */
-      justification: "Demo senaryosunun parçası olan simüle sınıf verisidir; bu yanıt için model çağrılmadı.",
-      studentFeedback: "Açıklamanı örneklerle biraz daha genişletmen gerekiyor.",
-      model: SIMULE_MODEL, simulated: true
-    };
-    ss.reviews[acik.id] = { finalScore: d.nihai, comment: "", decision: d.karar, aiScore: d.ai };
+        const pay = ci === rub.criteria.length - 1 ? kalan : Math.round(a.ai * (c.weight / 100));
+        const puan = Math.max(0, Math.min(tavan, pay));
+        kalan -= puan;
+        return { label: c.label, points: puan, max: tavan, reason: (duzey.gerekce || [])[ci] || "" };
+      });
+      ss.answers[acik.id] = { text: duzey.yanit, savedAt: Date.now() };
+      ss.aiEvals[acik.id] = {
+        aiScore: a.ai, confidence: a.guven, breakdown: kirilim,
+        /* Simüle olduğu ÖZET satırında açıkça yazar; öğrenci çipinde "simüle"
+           rozeti, denetim izinde "model çağrılmadı" kaydı vardır (§6.3-5). */
+        justification: "Demo senaryosunun parçası olan simüle sınıf verisidir; bu yanıt için model çağrılmadı.",
+        studentFeedback: "Açıklamanı örneklerle biraz daha genişletmen gerekiyor.",
+        model: SIMULE_MODEL, simulated: true
+      };
+      ss.reviews[acik.id] = { finalScore: a.nihai, comment: "", decision: a.karar, aiScore: a.ai };
+      auditKaydet("degerlendirme_onerildi", { qid: acik.id, sid: ogr.id,
+        soru: auditKisalt(acik.body), aiScore: a.ai, model: SIMULE_MODEL });
+      auditKaydet("puan_karari", { qid: acik.id, sid: ogr.id,
+        soru: auditKisalt(acik.body), aiScore: a.ai, finalScore: a.nihai,
+        degisti: Math.abs(a.nihai - a.ai) > 0.001, model: SIMULE_MODEL });
+    });
     ss.examStatus = "graded";
-
-    auditKaydet("degerlendirme_onerildi", { qid: acik.id, sid: ogr.id,
-      soru: auditKisalt(acik.body), aiScore: d.ai, model: SIMULE_MODEL });
-    auditKaydet("puan_karari", { qid: acik.id, sid: ogr.id,
-      soru: auditKisalt(acik.body), aiScore: d.ai, finalScore: d.nihai,
-      degisti: Math.abs(d.nihai - d.ai) > 0.001, model: SIMULE_MODEL });
     yazilan++;
   });
 
@@ -4406,6 +4863,12 @@ function dbAc() {
 
 /** Tek bir IndexedDB işlemi; işlem tamamlanana kadar bekler. */
 function dbIslem(mod, fn) {
+  /* §120: kitaplık kullanıcının verisidir. Demo alanında kitap kimlikleri
+     sıfırdan başlar; yazma izni olsaydı demo, kullanıcının 1 numaralı kitabının
+     üstüne yazabilirdi. Okuma serbest, yazma/silme reddedilir. */
+  if (mod !== "readonly" && demoAlaniMi()) {
+    return Promise.reject(new Error("Demo alanında kitaplığa kaydedilmez; belge yalnız bu oturumda kullanılır."));
+  }
   return dbAc().then(function (db) {
     return new Promise(function (resolve, reject) {
       var tx, store, istek;
@@ -4852,6 +5315,9 @@ var AUDIT_ETIKET = {
   yz_izni_toplu:        { ad: "YZ izni toplu işaretlendi", sinif: "pill-neutral", aktor: "öğretmen" },
   /* §114: OYSS senaryosu sınav taslağına yazıldı (dosya adı/içeriği kayda girmez). */
   oyss_senaryo_yazildi: { ad: "OYSS senaryosu taslağa yazıldı", sinif: "pill-neutral", aktor: "öğretmen" },
+  /* §120: Mihenk ekibinin yazdığı örnek sorular havuza alındı. Yapay zekâ
+     üretmedi; model sayımına ve kabul oranına GİRMEZ. */
+  ornek_paket_alindi:   { ad: "Örnek sorular havuza alındı", sinif: "pill-neutral", aktor: "kullanıcı" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
@@ -5003,6 +5469,10 @@ function auditSatirHtml(k) {
     // §104b: önceki durum ve rol; eski red nedeni aşağıdaki satırda.
     detay.push("önceki durum: " + escapeHtml(k.oncekiDurum === "rejected" ? "reddedilmiş" : String(k.oncekiDurum || "?")) +
       (k.rol ? " · rol: " + escapeHtml(rolAdi(k.rol)) : ""));
+  }
+  // §120: öğretmen sihirbazında yazılan/onaylanan soru ve örnek paket — rol görünür.
+  if ((k.tur === "soru_onaylandi" || k.tur === "soru_elle_yazildi" || k.tur === "ornek_paket_alindi") && k.rol) {
+    detay.push("rol: " + escapeHtml(rolAdi(k.rol)));
   }
   if (k.tur === "onayli_soru_duzenlendi" && Array.isArray(k.alanlar)) {
     // §107: hangi alanlar değişti + rol; anahtar değiştiyse aşağıdaki satırda eski → yeni.
@@ -5926,6 +6396,9 @@ function soruyuOnayla(q) {
     supheler: supheler.length ? supheler : null,
     /* §99: elle yazılan sorunun onayı; denetim özetinde ayrı sayılır. */
     elle: q.yazan === "insan" ? true : null,
+    /* §120: onay İçerik Uzmanı dışında bir panelden (öğretmenin sınav
+       sihirbazı) verildiyse rol ayrıca yazılır; günlükte "rol: Öğretmen". */
+    rol: state.role && state.role !== "content_expert" ? state.role : null,
     /* §104: anahtar izi. Yalnız modelin geçerli bir anahtar verdiği ÇSS'de
        (ilkAnahtar, şık taşımalarıyla birlikte yeniden harflenir). Anahtar
        değiştiyse eski → yeni harf; A1/A2 rozeti de bu soruların paydasıdır. */
@@ -6267,7 +6740,8 @@ function elleSoruOlustur(tur) {
     yazan: "insan", elleTaslak: true,
   };
   state.questions = state.questions.concat([q]);
-  auditKaydet("soru_elle_yazildi", { qid: q.id, not: mc ? "çoktan seçmeli" : "açık uçlu" });
+  auditKaydet("soru_elle_yazildi", { qid: q.id, not: mc ? "çoktan seçmeli" : "açık uçlu",
+    rol: state.role && state.role !== "content_expert" ? state.role : null });   // §120
   state.ceElleOdak = q.id;           // yalnız arayüz: çizimden sonra gövdeye odak
   renderAll();
   return q;
@@ -6893,7 +7367,9 @@ function ceCreateHtml() {
     alignmentBarHtml(pending) +
     topluCozBarHtml(pending) +
     '<div id="pendingList" class="' + (pending.length > 1 ? "pending-grid" : "") + '">' +
-    (pending.length ? pending.map(renderPendingQuestionCard).join("")
+    /* §120: öğretmen panelindeyken sihirbazda yazılan taslak orada çizilir;
+       burada da çizilseydi aynı kimlikler (elleEksik-…, kz-pe-…) iki kez olurdu. */
+    (pending.length ? pending.map(function (q) { return state.role === "teacher" && q.ogtTaslak ? "" : renderPendingQuestionCard(q); }).join("")
       : '<div class="empty-state">Henüz taslak yok. Üretilen ya da elle yazılan sorular burada onayınızı bekler.</div>') +
     '</div></div></div>';
 }
@@ -6919,6 +7395,7 @@ const HAVUZ_KAYNAKLARI = [
   { id: "deneyap", ad: "Deneyap kitabı" },
   { id: "demo", ad: "Demo örneği" },
   { id: "elle", ad: "Elle yazılan" },   // §99
+  { id: "ornek", ad: "Örnek paket" },   // §120
 ];
 
 /* =====================================================================
@@ -7376,6 +7853,7 @@ function havuzFiltresi() {
 /** Sorunun kaynak türü — var olan alanlardan (yeni alan yok). */
 function soruKaynakTuru(q) {
   if (q.demo) return "demo";
+  if (q.ornekPaket) return "ornek";          // §120: ekibin yazdığı örnek paket
   if (q.yazan === "insan") return "elle";   // §99
   if (q.srcId != null) return "metin";
   if (/^DNY\./.test(q.outcome || "")) return "deneyap";
@@ -9078,6 +9556,112 @@ function sihirbazAdim1Html() {
     '</div>' + oyssKurHtml();   // §114
 }
 
+/* =====================================================================
+   §120 — BOŞ HAVUZ ÇIKMAZI. Yeni öğretmen 4 tıkta "havuzda onaylı soru yok"
+   ekranına düşüyordu ve tek yol iki rol değişimiydi (fikir2-C madde 5).
+   İki çıkış, ikisi de rol DEĞİŞTİRMEDEN:
+   1) "Örnek soruları içe al": Mihenk ekibinin elle yazdığı 8 soru (6 ÇSS +
+      2 açık uçlu, Fen 7). Yapay zekâ üretmedi; havuzda "Örnek" rozetiyle
+      durur, denetim izine ornek_paket_alindi yazılır. Demo alanından
+      BAĞIMSIZDIR: kullanıcının kendi havuzuna eklenir, demo bayrağı taşımaz.
+   2) "Elle soru yaz" (§99): taslak AYNI bekleme kuyruğuna (ai_generated)
+      girer ve AYNI onay kartından, AYNI soruyuOnayla yolundan geçer. Kart
+      sihirbazın içinde açılır; onay insan eylemidir ve günlükte rol:
+      Öğretmen olarak görünür. Kestirme yok (agents.md §1).
+   ===================================================================== */
+const ORNEK_PAKET_SIRALARI = [0, 1, 2, 3, 4, 6, 8, 10];   // DEMO_SORULAR içindeki sıralar
+const ORNEK_PAKET_NOTU = "Mihenk ekibinin elle yazdığı örnek soru (yapay zekâ üretmedi)";
+
+/** SAF: içe alınacak örnek soruların kopyaları (id'siz). */
+function ornekPaketSorulari() {
+  return ORNEK_PAKET_SIRALARI.map(function (i) { return DEMO_SORULAR[i]; }).filter(Boolean).map(function (q) {
+    const k = JSON.parse(JSON.stringify(q));
+    k.outcome = q.outcome || "FEN.7.1.2";
+    k.status = "approved";
+    k.ornekPaket = true;
+    k.uretenModel = null;            // model çağrılmadı; denetim izi yalan söylemesin
+    return k;
+  });
+}
+
+/** Örnek paketi kullanıcının havuzuna ekler. Aynı gövdeli soru varsa tekrar eklenmez.
+ *  Eksik kazanımlar listeye EKLENİR (silme yok). Dönüş: eklenen soru sayısı. */
+function ornekPaketiIceriAl() {
+  const varOlan = {};
+  (state.questions || []).forEach(function (q) { varOlan[String(q.body || "").trim()] = true; });
+  const yeni = ornekPaketSorulari().filter(function (q) { return !varOlan[q.body.trim()]; });
+  yeni.forEach(function (q) { q.id = qIdSeq++; });
+  const kodlar = {};
+  (state.outcomes || []).forEach(function (o) { if (o && o.code) kodlar[o.code] = true; });
+  const eksikKazanim = VARSAYILAN_KAZANIMLAR.filter(function (o) { return o.code === "FEN.7.1.2"; }).concat(DEMO_KAZANIMLAR)
+    .filter(function (o) { return !kodlar[o.code]; }).map(function (o) { return Object.assign({}, o); });
+  if (eksikKazanim.length) state.outcomes = (state.outcomes || []).concat(eksikKazanim);
+  state.questions = (state.questions || []).concat(yeni);
+  yeni.filter(function (q) { return q.type === "open"; }).forEach(function (q) { ensureRubric(q.id); });
+  auditKaydet("ornek_paket_alindi", { adet: yeni.length, rol: state.role || null, not: ORNEK_PAKET_NOTU });
+  renderAll();
+  durumDuyur(yeni.length + " örnek soru havuza eklendi; sınava eklemek için işaretleyin.");
+  return yeni.length;
+}
+
+/** Havuzdaki örnek paket sorusunun rozeti. */
+function ornekPaketRozetiHtml(q) {
+  return q && q.ornekPaket ? '<span class="pill pill-neutral ornek-rozet" title="' + escapeHtml(ORNEK_PAKET_NOTU) + '">Örnek</span>' : "";
+}
+
+/** Havuz tamamen boşken 2. adımın gövdesi: iki çıkış + İçerik Uzmanı yolu. */
+function bosHavuzCikislariHtml() {
+  return '<div class="es-baslik">Havuzda henüz onaylı soru yok</div>' +
+    '<div class="es-alt">Panel değiştirmeden devam edebilirsiniz: hazır örnek soruları alın ya da sorunuzu kendiniz yazın.</div>' +
+    '<div class="es-eylemler bos-havuz-cikis">' +
+    '<button class="btn btn-primary btn-sm" id="btnOrnekPaket">Örnek soruları içe al</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnOgtElleSoru">Elle soru yaz</button></div>' +
+    '<p class="es-not">Örnek sorular Mihenk ekibinin yazdığı 8 Fen Bilimleri 7. sınıf sorusudur (6 çoktan seçmeli, ' +
+    '2 açık uçlu); havuzda “Örnek” rozetiyle durur, yapay zekâ kullanılmaz. Elle yazdığınız soru, onayınızdan sonra havuza geçer.</p>' +
+    '<button class="btn btn-secondary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>';
+}
+
+/** Sihirbazdan elle soru taslağı: §99 taslağı + sihirbaz işareti. */
+function ogtElleSoruYaz(tur) {
+  const q = elleSoruOlustur(tur);
+  q.ogtTaslak = true;                // yalnız bu kartın sihirbazda görünmesi için
+  delete state.ceElleOdak;
+  state.ogtElleOdak = q.id;          // arayüz: çizimden sonra gövdeye odak
+  renderAll();
+  return q;
+}
+
+/** Sihirbazda yazılan, onay bekleyen taslaklar (§99 kartıyla aynı). */
+function ogtElleTaslaklariHtml() {
+  if (state.role !== "teacher" || state.exam.status === "published") return "";
+  const taslaklar = (state.questions || []).filter(function (q) { return q.status === "ai_generated" && q.ogtTaslak; });
+  if (!taslaklar.length) return "";
+  return '<div class="ogt-elle-taslaklar"><h4 class="ogt-elle-baslik">Yazdığınız sorular — onay bekliyor</h4>' +
+    '<p class="lbl-hint">Soruyu tamamlayıp “Onayla → Havuza Aktar” deyin; onaylanan soru yukarıdaki havuza düşer ve ' +
+    'sınava eklenebilir. Onay sizin kararınızdır; karar günlüğüne “rol: Öğretmen” olarak yazılır.</p>' +
+    taslaklar.map(renderPendingQuestionCard).join("") +
+    '<div class="es-eylemler"><button class="btn btn-secondary btn-sm" id="btnOgtElleSoruBir">Bir soru daha yaz</button>' +
+    '<button class="btn btn-secondary btn-sm" id="btnOgtElleAcik">Açık uçlu soru yaz</button></div></div>';
+}
+
+/** Boş havuz düğmeleri ve sihirbazdaki elle taslak kartları. */
+function wireBosHavuz() {
+  const op = document.getElementById("btnOrnekPaket");
+  if (op) op.onclick = ornekPaketiIceriAl;
+  ["btnOgtElleSoru", "btnOgtElleSoruBir"].forEach(function (id) {
+    const b = document.getElementById(id);
+    if (b) b.onclick = function () { ogtElleSoruYaz("mc"); };
+  });
+  const ac = document.getElementById("btnOgtElleAcik");
+  if (ac) ac.onclick = function () { ogtElleSoruYaz("open"); };
+  if (document.querySelector("#panel-teacher .ogt-elle-taslaklar")) wirePendingCards();
+  if (state.ogtElleOdak != null) {
+    const g = document.querySelector('#panel-teacher .q-body-input[data-qid="' + state.ogtElleOdak + '"]');
+    state.ogtElleOdak = null;
+    if (g) g.focus();
+  }
+}
+
 /** 2. adım: havuzdan soru + sınavdaki sorular + (açık uçlu varsa) rubrik. */
 function sihirbazAdim2Html() {
   const approved = filteredPool();
@@ -9098,7 +9682,7 @@ function sihirbazAdim2Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + onaydanSonraHapHtml(q) + '</div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + onaydanSonraHapHtml(q) + ornekPaketRozetiHtml(q) + '</div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -9108,10 +9692,8 @@ function sihirbazAdim2Html() {
           ? '<div class="es-baslik">Bu filtreye uyan soru yok</div>' +
             '<div class="es-alt">Havuzda ' + tumOnayli + ' onaylı soru var ama seçtiğiniz filtreye uymuyor.</div>' +
             '<button class="btn btn-secondary btn-sm" id="btnFiltreTemizle">Filtreleri temizle</button>'
-          : '<div class="es-baslik">Havuzda henüz onaylı soru yok</div>' +
-            '<div class="es-alt">Sınav kurabilmek için önce İçerik Uzmanı panelinde soru üretip onaylamanız gerekiyor.</div>' +
-            '<button class="btn btn-primary btn-sm" id="btnIcerikUzmaninaGit">İçerik Uzmanı paneline git</button>') +
-        '</div>') + '</div>' +
+          : bosHavuzCikislariHtml()) +   // §120: rol değiştirmeden iki çıkış
+        '</div>') + ogtElleTaslaklariHtml() + '</div>' +
     '<div class="card"><div class="card-head"><h3>Sınavdaki sorular</h3><span class="hint">' + state.exam.questionIds.length + ' soru seçildi</span></div>' +
     (soruKilidi ? '<div class="lbl-hint">Sınav yayında: soru listesi değişmez. Değiştirmek için önce yayından kaldırın.</div>' : "") +
     '<div id="examTray">' + examTrayHtml() + '</div>' + coverageHtml() + oyssPlanHtml() + '</div></div>' +
@@ -11435,6 +12017,7 @@ function wireTeacherTab1() {
   wireYazdir();   // §59
   wireOyss();     // §101
   // Boş durumdaki yönlendirme düğmeleri.
+  wireBosHavuz();   // §120
   const git = document.getElementById("btnIcerikUzmaninaGit");
   if (git) git.onclick = function () { state.role = "content_expert"; state.ceTab = 1; renderAll(); };
   const flt = document.getElementById("btnFiltreTemizle");
@@ -12285,6 +12868,12 @@ function evalFailedActionsHtml(q, student, ev) {
 
 /* §90: tohum yanıtı gösteriliyorsa NEDEN gösterildiği açıkça yazar. */
 function demoTohumUyariHtml(ev) {
+  /* §120: demo alanındaki örnek öneri. Hata değil, bilgi; kaynağı açıkça yazar. */
+  if (ev && ev.demoOrnek) {
+    return '<div class="fail-note demo-ornek-not" role="status"><b>Örnek veri.</b> ' +
+      "Demo alanında yapay zekâya istek gönderilmez; bu öneri bu demo yanıtı için önceden kaydedildi. " +
+      "Kararı yine siz verirsiniz." + (ev.ornekKaynak ? " Kaynak: " + escapeHtml(ev.ornekKaynak) + "." : "") + "</div>";
+  }
   if (!ev || !ev.demoTohumu) return "";
   return '<div class="fail-note" role="status"><b>Canlı yapay zekâ çağrısı başarısız oldu.</b> ' +
     "Aşağıdaki, bu demo girdisi için önceden hazırlanmış örnek yanıttır; bu yanıt için model şimdi çağrılmadı." +
@@ -12293,7 +12882,10 @@ function demoTohumUyariHtml(ev) {
 
 function doneCardHtml(q, student, ev, rv) {
   const rub = state.rubrics[q.id];
-  return '<div class="eval-card" style="opacity:0.75;">' +
+  /* §120: kart eskiden opacity:0.75 ile soluklaştırılıyordu; metnin kontrastı
+     WCAG 4,5:1'in altına düşüyordu (24 kişilik demoda 257 düğüm). Tamamlanmışlık
+     artık zemin rengiyle (.eval-tamam) gösterilir, yazı soluklaşmaz. */
+  return '<div class="eval-card eval-tamam">' +
     '<div class="q-meta">' + studentChip(student) +
     '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +
@@ -16443,8 +17035,15 @@ function renderKabukEk() {
       ' aria-label="Rehberli demo, 5 adım — örnek veriyle soru onayından analize">' +
       '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
       '<span class="kb-oge-not">Örnek veriyle soru onayından analize</span></button>' +
+      /* §120: demo alanında yedek/geri yükleme/sıfırlama YOK (kullanıcının
+         verisine dokunurlardı); yerine "kendi verime dön". */
+      (demoAlaniMi() ? '<div class="kb-ayrac" role="separator"></div>' +
+        '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-demo-cik" data-kb="ek:demo-cik"' +
+        ' aria-label="Demodan çık — demo verisi silinir, kendi verinize dönersiniz">' +
+        '<span class="kb-oge-ad">Demodan çık</span>' +
+        '<span class="kb-oge-not">Kendi verinize dönersiniz</span></button>' : "") +
       /* §108: tam yedek — yalnız okul rollerinde (veriyi onlar yönetir). */
-      (okul ? '<div class="kb-ayrac" role="separator"></div>' +
+      (okul && !demoAlaniMi() ? '<div class="kb-ayrac" role="separator"></div>' +
         '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-yedekle" data-kb="ek:yedekle"' +
         ' aria-label="Yedekle — bütün veriler tek .mihenk dosyasına, adlar varsa parolayla">' +
         '<span class="kb-oge-ad">Yedekle…</span>' +
@@ -16453,7 +17052,7 @@ function renderKabukEk() {
         ' aria-label="Yedekten geri yükle — önce özet ve onay">' +
         '<span class="kb-oge-ad">Yedekten geri yükle…</span>' +
         '<span class="kb-oge-not">Önce özet ve onay</span></button>' : "") +
-      (okul ? '<div class="kb-ayrac" role="separator"></div>' +
+      (okul && !demoAlaniMi() ? '<div class="kb-ayrac" role="separator"></div>' +
         '<button type="button" role="menuitem" tabindex="-1" class="kb-oge kb-tehlike js-ek-sifirla" data-kb="ek:sifirla"' +
         ' aria-label="Tüm verileri sıfırla — önce onay sorulur">' +
         '<span class="kb-oge-ad">Tüm verileri sıfırla…</span>' +
@@ -16463,6 +17062,7 @@ function renderKabukEk() {
     b.onclick = function (e) { e.stopPropagation(); kabukMenuAc("ek"); };
   });
   document.querySelectorAll(".js-ek-demo").forEach(function (b) { b.onclick = demoBaslat; });
+  document.querySelectorAll(".js-ek-demo-cik").forEach(function (b) { b.onclick = demoBitir; });   // §120
   document.querySelectorAll(".js-ek-sifirla").forEach(function (b) { b.onclick = sifirlaOnayAc; });
   document.querySelectorAll(".js-ek-yedekle").forEach(function (b) { b.onclick = function () { yedekAlAc(); }; });
   document.querySelectorAll(".js-ek-geri-yukle").forEach(function (b) { b.onclick = yedekGeriYukleAc; });
@@ -16472,6 +17072,7 @@ function renderKabukEk() {
  *  Demo Akışı'nın hemen yanındaydı ve tek tıkla, onaysız resetState()
  *  çalıştırıyordu (localStorage + kitaplık siliniyor, sayfa yenileniyordu). */
 function sifirlaOnayAc() {
+  if (demoAlaniMi()) return;   // §120: menüde yok; kestirme yol da kapalı
   _kabukMenu = null;
   renderKabukEk();
   openModal('<h3>Tüm veriler silinsin mi?</h3>' +
@@ -16503,17 +17104,19 @@ function kabukModalOdagi(geriSecici) {
   vazgec.focus();
 }
 
-/** Rehberli demoyu başlatır. loadDemoScenario soru havuzunu ve etkin sınavı
- *  örnek veriyle DEĞİŞTİRİR; kullanıcının kendi sorusu varsa önce sorulur.
- *  Kendi verisi yoksa (ilk açılış, ya da zaten demo verisi) doğrudan başlar. */
+/** Rehberli demoyu başlatır. §120: demo AYRI kayıt alanında çalışır;
+ *  kullanıcının verisi değişmez. Kendi verisi varsa bu bilgi önce gösterilir
+ *  (onay penceresi değil, bilgi: "korunuyor"). Demo alanında ya da kendi
+ *  verisi yoksa doğrudan başlar. */
 function demoBaslat() {
   _kabukMenu = null;
   renderKabukEk();   // menü kapanınca çizimi de kapanır (W6 P3: açık çizili kalıyordu)
-  const kendi = (state.questions || []).filter(function (q) { return !q.demo; }).length;
+  const kendi = demoAlaniMi() ? 0 : (state.questions || []).filter(function (q) { return !q.demo; }).length;
   if (!kendi) { loadDemoScenario(); return; }
   openModal('<h3>Rehberli demo başlatılsın mı?</h3>' +
-    '<p>Demo örnek soruları, sınavı ve sınıfı yükler. Bu tarayıcıdaki <b>' + kendi + '</b> kendi sorunuz ve ' +
-    'etkin sınav örnek veriyle <b>değiştirilir</b>.</p>' +
+    '<p>Demo örnek soruları, 24 kişilik örnek sınıfı ve sınavı <b>ayrı bir alanda</b> açar. Bu tarayıcıdaki <b>' + kendi +
+    '</b> sorunuz, sınavlarınız ve öğrencileriniz <b>korunur</b>; demo bunlara yazmaz. “Demoyu Bitir” dediğinizde ' +
+    'kendi verinize olduğu gibi dönersiniz.</p>' +
     '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
     '<button class="btn btn-primary js-demo-onay">Demoyu başlat</button></div>');
   document.querySelectorAll(".js-demo-onay").forEach(function (b) {
@@ -17919,6 +18522,11 @@ function bosDurumHtml(mesaj) {
     "soruyuOnayla", "supheliOnayModali",
     // §99 elle soru yaz (W10)
     "elleSoruOlustur", "elleSoruEksikleri", "elleEksikMetni", "elleEksikYenile", "elleSoruBilgiHtml",
+    // §120 demo alanı, dolu sınıf, boş havuz çıkışları (W10)
+    "demoAlaniMi", "depoAnahtari", "demoAlaniniOku", "ilkDurumuSakla", "demoAlaninaGec", "demoAlanindanCik",
+    "demoAcilisiniTamamla", "demoSeridiniKapat", "demoAcikOrnekleri", "demoOrnekBul", "demoAlaniDegerlendirmesi",
+    "demoRastgele", "demoSinifVerisi", "ornekPaketSorulari", "ornekPaketiIceriAl", "ornekPaketRozetiHtml",
+    "bosHavuzCikislariHtml", "ogtElleSoruYaz", "ogtElleTaslaklariHtml", "wireBosHavuz",
     // §104 red nedeni + karar kaydı (W10)
     "redKoduAdi", "redKoduRozetiHtml", "redKoduSeciciHtml", "redKoduOku", "soruyuReddet",
     "anahtarIzli", "rozetA1A2", "anahtarDuzeltmeHtml",
@@ -18087,6 +18695,8 @@ function bosDurumHtml(mesaj) {
 })();
 
 initPanels();
+ilkDurumuSakla();      // §120: demo alanının başlangıç kopyası (loadState'ten ÖNCE)
+demoAlaniniOku();      // §120: bu sekme demo alanında mı? (sessionStorage)
 loadState();
 /* 🔴 OCR "çalışıyor" bayrağı SAYFA YENİLENİNCE ASILI KALIYORDU (ölçüldü).
    `ceForm` KALICI_ALANLAR içinde, yani tüm alanlarıyla localStorage'a yazılıyor
@@ -18121,6 +18731,7 @@ document.getElementById("btnDemoSeed").onclick = demoBaslat;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 girisKapisiKur();
+demoAcilisiniTamamla();   // §120
 probeAiMode();
 depoKaliciIste(typeof navigator !== "undefined" ? navigator : null);   // §100
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen

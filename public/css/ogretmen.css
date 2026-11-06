@@ -261,3 +261,11 @@
   #panel-teacher .oyss-kur-tablo td { display: block; width: auto !important; padding: var(--sp-1) 0; border: 0; text-align: left; }
   #panel-teacher .oyss-kur-sayi::before { content: attr(data-etiket) ": "; font-weight: 400; color: var(--text-muted); }
 }
+
+/* §120 — boş havuz çıkışları ve sihirbazda elle yazılan taslaklar. */
+#panel-teacher .bos-havuz-cikis { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); }
+#panel-teacher .empty-rich .es-not { margin: 0; font-size: var(--fs-1); line-height: 1.5; color: var(--text-muted); max-width: 46ch; text-align: center; }
+#panel-teacher .ogt-elle-taslaklar { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--border); }
+#panel-teacher .ogt-elle-baslik { margin: 0 0 var(--sp-1); font-size: var(--fs-3); }
+#panel-teacher .ogt-elle-taslaklar .es-eylemler { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+#panel-teacher .ogt-elle-taslaklar .q-card .actions { flex-wrap: wrap; align-items: center; }

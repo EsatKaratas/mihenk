@@ -335,3 +335,13 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
 /* §108 — Yedekle penceresi: "Adsız yedek" seçeneği (onay kutusu + açıklama). */
 .yedek-secim { display: flex; gap: var(--sp-2); align-items: flex-start; margin: 0 0 12px; font-size: var(--fs-2, 14px); line-height: 1.45; cursor: pointer; }
 .yedek-secim input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+
+/* §120 — demo alanı: kullanıcının verisinin korunduğu bilgisi. */
+.demo-serit .demo-alan-not { font-size: var(--fs-1); font-weight: 600; color: var(--text-muted); }
+@media (max-width: 760px) {
+  .kabuk-ust .demo-serit .demo-alan-not { order: 1; }
+}
+.giris-kapisi.gk-tek .gk-demo-donus {
+  margin: 0 0 var(--sp-4); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-2, 8px);
+  border: 1px solid var(--gk-fume); color: var(--gk-fume); font-size: var(--fs-2); text-align: center;
+}

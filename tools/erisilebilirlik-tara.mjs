@@ -102,7 +102,7 @@ for (const tema of TEMALAR) {
     };
     await kaydet('giris');
     await p.evaluate(() => {
-      loadDemoScenario(); demoBitir();
+      loadDemoScenario(); demoSeridiniKapat();
       const k = document.getElementById('girisKapisi'); if (k) { k.hidden = true; document.body.style.overflow = ''; }
       renderAll();
     });

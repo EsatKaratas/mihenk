@@ -383,7 +383,7 @@ for (const cozunurluk of COZUNURLUKLER) {
   // Demo verisini yükle ve giriş kapısını kapat
   await sayfa.evaluate(() => {
     if (typeof loadDemoScenario === 'function') loadDemoScenario();
-    if (typeof demoBitir === 'function') demoBitir();
+    if (typeof demoSeridiniKapat === 'function') demoSeridiniKapat(); else if (typeof demoBitir === 'function') demoBitir();
     const kapi = document.getElementById('girisKapisi');
     if (kapi) {
       kapi.hidden = true;
@@ -489,7 +489,7 @@ if (dolu) {
     await p.evaluate(() => document.fonts.ready);
 
     const yayin = await p.evaluate(async () => {
-      loadDemoScenario(); demoBitir();
+      loadDemoScenario(); (typeof demoSeridiniKapat === 'function' ? demoSeridiniKapat : demoBitir)();
       state.role = 'teacher'; state.teacherTab = 1; ogtDurum().sihirbaz = 3; renderAll();
       const d = document.getElementById('btnPublishExam'); if (d) d.click();
       if (state.exam.status !== 'published') return (typeof yayinEngeliMetni === 'function' && yayinEngeliMetni()) || 'sınav yayınlanamadı';
