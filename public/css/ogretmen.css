@@ -139,3 +139,11 @@
   #panel-teacher .ogt-baslik, #panel-teacher .ogt-sinif-ad { font-size: var(--fs-5); }
   #panel-teacher .ogt-sh-alt .btn { flex: 1 1 auto; }
 }
+
+/* §100 — Sihirbaz 3. adım kapasite ön hesabı (yalnız bilgi, hiçbir şeyi engellemez). */
+#panel-teacher .ogt-kapasite {
+  margin: var(--sp-3) 0; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); border-left: 3px solid var(--accent);
+  font-size: var(--fs-2); line-height: 1.5; color: var(--text);
+}
+#panel-teacher .ogt-kapasite-alt { display: block; margin-top: var(--sp-1); font-size: var(--fs-1); color: var(--text-muted); }

@@ -32,14 +32,15 @@ const escapeHtml = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
 const SABITLER = ['AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'AI_GECERSIZ_CIKTI_METNI'].map((a) => sabit(a, ';\n')).join('\n');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const k: any = new Function('escapeHtml',
+// §100: evalFailedActionsHtml artık aiYzsizMod()'a da bakar → state saplaması (varsayılan: mod kapalı).
+const k: any = new Function('escapeHtml', 'state',
   SABITLER + '\n' +
   ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiElleDevam', 'aiButceMetni', 'aiButceKisa', 'aiButceIpucu',
-   'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml']
+   'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml', 'aiKotaDolu', 'aiYzsizMod']
     .map(tanim).join('\n') +
   '\nreturn { aiKaynak, aiKaynakMetinleri, aiKaynakRozetiHtml, aiHataMetni, aiGunlukKapali, topluCozDurdurmaKodu,' +
   ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceKisa, aiButceIpucu, aiElleDevam };'
-)(escapeHtml);
+)(escapeHtml, { ai: { mode: 'simulation', butce: null } });
 
 describe('§90 kaynak rozeti', () => {
   it('ana model (workers-ai-70b) rozet göstermez', () => {

@@ -853,6 +853,8 @@ async function probeAiMode() {
        vaat ettiği emniyet ağı yokken kimse uyarılmıyordu (§6.3-5). */
     state.ai.fallbackSorunu = j.fallbackSorunu || "";
     state.ai.error = j.ready ? "" : "model sağlayıcısı yapılandırılmamış";
+    // §100: adres başına günlük çağrı sınırı (§86) — sihirbazın kapasite notu için.
+    state.ai.gunlukSinir = (j.gunlukSinir && Number(j.gunlukSinir.limit)) || null;
     if (j.ready) aiButceYenile();
   } catch (e) {
     state.ai.mode = "simulation";
@@ -943,8 +945,11 @@ async function aiButceYenile() {
   try {
     const r = await fetch(AI_API.butce, { headers: { accept: "application/json" } });
     if (!r.ok) return;
+    const onceki = aiYzsizMod();
     state.ai.butce = await r.json();
-    renderAiBadge();
+    aiKotaSifirlanmaKur(state.ai.butce);   // §100
+    // §100: yapay zekâsız mod açıldı/kapandıysa şerit ve düğmeler için tam çizim.
+    if (aiYzsizMod() !== onceki) renderAll(); else renderAiBadge();
   } catch (e) { /* gösterge yalnız bilgi; hata işi durdurmaz */ }
 }
 
@@ -966,6 +971,124 @@ function aiButceIpucu(b) {
     Number(b.tahminiNeuron).toLocaleString("tr-TR") + " Neuron kullanıldı. Tahmin, yanıtlardaki token sayısından hesaplanır ve " +
     "yalnız bu uygulamanın çağrılarını kapsar. " + Number(b.esik).toLocaleString("tr-TR") +
     " Neuron'da yeni çağrılar durur; 03:00'te yenilenir.";
+}
+
+/* ===========================================================================
+   §100 — KOTA DOLUYKEN YAPAY ZEKÂSIZ MOD
+   ===========================================================================
+   Kaynak: açılışta ve her AI çağrısından sonra çekilen `state.ai.butce`
+   (GET /api/ai/butce, §93; 0 Neuron). `doldu` ya da `tukendi` ise ve sıfırlanma
+   anı (sifirlanmaUtc = 00:00 UTC = 03:00 TR) geçmediyse:
+     - kabukta TEK bilgi şeridi (renderAiKotaSeridi),
+     - yapay zekâ düğmeleri pasif + title + aria-describedby (aiDugmeleriniKilitle),
+     - açık uçlu kuyrukta "Elle Puanla ve Onayla" baştan birincil düğme.
+   SESSİZ YEDEK YOK: hiçbir çağrı başka bir yola düşürülmez; düğmeler yalnız
+   pasifleşir, sunucu yine tek otoritedir (bütçe reddinde model çağrılmaz). */
+const AI_KOTA_SERIT_METNI = "Yapay zekâ bugünlük kotasını doldurdu; 03:00'te (TR) açılır. Elle soru, havuz, elle puanlama ve analiz çalışıyor.";
+const AI_KOTA_DUGME_IPUCU = "Yapay zekâ bugünlük kotasını doldurdu; 03:00'te (TR) açılır. Bu işlem yapay zekâ gerektirir.";
+/* Model çağrısı başlatan bütün düğmeler (AI_API uçlarına POST atan işlevler):
+   üretim + telafi üretimi, kazanım denetimi, bağımsız çözüm (tek + toplu),
+   rubrik taslağı, sınıf simülasyonu (örnek yanıt + değerlendirme), yeniden
+   değerlendirme, kavram yanılgısı analizi. */
+const AI_DUGME_SECICI = "#btnGenerate, #btnRemedialGen, #btnAlign, .js-coz, #btnTopluCoz, #btnAiRubric, #btnSimClass, .retry-eval, .mis-run";
+
+/** Bütçe yanıtı bugünü kapalı mı gösteriyor? Sıfırlanma anı geçtiyse hayır. */
+function aiKotaDolu(b, simdi) {
+  if (!b || !(b.doldu || b.tukendi)) return false;
+  const son = Date.parse(b.sifirlanmaUtc || "");
+  return !Number.isFinite(son) || (simdi != null ? simdi : Date.now()) < son;
+}
+
+/** Yapay zekâsız mod: gerçek model bağlıyken bugünkü kota/bütçe doldu. */
+function aiYzsizMod() {
+  return state.ai.mode === "live" && aiKotaDolu(state.ai.butce);
+}
+
+/** Kabukta tek bilgi şeridi; mod kapalıyken yuva boşalır. */
+function renderAiKotaSeridi() {
+  const yuva = document.getElementById("aiKotaSeritYuva");
+  if (!yuva) return;
+  const acik = aiYzsizMod();
+  const var_ = document.getElementById("aiKotaSerit");
+  if (!acik) { if (var_) yuva.innerHTML = ""; return; }
+  if (var_) return;
+  yuva.innerHTML = '<div class="ai-kota-serit" id="aiKotaSerit" role="status">' +
+    '<span class="ai-kota-rozet" aria-hidden="true">Yapay zekâ kapalı</span>' +
+    '<span class="ai-kota-metin">' + escapeHtml(AI_KOTA_SERIT_METNI) + "</span></div>";
+}
+
+/** Render sonrası tek geçiş: yapay zekâ düğmelerini pasifleştirir. Mod
+    kapalıyken dokunmaz (paneller her renderAll'da yeniden çizilir). */
+function aiDugmeleriniKilitle(kok) {
+  if (!aiYzsizMod()) return 0;
+  const liste = (kok || document).querySelectorAll(AI_DUGME_SECICI);
+  liste.forEach(function (b) {
+    b.disabled = true;
+    b.setAttribute("aria-disabled", "true");
+    b.setAttribute("title", AI_KOTA_DUGME_IPUCU);
+    if (document.getElementById("aiKotaSerit")) b.setAttribute("aria-describedby", "aiKotaSerit");
+    b.classList.add("ai-kota-pasif");
+  });
+  return liste.length;
+}
+
+/* Sayfa 03:00'ü geçerse bütçe bir kez yeniden okunur (GET, 0 Neuron) ki
+   mod kendiliğinden kalksın. Periyodik sorgu YOK; tek zamanlayıcı. */
+let _aiKotaZamanlayici = null;
+function aiKotaSifirlanmaKur(b) {
+  if (_aiKotaZamanlayici || !aiKotaDolu(b)) return;
+  const kalan = Date.parse(b.sifirlanmaUtc || "") - Date.now();
+  if (!Number.isFinite(kalan) || kalan <= 0) return;
+  _aiKotaZamanlayici = setTimeout(function () { _aiKotaZamanlayici = null; aiButceYenile(); },
+    Math.min(kalan + 5000, 2147483000));
+}
+
+/* ===========================================================================
+   §100 — SINAV SİHİRBAZI 3. ADIM: KAPASİTE ÖN HESABI (YALNIZ BİLGİ)
+   ===========================================================================
+   Hiçbir şeyi engellemez; yayın düğmesine dokunmaz.
+   KAPASITE_DEGERLENDIRME_NEURON ≈ 110: açık uçlu değerlendirme çağrısı başına
+   saha ölçümü — PROGRESS §86 tablosu ("yalnız puanlama, ölçülen ~110"),
+   kaynağı rapor `Mihenk ücretsiz güvenilir altyapı.md` bölüm (c). Onarım ya da
+   yedek çağrısı bu ortalamaya dahil değildir; gerçek tüketim biraz yüksek olabilir.
+   Günlük sınır: sunucunun döndürdüğü eşik (§93 AI_GUNLUK_NEURON_ESIGI);
+   bütçe bilgisi yoksa varsayılanı 9.000. Adres sınırı: /api/ai/status
+   `gunlukSinir.limit` (§86, src/lib/gunluk-sinir.ts); yoksa varsayılanı 60. */
+const KAPASITE_DEGERLENDIRME_NEURON = 110;
+const KAPASITE_VARSAYILAN_ESIK = 9000;
+const KAPASITE_VARSAYILAN_IP_SINIRI = 60;
+
+/** Saf hesap: n öğrenci × m açık uçlu. butce null ise "bugün kalan" bilinmez. */
+function kapasiteHesabi(n, m, butce, ipSiniri) {
+  const ogrenci = Math.max(0, Math.floor(Number(n) || 0));
+  const acik = Math.max(0, Math.floor(Number(m) || 0));
+  const degerlendirme = ogrenci * acik;
+  const neuron = degerlendirme * KAPASITE_DEGERLENDIRME_NEURON;
+  const esik = butce && Number(butce.esik) > 0 ? Number(butce.esik) : KAPASITE_VARSAYILAN_ESIK;
+  let kalan = null;
+  if (butce) kalan = (butce.doldu || butce.tukendi) ? 0 : Math.max(0, Math.round(esik - (Number(butce.tahminiNeuron) || 0)));
+  const ip = Number(ipSiniri) > 0 ? Math.floor(Number(ipSiniri)) : KAPASITE_VARSAYILAN_IP_SINIRI;
+  return { ogrenci: ogrenci, acik: acik, degerlendirme: degerlendirme, neuron: neuron, esik: esik, kalan: kalan,
+           ipSiniri: ip, gunuAsar: neuron > esik, kalaniAsar: kalan != null && neuron > kalan, ipAsar: degerlendirme > ip };
+}
+
+function kapasiteHtml(h, izinsiz) {
+  const tr = function (x) { return Number(x).toLocaleString("tr-TR"); };
+  if (!h.acik) {
+    return '<div class="ogt-kapasite" role="note"><b>Kapasite ön hesabı:</b> Sınavda açık uçlu soru yok; yapay zekâ değerlendirmesi gerekmez (0 Neuron).</div>';
+  }
+  return '<div class="ogt-kapasite" role="note"><b>Kapasite ön hesabı (yalnız bilgi):</b> ' +
+    h.ogrenci + " öğrenci × " + h.acik + " açık uçlu = " + tr(h.degerlendirme) + " değerlendirme ≈ " +
+    tr(h.neuron) + " Neuron; günlük sınır ~" + tr(h.esik) + "; bugün kalan " +
+    (h.kalan == null ? "bilinmiyor" : "≈ " + tr(h.kalan)) + "." +
+    (izinsiz ? " Yapay zekâ izni olmayan " + izinsiz + " öğrenci elle puanlanır, hesaba katılmadı." : "") +
+    (h.kalaniAsar || h.gunuAsar
+      ? " Bu tahmin " + (h.gunuAsar ? "günlük sınırı" : "bugün kalanı") + " aşıyor: sınıra takılan yanıtlar “Elle Puanla ve Onayla” ile puanlanabilir ya da 03:00'ten sonra yapay zekâya gönderilebilir."
+      : "") +
+    '<span class="ogt-kapasite-alt">Ayrıca her bağlantı (adres) günde en çok ' + h.ipSiniri +
+    " model çağrısı yapabilir; değerlendirme yanıtı gönderen cihazdan istenir ve okul ağında cihazlar aynı adresten çıkıyorsa bu sınır ortaktır" +
+    (h.ipAsar ? " (bu sınav en az " + tr(h.degerlendirme) + " çağrı ister)" : "") +
+    ". Değerlendirme başına ≈" + KAPASITE_DEGERLENDIRME_NEURON + " Neuron, saha ölçümüdür; yayını engellemez.</span></div>";
 }
 
 async function apiPost(url, body) {
@@ -1606,6 +1729,22 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
    devam ederken hiçbir şey kaydedilmiyor olabilirdi. Sessiz düşüş yasağı
    (§6.3-5) burada da geçerlidir. */
 var depoHatasi = "";
+/* §100: navigator.storage.persist() reddedildiyse kısa bilgi (state'e YAZILMAZ;
+   her açılışta tarayıcıya yeniden sorulur). */
+var depoKaliciBilgi = "";
+const DEPO_KALICI_RET_METNI = "Bilgi: Tarayıcı bu siteye kalıcı depolama izni vermedi; disk dolarsa tarayıcı kayıtları silebilir. Önemli sonuçları dışa aktarmayı unutmayın.";
+
+/** §100: kalıcı depolama iste. Destek yoksa null, izin varsa true, ret false. */
+async function depoKaliciIste(nav) {
+  const st = nav && nav.storage;
+  if (!st || typeof st.persist !== "function") return null;
+  try {
+    if (typeof st.persisted === "function" && await st.persisted()) return true;
+    const ok = await st.persist();
+    if (!ok) { depoKaliciBilgi = DEPO_KALICI_RET_METNI; renderDepoUyarisi(); }
+    return !!ok;
+  } catch (e) { return null; }
+}
 
 function saveState() {
   if (_resetting) return;
@@ -2324,7 +2463,7 @@ const state = {
   // kalıcı DEĞİL — sayfa yenilenince listeye geri döner).
   adminSelectedTeacher: null,
   // §42: fallbackSorunu — yedek TANIMLI ama kullanılamaz durumunun metni.
-  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false, fallbackSorunu: "", butce: null },
+  ai: { mode: "unknown", provider: "", model: "", error: "", busy: false, fallback: null, usingFallback: false, fallbackSorunu: "", butce: null, gunlukSinir: null },
   remedial: null, // { outcomeCode, sinif, deger } — analizden gelen tekrar sorusu talebi
   integrity: { active: false, fsGranted: false, tabSwitch: 0, blur: 0, fsExit: 0,
                pasteCount: 0, pasteChars: 0, awaySec: 0, _awayFrom: 0, events: [] },
@@ -7794,6 +7933,10 @@ function sihirbazAdim3Html() {
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   const acik = items.filter(function (q) { return q.type === "open"; }).length;
   const engel = yayinEngeliMetni();
+  // §100: kapasite ön hesabı — hedef sınıftaki öğrenciler; izni olmayanlar elle puanlanır.
+  const hedefOgr = (state.students || []).filter(function (s) { return !state.exam.targetClass || (s.sinif || "") === state.exam.targetClass; });
+  const izinli = hedefOgr.filter(function (s) { return yzIzniVar(s.id); }).length;
+  const kapasite = kapasiteHtml(kapasiteHesabi(izinli, acik, state.ai.butce, state.ai.gunlukSinir), hedefOgr.length - izinli);
   return '<div class="card ogt-sh-kart">' +
     '<dl class="ogt-ozet">' +
     '<div><dt>Sınav</dt><dd>' + escapeHtml(state.exam.title || "—") + '</dd></div>' +
@@ -7801,7 +7944,7 @@ function sihirbazAdim3Html() {
     '<div><dt>Sorular</dt><dd>' + items.length + ' soru (' + (items.length - acik) + ' çoktan seçmeli, ' + acik + ' açık uçlu)</dd></div>' +
     '<div><dt>Toplam puan</dt><dd>' + ondalikTr(examTotalPoints(items)) + '</dd></div>' +
     '<div><dt>Rubrik</dt><dd>' + (acik ? (engel ? "Eksik — 2. adımda tamamlayın" : "Hazır") : "Gerekmiyor") + '</dd></div>' +
-    '</dl>' +
+    '</dl>' + kapasite +
     '<div class="field-row"><div class="field"><label for="examDuration">Öğrenciye verilecek toplam süre (dk)</label>' +
     '<div class="input-with-actions"><input id="examDuration" type="number" min="1" value="' + state.exam.durationMin + '" ' + (locked ? "disabled" : "") + '>' +
     (locked ? "" : '<button class="btn btn-secondary btn-sm" id="btnUseSuggested" title="Soru sürelerinin toplamını uygula">Öneriyi uygula</button>') + '</div>' +
@@ -9310,7 +9453,8 @@ function evalFailedCardHtml(q, student, ans, ev, rub) {
 /* §90: kota/günlük sınırda yeniden denemek 03:00'e kadar boşa; İNSAN YOLU
    (elle puanla) birincil düğme olur, yeniden deneme ikincil kalır. */
 function evalFailedActionsHtml(q, student, ev) {
-  const kapali = aiGunlukKapali(ev && ev.kod);
+  // §100: kota doluyken (yapay zekâsız mod) hata kodu ne olursa olsun elle yol baştan birincil.
+  const kapali = aiGunlukKapali(ev && ev.kod) || aiYzsizMod();
   const veri = ' data-qid="' + q.id + '" data-sid="' + student.id + '"';
   const yeniden = '<button class="btn ' + (kapali ? "btn-secondary" : "btn-primary") + ' retry-eval"' + veri + '>Yapay Zekâ ile Yeniden Dene</button>';
   const elle = '<button class="btn ' + (kapali ? "btn-primary" : "btn-secondary") + ' revise-approve"' + veri + '>Elle Puanla ve Onayla</button>';
@@ -9506,7 +9650,7 @@ function teacherTab3Html() {
     '<div class="grid-3col">' +
     '<div class="stat-tile"><div class="s-label">Çoktan Seçmeli</div><div class="s-value tabular">' + mcCorrect + '/' + mcToplam + '</div><div class="s-sub">' + gonderenler.length + ' öğrenci · cevap anahtarıyla puanlandı</div></div>' +
     '<div class="stat-tile' + (basarisiz ? ' tile-alert' : '') + '"><div class="s-label">Açık Uçlu — Onay Bekleyen</div><div class="s-value tabular">' + pending.length + '</div><div class="s-sub">' +
-    (basarisiz ? basarisiz + ' değerlendirme yapılamadı — yeniden deneyin'
+    (basarisiz ? basarisiz + ' değerlendirme yapılamadı — ' + (aiYzsizMod() ? "elle puanlayın (yapay zekâ 03:00'te açılır)" : 'yeniden deneyin')
       : (pending.length ? (elleBekleyen === pending.length ? "yapay zekâ izni yok, elle puanlayın" : "Yapay zekâ puan önerdi, karar sizde") : "tümü incelendi")) +
     (elleBekleyen && elleBekleyen < pending.length ? " · " + elleBekleyen + " yanıt elle puanlanacak (izin yok)" : "") + '</div></div>' +
     '<div class="stat-tile"><div class="s-label">Öğrenciye Ulaştı mı?</div><div class="s-value" style="font-size:20px;">' + (yayinlandi ? "Evet" : "Hayır") + '</div><div class="s-sub">' + (yayinlandi ? gonderenler.length + " öğrenci karnesini görebiliyor" : "siz yayınlayana kadar gizli") + '</div></div>' +
@@ -13484,15 +13628,26 @@ function bindFieldLabels(kok) {
  */
 function renderDepoUyarisi() {
   var el = document.getElementById("depoUyari");
-  if (!depoHatasi) { if (el) el.remove(); return; }
+  if (!depoHatasi && !depoKaliciBilgi) { if (el) el.remove(); return; }
   if (!el) {
     el = document.createElement("div");
     el.id = "depoUyari";
-    el.className = "depo-uyari";
-    el.setAttribute("role", "alert");
     document.body.appendChild(el);
   }
-  el.textContent = "⚠ " + depoHatasi;
+  if (depoHatasi) {
+    el.className = "depo-uyari";
+    el.setAttribute("role", "alert");
+    el.textContent = "⚠ " + depoHatasi;
+    return;
+  }
+  /* §100: kalıcı depolama reddi HATA değil, bilgi: kırmızı değil, kapatılabilir. */
+  if (el.dataset.tur === "bilgi") return;
+  el.className = "depo-uyari depo-bilgi";
+  el.setAttribute("role", "status");
+  el.dataset.tur = "bilgi";
+  el.innerHTML = '<span>' + escapeHtml(depoKaliciBilgi) + '</span>' +
+    '<button type="button" class="btn btn-secondary btn-sm" id="depoBilgiKapat">Tamam</button>';
+  document.getElementById("depoBilgiKapat").onclick = function () { depoKaliciBilgi = ""; renderDepoUyarisi(); };
 }
 
 function renderAll() {
@@ -13504,6 +13659,7 @@ function renderAll() {
   renderRoleNav();
   renderPipeline();
   renderDemoSerit();   // §38 — demo kapalıyken boş dize yazar
+  renderAiKotaSeridi();   // §100 — kota doluyken tek bilgi şeridi
   kabukYuksekliginiYaz();   // §64b — demo şeridi kabuğu büyütür; yapışkan paneller buna göre
   renderContentExpert();
   renderTeacher();
@@ -13512,6 +13668,7 @@ function renderAll() {
   renderParent();
   document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + state.role); });
   // Render sonrası tek geçiş: etiketleri kontrollere bağla (erişilebilirlik).
+  aiDugmeleriniKilitle();   // §100 — kota doluyken yapay zekâ düğmeleri pasif
   bindFieldLabels();
   renderOdaginiKurtar(odakIzi);
 }
@@ -14320,6 +14477,9 @@ function bosDurumHtml(mesaj) {
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
     /* §93 (W10) — Neuron bütçesi göstergesi ve uca göre elle devam metni. */
     "aiGunlukKapaliMetni", "aiElleDevam", "aiButceYenile", "aiButceMetni", "aiButceKisa", "aiButceIpucu",
+    /* §100 — kota doluyken yapay zekâsız mod, kapasite ön hesabı, kalıcı depolama. */
+    "aiKotaDolu", "aiYzsizMod", "renderAiKotaSeridi", "aiDugmeleriniKilitle", "aiKotaSifirlanmaKur",
+    "kapasiteHesabi", "kapasiteHtml", "depoKaliciIste",
     "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
     "topluCozDurdurmaKodu", "topluCozBeklenirMi", "topluCozSonucMetni", "birimFarkiRozetiHtml",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",
@@ -14474,6 +14634,7 @@ setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
 renderAll();
 girisKapisiKur();
 probeAiMode();
+depoKaliciIste(typeof navigator !== "undefined" ? navigator : null);   // §100
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen
 // "Katalog" düğmesine basmadan da kazanımları seçicide görsün.
 katalogHazirla();

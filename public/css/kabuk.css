@@ -306,3 +306,22 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
 .ai-kaynak-satir { display: flex; flex-wrap: wrap; gap: var(--sp-1); align-items: center; margin: 0 0 var(--sp-2); }
 .ai-kaynak-satir .birim-farki { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; border: 1px solid var(--accent-strong); }
 .rub-taslak-serit .ai-kaynak-serit { flex-basis: 100%; }
+
+/* §100 — Kota doluyken (yapay zekâsız mod) tek bilgi şeridi. Hata değil, bilgi:
+   kırmızı değil, lacivert çizgi + yumuşak zemin. Kabuğun içinde durur; yapışkan
+   panellerin payı kabukYuksekliginiYaz ile kendiliğinden hesaplanır. */
+.kabuk-ust #aiKotaSeritYuva:not(:empty) { padding-bottom: var(--sp-2); }
+.kabuk-ust .ai-kota-serit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  border: 1px solid var(--accent); background: var(--accent-soft);
+  color: var(--text); font-size: var(--fs-2); line-height: 1.4;
+}
+.kabuk-ust .ai-kota-rozet {
+  flex: none; font-weight: 700; font-size: var(--fs-1); letter-spacing: .03em;
+  text-transform: uppercase; color: var(--accent-strong);
+}
+.kabuk-ust .ai-kota-metin { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 760px) {
+  .kabuk-ust .ai-kota-serit { font-size: var(--fs-1); padding: var(--sp-1) var(--sp-2); }
+}
