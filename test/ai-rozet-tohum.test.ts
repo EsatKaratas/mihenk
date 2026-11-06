@@ -29,16 +29,16 @@ function sabit(ad: string, bitis: string): string {
 
 const escapeHtml = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[c]);
 
-const SABITLER = ['AI_ELLE_DEVAM', 'AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'AI_GECERSIZ_CIKTI_METNI'].map((a) => sabit(a, ';\n')).join('\n');
+const SABITLER = ['AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'AI_GECERSIZ_CIKTI_METNI'].map((a) => sabit(a, ';\n')).join('\n');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const k: any = new Function('escapeHtml',
   SABITLER + '\n' +
-  ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiButceMetni', 'aiButceIpucu',
+  ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiElleDevam', 'aiButceMetni', 'aiButceIpucu',
    'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml']
     .map(tanim).join('\n') +
   '\nreturn { aiKaynak, aiKaynakMetinleri, aiKaynakRozetiHtml, aiHataMetni, aiGunlukKapali, topluCozDurdurmaKodu,' +
-  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceIpucu };'
+  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceIpucu, aiElleDevam };'
 )(escapeHtml);
 
 describe('§90 kaynak rozeti', () => {
@@ -91,10 +91,11 @@ describe('§90 kaynak rozeti', () => {
 
 describe('§90 hata eşlemesi', () => {
   it('kota (503 ai_kota_bitti), günlük sınır (429 gunluk_sinir), geçersiz çıktı (502)', () => {
+    // §93 (W10): elle devam yolu artık uca göre (aiElleDevam); uçsuz çağrıda yol yok.
     expect(k.aiHataMetni(503, { error: 'ai_kota_bitti', message: 'sunucu metni' }))
-      .toBe("Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir. Bu arada elle devam edebilirsiniz.");
+      .toBe("Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir.");
     expect(k.aiHataMetni(429, { error: 'gunluk_sinir', message: 'x' })).toBe(k.AI_GUNLUK_SINIR_METNI);
-    expect(k.aiHataMetni(429, { error: 'gunluk_sinir' })).toContain('elle devam edebilirsiniz');
+    expect(k.aiHataMetni(429, { error: 'gunluk_sinir' }, '/api/ai/evaluate')).toContain('“Elle Puanla ve Onayla”');
     expect(k.aiHataMetni(502, { error: 'model_output_invalid', message: 'Model beklenen JSON şemasına uymayan…' }))
       .toBe('Model geçerli yanıt üretemedi, tekrar deneyin.');
   });
@@ -106,7 +107,7 @@ describe('§90 hata eşlemesi', () => {
 
   it('apiPost eşlemeyi kullanır ve kodu hataya taşır', () => {
     const g = tanim('apiPost');
-    expect(g).toContain('new Error(aiHataMetni(r.status, j))');
+    expect(g).toContain('new Error(aiHataMetni(r.status, j, url))');
     expect(g).toContain('hata.kod = (j && j.error) || "";');
   });
 
@@ -287,11 +288,25 @@ describe('§90b birim farkı bilgi rozeti (hesapBirimFarki)', () => {
 });
 
 describe('§93 bütçe metni ve göstergesi', () => {
-  it('gunluk_butce kendi cümlesine çevrilir; elle devam yolu kota metniyle AYNI kaynaktan', () => {
+  it('gunluk_butce kendi cümlesine çevrilir; uçsuz/diğer uçta yol vaat edilmez', () => {
     expect(k.aiHataMetni(503, { error: 'gunluk_butce', message: 'x' })).toBe(k.AI_BUTCE_METNI);
-    const son = (t: string) => t.slice(t.indexOf(';') + 1);
-    expect(son(k.AI_BUTCE_METNI)).toBe(son(k.AI_KOTA_METNI));
-    expect(son(k.AI_BUTCE_METNI)).toBe(son(k.AI_GUNLUK_SINIR_METNI));
+    expect(k.aiHataMetni(503, { error: 'gunluk_butce' }, '/api/ai/solve')).toBe(k.AI_BUTCE_METNI);
+    expect(k.aiHataMetni(503, { error: 'ai_kota_bitti' }, '/api/ai/rubric')).toBe(k.AI_KOTA_METNI);
+    expect(k.AI_BUTCE_METNI).toMatch(/03:00'te yenilenir\.$/);
+  });
+  it('elle devam yolu uca göre ve TEK kaynaktan; üç kod da aynı eşlemeyi kullanır', () => {
+    const uret = k.aiElleDevam('/api/ai/generate-questions');
+    const puan = k.aiElleDevam('/api/ai/evaluate');
+    expect(uret).toContain('havuzdaki onaylı sorularla sınav kurmaya');
+    expect(puan).toContain('“Elle Puanla ve Onayla”');
+    expect(k.aiElleDevam('/api/ai/solve')).toBe('');
+    for (const [kod, taban] of [['ai_kota_bitti', k.AI_KOTA_METNI], ['gunluk_sinir', k.AI_GUNLUK_SINIR_METNI], ['gunluk_butce', k.AI_BUTCE_METNI]]) {
+      expect(k.aiHataMetni(503, { error: kod }, '/api/ai/generate-questions')).toBe(taban + uret);
+      expect(k.aiHataMetni(503, { error: kod }, '/api/ai/evaluate')).toBe(taban + puan);
+    }
+  });
+  it('vaat edilen düğme adı arayüzde gerçekten var', () => {
+    expect(app).toContain('>Elle Puanla ve Onayla</button>');
   });
   it('gunluk_butce gün sonuna kadar kapalıdır: toplu çözme HEMEN durur, beklemez', () => {
     expect(k.aiGunlukKapali('gunluk_butce')).toBe(true);

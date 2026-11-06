@@ -118,7 +118,6 @@
     // ---------------------------------------------------------------------
   },
 
-  // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.
   // §86/§93 — Durable Object sayaçları. Bağlama adları wrangler.demo.jsonc ile
   // AYNI. Ücretsiz planda yalnız "new_sqlite_classes" kabul edilir.
   "durable_objects": {
@@ -132,6 +131,7 @@
     { "tag": "v2-neuron-butce", "new_sqlite_classes": ["NeuronButce"] }
   ],
 
+  // Workers AI — soru üretimi ve açık uçlu yanıt ön değerlendirmesi.
   "ai": {
     "binding": "AI"
   },

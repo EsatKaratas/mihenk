@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import app from '../src/index';
 import {
-  neuronTahmini, rezervTahmini, katsayi, butceEsigi, rezervAdimi, kapatAdimi, durumOlustur,
+  neuronTahmini, rezervTahmini, metindenTahmin, katsayi, butceEsigi, rezervAdimi, kapatAdimi, durumOlustur,
   NeuronButce, butceRezerv, butceDurumu, bellekButcesiniSifirla, BUTCE_ESIGI_VARSAYILAN, GUNLUK_HAVUZ,
 } from '../src/lib/neuron-butce';
 import { bellekSayaciniSifirla, utcGun } from '../src/lib/gunluk-sinir';
@@ -51,9 +51,9 @@ function sahteAi(adimlar: Array<() => unknown>, usage: object | null = { prompt_
   return { AI, sayi: () => i };
 }
 
-const post = (g: unknown, env: object, ip = '9.9.9.9') =>
+const post = (g: unknown, env: object, ip: string | null = '9.9.9.9') =>
   app.request('/api/ai/evaluate', {
-    method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': ip }, body: JSON.stringify(g),
+    method: 'POST', headers: { 'content-type': 'application/json', ...(ip ? { 'cf-connecting-ip': ip } : {}) }, body: JSON.stringify(g),
   }, env);
 
 beforeEach(() => {
@@ -78,6 +78,11 @@ describe('§93 Neuron tahmini (resmi katsayılar)', () => {
     expect(neuronTahmini('@cf/yeni/model', { prompt_tokens: 0, completion_tokens: 1_000_000 })).toBeCloseTo(204_805);
     expect(neuronTahmini(M70, null)).toBeNull();
     expect(neuronTahmini(M70, {})).toBeNull();
+  });
+  it('usage yoksa metin uzunluğundan: istem/2 giriş + yanıt/2 çıkış token', () => {
+    expect(metindenTahmin(M70, 2000, 600)).toBeCloseTo((1000 * 26_668 + 300 * 204_805) / 1e6);
+    // Kısa yanıtın tahmini, max_tokens'a dayanan rezervden çok küçüktür.
+    expect(metindenTahmin(M70, 2000, 600)).toBeLessThan(rezervTahmini(M70, 2000, 1500) / 3);
   });
   it('rezerv üst sınırdır: max_tokens kadar çıkış + karakter/2 giriş', () => {
     expect(rezervTahmini(M70, 2000, 1000)).toBeCloseTo((1000 * 26_668 + 1000 * 204_805) / 1e6);
@@ -203,13 +208,43 @@ describe('§93 rota', () => {
     expect(j.rezerv).toBeGreaterThan(0);
   });
 
-  it('usage dönmezse rezerv harcanmış sayılır (temkinli)', async () => {
+  it('usage dönmezse rezerv TAM sayılmaz: metin uzunluğundan tahmin + butce_usage_yok logu', async () => {
     const n = new NeuronButce(sahteDepo().state);
     const { AI } = sahteAi([() => DEGERLENDIRME], null);
     expect((await post(govde(), doEnv(AI, n))).status).toBe(200);
     const j: any = await (await app.request('/api/ai/butce', {}, doEnv(AI, n))).json();
     expect(j.rezerv).toBe(0);
-    expect(j.harcanan).toBeGreaterThan(200);
+    const log = (console.log as any).mock.calls.map((c: unknown[]) => String(c[0])).find((s: string) => s.includes('butce_usage_yok'));
+    expect(log).toBeTruthy();
+    const kayit = JSON.parse(log);
+    expect(j.harcanan).toBe(kayit.tahmin);
+    expect(kayit.tahmin).toBeGreaterThan(0);
+    expect(kayit.tahmin).toBeLessThan(kayit.rezerv / 2);   // rezervin tamamı DEĞİL
+  });
+
+  it('cf-connecting-ip YOKSA da bütçe uygulanır (yalnız adres sınırı atlanır)', async () => {
+    const n = new NeuronButce(sahteDepo().state);
+    const { AI } = sahteAi([() => DEGERLENDIRME]);
+    // Adres sınırı 1 olsa da başlıksız istekler adres sınırına takılmaz...
+    expect((await post(govde(), doEnv(AI, n, { AI_GUNLUK_IP_SINIRI: '1' }), null)).status).toBe(200);
+    expect((await post(govde(), doEnv(AI, n, { AI_GUNLUK_IP_SINIRI: '1' }), null)).status).toBe(200);
+    const j: any = await (await app.request('/api/ai/butce', {}, doEnv(AI, n))).json();
+    expect(j.harcanan).toBe(2 * Math.ceil(26.668 + 102.4025));   // ...ama bütçeye yazılır
+    // ...ve eşik doluysa başlıksız istek de model çağırmadan reddedilir.
+    await n.fetch(new Request(`https://x/kapat?gun=${utcGun()}&rezerv=0&gercek=8990`));
+    const r = await post(govde(), doEnv(AI, n), null);
+    expect(r.status).toBe(503);
+    expect((await r.json() as any).error).toBe('gunluk_butce');
+  });
+
+  it('hizIade: dakikalık hız hatasında rezerv iade edilir, yalnız başarılı tekrar sayılır', async () => {
+    const n = new NeuronButce(sahteDepo().state);
+    const { AI, sayi } = sahteAi([() => { throw new Error('429 Too Many Requests'); }, () => DEGERLENDIRME]);
+    expect((await post(govde(), doEnv(AI, n))).status).toBe(200);
+    expect(sayi()).toBe(2);
+    const j: any = await (await app.request('/api/ai/butce', {}, doEnv(AI, n))).json();
+    expect(j.rezerv).toBe(0);
+    expect(j.harcanan).toBe(Math.ceil(26.668 + 102.4025));
   });
 
   it('/status bütçe eşiğini ve modu söyler', async () => {

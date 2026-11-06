@@ -108,8 +108,9 @@ export type CagriKancasi = {
   kotaIade?: () => Promise<void>;
   /** §93: dakikalık hız hatası: model iş yapmadı, bütçe rezervi iade. */
   hizIade?: () => Promise<void>;
-  /** §93: başarılı çağrı; `kullanim` Workers AI'ın token sayıları (yoksa null). */
-  cagriSonrasi?: (b: CagriBilgisi, kullanim: { prompt_tokens?: number; completion_tokens?: number } | null) => Promise<void>;
+  /** §93: başarılı çağrı; `kullanim` Workers AI'ın token sayıları (yoksa null),
+      `cikisKarakter` yanıt metninin uzunluğu (usage yoksa tahmin için). */
+  cagriSonrasi?: (b: CagriBilgisi, kullanim: { prompt_tokens?: number; completion_tokens?: number } | null, cikisKarakter: number) => Promise<void>;
 };
 
 /** §93: hesap düzeyi tahmini Neuron bütçesi eşikte: zincir durur, yedeğe geçilmez. */
@@ -649,7 +650,10 @@ async function callModelHizKorumali(
     try {
       let kullanim: { prompt_tokens?: number; completion_tokens?: number } | null = null;
       const yanit = await callModel(env, prompt, opts, (u) => { kullanim = u; });
-      if (kanca?.cagriSonrasi) await kanca.cagriSonrasi(bilgi, kullanim);
+      if (kanca?.cagriSonrasi) {
+        const cikisKarakter = typeof yanit === 'string' ? yanit.length : JSON.stringify(yanit ?? '').length;
+        await kanca.cagriSonrasi(bilgi, kullanim, cikisKarakter);
+      }
       return yanit;
     } catch (e) {
       const tur = aiHatasiniSinifla(e);

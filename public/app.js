@@ -902,18 +902,25 @@ function aiKaynakRozetiHtml(k) {
 }
 
 /* Sunucu hata kodu → öğretmene gösterilecek cümle. Kota, günlük sınır ve
-   §93 bütçesi 03:00'e (00:00 UTC) kadar açılmaz; cümle insan yolunu söyler.
-   §93: elle devam cümlesi TEK kaynaktan (var olmayan bir yolu vaat etmez). */
-const AI_ELLE_DEVAM = " Bu arada elle devam edebilirsiniz.";
-const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
-const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
-const AI_BUTCE_METNI = "Bugünkü yapay zekâ bütçesi (tahmini) doldu; 03:00'te yenilenir." + AI_ELLE_DEVAM;
+   §93 bütçesi 03:00'e (00:00 UTC) kadar açılmaz.
+   §93 (W10): "elle devam" yolu UCA GÖRE ve TEK kaynaktan (aiElleDevam): yalnız
+   arayüzde gerçekten var olan yol söylenir; yolu olmayan uçta yol vaat edilmez.
+   Üç metin de aynı eşlemeyi kullanır (aiHataMetni). */
+const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir.";
+const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir.";
+const AI_BUTCE_METNI = "Bugünkü yapay zekâ bütçesi (tahmini) doldu; 03:00'te yenilenir.";
+
+/** §93: uca göre elle devam cümlesi; o uç için arayüzde yol yoksa boş dize. */
+function aiElleDevam(url) {
+  const u = String(url || "");
+  if (/\/api\/ai\/generate-questions$/.test(u)) return " Bu arada havuzdaki onaylı sorularla sınav kurmaya devam edebilirsiniz.";
+  if (/\/api\/ai\/evaluate$/.test(u)) return " Bu arada “Elle Puanla ve Onayla” düğmesiyle puanlamaya devam edebilirsiniz.";
+  return "";
+}
 const AI_GECERSIZ_CIKTI_METNI = "Model geçerli yanıt üretemedi, tekrar deneyin.";
-function aiHataMetni(status, govde) {
+function aiHataMetni(status, govde, url) {
   const kod = govde && govde.error;
-  if (kod === "ai_kota_bitti") return AI_KOTA_METNI;
-  if (kod === "gunluk_sinir") return AI_GUNLUK_SINIR_METNI;
-  if (kod === "gunluk_butce") return AI_BUTCE_METNI;
+  if (aiGunlukKapali(kod)) return aiGunlukKapaliMetni(kod) + aiElleDevam(url);
   if (kod === "model_output_invalid") return AI_GECERSIZ_CIKTI_METNI;
   return (govde && govde.message) || ("HTTP " + status);
 }
@@ -964,7 +971,7 @@ async function apiPost(url, body) {
        Yalnızca bir özellik eklenir; diğer çağıranların davranışı değişmez. */
     /* §90: bilinen kodlar (kota, günlük sınır, geçersiz çıktı) kendi cümlesine çevrilir. */
     aiButceYenile();  // §93: ret de olsa güncel bütçe gösterilsin
-    const hata = new Error(aiHataMetni(r.status, j));
+    const hata = new Error(aiHataMetni(r.status, j, url));
     hata.sunucuMesaji = !!(j && (j.message || j.error));
     hata.status = r.status;
     hata.kod = (j && j.error) || "";
@@ -13804,6 +13811,8 @@ function bosDurumHtml(mesaj) {
     "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
     /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
+    /* §93 (W10) — Neuron bütçesi göstergesi ve uca göre elle devam metni. */
+    "aiGunlukKapaliMetni", "aiElleDevam", "aiButceYenile", "aiButceMetni", "aiButceIpucu",
     "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
     "topluCozDurdurmaKodu", "topluCozBeklenirMi", "topluCozSonucMetni", "birimFarkiRozetiHtml",
     "riskOgrencileri", "riskListesiHtml", "veliCocugu", "veliSonuclari", "veliKazanimEtiketi", "renderParent", "wireParent",

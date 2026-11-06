@@ -27,7 +27,7 @@ import {
   type CagriKancasi,
 } from '../lib/ai';
 import {
-  butceRezerv, butceKapat, butceDurumu, butceModu, butceEsigi, rezervTahmini, neuronTahmini, katsayi,
+  butceRezerv, butceKapat, butceDurumu, butceModu, butceEsigi, rezervTahmini, neuronTahmini, metindenTahmin, katsayi,
   type ButceEnv,
 } from '../lib/neuron-butce';
 import {
@@ -191,14 +191,15 @@ function modelHatasiYaniti(c: any, e: unknown) {
  * için hak yemez; 3036 (kota bitti) dönen çağrının hakkı İADE edilir.
  * Sınır dolunca AiGunlukSinirHatasi → 429 `gunluk_sinir` (modelHatasiYaniti).
  * `cf-connecting-ip` yoksa (yalnız `app.request` testleri ve olası yerel
- * çalıştırma) günlük sınır UYGULANMAZ: üretimde Cloudflare bu başlığı her
- * isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
+ * çalıştırma) günlük ADRES sınırı uygulanmaz (§93: Neuron bütçesi YİNE
+ * uygulanır): üretimde Cloudflare bu başlığı her isteğe koyar. Dakikalık IP tavanı (yukarıdaki ara katman) "yerel" kovayla
  * sürmeye devam eder.
  */
-function gunlukKanca(c: any): CagriKancasi | undefined {
+function gunlukKanca(c: any): CagriKancasi {
   const ip = (c.req.header('cf-connecting-ip') || '').trim();
-  if (!ip) return undefined;
-  /* §93 — HESAP DÜZEYİ NEURON BÜTÇESİ (src/lib/neuron-butce.ts). Yalnız
+  /* §93 (W10, W6 P3-d): bütçe GLOBALDİR, başlık yoksa da uygulanır; başlık
+     yoksa yalnız ADRES sınırı atlanır (adres bilinmiyor).
+     §93 — HESAP DÜZEYİ NEURON BÜTÇESİ (src/lib/neuron-butce.ts). Yalnız
      workers-ai çağrıları (aynı havuz). Bir isteğin çağrıları SIRAYLA yapıldığı
      için açık rezerv tek değişkende tutulur. Sıra: önce adres hakkı, sonra
      bütçe; bütçe reddederse yenen adres hakkı iade edilir (model çağrılmadı). */
@@ -210,8 +211,10 @@ function gunlukKanca(c: any): CagriKancasi | undefined {
   };
   return {
     cagriOncesi: async (b) => {
-      const s = await gunlukHakKullan(c.env, ip);
-      if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
+      if (ip) {
+        const s = await gunlukHakKullan(c.env, ip);
+        if (!s.izin) throw new AiGunlukSinirHatasi(s.limit);
+      }
       if (b.provider !== 'workers-ai') return;
       if (!katsayi(b.model).bilinen) {
         console.log(JSON.stringify({ ev: 'butce_bilinmeyen_model', model: b.model }));
@@ -219,20 +222,24 @@ function gunlukKanca(c: any): CagriKancasi | undefined {
       const miktar = Math.ceil(rezervTahmini(b.model, b.istemKarakter, b.maxTokens));
       const r = await butceRezerv(c.env, miktar);
       if (!r.izin) {
-        await gunlukHakIade(c.env, ip);
+        if (ip) await gunlukHakIade(c.env, ip);
         throw new AiButceHatasi(r.durum.esik, r.durum.tahminiNeuron);
       }
       acikRezerv = miktar;
     },
-    cagriSonrasi: async (b, kullanim) => {
+    cagriSonrasi: async (b, kullanim, cikisKarakter) => {
       if (b.provider !== 'workers-ai') return;
-      const n = neuronTahmini(b.model, kullanim);
-      // Kullanım dönmediyse rezerv harcanmış sayılır (temkinli; bilinen fazla sayım).
-      await rezerviKapat(n == null ? acikRezerv : Math.ceil(n));
+      let n = neuronTahmini(b.model, kullanim);
+      if (n == null) {
+        // W6 P2-a: usage yoksa rezervi tam harcama SAYMA; metin uzunluğundan tahmin.
+        n = metindenTahmin(b.model, b.istemKarakter, cikisKarakter);
+        console.log(JSON.stringify({ ev: 'butce_usage_yok', model: b.model, tahmin: Math.ceil(n), rezerv: acikRezerv }));
+      }
+      await rezerviKapat(Math.ceil(n));
     },
     hizIade: () => rezerviKapat(0),
     kotaIade: async () => {
-      await gunlukHakIade(c.env, ip);
+      if (ip) await gunlukHakIade(c.env, ip);
       await rezerviKapat(0, true);
     },
   };

@@ -22,8 +22,9 @@
 // isteklerin eşiği birlikte aşmasını önler); çağrıdan SONRA rezerv düşülür,
 // gerçek tahmin eklenir. 3036 ve dakikalık hız hatasında model iş yapmadığı
 // için rezerv iade edilir; 3036 ayrıca günü "tükendi" işaretler.
-// BİLİNEN FAZLA SAYIM: diğer hatalarda (zaman aşımı dahil) ve `usage` dönmeyen
-// yanıtlarda rezerv HARCANMIŞ sayılır — temkinli taraf (PROGRESS §93).
+// BİLİNEN FAZLA SAYIM: diğer hatalarda (zaman aşımı dahil) rezerv HARCANMIŞ
+// sayılır — temkinli taraf (PROGRESS §93). `usage` dönmeyen yanıtta ise tahmin
+// istem + yanıt metninin uzunluğundan yapılır (metindenTahmin) ve loglanır.
 //
 // DÜRÜST SINIR: yalnız bu Worker'ın çağrılarını görür; aynı hesaptan REST ile
 // yapılan ölçüm koşuları görünmez. Tahmin faturalama ile birebir değildir.
@@ -66,6 +67,17 @@ export function neuronTahmini(model: string, u: Kullanim): number | null {
 export function rezervTahmini(model: string, istemKarakter: number, maxTokens: number): number {
   const k = katsayi(model);
   return (Math.max(0, istemKarakter) / 2 * k.giris + Math.max(0, maxTokens) * k.cikis) / 1e6;
+}
+
+/**
+ * §93 (W10): yanıtta `usage` YOKSA metin uzunluğundan tahmin. Giriş ≈ istem
+ * karakteri / 2, çıkış ≈ yanıt karakteri / 2 (iki taraf da bilerek cömert).
+ * Rezervi tam harcama saymak `max_tokens` kadar çıkış varsayıp bütçeyi birkaç
+ * kat hızlı doldururdu (W6 P2-a); gerçek yanıt çoğu zaman çok daha kısadır.
+ */
+export function metindenTahmin(model: string, istemKarakter: number, cikisKarakter: number): number {
+  const k = katsayi(model);
+  return (Math.max(0, istemKarakter) / 2 * k.giris + Math.max(0, cikisKarakter) / 2 * k.cikis) / 1e6;
 }
 
 export function butceEsigi(env: { AI_GUNLUK_NEURON_ESIGI?: string }): number {
