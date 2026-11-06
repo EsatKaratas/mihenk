@@ -11308,4 +11308,36 @@ göç yok (`ilkAnahtar`, `redKodu` isteğe bağlı; KALICI_ALANLAR değişmedi).
 - Demo tohumu sorularında `ilkAnahtar` yok; demo akışı orana katkı vermez.
 - Kapsam dışı, not: öğretmenin reddedilenler havuzundaki "↩ Havuza Al" düğmesi soruyu doğrudan
   `approved` yapıyor ve **denetim izine kayıt yazmıyor**. Bu bir insan kararı ama günlükte görünmüyor;
-  ayrı bir iş olarak ele alınmalı.
+  ayrı bir iş olarak ele alınmalı. → §104b'de kapatıldı.
+
+### 104b. "↩ HAVUZA AL" DENETİM İZİ (6 Kasım 2026, W10, dal `feature/havuza-al-izi`, Orchestrator 3 emriyle)
+
+**Neden:** §104'te bulundu. Öğretmen sihirbazının 2. adımındaki "Reddedilen Soru Havuzu"nda bulunan
+"↩ Havuza Al" düğmesi reddedilmiş soruyu doğrudan `approved` yapıyordu ama Karar Günlüğü'ne hiçbir kayıt
+yazılmıyordu. Bir insan kararı iz bırakmıyordu.
+
+**Ne yapıldı (yalnız `public/app.js`):**
+- **Davranış aynen:** soru yine `approved` olur. Ek onay ya da modal eklenmedi. İçerik uzmanının
+  "↩ Yeniden İncele" düğmesi (soruyu bekleyene döndürür, onay değil) değişmedi ve kayıt yazmaz.
+- `wireRejectedPool`: yalnız `approve` modunda, durum değişmeden ve `redKodu` silinmeden **önce**
+  `havuzaAlindiKaydet(q)` çağrılır. Bu fonksiyon `soru_havuza_alindi` kaydı yazar; alanları:
+  `qid`, `soru`, `model`, `oncekiDurum` ("rejected"), eski `redKodu` (varsa), `rol` (`state.role`).
+- `AUDIT_ETIKET`: "Reddedilen soru havuza alındı", aktör öğretmen. Günlük satırında "önceki durum:
+  reddedilmiş · rol: Öğretmen · eski red nedeni: …" görünür. Özet kutularında ayrı sayaç
+  ("reddedilen havuza alındı"; yalnız 0'dan büyükse).
+- CSV: iki sütun daha **sona** eklendi: `oncekiDurum`, `rol`. Eski red kodu var olan `redKodu`
+  sütununa yazılır.
+- **Kabul oranına girmez:** kayıt `soru_onaylandi` değildir. `auditOzet` "insan onayladı" sayısını,
+  model sayımını ve §104 anahtar düzeltme oranını değiştirmez. Testte gösterildi: aynı iki kayıt
+  `soru_onaylandi` olarak yazılsaydı 4 öneride onay 1'den 3'e çıkardı (%25 → %75).
+
+**Ölçüldü:**
+- `npm test` 31 dosya, **652/652** (yeni `test/havuza-al-izi.test.ts` 10 test; §104 CSV testi iki yeni
+  sütun için güncellendi). `npm run lint` temiz. Öz-kontrol 584 ad, %100. FFFD 0.
+- Tarayıcı (yerel statik sunucu, `/api` taklit, model çağrısı 0), 1280 px:
+  - Öğretmen → 7-A → sınav sihirbazı 2. adım → Reddedilen Soru Havuzu → "↩ Havuza Al".
+  - Soru `approved` oldu, modal açılmadı.
+  - Kayıt: `{tur: soru_havuza_alindi, oncekiDurum: rejected, redKodu: ANH-YOK, rol: teacher}`.
+  - Yönetici Karar Günlüğü'nde satır ve "1 reddedilen havuza alındı" kutusu göründü; "insan onayladı" 0
+    kaldı.
+  - Konsol hatası 0. Ekran: `Downloads\Mihenk\ekran-karar-kaydi\havuza-al-1280-gunluk.png`.
