@@ -11191,3 +11191,56 @@ ASSETS + vars, `OLCUM_*` yok.
 - `butce_usage_yok` logu yok, çünkü model çalışmadı. **Binding'in `usage` döndürüp döndürmediği hâlâ
   ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
 - Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
+
+## 99. İÇERİK UZMANI "ELLE SORU YAZ" (6 Kasım 2026, W10, dal `feature/elle-soru`, Orchestrator 3 emriyle)
+
+**Neden:** İçerik uzmanı soruyu yalnız modele ürettirebiliyordu. Kota dolunca (§96, 3036) ya da modelin
+yazamadığı bir soru gerektiğinde soru havuzuna insan eliyle soru eklemenin yolu yoktu. Tasarım notu:
+`Downloads\Mihenk\mihenk-elle-soru-tasarim.md` (Orchestrator 3 olduğu gibi onayladı).
+
+**Ne yapıldı (yalnız `public/app.js`, `public/css/ce.css`; sunucu, şema ve `src/` değişmedi):**
+- Sihirbazın altında "Ya da soruyu kendiniz yazın: ✍ Çoktan seçmeli / ✍ Açık uçlu". Düğme yalnız boş taslak
+  oluşturur (`elleSoruOlustur`) ve odağı soru metnine verir; **onaylamaz**.
+- Taslak, YZ sorularıyla **aynı bekleme kuyruğuna** girer (`status: "ai_generated"`), aynı onay kartından,
+  aynı `soruyuOnayla` yolundan ve §70 ikinci onaydan geçer (agents.md §1). Yeni durum değeri, "kaydet ve
+  onayla" ya da havuza kestirme **yok**. `"draft"` durumu bilerek açılmadı: bekleyen sayaçları, havuz ve
+  öğretmen süzgeçlerinden biri gözden kaçarsa onaysız soru sızardı.
+- Soruya iki isteğe bağlı alan: `yazan: "insan"`, `elleTaslak: true` (onayda silinir). Eski kayıtlarda yok →
+  YZ sorusu okunur. **KALICI_ALANLAR değişmedi, göç yok** (`state.ceElleOdak` yalnız arayüz odağı).
+- Kartta: "✍ Elle yazıldı" rozeti, "⏱ Süre" (YZ önerisi değil), bilgi satırı (zorluk, bilişsel düzey, süre,
+  kazanım). Kazanım için §95 A2 tekli seçicisi (`peKazanimSeciciHtml`) **değiştirilmeden çağrıldı**.
+- ÇSS taslağı `anahtarBelirsiz: true` ile doğar: var olan "Cevap anahtarı yok" şüphesi, uzman doğru şıkkı
+  seçene dek görünür (elle soruda açıklama metni "Doğru şık henüz seçilmedi" der).
+- **Yapısal eksik onayı pasifleştirir** (`elleSoruEksikleri`): boş gövde, boş şık, seçilmemiş anahtar.
+  Neden düğmenin yanında yazar (`aria-describedby`); işleyicide de ayrıca korunur. Bu bir şüphe değildir
+  ve **yalnız elle sorulara** uygulanır; YZ sorusunda liste her zaman boş, onay davranışı değişmedi.
+- Denetim izi: yeni `soru_elle_yazildi` (aktör içerik uzmanı). Onay kaydına `elle: true`. Denetim
+  özetinde elle onaylar "insan onayladı" (YZ önerisinin kabulü) sayısına **girmez**, ayrı kutuda
+  sayılır; model sayımına (`MODEL_URETIMI`) girmez.
+- `denetimDurumHtml`: elle soruda "elle yazıldı — sunucu denetiminden geçmedi" (önceden yanlış olarak
+  "denetlenmedi… eklenmeden önce üretildi" yazacaktı). "Bağımsız çöz" düğmesi kalır (isteğe bağlı, düğmeyle).
+- Havuz kaynak filtresine "Elle yazılan" (`soruKaynakTuru` → `"elle"`).
+- Yan düzeltme: kazanımsız soruda onay kartı boş bir hap çiziyordu; artık havuzdaki gibi "kazanımsız" yazar.
+
+**Ölçüldü:**
+- `npm test` 29 dosya, **619/619** (yeni `test/elle-soru.test.ts` 24 test; tasarım notu §6 madde 1–9).
+  `npm run lint` temiz. Öz-kontrol 574 ad, %100, tekrar yok. FFFD 0.
+- Tarayıcı (yerel statik sunucu, `/api` taklit, **model çağrısı 0**), 1280 ve 390 px:
+  - ÇSS: taslak bekleyende, odak gövdede, onay pasif, "Onay için: soru metni boş, 4 şık boş, doğru şık
+    seçilmedi." → gövde + şıklar yazıldı: yalnız "doğru şık seçilmedi" → anahtar seçildi: onay etkin →
+    zorluk Zor, düzey Analiz → onay. Denetim izi: `soru_elle_yazildi`, `soru_onaylandi(elle)`.
+  - Açık uçlu: boşken pasif, gövde yazılınca etkin, onaylandı.
+  - Boş taslak reddedildi → "Reddedilmiş" havuzunda.
+  - Havuz ("Elle yazılan", Tümü): 2 onaylı + 1 reddedilmiş; sınav havuzunda (`filteredPool`) yalnız 2 onaylı.
+  - Konsol hatası 0, yatay taşma 0. Ekranlar: `Downloads\Mihenk\ekran-elle-soru\` (6 PNG).
+
+**Bilinen sınırlar:**
+- Kimlik doğrulama yok: soruyu yazan ile onaylayan aynı kişi olabilir; "dört göz" uygulanamaz. Denetim
+  izinde iki ayrı olay (yazıldı / onaylandı) en azından bunu kayda geçirir.
+- Sunucu denetimleri (hesap, dil, şık sayısı) elle soruya uygulanmaz; kart bunu açıkça söyler.
+- Sihirbazda kazanım seçilmemişse taslak kazanımsız doğar (YZ üretimiyle aynı); kart üzerindeki seçiciden
+  seçilir. Kazanım onay için zorunlu değildir.
+- v1 dışında: metne dayalı elle soru (`needsSource`), çeldirici gerekçesi alanı.
+- Kapsam dışı ama not edildi: öğretmen havuz düzenlemesi (`poolEditHtml`) onaylı soruyu yeniden onaya
+  sokmadan değiştiriyor.
+- §97 (W10 usage ölçümü) ve §98 (W9) başka dallarda; birleştirmede sıralanacak.
