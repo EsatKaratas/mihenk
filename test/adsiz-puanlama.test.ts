@@ -190,6 +190,17 @@ describe('eski akış değişmedi (adsız kapalı, tek liste)', () => {
     expect(w).toContain('finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised", sid, kriterler || undefined);');
     expect(w).toContain('wirePuanArac();');
   });
+  it('onaylanmış kart saydam değil (axe kontrast): opacity yok, .eval-onayli var', () => {
+    const d = fonksiyonMetni('doneCardHtml');
+    expect(d).not.toMatch(/'<div class="eval-card" style="opacity/);
+    expect(d).toContain('class="eval-card eval-onayli"');
+    expect(fs.readFileSync(path.resolve(__dirname, '..', 'public', 'css', 'ogretmen.css'), 'utf8')).toContain('.eval-card.eval-onayli');
+  });
+  it('gizlilik metni fişi ve adsız tercihini anlatıyor (agents.md §7)', () => {
+    const pp = fs.readFileSync(path.resolve(__dirname, '..', 'public', 'privacy-policy.html'), 'utf8');
+    expect(pp).toContain('geri bildirim fişi');
+    expect(pp).toContain('Adları gizle');
+  });
   it('§122 kodu hiçbir puanı/onayı kendisi yazmaz', () => {
     const blok = arasi('const PUAN_TERCIH_ANAHTAR', 'function teacherTab3Html(');
     expect(blok).not.toMatch(/finalizeReview\(|writeSession\(|auditKaydet\(|aiEvaluate\(|apiPost\(/);

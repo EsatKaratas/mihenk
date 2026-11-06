@@ -12297,7 +12297,10 @@ function demoTohumUyariHtml(ev) {
 
 function doneCardHtml(q, student, ev, rv) {
   const rub = state.rubrics[q.id];
-  return '<div class="eval-card" style="opacity:0.75;">' +
+  /* §122: eskiden style="opacity:0.75" idi; saydamlık hapları ve sınıf etiketini
+     WCAG AA kontrastının altına düşürüyordu (axe color-contrast, main'de de ölçüldü).
+     Artık soluk zemin + yeşil sol kenar (css/ogretmen.css .eval-onayli). */
+  return '<div class="eval-card eval-onayli">' +
     '<div class="q-meta">' + studentChip(student) +
     '<span class="pill pill-success">Onaylandı</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
     '<div style="font-size:13px;">' + escapeHtml(q.body) + '</div>' +

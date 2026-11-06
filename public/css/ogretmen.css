@@ -313,3 +313,5 @@
   #yazdirKabi .gf-alt { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2pt 12pt; margin-top: 4pt; }
   #yazdirKabi .gf-ibare { font-size: 8.5pt; font-style: italic; }
 }
+/* §122: onaylanmış kart saydam değil (kontrast); soluk zemin + yeşil kenar. */
+#panel-teacher .eval-card.eval-onayli { background: var(--surface-2); border-left: 3px solid var(--success); }
