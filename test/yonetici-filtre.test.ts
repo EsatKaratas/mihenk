@@ -19,7 +19,7 @@ const ADLAR = [
   'yonFiltreAktif', 'yonSinavi', 'yonOgretmenAdi', 'yonSinavSorulari', 'yonSoruDersi', 'yonSoruUygunMu',
   'yonSinavUygunMu', 'yonOgrenciler', 'yonOturum', 'yonFiltreSecenekleri', 'yonFiltreGecerli',
   'yonFiltreOzet', 'yonPuanlar', 'yonSinavGecmisi', 'yonKayitlariSuz', 'okulGercekDurum',
-  'yonSinavAtandiMi', 'yonYayindakiKayitlar', 'riskOgrencileri',
+  'yonSinavAtandiMi', 'yonYayindakiKayitlar', 'riskOgrencileri', 'yonDonem', 'yonDonemAdi',
 ];
 
 const KAZANIMLAR = [
@@ -74,14 +74,14 @@ function kur(state = ornekState()) {
   // eslint-disable-next-line no-new-func
   const fab = new Function(
     'state', 'OUTCOMES_LIST', 'kodDanDers', 'VARSAYILAN_OGRETMEN_ADI', 'readSession', 'YON_FILTRE_BOS',
-    'OTURUM_ALANLARI', 'mcPuani', 'dikkatOgrenciSinyali', 'RISK_ESIK_BASARI', 'RISK_ESIK_GIRMEME',
+    'OTURUM_ALANLARI', 'mcPuani', 'dikkatOgrenciSinyali', 'RISK_ESIK_BASARI', 'RISK_ESIK_GIRMEME', 'YON_DONEM_TARIHSIZ',
     kod + '\nreturn {' + ADLAR.join(',') + '};',
   );
-  return fab(state, () => KAZANIMLAR, () => '', 'İsimsiz Öğretmen', readSession, { ders: '', sinif: '', ogretmen: '' },
-    [], () => 5, () => null, 50, 1);
+  return fab(state, () => KAZANIMLAR, () => '', 'İsimsiz Öğretmen', readSession, { ders: '', sinif: '', ogretmen: '', donem: '' },
+    [], () => 5, () => null, 50, 1, 'tarihsiz');
 }
 
-const BOS = { ders: '', sinif: '', ogretmen: '' };
+const BOS = { ders: '', sinif: '', ogretmen: '', donem: '' };
 
 describe('yonetici filtre — seçenekler yalnız gerçek veriden', () => {
   it('taslak sınavın öğretmeni ve dersi seçeneklere girmez; boş öğretmen adı varsayılan ada düşer', () => {
@@ -96,7 +96,7 @@ describe('yonetici filtre — seçenekler yalnız gerçek veriden', () => {
   it('artık var olmayan kayıtlı seçim "tümü" olur', () => {
     const { yonFiltreGecerli, yonFiltreSecenekleri } = kur();
     const f = yonFiltreGecerli({ ders: 'Türkçe', sinif: '7-A', ogretmen: 'Silinmiş' }, yonFiltreSecenekleri());
-    expect(f).toEqual({ ders: '', sinif: '7-A', ogretmen: '' });
+    expect(f).toEqual({ ders: '', sinif: '7-A', ogretmen: '', donem: '' });
   });
 
   it('ders yalnız kazanım kodundan; kodu olmayan sorunun dersi boştur', () => {
@@ -130,7 +130,7 @@ describe('yonetici filtre — sınav ve öğrenci süzme', () => {
   it('özet metni seçilenleri sırayla yazar', () => {
     const { yonFiltreOzet, yonFiltreAktif } = kur();
     expect(yonFiltreAktif(BOS)).toBe(false);
-    expect(yonFiltreOzet({ ders: 'Matematik', sinif: '7-A', ogretmen: '' })).toBe('7-A · Matematik');
+    expect(yonFiltreOzet({ ders: 'Matematik', sinif: '7-A', ogretmen: '', donem: '' })).toBe('7-A · Matematik');
   });
 });
 

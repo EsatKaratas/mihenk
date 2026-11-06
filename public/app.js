@@ -9949,7 +9949,7 @@ function evalCardHtml(q, student, ev) {
     aiKaynakRozetiHtml(ev.kaynak) + demoTohumUyariHtml(ev) +
     (ev.fromCache ? '<div class="cache-note">Bu değerlendirme daha önce aynı yanıt ve aynı rubrikle yapılmıştı; sonuç önbellekten getirildi. Yeniden hesaplatmak için "Yapay Zekâ ile Yeniden Dene" kullanın.</div>' : "") +
     confBadge(ev.confidence) +
-    injectionWarnHtml(ev) +
+    injectionWarnHtml(ev, ans.text) +
     adMaskeNotuHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
     (ev.breakdown || []).map(function (b) {
@@ -9961,7 +9961,10 @@ function evalCardHtml(q, student, ev) {
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
     '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
-    '<div class="actions"><button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (YZ puanı: ' + ev.aiScore + ')</button>' +
+    /* §103: enjeksiyon işareti varsa tek tıkla onay (YZ puanını incelemeden
+       kabul) çizilmez; tek tek onay ("Puanı Güncelle ve Onayla") kalır. */
+    '<div class="actions">' + (enjeksiyonIsareti(ev, ans.text).var ? "" :
+      '<button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (YZ puanı: ' + ev.aiScore + ')</button>') +
     '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button>' +
     (ev.fromCache ? '<button class="btn btn-secondary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' : "") +
     '</div></div>';
@@ -10090,12 +10093,57 @@ function confBadge(c) {
    kaydiyla ayni dil kullanildi ("tek basina kopya kanidi degildir").
    Ogrenci karnesinde GOSTERILMEZ — bu ogretmenin degerlendirmesine ait bir
    sinyaldir, ogrenciye yonelik bir suclama degildir. */
-function injectionWarnHtml(ev) {
-  if (!ev || !ev.injectionAttempt) return "";
-  return '<div class="inj-warn"><b>⚠ Bu yanıt, değerlendiren yapay zekâya talimat ' +
-    'vermeye çalışan bir ifade içeriyor.</b> Yapay zekâ bu ifadeyi uygulamadı; puanı ' +
-    'yalnızca sizin tanımladığınız rubriğe göre verdi. Yanıtı kendiniz okuyup karar ' +
-    'vermeniz önerilir. Bu tek başına kopya kanıtı değildir.</div>';
+function injectionWarnHtml(ev, cevap) {
+  const isaret = enjeksiyonIsareti(ev, cevap);
+  if (!isaret.var) return "";
+  const ifadeler = isaret.kaliplar.map(function (k) { return "“" + escapeHtml(k) + "”"; }).join(", ");
+  /* §103: neden açıkça söylenir. Model bayrağı yoksa "yapay zekâ uygulamadı"
+     DENEMEZ — yalnız kalıp yakalandıysa modelin fark ettiği bilinmiyor. */
+  return '<div class="inj-warn" role="note"><b>⚠ Cevapta puanlamaya yönelik talimat ifadesi var.</b> ' +
+    (ifadeler ? "Bulunan ifade: " + ifadeler + ". " : "") +
+    (isaret.model
+      ? "Yapay zekâ bu ifadeyi uygulamadı; puanı yalnızca sizin tanımladığınız rubriğe göre verdi. "
+      : "Yapay zekâ bunu ayrıca işaretlemedi; önerilen puanın rubriğe uyduğunu kendiniz kontrol edin. ") +
+    "Bu yüzden bu cevapta tek tıkla onay kapalı: puanı okuyup “Puanı Güncelle ve Onayla” ile onaylayın. " +
+    "Bu tek başına kopya kanıtı değildir.</div>";
+}
+
+/* §103 — İSTEMCİ TARAFI ENJEKSİYON KALIBI. Eskiden uyarı yalnız modelin
+   injectionAttempt bayrağına bağlıydı; model kaçırırsa öğretmen hiçbir şey
+   görmüyordu. Basit kalıp eşleme eklendi; bayrak = model VEYA kalıp.
+   PUAN DEĞİŞMEZ, ENGELLEME YOK: yalnız uyarı + tek tıkla onay kapanır
+   (agents.md §1: karar öğretmende). Eşleme katlanmış metinde yapılır:
+   tr küçük harf (İ→i, I→ı), sonra ı→i — böylece "IGNORE" (tr'de "ıgnore")
+   ve "SİSTEM TALİMATI" aynı kalıba düşer; boşluklar tekleşir. Kalıplar sözcük
+   başına bağlıdır ("tamsayı", "puanını hak etti" eşleşmez). */
+const ENJEKSIYON_KALIPLARI = [
+  { ad: "tam puan", re: /(^|[^\p{L}\p{N}])tam puan/u },
+  /* "yok sayılır" (edilgen, ör. matematikte "sıfır yok sayılır") talimat değil. */
+  { ad: "yok say", re: /(^|[^\p{L}\p{N}])yok say(?!il)/u },
+  { ad: "önceki talimat", re: /(^|[^\p{L}\p{N}])önceki (talimat|yönerge|komut|kural)/u },
+  { ad: "sistem talimatı", re: /(^|[^\p{L}\p{N}])sistem (talimat|mesaj|istem|komut)/u },
+  { ad: "ignore", re: /(^|[^\p{L}\p{N}])ignore([^\p{L}\p{N}]|$)/u },
+  { ad: "full marks", re: /(^|[^\p{L}\p{N}])full (marks?|score|points?)([^\p{L}\p{N}]|$)/u },
+  /* İstemdeki sınır belirteçleri <YANIT-…>, </KAYNAK-…> biçimindedir (prompts.ts). */
+  { ad: "sınır belirteci", re: /<\s*\/?\s*(yanit|yanitlar|kaynak|soru|sorular|onceki)\s*[-_>]/u },
+];
+
+function enjeksiyonKatla(metin) {
+  return String(metin || "").normalize("NFC").toLocaleLowerCase("tr").replace(/ı/g, "i").replace(/\s+/g, " ");
+}
+
+/** Cevapta bulunan kalıpların adları (tekil, tanım sırasıyla). */
+function enjeksiyonKalipBul(metin) {
+  const m = enjeksiyonKatla(metin);
+  if (!m.trim()) return [];
+  return ENJEKSIYON_KALIPLARI.filter(function (k) { return k.re.test(m); }).map(function (k) { return k.ad; });
+}
+
+/** Değerlendirme + cevap → { var, model, kaliplar }. */
+function enjeksiyonIsareti(ev, cevap) {
+  const model = !!(ev && ev.injectionAttempt);
+  const kaliplar = enjeksiyonKalipBul(cevap);
+  return { var: model || kaliplar.length > 0, model: model, kaliplar: kaliplar };
 }
 
 /* §42 — SINIF VERİSİ KUTUSU AYRI FONKSİYONA ALINDI.
@@ -10303,7 +10351,10 @@ function wireTeacherTab3() {
   document.querySelectorAll(".approve-as-is").forEach(function (b) {
     b.onclick = function () {
       const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
-      const ev = (readSession(sid).aiEvals || {})[qid] || {};
+      const ss = readSession(sid);
+      const ev = (ss.aiEvals || {})[qid] || {};
+      /* §103: savunma — işaretli cevapta tek tıkla onay çalışmaz (düğme zaten çizilmez). */
+      if (enjeksiyonIsareti(ev, ((ss.answers || {})[qid] || {}).text).var) return;
       /* §51 — SESSİZ DÜŞÜŞ KAPATILDI: bu düğme not alanını hiç okumuyor, ""
          yazıyordu. Ölçüldü: "Nota Aktar" ile alınan geri bildirim + "Tek
          Tıkla Onayla" → reviews.comment "" ve karnede not yok. Puan AI
@@ -12732,12 +12783,41 @@ function yonSeciliOgretmen(demo) {
                 (OUTCOMES_LIST().subject, yoksa kodDanDers). İçerik Uzmanı'nın
                 açık formundaki ders (state.ceForm.subject) BİLEREK kullanılmaz:
                 yöneticinin filtresi başka bir panelin o anki formuna bağlı olamaz.
-   · dönem    : state'te YOK — sınavda tarih/dönem alanı tutulmuyor. Filtre
-                uydurulmadı; ekranda nedeni yazar.
+   · dönem    : §103 — sınavın açılış zamanı exams[].startsAt (yayında yazılır:
+                hemen → Date.now(), planlı → seçilen saat). Dönem bundan MEB
+                takvimine göre aydan türetilir (yonDonem); yeni alan YOK, göç
+                yok. startsAt'ı olmayan yayınlı sınav "Tarihsiz"dir.
    Seçim yalnız localStorage'da tutulur (YON_FILTRE_ANAHTAR) ve yalnız seçimdir;
    URL'ye hiçbir şey yazılmaz. Örnek (demo) veri filtreden bağımsızdır. */
 const YON_FILTRE_ANAHTAR = "mihenk.yonetici.filtre.v1";
-const YON_FILTRE_BOS = { ders: "", sinif: "", ogretmen: "" };
+const YON_FILTRE_BOS = { ders: "", sinif: "", ogretmen: "", donem: "" };
+
+/* §103 — DÖNEM. MEB takvimi: 1. dönem Eylül–Ocak, 2. dönem Şubat–Haziran.
+   Temmuz–Ağustos hiçbir döneme yazılmaz ("dönem dışı (yaz)"); tahmin yok.
+   Öğretim yılı Eylül'de başlar: Ocak 2027 → 2026–2027 1. dönem. Ay, tarayıcının
+   yerel saatine göredir (sınavın açıldığı yer). Anahtar sıralanabilir:
+   "2026-2027|1"; tarihsiz ve geçersiz zaman → "tarihsiz". */
+const YON_DONEM_TARIHSIZ = "tarihsiz";
+function yonDonem(ts) {
+  const n = Number(ts);
+  const d = ts == null || ts === "" || !isFinite(n) ? null : new Date(n);
+  if (!d || isNaN(d.getTime())) return { anahtar: YON_DONEM_TARIHSIZ, ad: "Tarihsiz" };
+  const ay = d.getMonth(), yil = d.getFullYear();
+  const bas = ay >= 8 ? yil : yil - 1;
+  const ogretim = bas + "–" + (bas + 1);
+  const anahtarYil = bas + "-" + (bas + 1);
+  if (ay >= 8 || ay === 0) return { anahtar: anahtarYil + "|1", ad: ogretim + " · 1. dönem" };
+  if (ay <= 5) return { anahtar: anahtarYil + "|2", ad: ogretim + " · 2. dönem" };
+  return { anahtar: anahtarYil + "|yaz", ad: ogretim + " · dönem dışı (yaz)" };
+}
+/** Dönem anahtarının ekrandaki adı (anahtardan; sınav gerekmez). */
+function yonDonemAdi(anahtar) {
+  const a = String(anahtar || "");
+  if (!a) return "";
+  if (a === YON_DONEM_TARIHSIZ) return "Tarihsiz";
+  const p = a.split("|"), yil = String(p[0] || "").replace("-", "–");
+  return yil + " · " + (p[1] === "yaz" ? "dönem dışı (yaz)" : p[1] + ". dönem");
+}
 let yonFiltreSecim = null;
 
 /** Kayıtlı seçim (ilk çağrıda localStorage'dan okunur; okunamazsa "tümü"). */
@@ -12745,15 +12825,16 @@ function yonFiltreAl() {
   if (!yonFiltreSecim) {
     let h = {};
     try { h = JSON.parse(localStorage.getItem(YON_FILTRE_ANAHTAR) || "{}") || {}; } catch (e) { h = {}; }
-    yonFiltreSecim = { ders: String(h.ders || ""), sinif: String(h.sinif || ""), ogretmen: String(h.ogretmen || "") };
+    yonFiltreSecim = { ders: String(h.ders || ""), sinif: String(h.sinif || ""), ogretmen: String(h.ogretmen || ""), donem: String(h.donem || "") };
   }
   return yonFiltreSecim;
 }
 function yonFiltreKaydet(f) {
-  yonFiltreSecim = { ders: String((f && f.ders) || ""), sinif: String((f && f.sinif) || ""), ogretmen: String((f && f.ogretmen) || "") };
+  yonFiltreSecim = { ders: String((f && f.ders) || ""), sinif: String((f && f.sinif) || ""), ogretmen: String((f && f.ogretmen) || ""),
+    donem: String((f && f.donem) || "") };
   try { localStorage.setItem(YON_FILTRE_ANAHTAR, JSON.stringify(yonFiltreSecim)); } catch (e) { /* özel pencere: yalnız bu oturum */ }
 }
-function yonFiltreAktif(f) { return !!(f && (f.ders || f.sinif || f.ogretmen)); }
+function yonFiltreAktif(f) { return !!(f && (f.ders || f.sinif || f.ogretmen || f.donem)); }
 
 /** Aktif sınavın canlı hâli state.exam'dedir (§3.2). */
 function yonSinavi(kayit) { return kayit.id === state.activeExamId ? state.exam : kayit; }
@@ -12774,6 +12855,7 @@ function yonSinavUygunMu(kayit, f) {
   const ex = yonSinavi(kayit);
   if (ex.status !== "published") return false;
   if (f.ogretmen && yonOgretmenAdi(ex) !== f.ogretmen) return false;
+  if (f.donem && yonDonem(ex.startsAt).anahtar !== f.donem) return false;
   if (f.ders && !yonSinavSorulari(ex).some(function (q) { return yonSoruDersi(q) === f.ders; })) return false;
   // §78: sınıf seçiliyse sınav o sınıftan en az bir öğrenciye atanmış olmalı.
   if (f.sinif && !yonOgrenciler(f).some(function (o) { return yonSinavAtandiMi(kayit, o); })) return false;
@@ -12802,29 +12884,33 @@ function yonOturum(kayit, sid) {
 
 /** Seçenekler yalnız GERÇEK veriden: yayınlanmış sınavların dersleri ve öğretmenleri, öğrencilerin sınıfları. */
 function yonFiltreSecenekleri() {
-  const ders = {}, ogretmen = {}, sinif = {};
+  const ders = {}, ogretmen = {}, sinif = {}, donem = {};
   (state.exams || []).forEach(function (kayit) {
     const ex = yonSinavi(kayit);
     if (ex.status !== "published") return;
     ogretmen[yonOgretmenAdi(ex)] = true;
+    donem[yonDonem(ex.startsAt).anahtar] = true;
     yonSinavSorulari(ex).forEach(function (q) { const d = yonSoruDersi(q); if (d) ders[d] = true; });
   });
   (state.students || []).forEach(function (o) { if (o.sinif) sinif[o.sinif] = true; });
   const sirala = function (n) { return Object.keys(n).sort(function (a, b) { return a.localeCompare(b, "tr"); }); };
-  return { ders: sirala(ders), sinif: sirala(sinif), ogretmen: sirala(ogretmen) };
+  /* Dönem: yeniden eskiye (anahtar "2026-2027|1" sıralanabilir), Tarihsiz sonda. */
+  const donemler = Object.keys(donem).filter(function (k) { return k !== YON_DONEM_TARIHSIZ; }).sort().reverse()
+    .concat(donem[YON_DONEM_TARIHSIZ] ? [YON_DONEM_TARIHSIZ] : []);
+  return { ders: sirala(ders), sinif: sirala(sinif), ogretmen: sirala(ogretmen), donem: donemler };
 }
 /** Kayıtlı seçimi bugünkü seçeneklere göre süzer: artık olmayan değer "tümü" olur. */
 function yonFiltreGecerli(secim, secenek) {
   const f = {};
-  ["ders", "sinif", "ogretmen"].forEach(function (k) {
+  ["ders", "sinif", "ogretmen", "donem"].forEach(function (k) {
     const v = String((secim || {})[k] || "");
     f[k] = v && (secenek[k] || []).indexOf(v) >= 0 ? v : "";
   });
   return f;
 }
 function yonFiltreOzet(f) {
-  if (!yonFiltreAktif(f)) return "tüm sınıflar, dersler ve öğretmenler";
-  return [f.sinif, f.ders, f.ogretmen].filter(Boolean).join(" · ");
+  if (!yonFiltreAktif(f)) return "tüm sınıflar, dersler, öğretmenler ve dönemler";
+  return [f.sinif, f.ders, f.ogretmen, yonDonemAdi(f.donem)].filter(Boolean).join(" · ");
 }
 
 /** Kazanım yüzdeleri: yalnız ONAYLI (graded) oturum; filtreye uyan sınav, öğrenci ve soru.
@@ -12921,14 +13007,14 @@ function yonKararKayitlari(f) {
   return yonCanliOgretmenler(f).reduce(function (a, t) { return a.concat(t.records); }, []);
 }
 
-/** Filtre çubuğu: üç gerçek boyut; dönem yok ve nedeni ⓘ içinde. */
+/** Filtre çubuğu: dört gerçek boyut (§103: dönem sınavın açılış tarihinden). */
 function yonFiltreCubuguHtml(f, secenek) {
-  const secim = function (id, ad, anahtar, tumu) {
+  const secim = function (id, ad, anahtar, tumu, etiket) {
     return '<div class="field yon-filtre-alan"><label for="' + id + '">' + ad + '</label>' +
       '<select id="' + id + '" class="js-yon-filtre" data-boyut="' + anahtar + '"' + (secenek[anahtar].length ? "" : " disabled") + '>' +
       '<option value="">' + tumu + '</option>' +
       secenek[anahtar].map(function (v) {
-        return '<option value="' + escapeHtml(v) + '"' + (f[anahtar] === v ? " selected" : "") + '>' + escapeHtml(v) + '</option>';
+        return '<option value="' + escapeHtml(v) + '"' + (f[anahtar] === v ? " selected" : "") + '>' + escapeHtml(etiket ? etiket(v) : v) + '</option>';
       }).join("") + '</select></div>';
   };
   return '<div class="card yon-filtre" role="search" aria-label="Pano filtreleri"><div class="card-head"><h3>Filtreler</h3>' +
@@ -12938,11 +13024,13 @@ function yonFiltreCubuguHtml(f, secenek) {
     '<div class="yon-filtre-alanlar">' +
     secim("yonFiltreSinif", "Sınıf", "sinif", "Tüm sınıflar") +
     secim("yonFiltreDers", "Ders", "ders", "Tüm dersler") +
-    secim("yonFiltreOgretmen", "Öğretmen", "ogretmen", "Tüm öğretmenler") + '</div>' +
+    secim("yonFiltreOgretmen", "Öğretmen", "ogretmen", "Tüm öğretmenler") +
+    secim("yonFiltreDonem", "Dönem", "donem", "Tüm dönemler", yonDonemAdi) + '</div>' +
     yonBilgiHtml('Filtreler bu sayfadaki <b>gerçek</b> veriye uygulanır: eylem kartı, durum kutuları, kazanım ' +
       'grafiği, gelişim tablosu, öğretmen analitiği, karar raporu ve risk listesi. <b>Ders</b> her sorunun ' +
-      'kazanım kodundan çıkarılır. <b>Dönem filtresi yok:</b> sınavlarda tarih ya da dönem bilgisi ' +
-      'tutulmuyor, bu yüzden eklenmedi. Karar Günlüğü, Dışa Aktarma ve Karşılaştırma (örnek) filtreden ' +
+      'kazanım kodundan çıkarılır. <b>Dönem</b> sınavın açılış tarihinden (yayınlandığı ya da planlandığı an) ' +
+      'MEB takvimine göre bulunur: Eylül–Ocak 1. dönem, Şubat–Haziran 2. dönem; Temmuz–Ağustos dönem dışıdır. ' +
+      'Açılış tarihi kaydedilmemiş sınavlar <b>Tarihsiz</b> altında görünür. Karar Günlüğü, Dışa Aktarma ve Karşılaştırma (örnek) filtreden ' +
       'bağımsızdır; risk listesindeki davranış göstergesi tüm sınavlardan hesaplanır. Seçim yalnız bu tarayıcıda saklanır.',
       "Filtreler neye uygulanır?") + '</div>';
 }
@@ -15452,7 +15540,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
@@ -15561,7 +15649,7 @@ function bosDurumHtml(mesaj) {
     /* §74 — yönetici filtreleri (W4). */
     "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
-    "yonFiltreGecerli", "yonFiltreOzet", "yonPuanlar", "yonSinavGecmisi", "yonKayitlariSuz", "yonCanliOgretmenler",
+    "yonFiltreGecerli", "yonDonem", "yonDonemAdi", "yonFiltreOzet", "yonPuanlar", "yonSinavGecmisi", "yonKayitlariSuz", "yonCanliOgretmenler",
     "yonKararKayitlari", "yonFiltreCubuguHtml", "wireYonFiltre",
     /* §78 — atama kuralı ve yayındaki karar kayıtları (W4). */
     "yonSinavAtandiMi", "yonYayindakiKayitlar",
