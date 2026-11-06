@@ -1,0 +1,139 @@
+{
+  "surum": "puanlama-set-v1",
+  "aciklama": "Ön kayıtlı puanlama deneyi (docs/olcum/puanlama-deney/ON-KAYIT.md) için açık uçlu yanıt seti. Yanıtlar W1 tarafından, kriter düzeyleri ÖNCEDEN tasarlanarak yazıldı; altın puan = tasarım gereği beklenen puan (yapım altını). Model çağrısından önce commit'lendi. Bağımsız ikinci etiketleyici yok — sınırlılık ON-KAYIT.md §6'da.",
+  "duzeyKurali": "Her kriter için üç düzey: tam = kriterin en yüksek puanı, kısmi = 'kismi' alanı, yok = 0. Dil/anlatım kriteri içerik yanlış olsa da metnin açıklığına göre puanlanır; ancak içerik yanlışsa 'tutarlılık' eksik sayılır ve en çok kısmi verilir. Soruyla ilgisiz yanıtta tüm kriterler 0 (istemin kural 4'ü ile aynı).",
+  "sorular": [
+    {
+      "id": "S1",
+      "kaynak": "Uygulamanın demo sorusu (public/app.js DEMO_SORULAR) ve demo rubriği",
+      "questionBody": "Bir kargo deposunda ağır koliler taşınacak. Depo zemini pürüzlü betondur ve iki seçenek tartışılıyor: kolileri zeminde doğrudan itmek ya da tekerlekli bir platforma koyup çekmek. Hangi seçeneği önerirsin? Kararını kuvvet ve sürtünme kavramlarını kullanarak gerekçelendir.",
+      "outcomeLabel": "FEN.7.1.2 — Kuvvet ve Hareket",
+      "maxScore": 20,
+      "criteria": [
+        { "label": "Kavram doğruluğu", "weight": 40, "kismi": 4 },
+        { "label": "Örnek / uygulama", "weight": 30, "kismi": 3 },
+        { "label": "Anlatım açıklığı", "weight": 30, "kismi": 3 }
+      ],
+      "yanitlar": [
+        { "id": "S1-1", "profil": "tam", "metin": "Tekerlekli platformu öneririm. Koli pürüzlü betonda doğrudan itilirse koli ile zemin arasındaki sürtünme kuvveti büyük olur ve harekete zıt yönde etki eder, bu yüzden çok büyük bir itme kuvveti gerekir. Tekerlekler kaymak yerine yuvarlandığı için sürtünme çok azalır ve aynı koli daha az kuvvetle taşınır. Markette dolu alışveriş arabasını kolayca itebilmemiz de bunun bir örneğidir.", "altin": [8, 6, 6], "not": "Kavram, duruma uygulama + ek örnek, açık anlatım." },
+        { "id": "S1-2", "profil": "kavram tam, uygulama kısmi", "metin": "Tekerlekli platformu seçerim. Sürtünme kuvveti harekete zıt yönde etki eder ve yüzey ne kadar pürüzlüyse o kadar büyük olur. Tekerlekli platformda sürtünme daha az olduğu için daha az kuvvet gerekir.", "altin": [8, 3, 6], "not": "Kavram doğru, duruma bağlanmış ama örnek/yuvarlanma yok → uygulama kısmi." },
+        { "id": "S1-3", "profil": "kavram kısmi, uygulama tam", "metin": "Tekerlekli olanı öneririm çünkü tekerlek dönünce koli daha rahat gider. Mesela valizlerin tekerlekli olması da onları çekmeyi kolaylaştırır, bisiklet de tekerlekli olduğu için kolay gider. Depoda da öyle olur.", "altin": [4, 6, 3], "not": "Sürtünme kavramı adıyla geçmiyor, mekanizma eksik → kavram kısmi; iki uygun örnek → uygulama tam; anlatım günlük dil, kısmi." },
+        { "id": "S1-4", "profil": "kavram yanlış, akıcı", "metin": "Kolileri zeminde doğrudan itmeyi öneririm. Pürüzlü zemin koliyi tutar ve sürtünme kuvveti hareket yönünde etki ederek koliyi ileri doğru iter. Tekerlekli platformda ise sürtünme olmadığı için koli kontrolsüzce kayar ve taşımak zorlaşır.", "altin": [0, 0, 3], "not": "Sürtünmenin yönü yanlış, karar yanlış → kavram 0; uygulama yanlış kavrama dayanıyor → 0; dil açık ama içerik tutarsız → kısmi." },
+        { "id": "S1-5", "profil": "kısa, kısmen doğru", "metin": "Tekerlekli platform, çünkü sürtünme azalır.", "altin": [4, 0, 3], "not": "Doğru ama gerekçesiz tek cümle." },
+        { "id": "S1-6", "profil": "ilgisiz", "metin": "Depoda çalışan işçilerin baret takması ve ayakkabılarının sağlam olması gerekir. Ağır koliler taşınırken sırt sakatlanabilir, bu yüzden dikkatli olunmalı.", "altin": [0, 0, 0], "not": "Kuvvet/sürtünme yok; soruyla ilgisiz." },
+        { "id": "S1-7", "profil": "kavram tam, dağınık anlatım", "metin": "tekerlekli. sürtünme kuvvet zıt yön, beton pürüzlü olduğu için sürtünme çok, itmek zor. tekerlek yuvarlanıyor kayma değil o yüzden sürtünme az kuvvet az lazım market arabası gibi", "altin": [8, 3, 0], "not": "Kavram doğru ve tam; örnek var ama açıklanmamış → kısmi; anlatım cümlesiz, dağınık → 0." },
+        { "id": "S1-8", "profil": "her şey kısmi", "metin": "Bence tekerlekli platform daha iyi olur. Çünkü zemin pürüzlü olunca koliyi itmek zorlaşır. Tekerlek bunu biraz kolaylaştırır.", "altin": [4, 3, 3], "not": "Pürüzlülük-zorluk ilişkisi var ama sürtünme kuvveti adı ve yönü yok; uygulama yüzeysel; anlatım kısa." }
+      ]
+    },
+    {
+      "id": "S2",
+      "kaynak": "Uygulamanın 'Kavramsal Anlama' rubrik şablonu (RUBRIK_SABLONLARI)",
+      "questionBody": "Bir bitkiyi karanlık bir dolapta bir hafta bekletirsek yapraklarında ne gibi değişiklikler gözlemleriz? Gözleminizi fotosentez kavramını kullanarak açıklayınız.",
+      "outcomeLabel": "FEN.6.2.1 — Bitkilerde besin üretimi (fotosentez)",
+      "maxScore": 10,
+      "criteria": [
+        { "label": "Kavram doğruluğu", "weight": 50, "kismi": 2.5 },
+        { "label": "Kavramlar arası ilişki", "weight": 30, "kismi": 1.5 },
+        { "label": "Anlatım açıklığı", "weight": 20, "kismi": 1 }
+      ],
+      "yanitlar": [
+        { "id": "S2-1", "profil": "tam", "metin": "Yapraklar sararır ve bitki zayıflar. Bitkiler fotosentezle kendi besinlerini üretir; bunun için ışık, karbondioksit ve su gerekir. Karanlıkta ışık olmadığı için fotosentez yapılamaz, besin üretilemez ve klorofil azalarak yapraklar sararır.", "altin": [5, 3, 2], "not": "Gözlem, fotosentez koşulları, ışık-besin-klorofil ilişkisi, açık." },
+        { "id": "S2-2", "profil": "kavram tam, ilişki yok", "metin": "Yapraklar sararır. Fotosentez, bitkinin ışık, su ve karbondioksit kullanarak besin ve oksijen üretmesidir.", "altin": [5, 0, 2], "not": "Tanım doğru ama gözlemle (karanlık→sararma) bağ kurulmamış." },
+        { "id": "S2-3", "profil": "kavram kısmi, ilişki tam", "metin": "Yapraklar sararır çünkü bitki ışık alamayınca besin yapamaz, besin yapamayınca da yaprakların yeşil rengi gider ve bitki güçsüz kalır.", "altin": [2.5, 3, 1], "not": "Fotosentez adı ve diğer koşullar yok → kavram kısmi; ışık→besin→renk ilişkisi kurulmuş; anlatım tekrarlı, kısmi." },
+        { "id": "S2-4", "profil": "kavram yanlış, akıcı", "metin": "Yapraklar daha koyu yeşil olur. Bitkiler fotosentezi karanlıkta yapar ve gece ürettikleri besinle büyürler; ışık ise yapraklarını yakar. Bu yüzden karanlıkta kalan bitki daha sağlıklı görünür.", "altin": [0, 0, 1], "not": "Fotosentezin ışık gerektirdiği yanlış; ilişki yanlış; dil açık ama içerik tutarsız → kısmi." },
+        { "id": "S2-5", "profil": "kısa, kısmen doğru", "metin": "Sararır, ışık yok.", "altin": [2.5, 0, 1], "not": "Doğru gözlem ve neden ama kavram adı ve açıklama yok." },
+        { "id": "S2-6", "profil": "ilgisiz", "metin": "Dolabın içi çok tozlu olabilir, bu yüzden dolapları haftada bir silmek gerekir. Annem her pazar temizlik yapar.", "altin": [0, 0, 0], "not": "Soruyla ilgisiz." },
+        { "id": "S2-7", "profil": "kavram tam, dağınık anlatım", "metin": "sararır yaprak. fotosentez ışık su karbondioksit lazım besin üretir. ışık yok fotosentez yok besin yok klorofil azalır sarı olur", "altin": [5, 1.5, 0], "not": "Kavram tam; ilişki sıralanmış ama açıklanmamış → kısmi; anlatım cümlesiz → 0." },
+        { "id": "S2-8", "profil": "her şey kısmi", "metin": "Bitkinin yaprakları solar. Çünkü bitkilerin büyümesi için güneş lazımdır ve fotosentez güneşle olur.", "altin": [2.5, 1.5, 1], "not": "Güneş-fotosentez bağı var ama besin üretimi ve diğer koşullar yok." }
+      ]
+    },
+    {
+      "id": "S3",
+      "kaynak": "Uygulamanın 'Yazılı Anlatım' rubrik şablonu (RUBRIK_SABLONLARI)",
+      "questionBody": "“Teknoloji insanları birbirine yaklaştırır mı, uzaklaştırır mı?” sorusuna kendi görüşünüzü yazınız ve görüşünüzü en az bir örnekle destekleyiniz.",
+      "outcomeLabel": "T.7.4.3 — Görüşünü gerekçeleriyle ve örneklerle destekleyerek yazar",
+      "maxScore": 10,
+      "criteria": [
+        { "label": "İçerik zenginliği", "weight": 40, "kismi": 2 },
+        { "label": "Örnek ve dayanak", "weight": 30, "kismi": 1.5 },
+        { "label": "Dil ve tutarlılık", "weight": 30, "kismi": 1.5 }
+      ],
+      "yanitlar": [
+        { "id": "S3-1", "profil": "tam", "metin": "Bence teknoloji, nasıl kullanıldığına göre hem yaklaştırır hem uzaklaştırır, ama doğru kullanıldığında yaklaştırır. Örneğin yurt dışında çalışan dayımla her hafta görüntülü konuşabiliyoruz; teknoloji olmasa onu yılda bir görürdük. Öte yandan akşam yemeğinde herkes telefonuna bakınca aynı masadaki insanlar birbirinden uzaklaşıyor. Bu yüzden asıl önemli olan teknolojiyi bilinçli kullanmaktır.", "altin": [4, 3, 3], "not": "İki yönlü görüş, iki somut örnek, tutarlı sonuç." },
+        { "id": "S3-2", "profil": "içerik tam, örnek yok", "metin": "Bence teknoloji insanları hem yaklaştırır hem uzaklaştırır. Uzaktaki insanlarla iletişimi kolaylaştırırken yakındaki insanlarla geçirilen zamanı azaltabilir. Bu nedenle teknolojiyi dengeli kullanmak gerekir.", "altin": [4, 0, 3], "not": "Görüş ve gerekçe dengeli; somut örnek yok (soru en az bir örnek istiyor)." },
+        { "id": "S3-3", "profil": "içerik kısmi, örnek tam", "metin": "Yaklaştırır. Mesela ben kuzenimle oyun oynarken sesli konuşuyoruz, o başka şehirde. Bir de sınıfımızın mesaj grubu var, ödevleri oradan soruyoruz.", "altin": [2, 3, 1.5], "not": "Tek yönlü görüş, gerekçe yüzeysel; iki somut örnek; dil konuşma dili, kısmi." },
+        { "id": "S3-4", "profil": "örnek görüşle çelişiyor, akıcı", "metin": "Teknoloji insanları kesinlikle birbirinden uzaklaştırır. Örneğin pandemi döneminde okullar kapalıyken arkadaşlarımla her gün çevrim içi derslerde buluştuk ve görüntülü konuşarak birbirimizden hiç kopmadık. Görüldüğü gibi teknoloji insanları uzaklaştırmaktadır.", "altin": [0, 0, 1.5], "not": "Örnek görüşü çürütüyor, sonuç örnekle çelişik → içerik 0, dayanak 0; cümleler açık ama tutarsız → kısmi." },
+        { "id": "S3-5", "profil": "kısa, kısmen doğru", "metin": "Yaklaştırır çünkü uzaktakilerle konuşabiliyoruz.", "altin": [2, 0, 1.5], "not": "Görüş + tek gerekçe; örnek yok." },
+        { "id": "S3-6", "profil": "ilgisiz", "metin": "En sevdiğim yemek mantıdır. Annem mantıyı çok güzel yapar ve üstüne yoğurt dökeriz.", "altin": [0, 0, 0], "not": "Soruyla ilgisiz." },
+        { "id": "S3-7", "profil": "içerik tam, dağınık dil", "metin": "hem yaklaştırır hem uzaklaştırır bence uzaktakileri yaklaştırır yakındakileri uzaklaştırır dayımla görüntülü konuşuyoruz ama yemekte herkes telefonda bu yüzden dengeli kullanmalı ama yine de", "altin": [4, 1.5, 0], "not": "İçerik dengeli; örnekler var ama açılmamış → kısmi; noktalama yok, cümle sınırı yok, sonu yarım → 0." },
+        { "id": "S3-8", "profil": "her şey kısmi", "metin": "Teknoloji bazen insanları uzaklaştırır. Çünkü insanlar artık çok telefonla vakit geçiriyor. Benim abim de hep bilgisayarda oturuyor.", "altin": [2, 1.5, 1.5], "not": "Tek yönlü yüzeysel görüş; örnek var ama görüşe bağı zayıf; dil basit." }
+      ]
+    },
+    {
+      "id": "S4",
+      "kaynak": "Uygulamanın 'Kavramsal Anlama' rubrik şablonu (RUBRIK_SABLONLARI)",
+      "questionBody": "Rize ve çevresinde çay tarımının yaygın olmasını bölgenin iklim özellikleriyle ilişkilendirerek açıklayınız.",
+      "outcomeLabel": "SB.6.3.2 — Konum ve iklimin ekonomik faaliyetlere etkisi",
+      "maxScore": 10,
+      "criteria": [
+        { "label": "Kavram doğruluğu", "weight": 50, "kismi": 2.5 },
+        { "label": "Kavramlar arası ilişki", "weight": 30, "kismi": 1.5 },
+        { "label": "Anlatım açıklığı", "weight": 20, "kismi": 1 }
+      ],
+      "yanitlar": [
+        { "id": "S4-1", "profil": "tam", "metin": "Rize, Karadeniz ikliminin etkisi altındadır; bu iklimde her mevsim bol yağış düşer ve kışlar ılık geçer. Çay bitkisi bol nem ve yağış ister, dondurucu soğuğa dayanamaz. Bu yüzden yağışlı ve ılıman Rize, çay tarımı için çok uygundur ve bölgede ekonomi büyük ölçüde çaya dayanır.", "altin": [5, 3, 2], "not": "İklim özellikleri doğru, bitki istekleri ile ilişki kurulmuş, ekonomik sonuç." },
+        { "id": "S4-2", "profil": "kavram tam, ilişki yok", "metin": "Rize'de Karadeniz iklimi görülür. Bu iklimde her mevsim yağışlıdır ve yazlar serin, kışlar ılık geçer.", "altin": [5, 0, 2], "not": "İklim doğru tanımlanmış ama çayla hiç ilişkilendirilmemiş." },
+        { "id": "S4-3", "profil": "kavram kısmi, ilişki tam", "metin": "Çay çok su isteyen bir bitkidir. Rize'de de çok yağmur yağdığı için çay iyi yetişir, o yüzden insanlar çay toplayarak para kazanır.", "altin": [2.5, 3, 1], "not": "Yalnız yağış; iklim adı ve sıcaklık yok → kısmi; yağış-çay-ekonomi ilişkisi kurulmuş." },
+        { "id": "S4-4", "profil": "kavram yanlış, akıcı", "metin": "Rize'de karasal iklim görülür; yazlar çok sıcak ve kurak, kışlar ise kar yağışlıdır. Çay bitkisi kuraklığı sevdiği için bu sıcak ve kuru yazlar çayın hızla olgunlaşmasını sağlar.", "altin": [0, 0, 1], "not": "İklim ve bitki isteği yanlış; dil açık ama içerik tutarsız → kısmi." },
+        { "id": "S4-5", "profil": "kısa, kısmen doğru", "metin": "Çünkü orada çok yağmur yağar.", "altin": [2.5, 0, 1], "not": "Doğru tek neden, ilişki ve iklim adı yok." },
+        { "id": "S4-6", "profil": "ilgisiz", "metin": "Rize'ye yazın tatile gittik, yaylalar çok güzeldi ve orada kuymak yedik. Bir dahaki yaz yine gitmek istiyorum.", "altin": [0, 0, 0], "not": "Konuyla (iklim-tarım ilişkisi) ilgisiz anı." },
+        { "id": "S4-7", "profil": "kavram tam, dağınık anlatım", "metin": "karadeniz iklimi her mevsim yağış kış ılık. çay nem ister soğuğa dayanmaz. rize uygun. ekonomi", "altin": [5, 1.5, 0], "not": "Kavramlar tam; ilişki sıralanmış ama açıklanmamış → kısmi; cümlesiz → 0." },
+        { "id": "S4-8", "profil": "her şey kısmi", "metin": "Rize'nin iklimi çay için uygundur. Orası yeşil ve nemli bir yerdir, bu yüzden çay yetişir.", "altin": [2.5, 1.5, 1], "not": "Nem doğru ama iklim adı/yağış rejimi yok; ilişki yüzeysel." }
+      ]
+    },
+    {
+      "id": "S5",
+      "kaynak": "Uygulamanın 'Problem Çözme' rubrik şablonu (RUBRIK_SABLONLARI)",
+      "questionBody": "3/4 kesrini ondalık gösterimle yazınız. Hangi yolu izlediğinizi adım adım açıklayınız ve bulduğunuz sonucun neden mantıklı olduğunu belirtiniz.",
+      "outcomeLabel": "M.6.1.5 — Kesirleri ondalık gösterimle ifade eder",
+      "maxScore": 10,
+      "criteria": [
+        { "label": "Yöntem seçimi", "weight": 35, "kismi": 1.5 },
+        { "label": "İşlem doğruluğu", "weight": 35, "kismi": 1.5 },
+        { "label": "Sonucun yorumu", "weight": 30, "kismi": 1.5 }
+      ],
+      "yanitlar": [
+        { "id": "S5-1", "profil": "tam", "metin": "Paydayı 100 yapmak için payı ve paydayı 25 ile çarptım: 3/4 = 75/100. Yüzde 75 ondalık olarak 0,75 yazılır. Sonuç mantıklı çünkü 3/4 bir bütünün yarısından fazla ama bütünden azdır; 0,75 de 0,5 ile 1 arasındadır.", "altin": [3.5, 3.5, 3], "not": "Uygun yöntem, doğru işlem, büyüklük karşılaştırmasıyla yorum." },
+        { "id": "S5-2", "profil": "yöntem tam, işlem hatalı", "metin": "Paydayı 100 yapmak için payı ve paydayı 25 ile çarptım: 3 × 25 = 65, yani 65/100 = 0,65. Bu sonuç mantıklı çünkü yarımdan fazladır ama birden azdır.", "altin": [3.5, 0, 3], "not": "Yöntem doğru, çarpım yanlış (75 değil 65) → işlem 0; yorum ölçütü (0,5 ile 1 arası) doğru uygulanmış → tam." },
+        { "id": "S5-3", "profil": "yöntem kısmi, işlem tam", "metin": "Hesap makinesinde 3'ü 4'e böldüm, 0,75 çıktı. Bence doğru.", "altin": [1.5, 3.5, 0], "not": "Bölme doğru yöntem ama hesap makinesine bırakılmış, adımlar yok → kısmi; sonuç doğru; yorum yok." },
+        { "id": "S5-4", "profil": "yöntem yanlış, akıcı", "metin": "Kesri ondalığa çevirmek için pay ile paydayı yan yana yazarız. Bu yüzden 3/4 kesri 3,4 olarak yazılır. Sonuç mantıklıdır çünkü 3 tam kısım, 4 de ondalık kısım olur.", "altin": [0, 0, 0], "not": "Yöntem ve sonuç yanlış; yorum yanlış ilkeye dayanıyor → 0." },
+        { "id": "S5-5", "profil": "kısa, yalnız sonuç", "metin": "0,75", "altin": [0, 3.5, 0], "not": "Doğru sonuç; yöntem ve yorum yok." },
+        { "id": "S5-6", "profil": "ilgisiz", "metin": "Matematik dersini çok seviyorum ama kesirler bazen zor geliyor. Öğretmenimiz bize çok yardımcı oluyor.", "altin": [0, 0, 0], "not": "Soruyla ilgisiz." },
+        { "id": "S5-7", "profil": "yöntem ve işlem tam, yorum kısmi", "metin": "3'ü 4'e böldüm. 3 4'e bölünmez, sonuna 0 koyup virgül ekledim: 30'da 4 yedi kere var, 28, kalan 2. 20'de 4 beş kere var, kalan 0. Sonuç 0,75. Mantıklı.", "altin": [3.5, 3.5, 1.5], "not": "Uzun bölme adımları doğru; yorum gerekçesiz tek kelime → kısmi." },
+        { "id": "S5-8", "profil": "her şey kısmi", "metin": "Payı paydaya bölmek gerekir. 3 bölü 4 yaklaşık 0,7 eder. Yarımdan büyük olduğu için mantıklı.", "altin": [1.5, 1.5, 1.5], "not": "Yöntem adı doğru ama adımlar yok; sonuç yuvarlanmış/eksik (0,75 değil 0,7) → kısmi; yorum tek yönlü (yalnız 'yarımdan büyük') → kısmi." }
+      ]
+    },
+    {
+      "id": "S6",
+      "kaynak": "Uygulamanın 'Kavramsal Anlama' rubrik şablonu (RUBRIK_SABLONLARI)",
+      "questionBody": "Türkiye'de yaz ve kış mevsimlerinin oluşmasının nedenini açıklayınız. Mevsimlerin Dünya'nın Güneş'e olan uzaklığındaki değişimden kaynaklanmadığını gerekçelendiriniz.",
+      "outcomeLabel": "FEN.8.1.1 — Mevsimlerin oluşumu",
+      "maxScore": 10,
+      "criteria": [
+        { "label": "Kavram doğruluğu", "weight": 50, "kismi": 2.5 },
+        { "label": "Kavramlar arası ilişki", "weight": 30, "kismi": 1.5 },
+        { "label": "Anlatım açıklığı", "weight": 20, "kismi": 1 }
+      ],
+      "yanitlar": [
+        { "id": "S6-1", "profil": "tam", "metin": "Mevsimler, Dünya'nın dönme ekseninin yörünge düzlemine göre eğik olması ve Güneş etrafında dolanması sonucu oluşur. Yazın Güneş ışınları Türkiye'ye daha dik açıyla gelir ve gündüzler uzundur, bu yüzden hava ısınır; kışın ışınlar eğik gelir. Uzaklık neden olsaydı iki yarım kürede aynı anda aynı mevsim yaşanırdı; oysa biz yaz yaşarken Avustralya'da kış yaşanır.", "altin": [5, 3, 2], "not": "Eksen eğikliği, ışın açısı-sıcaklık ilişkisi, yarım küre karşıtlığıyla gerekçe." },
+        { "id": "S6-2", "profil": "kavram tam, gerekçe yok", "metin": "Mevsimler, Dünya'nın eksen eğikliği ve Güneş etrafındaki dolanımı nedeniyle oluşur. Yazın ışınlar daha dik, kışın daha eğik gelir.", "altin": [5, 0, 2], "not": "Neden doğru ama ışın açısı-sıcaklık bağı ve uzaklık gerekçesi yok → ilişki 0." },
+        { "id": "S6-3", "profil": "kavram kısmi, ilişki tam", "metin": "Yazın güneş ışığı tepemizden dik gelir, dik gelen ışık bir yeri daha çok ısıtır. Kışın eğik gelir ve az ısıtır. Uzaklık olsaydı bütün dünyada aynı anda yaz olurdu ama Avustralya'da bizim yazımızda kış oluyor.", "altin": [2.5, 3, 2], "not": "Eksen eğikliği adı yok → kavram kısmi; ışın açısı-ısınma ve yarım küre gerekçesi tam; anlatım açık." },
+        { "id": "S6-4", "profil": "kavram yanlış, akıcı", "metin": "Yaz mevsiminde Dünya Güneş'e en yakın konuma gelir ve bu yüzden daha fazla ısı alır. Kışın ise Dünya Güneş'ten uzaklaştığı için hava soğur. Yani mevsimlerin asıl nedeni Dünya'nın Güneş'e olan uzaklığının değişmesidir.", "altin": [0, 0, 1], "not": "Sorunun çürütmeyi istediği yanılgı; dil açık, içerik yanlış → kısmi." },
+        { "id": "S6-5", "profil": "kısa, kısmen doğru", "metin": "Dünya'nın ekseni eğik olduğu için.", "altin": [2.5, 0, 1], "not": "Doğru tek neden, açıklama ve gerekçe yok." },
+        { "id": "S6-6", "profil": "ilgisiz", "metin": "Ben en çok yaz mevsimini seviyorum çünkü okullar tatil oluyor ve denize gidiyoruz. Kışın ise kar yağınca kartopu oynuyoruz.", "altin": [0, 0, 0], "not": "Mevsimlerin nedenine dair bilgi yok." },
+        { "id": "S6-7", "profil": "kavram tam, dağınık anlatım", "metin": "eksen eğik + güneş etrafında dolanma = mevsim. yaz dik ışın gündüz uzun, kış eğik. uzaklık değil çünkü avustralya ters", "altin": [5, 1.5, 0], "not": "Kavramlar tam; ilişkiler sıralanmış ama açıklanmamış → kısmi; cümlesiz → 0." },
+        { "id": "S6-8", "profil": "her şey kısmi", "metin": "Mevsimler Dünya'nın eğik olmasıyla ilgilidir. Yazın güneş daha çok ısıtır. Uzaklık önemli değildir.", "altin": [2.5, 1.5, 1], "not": "'Eğik' var ama eksen/dolanma yok; ısınma var ama ışın açısı yok; uzaklık reddedilmiş ama gerekçesiz." }
+      ]
+    }
+  ]
+}

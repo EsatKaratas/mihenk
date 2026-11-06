@@ -1,0 +1,252 @@
+{
+ "toplamDeneme": 96,
+ "kosul": {
+  "A": {
+   "deneme": 48,
+   "sistemHatasi": 0,
+   "semaIlkDeneme": [
+    48,
+    48
+   ],
+   "semaSonra": [
+    48,
+    48
+   ],
+   "dislanan": 0,
+   "aralikDisi": [
+    0,
+    144
+   ],
+   "yarimDisi": [
+    0,
+    144
+   ],
+   "reasonOnce": [
+    0,
+    144
+   ],
+   "kriterHata": 0.20064484126984133,
+   "normHataOrt": 0.10416666666666659,
+   "token": {
+    "girdi": 88031,
+    "cikti": 14886,
+    "cagri": 48
+   }
+  },
+  "B": {
+   "deneme": 48,
+   "sistemHatasi": 0,
+   "semaIlkDeneme": [
+    48,
+    48
+   ],
+   "semaSonra": [
+    48,
+    48
+   ],
+   "dislanan": 0,
+   "aralikDisi": [
+    0,
+    144
+   ],
+   "yarimDisi": [
+    0,
+    144
+   ],
+   "reasonOnce": [
+    144,
+    144
+   ],
+   "kriterHata": 0.1694527116402117,
+   "normHataOrt": 0.08645833333333332,
+   "token": {
+    "girdi": 88015,
+    "cikti": 14512,
+    "cagri": 48
+   }
+  }
+ },
+ "birincil": {
+  "n": 48,
+  "cikanYanit": 0,
+  "hataA": 0.10416666666666663,
+  "hataB": 0.08645833333333332,
+  "dOrt": -0.017708333333333333,
+  "ga": [
+   -0.041666666666666685,
+   0.004166666666666667
+  ]
+ },
+ "soruDuzeyi": [
+  {
+   "soru": "S1",
+   "hataA": 0.13125,
+   "hataB": 0.13125,
+   "d": 5.204170427930421e-18
+  },
+  {
+   "soru": "S2",
+   "hataA": 0.1,
+   "hataB": 0.08750000000000001,
+   "d": -0.012499999999999999
+  },
+  {
+   "soru": "S3",
+   "hataA": 0.125,
+   "hataB": 0.14375000000000002,
+   "d": 0.018750000000000003
+  },
+  {
+   "soru": "S4",
+   "hataA": 0.125,
+   "hataB": 0.0625,
+   "d": -0.0625
+  },
+  {
+   "soru": "S5",
+   "hataA": 0.09375000000000001,
+   "hataB": 0.0625,
+   "d": -0.03125
+  },
+  {
+   "soru": "S6",
+   "hataA": 0.05,
+   "hataB": 0.03125,
+   "d": -0.018750000000000003
+  }
+ ],
+ "soruDuzeyiGa": [
+  -0.03854166666666667,
+  0.002083333333333336
+ ],
+ "profil": [
+  {
+   "profil": "tam",
+   "n": 6,
+   "hataA": 0.11666666666666665,
+   "hataB": 0.06666666666666667
+  },
+  {
+   "profil": "kavram tam, uygulama kısmi",
+   "n": 1,
+   "hataA": 0.05,
+   "hataB": 0.05
+  },
+  {
+   "profil": "kavram kısmi, uygulama tam",
+   "n": 1,
+   "hataA": 0,
+   "hataB": 0.05
+  },
+  {
+   "profil": "kavram yanlış, akıcı",
+   "n": 4,
+   "hataA": 0.2125,
+   "hataB": 0.2
+  },
+  {
+   "profil": "kısa, kısmen doğru",
+   "n": 5,
+   "hataA": 0.12999999999999998,
+   "hataB": 0.15000000000000002
+  },
+  {
+   "profil": "ilgisiz",
+   "n": 6,
+   "hataA": 0,
+   "hataB": 0
+  },
+  {
+   "profil": "kavram tam, dağınık anlatım",
+   "n": 4,
+   "hataA": 0.1125,
+   "hataB": 0.075
+  },
+  {
+   "profil": "her şey kısmi",
+   "n": 6,
+   "hataA": 0.125,
+   "hataB": 0.075
+  },
+  {
+   "profil": "kavram tam, ilişki yok",
+   "n": 2,
+   "hataA": 0.1,
+   "hataB": 0.05
+  },
+  {
+   "profil": "kavram kısmi, ilişki tam",
+   "n": 3,
+   "hataA": 0.06666666666666667,
+   "hataB": 0.05000000000000001
+  },
+  {
+   "profil": "içerik tam, örnek yok",
+   "n": 1,
+   "hataA": 0.2,
+   "hataB": 0.2
+  },
+  {
+   "profil": "içerik kısmi, örnek tam",
+   "n": 1,
+   "hataA": 0.05,
+   "hataB": 0.2
+  },
+  {
+   "profil": "örnek görüşle çelişiyor, akıcı",
+   "n": 1,
+   "hataA": 0.25,
+   "hataB": 0.25
+  },
+  {
+   "profil": "içerik tam, dağınık dil",
+   "n": 1,
+   "hataA": 0.05,
+   "hataB": 0
+  },
+  {
+   "profil": "yöntem tam, işlem hatalı",
+   "n": 1,
+   "hataA": 0.25,
+   "hataB": 0.3
+  },
+  {
+   "profil": "yöntem kısmi, işlem tam",
+   "n": 1,
+   "hataA": 0.3,
+   "hataB": 0.05
+  },
+  {
+   "profil": "yöntem yanlış, akıcı",
+   "n": 1,
+   "hataA": 0,
+   "hataB": 0
+  },
+  {
+   "profil": "kısa, yalnız sonuç",
+   "n": 1,
+   "hataA": 0,
+   "hataB": 0
+  },
+  {
+   "profil": "yöntem ve işlem tam, yorum kısmi",
+   "n": 1,
+   "hataA": 0.05,
+   "hataB": 0.05
+  },
+  {
+   "profil": "kavram tam, gerekçe yok",
+   "n": 1,
+   "hataA": 0,
+   "hataB": 0.05
+  }
+ ],
+ "karar": {
+  "manipulasyonTamam": true,
+  "kararsizDislama": false,
+  "k1": false,
+  "k2": true,
+  "k3": true,
+  "metin": "Fark gösterilemedi (GA 0'ı içeriyor) — değişiklik önerilmez."
+ }
+}

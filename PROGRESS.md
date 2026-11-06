@@ -10853,3 +10853,38 @@ geçerli arka uç). İlk yayında migration hatasız uygulandı. Canlı `/api/ai
 (`/vendor/pdfjs-dist@4.7.76/…`) 307 ile `%40` biçimine yönlendiriyor. Tarayıcı izliyor,
 dosyalar geliyor; ama her vendor dosyası için bir fazla gidiş-dönüş var (yazı tipleri
 etkilenmez). İleride klasör adlarından `@` kaldırılabilir (SHA256SUMS ve yollar birlikte).
+
+## 92. PUANLAMA DENEYİ — ön kayıtlı A/B sonucu (24 Ekim + 6 Kasım 2026, W1, dal `puanlama-deney`)
+
+**Soru:** Değerlendirme JSON'unda gerekçenin (reason) puandan (points) önce yazdırılması
+puanlama hatasını azaltır mı? Ön kayıt: `docs/olcum/puanlama-deney/ON-KAYIT.md`
+(§8.1: tekrar 1, 96 çağrı; bütçe nedeniyle iki güne bölündü, eşleştirme korundu).
+
+**Kurulum:** 6 soru × 8 kurgulanmış cevap = 48 cevap; her cevap A (points önce, üretimdeki)
+ve B (reason önce) ile bir kez puanlandı. Model `@cf/meta/llama-3.3-70b-instruct-fp8-fast`,
+sıcaklık 0,2; çağrı `src`'deki `callModelJson` üzerinden Workers AI REST'e gitti
+(canlı değil). Değerlendirme istemi ve parametreleri b7a47bb1 yayınında değişmedi.
+
+**Koşum (ölçülen):**
+- 1. parça 24 Ekim: 14 çift / 28 çağrı; girdi 51.630, çıktı 8.399 token ≈ 3.097 Neuron.
+- 2. parça 6 Kasım 00:12 UTC: 34 çift / 68 çağrı; girdi 124.416, çıktı 20.999 token
+  ≈ 7.619 Neuron (token'lardan; başlangıçta GraphQL günlük tüketim 0). Ücretsiz plan
+  günlük 10.000 sınırının altında; 429/3036 olmadı.
+- Toplam 96/96 çağrı `ok`; sistem hatası 0, yeniden deneme 0, yedek modele düşüş 0,
+  yarım çift 0. Ham: `ham.jsonl` (96 satır, 96 benzersiz anahtar, 48 cevap).
+
+**Sonuç (`puanlama-analiz.mjs` → `OZET.md`, `analiz.json`):**
+- Şema geçerli ilk denemede: A 48/48, B 48/48 (Wilson %95 [92,6–100]).
+- Aralık dışı ham puan: A 0/144, B 0/144; 0,5 katı olmayan puan: 0/144 her ikisinde.
+- Manipülasyon denetimi: B'de reason, points'ten önce 144/144 (A'da 0/144).
+- Normalize toplam hata (yanıt ort.): A 0,104 · B 0,086;
+  **birincil d = B − A = −0,018, bootstrap %95 GA [−0,042, 0,004]** (n = 48 eşleştirilmiş).
+- Soru düzeyi duyarlılık (n = 6, betimsel): GA [−0,039, 0,002].
+
+**Karar (ön kayıtlı kural):** GA üst sınırı < 0 koşulu sağlanmadı (0,004); şema, aralık
+ve manipülasyon koşulları sağlandı. **Fark gösterilemedi — değişiklik önerilmez;
+üretimdeki sıra (points önce) kalır.** B yönündeki küçük eğilim yalnız betimseldir; bu örneklemle
+iddia edilmez. `src/` değişmedi.
+
+**Sınırlar:** Cevaplar kurgulanmış (gerçek öğrenci değil), tek model, tek tekrar,
+48 cevap; altın puanlar tek kaynaktan. Sonuç yalnız bu kurulum için geçerli.
