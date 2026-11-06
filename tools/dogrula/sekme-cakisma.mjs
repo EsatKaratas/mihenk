@@ -16,10 +16,15 @@ const kutu = (p) => p.evaluate(() => { const e = document.getElementById('sekmeC
 let gec = 0, kal = 0;
 const ok = (ad, k, ek = '') => { k ? gec++ : kal++; console.log(`  ${k ? '✓' : '✗'} ${ad}${ek ? ' — ' + ek : ''}`); };
 
-console.log('[1] fikir2 senaryosu: B açık, A demo yükler, B rol kartına basar');
+// §123: §120'den beri demo ayrı kayıt alanında (kullanıcı kaydına yazmaz). fikir2'deki senaryo
+// artık "A kendi verisini yazar" biçiminde ölçülür; demo × kullanıcı sekmesi [7]'de.
+console.log('[1] fikir2 senaryosu: B açık, A kendi verisini yazar (3 soru), B rol kartına basar');
 const B = await ac();
 const A = await ac();
-await A.evaluate(() => { loadDemoScenario(); renderAll(); });
+await A.evaluate(() => {
+  for (let i = 1; i <= 3; i++) state.questions.push({ id: 990100 + i, type: 'mc', status: 'approved', body: 'A sekmesinin ' + i + '. sorusu', options: [], outcome: '' });
+  renderAll();
+});
 const aDemo = await depo(A);
 await B.bringToFront();
 await B.locator('#girisKapisi .gk-kart[data-role="teacher"]').click();
@@ -70,6 +75,20 @@ const f6 = await F.evaluate(() => dbIslem('readwrite', (s) => s.put({ id: 990005
 ok('çakışan sekmenin kitaplık yazımı reddedildi', f6.startsWith('ret'), f6.slice(0, 70));
 const silme = await D.evaluate(() => new Promise((ok) => { const r = indexedDB.deleteDatabase(KITAPLIK_DB); r.onsuccess = () => ok('silindi'); r.onblocked = () => ok('bloklandı'); r.onerror = () => ok('hata'); setTimeout(() => ok('zaman aşımı'), 3000); }));
 ok('F\'nin açık bağlantısı silmeyi bloklamadı', silme === 'silindi', silme);
+
+console.log('[7] §123 demo alanı (§120): demo sekmesi ile kullanıcı sekmesi birbirini kilitlemez');
+const U = await ac();
+await U.evaluate(() => { state.questions.push({ id: 990006, type: 'mc', status: 'draft', body: 'U sorusu', options: [], outcome: '' }); renderAll(); });
+await U.waitForTimeout(300);
+const uKayit = await U.evaluate((k) => localStorage.getItem(k) + '|' + localStorage.getItem(k + ':surum'), KEY);
+const G = await ac();
+await G.evaluate(() => { loadDemoScenario(); state.exam.title = 'G demo'; renderAll(); });
+await U.waitForTimeout(400);
+ok('demo yazımı kullanıcı kaydını ve sürümünü değiştirmedi; U\'da kutu yok',
+  (await U.evaluate((k) => localStorage.getItem(k) + '|' + localStorage.getItem(k + ':surum'), KEY)) === uKayit && !(await kutu(U)));
+await U.evaluate(() => { state.questions.push({ id: 990007, type: 'mc', status: 'draft', body: 'U ikinci', options: [], outcome: '' }); renderAll(); });
+await G.waitForTimeout(400);
+ok('kullanıcı yazımı demo sekmesini kilitlemedi; U\'nun sorusu kayıtta', !(await kutu(G)) && (await depo(U)).ids.includes(990007));
 
 ok('sayfa hatası 0', hata.length === 0, hata.join(' | ').slice(0, 120));
 ok('/api POST 0', POST.length === 0, String(POST.length));

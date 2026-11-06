@@ -3701,6 +3701,10 @@ const state = {
   simStatus: null,
 
   ceForm: { title: "", subject: VARSAYILAN_DERSLER[0], grade: 7, atolye: ATOLYELER[0], sube: "", outcomeCode: VARSAYILAN_KAZANIMLAR[0].code, text: "", error: "", mcCount: 2, openCount: 1, showAllOutcomes: false, ocrLoading: false, ocrProgress: "", bloomFocus: "dengeli",
+    /* §123: açılış bu bayrağı her zaman false yazar; varsayılanda yoksa yeni açılan
+       (ör. çoğaltılmış demo) sekme içeriği değiştirip bir kez yazar ve öbür sekmeyi
+       gereksizce "başka sekmede değişti" kutusuna düşürürdü (ölçüldü). */
+    pdfLoading: false,
     /* §31 — ÜRETİM DAYANAĞI. "kaynak" varsayılandır ve eski davranışın
        birebir aynısıdır. "kazanim" modunda kaynak metin istenmez; dayanak
        MEB kazanımıdır ve öğretmen isterse serbest bir yönerge yazar. */

@@ -249,4 +249,9 @@ describe('§123 sekme koruması demo alanında', () => {
     D.olaylar.push({ key: null, newValue: null, oldValue: null }); D.olaylariIsle();
     expect(D.kutu).toBe(1);
   });
+  it('açılışın sıfırladığı geçici bayrak varsayılan ceForm\'da da var (yeni açılan sekme içeriği değiştirip yazmaz)', () => {
+    // Ölçüldü: varsayılanda pdfLoading yokken çoğaltılmış demo sekmesi açılışta bir kez yazıp ilk sekmeyi kilitliyordu.
+    const v = app.slice(app.indexOf('  ceForm: { title: ""'), app.indexOf('  ceForm: { title: ""') + 1200);
+    for (const ad of ['pdfLoading: false', 'ocrLoading: false', 'ocrProgress: ""']) expect(v).toContain(ad);
+  });
 });
