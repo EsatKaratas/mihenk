@@ -11244,3 +11244,68 @@ yazamadığı bir soru gerektiğinde soru havuzuna insan eliyle soru eklemenin y
 - Kapsam dışı ama not edildi: öğretmen havuz düzenlemesi (`poolEditHtml`) onaylı soruyu yeniden onaya
   sokmadan değiştiriyor.
 - §97 (W10 usage ölçümü) ve §98 (W9) başka dallarda; birleştirmede sıralanacak.
+
+## 104. RED NEDENİ + KARAR KAYDININ GENİŞLETİLMESİ (6 Kasım 2026, W10, dal `feature/karar-kaydi`, Orchestrator 3 emriyle)
+
+**Neden:** Karar Günlüğü insanın **ne** karar verdiğini tutuyordu ama **neden** reddettiğini ve onaydan
+önce **anahtarı değiştirip değiştirmediğini** tutmuyordu. Onayda yalnız "onaylamadan önce düzenlendi"
+notu vardı. Araştırma sorusu (docs/ARASTIRMA.md) için iki veri eksikti: red nedenleri taksonomiyle
+kodlu olarak ve A1/A2 rozetlerinin uzmanı gerçekten anahtar düzeltmeye götürüp götürmediği.
+
+Dal `feature/elle-soru`'nun (§99, 0c512a6) üstünde; aynı onay bölgesi.
+
+**Ne yapıldı (yalnız `public/app.js`, `public/css/ce.css`; sunucu, şema, `src/` değişmedi):**
+1. **Red nedeni (isteğe bağlı).** Onay kartında Reddet'in yanında açılır liste. İlk seçenek "Red nedeni
+   (isteğe bağlı)". Kodlar `docs/HATA_TAKSONOMISI.md` v0.2.1'in A–G bölümlerinden birebir (26 kod) +
+   "Diğer". H (açık uçlu değerlendirme, DEG-*) bilerek alınmadı. Liste ile belge eşitliği testte denetlenir.
+   - **Tek tıkla reddetme aynen:** seçim yapılmadan Reddet eskisi gibi çalışır. Modal yok, zorunlu alan yok.
+   - Red tek yoldan (`soruyuReddet`): `soru_reddedildi` kaydına `redKodu` ve o anki şüphe rozetleri
+     (`supheler`). Kod soruda da tutulur (`q.redKodu`, isteğe bağlı). Reddedilenler havuzunda
+     (`havuzSoruHtml`, `rejectedPoolHtml`) "neden: ANH-YOK" hapı görünür. Soru yeniden incelemeye ya
+     da havuza alınınca soru üzerindeki kod silinir; denetim izinde kalır.
+2. **Anahtar değişimi.** Üretimde, modelin geçerli anahtar verdiği ÇSS'ye `q.ilkAnahtar` yazılır
+   (`anahtarBelirsiz` ise yazılmaz: uzmanın seçimi düzeltme değil ilk karardır).
+   - Şık taşıma ve karıştırma (`remapCorrectKeyAndRationale`) `ilkAnahtar`'ı da yeniden harfler. Böylece
+     sırayı değiştirmek "anahtar değişti" sayılmaz.
+   - Onay kaydına `anahtarIzlendi: true`, anahtar değiştiyse `anahtarEski` → `anahtarYeni` (güncel
+     harflerle) ve `rozetA1A2`. Eski sorular (ilkAnahtar yok), elle sorular ve açık uçlu sorular iz taşımaz.
+3. **Oran (Karar Günlüğü, yönetici paneli).** "A1/A2 rozetli onaylı sorularda uzman cevap anahtarını
+   değiştirdi: x/n (%y)". Karşılaştırma için rozetsiz sorulardaki oran da yazılır.
+   - **n < 30 ise** "Örneklem küçük: oran yalnız gösterge niteliğindedir". 30 bir istatistik testi değil,
+     kaba kuraldır (`ORAN_ALT_ORNEKLEM`).
+   - Payda yalnız `anahtarIzlendi` olan YZ onaylarıdır.
+4. **CSV:** üç sütun **sona** eklendi: `redKodu`, `anahtarDegisimi` ("B→C" / "aynı" / boş), `rozetA1A2`.
+   Eski 13 sütunun sırası değişmedi. Günlük satırında da "neden: …", "anahtar B → C", "rozet: A2" görünür.
+5. Denetim özetindeki "insan reddetti" sayısına elle yazılan soruların reddi girmez (§99 ile tutarlı).
+
+**A1/A2 rozeti neden onay anındaki şüphe listesinden alınmadı:** Uzman anahtarı düzeltince
+"Anahtar muhtemelen C" rozeti kendiliğinden kalkar (`var()` güncel anahtara bakar); bağımsız çözüm de
+bayatlar. Onay kaydındaki `supheler` bu yüzden tam da düzeltilen soruları kaçırırdı. `rozetA1A2(q)` bunun
+yerine üretimde konan ham alanlara bakar:
+- A2 = `hesapBaskaSik` dolu ya da `hesapUyusmazligi === true`;
+- A1 = bağımsız çözüm (bayat olsa da) anahtardan farklı şık seçmişti.
+
+**Bilerek YAPILMAYANLAR (emir):** karar süresi kaydedilmedi (Esat'a sorulacak), öğrenci alanı eklenmedi,
+göç yok (`ilkAnahtar`, `redKodu` isteğe bağlı; KALICI_ALANLAR değişmedi).
+
+**Ölçüldü:**
+- `npm test` 30 dosya, **641/641** (yeni `test/karar-kaydi.test.ts` 22 test). `npm run lint` temiz.
+  Öz-kontrol 582 ad, %100. FFFD 0.
+- Tarayıcı (yerel statik sunucu, `/api` taklit, **model çağrısı 0**), 1280 ve 390 px. Üç YZ sorusu taklidi
+  (`ilkAnahtar: B`):
+  - A2 rozetli soruda anahtar C yapıldı ve onaylandı. Rozet kalktığı için §70 penceresi açılmadı. Kayıt:
+    `anahtarEski B, anahtarYeni C, rozetA1A2 [A2]`.
+  - İkinci soru aynen onaylandı: yalnız `anahtarIzlendi`.
+  - Üçüncü soruda ANH-YOK seçilip tek tıkla reddedildi: `redKodu ANH-YOK`.
+  - Havuzda "neden: ANH-YOK" hapı görünüyor.
+  - Yönetici panelindeki oran satırı: "1/1 (%100) … Rozetsiz sorularda: 0/1 (%0). Örneklem küçük (1 < 30)…".
+  - CSV son üç sütun: `;B→C;A2`, `;aynı;`, `ANH-YOK;;`.
+  - Konsol hatası 0, yatay taşma 0. Ekranlar: `Downloads\Mihenk\ekran-karar-kaydi\` (6 PNG).
+
+**Bilinen sınırlar:**
+- A1, bağımsız çözümün **son** sonucuna bakar. Uzman anahtarı düzeltip soruyu yeniden çözdürürse
+  `anahtarUyusmazligi` false olur ve A1 düşer (A2 düşmez).
+- Demo tohumu sorularında `ilkAnahtar` yok; demo akışı orana katkı vermez.
+- Kapsam dışı, not: öğretmenin reddedilenler havuzundaki "↩ Havuza Al" düğmesi soruyu doğrudan
+  `approved` yapıyor ve **denetim izine kayıt yazmıyor**. Bu bir insan kararı ama günlükte görünmüyor;
+  ayrı bir iş olarak ele alınmalı.
