@@ -10048,7 +10048,8 @@ function kagitGirisHtml() {
   const ust = '<div class="ogt-ust ogt-ust-ic"><div><h3 class="ogt-bolum">Kâğıt sonuçlarını gir</h3>' +
     '<div class="ogt-alt">' + escapeHtml(state.exam.title || "Adsız sınav") + " · " + sorular.length + " soru · " +
     ogr.length + " öğrenci</div></div>" +
-    '<button type="button" class="btn btn-secondary btn-sm" id="kgKapat">Bitti</button></div>';
+    '<div class="kg-ust-dugmeler"><button type="button" class="btn btn-secondary btn-sm js-fis-yazdir">🖨 Geri bildirim fişleri</button>' +   // §122
+    '<button type="button" class="btn btn-secondary btn-sm" id="kgKapat">Bitti</button></div></div>';
   if (!sorular.length) {
     return ust + '<div class="empty-state">Bu sınavda kâğıda basılan onaylı soru yok. Önce soruları ekleyip onaylayın.</div>';
   }
@@ -10275,6 +10276,7 @@ function wireKagitGiris() {
   const o = ogtDurum();
   const kapat = document.getElementById("kgKapat");
   if (kapat) kapat.onclick = function () { o.kagit = null; o.kagitSonuc = ""; renderAll(); };
+  document.querySelectorAll(".js-fis-yazdir").forEach(function (b) { b.onclick = geriBildirimFisleriYazdir; });   // §122
   const tarih = document.getElementById("kgTarih");
   if (tarih) tarih.onchange = function () {
     if (state.exam.uygulama === "kagit") { kagitSinaviIsaretle(tarih.value); saveSoon(); }
@@ -12013,6 +12015,8 @@ function rubRefreshBar(rub) {
 }
 
 function studentChip(student) {
+  /* §122: adsız kuyruk çizilirken (bağlam yalnız adsizCiz içinde kurulur) ad yerine "Yanıt N". */
+  if (_adsizBaglam && _adsizBaglam[String(student.id)] != null) return adsizChipHtml(_adsizBaglam[String(student.id)]);
   return '<span class="student-chip' + (student.demo ? " sim" : "") + '">' +
     escapeHtml(student.name) +
     (student.sinif ? ' <span class="sc-class">' + escapeHtml(student.sinif) + '</span>' : "") +
@@ -12429,6 +12433,285 @@ function sinifVerisiKutusuHtml(gonderenSayisi) {
     '</div></div>';
 }
 
+/* ===========================================================================
+   §122 — ADSIZ VE SORU SORU PUANLAMA + KÂĞIDA GERİ BİLDİRİM FİŞİ (P4)
+   ===========================================================================
+   1) "Adları gizle" (varsayılan KAPALI; tercih kalıcı, PUAN_TERCIH_ANAHTAR).
+      Açıkken kuyrukta öğrenci adı yerine "Yanıt 7". Numaralar tohumla
+      karıştırılır: tohum sekme oturumu boyunca sabit (sessionStorage), sınava
+      göre farklı; sınıf listesindeki sıradan ad çıkarılamaz. Kartta geçen
+      kayıtlı adlar (yanıt metni, not) [ÖĞRENCİ] görünür (kisiselMaskele).
+      Onaylanmış yanıtın adı tek tek "Adı göster" ile açılır (kalıcı değil).
+      Kartlar, düğmeler, onay yolu AYNI: hiçbir puan/onay otomatik değil.
+   2) "Soru soru": bekleyen kartlar soruya göre gruplanır (sınav sırası),
+      grup içinde güven sıralaması korunur; grubun başında rubrik yapışkan.
+      §112 ölçüt düzeltmesi ve §104 akışları aynı kartla çalışır.
+   3) Geri bildirim fişi (kâğıt sınav, §106): öğrenci başına, YALNIZ
+      öğretmen kararı (reviews) + anahtar sonucu (mcResults). aiEvals OKUNMAZ;
+      onaysız YZ önerisi fişe giremez. */
+const PUAN_TERCIH_ANAHTAR = "mihenk.puanlama.tercih.v1";
+const ADSIZ_TOHUM_ANAHTAR = "mihenk.puanlama.adsizTohum.v1";
+var _puanTercih = null;    // { adsiz, gorunum } — localStorage'dan bir kez okunur
+var _adsizTohum = null;    // oturum tohumu (32 bit)
+var _adsizAcilan = {};     // "qid|sid" → true: onaydan sonra adı açılan (kalıcı değil)
+var _adsizBaglam = null;   // yalnız adsizCiz sürerken: { sid: numara }
+
+/** SAF: kayıtlı tercih → { adsiz: bool (varsayılan false), gorunum: "liste"|"soru" }. */
+function puanTercihNormal(h) {
+  h = h && typeof h === "object" ? h : {};
+  return { adsiz: h.adsiz === true, gorunum: h.gorunum === "soru" ? "soru" : "liste" };
+}
+
+function puanTercihAl() {
+  if (!_puanTercih) {
+    let h = {};
+    try { h = JSON.parse(localStorage.getItem(PUAN_TERCIH_ANAHTAR) || "{}"); } catch (e) { h = {}; }
+    _puanTercih = puanTercihNormal(h);
+  }
+  return _puanTercih;
+}
+
+function puanTercihKaydet(degisiklik) {
+  _puanTercih = puanTercihNormal(Object.assign({}, puanTercihAl(), degisiklik));
+  try { localStorage.setItem(PUAN_TERCIH_ANAHTAR, JSON.stringify(_puanTercih)); } catch (e) { /* özel pencere: yalnız bu oturum */ }
+  return _puanTercih;
+}
+
+/** Oturum tohumu: sekme açık kaldıkça (yenilemede de) aynı; yeni oturumda yeni. */
+function adsizTohumAl() {
+  if (_adsizTohum == null) {
+    let t = "";
+    try { t = sessionStorage.getItem(ADSIZ_TOHUM_ANAHTAR) || ""; } catch (e) { t = ""; }
+    if (!/^\d{1,10}$/.test(t)) {
+      t = String(Math.floor(Math.random() * 4294967296));
+      try { sessionStorage.setItem(ADSIZ_TOHUM_ANAHTAR, t); } catch (e) { /* yalnız bellekte */ }
+    }
+    _adsizTohum = Number(t) >>> 0;
+  }
+  return _adsizTohum;
+}
+
+/** SAF: tohumlu sayı üreteci (mulberry32) → [0, 1). */
+function adsizRastgele(tohum) {
+  let a = Number(tohum) >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** SAF: kimlikleri tohumla karıştırır (Fisher–Yates). Girdi sırasından bağımsız
+    (önce sıralanır): aynı tohum + aynı küme = aynı sıra. */
+function adsizKaristir(kimlikler, tohum) {
+  const dizi = (kimlikler || []).map(String).sort();
+  const r = adsizRastgele(tohum);
+  for (let i = dizi.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    const t = dizi[i]; dizi[i] = dizi[j]; dizi[j] = t;
+  }
+  return dizi;
+}
+
+/** SAF: { sid: numara (1'den) } — tohum sınav kimliğiyle karıştırılır, her sınavda başka numara. */
+function adsizNumaralar(kimlikler, tohum, sinavId) {
+  const t = ((Number(tohum) >>> 0) ^ parseInt(hash32(String(sinavId == null ? "" : sinavId)), 36)) >>> 0;
+  const m = {};
+  adsizKaristir(kimlikler, t).forEach(function (k, i) { m[k] = i + 1; });
+  return m;
+}
+
+function adsizChipHtml(no) {
+  return '<span class="student-chip adsiz-chip">Yanıt ' + no + "</span>";
+}
+
+/** Kartı adsız çizer: studentChip "Yanıt N" döner, kayıtlı adlar maskelenir. adsizNo yoksa aynen. */
+function adsizCiz(adsizNo, ogrenciler, ciz) {
+  if (!adsizNo) return ciz();
+  const once = _adsizBaglam;
+  _adsizBaglam = adsizNo;
+  try { return kisiselMaskele(ciz(), ogrenciler).metin; } finally { _adsizBaglam = once; }
+}
+
+/** SAF: bekleyenler soruya göre (sınav sırası); grup içinde gelen sıra (güven) korunur. */
+function soruGruplari(bekleyen, sorular) {
+  return (sorular || []).map(function (q, i) {
+    return { q: q, sira: i + 1, ogeler: bekleyen.filter(function (x) { return x.q.id === q.id; }) };
+  }).filter(function (g) { return g.ogeler.length > 0; });
+}
+
+/** Soru grubunun yapışkan başlığı: soru + rubrik (öğretmenin rubriği, YZ değil). */
+function soruGrubuBasHtml(g) {
+  const rub = state.rubrics[g.q.id] || { maxScore: 20, criteria: [] };
+  return '<div class="pk-grup-bas"><h4 class="pk-grup-baslik" id="pkGrup-' + g.q.id + '">Soru ' + g.sira +
+    ' <span class="lbl-hint">' + g.ogeler.length + " yanıt bekliyor · en çok " + ondalikTr(rub.maxScore) + " puan</span></h4>" +
+    '<div class="pk-grup-soru">' + escapeHtml(truncate(g.q.body, 220)) + "</div>" +
+    '<ul class="pk-rubrik" aria-label="Rubrik ölçütleri">' + (rub.criteria || []).map(function (c) {
+      return "<li><b>" + escapeHtml(c.label) + '</b> <span class="tabular">%' + escapeHtml(String(c.weight)) + "</span>" +
+        (String(c.description || "").trim() ? '<span class="pk-rubrik-acik"> — ' + escapeHtml(c.description) + "</span>" : "") + "</li>";
+    }).join("") + "</ul></div>";
+}
+
+/** Bekleyen kuyruk: tek liste (eskisi gibi) ya da soru soru. Kart = evalCardHtml (aynı). */
+function puanKuyruguHtml(bekleyen, sorular, tercih, adsizNo, ogrenciler) {
+  const kart = function (x) { return adsizCiz(adsizNo, ogrenciler, function () { return evalCardHtml(x.q, x.student, x.ev); }); };
+  if (tercih.gorunum !== "soru") return bekleyen.map(kart).join("");
+  return soruGruplari(bekleyen, sorular).map(function (g) {
+    return '<section class="pk-grup" aria-labelledby="pkGrup-' + g.q.id + '">' + soruGrubuBasHtml(g) + g.ogeler.map(kart).join("") + "</section>";
+  }).join("");
+}
+
+/** Onaylanmış kart, adsız modda: "Yanıt N" + "Adı göster" (yalnız onaylı yanıtta). */
+function adsizOnayliKartHtml(x, adsizNo, ogrenciler) {
+  const no = adsizNo[String(x.student.id)];
+  if (_adsizAcilan[kriterAnahtari(x.q.id, x.student.id)]) {
+    const chip = studentChip(x.student);
+    return doneCardHtml(x.q, x.student, x.ev, x.review).replace(chip, function (m) { return m + ' <span class="pill pill-neutral">Yanıt ' + no + "</span>"; });
+  }
+  const dugme = ' <button type="button" class="btn btn-secondary btn-sm adsiz-goster" data-qid="' + x.q.id + '" data-sid="' + x.student.id +
+    '" aria-label="Adı göster (Yanıt ' + no + ')">Adı göster</button>';
+  return adsizCiz(adsizNo, ogrenciler, function () { return doneCardHtml(x.q, x.student, x.ev, x.review); })
+    .replace(adsizChipHtml(no), function (m) { return m + dugme; });
+}
+
+function puanAracCubuguHtml(tercih, kagitVar) {
+  const radyo = function (deger, metin) {
+    return '<label class="pk-secenek"><input type="radio" name="pkGorunum" value="' + deger + '"' +
+      (tercih.gorunum === deger ? " checked" : "") + "> " + metin + "</label>";
+  };
+  return '<div class="pk-arac">' +
+    '<label class="pk-secenek pk-anahtar"><input type="checkbox" id="pkAdsiz" role="switch" aria-describedby="pkAdsizNot"' +
+    (tercih.adsiz ? " checked" : "") + "> Adları gizle</label>" +
+    '<fieldset class="pk-gorunum"><legend>Sırala</legend>' + radyo("liste", "Tek liste") + radyo("soru", "Soru soru") + "</fieldset>" +
+    '<p class="lbl-hint pk-not" id="pkAdsizNot">' + (tercih.adsiz
+      ? "Adlar gizli: yanıtlar karışık numarayla. Onayladığınız yanıtın adını “Adı göster” ile açabilirsiniz."
+      : "Açarsanız ad yerine “Yanıt 7” gibi karışık bir numara görünür; önceki izlenim puanı etkilemesin.") +
+    (tercih.adsiz && kagitVar ? " Kâğıt sınavda ad kâğıdın üzerindedir; gizleme yalnız ekrandaki kuyruk içindir." : "") + "</p></div>";
+}
+
+/** SAF: bir öğrencinin fiş verisi — YALNIZ onaylı içerik. Oturumdan yalnız
+    reviews (öğretmen kararı), mcResults (anahtar) ve işaretlenen şık okunur;
+    aiEvals hiç okunmaz. Onay bekleyen açık uçlu "bekliyor" olur, puanı yazılmaz. */
+function geriBildirimFisVerisi(ogr, sorular, oturum, mcP) {
+  const o = oturum || {};
+  const reviews = o.reviews || {}, mcResults = o.mcResults || {}, answers = o.answers || {};
+  let puan = 0, tam = 0, bekleyen = 0, yzGozden = false;
+  const satirlar = (sorular || []).map(function (q, i) {
+    if (q.type === "mc") {
+      const r = mcResults[q.id];
+      tam += mcP;
+      if (r && r.correct) puan += mcP;
+      return { no: i + 1, tur: "mc", isaret: String((answers[q.id] || {}).selectedKey || ""), dogru: !!(r && r.correct) };
+    }
+    const max = q.maxScore != null ? Number(q.maxScore) : 20;
+    tam += max;
+    const rv = reviews[q.id];
+    if (!rv || rv.finalScore == null) { bekleyen++; return { no: i + 1, tur: "acik", bekliyor: true, max: max }; }
+    /* İbare yalnız gerçekten öyleyse: YZ önerisi vardı VE öğretmen onay kartında karar verdi. */
+    if (rv.aiScore != null && (rv.decision === "approved_as_is" || rv.decision === "revised")) yzGozden = true;
+    puan += Number(rv.finalScore);
+    return { no: i + 1, tur: "acik", puan: Number(rv.finalScore), max: max, not: String(rv.comment || "").trim(),
+      kriterler: (Array.isArray(rv.kriterler) ? rv.kriterler : []).map(function (k) {
+        return { ad: String(k.ad || ""), nihai: Number(k.nihai), max: Number(k.max) };
+      }) };
+  });
+  const yuvarla = function (n) { return Math.round(n * 100) / 100; };
+  return { ad: String((ogr && ogr.name) || ""), sinif: String((ogr && ogr.sinif) || ""), satirlar: satirlar,
+    puan: yuvarla(puan), tam: yuvarla(tam), bekleyen: bekleyen, yzGozden: yzGozden };
+}
+
+/** SAF: tek fiş (kes çizgisi CSS'te). */
+function geriBildirimFisiHtml(v, sinavBaslik, tarih) {
+  const mcler = v.satirlar.filter(function (s) { return s.tur === "mc"; });
+  const aciklar = v.satirlar.filter(function (s) { return s.tur === "acik"; });
+  const dogru = mcler.filter(function (s) { return s.dogru; }).length;
+  return '<section class="gf-fis"><div class="gf-bas"><span><b>' + escapeHtml(v.ad) + "</b>" +
+    (v.sinif ? " · " + escapeHtml(v.sinif) : "") + '</span><span class="gf-sinav">' + escapeHtml(sinavBaslik) +
+    " · " + escapeHtml(tarih) + "</span></div>" +
+    (mcler.length ? '<div class="gf-mc"><span class="gf-et">Çoktan seçmeli: ' + dogru + "/" + mcler.length + " doğru</span> " +
+      mcler.map(function (s) {
+        return '<span class="gf-mc-h">' + s.no + " " + (s.dogru ? "✓" : (s.isaret ? "✗" : "boş")) + "</span>";
+      }).join(" ") + "</div>" : "") +
+    (aciklar.length ? '<table class="gf-acik"><thead><tr><th>Soru</th><th>Puan</th><th>Öğretmen notu</th></tr></thead><tbody>' +
+      aciklar.map(function (s) {
+        return "<tr><td>" + s.no + "</td><td>" + (s.bekliyor ? "onay bekliyor" : ondalikTr(s.puan) + " / " + ondalikTr(s.max)) + "</td><td>" +
+          (s.not ? escapeHtml(s.not) : "") +
+          (s.kriterler && s.kriterler.length ? '<div class="gf-kriter">' + s.kriterler.map(function (k) {
+            return escapeHtml(k.ad) + ": " + ondalikTr(k.nihai) + "/" + ondalikTr(k.max);
+          }).join(" · ") + "</div>" : "") + "</td></tr>";
+      }).join("") + "</tbody></table>" : "") +
+    '<div class="gf-alt"><b>Toplam: ' + (v.bekleyen
+      ? "kesinleşmedi (" + v.bekleyen + " yanıt onay bekliyor)"
+      : ondalikTr(v.puan) + " / " + ondalikTr(v.tam)) + "</b>" +
+    (v.yzGozden ? '<span class="gf-ibare">Yapay zekâ önerisi öğretmen tarafından gözden geçirildi.</span>' : "") +
+    "</div></section>";
+}
+
+/** Fiş basılacak öğrenciler: aktif sınavda kâğıt sonucu girilmiş olanlar. */
+function geriBildirimFisOgrencileri() {
+  return (state.students || []).filter(function (s) { return readSession(s.id).kaynak === "kagit"; });
+}
+
+function geriBildirimFisleriHtml(ogrenciler) {
+  const sorular = kagitSorulari();
+  const mcP = mcPuani();
+  const tarih = new Date(state.exam.startsAt || Date.now()).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const baslik = state.exam.title || "Sınav";
+  return '<div class="gf-sayfa"><p class="gf-yonerge">Geri bildirim fişleri · ' + escapeHtml(baslik) +
+    " · kesik çizgiden kesip her öğrencinin kâğıdına iliştirin. Yalnız öğretmenin onayladığı puan ve notlar.</p>" +
+    ogrenciler.map(function (s) {
+      return geriBildirimFisiHtml(geriBildirimFisVerisi(s, sorular, readSession(s.id), mcP), baslik, tarih);
+    }).join("") + "</div>";
+}
+
+/** Fişleri basar; basılan fiş sayısını döner (0 = kâğıt sonucu yok, hiçbir şey basılmadı). */
+function geriBildirimFisleriYazdir() {
+  const ogr = geriBildirimFisOgrencileri();
+  if (!ogr.length) { durumDuyur("Bu sınavda kâğıt sonucu girilmiş öğrenci yok; fiş basılmadı."); return 0; }
+  const sorular = kagitSorulari();
+  const bekleyen = ogr.filter(function (s) { return geriBildirimFisVerisi(s, sorular, readSession(s.id), mcPuani()).bekleyen > 0; }).length;
+  durumDuyur(ogr.length + " fiş yazdırılıyor." + (bekleyen ? " " + bekleyen + " öğrencide onay bekleyen yanıt var; fişte “onay bekliyor” yazar." : ""));
+  yazdirKabindanBas(geriBildirimFisleriHtml(ogr), "fis");
+  return ogr.length;
+}
+
+function puanFisKutusuHtml() {
+  if (!geriBildirimFisOgrencileri().length) return "";
+  return '<div class="card pk-fis"><div class="card-head"><h3>Geri bildirim fişleri</h3><span class="hint">kâğıt sınav</span></div>' +
+    '<p class="lbl-hint">Öğrenci başına bir fiş, A4’e birden çok; kesip kâğıda iliştirin. Fişe yalnız onayladığınız puan, ölçüt ve notlar girer; ' +
+    "onay bekleyen yanıt “onay bekliyor” yazar.</p>" +
+    '<button type="button" class="btn btn-secondary btn-sm js-fis-yazdir">🖨 Fişleri yazdır</button></div>';
+}
+
+function wirePuanArac() {
+  const anahtar = document.getElementById("pkAdsiz");
+  if (anahtar) anahtar.onchange = function () {
+    puanTercihKaydet({ adsiz: anahtar.checked });
+    if (!anahtar.checked) _adsizAcilan = {};
+    renderAll();
+    const yeni = document.getElementById("pkAdsiz"); if (yeni) yeni.focus();
+    durumDuyur(anahtar.checked ? "Adlar gizlendi; yanıtlar karışık numarayla." : "Adlar gösteriliyor.");
+  };
+  document.querySelectorAll('input[name="pkGorunum"]').forEach(function (r) {
+    r.onchange = function () {
+      puanTercihKaydet({ gorunum: r.value });
+      renderAll();
+      const yeni = document.querySelector('input[name="pkGorunum"][value="' + r.value + '"]'); if (yeni) yeni.focus();
+    };
+  });
+  document.querySelectorAll(".adsiz-goster").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
+      if (!(readSession(sid).reviews || {})[qid]) return;   // yalnız puanı verilmiş yanıt
+      _adsizAcilan[kriterAnahtari(qid, sid)] = true;
+      renderAll();
+    };
+  });
+  document.querySelectorAll(".js-fis-yazdir").forEach(function (b) { b.onclick = geriBildirimFisleriYazdir; });
+}
+
 function teacherTab3Html() {
   if (state.exam.status !== "published") return '<div class="empty-state">Sınav henüz yayınlanmadı.</div>';
 
@@ -12502,6 +12785,16 @@ function teacherTab3Html() {
   const mcCorrect = mcDogru;
   const yayinlandi = gonderenler.length > 0 && gonderenler.every(function (s) { return readSession(s.id).examStatus === "graded"; });
 
+  /* §122: adsız modda taban sıra karışık numaraya göre (sınıf listesi sırası ad
+     ele verirdi); aşağıdaki güven sıralaması kararlı olduğu için aynen geçerli. */
+  const tercih = puanTercihAl();
+  const adsizNo = tercih.adsiz ? adsizNumaralar(gonderenler.map(function (s) { return s.id; }), adsizTohumAl(), state.activeExamId) : null;
+  if (adsizNo) {
+    const noSira = function (a, b) { return adsizNo[String(a.student.id)] - adsizNo[String(b.student.id)]; };
+    pending.sort(noSira);
+    done.sort(noSira);
+  }
+
   // AI'ın en az emin olduğu yanıt en üste: öğretmen zamanını doğru yere harcasın.
   // Çok öğrencili sınıfta asıl değeri burada ortaya çıkıyor.
   pending.sort(function (a, b) {
@@ -12548,14 +12841,19 @@ function teacherTab3Html() {
     : "";
 
   const acikUclu = opens.length
-    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">yapay zekânın en az emin olduğu yanıt en üstte</span></div>' +
-      (pending.length ? pending.map(function (x) { return evalCardHtml(x.q, x.student, x.ev); }).join("") : '<div class="empty-state">Bekleyen değerlendirme yok.</div>')
+    ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">' +
+      (tercih.gorunum === "soru" ? "soru soru; her soruda yapay zekânın en az emin olduğu yanıt en üstte" : "yapay zekânın en az emin olduğu yanıt en üstte") + '</span></div>' +
+      puanAracCubuguHtml(tercih, geriBildirimFisOgrencileri().length > 0) +   // §122
+      '<div id="puanKuyrugu" data-gorunum="' + tercih.gorunum + '" data-adsiz="' + !!adsizNo + '">' +
+      (pending.length ? puanKuyruguHtml(pending, opens, tercih, adsizNo, gonderenler) : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') + '</div>'
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular cevap anahtarıyla puanlandı.</div>';
   /* §62b: onaylananlar ayrı — "Sonuçları Yayınla" kutusu onların ÜSTÜNDE
      durur (ölçüldü: altta kalınca 7270 px aşağıdaydı). */
   const onaylanan = opens.length && done.length
     ? '<div class="card-head" style="margin:22px 0 10px;"><h3>Onaylanmış (' + done.length + ')</h3></div>' +
-      done.map(function (x) { return doneCardHtml(x.q, x.student, x.ev, x.review); }).join("")
+      '<div id="puanOnaylanan">' + done.map(function (x) {
+        return adsizNo ? adsizOnayliKartHtml(x, adsizNo, gonderenler) : doneCardHtml(x.q, x.student, x.ev, x.review);
+      }).join("") + '</div>'
     : "";
 
   // §42: gövde tek yerde (bkz. sinifVerisiKutusuHtml) — boş durumda da çizilir.
@@ -12567,7 +12865,7 @@ function teacherTab3Html() {
   const katli = function (baslik, govde) {
     return govde ? '<details class="ogt-katli"><summary>' + baslik + '</summary>' + govde + '</details>' : "";
   };
-  return acikUclu + yayinKutusu + onaylanan + '<div class="ogt-ikincil">' + ozet +
+  return acikUclu + yayinKutusu + puanFisKutusuHtml() + onaylanan + '<div class="ogt-ikincil">' + ozet +
     katli("Sınıf verisi", simKutusu) + katli("Sınav bütünlüğü kaydı", integritySummaryHtml()) +
     katli("Çoktan seçmeli sonuçlar", mcListesi) + '</div>';
 }
@@ -12638,6 +12936,7 @@ function wireTeacherTab3() {
     };
   });
   wireKriterDuzelt();   // §112
+  wirePuanArac();       // §122
 }
 /* Öğretmenin nihai puan kararı. Sonuç yayınlandığında (publishResults)
    sunucuya gönderilir; öğrenci onaylanmış puanı kendi cihazından görür. */
@@ -18001,6 +18300,11 @@ function bosDurumHtml(mesaj) {
     "ogrenmeCiktisiHesapla", "ogrenmeKazanimToplami", "onayBekleyenSayisi", "ogrenmeCiktisiVerisi",
     "ogrenmeKazanimAdi", "siradakiAdimMetni", "ogrenmeBekleyenMetni", "ogrenmeCiktisiKartiHtml",
     "karneKagidiHtml", "yazdirKabindanBas", "karneYazdir", "wireKarneYazdir",
+    /* §122 — adsız + soru soru puanlama, kâğıda geri bildirim fişi (P4). */
+    "puanTercihNormal", "puanTercihAl", "puanTercihKaydet", "adsizTohumAl", "adsizRastgele", "adsizKaristir",
+    "adsizNumaralar", "adsizChipHtml", "adsizCiz", "soruGruplari", "soruGrubuBasHtml", "puanKuyruguHtml",
+    "adsizOnayliKartHtml", "puanAracCubuguHtml", "geriBildirimFisVerisi", "geriBildirimFisiHtml",
+    "geriBildirimFisOgrencileri", "geriBildirimFisleriHtml", "geriBildirimFisleriYazdir", "puanFisKutusuHtml", "wirePuanArac",
     /* §74 — yönetici filtreleri (W4). */
     "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
