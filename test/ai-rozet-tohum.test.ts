@@ -29,17 +29,18 @@ function sabit(ad: string, bitis: string): string {
 
 const escapeHtml = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[c]);
 
-const SABITLER = ['AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'AI_GECERSIZ_CIKTI_METNI'].map((a) => sabit(a, ';\n')).join('\n');
+const SABITLER = ['AI_KOTA_METNI', 'AI_GUNLUK_SINIR_METNI', 'AI_BUTCE_METNI', 'AI_GECERSIZ_CIKTI_METNI', 'AI_AG_HATASI_METNI'].map((a) => sabit(a, ';\n')).join('\n');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // §100: evalFailedActionsHtml artık aiYzsizMod()'a da bakar → state saplaması (varsayılan: mod kapalı).
 const k: any = new Function('escapeHtml', 'state',
   SABITLER + '\n' +
   ['modelKisaAd', 'aiKaynak', 'aiKaynakMetinleri', 'aiKaynakRozetiHtml', 'aiHataMetni', 'aiGunlukKapali', 'aiGunlukKapaliMetni', 'aiElleDevam', 'aiButceMetni', 'aiButceKisa', 'aiButceIpucu',
-   'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml', 'aiKotaDolu', 'aiYzsizMod']
+   'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'evalFailedActionsHtml', 'demoTohumUyariHtml', 'aiKotaDolu', 'aiYzsizMod',
+   'agHatasiMi', 'hataMetniTr']
     .map(tanim).join('\n') +
   '\nreturn { aiKaynak, aiKaynakMetinleri, aiKaynakRozetiHtml, aiHataMetni, aiGunlukKapali, topluCozDurdurmaKodu,' +
-  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceKisa, aiButceIpucu, aiElleDevam };'
+  ' topluCozBeklenirMi, topluCozSonucMetni, evalFailedActionsHtml, demoTohumUyariHtml, AI_KOTA_METNI, AI_GUNLUK_SINIR_METNI, AI_BUTCE_METNI, aiButceMetni, aiButceKisa, aiButceIpucu, aiElleDevam, hataMetniTr, AI_AG_HATASI_METNI };'
 )(escapeHtml, { ai: { mode: 'simulation', butce: null } });
 
 describe('§90 kaynak rozeti', () => {
@@ -101,9 +102,30 @@ describe('§90 hata eşlemesi', () => {
       .toBe('Model geçerli yanıt üretemedi, tekrar deneyin.');
   });
 
-  it('bilinmeyen kodda sunucunun mesajı, gövde yoksa HTTP kodu (eski davranış)', () => {
+  it('bilinmeyen kodda sunucunun mesajı; gövde yoksa HTTP kodu Türkçe cümle içinde (§119)', () => {
     expect(k.aiHataMetni(429, { error: 'rate_limited', message: 'Bir dakika bekleyin.' })).toBe('Bir dakika bekleyin.');
-    expect(k.aiHataMetni(500, null)).toBe('HTTP 500');
+    expect(k.aiHataMetni(500, null)).toBe('Sunucu beklenmeyen bir hata döndürdü (HTTP 500). Biraz sonra yeniden deneyin.');
+    expect(k.aiHataMetni(502, null, '/api/ai/evaluate')).toContain('“Elle Puanla ve Onayla”');
+  });
+
+  it('§119 ağ hatası: tarayıcıların İngilizce metinleri Türkçe ve ne yapılacağını söyleyen cümleye çevrilir', () => {
+    for (const m of ['Failed to fetch', 'TypeError: Failed to fetch', 'NetworkError when attempting to fetch resource.', 'Load failed', 'Network request failed']) {
+      expect(k.hataMetniTr(m)).toBe(k.AI_AG_HATASI_METNI);
+    }
+    expect(k.AI_AG_HATASI_METNI).toMatch(/ulaşılamadı.*Bağlantınızı denetleyip yeniden deneyin\./);
+    expect(k.hataMetniTr('Bir dakika bekleyin.')).toBe('Bir dakika bekleyin.');
+    expect(k.hataMetniTr(undefined)).toBe('');
+    const s = k.demoTohumUyariHtml({ demoTohumu: true, canliHata: 'Failed to fetch' });
+    expect(s).not.toContain('Failed to fetch');
+    expect(s).toContain('Yapay zekâ sunucusuna ulaşılamadı');
+  });
+
+  it('§119 apiPost: fetch reddi (ağ) Türkçe hata + kod ag_hatasi; başarılı ama okunamayan yanıt da Türkçe', () => {
+    const g = tanim('apiPost');
+    expect(g).toMatch(/catch \(e\) \{[\s\S]*new Error\(AI_AG_HATASI_METNI \+ aiElleDevam\(url\)\)[\s\S]*ag\.kod = "ag_hatasi"/);
+    expect(g).toMatch(/if \(r\.ok && !j\) \{[\s\S]*AI_GECERSIZ_YANIT_METNI/);
+    // Görünen hata kutuları gösterimde de çevirir (eski kayıtlar)
+    for (const ad of ['evalFailedCardHtml', 'alignmentRowHtml', 'misconceptionHtml', 'demoTohumUyariHtml', 'bagimsizCozumDuyuruMetni']) expect(tanim(ad), ad).toContain('hataMetniTr(');
   });
 
   it('apiPost eşlemeyi kullanır ve kodu hataya taşır', () => {

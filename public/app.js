@@ -332,7 +332,7 @@ async function materyalGetir(id) {
       kirpildi: tamUzunluk > 6000,
     };
   } catch (e) {
-    state.materyaller[id] = { durum: "hata", hata: String((e && e.message) || e) };
+    state.materyaller[id] = { durum: "hata", hata: agHataMetni(e) };   // §119
   }
   renderAll();
   return state.materyaller[id];
@@ -924,7 +924,7 @@ function aiHataMetni(status, govde, url) {
   const kod = govde && govde.error;
   if (aiGunlukKapali(kod)) return aiGunlukKapaliMetni(kod) + aiElleDevam(url);
   if (kod === "model_output_invalid") return AI_GECERSIZ_CIKTI_METNI;
-  return (govde && govde.message) || ("HTTP " + status);
+  return (govde && govde.message) || (hataMetniTr("HTTP " + status) + aiElleDevam(url));   // §119: yalın "HTTP nnn" yok
 }
 
 /** Gün sonuna kadar açılmayacak hata mı (yeniden denemek boşa)? */
@@ -1004,28 +1004,45 @@ function aiYzsizMod() {
   return state.ai.mode === "live" && aiKotaDolu(state.ai.butce);
 }
 
-/** Kabukta tek bilgi şeridi; mod kapalıyken yuva boşalır. */
+/* §119 — SUNUCUYA ULAŞILAMIYOR (mod "simulation": /api/ai/status yanıt vermedi
+   ya da model yapılandırılmamış). Soru üretimi, puan önerisi ve rubrik taslağı
+   bu durumda model çağırmadan yerel simülasyona düşer ve öyle işaretlenir
+   (bilinçli tasarım). Ama aşağıdaki işlemlerin yerel yedeği YOK: düğme açık
+   kalınca tıklama ağ hatasıyla bitiyordu ("Failed to fetch"). Bunlar kapanır,
+   neden kabuktaki şeritte görünür. "unknown" (denetleniyor) iken dokunulmaz. */
+const AI_SUNUCU_DUGME_SECICI = "#btnAlign, .js-coz, #btnTopluCoz, .mis-run";
+const AI_SUNUCU_YOK_SERIT_METNI = "Yapay zekâ sunucusuna ulaşılamıyor: kazanım denetimi, bağımsız çözüm ve kavram analizi kapalı; soru üretimi ve puan önerisi yerel simülasyonla (işaretli) çalışır.";
+const AI_SUNUCU_YOK_DUGME_IPUCU = "Yapay zekâ sunucusuna ulaşılamıyor; bu işlem gerçek model gerektirir. Bağlantı gelince sayfayı yenileyin.";
+
+/** Sunucu yok: model bağlı değil (yerel simülasyon). */
+function aiSunucuYok() {
+  return state.ai.mode === "simulation";
+}
+
+/** Kabukta tek bilgi şeridi (kota dolu ya da sunucu yok); ikisi de değilse yuva boşalır. */
 function renderAiKotaSeridi() {
   const yuva = document.getElementById("aiKotaSeritYuva");
   if (!yuva) return;
-  const acik = aiYzsizMod();
+  const tur = aiYzsizMod() ? "kota" : (aiSunucuYok() ? "sunucu" : "");
   const var_ = document.getElementById("aiKotaSerit");
-  if (!acik) { if (var_) yuva.innerHTML = ""; return; }
-  if (var_) return;
-  yuva.innerHTML = '<div class="ai-kota-serit" id="aiKotaSerit" role="status">' +
-    '<span class="ai-kota-rozet" aria-hidden="true">Yapay zekâ kapalı</span>' +
-    '<span class="ai-kota-metin">' + escapeHtml(AI_KOTA_SERIT_METNI) + "</span></div>";
+  if (!tur) { if (var_) yuva.innerHTML = ""; return; }
+  if (var_ && var_.getAttribute("data-tur") === tur) return;
+  yuva.innerHTML = '<div class="ai-kota-serit" id="aiKotaSerit" role="status" data-tur="' + tur + '">' +
+    '<span class="ai-kota-rozet" aria-hidden="true">' + (tur === "kota" ? "Yapay zekâ kapalı" : "Yerel simülasyon") + "</span>" +
+    '<span class="ai-kota-metin">' + escapeHtml(tur === "kota" ? AI_KOTA_SERIT_METNI : AI_SUNUCU_YOK_SERIT_METNI) + "</span></div>";
 }
 
-/** Render sonrası tek geçiş: yapay zekâ düğmelerini pasifleştirir. Mod
-    kapalıyken dokunmaz (paneller her renderAll'da yeniden çizilir). */
+/** Render sonrası tek geçiş: yapay zekâ düğmelerini pasifleştirir. Kota
+    doluyken bütün YZ düğmeleri, sunucu yokken yalnız yerel yedeği olmayanlar.
+    İkisi de değilse dokunmaz (paneller her renderAll'da yeniden çizilir). */
 function aiDugmeleriniKilitle(kok) {
-  if (!aiYzsizMod()) return 0;
-  const liste = (kok || document).querySelectorAll(AI_DUGME_SECICI);
+  const kota = aiYzsizMod();
+  if (!kota && !aiSunucuYok()) return 0;
+  const liste = (kok || document).querySelectorAll(kota ? AI_DUGME_SECICI : AI_SUNUCU_DUGME_SECICI);
   liste.forEach(function (b) {
     b.disabled = true;
     b.setAttribute("aria-disabled", "true");
-    b.setAttribute("title", AI_KOTA_DUGME_IPUCU);
+    b.setAttribute("title", kota ? AI_KOTA_DUGME_IPUCU : AI_SUNUCU_YOK_DUGME_IPUCU);
     if (document.getElementById("aiKotaSerit")) b.setAttribute("aria-describedby", "aiKotaSerit");
     b.classList.add("ai-kota-pasif");
   });
@@ -1091,9 +1108,53 @@ function kapasiteHtml(h, izinsiz) {
     ". Değerlendirme başına ≈" + KAPASITE_DEGERLENDIRME_NEURON + " Neuron, saha ölçümüdür; yayını engellemez.</span></div>";
 }
 
+/* §119 — AĞ HATALARI TÜRKÇE. fetch() ağ kesilince tarayıcının kendi İngilizce
+   metniyle (Chrome "Failed to fetch", Firefox "NetworkError…", Safari "Load
+   failed") reddeder ve bu metin olduğu gibi ekrana düşüyordu (fikir2-C madde 7:
+   demonun onay ekranında jüri "Failed to fetch" gördü). Artık ağ hatası, ne
+   yapılacağını söyleyen Türkçe cümleye çevrilir. Sessiz yedek YOK: çağrı yine
+   başarısız sayılır; yalnız metin değişir. hataMetniTr, eski kayıtlarda kalmış
+   İngilizce metni gösterirken çevirir (veri değişmez). */
+const AI_AG_HATASI_METNI = "Yapay zekâ sunucusuna ulaşılamadı: internet bağlantısı kesik ya da sunucu yanıt vermiyor. Bağlantınızı denetleyip yeniden deneyin.";
+const AI_GECERSIZ_YANIT_METNI = "Yapay zekâ sunucusundan okunamayan bir yanıt geldi. Biraz sonra yeniden deneyin.";
+const AG_HATASI_KISA = "sunucuya ulaşılamadı (internet bağlantısı kesik ya da sunucu yanıt vermiyor); bağlantınızı denetleyip yeniden deneyin";
+
+/** Tarayıcının ağ hatası metni mi? (Chrome, Firefox, Safari, React Native/WebView biçimleri) */
+function agHatasiMi(m) {
+  return /failed to fetch|networkerror|load failed|network request failed|network connection was lost|err_internet|err_network/i.test(String(m || ""));
+}
+
+/** Gösterim: eski kayıtta kalmış İngilizce ağ hatası ya da yalın "HTTP nnn" → Türkçe. */
+function hataMetniTr(m) {
+  const s = String(m == null ? "" : m);
+  if (agHatasiMi(s)) return AI_AG_HATASI_METNI;
+  const h = /^HTTP (\d{3})$/.exec(s.trim());
+  if (h) return "Sunucu beklenmeyen bir hata döndürdü (HTTP " + h[1] + "). Biraz sonra yeniden deneyin.";
+  return s;
+}
+
+/** Yapay zekâ dışı istekler (katalog, materyal) için kısa Türkçe biçim. */
+function agHataMetni(e) {
+  const s = String((e && e.message) || e || "");
+  return agHatasiMi(s) ? AG_HATASI_KISA : s;
+}
+
 async function apiPost(url, body) {
-  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  let r;
+  try {
+    r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  } catch (e) {
+    // §119: ağ hatası (istek sunucuya hiç ulaşmadı) — Türkçe + uca göre elle devam yolu.
+    const ag = new Error(AI_AG_HATASI_METNI + aiElleDevam(url));
+    ag.kod = "ag_hatasi"; ag.status = 0; ag.sunucuMesaji = false; ag.oneriIceriyor = true;
+    throw ag;
+  }
   const j = await r.json().catch(function () { return null; });
+  if (r.ok && !j) {
+    const g = new Error(AI_GECERSIZ_YANIT_METNI);
+    g.kod = "gecersiz_yanit"; g.status = r.status; g.sunucuMesaji = false; g.oneriIceriyor = true;
+    throw g;
+  }
   if (!r.ok) {
     /* §52b: hata sunucunun KENDİ açıklamasını mı taşıyor ("bir dakika
        bekleyin", "farklı kazanım seçin"), yoksa yalın "HTTP nnn" mi? Çağıran
@@ -1103,6 +1164,7 @@ async function apiPost(url, body) {
     aiButceYenile();  // §93: ret de olsa güncel bütçe gösterilsin
     const hata = new Error(aiHataMetni(r.status, j, url));
     hata.sunucuMesaji = !!(j && (j.message || j.error));
+    hata.oneriIceriyor = true;   // §119: her yol (sunucu metni ya da Türkçe HTTP cümlesi) ne yapılacağını söyler
     hata.status = r.status;
     hata.kod = (j && j.error) || "";
     throw hata;
@@ -1433,7 +1495,7 @@ async function aiGenerateQuestions(doc) {
        dakika bekleyin"; 502: "farklı kazanım seçin"). Artık yalnız sunucudan
        açıklama GELMEDİĞİNDE (ağ hatası ya da yalın "HTTP nnn") eklenir.
        "Hiçbir soru üretilmedi." her durumda kalır. */
-    const sunucudan = !!(e && e.sunucuMesaji);
+    const sunucudan = !!(e && (e.sunucuMesaji || e.oneriIceriyor));   // §119: öneri iki kez yazılmasın
     state.ceForm.error = "Soru üretilemedi: " + state.ai.error +
       (sunucudan ? "" : " — Bağlantınızı kontrol edip tekrar deneyin.") + " Hiçbir soru üretilmedi.";
     return [];
@@ -1804,12 +1866,112 @@ async function depoKaliciIste(nav) {
   } catch (e) { return null; }
 }
 
+/* ==================== §119 SEKME GÜVENLİĞİ ====================
+   ÖLÇÜLDÜ (fikir2-C madde 1): renderAll her çizimde bütün durumu tek anahtara
+   yazıyordu ve storage dinleyicisi yoktu. İkinci sekmede rol kartına tıklamak
+   ilk sekmenin verisini (3 soru → 0) uyarısız siliyordu.
+   ÇÖZÜM: (1) Depoya küçük bir sürüm kaydı (SURUM_KEY: rev + yazan sekme)
+   eşlik eder. Bu sekme yazmadan önce depodaki sürümün kendi bildiğiyle aynı
+   olduğunu denetler; değilse YAZMAZ (son-yazan-kazanır sessiz kaybı yok).
+   (2) `storage` olayı dinlenir: başka sekme durumu değiştirince bu sekme
+   yazmayı hemen durdurur. (3) İki durumda da "Veri başka sekmede değişti"
+   kutusu çıkar ve tek çıkış yeniden yüklemektir. Sessiz birleştirme YOK.
+   (4) Aynı içerik yeniden yazılmaz: yalnız açılan ya da hiçbir şey
+   değiştirmeyen bir sekme diğerini kilitlemesin.
+   IndexedDB (kitaplık): çakışma varken bu sekme kitaplığa da yazmaz
+   (dbIslem readwrite reddedilir); başka sekme veritabanını silerken açık
+   bağlantı onversionchange ile kapatılır ki silme bloklanmasın. */
+const SURUM_KEY = STORE_KEY + ":surum";
+const SEKME_KIMLIGI = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+var _bilinenSurum = null;      // bu sekmenin yüklediği ya da son yazdığı rev; null = sürüm kaydı yoktu
+var _sonYazilanMetin = null;   // depodaki metnin bu sekmenin bildiği hâli (aynıysa yeniden yazılmaz)
+var sekmeCakismasi = null;     // null ya da { neden: "olay" | "surum", at }
+const SEKME_CAKISMA_BASLIK = "Veri başka sekmede değişti — yeniden yükleyin.";
+const SEKME_CAKISMA_METNI = "Bu sekme, diğer sekmedeki çalışmanın üzerine yazmamak için kaydetmeyi " +
+  "durdurdu: burada yapacağınız değişiklikler kaydedilmez. Güncel veriyle devam etmek için " +
+  "sayfayı yeniden yükleyin.";
+
+/** Depodaki sürüm kaydı ({rev, sekme, at}) ya da null. */
+function depoSurumOku() {
+  try {
+    const ham = localStorage.getItem(SURUM_KEY);
+    if (!ham) return null;
+    const m = JSON.parse(ham);
+    return m && typeof m.rev === "number" ? m : null;
+  } catch (e) { return null; }
+}
+
+/** Bu sekme yazmayı bırakır ve kutuyu gösterir (bir kez). */
+function sekmeCakismasiBildir(neden) {
+  if (sekmeCakismasi) return;
+  sekmeCakismasi = { neden: neden, at: Date.now() };
+  if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  renderSekmeCakismasi();
+}
+
+/** Yazmadan önce: depodaki sürüm bu sekmenin bildiği mi? Değilse çakışma. */
+function depoSurumuBizimMi() {
+  if (sekmeCakismasi) return false;
+  const m = depoSurumOku();
+  if ((m ? m.rev : null) === _bilinenSurum) return true;
+  sekmeCakismasiBildir("surum");
+  return false;
+}
+
+/** Durumu yazar ve sürümü bir artırır. Doğrudan yazan akışlar (yedek) da kullanır. */
+function depoyaSurumluYaz(metin) {
+  const yeni = (_bilinenSurum || 0) + 1;
+  localStorage.setItem(STORE_KEY, metin);
+  localStorage.setItem(SURUM_KEY, JSON.stringify({ rev: yeni, sekme: SEKME_KIMLIGI, at: Date.now() }));
+  _bilinenSurum = yeni;
+  _sonYazilanMetin = metin;
+}
+
+/** "Veri başka sekmede değişti" kutusu (role=alert, yeniden yükle düğmesi). */
+function renderSekmeCakismasi() {
+  var el = document.getElementById("sekmeCakisma");
+  if (!sekmeCakismasi) { if (el) el.remove(); return; }
+  if (el) return;
+  el = document.createElement("div");
+  el.id = "sekmeCakisma";
+  el.className = "sekme-cakisma";
+  el.setAttribute("role", "alert");
+  const p = document.createElement("p");
+  const b = document.createElement("strong");
+  b.textContent = SEKME_CAKISMA_BASLIK + " ";
+  p.appendChild(b);
+  p.appendChild(document.createTextNode(SEKME_CAKISMA_METNI));
+  const dugme = document.createElement("button");
+  dugme.type = "button";
+  dugme.className = "btn btn-primary";
+  dugme.textContent = "Yeniden yükle";
+  dugme.onclick = function () { location.reload(); };
+  el.appendChild(p);
+  el.appendChild(dugme);
+  document.body.appendChild(el);
+}
+
+/** `storage` olayı: yalnız BAŞKA sekmenin yazımında gelir; key null = clear(). */
+function sekmeDepoOlayi(e) {
+  if (e.storageArea && e.storageArea !== localStorage) return;
+  if (e.key !== null && e.key !== STORE_KEY && e.key !== SURUM_KEY) return;
+  if (e.key === SURUM_KEY) {
+    let m = null;
+    try { m = e.newValue ? JSON.parse(e.newValue) : null; } catch (x) { m = null; }
+    if (m && m.rev === _bilinenSurum && m.sekme === SEKME_KIMLIGI) return;
+  }
+  sekmeCakismasiBildir("olay");
+}
+window.addEventListener("storage", sekmeDepoOlayi);
+
 function saveState() {
   if (_resetting) return;
+  if (!depoSurumuBizimMi()) return;   // §119: başka sekme yazdı → bu sekme yazmaz
   try {
     const d = { _qIdSeq: qIdSeq };
     KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
-    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    const metin = JSON.stringify(d);
+    if (metin !== _sonYazilanMetin) depoyaSurumluYaz(metin);
     depoHatasi = "";
   } catch (e) {
     // Kota dolu ya da gizli sekme. Sessizce geçilirse kullanıcı çalışmasının
@@ -1823,7 +1985,12 @@ function saveState() {
 
 function loadState() {
   try {
+    // §119: sürüm, veriden ÖNCE okunur. Arada başka sekme yazarsa ilk
+    // kayıtta sürüm tutmaz → çakışma kutusu (eski veri üstüne yazılmaz).
+    const surum = depoSurumOku();
+    _bilinenSurum = surum ? surum.rev : null;
     const raw = localStorage.getItem(STORE_KEY);
+    _sonYazilanMetin = raw;
     if (!raw) return false;
     const d = JSON.parse(raw);
     KALICI_ALANLAR.forEach(function (k) { if (d[k] !== undefined) state[k] = d[k]; });
@@ -1904,7 +2071,7 @@ function resetState() {
   // kayıt zamanlayıcısı, temizlikten SONRA eski durumu geri yazabiliyordu.
   _resetting = true;
   if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
-  try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+  try { localStorage.removeItem(STORE_KEY); localStorage.removeItem(SURUM_KEY); } catch (e) {}
   // Kitaplık ayrı bir depoda (IndexedDB). Yalnızca localStorage silinirse
   // kitap içerikleri diskte kalır ve arayüzde onları silecek bir liste de
   // kalmaz — erişilemeyen artık veri olur. Silme bloklanırsa (başka sekme
@@ -1965,7 +2132,8 @@ const YEDEK_HATA_METINLERI = {
   parola_kisa: "Parola en az 8 karakter olmalı.",
   parola_eslesmiyor: "İki parola aynı değil.",
   kitaplik_okunamadi: "Kitaplık (IndexedDB) okunamadı; eksik yedek alınmadı.",
-  sifreleme_yok: "Bu tarayıcıda şifreleme (WebCrypto) kullanılamıyor; güvenli bağlantıda (https) açın."
+  sifreleme_yok: "Bu tarayıcıda şifreleme (WebCrypto) kullanılamıyor; güvenli bağlantıda (https) açın.",
+  sekme_cakisma: "Veri başka bir sekmede değişti; bu sekmeden geri yükleme yapılmadı. Önce sayfayı yeniden yükleyin."   // §119
 };
 var _yedekGeriAl = null;   // { durum, kitaplik, at } — yalnız bellekte; sayfa yenilenince silinir
 var _yedekYenilemeBekliyor = false;
@@ -2218,7 +2386,7 @@ async function yedekUygula(veri) {
   const kitaplik = veri.kitaplik || [];
   try { await yedekKitaplikYaz(kitaplik); }
   catch (e) { if (kitaplik.length) throw e; /* IndexedDB yok ve yazılacak kitap yok: sorun değil */ }
-  localStorage.setItem(STORE_KEY, JSON.stringify(veri.durum));
+  depoyaSurumluYaz(JSON.stringify(veri.durum));   // §119: diğer sekmeler sürüm değişimini görür
 }
 
 /** Çözülmüş yedeği onayla geri yükler. Vazgeç → hiçbir şey değişmez (false).
@@ -2232,6 +2400,7 @@ async function yedekGeriYukle(veri) {
     onayEtiketi: "Evet, geri yükle", tehlikeli: true
   });
   if (!ok) return false;
+  if (!depoSurumuBizimMi()) throw yedekHata("sekme_cakisma");   // §119: "geri al" kopyası bayat bellekten alınmasın
   const eski = { durum: yedekDurumAl(), kitaplik: await yedekKitaplikAl(), at: Date.now() };
   _yedekGeriAl = eski;
   try {
@@ -3388,7 +3557,7 @@ async function katalogHazirla(yenidenDene) {
     outcomeSeciminiTazele();
     renderAll();
   } catch (e) {
-    state.katalogHata = "Kazanım kataloğu yüklenemedi: " + String((e && e.message) || e);
+    state.katalogHata = "Kazanım kataloğu yüklenemedi: " + agHataMetni(e);   // §119
     renderAll();
   }
 }
@@ -4397,7 +4566,13 @@ function dbAc() {
         db.createObjectStore(KITAPLIK_STORE, { keyPath: "id" });
       }
     };
-    istek.onsuccess = function () { resolve(istek.result); };
+    istek.onsuccess = function () {
+      var db = istek.result;
+      /* §119: başka sekme veritabanını silerken (Sıfırla) ya da yükseltirken
+         bu açık bağlantı onu bloklardı; kapat, gerekirse sonra yeniden açılır. */
+      db.onversionchange = function () { try { db.close(); } catch (e) {} dbPromise = null; };
+      resolve(db);
+    };
     istek.onerror = function () { reject(istek.error || new Error("Yerel depo açılamadı.")); };
     istek.onblocked = function () { reject(new Error("Yerel depo başka bir sekme tarafından kilitlenmiş.")); };
   });
@@ -4406,6 +4581,11 @@ function dbAc() {
 
 /** Tek bir IndexedDB işlemi; işlem tamamlanana kadar bekler. */
 function dbIslem(mod, fn) {
+  /* §119: çakışma varken bu sekme kitaplığa da yazmaz; kitap kaydı ile durum
+     kaydı birbirinden kopmasın (kitap diske yazılıp listesi kaydedilmezdi). */
+  if (mod === "readwrite" && !_resetting && !depoSurumuBizimMi()) {
+    return Promise.reject(new Error("Veri başka bir sekmede değişti; kitaplığa yazılmadı. Sayfayı yeniden yükleyin."));
+  }
   return dbAc().then(function (db) {
     return new Promise(function (resolve, reject) {
       var tx, store, istek;
@@ -5591,7 +5771,7 @@ function alignmentRowHtml(q) {
   if (!d) return "";
   if (d.loading) return '<div class="al-row al-loading">Kazanım denetimi yapılıyor…</div>';
   if (d.error) {
-    return '<div class="al-row al-err"><b>Kazanım denetimi yapılamadı.</b> ' + escapeHtml(d.error) + "</div>";
+    return '<div class="al-row al-err"><b>Kazanım denetimi yapılamadı.</b> ' + escapeHtml(hataMetniTr(d.error)) + "</div>";
   }
   const e = ALIGN_ETIKET[d.karar] || ALIGN_ETIKET.belirsiz;
   const oneri = d.onerilenKod
@@ -5830,7 +6010,7 @@ async function bagimsizCoz(q) {
 
 /** §115 — bağımsız çözüm bitiş duyurusu (saf; test edilir). */
 function bagimsizCozumDuyuruMetni(c, anahtar) {
-  if (!c || c.hata) return "Bağımsız çözüm yapılamadı" + (c && c.hata ? ": " + c.hata : "") + ".";
+  if (!c || c.hata) return "Bağımsız çözüm yapılamadı" + (c && c.hata ? ": " + hataMetniTr(c.hata).replace(/\.$/, "") : "") + ".";
   if (c.cozulemedi) return "Bağımsız çözüm bitti: model soruyu çözemedi.";
   return "Bağımsız çözüm bitti: model " + c.secilenSik + " şıkkını seçti" +
     (c.anahtarUyusmazligi === true ? "; anahtar " + anahtar + " ile UYUŞMUYOR, kontrol edin." : "; anahtarla uyumlu.");
@@ -9073,6 +9253,7 @@ function sihirbazAdim1Html() {
       return '<option value="' + escapeHtml(sf) + '"' + (hedef === sf ? " selected" : "") + '>' + escapeHtml(sf) + '</option>';
     }).join("") + '</select>' +
     '<span class="field-note">Yalnız bu sınıftaki öğrenciler sınavı görür; “Tüm sınıflar” herkese açar.</span></div></div>' +
+    (yeni ? "" : ortakSinavAlaniHtml(state.exam)) +   // §119 MEB uyumu
     (locked ? '<div class="pill pill-blok pill-warning">Öğrenciler sınava başladı: süre ve sınıf artık değiştirilemez.</div>' : "") +
     (o.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(o.hata) + '</div>' : "") +
     '</div>' + oyssKurHtml();   // §114
@@ -11558,6 +11739,8 @@ function wireTeacherTab1() {
   if (startEl) startEl.onchange = function (e) { state.exam.startAtLocal = e.target.value; saveSoon(); };
   const targetEl = document.getElementById("examTargetClass");
   if (targetEl) targetEl.onchange = function (e) { state.exam.targetClass = e.target.value; saveSoon(); };
+  const ortakEl = document.getElementById("examOrtakSinav");   // §119
+  if (ortakEl) ortakEl.onchange = function (e) { state.exam.ortakSinav = !!e.target.checked; saveSoon(); };
   document.querySelectorAll(".pool-check").forEach(function (el) {
     el.onchange = function () {
       const qid = Number(el.dataset.qid);
@@ -12263,7 +12446,7 @@ function evalFailedCardHtml(q, student, ans, ev, rub) {
     '<div class="answer-box">' + escapeHtml(ans.text || "(boş bırakıldı)") + '</div></div>' +
     '<div class="fail-note">Yapay zekâ ön değerlendirmesi tamamlanamadı. ' +
     'Öğrencinin yanıtı güvenle kaydedildi; kaybolmadı.<br><span class="mono-err">' +
-    escapeHtml(ev.error || "bilinmeyen hata") + '</span></div>' +
+    escapeHtml(hataMetniTr(ev.error) || "bilinmeyen hata") + '</span></div>' +
     '<div class="field-row" style="margin-top:12px;align-items:flex-end;">' +
     '<div class="field" style="max-width:160px;"><label>Puanı elle girin</label>' +
     '<input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="0"></div>' +
@@ -12288,7 +12471,7 @@ function demoTohumUyariHtml(ev) {
   if (!ev || !ev.demoTohumu) return "";
   return '<div class="fail-note" role="status"><b>Canlı yapay zekâ çağrısı başarısız oldu.</b> ' +
     "Aşağıdaki, bu demo girdisi için önceden hazırlanmış örnek yanıttır; bu yanıt için model şimdi çağrılmadı." +
-    (ev.canliHata ? '<br><span class="mono-err">' + escapeHtml(ev.canliHata) + "</span>" : "") + "</div>";
+    (ev.canliHata ? '<br><span class="mono-err">' + escapeHtml(hataMetniTr(ev.canliHata)) + "</span>" : "") + "</div>";
 }
 
 function doneCardHtml(q, student, ev, rv) {
@@ -13732,7 +13915,7 @@ function misconceptionHtml() {
     if (d && d.loading) {
       govde = '<div class="mis-durum">Sınıfın yanıtları okunuyor…</div>';
     } else if (d && d.error) {
-      govde = '<div class="mis-hata"><b>Analiz yapılamadı.</b> ' + escapeHtml(d.error) +
+      govde = '<div class="mis-hata"><b>Analiz yapılamadı.</b> ' + escapeHtml(hataMetniTr(d.error)) +
         '<div class="mis-hata-not">Yanıtlar kaybolmadı. Bağlantı düzelince yeniden deneyebilirsiniz.</div></div>';
     } else if (d && d.clusters) {
       if (!d.clusters.length) {
@@ -14916,6 +15099,58 @@ function okulGercekDurum(f) {
   });
   return { atanan: atanan, tamamlanan: tamamlanan, bekleyen: bekleyen };
 }
+/* §119 — MEB UYUMU: ORTAK YAZILI SINAVDA ŞUBE KARŞILAŞTIRMASI YOK.
+   KAYNAK: MEB Ölçme, Değerlendirme ve Sınav Hizmetleri Genel Müdürlüğü'nün
+   11.09.2025 tarih ve 140379263 sayılı yazısı, madde 11: il ve okul geneli
+   ortak yazılı sınav sonuçlarına göre öğrenci toplu listeleri yayımlanmaz,
+   okullar ve sınıflar arası karşılaştırmalı veri çıkarılmaz (metin
+   memurlar.net 19.09.2025 haberinden; yazının kendisi okunamadı).
+   ÖLÇÜLDÜ (önce): hedefi "Tüm sınıflar" olan tek sınav iki şubede onaylanınca
+   yönetici grafiği 7-A %94 / 7-B %48'i yan yana koyuyor, eylem kartı "7-B
+   şubesi … okuldaki en düşük değer" diyordu; OYSS planı bağlı olsa da aynı.
+   KURAL: ortak sınav işaretli sınavlar yönetici ekranındaki şube
+   karşılaştırmasına (grafik, eylem kartı, sınav geçmişi) KATILMAZ; ekranda
+   kaynaklı tek cümle yazar. Öğretmenin kendi sınıf analizi değişmez (madde 16:
+   analiz öğretmenin kullanımı içindir). İşaret: exam.ortakSinav; hiç
+   seçilmemişse OYSS senaryosuna bağlı sınav ortak sayılır. */
+const ORTAK_SINAV_KAYNAK = "ÖDSGM, 11.09.2025 tarih ve 140379263 sayılı yazı, madde 11";
+const ORTAK_SINAV_ACIKLAMA = "MEB, ortak yazılı sınav sonuçlarından okullar ve sınıflar arası karşılaştırmalı veri " +
+  "çıkarılmamasını istiyor (" + ORTAK_SINAV_KAYNAK + ").";
+
+/** Sınav ortak yazılı mı? Açık işaret önce; yoksa OYSS senaryosuna bağlı olması. */
+function ortakSinavMi(ex) {
+  if (!ex) return false;
+  if (ex.ortakSinav === true) return true;
+  if (ex.ortakSinav === false) return false;
+  return !!ex.oyssSenaryo;
+}
+
+/** Sihirbaz 1. adım: "Ortak yazılı sınav" kutusu (yalnız var olan sınavda). */
+function ortakSinavAlaniHtml(ex) {
+  return '<div class="field ogt-ortak"><label class="ogt-ortak-etiket"><input type="checkbox" id="examOrtakSinav"' +
+    (ortakSinavMi(ex) ? " checked" : "") + '> Ortak yazılı sınav (il ya da okul geneli)</label>' +
+    '<span class="field-note">İşaretli sınavın sonuçları Eğitim Yöneticisi ekranında şubeler arasında karşılaştırılmaz (MEB ' +
+    escapeHtml(ORTAK_SINAV_KAYNAK) + '). OYSS senaryosuna bağlı sınav kendiliğinden işaretli gelir. Sizin sınıf analiziniz değişmez.</span></div>';
+}
+
+/** Yönetici karşılaştırmasına girecek sınav kayıtları: filtreye uyan, ortak olmayan. */
+function yonKarsilastirmaKayitlari(f) {
+  return (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f) && !ortakSinavMi(yonSinavi(k)); });
+}
+
+/** Filtreye uyan ama ortak olduğu için karşılaştırmadan çıkan sınav sayısı. */
+function yonOrtakDisiSayisi(f) {
+  return (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f) && ortakSinavMi(yonSinavi(k)); }).length;
+}
+
+/** Kaynaklı tek cümle; ortak sınav yoksa boş. */
+function yonOrtakNotuHtml(f) {
+  const n = yonOrtakDisiSayisi(f);
+  if (!n) return "";
+  return '<p class="yon-ortak-not" role="note"><b>' + n + ' ortak yazılı sınav</b> bu şube karşılaştırmasına katılmadı: ' +
+    escapeHtml(ORTAK_SINAV_ACIKLAMA) + "</p>";
+}
+
 function renderAdmin() {
   const root = document.getElementById("panel-admin");
   // §74: kayıtlı seçim bugünkü seçeneklere göre süzülür (artık olmayan değer = tümü).
@@ -14987,6 +15222,7 @@ function renderAdmin() {
       'Şube adının yanındaki sayı, yüzdenin <b>kaç öğrencinin onaylı sonucundan</b> hesaplandığını söyler. ' +
       'Kesikli kırmızı çizgi <b>%' + KRITIK_ESIK + ' kritik eşiği</b> gösterir — altında kalan ölçümler ayrıca listelenir.',
       "Grafik nasıl okunur?") +
+    yonOrtakNotuHtml(f) +   // §119 MEB madde 11
     '<div id="adminHeatmap"></div></div>' + trendHtml(yonSinavGecmisi(f));
 
   // §29: Öğretmen Değerlendirme Analitiği & Kalibrasyon — grafikten SONRA
@@ -15033,7 +15269,7 @@ function yonBilgiHtml(icerik, etiket) {
     §74: filtreye uyan sınav, sınıf ve soru; sayı, yüzdeye katkısı olan öğrenci sayısıdır. */
 function yonGercekSatirlar(f) {
   f = f || YON_FILTRE_BOS;
-  const kayitlar = (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f); });
+  const kayitlar = yonKarsilastirmaKayitlari(f);   // §119: ortak yazılı sınavlar şube karşılaştırmasına girmez
   return siniflar().filter(function (sf) { return !f.sinif || sf === f.sinif; }).map(function (sf) {
     const ogr = (state.students || []).filter(function (o) { return o.sinif === sf; });
     const p = yonPuanlar(f, ogr, kayitlar);
@@ -15267,7 +15503,7 @@ function yonPuanlar(f, ogrenciler, kayitlar) {
 /** "Sınavlar Arası Gelişim" için filtreli geçmiş (trendHtml'in beklediği biçim). */
 function yonSinavGecmisi(f) {
   const ogr = yonOgrenciler(f);
-  return (state.exams || []).filter(function (k) { return yonSinavUygunMu(k, f); }).map(function (kayit) {
+  return yonKarsilastirmaKayitlari(f).map(function (kayit) {   // §119
     const p = yonPuanlar(f, ogr, [kayit]);
     return p.ogrenci ? { baslik: yonSinavi(kayit).title || "Adsız Sınav", scores: p.scores } : null;
   }).filter(Boolean);
@@ -15764,7 +16000,7 @@ async function deneyapIndeksYukle(yenidenDene) {
     deneyapIndeksHata = "";
     atolyeGecerliKil();
   } catch (e) {
-    deneyapIndeksHata = "Deneyap atölye listesi yüklenemedi (" + String((e && e.message) || e) + ").";
+    deneyapIndeksHata = "Deneyap atölye listesi yüklenemedi (" + agHataMetni(e) + ").";   // §119
   } finally {
     deneyapIndeksYukleniyor = false;
   }
@@ -15965,7 +16201,7 @@ async function katalogAc() {
     kzSifirla(KAT_SECICI); // yeni açılış temiz: önceki işaretler ve arama kalmaz
     katalogModalGoster(k);
   } catch (e) {
-    openModal('<h3>Katalog yüklenemedi</h3><p>' + escapeHtml(String((e && e.message) || e)) +
+    openModal('<h3>Katalog yüklenemedi</h3><p>' + escapeHtml(agHataMetni(e)) +
       "</p><p>Bağlantı düzelince tekrar deneyebilirsiniz; kazanımları elle de ekleyebilirsiniz.</p>" +
       '<div class="modal-actions"><button class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
   }
@@ -17886,6 +18122,9 @@ function bosDurumHtml(mesaj) {
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
     "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "ogtMenuKapat", "ogtMenuDisTiklamaKur", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz", "xlsxHata", "xlsxZipDizini", "xlsxGirdiMetni", "xlsxXml", "xlsxElemanlar", "xlsxMetin", "xlsxHucreAdresi", "xlsxSade", "xlsxOku", "oyssKodNormal", "oyssDersSinif", "oyssTabloAyikla", "oyssSenaryoSatirlari", "oyssEslestir", "oyssMetinAnahtar", "oyssMetinBenzerlik", "oyssEslemKaydi", "oyssSurumDenetimi", "oyssSurumAlgila", "oyssSurumUygula", "oyssKatalogMetinleri", "oyssYazmaKapali", "oyssSurumUyariHtml", "oyssKodHucresiHtml", "oyssOneriYokMetni", "oyssPlanSatiri", "oyssZorlukDagilimi", "oyssKurDurum", "oyssSeciliTablo", "oyssKatalogKodlari", "oyssKatalogHazirla", "oyssGorunum", "oyssSecimListesi", "oyssKurHtml", "oyssSecicilerHtml", "oyssTabloHtml", "oyssTaslagaYaz", "oyssPlanKarsilastir", "oyssPlanHtml", "oyssDosyaOku", "wireOyssKur",
+    "agHatasiMi", "hataMetniTr", "agHataMetni", "aiSunucuYok",
+    "ortakSinavMi", "ortakSinavAlaniHtml", "yonKarsilastirmaKayitlari", "yonOrtakDisiSayisi", "yonOrtakNotuHtml",
+    "depoSurumOku", "sekmeCakismasiBildir", "depoSurumuBizimMi", "depoyaSurumluYaz", "renderSekmeCakismasi", "sekmeDepoOlayi",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b

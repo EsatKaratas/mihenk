@@ -18,6 +18,9 @@
 #panel-admin .card { margin-bottom: var(--sp-4); }
 #panel-admin .yon-ozet { margin: 0 0 var(--sp-2); font-size: var(--fs-3); line-height: 1.6; color: var(--text); }
 #panel-admin .yon-kutular { margin-bottom: var(--sp-4); }
+/* §119 — ortak yazılı sınav notu (MEB madde 11, kaynaklı tek cümle) */
+#panel-admin .yon-ortak-not { margin: var(--sp-2) 0; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); border-left: 3px solid var(--accent); font-size: var(--fs-2); line-height: 1.55; color: var(--text); }
 
 /* ⓘ açıklama: varsayılan kapalı, metin silinmedi */
 #panel-admin .yon-bilgi { margin: var(--sp-1) 0 var(--sp-2); font-size: var(--fs-2); color: var(--text-muted); }

@@ -26,6 +26,7 @@ function sabit(ad: string): string {
 const escapeHtml = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[c]);
 
 const SABITLER = ['AI_KOTA_SERIT_METNI', 'AI_KOTA_DUGME_IPUCU', 'AI_DUGME_SECICI',
+  'AI_SUNUCU_DUGME_SECICI', 'AI_SUNUCU_YOK_SERIT_METNI', 'AI_SUNUCU_YOK_DUGME_IPUCU',
   'KAPASITE_DEGERLENDIRME_NEURON', 'KAPASITE_VARSAYILAN_ESIK', 'KAPASITE_VARSAYILAN_IP_SINIRI'].map(sabit).join('\n');
 
 type Durum = { ai: { mode: string; butce: unknown } };
@@ -33,10 +34,11 @@ type Durum = { ai: { mode: string; butce: unknown } };
 function yukle(state: Durum, document: any = {}): any {
   return new Function('escapeHtml', 'state', 'document', 'aiGunlukKapali',
     SABITLER + '\n' +
-    ['aiKotaDolu', 'aiYzsizMod', 'renderAiKotaSeridi', 'aiDugmeleriniKilitle', 'kapasiteHesabi', 'kapasiteHtml', 'evalFailedActionsHtml']
+    ['aiKotaDolu', 'aiYzsizMod', 'aiSunucuYok', 'renderAiKotaSeridi', 'aiDugmeleriniKilitle', 'kapasiteHesabi', 'kapasiteHtml', 'evalFailedActionsHtml']
       .map(tanim).join('\n') +
     '\nreturn { aiKotaDolu, aiYzsizMod, renderAiKotaSeridi, aiDugmeleriniKilitle, kapasiteHesabi, kapasiteHtml, evalFailedActionsHtml,' +
-    ' AI_KOTA_SERIT_METNI, AI_KOTA_DUGME_IPUCU, AI_DUGME_SECICI, KAPASITE_DEGERLENDIRME_NEURON };'
+    ' AI_KOTA_SERIT_METNI, AI_KOTA_DUGME_IPUCU, AI_DUGME_SECICI, KAPASITE_DEGERLENDIRME_NEURON,' +
+    ' AI_SUNUCU_DUGME_SECICI, AI_SUNUCU_YOK_SERIT_METNI, AI_SUNUCU_YOK_DUGME_IPUCU };'
   )(escapeHtml, state, document, (kod: string) => kod === 'ai_kota_bitti' || kod === 'gunluk_sinir' || kod === 'gunluk_butce');
 }
 
@@ -68,7 +70,8 @@ describe('§100-1 kabukta tek bilgi şeridi', () => {
     return {
       yuva,
       getElementById: (id: string) => id === 'aiKotaSeritYuva' ? yuva
-        : id === 'aiKotaSerit' ? (yuva.innerHTML.includes('id="aiKotaSerit"') ? {} : null) : null,
+        : id === 'aiKotaSerit' ? (yuva.innerHTML.includes('id="aiKotaSerit"')
+          ? { getAttribute: (a: string) => ((new RegExp(a + '="([^"]*)"').exec(yuva.innerHTML) || [])[1] ?? null) } : null) : null,
     };
   }
   it('mod açıkken şerit metni birebir; role="status"; ikinci çizimde çoğalmaz', () => {
@@ -285,5 +288,50 @@ describe('§100-4 /vendor/* immutable önbellek — YAPILMADI (sürüm adlı olm
     const basliklar = fs.readFileSync(path.join(kok, 'public', '_headers'), 'utf8');
     expect(basliklar).not.toMatch(/immutable/);
     expect(basliklar).not.toMatch(/^\/vendor\//m);
+  });
+});
+
+describe('§119 sunucuya ulaşılamıyor (mod "simulation"): yerel yedeği olmayan düğmeler kapalı, neden şeritte', () => {
+  function dugme() {
+    const attr: Record<string, string> = {}; const cls = new Set<string>();
+    return { disabled: false, attr, cls, setAttribute: (a: string, v: string) => { attr[a] = v; }, classList: { add: (c: string) => cls.add(c) } };
+  }
+  it('yalnız AI_SUNUCU_DUGME_SECICI kilitlenir; title sunucu nedenini söyler', () => {
+    const b = dugme();
+    let secici = '';
+    const d = { querySelectorAll: (s: string) => { secici = s; return [b]; }, getElementById: (id: string) => id === 'aiKotaSerit' ? {} : null };
+    const k = yukle({ ai: { mode: 'simulation', butce: null } }, d);
+    expect(k.aiDugmeleriniKilitle()).toBe(1);
+    expect(secici).toBe(k.AI_SUNUCU_DUGME_SECICI);
+    expect(b.disabled).toBe(true);
+    expect(b.attr.title).toBe(k.AI_SUNUCU_YOK_DUGME_IPUCU);
+    expect(b.attr['aria-describedby']).toBe('aiKotaSerit');
+    // Yerel simülasyonu olan uçlar (üretim, puan önerisi, rubrik, sınıf simülasyonu) kapanmaz.
+    for (const s of ['#btnGenerate', '#btnAiRubric', '.retry-eval', '#btnSimClass', '#btnRemedialGen']) expect(k.AI_SUNUCU_DUGME_SECICI).not.toContain(s);
+    for (const s of ['#btnAlign', '.js-coz', '#btnTopluCoz', '.mis-run']) expect(k.AI_SUNUCU_DUGME_SECICI).toContain(s);
+  });
+  it('"unknown" (denetleniyor) ve canlı modda dokunulmaz', () => {
+    for (const mode of ['unknown', 'live']) {
+      const d = { querySelectorAll: vi.fn(() => []), getElementById: () => null };
+      expect(yukle({ ai: { mode, butce: null } }, d).aiDugmeleriniKilitle()).toBe(0);
+      expect(d.querySelectorAll).not.toHaveBeenCalled();
+    }
+  });
+  it('şerit: sunucu yokken kendi metni; kota dolunca kota metnine döner (tek şerit)', () => {
+    const yuva = { innerHTML: '' };
+    const d = { getElementById: (id: string) => id === 'aiKotaSeritYuva' ? yuva
+      : id === 'aiKotaSerit' ? (yuva.innerHTML.includes('id="aiKotaSerit"') ? { getAttribute: (a: string) => ((new RegExp(a + '="([^"]*)"').exec(yuva.innerHTML) || [])[1] ?? null) } : null) : null };
+    const st: Durum = { ai: { mode: 'simulation', butce: null } };
+    const k = yukle(st, d);
+    k.renderAiKotaSeridi();
+    expect(yuva.innerHTML).toContain('data-tur="sunucu"');
+    expect(yuva.innerHTML).toContain(escapeHtml(k.AI_SUNUCU_YOK_SERIT_METNI));
+    st.ai = { mode: 'live', butce: DOLU };
+    k.renderAiKotaSeridi();
+    expect(yuva.innerHTML).toContain('data-tur="kota"');
+    expect((yuva.innerHTML.match(/ai-kota-serit"/g) || []).length).toBe(1);
+    st.ai = { mode: 'live', butce: { ...DOLU, doldu: false } };
+    k.renderAiKotaSeridi();
+    expect(yuva.innerHTML).toBe('');
   });
 });

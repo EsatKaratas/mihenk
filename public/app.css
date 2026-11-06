@@ -1580,6 +1580,15 @@
     color: #fff; font-size: 12.5px; font-weight: 600; line-height: 1.55;
     box-shadow: 0 4px 18px rgba(0,0,0,.32); }
 
+  /* §119 — "Veri başka sekmede değişti" kutusu: üstte, kapatılamaz; tek çıkış yeniden yükle. */
+  .sekme-cakisma { position: fixed; left: 12px; right: 12px; top: 12px; z-index: 950;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+    padding: 12px 15px; border-radius: 10px; background: var(--critical);
+    color: #fff; font-size: 13px; line-height: 1.55;
+    box-shadow: 0 4px 18px rgba(0,0,0,.32); }
+  .sekme-cakisma p { margin: 0; flex: 1 1 260px; }
+  .sekme-cakisma .btn { background: #fff; color: var(--critical); border-color: #fff; font-weight: 700; min-height: 32px; }
+
   /* Model çıktısında yabancı alfabe uyarısı — kapsayıcıdan bağımsız (§6.3-2). */
   .dil-uyari { margin: 8px 0 4px; padding: 9px 12px; border-radius: 8px;
     background: var(--warning-soft); color: var(--text);

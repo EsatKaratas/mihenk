@@ -152,7 +152,8 @@ describe('§115 ortak durum duyurusu (role="status")', () => {
     }
   });
   it('bitiş metinleri: karar öğretmende (HITL), hata sessiz değil', () => {
-    const f = new Function(tanim('puanOnerisiDuyuruMetni') + tanim('bagimsizCozumDuyuruMetni') +
+    const AG_KOD = (() => { const b = app.indexOf('\nconst AI_AG_HATASI_METNI = '); return app.slice(b + 1, app.indexOf(';\n', b) + 2); })();
+    const f = new Function(AG_KOD + tanim('agHatasiMi') + tanim('hataMetniTr') + tanim('puanOnerisiDuyuruMetni') + tanim('bagimsizCozumDuyuruMetni') +
       'return { puanOnerisiDuyuruMetni, bagimsizCozumDuyuruMetni };')();
     expect(f.puanOnerisiDuyuruMetni({ aiScore: 7, maxScore: 10 })).toBe('Puan önerisi geldi: 7 / 10. Karar sizin; onaylamadan kesinleşmez.');
     expect(f.puanOnerisiDuyuruMetni({ failed: true, error: 'kota doldu' })).toContain('alınamadı: kota doldu');
@@ -160,6 +161,8 @@ describe('§115 ortak durum duyurusu (role="status")', () => {
     expect(f.bagimsizCozumDuyuruMetni({ secilenSik: 'B', anahtarUyusmazligi: true }, 'A')).toContain('anahtar A ile UYUŞMUYOR');
     expect(f.bagimsizCozumDuyuruMetni({ secilenSik: 'A', anahtarUyusmazligi: false }, 'A')).toContain('anahtarla uyumlu');
     expect(f.bagimsizCozumDuyuruMetni({ hata: 'ağ' }, 'A')).toBe('Bağımsız çözüm yapılamadı: ağ.');
+    // §119: eski kayıtta kalmış İngilizce ağ hatası Türkçe gösterilir
+    expect(f.bagimsizCozumDuyuruMetni({ hata: 'Failed to fetch' }, 'A')).toMatch(/^Bağımsız çözüm yapılamadı: Yapay zekâ sunucusuna ulaşılamadı: .*yeniden deneyin\.$/);
     expect(f.bagimsizCozumDuyuruMetni({ cozulemedi: true }, 'A')).toContain('çözemedi');
   });
 });
