@@ -325,3 +325,7 @@ body[data-rol-grup="aile"] .kabuk-ust #aiModeSlot { display: none; }
 @media (max-width: 760px) {
   .kabuk-ust .ai-kota-serit { font-size: var(--fs-1); padding: var(--sp-1) var(--sp-2); }
 }
+
+/* §108 — Yedekle penceresi: "Adsız yedek" seçeneği (onay kutusu + açıklama). */
+.yedek-secim { display: flex; gap: var(--sp-2); align-items: flex-start; margin: 0 0 12px; font-size: var(--fs-2, 14px); line-height: 1.45; cursor: pointer; }
+.yedek-secim input { margin-top: 3px; width: 18px; height: 18px; flex: none; }

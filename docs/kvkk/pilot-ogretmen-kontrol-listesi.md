@@ -44,11 +44,15 @@
 - [ ] Yapay zekâ puanı **öneridir**; her puan öğretmen tarafından okunup onaylanıyor ya da değiştiriliyor.
 - [ ] Okul cihazında çalışılıyorsa, ders sonunda tarayıcı oturumu kapatılıyor; paylaşılan cihazda
       "Verileri sıfırla" ile yerel veri temizleniyor. Dışa aktarılan CSV dosyaları (ad içerir) korunuyor.
+- [ ] Yedek (⋯ → Yedekle) alınıyorsa: `.mihenk` dosyası **cihazdan çıkar** ve öğrenci adı içerdiği için
+      **parolayla şifrelenir** (parola dosyada ya da tarayıcıda saklanmaz; unutulursa açılamaz). Paylaşmak
+      gerekiyorsa "Adsız yedek" seçiliyor. Yedek Mihenk sunucusuna gitmez; dosya kurumun onayladığı yerde
+      saklanıyor.
 
 ## D. Pilot sonunda
 
 - [ ] Kurumun belirlediği süre sonunda cihazlardaki yerel veri "Verileri sıfırla" ile silindi; indirilen CSV
-      dosyaları imha edildi.
+      dosyaları ve `.mihenk` yedekleri imha edildi.
 - [ ] Veli başvuruları (m.11) ve rıza geri almaları kayda geçirildi ve en geç 30 gün içinde yanıtlandı (m.13).
 
 ---

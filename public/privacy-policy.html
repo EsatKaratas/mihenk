@@ -384,6 +384,12 @@
           (<code>localStorage</code>/<code>IndexedDB</code>) kullanıcı silene kadar kalır. "Verileri sıfırla"
           düğmesi hepsini siler. Kurum bu veriler için bir süre belirlemelidir:
           <span class="fill">[eğitim-öğretim dönemi sonu + X ay]</span>.</li>
+          <li><b>Yedek dosyası (<code>.mihenk</code>):</b> Öğretmen ⋯ menüsünden "Yedekle" derse bütün yerel
+          veriler tek bir dosyaya yazılır ve <b>cihazdan çıkar</b> (indirme klasörüne iner). Dosyada öğrenci ya da
+          öğretmen adı varsa <b>parola zorunludur</b>: dosya tarayıcıda parolayla şifrelenir (PBKDF2 + AES-GCM);
+          parola dosyaya da tarayıcıya da kaydedilmez, unutulursa yedek açılamaz. "Adsız yedek" seçilirse adlar
+          "Öğrenci 1…" ile değiştirilir ve dosya parolasız olabilir. Yedek <b>Mihenk sunucusuna gitmez</b>;
+          dosyanın nerede saklanacağı ve ne zaman silineceği öğretmenin ve kurumun sorumluluğundadır.</li>
           <li><b>Yapay zekâ sağlayıcısında:</b> Cloudflare, Workers AI'da müşteri içeriğini, ayrı bir depolama
           ürünü eklenmedikçe saklamadığını belirtmektedir (bkz. bölüm 7).</li>
         </ul>

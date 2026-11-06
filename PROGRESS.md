@@ -11744,6 +11744,39 @@ rıza formu alınmadan yapay zekâya gidebiliyordu.
     mı?" → onay → izinli, şerit kalktı, `yz_izni_toplu` adsız.
   - Konsol hatası 0, yatay taşma 0. Ekranlar: `Downloads\Mihenk\ekran-iz-izin-paket\` (6 PNG).
 
+## 108. TAM YEDEK — tek `.mihenk` dosyası, parolalı şifreleme, onaylı geri yükleme (6 Kasım 2026, P4, dal `feature/tam-yedek`, Orchestrator 3 emriyle — madde 8)
+
+0 Neuron. Model çağrısı, `/api/ai` POST'u, deploy, push, main birleştirmesi yapılmadı. `src/` değişmedi.
+
+**Neden:** bütün veri tarayıcıda (localStorage tek anahtar `t3-olcme-durum-v1` + IndexedDB `t3-mufredat`). Cihaz değişir, tarayıcı temizlenir ya da "Sıfırla"ya basılırsa geri dönüş yoktu.
+
+**Dosya biçimi** (`public/app.js`, "§108 TAM YEDEK" bloğu, `kitapligiSil`'in hemen altı):
+- 1. satır `MIHENK-YEDEK <biçim>` — biçim JSON'dan ÖNCE okunur; biçim > `YEDEK_BICIM_SURUMU` (1) ise gövdeye bakmadan "Bu yedek daha yeni bir Mihenk sürümüyle oluşturulmuş; bu sürüm desteklemiyor."
+- 2. satır zarf JSON'u: `baslik, bicim, uygulama` (`MIHENK_UYGULAMA_SURUMU` = package.json 1.1.0, testle eşit), `olusturma` (ISO), `adsiz, sifreli`, şifreliyse `kdf {PBKDF2, SHA-256, 310000, tuz}` + `sifre {AES-GCM, iv}`, `sha256`, `veri`.
+- `veri` = `{durum, kitaplik}`: `durum` saveState ile birebir aynı nesne (`_qIdSeq` + `KALICI_ALANLAR`), `kitaplik` IndexedDB'nin bütün `{id, pages}` kayıtları. Kitaplık okunamazsa ve indeks doluysa eksik yedek ALINMAZ (hata).
+- Bütünlük: SHA-256 (`yedekShaGirdisi`: bütün başlık alanları + veri). Başlıkta tek bayt değişse de "bozuk" der; "parola yanlış" sanılmaz.
+
+**Şifreleme:** öğrenci adı ya da öğretmen adı (`activeTeacherName`, `teacherName`) varsa parola ZORUNLU (en az 8 karakter, iki kez). WebCrypto PBKDF2-SHA-256 310.000 yineleme, 16 bayt rastgele tuz → AES-GCM 256, 12 bayt rastgele IV; başlık alanları AAD. Parola dosyaya, localStorage'a ya da sessionStorage'a yazılmaz (test + tarayıcıda localStorage taraması).
+
+**Adsız yedek** (seçenek): öğrenciler "Öğrenci 1…", öğretmenler "Öğretmen 1…"; bütün metinlerde (anahtarlar, cevaplar, karar günlüğü, kitaplık sayfaları) bu adlar da değiştirilir — §88'in `kisiselAdKaliplari` kalıpları (Türkçe harf/ek duyarlı; sözcük de olan ad tek başına yalnız Büyük harf + kesme işaretiyle). Parolasız olabilir. Sınır (pencerede yazılı): sınıf listesinde OLMAYAN bir ad serbest metinde kalır. Bilinen fazla değiştirme: ad+soyad kalıbı ek alır ("Deniz Su" öğrencisi varken "Deniz suyu" da değişir) — gizlilik yönünde hata, bilerek bırakıldı.
+
+**Geri yükleme** (`yedekGeriYukleAc` → `yedekCoz` → `yedekGeriYukle` → `yedekSonucAc`):
+- Yanlış parola / bozuk / Mihenk dışı dosya → pencerede net hata (`role="alert"`), "Hiçbir veri değiştirilmedi"; `yedekCoz` yan etkisizdir.
+- Özet (tarih, uygulama sürümü, soru · sınav · öğrenci · kitap) + `onaylaModal` (tehlikeli, varsayılan odak Vazgeç): "Mevcut veriler bu yedekle DEĞİŞTİRİLECEK."
+- Onaydan hemen sonra mevcut durumun "geri al" kopyası belleğe (`_yedekGeriAl`: durum + kitaplık); okunamazsa geri yükleme yapılmaz.
+- Yazım sırası: önce IndexedDB (tek işlemde temizle + yaz), sonra localStorage. `_resetting` ve `_saveTimer` durdurulur ki bellekteki eski durum yeni kaydın üstüne yazılmasın. Yazım yarıda kalırsa geri al kopyası yerine konur.
+- Sonuç penceresi: "Geri al kopyasını indir…" (Yedekle penceresiyle, ad varsa yine parolalı; `mihenk-geri-al-<tarih>.mihenk`), "Geri al (önceki verilere dön)", "Yenile ve aç". Pencere hangi yoldan kapanırsa kapansın sayfa yenilenir; açılışta `loadState` göçleri (§50 atölye, §50b kazanım ekleme, §52 Deneyap…) normal açılıştaki gibi çalışır.
+
+**Menü:** ⋯ → "Yedekle…" ve "Yedekten geri yükle…" (yalnız okul rolleri, Sıfırla'nın üstünde, kendi ayracıyla). `kabuk.css`'e yalnız `.yedek-secim` (onay kutusu satırı).
+
+**Metinler:** `privacy-policy.html` §6 Saklama'ya "Yedek dosyası (.mihenk)" maddesi (cihazdan çıkar, ad varsa parolayla şifreli, adsız seçeneği, Mihenk sunucusuna gitmez, saklama sorumluluğu kurumda). `docs/kvkk/pilot-ogretmen-kontrol-listesi.md` C'ye yedek maddesi, D'ye ".mihenk yedekleri imha edildi"; `veli-riza-formu-taslak.md` §1'e bir cümle.
+
+**Ölçüm (yerel, worktree `Mihenk\mihenk-p4`):**
+- `npm test` 783 → **800** (38 dosya; yeni `test/tam-yedek.test.ts` 17 test: gidiş-dönüş + tuz/IV rastgeleliği + ≥310.000, parola zorunlu/kısa, yanlış parola, bozuk veri/başlık/yarım dosya/iç JSON, Mihenk dışı dosya, adsızda ad sızıntısı 0 + içerik korunur, biçim 2 → desteklenmiyor, sürüm = package.json, eski şemalı yedek → gerçek `loadState` göçleri, onay penceresi metni, Vazgeç'te localStorage/IndexedDB yazımı 0, onayda geri al kopyası, kota hatasında geri alma, menü bağlantısı, gizlilik/KVKK metni). `tsc --noEmit` temiz. Öz-kontrol 633 → **659 ad %100**. `check:config` geçti, `node --check` temiz.
+- Tarayıcı (Playwright + sistem Chrome, `python -m http.server 8804 --bind 127.0.0.1`, `/api/ai` GET taklit, POST engelli; servis edilen app.js SHA = disk): demo yükle → Yedekle (parolasız deneme reddedildi, parolalı indirildi ~26 KB) → adsız yedek (4 öğrenci, 8 ad parçası, sızıntı 0) → Sıfırla → bozuk dosya hatası → yanlış parola hatası → özet + onay (odak Vazgeç) → Vazgeç'te kayıt aynı → onay → geri al kopyası indirildi → Yenile → 12 alan (sorular, sınavlar, öğrenciler, cevaplar, değerlendirmeler, kararlar, günlük, kazanımlar, dersler, kitaplık, ÇS sonuçları, etkin sınav) yedek öncesiyle **birebir aynı**. **1280: 19/19, 390: 19/19**; taşma 0, konsol hatası 0, dialog 0, POST 0. Mevcut `tools/dogrula/kontroller.mjs` yerelde 1280 ve 390: **28/28 + 28/28**.
+- Ekranlar: `C:\Users\ASUS\Downloads\Mihenk\ekran-p4\yedek-{1280,390}-{1-menu,2-yedekle,3-yanlis-parola,4-onay,5-sonuc,6-geri-yuklendi}.png`.
+- Ölçülmeyen: demoda kitaplık boş (0 kitap) — IndexedDB kitap yazımı/geri yüklemesi yalnız birim testte (sahte depo) sınandı, tarayıcıda dolu kitaplıkla denenmedi; büyük kitaplıkla (20 kitap × 200 sayfa) yedek süresi ve dosya boyutu; Safari/Firefox. PBKDF2 310.000 yineleme Chrome'da fark edilir bekleme yaratmadı (ölçüm sayısı alınmadı).
+
 ## 111. ANONİM ARAŞTIRMA PAKETİ (6 Kasım 2026, W10, dal `feature/iz-izin-paket`, Orchestrator 3 emriyle; Madde 14)
 
 **Neden:** Karar Günlüğü'nün CSV/JSON dışa aktarımı soru metni, öğrenci numarası (`sid`) ve serbest
@@ -11791,4 +11824,3 @@ gerekiyordu.
 - Çözücü istem sürümü (`meta.cozucuIstemSurumu`) henüz saklanmıyor; pakete yalnız üretim istem sürümü
   girer.
 - Bu turdan önce üretilmiş sorularda istem sürümü yoktur (alan boş kalır).
-
