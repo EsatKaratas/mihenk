@@ -11191,3 +11191,46 @@ ASSETS + vars, `OLCUM_*` yok.
 - `butce_usage_yok` logu yok, çünkü model çalışmadı. **Binding'in `usage` döndürüp döndürmediği hâlâ
   ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
 - Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
+
+## §101. Öğretmen çıktıları: OYSS paketi, e-Okul puan tablosu, sınav güvenirliği (6 Kasım 2026, P2, Orchestrator 3 emriyle)
+
+Dal `feature/ogretmen-ciktilari` (taban `1458c5a`). 0 Neuron: `/api/ai` çağrısı yok, hepsi tarayıcıda saf hesap.
+
+- **OYSS paketi** (Sınavlar › Gözden geçir, yazdırma çubuğunun altı, katlanır kart): sınavdaki açık uçlu sorular
+  listelenir; yalnız **onaylı soru + öğretmenin kabul ettiği rubrik** seçilebilir (onaysız / rubriksiz / yapay
+  zekâ taslağı rubrik devre dışı ve nedeni yazılı). Düz metin, OYSS kılavuzundaki alan adlarıyla: Öğrenme
+  çıktısı, Güçlük düzeyi, Soru, Puanlama anahtarı (ölçüt puanı = tavan × ağırlık). Salt okunur önizleme +
+  "OYSS için kopyala"; pano reddederse metin seçilir ve "Ctrl+C ile kopyalayın" denir. 2'den farklı seçimde
+  "OYSS'de zümre sorusu 2 adettir" notu.
+- **e-Okul puan tablosu** (Analitik, Madde Analizi'nin altı): CSV, UTF-8 BOM, `;`. Sütunlar Okul No, Ad Soyad,
+  S1…Sn, Toplam. Sütun sırası `yazdirSorulari()`'dan, yani `sinavYazdir()` kâğıdıyla aynı listeden gelir.
+  Yalnız nihai puan: ÇSS anahtarla puanlanmışsa ÇSS puanı; açık uçluda yalnız `reviews.finalScore`.
+  Onaylanmamış hücre ve o öğrencinin toplamı boş. Dosyada açıklama satırı yok; uyarı ekranda ("X cevap onay
+  bekliyor") ve indirme öncesi onay penceresinde. Mihenk okul numarası saklamadığı için Okul No boş gelir.
+  Var olan uzun öğrenci CSV'si (Eğitim Yöneticisi) değişmedi.
+- **Sınav güvenirliği** (Analitik, Madde Analizi'nin altı): KR-20 (yalnız 0/1 ÇSS) ve açık uçlu varsa Cronbach
+  alfa (nihai puanlarla; onaylanmamış açık uçlusu olan öğrenci alfaya girmez, sayısı yazılır). Varyanslar
+  tutarlı biçimde n'ye bölünür, bu yüzden 0/1 verisinde KR-20 = alfa. n < 10 ya da k < 5 ise madde
+  analiziyle aynı "**Bu sayılar gösterge niteliğindedir.**" uyarısı.
+- **Gizlilik politikası** dışa aktarma maddesine e-Okul tablosu ve OYSS paketi eklendi (agents.md §7).
+
+**Doğrulama:**
+- `npm test` 30 dosya, **618/618** (yeni: `eokul-oyss` 11, `guvenirlik-katsayilari` 12). lint temiz.
+  Öz-kontrol **587 ad, %100** (tabanda 569; +18). FFFD 0.
+- **Formül, bilinen örnekle:** FGCU "Module Five — KR-20" (ruby.fgcu.edu/courses/chewittg/10009/module5kr20.htm).
+  10×6 matris; kaynağın elle hesapladığı Σpq = 1,35, kareler toplamı 40,9, σ² (n−1) = 4,544 ve KR-20 ≈ 0,84
+  birebir yeniden kuruldu. Mihenk'in tutarlı n kuralıyla değeri **0,8039** (σ² = 4,09); kaynaktaki 0,84
+  karışık kuraldan gelir (σ² n−1, pq n). Alfa: elle hesaplanmış 4×3 örnek Σσ²ᵢ = 4,25, σ²_X = 11,25,
+  α = 14/15. Sınırlar: tek öğrenci, tek madde, varyans sıfır, 0/1 dışı değer, negatif alfa.
+- **S sırası = kâğıt sırası:** testte ortada onaysız soru olan karışık sınavda `sinavKagidiHtml`'in 1…4
+  numaraları ile S1…S4, soruya özgü puanlarla eşleşti. Tarayıcıda da gerçek fonksiyonlarla doğrulandı.
+- **Tarayıcı** (yerel 8802, demo tohumu `loadDemoScenario`, `/api/ai` POST engelli), 1280 ve 390:
+  - Pano metni = önizleme (Windows panosu CRLF'ye çevirir). Pano reddinde metnin tamamı seçili kaldı.
+  - Onaysız soru: kutu devre dışı, işaretsiz, "Soru onaylı değil" yazıyor.
+  - İndirilen CSV'de BOM var. Başlık `Okul No;Ad Soyad;S1;S2;Toplam`; onay bekleyen öğrencide açık uçlu ve toplam hücresi boş.
+  - Konsol hatası 0, taşma 0.
+  - `kontroller.mjs` 28/28 + 28/28, `demo-yuru.mjs` iki genişlikte konsol hatası 0.
+  - Servis edilen = disk SHA-256: app.js, css/ogretmen.css, privacy-policy.html.
+  - Ekran görüntüleri depo dışında (`Downloads\Mihenk\ekran-p2\`).
+- **Demo verisiyle sınır:** demo sınavında yalnız 1 ÇSS var, bu yüzden KR-20 ekranda "hesaplanamadı — en az 2 çoktan seçmeli
+  madde gerekir" der; alfa 0,86 (3 öğrenci · 2 madde, gösterge niteliğinde).
