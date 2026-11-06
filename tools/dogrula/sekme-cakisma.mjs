@@ -55,6 +55,10 @@ ok('B\'de kutu', !!(await kutu(B)));
 console.log('[4] Olay kaçsa bile sürüm damgası korur');
 const D = await ac(); const E = await ac();
 await E.evaluate(() => { state.questions.push({ id: 990002, type: 'mc', status: 'draft', body: 'E sorusu', options: [], outcome: '' }); saveState(); });
+// §123: Chrome sekmeler arası localStorage eşitlemesi asenkron (ms). Beklemeden D, E'nin sürümünü henüz
+// göremeyebilir (ölçüldü: 3 koşuda 1 kez). Bu senaryo "olay kaçtı ama eşitleme oldu" durumunu ölçer; ms
+// penceresinin kendisi §119'daki bilinen sınırdır (Web Locks yok).
+await D.waitForTimeout(300);
 await D.evaluate(() => { sekmeCakismasi = null; const k = document.getElementById('sekmeCakisma'); if (k) k.remove(); state.questions = []; renderAll(); });
 ok('E\'nin sorusu korunur', (await depo(D)).ids.includes(990002));
 const k4 = await kutu(D);

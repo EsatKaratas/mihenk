@@ -12991,3 +12991,92 @@ sırada; ipucu metni aynı. Onay işleyicileri (§103/§112/§113 savunmaları, 
 - Güven değerleri farklıysa sıra güvene göredir; karıştırma eşitleri ve numaraları belirler.
 - Fiş yalnız kâğıt oturumları (`kaynak: "kagit"`) içindir. Çevrimiçi öğrenci sonucunu karnede görür.
 - Ekran okuyucuyla (NVDA) dinleme yapılmadı. Yapışkan başlık 390 px'te ~140 px yer kaplıyor.
+
+---
+
+## 123. BEŞİNCİ ENTEGRASYON + BEŞİNCİ YAYIN — §119 + §120 + §121 + §122 (6–7 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Taban:** main `0f186f3`. Dal `entegrasyon-7kasim-d`, worktree `Downloads\Mihenk\mihenk-entegre-7kasim-d` (`npm ci`; axe-core ortak node_modules'ta yoktu). Model çağrısı 0, `/api/ai` POST 0.
+
+**Birleştirme sırası** (hepsi `--no-ff`):
+1. `feature/sekme-guvenligi` 3508804 (§119)
+2. `feature/demo-alani` 33a71d9 (§120)
+3. `feature/yz-denetim` 5ca0486 (§121)
+4. `feature/adsiz-puanlama` e8f9040 (§122)
+
+### Çakışmalar ve kararlar
+
+**1. §119 sürüm kaydı ↔ §120 demo alanı (asıl tasarım çakışması).**
+- §119 her yazımı `t3-olcme-durum-v1` + `:surum` kaydına bağlamıştı. §120 ise demoyu ayrı anahtara (`…-v1-demo`) taşıyordu. İkisi yan yana kalsaydı demo, kullanıcının sürüm kaydını artıracaktı. Bu da kullanıcı sekmesini "başka sekmede değişti" kutusuna düşürecekti.
+- **Çözüm:** sürüm kaydı etkin alana göre ayrıldı: `surumAnahtari(demo)` = `depoAnahtari(demo) + ":surum"`.
+  - `depoSurumOku` ve `depoyaSurumluYaz` etkin alanın anahtarlarıyla çalışır; `saveState` ve `loadState` aynı yolu kullanır.
+  - `sekmeDepoOlayi` yalnız kendi alanının olaylarına tepki verir. `clear()` (anahtar null) yine çakışmadır.
+  - `demoAlaninaGec` demo alanının sürümünü okur. `demoAlanindanCik` demo sürüm kaydını da siler.
+- **Ek tuzak (bulundu, kapandı):** §120'de demo dışında açılan yeni sekme, kalan demo kaydını siliyor (`demoAlaniniOku`). Bu silme açık demo sekmesine olay olarak gidiyor ve yanlış çakışma kutusu açacaktı. Artık demo sekmesi bu silmeyi temizlik sayıyor ve kaydını yeniden yazıyor.
+- `apiPost`: önce §120 demo kapısı (fetch yok), sonra §119 Türkçe ağ hatası. `dbIslem`: önce demo yasağı, sonra §119 çakışma reddi.
+
+**2. Onaylı kartın soluklaştırılması** — üç dal farklı düzeltmişti:
+- P2: `.eval-tamam` zemini.
+- P4: `.eval-onayli`, soluk zemin + yeşil sol kenar.
+- P3: Analitik'te şık çipi (`.ia-opt-dead`/`.ia-opt-pct` opaklığı).
+
+Tek çözüm olarak **`.eval-onayli`** seçildi. Durum yalnız zemin tonuyla değil, kenarla da belli oluyor. `app.css`'teki `.eval-tamam` kuralı silindi. P2'nin öbür kontrast düzeltmeleri (SİMÜLE etiketi, sınıf hapı, demo rozeti) ve P3'ün şık çipi düzeltmesi aynen kaldı.
+
+Ölçüm (dolu demo, 46 onaylı kart, 1280/390 × açık/koyu):
+- saydam kart 0, axe 0;
+- açık temada zemin `rgb(241,241,238)`, kenar `rgb(37,107,68)`;
+- koyu temada zemin `rgb(28,35,44)`, kenar `rgb(79,180,136)`.
+
+**3. Yan bulgu: çoğaltılmış demo sekmesi açılırken öbürünü kilitliyordu (ölçüldü, düzeltildi).**
+- Açılış `ceForm.pdfLoading = false` yazıyor. Varsayılan `ceForm`'da bu alan yoktu.
+- Demo kaydı varsayılandan kurulduğu için, aynı demo alanında açılan ikinci sekme içeriği değiştirip bir kez yazıyordu. İlk sekme de veri değişmediği hâlde kutuya düşüyordu.
+- Varsayılana `pdfLoading: false` eklendi. Sözleşme testi eklendi.
+
+**4. Diğerleri:**
+- Öz-kontrol listesi otomatik birleşti; yeni ad `surumAnahtari` eklendi (834 ad).
+- PROGRESS, `ogretmen.css` ve `tools/dogrula/README.md`'de iki taraf da tutuldu.
+- `test/tam-yedek` ve `test/demo-alani` düzenekleri iki dalın fonksiyonlarını birlikte yükleyecek biçimde birleştirildi.
+- `surumAnahtari` çok satırlı yazıldı: `demo-alani` testindeki çıkarıcı bir sonraki `\n}\n`'de kesiyor.
+
+**5. `tools/dogrula/sekme-cakisma.mjs` güncellendi (16 denetim):**
+- [1] fikir2 senaryosu artık "A kendi verisini yazar". §120'den beri demo kullanıcı kaydına yazmadığı için eski kurulum 0 soruyla ölçüyordu.
+- [4]'e 300 ms eşitleme beklemesi eklendi: beklemesiz 3 koşudan 1'inde düştü (aşağıdaki sınır).
+- Yeni [7]: demo sekmesi × kullanıcı sekmesi.
+
+### Orkestratörün istediği birlikte ölçümler
+
+| Ölçüm | Sonuç |
+|---|---|
+| Kullanıcı sekmesi + demo sekmesi (gerçek tarayıcı) | Demo 4 kez yazdı: kullanıcı kaydı **ve sürümü** bayt bayt aynı, kutu yok. Kullanıcı yazınca demo sekmesinde kutu yok. |
+| İki sekme aynı demo alanında (çoğaltılmış sekme) | Yalnız açılan ikinci sekme ilkini kilitlemiyor. Eski bellekli sekme yazamıyor, kutu çıkıyor; demo verisi kaybı 0. |
+| Yeni normal sekme demo kaydını siliyor | Demo sekmesinde kutu yok; kayıt geri yazıldı. |
+| Demodan çıkış | Demo kaydı ve demo sürümü silindi; kullanıcı kaydı aynı. |
+| §121 YZ denetim kartı, dolu demo | **46 çift** (24 öğrenciden 23'ü sınavı gönderiyor, × 2 açık uçlu; beklenen 48 değil). ≥ 20 olduğu için sayılar görünüyor: **QWK 0,98, SMD +0,10**. axe 0, 12 px altı 0, taşma 0; 1280/390 × açık/koyu. |
+| §122 adsız mod, 24 öğrencili demo | Anahtar kapalıyken puanlama panelinde 23 ad var; açıkken **0 ad** ve 46 "Yanıt N". Adlar yalnız gizli rol panellerinde duruyor: öğrenci, yönetici ve veli seçicileri; öğretmen ekranında görünmüyor. axe 0; 1280/390 × açık/koyu. |
+| §120 "Örnek soruları içe al" (AGENTS §1 denetimi) | Boş tarayıcıdan gerçek tıklamayla 8 soru eklendi, hepsi `approved` ve `ornekPaket`. **"Örnek" rozeti 8/8 görünür.** Eğitim Yöneticisi → Karar Günlüğü'nde satır görünür: "Örnek sorular havuza alındı · kullanıcı · 8 soru · Mihenk ekibinin elle yazdığı örnek soru (yapay zekâ üretmedi) · rol: Öğretmen". axe 0; 1280/390 × açık/koyu. |
+
+### Tam ölçüm seti (uç `4e09059` + bu kayıt)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1072/1072**, 52 dosya. Taban 961. Bu turda +6 entegrasyon testi: demo alanında koruma ×5, varsayılan bayrak ×1 |
+| Öz-kontrol | %100, 834 ad |
+| `olcum:dogrula` | 37/37 |
+| Lint (`tsc`), `check:config` | temiz; GEÇERLİ ×2 |
+| Sır taraması | 0. Tek eşleşme vendor `tesseract-core-simd.wasm.js` içinde, tabanda da var; yanlış pozitif |
+| Yeni 64-hex | 0 |
+| vendor | SHA256SUMS OK. `src/`, wrangler ve `_headers` değişmedi |
+| axe (`erisilebilirlik-tara`, 52 ekran, 1280/390 × açık/koyu) | ihlal 0; 12 px altı 0 |
+| `kontroller.mjs` (W10'un 38'i) | **38/38**, 1280 ve 390; konsol 0; POST 0 |
+| Demo (`demo-yuru.mjs`) | 5 adım, 1280 ve 390; konsol 0; POST 0 |
+| `sekme-cakisma.mjs` | 16/16, son 5 koşu |
+| Entegrasyon ölçümü (`e5-olc.mjs`) | 41/41. Konsoldaki 14 kayıt, betiğin `/api` GET'lerine bilerek verdiği 404 |
+
+**Sınır (ölçüldü, §119'dan beri biliniyor):** Chrome sekmeler arası localStorage eşitlemesini birkaç ms gecikmeyle yapıyor. Bir sekme yazdıktan sonraki aynı birkaç milisaniyede öbür sekme hem olayı kaçırır hem de yazarsa, eski sürümü görüp üzerine yazabilir. sekme-cakisma [4] beklemesiz 3 koşuda 1 kez bunu yakaladı. İnsan hızında iki tıklama arasında bu pencere yok; tam kapatmak için Web Locks API gerekir.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-e5-123\`:
+- `log\` — bütün çıktılar;
+- `axe\`;
+- `e5\` — `e5-olc.json` ve ekran görüntüleri;
+- `demo\`;
+- `betik\` — çözümleyiciler ve ölçüm betikleri.
