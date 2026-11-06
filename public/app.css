@@ -1945,6 +1945,29 @@
 .yazdir-cubuk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
 #yazdirKabi { display: none; }
 
+/* §102 — Öğrenme çıktısı kartı (öğrenci + veli panelinde ortak bileşen). */
+.oc-kart { margin-top: var(--sp-4); }
+.oc-kart .card-head { flex-wrap: wrap; gap: var(--sp-2); }
+.oc-bekleyen { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); border-left: 3px solid var(--warning); font-size: var(--fs-2); }
+.oc-bolumler { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-3); }
+.oc-bolum { padding: var(--sp-3); border: 1px solid var(--border); border-radius: var(--r-md); border-top-width: 3px; min-width: 0; }
+.oc-bolum h4 { margin: 0 0 var(--sp-2); font-size: var(--fs-3); }
+.oc-guclu { border-top-color: var(--success); }
+.oc-guclu h4 { color: var(--success); }
+.oc-gelisime { border-top-color: var(--warning); }
+.oc-gelisime h4 { color: var(--warning); }
+.oc-siradaki { border-top-color: var(--accent); }
+.oc-siradaki h4 { color: var(--accent-strong); }
+.oc-liste { list-style: none; margin: 0; padding: 0; }
+.oc-liste li { display: flex; justify-content: space-between; gap: var(--sp-2); padding: var(--sp-1) 0;
+  border-top: 1px solid var(--border); font-size: var(--fs-2); overflow-wrap: anywhere; }
+.oc-liste li:first-child { border-top: none; }
+.oc-yuzde { font-weight: 700; white-space: nowrap; }
+.oc-oneri li { display: block; line-height: 1.5; }
+.oc-bos, .oc-not { margin: 0; font-size: var(--fs-2); color: var(--text-muted); }
+.oc-not { margin-top: var(--sp-3); line-height: 1.6; }
+
 @media print {
   @page { size: A4; margin: 15mm; }
   /* Sayfa numarası ve sonraki sayfalarda kısa ad satırı: CSS sayfa kenar
@@ -1989,4 +2012,18 @@
   #yazdirKabi th, #yazdirKabi td { border: 0.6pt solid #666; padding: 3pt 5pt; text-align: left; vertical-align: top; font-size: 10pt; }
   #yazdirKabi th { background: #eee; }
   #yazdirKabi .yz-rubrik th, #yazdirKabi .yz-rubrik td { font-size: 9pt; }
+  /* §102 — öğrenme karnesi: A4 tek sayfa (en yeni 8 sınav, her listede en çok 6 kazanım). */
+  body.yazdiriliyor #yazdirKabi[data-tur="karne"] { page: yzKarne; }
+  @page yzKarne {
+    @bottom-left { content: "Mihenk · yalnız öğretmen onaylı sonuçlar"; font: 9pt Arial, sans-serif; color: #000; }
+  }
+  #yazdirKabi .yk-sayfa { break-inside: avoid; page-break-inside: avoid; }
+  #yazdirKabi .yk-sinav { margin-bottom: 10pt; }
+  #yazdirKabi .yk-kart { border: 1pt solid #555; padding: 6pt 8pt; break-inside: avoid; page-break-inside: avoid; }
+  #yazdirKabi .yk-kart-bas { font-size: 12.5pt; font-weight: 700; margin-bottom: 4pt; }
+  #yazdirKabi .yk-bolum { margin: 4pt 0; font-size: 10.5pt; }
+  #yazdirKabi .yk-bolum ul { margin: 2pt 0 0 16pt; padding: 0; }
+  #yazdirKabi .yk-bolum li { margin: 1pt 0; }
+  #yazdirKabi .yk-bos { margin: 2pt 0; font-size: 9.5pt; color: #333; }
+  #yazdirKabi .yk-not { margin: 8pt 0 0; font-size: 9.5pt; color: #333; }
 }

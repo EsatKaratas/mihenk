@@ -11191,3 +11191,49 @@ ASSETS + vars, `OLCUM_*` yok.
 - `butce_usage_yok` logu yok, çünkü model çalışmadı. **Binding'in `usage` döndürüp döndürmediği hâlâ
   ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
 - Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
+
+---
+
+## 102. ÖĞRENME ÇIKTISI KARTI + KARNE YAZDIRMA (6 Kasım 2026, dal `feature/ogrenci-veli-karti`)
+
+Öğrenci (Karne sekmesi) ve veli panelinde **öğrenme çıktısı kartı**; ikisinde de **Yazdır**
+düğmesi ile A4 tek sayfa öğrenme karnesi. Model çağrısı 0, Neuron 0; push/deploy yok.
+
+**Hesap (kurala dayalı, `ogrenmeCiktisiHesapla`).** Girdi yalnız `veliSonuclari(sid)`: yayındaki sınav
++ `graded` oturum + ÇSS `mcResults` + açık uçluda öğretmenin `reviews[q].finalScore`'u. `aiEvals`
+hiç okunmaz. Kazanım başına yüzde → **Güçlü** (≥ `OGRENME_ESIK.GUCLU` = %70) / **Gelişime açık**
+(altı) / **Sıradaki adım** (gelişime açıklardan en düşük 1–2; hepsi güçlüyse en düşük tek kazanım
+"pekiştir"). Öneri metni kazanımın kısa adından ve yüzde bandından (<%50, %50–69, ≥%70) türetilir,
+öğrenciye "sen", veliye "siz" diliyle (`siradakiAdimMetni`). Kaynak kod yorumunda: Hattie ve
+Timperley (2007) — nereye (kazanım) / nasıl (güçlü–gelişime açık) / sırada ne (sıradaki adım).
+**Eşikler tek yerde:** `OGRENME_ESIK = {GUCLU:70, DESTEK:50}`; veli "Konulara göre durum" satırı
+(`veliKonuSatiriHtml`) ve altındaki açıklama artık bu sabiti okuyor (önceden 70/50 sayı olarak gömülüydü).
+
+**Onay bekleyen (`onayBekleyenSayisi`).** `submitted` oturumda sınavın tüm soruları, `graded`
+oturumda review'u olmayan açık uçlular sayılır; kartta "X cevap öğretmen onayı bekliyor; kart
+onaydan sonra güncellenir." Onaylı sonuç yokken kart yalnız bu notu taşır, Yazdır düğmesi çıkmaz.
+Öğrencinin Karne sekmesi, etkin sınav onaylanmamış olsa da başka onaylı sınavı varsa açılır.
+
+**Yazdırma.** `sinavYazdir`'ın kap doldur/yazdır/temizle kısmı `yazdirKabindanBas(html, tur)` olarak
+ortaklaştırıldı (davranış aynı); karne `tur="karne"` ile aynı `#yazdirKabi` yolunu kullanır.
+`karneKagidiHtml`: başlık, tarih, öğrenci adı + sınıf, onaylı sınav tablosu (en yeni 8), kart
+(her listede en çok 6 kazanım), bekleyen notu ("karneye dahil değildir"), "yalnız öğretmen onaylı"
+dipnotu. Yapay zekâ puanı/gerekçesi/geri bildirim taslağı, onaysız puan, başka öğrenci ve numara
+kâğıtta YOK. KVKK (§88): §88 maskelemesi yapay zekâya giden metin içindir; karne ağa hiçbir şey
+göndermez ve yalnız seçili öğrencinin kendi kaydını basar — ad bu yüzden açık yazılır, başka ad yok.
+Yeni veri toplanmadığı/aktarılmadığı için `privacy-policy.html` değişmedi. CSS: ortak `.oc-*`
+bileşeni ve `@media print` içinde `@page yzKarne` + `.yk-*` (`public/app.css`).
+
+**Doğrulama.** `npm test` 29 dosya / **610** test (yeni `test/ogrenme-ciktisi.test.ts` 15: eşik
+70/69 sınırı, yuvarlama, sıradaki 1–2, hepsi güçlü, tavan 0; onaylı / graded-ama-onaysız /
+submitted ayrımı, YZ önerisi 17'nin karta ve kâğıda girmemesi, başka öğrenci adının kâğıtta
+olmaması). `tsc --noEmit` temiz. Öz-kontrol **581** ad, %100 (12 yeni ad). Tarayıcı (statik sunucu
+127.0.0.1:8803, `loadDemoScenario` + soru onayı, yayın, Ada sınavı bitirdi; `/api/**` Playwright'ta
+kesildi → yalnız 2 `GET /api/ai/status` yoklaması, sunucuya ulaşmadı, model modu simülasyon):
+veli Mert %40 "gelişime açık", öğrenci Kerem %87 "güçlü", veli Ada "3 cevap öğretmen onayı
+bekliyor". 1280 ve 390'da yatay taşma 0. Print media + `page.pdf` A4: öğrenci ve veli karnesi
+**1'er sayfa**. Ekranlar: `Downloads\Mihenk\ekran-p3\`.
+
+**Sınır / açık.** Demo tohumunda tek kazanım (FEN.7.1.2) var; çok kazanımlı görünüm yalnız birim
+testte sınandı. Tek sayfa garantisi sayısal kırpmayla (8 sınav, 6 kazanım) — çok uzun kazanım adı
+80 karakterde kısaltılır; gerçek MEB uzun metinleriyle baskı ölçülmedi.
