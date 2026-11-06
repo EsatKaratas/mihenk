@@ -1919,6 +1919,7 @@ function loadDemoScenario() {
      analitiğe düşmez (okulGercekDurum ve classOutcomeScores yayınlanmış
      sınav şartı arar); öğretmen adım 2'de yayınlayınca eksiksiz görünür. */
   state.demoAdim = 1;
+  state.demoEnUzak = 1;   // §9x (W9): yeni demo, tıklanabilir adımlar baştan
   demoAdimaGit(1);
   return;
 }
@@ -1928,27 +1929,27 @@ function loadDemoScenario() {
    `hazir` = bir sonraki adıma geçmenin KOŞULU; koşul insan tarafından
    yerine getirilir. HITL burada gizlenmez, tam tersine görünür kılınır. */
 const DEMO_ADIMLARI = [
-  { no: 1, rol: "content_expert", sekme: 1, roleAd: "İçerik Uzmanı",
+  { no: 1, rol: "content_expert", sekme: 1, roleAd: "İçerik Uzmanı", kisaAd: "İçerik Uzmanı",
     aciklama: "Onay bekleyen soruyu inceleyin, ardından “Onayla → Havuza Aktar” düğmesine basın; soru havuza geçer.",
     sonraki: "Sonraki Adım → Öğretmen",
     hazir: function () { return !state.questions.some(function (q) { return q.status === "ai_generated"; }); },
     kilit: "Önce bekleyen soruyu onaylayın" },
-  { no: 2, rol: "teacher", sekme: 1, roleAd: "Öğretmen",
+  { no: 2, rol: "teacher", sekme: 1, roleAd: "Öğretmen", kisaAd: "Öğretmen",
     aciklama: "Sınıf kartına tıklayın, ardından sınavın kartındaki “Yayınla” düğmesine basın.",
     sonraki: "Sonraki Adım → Öğrenci",
     hazir: function () { return state.exam.status === "published"; },
     kilit: "Önce sınavı yayınlayın" },
-  { no: 3, rol: "student", sekme: 1, roleAd: "Öğrenci",
+  { no: 3, rol: "student", sekme: 1, roleAd: "Öğrenci", kisaAd: "Öğrenci",
     aciklama: "“Sınava Başla” ile sınavı çözün; sonra “Gözden geçir ve bitir”, “Sınavı bitir” ve “Evet, bitir” düğmelerine sırayla basın.",
     sonraki: "Sonraki Adım → Öğretmen Onayı",
     hazir: function () { return state.examStatus === "submitted" || state.examStatus === "graded"; },
     kilit: "Önce sınavı bitirin" },
-  { no: 4, rol: "teacher", sekme: 3, roleAd: "Öğretmen Onayı",
+  { no: 4, rol: "teacher", sekme: 3, roleAd: "Öğretmen Onayı", kisaAd: "Onay",
     aciklama: "Puan önerisini inceleyip kararı verin (“Tek Tıkla Onayla”), sonra “Sonuçları Öğrenciye Yayınla” düğmesine basın.",
     sonraki: "Sonraki Adım → Eğitim Yöneticisi",
     hazir: function () { return state.examStatus === "graded"; },
     kilit: "Önce değerlendirmeleri onaylayıp sonuçları yayınlayın" },
-  { no: 5, rol: "admin", sekme: null, roleAd: "Eğitim Yöneticisi",
+  { no: 5, rol: "admin", sekme: null, roleAd: "Eğitim Yöneticisi", kisaAd: "Yönetici",
     aciklama: "Öğretmenin yayınladığı sonuçlar okul geneli ekranına ve “Kazanım Başarı Grafiği”ne düştü.",
     sonraki: "Demoyu Bitir",
     hazir: function () { return true; },
@@ -1959,7 +1960,10 @@ const DEMO_ADIMLARI = [
 function demoAdimaGit(no) {
   const a = DEMO_ADIMLARI.find(function (x) { return x.no === no; });
   if (!a) return;
+  const degisti = state.demoAdim !== no;
   state.demoAdim = no;
+  state.demoEnUzak = Math.max(state.demoEnUzak || 1, no);
+  if (degisti) demoDuyur("Adım " + no + "/" + DEMO_ADIMLARI.length + ": " + a.roleAd);
   state.role = a.rol;
   if (a.rol === "content_expert" && a.sekme) state.ceTab = a.sekme;
   if (a.rol === "teacher" && a.sekme) state.teacherTab = a.sekme;
@@ -1974,7 +1978,75 @@ function demoAdimaGit(no) {
     sonlandırır. Veriyi temizlemek isteyen mevcut "Sıfırla" düğmesini kullanır. */
 function demoBitir() {
   state.demoAdim = null;
+  state.demoEnUzak = null;
   renderAll();
+}
+
+/* §9x (W9) — TIKLANABİLİR ADIMLAR. Adıma tıklamak YALNIZ demoAdimaGit'tir
+   (rol + sekme); onay, yayın, bitirme hiçbir koşulda otomatik yapılmaz.
+   Açılma kuralı: adım n, daha önce ulaşıldıysa (n ≤ enUzak) ya da 1..n-1
+   adımlarının hepsi hazırsa (insan eylemleri yapıldıysa) açılır. Geri gitmek
+   hep serbesttir. Gezinme veri yazmadığı için atlama tutarsızlık doğuramaz:
+   ekran her zaman gerçek durumu gösterir.
+   SAF: state okumaz; testte kaynaktan çıkarılıp çalıştırılır.
+   hazirlar[i] = (i+1). adımın hazir() sonucu. */
+function demoAdimDurumu(no, simdiki, enUzak, hazirlar) {
+  const uzak = enUzak || 1;
+  let oncekiler = true;
+  for (let i = 0; i < no - 1; i++) if (!hazirlar[i]) { oncekiler = false; break; }
+  const ulasilir = no <= uzak || oncekiler;
+  let durum;
+  if (no === simdiki) durum = "simdiki";
+  else if (no <= uzak && hazirlar[no - 1]) durum = "tamam";
+  else if (ulasilir) durum = "acik";
+  else durum = "kilitli";
+  return { durum: durum, ulasilir: ulasilir };
+}
+
+/** Kilitli adımların ortak nedeni: hazır olmayan İLK adımın kilit metni. */
+function demoKilitNedeni() {
+  const ilk = DEMO_ADIMLARI.find(function (x) { return !x.hazir(); });
+  return ilk && ilk.kilit ? ilk.kilit : "";
+}
+
+/** Ekran okuyucuya kısa duyuru. Bölge şeridin DIŞINDA ve kalıcıdır: innerHTML
+    ile yeniden çizilen bir aria-live bölgesi güvenilir okunmaz. Aynı metin
+    art arda gelirse de okunsun diye önce boşaltılır. */
+function demoDuyur(metin) {
+  let el = document.getElementById("demoDuyuru");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "demoDuyuru";
+    el.className = "demo-duyuru";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    document.body.appendChild(el);
+  }
+  el.textContent = "";
+  setTimeout(function () { el.textContent = metin; }, 30);
+}
+
+/** Adım listesi: 5 yerel düğme. Kilitli olan `disabled` DEĞİL aria-disabled
+    (§64b): odaklanır, nedeni aria-describedby ile okunur, tıklanınca duyurulur. */
+function demoAdimListesiHtml() {
+  const hazirlar = DEMO_ADIMLARI.map(function (x) { return !!x.hazir(); });
+  const neden = demoKilitNedeni();
+  const N = DEMO_ADIMLARI.length;
+  return '<nav class="demo-adimlar" aria-label="Demo adımları"><ol>' +
+    DEMO_ADIMLARI.map(function (x) {
+      const d = demoAdimDurumu(x.no, state.demoAdim, state.demoEnUzak, hazirlar);
+      const ek = d.durum === "simdiki" ? "şu anki adım" : d.durum === "tamam" ? "tamamlandı"
+        : d.durum === "kilitli" ? "kilitli" : "açık";
+      return '<li><button type="button" class="demo-adim-btn js-demo-adim is-' + d.durum + '" data-demo-adim="' + x.no + '"' +
+        ' aria-label="' + escapeHtml("Adım " + x.no + "/" + N + ", " + x.roleAd + " — " + ek) + '"' +
+        ' title="' + escapeHtml(x.no + ". " + x.roleAd + (d.durum === "kilitli" && neden ? " — " + neden : "")) + '"' +
+        (d.durum === "simdiki" ? ' aria-current="step"' : "") +
+        (d.durum === "kilitli" ? ' aria-disabled="true"' + (neden ? ' aria-describedby="demoKilitNeden"' : "") : "") + ">" +
+        '<span class="demo-no tabular" aria-hidden="true">' + (d.durum === "tamam" ? "✓" : x.no) + "</span>" +
+        '<span class="demo-ad" aria-hidden="true">' + escapeHtml(x.kisaAd || x.roleAd) + "</span>" +
+        "</button></li>";
+    }).join("") + "</ol></nav>" +
+    (neden ? '<span id="demoKilitNeden" hidden>' + escapeHtml(neden) + "</span>" : "");
 }
 
 /** Üst çubuktaki demo şeridi. Demo kapalıysa boş dizedir. */
@@ -1985,7 +2057,7 @@ function demoSeridiHtml() {
   const acik = a.hazir();
   return '<div class="demo-serit">' +
     '<span class="demo-rozet">Demo Akışı</span>' +
-    '<span class="demo-adim tabular">Adım ' + a.no + "/" + DEMO_ADIMLARI.length + "</span>" +
+    demoAdimListesiHtml() +
     '<span class="demo-metin"><b>' + escapeHtml(a.roleAd) + ":</b> " + escapeHtml(a.aciklama) + "</span>" +
     (!acik && a.kilit ? '<span class="demo-kilit">' + escapeHtml(a.kilit) + "</span>" : "") +
     '<span class="demo-dugmeler">' +
@@ -2001,7 +2073,29 @@ function demoSeridiHtml() {
 function renderDemoSerit() {
   const yuva = document.getElementById("demoSeritYuva");
   if (!yuva) return;
+  /* §84 dersi: innerHTML odaktaki düğmeyi siler, odak BODY'ye düşer. Şerit
+     içindeki odak (adım no / ileri / bitir) çizimden sonra geri konur. */
+  const odak = document.activeElement && yuva.contains(document.activeElement) ? document.activeElement : null;
+  const odakAnahtari = odak ? (odak.getAttribute("data-demo-adim") ||
+    (odak.classList.contains("js-demo-ileri") ? "ileri" : odak.classList.contains("js-demo-bitir") ? "bitir" : null)) : null;
   yuva.innerHTML = demoSeridiHtml();
+  document.querySelectorAll(".js-demo-adim").forEach(function (b) {
+    b.onclick = function () {
+      const no = Number(b.getAttribute("data-demo-adim"));
+      if (b.getAttribute("aria-disabled") === "true") {   // sessiz kalmaz: nedeni duyurulur
+        demoDuyur("Adım " + no + " kilitli. " + demoKilitNedeni());
+        return;
+      }
+      if (no === state.demoAdim) return;
+      demoAdimaGit(no);
+    };
+  });
+  if (odakAnahtari) {
+    const hedef = odakAnahtari === "ileri" ? yuva.querySelector(".js-demo-ileri")
+      : odakAnahtari === "bitir" ? (yuva.querySelector(".js-demo-bitir") || yuva.querySelector(".js-demo-ileri"))
+      : yuva.querySelector('[data-demo-adim="' + odakAnahtari + '"]');
+    if (hedef) hedef.focus({ preventScroll: true });
+  }
   document.querySelectorAll(".js-demo-ileri").forEach(function (b) {
     b.onclick = function () {
       const a = DEMO_ADIMLARI.find(function (x) { return x.no === state.demoAdim; });
@@ -2185,6 +2279,9 @@ const state = {
      normal kullanım hiç etkilenmez. Bu alan yalnızca YÖNLENDİRME durumudur;
      hiçbir ürün verisi taşımaz. */
   demoAdim: null,
+  /* §9x (W9) — bu demoda ulaşılan en uzak adım; tıklanabilir adımların
+     açılma kuralı. demoAdim gibi KALICI DEĞİL, yalnız yönlendirme durumu. */
+  demoEnUzak: null,
   evalCache: {},
   simRunning: false,
   simStatus: null,
@@ -13756,6 +13853,8 @@ function bosDurumHtml(mesaj) {
     /* §38 — Demo Akışı. renderDemoSerit her renderAll'da çağrılır; düşerse
        şerit sessizce kaybolur ve sunum ortasında rehber ölür. */
     "loadDemoScenario", "demoAdimaGit", "demoBitir", "demoSeridiHtml", "renderDemoSerit",
+    /* §9x (W9) — tıklanabilir demo adımları. */
+    "demoAdimDurumu", "demoKilitNedeni", "demoDuyur", "demoAdimListesiHtml",
     /* §90 — yapay zekâ kaynak rozeti, hata eşlemesi, demo tohumu, toplu çözme durdurma. */
     "aiKaynak", "aiKaynakMetinleri", "aiKaynakRozetiHtml", "aiHataMetni", "aiGunlukKapali",
     "demoTohumEslesir", "demoTohumDegerlendirmesi", "demoTohumUyariHtml", "evalFailedActionsHtml",
