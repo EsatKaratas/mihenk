@@ -11059,3 +11059,92 @@ W10, `demo-tiklanir` dalını doğruladı: GEÇTİ, P1 yok. Üç madde kapatıld
 - **P3, kapsam notu:** yukarıdaki "560 px" ifadeleri gerçeğe göre "760 px bloğu" olarak düzeltildi. Şerit
   kuralları kabuk.css'teki `@media (max-width: 760px)` bloğunda.
 - Doğrulama: `test/demo-serit.test.ts` 14 test (+1: uyarı görünür, süreli, temizlenir, veri yazmaz).
+
+## 95. KAZANIM TEK SEÇİCİ — ortak ağaç bileşeni, 4 nokta (6 Kasım 2026, W1, dal `kazanim-secici`)
+
+**Neden:** Kazanım seçimi dört yerde ayrı ayrı yapılıyordu; öğretmen filtresi ve
+soru düzenleme yalnız KOD listeliyordu (etiket yok), içerik uzmanının "katalogdan
+ekle" listesi uzun bir `<select>`/optgroup'tu, soru havuzunun kendi düğme ağacı vardı.
+
+**Ne yapıldı (Orchestrator 2 onaylı tasarım; kapsam A1, A2, B2, C):**
+- Ortak bileşen `kazanimSeciciHtml(o)` + `kazanimSeciciBagla(kimlik, secildi)`;
+  saf yardımcılar `kazanimAgaci`, `kazanimAra`, `kazanimUnitesi`, `kazanimOgesi`.
+  Ağaç ders → sınıf → ünite → kazanım; tek değerli düzey atlanır. Modlar:
+  "tekli" (A2), "filtre" (A1, C: "Tümü" + C'de seçilebilir ders/sınıf), "ekle" (B2).
+  Stil `public/css/kazanim-secici.css` (index.html'e bağlandı).
+- **A1** sihirbaz soru filtresi → `state.poolFilter.outcome` (aynı alan); artık
+  etiket, ders/ünite ve soru sayısı görünür. **A2** soru düzenleme → `q.outcome`
+  (süzgeç eskisinin aynısı: ders §51, atölye §58). **B2** "katalogdan ekle" →
+  yine `kazanimSecildi(kod)`; düğme metni eski yer tutucunun aynısı (yükleniyor /
+  yüklenemedi / hepsi eklendi / katalog yok). **C** havuz ağacı → `cePool.dugum`
+  aynı "ders|sınıf|kod" biçiminde; ünite yalnız görsel grup, anahtara girmez.
+- **Bilerek dışarıda:** B1 (okul kazanım sekmeleri, × ve onay penceresi) ve
+  **B3 (katalog penceresi) — sonraki tur.** "coklu" mod yazılmadı; tasarım mod
+  eklemeye açık (öğe dalına aria-checked).
+- Eski koşulsuz `#ceOutcome` onchange bağlaması kaldırıldı (öğe yok; kalsaydı
+  TypeError tüm bağlamaları durdururdu). `kazanimSecenekleriHtml` →
+  `kazanimEkleVerisi` (öğeler + yer tutucu metni); selfCheck listesi güncellendi.
+
+**Erişilebilirlik:** role=tree/treeitem/group, aria-level, aria-expanded,
+aria-selected, gezici tabindex. Klavye: ↑↓, → aç/çocuğa in, ← kapat/ebeveyne çık,
+Home/End, Enter/Space seç, Esc aramayı temizler / paneli kapatıp düğmeye döner;
+arama kutusundan ↓ ağaca geçer. Arama `oninput` renderAll ÇAĞIRMAZ (TUZAK 3);
+sonuç sayısı role=status ile söylenir. Açılır düğme `aria-labelledby` = alan
+etiketi + seçili değer. Seçimden sonra odak düğmeye (açılır) ya da seçilen
+satıra (C) döner.
+
+**State / TUZAK 13:** KALICI_ALANLAR, ceForm, poolFilter, cePool, outcomes şekli
+değişmedi; göç yok. Geçici hâl (`_kzHal`: açık dallar, arama, panel) kalıcı
+değil. Bileşen VARSAYILAN_* okumaz (testle sabit).
+
+**matematikV4Yolu:** B2 yine `kazanimSecildi` çağırdığı için kayıt alanları aynı.
+Tarayıcıda MAT.7.3.1 klavyeyle eklendi → kayıt {subject Matematik, grade 7},
+`uretimKaynakTuru` undefined. Birim test: MAT → v4 açık, DNY → "deneyap", v4 kapalı.
+Model çağrısı yapılmadı.
+
+**Ünite kuralı (ölçülen bulgu):** MAT kayıtlarında `alan` = "Matematik" (ünite
+değil). Sıra: yüklü katalogda koda göre `grup` → kaydın `grup`'u → kaydın `alan`'ı
+yalnız dersten farklıysa (Türkçe beceri alanı) → atölye → yoksa "Ünitesiz".
+**"Ünitesiz" sayımı** (önizleme, demo durumu, okul listesi 33 kazanım):
+katalog yüklü değilken **4/33**; 24 katalogun hepsi yüklüyken (12 MEB = 606,
+12 Deneyap = 622 kazanım) **2/33** (MAT.7.3.4, FEN.7.1.2 — MEB kataloğunda
+bu kodlar yok). Tahmin yapılmaz; ünite bilgisi katalog yüklenince gelir.
+
+**390 px ölçümü** (performance.now, 7 tekrar medyan / en kötü; rAF yok):
+- Yalnız seçici, B2 gerçek: Deneyap "Elektronik Programlama ve Nesnelerin
+  İnterneti" 65 kazanım **1,5 / 1,9 ms**; MEB Türkçe 8 (98) **1,0 / 16,6 ms**.
+- Stres, 24 katalog birlikte 1.228 kazanım tek seçicide: ilk çizim (dallar
+  kapalı) **2,3 / 4,0 ms**; arama "a" (1.188 eşleşme, 200 sınırı) **19,4 / 23,5 ms**;
+  arama kutusuna yazma (yalnız ağaç tazelenir) **21 / 23 ms**. Durum satırı:
+  "1188 kazanım bulundu — ilk 200 tanesi gösteriliyor, aramayı daraltın."
+- Tüm sayfa renderAll (B2 panel açık): Deneyap 90,7 / 175 ms, Türkçe 18,3 / 30,9 ms.
+  Deneyap'a geçişten sonraki ilk renderAll bir kez 6.236 ms ölçüldü (panel
+  kapalı, medyan 553 ms); seçicinin kendi payı 2 ms altında — bölme arka
+  plandaydı, ayrı incelenmedi.
+- 390'da yatay taşma 0 (A1, B2, C); satır ve düğme ≥ 44 px.
+
+**Doğrulama:** `npm test` 553/553 (+15 yeni: test/kazanim-secici.test.ts),
+öz-kontrol %100 (557 üst düzey fonksiyon), FFFD 0. Tarayıcıda (8793) 4 nokta
+gerçek tıklama + klavye: A1 ↓×7 Enter → filtre MAT.7.3.1, liste 1 soru; A2 ↑↑
+Enter → q.outcome MAT.7.2.1; B2 arama "metin" ↓↓ Enter → T.O.7.10 eklendi (sekme
+çıktı, liste 39→38), ünite ağacında → ile açıp Enter → MAT.7.3.1; C tıklama →
+dugum "Matematik|7" (2 soru), Home Enter → "" (6 soru). Servis edilen = disk
+SHA-256: app.js, css/kazanim-secici.css, index.html.
+**Görsel fark (--dolu, öncesi/sonrası):** yalnız `contentExpert-1-1280` %4,3
+(kırpıldı): select'in ok simgesi ▸ oldu ve kutu 1 px uzadı, alttaki içerik 1 px
+kaydı. Kapalı düğme select ile aynı ölçüye getirildi (44 px; ilk denemede 32 px
+idi ve fark %11,2'ydi). Diğer ekranlar %0; konsol hatası 0, yinelenen id 0.
+
+**W9 bağımsız doğrulaması (6 Kasım) sonrası iki P3 kapatıldı:**
+- **P3-3:** B2 düğmesinin erişilebilir adı artık eski `<select>`'teki "… kazanım ekle". Görünür etiket verilmediğinde
+  `aria-label` = bileşen etiketi, düğme metni (yükleniyor / N kazanım) `aria-describedby` ile açıklama olarak okunuyor.
+- **P3-2:** arama kutusunda Enter yalnız iki belirgin durumda seçim yapıyor (`kzAramaAdayi`): aramaya tek kazanım
+  uyuyorsa ya da aranan metin tek bir eşleşmenin koduna birebir eşitse. Başka durumda hiçbir şey olmuyor;
+  durum satırı bunu "Enter ile seçebilirsiniz." diye söylüyor.
+- Doğrulama:
+  - `npm test` 556/556; öz-kontrol %100 (558); FFFD 0.
+  - Tarayıcıda 1280 ve 390 px 9/9: belirsiz "MAT.7.1" + Enter hiçbir şey eklemiyor; tek eşleşme + Enter
+    MAT.7.1.3'ü ekliyor, odak düğmeye dönüyor.
+  - `kontroller.mjs` 28/28, `demo-yuru.mjs` 5/5.
+- **Sonraki tura:** P3-1 (ağaçta ilk harfle atlama), P3-4 (A2'de okul listesinde olmayan kazanımda seçili satır yok)
+  ve P3-5 (Deneyap geçişindeki tek 6,2 sn ölçümü; W9 tabanda ve dalda yeniden üretemedi, en çok 6 ms).
