@@ -236,9 +236,9 @@
   .brand .mark { width: 32px; height: 32px; border: 2px solid var(--accent); border-radius: 7px; display: grid; place-items: center; font-family:"Archivo",sans-serif; font-weight: 800; font-size: 12px; color: var(--accent-strong); background: var(--accent-soft); }
   .brand .titles { display: flex; flex-direction: column; }
   .brand .titles .name { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 15px; }
-  .brand .titles .sub { font-size: 11.5px; color: var(--on-bg-muted); }
+  .brand .titles .sub { font-size: 12px; color: var(--on-bg-muted); }
 
-  .pipeline { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--on-bg-muted); flex-wrap: wrap; }
+  .pipeline { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--on-bg-muted); flex-wrap: wrap; }
 
   /* §38 — DEMO AKIŞI ŞERİDİ. Yeni renk YOK: altın vurgu ailesi (--accent2*)
      zaten "dikkat çeken ama uyarı olmayan" rolü taşıyor; düğmeler mevcut
@@ -251,13 +251,13 @@
     font-size: 12.5px; color: var(--text);
   }
   .demo-serit .demo-rozet {
-    font-family: "Archivo", sans-serif; font-weight: 700; font-size: 11px;
+    font-family: "Archivo", sans-serif; font-weight: 700; font-size: 12px;
     letter-spacing: .04em; text-transform: uppercase;
     padding: 2px 8px; border-radius: 999px; background: var(--accent2); color: #fff;
   }
-  .demo-serit .demo-adim { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--accent2); }
+  .demo-serit .demo-adim { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent2); }
   .demo-serit .demo-metin { flex: 1 1 220px; min-width: 0; line-height: 1.5; }
-  .demo-serit .demo-kilit { font-size: 11.5px; color: var(--text-muted); font-style: italic; }
+  .demo-serit .demo-kilit { font-size: 12px; color: var(--text-muted); font-style: italic; }
   .demo-serit .demo-dugmeler { display: flex; gap: 6px; flex: none; }
   /* §94 (W9) — TIKLANABİLİR ADIMLAR. Yeni renk yok: şu anki = --accent2
      dolgu + --surface metin (açık temada beyaz, koyuda koyu: turuncu üstünde
@@ -269,12 +269,12 @@
     display: inline-flex; align-items: center; gap: 5px; min-height: 28px;
     padding: 2px 9px 2px 3px; border-radius: 999px; cursor: pointer;
     border: 1.5px solid var(--accent2); background: transparent; color: var(--text);
-    font: inherit; font-size: 11.5px; line-height: 1.2;
+    font: inherit; font-size: 12px; line-height: 1.2;
   }
   .demo-serit .demo-adim-btn .demo-no {
     display: inline-flex; align-items: center; justify-content: center;
     width: 20px; height: 20px; border-radius: 50%; flex: none;
-    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
     border: 1.5px solid currentColor;
   }
   .demo-serit .demo-adim-btn:hover { background: var(--surface); }
@@ -334,7 +334,7 @@
   .role-btn .badge {
     position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px;
     border-radius: 999px; background: var(--accent2); color: #fff; font-family: "IBM Plex Mono", monospace;
-    font-size: 10.5px; font-weight: 600; display: grid; place-items: center; box-shadow: var(--shadow);
+    font-size: 12px; font-weight: 600; display: grid; place-items: center; box-shadow: var(--shadow);
   }
   /* §33 — rol seçildikten sonra üst çubukta rol DEĞİŞTİRİCİ yoktur; yalnızca
      aktif rol etiketi ve Çıkış düğmesi durur. Beş sütunlu grid yerine tek
@@ -410,7 +410,7 @@
   .btn-sm { padding: 6px 10px; font-size: var(--fs-1); }
   .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
   /* §39 — BLOK BİLDİRİM PILL'LERİ SARMALANIR.
      .pill bir ROZET bileşenidir ve `white-space: nowrap` taşır — kısa
      etiketler için doğru. Ama dört yerde uzun CÜMLELİ bilgi notu da .pill
@@ -514,9 +514,9 @@
     box-shadow: inset 0 -2px 0 var(--accent2-line); }
   .mod-secici .mod-ad { font-weight: 600; font-size: 13.5px; color: var(--text); }
   .mod-secici .mod-kart.secili .mod-ad { color: var(--accent-strong); }
-  .mod-secici .mod-not { font-size: 11.5px; line-height: 1.45; color: var(--text-muted); }
+  .mod-secici .mod-not { font-size: 12px; line-height: 1.45; color: var(--text-muted); }
   /* Yönerge alanının altındaki açıklama satırı. */
-  .alan-not { margin-top: 6px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
+  .alan-not { margin-top: 6px; font-size: 12px; line-height: 1.5; color: var(--text-muted);
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
   /* §65: uzun alan notu ⓘ altına katlanır (yönerge alanı). */
   .alan-bilgi { margin-top: var(--sp-2); }
@@ -541,7 +541,7 @@
      başına yetmez. box-sizing olmadan %100 + padding taşma yapardı. */
   #openAnswerInput { width: 100%; box-sizing: border-box;
     min-height: 260px; resize: vertical; line-height: 1.6; }
-  .yanit-sayac { margin-top: 6px; font-size: 11.5px; color: var(--text-muted);
+  .yanit-sayac { margin-top: 6px; font-size: 12px; color: var(--text-muted);
     font-variant-numeric: tabular-nums; text-align: right; }
 
   /* ---------- Question cards ---------- */
@@ -567,10 +567,10 @@
      ≥24×24; küçük hedefin aralık istisnası da üst üste 16 px'de sağlanmaz).
      Yan yana 24×24, arada 4 px: satır yüksekliği alanla aynı kalır. */
   .q-card .opt-reorder-btns { display: flex; flex-direction: row; gap: var(--sp-1); flex: none; }
-  .q-card .opt-reorder-btns button { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); border-radius: var(--r-sm); width: var(--hedef-min); height: var(--hedef-min); line-height: 1; font-size: 10px; cursor: pointer; padding: 0; }
+  .q-card .opt-reorder-btns button { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); border-radius: var(--r-sm); width: var(--hedef-min); height: var(--hedef-min); line-height: 1; font-size: 12px; cursor: pointer; padding: 0; }
   .q-card .opt-reorder-btns button:disabled { opacity: 0.35; cursor: not-allowed; }
   .q-card .actions { display: flex; gap: 8px; margin-top: 10px; }
-  .q-card .time-tag { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
+  .q-card .time-tag { margin-left: auto; font-size: 12px; color: var(--text-muted); }
 
   /* Öğrenci sınav ekranı şıkları — .q-card .opt-row kuralları buraya
      uygulanmıyordu (şıklar .q-card içinde değil), bu yüzden şık harfi metne
@@ -589,7 +589,7 @@
   .answer-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
   .answer-opt.selected .opt-key { background: var(--accent); color: var(--on-accent); }
 
-  .stat-tile .s-note { font-size: 11px; color: var(--text-muted); line-height: 1.5;
+  .stat-tile .s-note { font-size: 12px; color: var(--text-muted); line-height: 1.5;
     margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 
   .integrity-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -611,7 +611,7 @@
   .student-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--border);
     border-radius: 10px; background: var(--surface-2); }
-  .student-picker .sp-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+  .student-picker .sp-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
   /* §34: .ta-who-btn (öğretmen adı çipi) görsel olarak .sp-btn ile AYNIDIR
      ama AYRI bir sınıftır — .sp-btn'e öğrenci seçicisi belge çapında olay
      bağlıyor ve paylaşılsaydı öğretmen çiplerinin handler'ını ezerdi
@@ -621,7 +621,7 @@
     color: var(--text); font-family: inherit; font-size: 12.5px; cursor: pointer; }
   .sp-btn:hover, .ta-who-btn:hover { border-color: var(--accent); }
   .sp-btn.active, .ta-who-btn.active { background: var(--accent); border-color: var(--accent-strong); color: var(--on-accent); }
-  .ta-who-btn .sc-class, .ta-who-btn .sc-tag { font-size: 10px; font-weight: 700;
+  .ta-who-btn .sc-class, .ta-who-btn .sc-tag { font-size: 12px; font-weight: 700;
     opacity: .75; letter-spacing: .2px; }
   .ta-who-btn.active .sc-class, .ta-who-btn.active .sc-tag { opacity: .9; }
 
@@ -634,39 +634,39 @@
   .ta-who-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
   .ta-who-input { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .ta-who-input input[type="text"] { flex: 1 1 220px; min-width: 0; }
-  .ta-who-not { margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--text-muted); }
+  .ta-who-not { margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
   .sim-progress:empty { display: none; }
   .sim-progress { margin-top: 12px; }
   .sim-bar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
   .sim-fill { height: 100%; background: var(--accent); transition: width .3s ease; }
-  .sim-text { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+  .sim-text { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 
   .student-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
     border-radius: 20px; background: var(--accent-soft); color: var(--accent-strong);
-    font-size: 11.5px; font-weight: 700; }
+    font-size: 12px; font-weight: 700; }
   .student-chip.sim { background: var(--surface-3); color: var(--text-muted); font-weight: 600; }
-  .student-chip .sc-class, .sp-btn .sc-class { font-size: 10px; font-weight: 700;
+  .student-chip .sc-class, .sp-btn .sc-class { font-size: 12px; font-weight: 700;
     padding: 1px 6px; border-radius: 10px; background: rgba(127,127,127,.18); }
-  .student-chip .sc-tag { font-size: 9.5px; font-weight: 600; text-transform: uppercase;
+  .student-chip .sc-tag { font-size: 12px; font-weight: 600; text-transform: uppercase;
     letter-spacing: .04em; opacity: .75; }
 
   .conf-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: -2px 0 10px; }
-  .conf-row .conf-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+  .conf-row .conf-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
   /* Prompt injection uyarisi. BAGIMSIZ sinif: bilinçli olarak hicbir kapsayiciya
      bagli tanimlanmadi — .opt-row hatasi (yalnizca .q-card icinde tanimliydi,
      baska yerde stil almiyordu) bir kez yasandi, tekrarlanmasin. */
   .inj-warn { margin: -2px 0 10px; padding: 9px 11px; border-radius: 8px;
     background: var(--warning-soft); border: 1px solid var(--warning);
-    color: var(--warning); font-size: 11.5px; line-height: 1.55; }
+    color: var(--warning); font-size: 12px; line-height: 1.55; }
   .inj-warn b { color: var(--warning); }
   /* §88 KVKK: ad bilgisi istekten çıkarıldı notu. Küçük, bilgi amaçlı. */
-  .ad-maske-not { margin: -2px 0 10px; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
+  .ad-maske-not { margin: -2px 0 10px; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
   .wait-box { padding: 9px 12px; border-radius: 8px; background: var(--warning-soft);
     color: var(--warning); font-size: 12.5px; line-height: 1.55; }
 
-  .legend-live { display: block; width: 100%; margin-top: 6px; font-size: 11px;
+  .legend-live { display: block; width: 100%; margin-top: 6px; font-size: 12px;
     color: var(--text-muted); line-height: 1.5; }
 
   .rub-intro { font-size: 13px; line-height: 1.65; color: var(--text-muted);
@@ -679,7 +679,7 @@
 
   .rub-question { font-size: 14px; line-height: 1.6; padding: 12px 14px; margin-bottom: 16px;
     border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); }
-  .rub-question .rq-label { display: block; font-size: 10.5px; font-weight: 700;
+  .rub-question .rq-label { display: block; font-size: 12px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin-bottom: 5px; }
 
   .rub-step { display: flex; align-items: center; gap: 9px; margin: 18px 0 9px; }
@@ -705,7 +705,7 @@
   .rub-status.err { background: var(--accent2-soft); color: var(--critical); }
 
   .crit-row { display: flex; align-items: center; gap: 8px; }
-  .crit-no { width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: 11px;
+  .crit-no { width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: 12px;
     font-weight: 700; color: var(--text-muted); background: var(--surface-3);
     display: inline-flex; align-items: center; justify-content: center; }
   .crit-label { flex: 1; }
@@ -718,7 +718,7 @@
      17 px'ti. Görünüm bağlantı gibi kalsın diye yalnızca yükseklik verildi. */
   .crit-desc-add { display: flex; align-items: center; min-height: 24px;
     margin-top: 5px; padding: 0; border: none; background: none;
-    color: var(--accent); font-family: inherit; font-size: 11.5px; cursor: pointer; }
+    color: var(--accent); font-family: inherit; font-size: 12px; cursor: pointer; }
   .crit-desc-add:hover { text-decoration: underline; }
 
   .rub-ai-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -729,9 +729,9 @@
   .ce-layout { display: block; }
   .ce-meta-grid > .field { min-width: 0; }
   .ce-meta-grid label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .field-note { font-size: 11px; color: var(--text-muted); line-height: 1.45; margin-top: 4px; }
+  .field-note { font-size: 12px; color: var(--text-muted); line-height: 1.45; margin-top: 4px; }
   .label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-  .char-count { font-size: 11px; font-family: "IBM Plex Mono", monospace; color: var(--text-muted); }
+  .char-count { font-size: 12px; font-family: "IBM Plex Mono", monospace; color: var(--text-muted); }
   .char-count.near { color: var(--warning); }
 
   .input-with-actions { display: flex; gap: 6px; align-items: stretch; }
@@ -772,7 +772,7 @@
   /* Başka ders/sınıfa ait kazanım: seçilebilir ama görsel olarak ayrışır. */
   .chip-tab.chip-uyusmaz { border-style: dashed; }
   .chip-tab.chip-uyusmaz .chip-ad { color: var(--text-muted); font-weight: 500; }
-  .chip-not { font-size: 10.5px; font-weight: 400; color: var(--text-muted);
+  .chip-not { font-size: 12px; font-weight: 400; color: var(--text-muted);
     font-style: italic; }
 
   /* "+" sekmesi listenin EN BAŞINDA durur. Kesikli çerçeve onu bir
@@ -787,7 +787,7 @@
   .chip-tab-add.active { background: var(--accent-strong); color: var(--on-accent);
     border-style: solid; border-color: var(--accent-strong); }
 
-  .chip-bos { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+  .chip-bos { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
   /* "+" ile açılan ekleme formu — `.new-outcome` ile aynı görsel dil. */
   .chip-yeni { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
@@ -807,7 +807,7 @@
   .materyal-serit.hatali { border-color: var(--critical); background: var(--critical-soft); }
   .materyal-serit .mat-baslik { font-weight: 700; font-size: 13px; color: var(--text); }
   .materyal-serit .mat-ad { font-size: 13px; margin-top: 3px; color: var(--text); }
-  .materyal-serit .mat-ad code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px;
+  .materyal-serit .mat-ad code { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     color: var(--text-muted); }
   .materyal-serit .mat-durum { font-size: 12px; margin-top: 6px; }
   .materyal-serit .mat-ok { color: var(--success); font-weight: 600; }
@@ -827,7 +827,7 @@
   .dropzone .dz-or { font-weight: 400; color: var(--text-muted); }
   .dropzone .dz-browse { background: none; border: none; padding: 0; font: inherit;
     color: var(--accent); text-decoration: underline; cursor: pointer; }
-  .dropzone .dz-sub { font-size: 11.5px; color: var(--text-muted); }
+  .dropzone .dz-sub { font-size: 12px; color: var(--text-muted); }
   .dropzone .dz-file { margin-top: 6px; font-size: 12px; color: var(--success);
     font-family: "IBM Plex Mono", monospace; }
   .dropzone .dz-spin { width: 22px; height: 22px; border-radius: 50%;
@@ -835,20 +835,20 @@
     animation: dzspin .8s linear infinite; }
   @keyframes dzspin { to { transform: rotate(360deg); } }
   .dz-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px;
-    font-size: 11.5px; color: var(--text-muted); }
+    font-size: 12px; color: var(--text-muted); }
   .dz-divider::before, .dz-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 
   /* Sınav taslağı listesi */
   .tray-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 4px;
     border-bottom: 1px solid var(--border); font-size: 12.5px; }
   .tray-item .t-no { flex: none; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--surface-3); color: var(--text-muted); font-size: 11px; font-weight: 700;
+    background: var(--surface-3); color: var(--text-muted); font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
   .tray-item .t-text { flex: 1; min-width: 0; line-height: 1.5; }
   .tray-item .t-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
   .tray-item .t-controls { display: flex; align-items: center; gap: 5px; flex: none; }
   .tray-item .tray-time { width: 62px; text-align: right; }
-  .tray-item .t-unit { font-size: 11px; color: var(--text-muted); margin-right: 3px; }
+  .tray-item .t-unit { font-size: 12px; color: var(--text-muted); margin-right: 3px; }
   .tray-item .icon-btn { width: 28px; height: 28px; font-size: 13px; }
 
   /* §31 — MODÜL 4: eksik rubrik uyarısı + doğrudan yönlendirme. `.tray-item`
@@ -865,7 +865,7 @@
   .tray-summary .ts-row { display: flex; justify-content: space-between; gap: 12px;
     font-size: 12.5px; color: var(--text-muted); padding: 3px 0; }
   .tray-summary .ts-row.strong { color: var(--text); font-weight: 700; font-size: 14px; }
-  .tray-summary .ts-row.ts-note { font-size: 11.5px; padding-top: 0; }
+  .tray-summary .ts-row.ts-note { font-size: 12px; padding-top: 0; }
   /* ÇSS puanı girdisi. BAĞIMSIZ TANIMLI (§6.3-2): kardeşi `.tray-time`
      yalnızca `.tray-item` içinde tanımlı ve bu alan `.tray-summary`
      içinde duruyor — aynı kurala yaslansaydı hiç stil almazdı.
@@ -904,6 +904,19 @@
   .pool-edit .field { margin-bottom: 10px; }
   .pool-edit textarea { min-height: 60px; }
   .pool-item .pool-edit-btn { flex: none; align-self: flex-start; }
+  /* §115 — havuz soru düzenleyicisi (öğretmen sihirbazı 2. adım): şık metni
+     satıra sarar, "doğru" etiketi sığar; 390 px'te kırpılma yok. */
+  .pool-edit textarea.pe-opt { flex: 1; min-width: 0; min-height: 0; resize: none; overflow: hidden;
+    field-sizing: content; line-height: 1.45; }
+  @media (max-width: 600px) {
+    .pool-item:has(.pool-edit) { flex-wrap: wrap; }
+    .pool-item:has(.pool-edit) > .p-body { flex: 1 0 100%; order: 2; min-width: 0; }
+    .pool-item:has(.pool-edit) > .pool-edit-btn { margin-left: auto; }
+    .pool-edit { padding: 8px; }
+    .pool-edit .opt-row { align-items: flex-start !important; }
+    .pool-edit .field-row { flex-wrap: wrap; }
+    .pool-edit .field-row > .field-kz { flex: 1 0 100%; min-width: 0; }
+  }
 
   .pool-filter { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 9px; padding: 10px; margin-bottom: 12px; border: 1px solid var(--border);
@@ -914,15 +927,15 @@
     border-radius: 9px; background: var(--surface-2); }
   .coverage-box .cv-head { font-size: 12.5px; margin-bottom: 8px; }
   .coverage-box .cv-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-  .coverage-box .cv-chip { font-size: 11px; padding: 3px 8px; border-radius: 20px;
+  .coverage-box .cv-chip { font-size: 12px; padding: 3px 8px; border-radius: 20px;
     font-family: "IBM Plex Mono", monospace; }
   .coverage-box .cv-chip.on { background: var(--success-soft); color: var(--success); }
   .coverage-box .cv-chip.off { background: var(--warning-soft); color: var(--warning); }
-  .coverage-box .cv-warn { font-size: 11.5px; color: var(--warning); line-height: 1.5; }
-  .coverage-box .cv-ok { font-size: 11.5px; color: var(--success); line-height: 1.5; }
-  .coverage-box .cv-diff { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+  .coverage-box .cv-warn { font-size: 12px; color: var(--warning); line-height: 1.5; }
+  .coverage-box .cv-ok { font-size: 12px; color: var(--success); line-height: 1.5; }
+  .coverage-box .cv-diff { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 
-  .trend-table th.outcome-col { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; }
+  .trend-table th.outcome-col { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
   .trend-table td { text-align: center; padding: 7px 10px; font-size: 13px; }
   .trend-up { color: var(--success); font-weight: 700; }
   .trend-down { color: var(--critical); font-weight: 700; }
@@ -942,7 +955,7 @@
   /* Madde 4: taranmış PDF için OCR teklifi (bkz. ocrOneriHtml). */
   .ocr-offer { margin: 4px 0 12px; padding: 12px 14px; border: 1px dashed var(--warning);
     border-radius: 10px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
-  .ocr-offer .dz-sub { font-size: 11.5px; color: var(--text-muted); }
+  .ocr-offer .dz-sub { font-size: 12px; color: var(--text-muted); }
   .ocr-offer .dz-spin { width: 22px; height: 22px; border-radius: 50%;
     border: 2.5px solid var(--border-strong); border-top-color: var(--accent);
     animation: dzspin .8s linear infinite; }
@@ -951,7 +964,7 @@
   .fail-note { margin-top: 12px; padding: 11px 13px; border-radius: 8px;
     background: var(--surface-2); border-left: 3px solid var(--critical);
     font-size: 12.5px; line-height: 1.6; color: var(--text); }
-  .fail-note .mono-err { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  .fail-note .mono-err { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     color: var(--text-muted); }
 
   /* §88b: izin yok → elle değerlendirme kartı (hata değil, nötr). */
@@ -975,17 +988,17 @@
   .es-item:hover { border-color: var(--accent); }
   .es-item.active { border-color: var(--accent); background: var(--accent-soft); }
   .es-item .es-name { font-size: 13px; font-weight: 600; }
-  .es-item .es-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .es-item .es-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
   .es-item.es-new { justify-content: center; align-items: center; color: var(--accent);
     border-style: dashed; font-weight: 600; font-size: 13px; min-width: 120px; }
 
   .tab-count { display: inline-flex; align-items: center; justify-content: center;
     min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px;
-    background: var(--accent-soft); color: var(--accent); font-size: 10.5px;
+    background: var(--accent-soft); color: var(--accent); font-size: 12px;
     font-weight: 700; font-family: "IBM Plex Mono", monospace; }
   .tab-btn.active .tab-count { background: rgba(255,255,255,.22); color: var(--on-accent); }
 
-  .lbl-hint { font-weight: 400; font-size: 10.5px; color: var(--text-muted);
+  .lbl-hint { font-weight: 400; font-size: 12px; color: var(--text-muted);
     text-transform: none; letter-spacing: 0; margin-left: 6px; }
   .new-outcome { margin-top: 10px; padding: 12px; border: 1px dashed var(--accent);
     border-radius: 9px; background: var(--accent-soft); }
@@ -1008,7 +1021,7 @@
 
   .remedial-banner { border: 1px solid var(--accent2); background: var(--accent2-soft);
     border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
-  .remedial-banner .rbn-head { font-size: 11px; font-weight: 700; text-transform: uppercase;
+  .remedial-banner .rbn-head { font-size: 12px; font-weight: 700; text-transform: uppercase;
     letter-spacing: .05em; color: var(--accent2); margin-bottom: 6px; }
   .remedial-banner .rbn-body { font-size: 13.5px; line-height: 1.6; color: var(--text); }
   .remedial-banner .rbn-actions { display: flex; gap: 8px; margin-top: 11px; }
@@ -1017,7 +1030,7 @@
 
   .distractor-box { margin-top: 10px; border: 1px dashed var(--border-strong);
     border-radius: 8px; padding: 9px 11px; background: var(--surface-2); }
-  .distractor-box .db-title { font-size: 11px; font-weight: 600; color: var(--text-muted);
+  .distractor-box .db-title { font-size: 12px; font-weight: 600; color: var(--text-muted);
     text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
   .distractor-box .db-row { font-size: 12px; line-height: 1.55; margin-bottom: 4px;
     display: flex; gap: 7px; }
@@ -1027,10 +1040,10 @@
   .rr-crit { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px;
     padding: 6px 0; border-bottom: 1px dashed var(--border); }
   .rr-crit:last-child { border-bottom: none; }
-  .rr-crit .rc-reason { color: var(--text-muted); font-size: 11.5px; line-height: 1.5;
+  .rr-crit .rc-reason { color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: 2px 0 6px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
 
-  .crit-reason { font-size: 11.5px; color: var(--text-muted); line-height: 1.5;
+  .crit-reason { font-size: 12px; color: var(--text-muted); line-height: 1.5;
     margin: -2px 0 9px; padding-left: 9px; border-left: 2px solid var(--border-strong); }
 
   .pool-item { display: flex; align-items: flex-start; gap: 10px; padding: 13px 4px; border-bottom: 1px solid var(--border); }
@@ -1065,7 +1078,7 @@
 
   .eval-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; background: var(--surface); box-shadow: var(--shadow); }
   .eval-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; margin-top: 12px; }
-  .eval-block h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+  .eval-block h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
   .answer-box { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; }
   .crit-line { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--text-muted); }
   .justification { background: var(--accent2-soft); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text); margin-top: 8px; }
@@ -1077,19 +1090,19 @@
   /* Madde 5: 5 dakika altına inince (ama henüz "low" — 60 sn — olmadan) ara bir uyarı rengi. */
   .timer-bar .t-value.warn { color: var(--warning); }
   .qnav { display: flex; gap: 4px; flex-wrap: wrap; }
-  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); position: relative; }
+  .qnav-dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; font-family: "IBM Plex Mono", monospace; border: 1px solid var(--border-strong); color: var(--text-muted); cursor: pointer; background: var(--surface); position: relative; }
   .qnav-dot.current { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
   .qnav-dot.answered { background: var(--success-soft); color: var(--success); border-color: var(--success); }
   /* Madde 5: "gözden geçir" işareti — answered/current durumundan bağımsız katman. */
   .qnav-dot.flagged { border-color: var(--warning); }
-  .qnav-dot .qnav-flag { position: absolute; top: -7px; right: -6px; font-size: 9px; line-height: 1; }
+  .qnav-dot .qnav-flag { position: absolute; top: -7px; right: -6px; font-size: 12px; line-height: 1; }
 
   .exam-viewport { padding: 20px; }
   .exam-viewport .qv-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .exam-viewport .qv-meta #btnFlagQ { margin-left: auto; }
   .exam-viewport .qv-meta #btnFlagQ.flag-on { border-color: var(--warning); color: var(--warning); }
   .exam-viewport .qv-body { font-size: 16px; font-weight: 600; margin-bottom: 16px; text-wrap: balance; }
-  .autosave-status { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+  .autosave-status { font-size: 12px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
   .autosave-status .dot-save { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
   .exam-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
 
@@ -1120,7 +1133,7 @@
     color: var(--text-muted); margin-top: 6px; }
 
   .rr-answer { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
-  .rr-answer .rr-answer-lbl { font-size: 10.5px; font-weight: 700; color: var(--text-muted);
+  .rr-answer .rr-answer-lbl { font-size: 12px; font-weight: 700; color: var(--text-muted);
     text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
   .rr-answer .rr-answer-txt { font-size: 13px; line-height: 1.6; color: var(--text);
     white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -1130,14 +1143,14 @@
 
   /* ---------- Stat tiles ---------- */
   .stat-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
-  .stat-tile .s-label { font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .stat-tile .s-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
   .stat-tile .s-value { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 26px; }
   .stat-tile .s-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
   /* ---------- Heatmap ---------- */
   .heatmap-wrap { overflow-x: auto; }
   table.heatmap { border-collapse: separate; border-spacing: 3px; font-size: 12px; }
-  table.heatmap th { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px 8px; text-align: left; }
+  table.heatmap th { font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 4px 8px; text-align: left; }
   table.heatmap th.outcome-col { text-align: right; max-width: 160px; }
   /* ===================== KAZANIM BAŞARI GRAFİĞİ =========================
      Isı haritası hücreleri (.hm-cell) ve sıralı efsanesi (.legend-scale)
@@ -1147,16 +1160,16 @@
   .kazanim-grafik { display: block; max-width: none; }
   .kazanim-grafik .kg-izgara { stroke: var(--border); stroke-width: 1; }
   .kazanim-grafik .kg-taban { stroke: var(--border-strong); stroke-width: 1.5; }
-  .kazanim-grafik .kg-eksen { font-size: 10.5px; fill: var(--text-muted);
+  .kazanim-grafik .kg-eksen { font-size: 12px; fill: var(--text-muted);
     font-family: "IBM Plex Mono", monospace; }
   .kazanim-grafik .kg-sag { text-anchor: end; }
   /* Yüzde SÜTUNUN ÜZERİNDE — grafiğin asıl okunma biçimi bu, renk değil. */
-  .kazanim-grafik .kg-deger { font-size: 11px; font-weight: 700; fill: var(--text);
+  .kazanim-grafik .kg-deger { font-size: 12px; font-weight: 700; fill: var(--text);
     text-anchor: middle; font-family: "IBM Plex Mono", monospace; }
-  .kazanim-grafik .kg-yok { font-size: 11px; fill: var(--text-muted); text-anchor: middle; }
-  .kazanim-grafik .kg-etiket { font-size: 11px; fill: var(--text); text-anchor: middle;
+  .kazanim-grafik .kg-yok { font-size: 12px; fill: var(--text-muted); text-anchor: middle; }
+  .kazanim-grafik .kg-etiket { font-size: 12px; fill: var(--text); text-anchor: middle;
     font-weight: 600; }
-  .kazanim-grafik .kg-kod { font-size: 10px; fill: var(--text-muted); text-anchor: middle;
+  .kazanim-grafik .kg-kod { font-size: 12px; fill: var(--text-muted); text-anchor: middle;
     font-family: "IBM Plex Mono", monospace; }
   /* "(örnek)" satırları demo verisidir; sütunları soluk ve kesik çerçeveli
      çizilir ki gerçek ölçümlerle karıştırılmasın (§37 ile aynı ilke). */
@@ -1169,11 +1182,11 @@
     stroke-width: 1; stroke-dasharray: 3 2; }
   .kazanim-grafik .kg-esik { stroke: var(--esik-cizgi); stroke-width: 2;
     stroke-dasharray: 7 5; }
-  .kazanim-grafik .kg-esik-yazi { font-size: 10.5px; fill: var(--esik-cizgi);
+  .kazanim-grafik .kg-esik-yazi { font-size: 12px; fill: var(--esik-cizgi);
     font-weight: 700; }
 
   .kg-lejant { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px;
-    font-size: 11.5px; color: var(--text-muted); }
+    font-size: 12px; color: var(--text-muted); }
   .kg-l-oge { display: inline-flex; align-items: center; gap: 6px; }
   .kg-l-kutu { width: 14px; height: 12px; border-radius: 3px; flex: none; }
   .kg-l-kutu[data-ornek] { opacity: .5; outline: 1px dashed var(--text-muted);
@@ -1272,14 +1285,14 @@
     .role-nav .role-btn:last-child { grid-column: auto; }
   }
 
-  .team-sig { display: block; margin-top: 8px; font-size: 11.5px; color: var(--on-bg-muted); }
+  .team-sig { display: block; margin-top: 8px; font-size: 12px; color: var(--on-bg-muted); }
   /* Eskiden var(--accent) idi: lacivert zemin uzerinde lacivert yazi = okunamaz. */
   .team-sig b { color: var(--on-bg); letter-spacing: .04em; }
 
-  .fb-hint { margin-left: 7px; font-size: 10.5px; color: var(--text-muted);
+  .fb-hint { margin-left: 7px; font-size: 12px; color: var(--text-muted);
     border: 1px dashed var(--border-strong); border-radius: 10px; padding: 2px 7px; }
 
-  .cache-note { font-size: 11.5px; line-height: 1.55; color: var(--text-muted);
+  .cache-note { font-size: 12px; line-height: 1.55; color: var(--text-muted);
     background: var(--surface-2); border-left: 3px solid var(--border-strong);
     border-radius: 6px; padding: 8px 10px; margin: -2px 0 10px; }
 
@@ -1287,9 +1300,9 @@
      BAĞIMSIZ sınıflar: hiçbiri bir kapsayıcıya bağlı tanımlanmadı. Bu projede
      .opt-row (yalnızca .q-card içinde) ve .cv-warn (yalnızca .coverage-box
      içinde) hataları yaşandı; tekrarlanmasın. */
-  .ia-legend { font-size: 11.5px; line-height: 1.6; color: var(--text-muted);
+  .ia-legend { font-size: 12px; line-height: 1.6; color: var(--text-muted);
     padding: 9px 11px; background: var(--surface-2); border-radius: 8px; margin-bottom: 12px; }
-  .ia-warn { font-size: 11.5px; line-height: 1.6; color: var(--warning);
+  .ia-warn { font-size: 12px; line-height: 1.6; color: var(--warning);
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 9px 11px; margin-bottom: 12px; }
   .ia-item { border: 1px solid var(--border); border-radius: 10px;
@@ -1300,14 +1313,14 @@
     display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .ia-metric b { font-family: "IBM Plex Mono", monospace; color: var(--text); }
   .ia-opts { display: flex; flex-wrap: wrap; gap: 6px; }
-  .ia-opt { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  .ia-opt { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     padding: 3px 8px; border-radius: 6px; background: var(--surface-3);
     color: var(--text-muted); border: 1px solid transparent; }
   .ia-opt-correct { background: var(--success-soft); color: var(--success);
     border-color: var(--success); font-weight: 600; }
   .ia-opt-dead { border-style: dashed; border-color: var(--border-strong); opacity: .75; }
   .ia-opt-pct { opacity: .7; }
-  .ia-note { margin-top: 9px; font-size: 11.5px; line-height: 1.55;
+  .ia-note { margin-top: 9px; font-size: 12px; line-height: 1.55;
     color: var(--warning); }
 
   /* --- Öğretmen-AI uyumu (kalibrasyon) ------------------------------------
@@ -1318,7 +1331,7 @@
     border-radius: 12px; padding: 12px 16px; }
   .cal-big-sayi { font-family: "Archivo", sans-serif; font-weight: 800;
     font-size: 30px; line-height: 1.1; color: var(--accent); }
-  .cal-big-etiket { font-size: 11px; text-transform: uppercase;
+  .cal-big-etiket { font-size: 12px; text-transform: uppercase;
     letter-spacing: .06em; color: var(--text-muted); margin-top: 2px; }
   .cal-detay { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;
     font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
@@ -1332,14 +1345,14 @@
   .cal-band-sapma { margin-left: auto; color: var(--text-muted); }
   .cal-band-sapma b { font-family: "IBM Plex Mono", monospace; color: var(--text); }
 
-  .cal-note { font-size: 11.5px; line-height: 1.6; padding: 9px 11px;
+  .cal-note { font-size: 12px; line-height: 1.6; padding: 9px 11px;
     border-radius: 8px; margin: 10px 0; background: var(--surface-2);
     color: var(--text-muted); }
   .cal-note.cal-ok { background: var(--success-soft); color: var(--success);
     border: 1px solid var(--success); }
   .cal-note.cal-warn { background: var(--warning-soft); color: var(--warning);
     border: 1px solid var(--warning); }
-  .cal-warn-box { font-size: 11.5px; line-height: 1.6; color: var(--warning);
+  .cal-warn-box { font-size: 12px; line-height: 1.6; color: var(--warning);
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 9px 11px; margin-bottom: 10px; }
 
@@ -1358,13 +1371,13 @@
   .cal-worst { font-size: 12px; line-height: 1.55; padding: 10px 12px;
     border-radius: 8px; background: var(--surface-2);
     border-left: 3px solid var(--accent); margin-top: 10px; color: var(--text-muted); }
-  .cal-worst-baslik { display: block; font-size: 10.5px; font-weight: 700;
+  .cal-worst-baslik { display: block; font-size: 12px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .05em;
     color: var(--text-muted); margin-bottom: 4px; }
   .cal-worst-sayi { margin-top: 5px; font-family: "IBM Plex Mono", monospace;
-    font-size: 11.5px; color: var(--text); }
+    font-size: 12px; color: var(--text); }
   .cal-limit { margin-top: 12px; padding-top: 10px;
-    border-top: 1px solid var(--border); font-size: 11px; line-height: 1.55;
+    border-top: 1px solid var(--border); font-size: 12px; line-height: 1.55;
     color: var(--text-muted); }
 
   /* --- Öğretmen Değerlendirme Analitiği & Kalibrasyon (§29) ---------------
@@ -1384,7 +1397,7 @@
 
   /* --- Kavram yanılgısı kümeleme ------------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .inj-warn notları). */
-  .mis-giris { font-size: 11.5px; line-height: 1.65; color: var(--text-muted);
+  .mis-giris { font-size: 12px; line-height: 1.65; color: var(--text-muted);
     background: var(--surface-2); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
   .mis-blok { border: 1px solid var(--border); border-radius: 10px;
     padding: 12px 13px; margin-bottom: 10px; background: var(--surface-2); }
@@ -1394,7 +1407,7 @@
   .mis-hata { font-size: 12px; line-height: 1.55; color: var(--critical);
     background: var(--accent2-soft); border: 1px solid var(--critical);
     border-radius: 8px; padding: 9px 11px; }
-  .mis-hata-not { margin-top: 5px; font-size: 11px; color: var(--text-muted); }
+  .mis-hata-not { margin-top: 5px; font-size: 12px; color: var(--text-muted); }
 
   .mis-kume { border-left: 3px solid var(--warning); background: var(--surface-3);
     border-radius: 0 8px 8px 0; padding: 10px 12px; margin-bottom: 9px; }
@@ -1403,27 +1416,27 @@
   .mis-kume-ad { font-size: 12.5px; font-weight: 700; color: var(--text); }
   .mis-aciklama { font-size: 12px; line-height: 1.55; color: var(--text-muted); }
   .mis-kanit { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
-  .mis-alinti { font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+  .mis-alinti { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     line-height: 1.5; padding: 3px 8px; border-radius: 6px;
     background: var(--surface-2); color: var(--text-muted);
     border: 1px dashed var(--border-strong); }
-  .mis-aksiyon { margin-top: 8px; font-size: 11.5px; line-height: 1.55;
+  .mis-aksiyon { margin-top: 8px; font-size: 12px; line-height: 1.55;
     color: var(--accent); }
   .mis-aksiyon b { color: var(--accent-strong); }
-  .mis-ozet { margin-top: 8px; font-size: 11px; color: var(--text-muted); }
-  .mis-model { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; }
+  .mis-ozet { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+  .mis-model { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
 
   .mis-alt { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--border); }
-  .mis-alt-not { font-size: 11px; color: var(--text-muted); }
+  .mis-alt-not { font-size: 12px; color: var(--text-muted); }
 
   /* --- MEB kazanım kataloğu (modal) ---------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* notları). */
-  .kat-kaynak { font-size: 11.5px; line-height: 1.6; color: var(--text-muted);
+  .kat-kaynak { font-size: 12px; line-height: 1.6; color: var(--text-muted);
     background: var(--surface-2); border-radius: 8px; padding: 9px 11px; margin-bottom: 10px; }
-  .kat-hata { font-size: 11.5px; color: var(--critical); background: var(--accent2-soft);
+  .kat-hata { font-size: 12px; color: var(--critical); background: var(--accent2-soft);
     border: 1px solid var(--critical); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
-  .kat-uyari { font-size: 11.5px; line-height: 1.55; color: var(--warning);
+  .kat-uyari { font-size: 12px; line-height: 1.55; color: var(--warning);
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
   .kat-filtre { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -1437,31 +1450,31 @@
   .kat-satir.kat-ekli { opacity: .55; cursor: default; }
   .kat-satir input[type="checkbox"] { margin-top: 3px; flex: none; }
   .kat-icerik { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .kat-kod { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  .kat-kod { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     font-weight: 600; color: var(--accent); }
   .kat-metin { font-size: 12.5px; line-height: 1.5; color: var(--text); }
   .kat-etiketler { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
   .kat-bos { padding: 18px; text-align: center; font-size: 12px; color: var(--text-muted); }
-  .kat-not { margin-top: 9px; font-size: 10.5px; line-height: 1.5; color: var(--text-muted); }
+  .kat-not { margin-top: 9px; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
   /* --- Bloom bilişsel düzey dağılımı --------------------------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* / .kat-* notları). */
   .bl-box { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-  .bl-head { font-size: 11.5px; font-weight: 600; color: var(--text);
+  .bl-head { font-size: 12px; font-weight: 600; color: var(--text);
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 7px; }
-  .bl-hint { font-weight: 400; font-size: 10.5px; color: var(--text-muted); }
+  .bl-hint { font-weight: 400; font-size: 12px; color: var(--text-muted); }
   .bl-bar { display: flex; height: 8px; border-radius: 999px;
     overflow: hidden; background: var(--surface-3); margin-bottom: 8px; }
   .bl-seg { background: var(--text-muted); opacity: .55; }
   .bl-seg.bl-ust { background: var(--accent); opacity: 1; }
   .bl-rozetler { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-  .bl-rozet { font-size: 10.5px; padding: 2px 8px; border-radius: 999px;
+  .bl-rozet { font-size: 12px; padding: 2px 8px; border-radius: 999px;
     background: var(--surface-3); color: var(--text-muted); }
   .bl-rozet.bl-ust { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
-  .bl-warn { font-size: 11.5px; line-height: 1.55; color: var(--warning);
+  .bl-warn { font-size: 12px; line-height: 1.55; color: var(--warning);
     background: var(--warning-soft); border: 1px solid var(--warning);
     border-radius: 8px; padding: 8px 10px; }
-  .bl-ok { font-size: 11.5px; line-height: 1.55; color: var(--text-muted); }
+  .bl-ok { font-size: 12px; line-height: 1.55; color: var(--text-muted); }
 
   /* --- Kazanım-soru hizalama denetimi (içerik geçerliği) ------------------
      BAĞIMSIZ sınıflar (bkz. .ia-* / .cal-* / .mis-* / .kat-* / .bl-* notları). */
@@ -1470,25 +1483,25 @@
     background: var(--surface-2); border: 1px solid var(--border); }
   .al-ozet { font-size: 12px; color: var(--text-muted); }
   .al-ozet b { color: var(--warning); }
-  .al-aciklama { flex: 1 1 100%; font-size: 11px; line-height: 1.55; color: var(--text-muted); }
+  .al-aciklama { flex: 1 1 100%; font-size: 12px; line-height: 1.55; color: var(--text-muted); }
 
   .al-row { margin-top: 9px; padding: 9px 11px; border-radius: 8px;
     background: var(--surface-2); border-left: 3px solid var(--border-strong); }
   .al-bas { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .al-hint { font-size: 10.5px; color: var(--text-muted); }
-  .al-gerekce { margin-top: 5px; font-size: 11.5px; line-height: 1.55; color: var(--text-muted); }
+  .al-hint { font-size: 12px; color: var(--text-muted); }
+  .al-gerekce { margin-top: 5px; font-size: 12px; line-height: 1.55; color: var(--text-muted); }
   .al-oneri { margin-top: 8px; display: flex; align-items: center; gap: 8px;
-    flex-wrap: wrap; font-size: 11.5px; color: var(--accent); }
-  .al-loading { font-size: 11.5px; color: var(--text-muted); }
-  .al-err { font-size: 11.5px; line-height: 1.55; color: var(--critical);
+    flex-wrap: wrap; font-size: 12px; color: var(--accent); }
+  .al-loading { font-size: 12px; color: var(--text-muted); }
+  .al-err { font-size: 12px; line-height: 1.55; color: var(--critical);
     background: var(--accent2-soft); border-left-color: var(--critical); }
 
   /* --- Kazanım ders/sınıf tutarlılığı -------------------------------------- */
-  .oc-uyusmaz { margin-top: 8px; font-size: 11.5px; line-height: 1.6;
+  .oc-uyusmaz { margin-top: 8px; font-size: 12px; line-height: 1.6;
     color: var(--warning); background: var(--warning-soft);
     border: 1px solid var(--warning); border-radius: 8px; padding: 9px 11px; }
   .oc-link { background: none; border: none; padding: 0; font: inherit;
-    font-size: 11px; color: var(--accent); cursor: pointer; text-decoration: underline; }
+    font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; }
   .oc-link:hover { color: var(--accent-strong); }
 
   /* --- Uyaran metin (soruya eşlik eden kaynak metin) ---------------------- */
@@ -1499,16 +1512,16 @@
     flex-wrap: wrap; user-select: none; }
   .src-bas:hover { background: var(--surface-3); }
   .src-bas b { color: var(--text); }
-  .src-uzunluk { margin-left: auto; font-size: 10.5px; opacity: .75;
+  .src-uzunluk { margin-left: auto; font-size: 12px; opacity: .75;
     font-family: "IBM Plex Mono", monospace; }
   .src-metin { padding: 12px 14px; border-top: 1px solid var(--border);
     font-size: 13.5px; line-height: 1.75; white-space: pre-wrap;
     max-height: 320px; overflow-y: auto; color: var(--text); }
   .src-yok { margin-bottom: 12px; padding: 10px 12px; border-radius: 8px;
-    font-size: 11.5px; line-height: 1.6; color: var(--critical);
+    font-size: 12px; line-height: 1.6; color: var(--critical);
     background: var(--accent2-soft); border: 1px solid var(--critical); }
   .src-uyari { margin-top: 10px; padding: 9px 11px; border-radius: 8px;
-    font-size: 11.5px; line-height: 1.6; color: var(--text-muted);
+    font-size: 12px; line-height: 1.6; color: var(--text-muted);
     background: var(--surface-2); border-left: 3px solid var(--accent); }
   .src-uyari b { color: var(--text); }
   .src-uyari.src-uyari-kritik { color: var(--critical);
@@ -1519,10 +1532,10 @@
   .fb-draft { margin-top: 12px; padding: 10px 12px; border-radius: 8px;
     background: var(--surface-2); border-left: 3px solid var(--success); }
   .fb-draft-bas { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
     letter-spacing: .05em; color: var(--success); margin-bottom: 6px; }
   .fb-draft-not { font-weight: 400; text-transform: none; letter-spacing: 0;
-    font-size: 10.5px; color: var(--text-muted); }
+    font-size: 12px; color: var(--text-muted); }
   .fb-draft-metin { font-size: 12.5px; line-height: 1.65; color: var(--text);
     margin-bottom: 9px; }
 
@@ -1538,7 +1551,7 @@
     border-radius: 10px; background: var(--surface-2); }
   .kit-bas { display: flex; align-items: center; justify-content: space-between;
     gap: 10px; flex-wrap: wrap; font-size: 13px; font-weight: 600; color: var(--text); }
-  .kit-ozet { font-family: "IBM Plex Mono", monospace; font-size: 11.5px;
+  .kit-ozet { font-family: "IBM Plex Mono", monospace; font-size: 12px;
     font-weight: 400; color: var(--text-muted); }
   .kit-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55;
     margin: 4px 0 10px; }
@@ -1551,9 +1564,9 @@
   .kit-ad { font-size: 12.5px; font-weight: 600; color: var(--text);
     overflow-wrap: anywhere; }
   .kit-rozet { display: inline-block; padding: 1px 7px; border-radius: 999px;
-    background: var(--accent); color: var(--on-accent); font-size: 10px; font-weight: 700;
+    background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .04em; vertical-align: middle; }
-  .kit-alt { margin-top: 2px; font-size: 11.5px; color: var(--text-muted); }
+  .kit-alt { margin-top: 2px; font-size: 12px; color: var(--text-muted); }
   .kit-islem { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   /* WCAG 2.5.8: dokunma hedefi en az 24x24 CSS pikseli. */
   .kit-sil { min-width: 26px; min-height: 26px; line-height: 1; }
@@ -1575,25 +1588,25 @@
   /* §56 (B1) — "Neden şüpheli?" rozet şeridi. Açıklama kutuları eski uyarı
      kutularının tonunu korur (yüksek = kritik, orta = uyarı, düşük = nötr). */
   .supheli-serit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 6px; }
-  .supheli-bas { font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
-  .suphe-rozet { cursor: pointer; border: 1px solid transparent; font: inherit; font-size: 11.5px; }
+  .supheli-bas { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .suphe-rozet { cursor: pointer; border: 1px solid transparent; font: inherit; font-size: 12px; }
   .suphe-rozet[aria-expanded="true"] { border-color: currentColor; }
   .suphe-aciklama { flex: 1 1 100%; padding: 8px 11px; border-radius: 8px; font-size: 12px; line-height: 1.55;
     background: var(--surface-2, var(--bg)); border-left: 3px solid var(--border-strong); color: var(--text); }
   .suphe-aciklama.suphe-yuksek { background: var(--critical-soft); border-left-color: var(--critical); }
   .suphe-aciklama.suphe-orta { background: var(--warning-soft); border-left-color: var(--warning); }
-  .suphe-sayac { align-self: center; font-size: 11.5px; color: var(--text-muted); }
+  .suphe-sayac { align-self: center; font-size: 12px; color: var(--text-muted); }
   /* §56 (A7) — YZ önerisi ↔ nihai puan raporu. */
   .karar-rapor { margin-top: 16px; }
   .karar-ozet { font-size: 13px; margin-bottom: 10px; line-height: 1.6; }
   .karar-tablo { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .karar-tablo th, .karar-tablo td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
-  .karar-tablo th { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+  .karar-tablo th { font-size: 12px; color: var(--text-muted); font-weight: 700; }
   .karar-tablo td.tabular { text-align: right; white-space: nowrap; }
   .karar-dagilim-bas { margin: 14px 0 4px; font-size: 12px; font-weight: 700; }
   .karar-dagilim { width: 100%; max-width: 360px; height: auto; display: block; }
-  .karar-dagilim .kd-etiket { font-size: 11px; fill: var(--text-muted); text-anchor: end; }
-  .karar-dagilim .kd-deger { font-size: 11px; fill: var(--text); font-weight: 600; }
+  .karar-dagilim .kd-etiket { font-size: 12px; fill: var(--text-muted); text-anchor: end; }
+  .karar-dagilim .kd-deger { font-size: 12px; fill: var(--text); font-weight: 600; }
   .karar-dagilim .kd-cubuk { fill: var(--accent); }
   .karar-dagilim .kd-cubuk.kd-aynen { fill: var(--success); }
   .karar-sinir { margin: 10px 0; padding: 8px 11px; border-radius: 8px; font-size: 12px; line-height: 1.55;
@@ -1601,7 +1614,7 @@
   /* "denetlenmedi" ≠ "temiz": denetim durumu nötr bilgi satırı, şüphe değil. */
   .denetim-durum .durum-farkli { color: var(--critical); }
   .denetim-durum { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0 8px;
-    font-size: 11.5px; color: var(--text-muted); }
+    font-size: 12px; color: var(--text-muted); }
 
   /* --- Yapay Zekâ Karar Günlüğü (denetim izi) -----------------------------
      Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
@@ -1615,7 +1628,7 @@
   .au-kutu.au-vurgu { border-color: var(--accent); background: var(--accent-soft); }
   .au-sayi { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 700;
     color: var(--text); line-height: 1.2; }
-  .au-etiket { margin-top: 3px; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .au-etiket { margin-top: 3px; font-size: 12px; color: var(--text-muted); line-height: 1.4; }
   .au-oran { padding: 10px 12px; border-radius: 8px; background: var(--surface-2);
     border-left: 3px solid var(--accent); font-size: 12.5px; line-height: 1.65;
     color: var(--text); margin-bottom: 12px; }
@@ -1627,18 +1640,18 @@
   .au-butonlar { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
   /* §111: anonim araştırma paketi önizlemesi (indirmeden önce okunur). */
   .au-arastirma { margin-bottom: 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
-  .au-arastirma-metin { max-height: 320px; overflow: auto; margin: 0 0 10px; padding: 8px; font-size: 11.5px; line-height: 1.45;
+  .au-arastirma-metin { max-height: 320px; overflow: auto; margin: 0 0 10px; padding: 8px; font-size: 12px; line-height: 1.45;
     white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface, #fff); border: 1px solid var(--border); border-radius: 6px; }
-  .au-liste-bas { font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  .au-liste-bas { font-size: 12px; font-weight: 700; text-transform: uppercase;
     letter-spacing: .05em; color: var(--text-muted); margin-bottom: 7px; }
   .au-liste { display: flex; flex-direction: column; gap: 7px;
     max-height: 460px; overflow-y: auto; }
   .au-satir { padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface); }
   .au-ust { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .au-aktor { font-size: 11.5px; color: var(--text-muted); }
+  .au-aktor { font-size: 12px; color: var(--text-muted); }
   .au-zaman { margin-left: auto; font-family: "IBM Plex Mono", monospace;
-    font-size: 11px; color: var(--text-muted); }
+    font-size: 12px; color: var(--text-muted); }
   .au-soru { margin-top: 5px; font-size: 12.5px; color: var(--text);
     overflow-wrap: anywhere; }
   .au-detay { margin-top: 4px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
@@ -1656,10 +1669,10 @@
   .ai-mode { position: relative; }
   .ai-chip { display: inline-flex; align-items: center; gap: 7px;
     padding: 5px 10px; border-radius: 999px; border: 1px solid transparent;
-    font: 600 11.5px/1.4 inherit; cursor: pointer; max-width: 100%; }
+    font: 600 12px/1.4 inherit; cursor: pointer; max-width: 100%; }
   .ai-chip .ai-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ai-chip .ai-nokta { flex: none; font-size: 9px; line-height: 1; }
-  .ai-chip .ai-ok { flex: none; font-size: 9px; opacity: .75; }
+  .ai-chip .ai-nokta { flex: none; font-size: 12px; line-height: 1; }
+  .ai-chip .ai-ok { flex: none; font-size: 12px; opacity: .75; }
   /* §93: günlük Neuron bütçesi göstergesi (çipin içinde, ikincil ağırlık). */
   .ai-chip .ai-butce { flex: none; font-weight: 500; opacity: .85; white-space: nowrap; margin-left: -3px; }
   /* Tam biçim yalnız ekran okuyucu için (görsel olarak gizli, erişilebilir adda). */
@@ -1676,12 +1689,12 @@
   .aim-satir { display: flex; gap: 10px; align-items: baseline;
     padding: 4px 0; border-bottom: 1px solid var(--border); }
   .aim-satir:last-of-type { border-bottom: none; }
-  .aim-etiket { flex: none; width: 78px; font-size: 11px; color: var(--text-muted); }
+  .aim-etiket { flex: none; width: 78px; font-size: 12px; color: var(--text-muted); }
   .aim-deger { flex: 1; min-width: 0; font-size: 12px; color: var(--text);
     overflow-wrap: anywhere; }
-  .aim-deger.mono { font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .aim-deger.mono { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
   .aim-not { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--border);
-    font-size: 11.5px; line-height: 1.6; color: var(--text-muted); }
+    font-size: 12px; line-height: 1.6; color: var(--text-muted); }
 
   /* Zengin boş durum: ne yapılacağını söylemekle kalmayıp oraya götürür.
      Kapsayıcıdan bağımsız tanımlı (§6.3-2). */
@@ -1716,7 +1729,7 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sy-satir .icon-btn { flex: none; }
 /* §88b: öğrenci başına yapay zekâ izni anahtarı. */
-.sy-satir .sy-yz { flex: none; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;
+.sy-satir .sy-yz { flex: none; font-size: 12px; padding: 3px 8px; border-radius: 6px;
   border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); }
 .sy-satir .sy-yz.sy-yz-yok { border-color: var(--warning); background: var(--warning-soft); color: var(--warning); font-weight: 600; }
 .sy-ekle { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -1740,7 +1753,7 @@
 }
 .sy-riza .btn { margin-top: 6px; }
 /* §107: onaydan sonra düzenlenen soru hapı. */
-.onay-sonra-hap { font-size: 11px; }
+.onay-sonra-hap { font-size: 12px; }
 .kit-satir-duzenle { flex-direction: column; align-items: stretch; }
 .kit-duzen-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .kit-duzen-form .sy-input { flex: 1 1 160px; }
@@ -1946,6 +1959,26 @@
   .giris-kapisi .gk-kart,
   .giris-kapisi .gk-ikon,
   .giris-kapisi .gk-kart-alt { transition: none; }
+}
+
+/* §115 — GENEL hareket azaltma: app.css ve css/*.css'teki BÜTÜN animasyon ve
+   geçişleri kapsar (kabuk, kazanım seçici, öğretmen dahil). Evrensel seçici +
+   !important, dosya yükleme sırasından bağımsız kazanır. Süre 0 değil 0.01ms:
+   transitionend/animationend olayları yine tetiklenir, davranış değişmez.
+   Bekleme göstergeleri durur ama metinleri ve role="status" duyurusu kalır. */
+/* §115 — klavyeyle odaklanan kaydırma kapları (axe scrollable-region-focusable). */
+.heatmap-wrap[tabindex="0"]:focus-visible, .au-liste[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ===========================================================================

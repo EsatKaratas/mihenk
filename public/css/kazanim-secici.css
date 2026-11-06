@@ -47,9 +47,10 @@
 .kz-oge.secili, .kz-grup.secili > .kz-satir { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
 .kz-oge.secili .kz-metin { font-weight: 400; }
 
-.kz-oge:focus { outline: none; }
+.kz-oge:focus:not(:focus-visible) { outline: none; } /* §115 */
 .kz-oge:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.kz-grup:focus { outline: none; }
+.kz-grup:focus:not(:focus-visible) { outline: none; }
+.kz-grup:focus-visible { outline: none; } /* halka içteki satıra çizilir (aşağıda) */
 .kz-grup:focus-visible > .kz-satir { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* Yerleşim: havuz ağacı zaten kendi kaydırmasını yapar; ekleme satırında

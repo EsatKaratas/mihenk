@@ -104,7 +104,9 @@ describe('demo şeridi — HITL ve erişilebilirlik (kaynak)', () => {
   });
 
   it('duyuru bölgesi kalıcı ve şerit dışında (innerHTML ile silinmez)', () => {
-    const d = govde('demoDuyur');
+    // §115: demo duyurusu TEK ortak durum bölgesine (durumDuyur) gider.
+    expect(govde('demoDuyur')).toContain('durumDuyur(metin)');
+    const d = govde('durumDuyur');
     expect(d).toContain('aria-live');
     expect(d).toContain('document.body.appendChild');
   });

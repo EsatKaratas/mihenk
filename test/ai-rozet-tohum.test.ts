@@ -156,11 +156,15 @@ describe('§90 toplu çözme — kota ve günlük sınırda HEMEN durur', () => 
       const h = hatalar[q.id - 1];
       q.bagimsizCozum = h ? { hata: 'hata', durumKodu: h.durumKodu, hataKodu: h.hataKodu } : { secilenSik: 'A' };
     };
-    const fn = new Function('state', 'bagimsizCoz', 'renderAll', 'setTimeout', 'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni',
+    const duyurular: string[] = [];   // §115 ortak durum bölgesi (sahte)
+    const fn = new Function('state', 'bagimsizCoz', 'renderAll', 'setTimeout', 'topluCozDurdurmaKodu', 'topluCozBeklenirMi', 'topluCozSonucMetni', 'durumDuyur',
       tanim('bekleyenleriCoz') + '\nreturn bekleyenleriCoz;')(
       state, bagimsizCoz, () => {}, (r: () => void) => { bekleme++; r(); },
-      k.topluCozDurdurmaKodu, k.topluCozBeklenirMi, k.topluCozSonucMetni);
+      k.topluCozDurdurmaKodu, k.topluCozBeklenirMi, k.topluCozSonucMetni, (m: string) => duyurular.push(m));
     await fn();
+    // §115: başta bir, sonda bir duyuru; sonuncusu ekrandaki sonuç metniyle aynı.
+    expect(duyurular.length).toBe(2);
+    expect(duyurular[1]).toBe(state.topluCozSonuc);
     return { cagri, bekleme, sonuc: state.topluCozSonuc as string };
   }
 
