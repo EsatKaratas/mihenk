@@ -12107,3 +12107,74 @@ Bu doğru davranış (§88b izin yolu).
   - Analitik sekmesinde bölüm görünüyor. Taşma 0, konsol hatası 0, POST 0.
 - `kagit.mjs` (§106) 46/46; `kontroller.mjs` 28/28 + 28/28; `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0.
 - Kanıt: `side-session-notes\local_fbcef29b-…\W9-kriter-puan\` (kart ve rapor 1280/390, loglar, betik).
+
+## 113. ÜÇ DÜZELTME + İKİNCİ YAYIN (6–7 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Taban:** `entegrasyon-7kasim-b` 290d579; entegrasyon worker'ından devralındı. Onun ölçümü: 871/871,
+öz-kontrol 709, `olcum:dogrula` 37/37, kontroller 28/28 ×2, demo 5/5 ×2, çapraz akış 37/37 ×2, sır 0.
+Düzeltmeler aynı dalda: **18abed0**.
+
+**Düzeltmeler:**
+1. **⋯ menüsü (sınav kartı, `details.ogt-menu`):**
+   - Sorun: "Sınav kâğıdı" yazdırılınca menü açık kalıyordu (yeniden çizim yok) ve Escape kapatmıyordu.
+     390 px'te açık menü "Kâğıt sonuçlarını gir"i örtüp tıklamayı engelliyordu.
+   - Artık:
+     - Menü öğesi seçilince menü kapanır ve odak ⋯'ye döner.
+     - Escape kapatır, odak ⋯'ye döner.
+     - Dışarı tıklama kapatır (`pointerdown`, bir kez kurulur).
+     - Bir menü açılırken diğer açık ⋯ menüleri kapanır.
+   - **Yan bulgu (ölçüldü):** "diğerlerini kapat" ilk yazımda `toggle` olayındaydı. Bu olay gecikmeli
+     geldiği için hızlı ardışık açışta eski menünün gecikmiş olayı yeni açılanı kapatıyordu. Kapatma
+     tetikleyicinin tıklamasına taşındı; Enter ve Space de tıklama üretir.
+   - Aynı bileşeni kullanan başka menü yok (testle: tek `details.ogt-menu`). Kabuk ⋯ menüsü ayrı bileşen;
+     Escape ile kapanıyor ve odağı düğmeye veriyor (tarayıcıda doğrulandı).
+2. **Tek Tıkla Onayla:** Ölçüt düzeltilmişse **işleyicide de** savunma var (§103 deseni):
+   `kriterDegisti(...)` doğruysa onay yazılmaz. Tarayıcıda düğme zorla etkinleştirilip tıklandı; onay
+   yazılmadı.
+3. **`docs/kvkk/OGRETMEN-ONAM-TASLAK.md` §5** §111/§112'nin gerçek davranışıyla eşitlendi:
+   - Beyaz liste; çıkarılan alanlar (öğrenci adı ve no, soru metni, not, YZ gerekçesi, ölçüt adları;
+     öğretmen adı yok).
+   - Tuzlu SHA-256 soru kimliği; tuz pakette yok.
+   - `kriterFarklari`; zaman dakika hassasiyetinde.
+   - Eski "rastgele kimlikle değiştirilir" ve "ilk 80 karakter" adımları gerçek davranış değildi;
+     kaldırıldı.
+   - Testle kodla tutarlılık: `ARASTIRMA_ALANLARI`'nda ad ya da metin alanı yok.
+
+**Düzeltme doğrulaması (statik sunucu 8849, PID 33284 ile durduruldu):**
+- `npm test` 879/879 (+8 `test/duzeltme-113.test.ts`); lint 0; öz-kontrol %100 (711); `olcum:dogrula`
+  37/37.
+- Tarayıcı `menu113.mjs` 1280 ve 390: **22/22**. Betikte `window.print` taklidi `afterprint`'i de
+  gönderiyor; gerçek tarayıcı gibi.
+- `kagit.mjs` 46/46; `kriter.mjs` 34/34; `kontroller.mjs` 28/28 ×2; demo 5 adım ×2.
+
+**Yayın öncesi (ana checkout, main 20e2552 → 18abed0, `merge --ff-only`):**
+- 879/879 (43 dosya); lint 0; öz-kontrol 711 %100; `check:config` iki dosyada GEÇERLİ; `olcum:dogrula`
+  37/37; `node --check`.
+- Sapma yok: entegrasyon sayılarından farklar yalnız bu turun eklemeleri (+8 test, +2 ad).
+- **Not:** `olcum:dogrula` ana checkout'ta `docs/olcum/PANO.md`'de iki dosyanın özetini farklı yazdı.
+  Ölçüldü: `core.autocrlf=true` yüzünden diskte CRLF var (38 ve 846 CR); git'teki blob LF ve PANO'daki
+  özetler blob'unkiyle aynı. Yeniden üretilen dosya geri alındı. İçerik sapması değil.
+- `src/`, `wrangler*.jsonc`, `public/_headers` farkı `20e2552..18abed0` boyunca boş.
+- `git ls-files public` 202 dosyada disk = blob; vendor SHA256SUMS 0 sapma.
+- Sır taraması (`origin/main..HEAD`, 5.508 eklenen satır): 11 eşleşmenin hepsi PANO.md'deki
+  "dosya | 64 haneli SHA-256" satırı → **sır 0**.
+- Dry-run bağlamaları §105 ile aynı (iki DO + AI + ASSETS + vars, `OLCUM_*` yok).
+
+**Yayın:** `npm run deploy:demo` (13:03) → **Version `2db80aea-b77f-41bd-8dda-12111e16fac1`**
+(6 yeni varlık + 194 mevcut).
+
+**Canlı (model çağrısız):**
+- `sha-karsilastir.sh HEAD`: 18abed0 · **200 dosya** · canlı = disk 200 · canlı = blob 200.
+- Başlıklar: CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
+- Yollar: `/`, `/404`, `/mimari`, `/privacy-policy`, `/robots.txt`, **`/veri-nereye-gider`** → 200;
+  olmayan yol → 404.
+- `/veri-nereye-gider` tarayıcıda 1280 ve 390: CSP ihlali 0 (`securitypolicyviolation` dinlendi),
+  konsol hatası 0, taşma 0.
+- `GET /api/ai/status`: ready; iki DO "durable-object".
+- `GET /api/ai/butce`: 200 no-store, `{harcanan 0, rezerv 0, doldu true}`. §96'daki kapanışın devamı,
+  00:00 UTC'de sıfırlanır. Doğrulamalardan sonra da aynı; W10'un 03:00 ölçümü için taban bozulmadı.
+- `kontroller.mjs` 28/28 + 28/28.
+- `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0. Her genişlikte `/api/ai/evaluate` POST'u
+  Playwright'ta kesildi (§105'teki gibi); model çağrısı 0.
+- Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-113\`.
+
