@@ -11153,3 +11153,41 @@ idi ve fark %11,2'ydi). Diğer ekranlar %0; konsol hatası 0, yinelenen id 0.
   - `kontroller.mjs` 28/28, `demo-yuru.mjs` 5/5.
 - **Sonraki tura:** P3-1 (ağaçta ilk harfle atlama), P3-4 (A2'de okul listesinde olmayan kazanımda seçili satır yok)
   ve P3-5 (Deneyap geçişindeki tek 6,2 sn ölçümü; W9 tabanda ve dalda yeniden üretemedi, en çok 6 ms).
+
+## 96. YAYIN — §93–§95 tek yayında + Neuron bütçesi DO'su açıldı (6 Kasım 2026, W10, Orchestrator 2 emriyle)
+
+**Yayın:** `npm run deploy:demo` → **Version `272fecf6-1b6a-4429-8757-a14aea5e5072`**. main,
+`entegrasyon-6kasim` ucuna (`596e016`) fast-forward ile alındı. Birleşik uç: `c5f1f04` (butce-vendor),
+`044ba38` (demo-tiklanir), `8edc26a` (kazanim-secici), `596e016` (çip düzeltmesi). Bağımsız doğrulama:
+W6 → `8edc26a` (koşullu uygun, P1 yok), W9 → `596e016` (geçti). Yeni DO sınıfı `NeuronButce` migration
+`v2-neuron-butce` ile bu yayında oluştu (v1 değişmedi).
+
+**Yayın öncesi (Ö1):** `npm test` 595/595 (28 dosya), lint, öz-kontrol çıkış 0 (569 ad), `check:config`
+GEÇERLİ, `node --check`, FFFD 0. `git ls-files public` 201 dosyada disk = blob (bayt). Sır taraması
+(`origin/main..HEAD` eklenen satırlar, SHA256SUMS hariç) temiz. Dry-run: GUNLUK_SAYAC + NEURON_BUTCE + AI +
+ASSETS + vars, `OLCUM_*` yok.
+
+**Canlı A (model çağrısız, ölçüldü):**
+- `sha-karsilastir.sh HEAD` → 199 dosya, canlı = disk = blob (bayt) 199/199.
+- **Vendor `@` (§93 A) canlı kanıtı:** yeni yollardaki 117/117 dosya `curl` ile **yönlendirmesiz 200**
+  (önceden 307 → `%40`). Eski `@` yolu hâlâ 307 veriyor; hiçbir kaynak onu kullanmıyor.
+- Başlıklar: CSP (değişmedi), `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
+  `/favicon.ico` → 301 `/mihenk-logo.png`. `/`, `/404`, `/mimari`, `/privacy-policy`'de CR 0.
+- `/api/ai/status`: `gunlukSinir.mod` ve `gunlukButce.mod` **"durable-object"**, eşik 9.000.
+  `GET /api/ai/butce` 200, `Cache-Control: no-store`, şekil doğru (`mod: "durable-object"`).
+- `kontroller.mjs` 1280 ve 390: 28/28 + 28/28, konsol hatası 0, taşma 0. `demo-yuru.mjs` 1280 ve 390
+  (POST engelli): 5/5 adım, konsol hatası 0, dialog 0.
+
+**usage ölçümü (tek model çağrısı) — ÖLÇÜLEMEDİ, kota bitmişti:**
+- Çağrı öncesi analitik (`neuron-gunluk.mjs`, 05:54 UTC): bugün 7.614 Neuron, kalan 2.386. Bunun ~7.619'u
+  §92 deneyinin 00:12 UTC koşusu.
+- Tek `POST /api/ai/evaluate` → **503 `ai_kota_bitti`**: Workers AI 3036 döndü (258 ms). Analitiğin
+  gösterdiği 2.386 kalan **gerçek kotayla uyuşmadı**; analitik gecikmeli ya da eksik olabilir. Nedeni
+  ölçülmedi; bundan sonra "kalan" değeri tek başına güvenilir sayılmamalı.
+- Bu çağrı **3036 yolunu canlıda doğruladı** (`wrangler tail`): adres hakkı alındı → bütçe rezervi
+  239 Neuron → model 3036 → adres hakkı iade → `kapat?rezerv=239&gercek=0&tukendi=1`. `/api/ai/butce`
+  önce `{harcanan 0, rezerv 0, doldu false}`, sonra `{harcanan 0, rezerv 0, doldu true, tukendi true}`.
+  Gün 00:00 UTC'ye kadar kapalı: sonraki AI istekleri model çağrılmadan 503 `gunluk_butce` alır.
+- `butce_usage_yok` logu yok, çünkü model çalışmadı. **Binding'in `usage` döndürüp döndürmediği hâlâ
+  ölçülmedi.** 00:00 UTC'den (03:00 TR) sonra tek bir puanlama çağrısıyla ölçülecek.
+- Harcanan model Neuron'u: 0 (3036 çağrısı faturalanmaz).
