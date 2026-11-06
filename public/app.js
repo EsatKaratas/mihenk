@@ -1708,7 +1708,7 @@ function renderAiBadge() {
 const STORE_KEY = "t3-olcme-durum-v1";
 const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount", "ceForm", "questions",
   "rubrics", "rubricSelectedQ", "exam", "answers", "flagged", "examStatus", "currentQIndex",
-  "remainingSec", "aiEvals", "reviews", "mcResults", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
+  "remainingSec", "aiEvals", "reviews", "mcResults", "kaynak", "remedial", "integrity", "outcomes", "subjects", "poolFilter", "exams", "activeExamId",
   "students", "activeStudentId", "evalCache", "misconceptions", "alignment", "sources", "library", "auditLog", "auditDusen",
   /* §42: sınıf listesi bir kez kuruldu mu? Bu bayrak KALICI OLMAK ZORUNDA —
      tek işi, kullanıcının boşalttığı listeyi açılışta yeniden tohumlamayı
@@ -7306,7 +7306,10 @@ function wireRejectedPool(mod) {
    tek sınavla kazanım trendi hesaplanamaz.                                 */
 let examIdSeq = 1;
 const OTURUM_ALANLARI = ["answers", "flagged", "examStatus", "currentQIndex", "remainingSec",
-  "aiEvals", "reviews", "mcResults", "integrity"];
+  "aiEvals", "reviews", "mcResults", "integrity",
+  /* §106: isteğe bağlı; "kagit" = sonuçlar öğretmen tarafından kâğıttan girildi.
+     Yoksa (eski kayıtlar dahil) çevrimiçi oturumdur — göç yok. */
+  "kaynak"];
 
 function bosOturum() {
   return {
@@ -7511,7 +7514,9 @@ function activateExam(id) {
                  // "kim olarak değerlendiriyorum" alanı da buna göre güncellenir
                  // (aşağıdaki satır), aksi hâlde bir öğretmenin sınavına geçince
                  // ekranda hâlâ önceki öğretmenin adı görünürdü.
-                 teacherName: kayit.teacherName || "" };
+                 teacherName: kayit.teacherName || "",
+                 // §106: kâğıtta uygulandı mı — eksik kalırsa sınav değiştirilince kaybolur.
+                 uygulama: kayit.uygulama || "" };
   state.activeTeacherName = state.exam.teacherName;
   const s = sessionOf(kayit, state.activeStudentId);
   OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
@@ -7765,7 +7770,7 @@ function sinavOzeti(x, sf) {
     if ((d === "submitted" || d === "graded") && ornekIdler.indexOf(String(sid)) >= 0) ornekGonderen++;
   });
   const ad = String(e.title || "").trim();
-  return { id: x.id, aktif: aktif, ad: ad, hedef: e.targetClass || "", durum: e.status, adet: adet,
+  return { id: x.id, aktif: aktif, ad: ad, hedef: e.targetClass || "", durum: e.status, adet: adet, uygulama: e.uygulama || "",
            sure: e.durationMin, baslayan: kat.baslayan, gonderen: kat.gonderen, bekleyen: bekleyen,
            ornekGonderen: ornekGonderen,
            /* Hiç dokunulmamış boş kayıt (ilk açılışta ya da son sınav silinince
@@ -8155,17 +8160,21 @@ function sinavKartiHtml(k) {
   /* Yayınla düğmesi yalnız SEÇİLİ sınavın kartında ve sınav yayına hazırsa
      çizilir (id btnPublishExam: ekran betiği ve demo bu düğmeye dayanır).
      Hazır değilse "Gözden geçir" engelin ne olduğunu 3. adımda gösterir. */
+  /* §106: kâğıt sonuç girişi — sorusu olan her sınavda (taslak: kâğıtta
+     uygulanacak; yayındaki: devamsızlar kâğıtta). */
+  const kagitBtn = k.adet ? '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="kagitgir"' + d + '>Kâğıt sonuçlarını gir</button>' : "";
+  if (k.uygulama === "kagit") meta.push("kâğıtta uygulandı");
   let eylem;
   if (!yayinda) {
     eylem = '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="duzenle"' + d + '>Düzenle</button>' +
       (k.aktif && canPublishExam()
         ? '<button type="button" class="btn btn-primary btn-sm" id="btnPublishExam">Yayınla</button>'
-        : '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="gozden"' + d + '>Gözden geçir</button>');
+        : '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="gozden"' + d + '>Gözden geçir</button>') + kagitBtn;
   } else {
     eylem = (k.bekleyen
       ? '<button type="button" class="btn btn-primary btn-sm" data-ogt-islem="puanla"' + d + '>Kâğıtları puanla (' + k.bekleyen + ')</button>'
       : "") +
-      '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="sonuc"' + d + '>Sonuçlar</button>';
+      '<button type="button" class="btn btn-secondary btn-sm" data-ogt-islem="sonuc"' + d + '>Sonuçlar</button>' + kagitBtn;
   }
   const menu = '<details class="ogt-menu"><summary title="Diğer işlemler" aria-label="“' + escapeHtml(k.ad || "Adsız sınav") +
     '” için diğer işlemler">⋯</summary><div class="ogt-menu-liste">' +
@@ -8214,6 +8223,12 @@ async function sinavIslemi(islem, id) {
     state.poolError = ""; renderAll(); return;
   }
   if (islem === "puanla") { state.teacherTab = 3; renderAll(); return; }
+  if (islem === "kagitgir") {   // §106
+    o.kagit = state.activeExamId; o.kagitSonuc = ""; o.sihirbaz = null; o.yeni = false;
+    state.teacherTab = 1; renderAll();
+    const ilk = document.querySelector(".kg-h:not([disabled])"); if (ilk) ilk.focus();
+    return;
+  }
   if (islem === "sonuc") { state.teacherTab = 4; renderAll(); return; }
   if (islem === "kaldir") { await unpublishExam(id); return; }
   if (islem === "kagit" || islem === "anahtar") {
@@ -9056,8 +9071,441 @@ function poolFilterHtml() {
    derin bağlantısı ve eski kayıtlar) sihirbazın 2. adımına yönlenir. */
 function teacherTab1Html() {
   const o = ogtDurum();
-  if (state.teacherTab === 2) { o.sihirbaz = 2; o.yeni = false; state.teacherTab = 1; }
+  if (state.teacherTab === 2) { o.sihirbaz = 2; o.yeni = false; state.teacherTab = 1; o.kagit = null; }
+  if (o.kagit != null && !o.sihirbaz) {
+    if (o.kagit === state.activeExamId) return kagitGirisHtml();
+    o.kagit = null;   // sınav silindi ya da başka sınava geçildi
+  }
   return o.sihirbaz ? sihirbazHtml() : examSwitcherHtml();
+}
+
+/* ===========================================================================
+   §106 — KÂĞIT SINAV MODU (W9, Orchestrator 3; tasarım kararları PROGRESS §106)
+   ===========================================================================
+   Okulda ortak yazılı kâğıtta yapılır. Öğretmen basılı sınavdan sonra
+   "Kâğıt sonuçlarını gir" ile öğrenci × soru ızgarasına:
+     · ÇSS: işaretlenen şık (A–E), "-" boş bırakılmış; sistem anahtarla puanlar.
+     · Açık uçlu: doğrudan puan (öğretmenin KENDİ kararı, agents.md §1), ya da
+       yanıt metnini yazıp "YZ puan önerisi iste" → var olan aiEvaluate yolu →
+       Puanlama sekmesindeki onay kuyruğu. Otomatik onay YOK.
+   VERİ YOLU ÇEVRİMİÇİ SINAVLA AYNI: kayit.sessions[sid].{answers, mcResults,
+   reviews, aiEvals, examStatus}. Madde analizi, KR-20/alfa, kazanım grafiği,
+   e-Okul CSV (§101) ve öğrenci/veli kartı (§102) hiçbir değişiklik olmadan
+   bu alanları okur. Sonuç öğrenciye yine "Sonuçları Öğrenciye Yayınla" ile
+   (publishResults → graded) ulaşır.
+   YENİ ALANLAR (isteğe bağlı, göç YOK; yoksa = çevrimiçi):
+     · oturum.kaynak = "kagit"         (OTURUM_ALANLARI'na eklendi)
+     · sınav.uygulama = "kagit"        (taslak sınav kâğıtta uygulandıysa)
+     · review.decision = "kagit_elle"  (ızgarada elle girilen puan)
+   Izgara yazarken renderAll ÇAĞIRMAZ (odak + 600 hücre); yalnız değişen
+   satırın toplamı tazelenir, kayıt saveSoon ile. */
+const KAGIT_BOS = "-";
+
+/** ÇSS hücresi: "a"→"A"; "-", "0", "*", "." → "-" (boş bırakılmış);
+    "" → "" (girilmedi); sorunun şıklarında olmayan harf → null (geçersiz). */
+function kagitSikNormal(deger, q) {
+  const s = String(deger == null ? "" : deger).trim().toLocaleUpperCase("tr");
+  if (!s) return "";
+  if (/^[-0*.]$/.test(s)) return KAGIT_BOS;
+  const anahtarlar = ((q && q.options) || []).map(function (o) { return String(o.key).toUpperCase(); });
+  const gecerli = anahtarlar.length ? anahtarlar : ["A", "B", "C", "D", "E"];
+  return gecerli.indexOf(s) >= 0 ? s : null;
+}
+
+/** Açık uçlu hücre: "" → "" (girilmedi); "7,5" → 7.5; 0…max dışı ya da sayı
+    değilse null (geçersiz — sessiz kırpma YOK, hücre hatalı gösterilir). */
+function kagitPuanNormal(deger, max) {
+  const s = String(deger == null ? "" : deger).trim().replace(",", ".");
+  if (!s) return "";
+  if (!/^\d+(\.\d+)?$/.test(s)) return null;
+  const n = Number(s);
+  return n >= 0 && n <= Number(max) ? n : null;
+}
+
+/** Oturum kâğıt girişine açık mı? Çevrimiçi başlamış/göndermiş oturum salt okunur. */
+function kagitDuzenlenebilir(ss) {
+  const d = (ss && ss.examStatus) || "not_started";
+  return d === "not_started" || (ss && ss.kaynak === "kagit");
+}
+
+/**
+ * Bir satırın (öğrencinin) ızgara değerlerini oturuma uygular — SAF fonksiyon.
+ * satir: { [qid]: hücre metni }. Dönüş: writeSession'a verilecek alanlar.
+ * Satır tamamen boşsa (ve YZ önerisi/yanıt metni yoksa) oturum "girilmedi"ye
+ * döner. Doluysa: ÇSS'nin HEPSİ puanlanır (girilmeyen şık = boş = yanlış),
+ * elle girilen açık uçlu puan reviews'a "kagit_elle" kararıyla yazılır; YZ
+ * önerisinden onaylanmış puan (başka karar) hücre boşken korunur.
+ * Geçersiz hücre (null) yok sayılır — önceki değer korunur.
+ */
+function kagitSatirUygula(ss, sorular, satir) {
+  ss = ss || {};
+  const answers = Object.assign({}, ss.answers || {});
+  const reviews = Object.assign({}, ss.reviews || {});
+  const aiEvals = ss.aiEvals || {};
+  const mcResults = {};
+  let dolu = false;
+  sorular.forEach(function (q) {
+    const h = satir[q.id];
+    if (q.type === "mc") {
+      const v = kagitSikNormal(h, q);
+      if (v === null) { if (answers[q.id] && answers[q.id].selectedKey) dolu = true; return; }
+      if (v) dolu = true;
+      if (v && v !== KAGIT_BOS) answers[q.id] = { selectedKey: v };
+      else delete answers[q.id];
+    } else {
+      const max = (q.maxScore != null ? q.maxScore : 20);
+      const v = kagitPuanNormal(h, max);
+      const metin = answers[q.id] && answers[q.id].text;
+      if (metin || aiEvals[q.id]) dolu = true;
+      if (v === null) { if (reviews[q.id]) dolu = true; return; }
+      if (v !== "") {
+        dolu = true;
+        const once = reviews[q.id] || {};
+        reviews[q.id] = { finalScore: v, comment: once.comment || "", decision: "kagit_elle",
+          aiScore: aiEvals[q.id] && aiEvals[q.id].aiScore != null ? aiEvals[q.id].aiScore : null };
+      } else if (reviews[q.id] && reviews[q.id].decision === "kagit_elle") {
+        delete reviews[q.id];
+      } else if (reviews[q.id]) {
+        dolu = true;   // YZ önerisinden onaylanmış puan
+      }
+    }
+  });
+  if (!dolu) {
+    return { answers: {}, mcResults: {}, reviews: {}, aiEvals: {}, examStatus: "not_started", kaynak: undefined };
+  }
+  sorular.forEach(function (q) {
+    if (q.type !== "mc") return;
+    const a = answers[q.id];
+    mcResults[q.id] = { correct: !!a && a.selectedKey === q.correctKey };
+  });
+  return { answers: answers, mcResults: mcResults, reviews: reviews,
+    examStatus: ss.examStatus === "graded" ? "graded" : "submitted", kaynak: "kagit" };
+}
+
+/** Satırın o anki puanı (ÇSS anahtar + elle/onaylı açık uçlu) ve eksik açık uçlu sayısı. */
+function kagitSatirOzeti(ss, sorular, mcP) {
+  let puan = 0, eksik = 0, oneri = 0;
+  sorular.forEach(function (q) {
+    if (q.type === "mc") { if ((ss.mcResults || {})[q.id] && ss.mcResults[q.id].correct) puan += mcP; return; }
+    const r = (ss.reviews || {})[q.id];
+    if (r && r.finalScore != null) puan += Number(r.finalScore);
+    else if ((ss.aiEvals || {})[q.id] && !(ss.aiEvals[q.id] || {}).failed) oneri++;
+    else eksik++;
+  });
+  return { puan: Math.round(puan * 100) / 100, eksik: eksik, oneri: oneri };
+}
+
+/** Hücrenin başlangıç metni oturumdan. */
+function kagitHucreMetni(ss, q) {
+  if (q.type === "mc") {
+    const a = (ss.answers || {})[q.id];
+    if (a && a.selectedKey) return String(a.selectedKey);
+    return ss.kaynak === "kagit" || ss.examStatus === "submitted" || ss.examStatus === "graded" ? KAGIT_BOS : "";
+  }
+  const r = (ss.reviews || {})[q.id];
+  return r && r.finalScore != null ? String(r.finalScore).replace(".", ",") : "";
+}
+
+/** Izgaranın satırları: bağlamdaki sınıfın (yoksa sınav hedefinin) öğrencileri. */
+function kagitOgrencileri() {
+  const sf = ogtSinif() || state.exam.targetClass || "";
+  return (state.students || []).filter(function (s) { return !sf || (s.sinif || "") === sf; });
+}
+
+/** Sınav kâğıtta uygulandıysa tarih alanının değeri (YYYY-MM-DD, yerel). */
+function kagitTarihDegeri() {
+  const t = state.exam.startsAt ? new Date(state.exam.startsAt) : new Date();
+  const p = function (n) { return String(n).padStart(2, "0"); };
+  return t.getFullYear() + "-" + p(t.getMonth() + 1) + "-" + p(t.getDate());
+}
+
+function kagitGirisHtml() {
+  const sorular = kagitSorulari();
+  const ogr = kagitOgrencileri();
+  const mcP = mcPuani();
+  const o = ogtDurum();
+  const cevrimici = state.exam.status === "published" && state.exam.uygulama !== "kagit";
+  const ust = '<div class="ogt-ust ogt-ust-ic"><div><h3 class="ogt-bolum">Kâğıt sonuçlarını gir</h3>' +
+    '<div class="ogt-alt">' + escapeHtml(state.exam.title || "Adsız sınav") + " · " + sorular.length + " soru · " +
+    ogr.length + " öğrenci</div></div>" +
+    '<button type="button" class="btn btn-secondary btn-sm" id="kgKapat">Bitti</button></div>';
+  if (!sorular.length) {
+    return ust + '<div class="empty-state">Bu sınavda kâğıda basılan onaylı soru yok. Önce soruları ekleyip onaylayın.</div>';
+  }
+  if (!ogr.length) {
+    return ust + '<div class="empty-state">Bu sınıfta öğrenci yok. “Öğrenciler” sekmesinden ekleyin.</div>';
+  }
+  const tarih = cevrimici
+    ? '<p class="kg-not">Bu sınav çevrimiçi yayında; kâğıt girişi yalnız çevrimiçi sınava girmemiş öğrenciler içindir. Sınav tarihi değişmez.</p>'
+    : '<div class="field kg-tarih"><label for="kgTarih">Uygulama tarihi</label><input type="date" id="kgTarih" value="' +
+      kagitTarihDegeri() + '"><span class="lbl-hint">Dönem filtresi (§103) bu tarihten bulunur.</span></div>';
+  const bas = '<thead><tr><th scope="col" class="kg-ad">Öğrenci</th>' + sorular.map(function (q, i) {
+    const tur = q.type === "mc" ? "ÇSS" : "0–" + q.maxScore;
+    return '<th scope="col" title="' + escapeHtml(truncate(q.body, 120)) + '"><span class="kg-no">' + (i + 1) +
+      '</span><span class="kg-tur">' + tur + "</span></th>";
+  }).join("") + '<th scope="col" class="kg-top">Puan</th></tr></thead>';
+  const govde = "<tbody>" + ogr.map(function (s) {
+    const ss = readSession(s.id);
+    const acik = kagitDuzenlenebilir(ss);
+    const oz = kagitSatirOzeti(ss, sorular, mcP);
+    const girildi = ss.examStatus && ss.examStatus !== "not_started";
+    return '<tr data-kg-satir="' + s.id + '"' + (acik ? "" : ' class="kg-salt"') + '><th scope="row" class="kg-ad">' +
+      escapeHtml(s.name) + (acik ? "" : ' <span class="kg-rozet">çevrimiçi</span>') + "</th>" +
+      sorular.map(function (q, i) {
+        const etiket = s.name + ", soru " + (i + 1) + (q.type === "mc" ? ", şık" : ", puan 0 ile " + q.maxScore + " arası");
+        const deger = kagitHucreMetni(ss, q);
+        const ai = (ss.aiEvals || {})[q.id];
+        const r = (ss.reviews || {})[q.id];
+        const sinif = q.type === "mc"
+          ? (deger && deger !== KAGIT_BOS ? (deger === q.correctKey ? " kg-dogru" : " kg-yanlis") : "")
+          : (ai && !r && !ai.failed ? " kg-oneri" : "");
+        return '<td><input class="kg-h kg-' + (q.type === "mc" ? "sik" : "puan") + sinif + '" data-kg-sid="' + s.id +
+          '" data-kg-qid="' + q.id + '" value="' + escapeHtml(deger) + '" aria-label="' + escapeHtml(etiket) + '"' +
+          (q.type === "mc" ? ' maxlength="1" autocomplete="off" spellcheck="false" autocapitalize="characters"'
+            : ' inputmode="decimal" autocomplete="off"' +
+              (ai && !r && !ai.failed ? ' placeholder="öneri ' + escapeHtml(String(ai.aiScore)) + '"' : "")) +
+          (acik ? "" : " disabled") + "></td>";
+      }).join("") +
+      '<td class="kg-top" data-kg-top="' + s.id + '">' + (girildi ? kagitTopMetni(oz) : "—") + "</td></tr>";
+  }).join("") + "</tbody>";
+  return ust + tarih +
+    '<p class="kg-not" id="kgYardim">Şık için <b>A–E</b> yazın (sonraki hücreye geçer); <b>-</b> boş bırakılmış, boş hücre girilmedi demektir. ' +
+    "Açık uçluda puanı yazın: bu sizin kararınızdır. Yön tuşları ve Enter ile gezinin. Her hücre değişince kaydedilir.</p>" +
+    '<div class="kg-kap" role="region" aria-label="Kâğıt sonuç ızgarası" tabindex="0"><table class="kg-tablo" aria-describedby="kgYardim">' +
+    bas + govde + "</table></div>" +
+    '<div class="kg-panel" id="kgPanel" hidden></div>' +
+    '<div class="kg-alt" id="kgOzet" role="status">' + kagitGenelOzetMetni(sorular, ogr) + "</div>" +
+    (o.kagitSonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(o.kagitSonuc) + "</div>" : "");
+}
+
+function kagitTopMetni(oz) {
+  return ondalikTr(oz.puan) + (oz.eksik ? ' <span class="kg-eksik">' + oz.eksik + " eksik</span>" : "") +
+    (oz.oneri ? ' <span class="kg-oneri-say">' + oz.oneri + " öneri</span>" : "");
+}
+
+/** Alt satır: kaç öğrenci girildi, kaç açık uçlu bekliyor; Puanlama'ya yönlendirme. */
+function kagitGenelOzetMetni(sorular, ogr) {
+  let girilen = 0, eksik = 0, oneri = 0;
+  ogr.forEach(function (s) {
+    const ss = readSession(s.id);
+    if (ss.kaynak !== "kagit") return;
+    girilen++;
+    const oz = kagitSatirOzeti(ss, sorular, mcPuani());
+    eksik += oz.eksik; oneri += oz.oneri;
+  });
+  return girilen + " öğrencinin kâğıdı girildi" +
+    (eksik ? " · " + eksik + " açık uçlu puan eksik" : "") +
+    (oneri ? " · " + oneri + " YZ önerisi Puanlama sekmesinde onayınızı bekliyor" : "") +
+    (girilen && !eksik ? ". Sonuçları öğrenciye “Puanlama” sekmesinden yayınlarsınız." : ".");
+}
+
+/** Açık uçlu hücre odaklanınca altta: yanıt metni + "YZ puan önerisi iste". */
+function kagitPanelHtml(sid, q) {
+  const s = (state.students || []).find(function (x) { return x.id === sid; }) || { name: "Öğrenci" };
+  const ss = readSession(sid);
+  const metin = ((ss.answers || {})[q.id] || {}).text || "";
+  const ai = (ss.aiEvals || {})[q.id];
+  const r = (ss.reviews || {})[q.id];
+  const no = kagitSorulari().findIndex(function (x) { return x.id === q.id; }) + 1;
+  let durum = "";
+  if (r && r.decision === "kagit_elle") durum = "Puanı siz girdiniz (" + ondalikTr(r.finalScore) + "). Öneri istemek için önce hücredeki puanı silin.";
+  else if (r) durum = "Puan onaylandı: " + ondalikTr(r.finalScore) + ".";
+  else if (ai && ai.failed) durum = "Öneri alınamadı; puanı kendiniz girebilirsiniz.";
+  else if (ai) durum = "YZ önerisi: " + ai.aiScore + " / " + q.maxScore + " — Puanlama sekmesinde onayınızı bekliyor.";
+  /* Bekleyen öneri varken yeniden istenmez (aynı yanıt ikinci kez gitmesin). */
+  const kilit = !!r || (ai && !ai.failed) || (state.ai && state.ai.busy);
+  return '<div class="kg-panel-ust"><b>' + escapeHtml(s.name) + " · soru " + no + "</b> (açık uçlu, en çok " + q.maxScore + " puan)</div>" +
+    '<label for="kgMetin">Öğrencinin yanıtı (isteğe bağlı; yalnız öneri istenirse gerekir)</label>' +
+    '<textarea id="kgMetin" rows="3" data-kg-sid="' + sid + '" data-kg-qid="' + q.id + '">' + escapeHtml(metin) + "</textarea>" +
+    '<div class="kg-panel-alt"><button type="button" class="btn btn-secondary btn-sm" id="kgOneri"' + (kilit ? " disabled" : "") +
+    ">YZ puan önerisi iste</button>" +
+    '<span class="lbl-hint" id="kgPanelDurum" role="status">' + escapeHtml(durum) + "</span></div>";
+}
+
+/** Puanlama kuyruğunda: kâğıttan girilmiş ama açık uçlu puanı henüz yok. */
+function kagitEksikKartHtml(q, student) {
+  return '<div class="eval-card eval-elle" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
+    '<div class="q-meta">' + studentChip(student) + '<span class="pill pill-neutral">Kâğıt sınav</span>' +
+    '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + "</span></div>" +
+    '<div style="font-weight:600;font-size:14px;">' + escapeHtml(q.body) + "</div>" +
+    '<p class="lbl-hint">Bu açık uçlu yanıtın puanı henüz girilmedi. Puanı “Kâğıt sonuçlarını gir” ızgarasında ' +
+    "yazın ya da orada yanıt metnini girip yapay zekâdan öneri isteyin.</p>" +
+    '<div class="actions"><button type="button" class="btn btn-secondary kg-git">Kâğıt sonuçlarına git</button></div></div>';
+}
+
+/** Taslak sınavın ilk kâğıt kaydında: sınav "kâğıtta uygulandı" olur ve analizlere
+    girmesi için yayınlanmış sayılır (açılış = uygulama tarihi). Çevrimiçi
+    yayındaki sınava DOKUNULMAZ (karışık: devamsızlar kâğıtta). */
+function kagitSinaviIsaretle(tarihMetni) {
+  if (state.exam.status === "published" && state.exam.uygulama !== "kagit") return;
+  state.exam.uygulama = "kagit";
+  const t = tarihMetni ? new Date(tarihMetni + "T09:00:00") : null;
+  if (t && !isNaN(t.getTime())) state.exam.startsAt = t.getTime();
+  else if (!state.exam.startsAt) state.exam.startsAt = Date.now();
+  if (state.exam.status !== "published") {
+    state.exam.status = "published";
+    auditKaydet("kagit_sinav", { not: "“" + auditKisalt(state.exam.title || "Adsız sınav") + "” kâğıtta uygulandı; sonuçlar elle girildi" });
+  }
+}
+
+/** Bir satırı DOM'daki hücrelerden oturuma yazar; satır toplamını ve özeti tazeler. */
+function kagitSatirKaydet(sid, degisenQid) {
+  const sorular = kagitSorulari();
+  const satir = {};
+  document.querySelectorAll('.kg-h[data-kg-sid="' + sid + '"]').forEach(function (el) { satir[el.dataset.kgQid] = el.value; });
+  const once = readSession(sid);
+  if (!kagitDuzenlenebilir(once)) return;
+  const yeni = kagitSatirUygula(once, sorular, satir);
+  if (yeni.kaynak === "kagit") { const t = document.getElementById("kgTarih"); kagitSinaviIsaretle(t ? t.value : ""); }
+  writeSession(sid, yeni);
+  /* Denetim izi: elle girilen açık uçlu puan öğretmenin NİHAİ kararıdır. */
+  const q = sorular.find(function (x) { return String(x.id) === String(degisenQid); });
+  if (q && q.type !== "mc") {
+    const r0 = (once.reviews || {})[q.id], r1 = (yeni.reviews || {})[q.id];
+    if (r1 && r1.decision === "kagit_elle" && (!r0 || r0.finalScore !== r1.finalScore)) {
+      auditKaydet("puan_karari", { qid: q.id, sid: sid, soru: auditKisalt(q.body), aiScore: r1.aiScore,
+        finalScore: r1.finalScore, degisti: r1.aiScore == null ? undefined : Math.abs(r1.finalScore - r1.aiScore) > 0.001,
+        not: "kâğıt sınav — puan öğretmen tarafından elle girildi" });
+    }
+  }
+  const ss = readSession(sid);
+  const top = document.querySelector('[data-kg-top="' + sid + '"]');
+  if (top) top.innerHTML = ss.examStatus && ss.examStatus !== "not_started" ? kagitTopMetni(kagitSatirOzeti(ss, sorular, mcPuani())) : "—";
+  const oz = document.getElementById("kgOzet");
+  if (oz) oz.textContent = kagitGenelOzetMetni(sorular, kagitOgrencileri());
+  saveSoon();
+}
+
+/** Hücre görünümü: geçersiz / doğru / yanlış. */
+function kagitHucreSinifi(el, q) {
+  el.classList.remove("kg-gecersiz", "kg-dogru", "kg-yanlis");
+  if (q.type === "mc") {
+    const v = kagitSikNormal(el.value, q);
+    if (v === null) el.classList.add("kg-gecersiz");
+    else if (v && v !== KAGIT_BOS) el.classList.add(v === q.correctKey ? "kg-dogru" : "kg-yanlis");
+    el.setAttribute("aria-invalid", String(v === null));
+    return v;
+  }
+  const v = kagitPuanNormal(el.value, q.maxScore);
+  if (v === null) el.classList.add("kg-gecersiz");
+  el.setAttribute("aria-invalid", String(v === null));
+  return v;
+}
+
+/** Yön tuşlarıyla hücre gezintisi: dr satır, dc sütun farkı. */
+function kagitKomsu(el, dr, dc) {
+  const td = el.closest("td"), tr = el.closest("tr");
+  const sut = Array.prototype.indexOf.call(tr.children, td);
+  const satirlar = Array.prototype.slice.call(tr.parentElement.children);
+  let r = satirlar.indexOf(tr), c = sut;
+  for (let adim = 0; adim < 200; adim++) {
+    if (dc) { c += dc; if (c < 1 || c >= tr.children.length - 1) { c = dc > 0 ? 1 : tr.children.length - 2; r += dc; } }
+    else r += dr;
+    if (r < 0 || r >= satirlar.length) return null;
+    const hedef = satirlar[r].children[c] && satirlar[r].children[c].querySelector(".kg-h");
+    if (hedef && !hedef.disabled) return hedef;
+    if (!dc && !hedef) return null;
+  }
+  return null;
+}
+
+async function kagitOneriIste(sid, qid) {
+  const q = kagitSorulari().find(function (x) { return x.id === qid; });
+  const ta = document.getElementById("kgMetin");
+  const durum = document.getElementById("kgPanelDurum");
+  const btn = document.getElementById("kgOneri");
+  const metin = ta ? ta.value.trim() : "";
+  if (!q) return;
+  if (!metin) { if (durum) durum.textContent = "Öneri için önce öğrencinin yanıtını yazın."; if (ta) ta.focus(); return; }
+  const ss0 = readSession(sid);
+  if ((ss0.reviews || {})[qid]) return;   // elle puan ya da onay varken öneri yok
+  const ans = Object.assign({}, ss0.answers || {});
+  ans[qid] = { text: metin };
+  writeSession(sid, { answers: ans });
+  if (btn) { btn.disabled = true; btn.textContent = "Öneri isteniyor…"; }
+  if (durum) durum.textContent = "";
+  /* Var olan yol: aiEvaluate (izin, KVKK maskesi, önbellek, kota, simülasyon
+     hepsi orada). Sonuç YALNIZ aiEvals'a yazılır — onay kuyruğuna düşer. */
+  const sonuc = await aiEvaluate(q, metin, state.rubrics[qid], false, sid);
+  const ss = readSession(sid);
+  const ev = Object.assign({}, ss.aiEvals || {});
+  ev[qid] = sonuc;
+  writeSession(sid, { aiEvals: ev });
+  kagitSatirKaydet(sid, null);   // satır "girildi"ye geçer (kaynak = kâğıt)
+  const hucre = document.querySelector('.kg-h[data-kg-sid="' + sid + '"][data-kg-qid="' + qid + '"]');
+  if (hucre && sonuc && !sonuc.failed) { hucre.placeholder = "öneri " + sonuc.aiScore; hucre.classList.add("kg-oneri"); }
+  const panel = document.getElementById("kgPanel");
+  if (panel) { panel.innerHTML = kagitPanelHtml(sid, q); kagitPanelBagla(sid, qid); }
+}
+
+function kagitPanelBagla(sid, qid) {
+  const ta = document.getElementById("kgMetin");
+  if (ta) ta.onchange = function () {
+    const ss = readSession(sid);
+    const ans = Object.assign({}, ss.answers || {});
+    if (ta.value.trim()) ans[qid] = { text: ta.value }; else delete ans[qid];
+    writeSession(sid, { answers: ans });
+    if (ss.kaynak === "kagit" || ta.value.trim()) kagitSatirKaydet(sid, null); else saveSoon();
+  };
+  const b = document.getElementById("kgOneri");
+  if (b) b.onclick = function () { kagitOneriIste(sid, qid); };
+}
+
+function wireKagitGiris() {
+  const o = ogtDurum();
+  const kapat = document.getElementById("kgKapat");
+  if (kapat) kapat.onclick = function () { o.kagit = null; o.kagitSonuc = ""; renderAll(); };
+  const tarih = document.getElementById("kgTarih");
+  if (tarih) tarih.onchange = function () {
+    if (state.exam.uygulama === "kagit") { kagitSinaviIsaretle(tarih.value); saveSoon(); }
+  };
+  const sorular = kagitSorulari();
+  const soruBul = function (qid) { return sorular.find(function (x) { return String(x.id) === String(qid); }); };
+  const panel = document.getElementById("kgPanel");
+  document.querySelectorAll(".kg-h").forEach(function (el) {
+    const q = soruBul(el.dataset.kgQid);
+    const sid = Number(el.dataset.kgSid);
+    el.onfocus = function () {
+      if (!panel) return;
+      if (q.type === "mc") { panel.hidden = true; return; }
+      panel.innerHTML = kagitPanelHtml(sid, q);
+      panel.hidden = false;
+      kagitPanelBagla(sid, q.id);
+    };
+    if (q.type === "mc") {
+      /* Harf yazınca anında puanlanır ve sağdaki hücreye geçilir. */
+      el.oninput = function () {
+        el.value = String(el.value).slice(-1).toLocaleUpperCase("tr");
+        const v = kagitHucreSinifi(el, q);
+        if (v === null) return;
+        kagitSatirKaydet(sid, q.id);
+        if (v) { const n = kagitKomsu(el, 0, 1); if (n) { n.focus(); n.select(); } }
+      };
+    } else {
+      el.oninput = function () { kagitHucreSinifi(el, q); };
+      el.onchange = function () { if (kagitHucreSinifi(el, q) !== null) kagitSatirKaydet(sid, q.id); };
+    }
+    el.onkeydown = function (e) {
+      let n = null;
+      if (e.key === "ArrowRight" && (q.type === "mc" || el.selectionStart === el.value.length)) n = kagitKomsu(el, 0, 1);
+      else if (e.key === "ArrowLeft" && (q.type === "mc" || el.selectionStart === 0)) n = kagitKomsu(el, 0, -1);
+      else if (e.key === "ArrowDown" || e.key === "Enter") n = kagitKomsu(el, 1, 0);
+      else if (e.key === "ArrowUp") n = kagitKomsu(el, -1, 0);
+      else return;
+      e.preventDefault();
+      if (q.type !== "mc" && kagitHucreSinifi(el, q) !== null) kagitSatirKaydet(sid, q.id);
+      if (n) { n.focus(); n.select(); }
+    };
+  });
+}
+
+/** Izgara sütunları: kâğıtta basılan sırayla (yazdirSorulari — numaralar eşleşsin). */
+function kagitSorulari() {
+  return yazdirSorulari().sorular.map(function (q) {
+    if (q.type === "mc") return q;
+    ensureRubric(q.id);
+    return Object.assign({}, q, { maxScore: state.rubrics[q.id].maxScore });
+  });
 }
 
 /* ===========================================================================
@@ -9349,6 +9797,7 @@ function wireOyss() {
 }
 
 function wireTeacherTab1() {
+  if (ogtDurum().kagit != null) wireKagitGiris();   // §106
   wireExamSwitcher();
   wireOgtSihirbaz();   // §62
   wireRejectedPool("teacher");
@@ -9939,7 +10388,7 @@ function evalCardHtml(q, student, ev) {
   const ans = (ss.answers || {})[q.id] || { text: "" };
   const rub = state.rubrics[q.id];
   if (ev && ev.failed) return evalFailedCardHtml(q, student, ans, ev, rub);
-  if (!ev) return "";
+  if (!ev) return ss.kaynak === "kagit" ? kagitEksikKartHtml(q, student) : "";
   return '<div class="eval-card" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
     '<div class="q-meta">' + studentChip(student) +
     '<span class="pill pill-accent">Açık Uçlu</span><span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span></div>' +
@@ -10348,6 +10797,9 @@ function wireTeacherTab3() {
   });
   const pubBtn = document.getElementById("btnPublishResults");
   if (pubBtn) pubBtn.onclick = publishResults;
+  document.querySelectorAll(".kg-git").forEach(function (b) {   // §106
+    b.onclick = function () { const o = ogtDurum(); o.kagit = state.activeExamId; o.sihirbaz = null; state.teacherTab = 1; renderAll(); };
+  });
   document.querySelectorAll(".approve-as-is").forEach(function (b) {
     b.onclick = function () {
       const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
@@ -11806,6 +12258,8 @@ function examActionBtn(x) {
   if (c.durum === "graded") return '<button class="btn btn-primary exam-act" ' + d + ' data-act="rapor">Karnemi Gör</button>';
   if (c.durum === "submitted") return '<button class="btn btn-secondary" disabled>Öğretmen onayı bekleniyor</button>';
   if (c.durum === "in_progress") return '<button class="btn btn-primary exam-act" ' + d + ' data-act="devam">Kaldığın Yerden Devam Et</button>';
+  /* §106: kâğıtta uygulanan sınav çevrimiçi başlatılamaz; sonuç öğretmen girince gelir. */
+  if (c.ex.uygulama === "kagit") return '<button class="btn btn-secondary" disabled>Kâğıt üzerinde uygulandı</button>';
   if (c.bekliyor) return '<button class="btn btn-secondary" disabled>Henüz açılmadı</button>';
   return '<button class="btn btn-primary exam-act" ' + d + ' data-act="basla">Sınava Başla</button>';
 }
@@ -15540,7 +15994,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b

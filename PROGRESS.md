@@ -11676,3 +11676,112 @@ yazılmıyordu. Bir insan kararı iz bırakmıyordu.
 **GitHub:** bu kayıt commit'lenip `git push origin main` ile gönderildi. Canlıdaki `public/` = 43ddfe0
 (bu commit yalnız PROGRESS.md'yi değiştiriyor).
 
+## 106. KÂĞIT SINAV MODU (6 Kasım 2026, W9, dal `feature/kagit-sinav`, Orchestrator 3 emriyle)
+
+Taban `main` 20e2552. Esat kararı müdüre bıraktı, müdür de tasarım kararlarını W9'a bıraktı; kararlar
+gerekçeleriyle aşağıda. Yalnız istemci: `app.js`, `css/ogretmen.css`, `privacy-policy.html`, testler. Sunucu
+değişmedi. Model çağrısı yok; YZ önerisi Playwright'ta taklit yanıtla sınandı.
+
+**Neden:** Okullarda ortak yazılılar kâğıtta yapılıyor. Kâğıt sonucu sisteme girilmeden madde analizi,
+KR-20/alfa, kazanım grafiği, e-Okul CSV ve veli kartı bu sınavlar için çalışmıyordu.
+
+**Akış:** Sınav kartı → **"Kâğıt sonuçlarını gir"** → öğrenci × soru ızgarası. Sütunlar kâğıtta basılan
+sırayla (`yazdirSorulari`), yani numaralar kâğıtla birebir.
+- **ÇSS:** öğretmen işaretlenen şıkkı yazar (A–E, küçük harf de olur). "-" boş bırakılmış demektir; boş
+  hücre "girilmedi" demektir. Sistem anahtarla puanlar; hücre doğru/yanlış renklenir ama harf hücrede
+  yazılı kalır.
+- **Açık uçlu:** öğretmen puanı yazar (`7,5` olur). Bu öğretmenin kendi kararıdır (agents.md §1):
+  `review.decision = "kagit_elle"` ve denetim izine `puan_karari` düşer.
+- **Açık uçlu, öneri isteniyorsa:** hücre odaklanınca altta panel açılır. Öğretmen yanıt metnini yazar ve
+  "YZ puan önerisi iste" der.
+  - İstek var olan `aiEvaluate` yolundan gider: YZ izni, KVKK ad maskesi, önbellek, kota ve simülasyon
+    hepsi orada.
+  - Sonuç yalnız `aiEvals`'a yazılır; Puanlama sekmesindeki onay kuyruğuna normal kart olarak düşer.
+    **Otomatik onay yok.**
+  - Öneri bekliyorken düğme kapalıdır, aynı yanıt ikinci kez gitmez.
+- **Yayın:** sonuç öğrenciye yine Puanlama'daki "Sonuçları Öğrenciye Yayınla" ile ulaşır
+  (`publishResults` → `graded`). Çevrimiçi sınavla aynı kapı.
+
+**Tasarım kararları:**
+1. **Aynı veri yolu, ayrı yapı yok.** Izgara `kayit.sessions[sid]`'e çevrimiçi sınavın alanlarıyla yazar:
+   `answers`, `mcResults`, `reviews`, `aiEvals`, `examStatus`. Madde analizi, KR-20/alfa, kazanım
+   grafiği, e-Okul CSV (§101) ve öğrenci/veli kartı (§102) **tek satır değişmeden** okur.
+2. **Yalnız isteğe bağlı alanlar, göç yok:**
+   - `oturum.kaynak = "kagit"`: OTURUM_ALANLARI'na ve KALICI_ALANLAR'a eklendi; `bosOturum` şekli
+     değişmedi, yoksa çevrimiçi demektir.
+   - `sınav.uygulama = "kagit"`
+   - `review.decision = "kagit_elle"`
+3. **Hücre değişince kaydedilir** ("Kaydet" düğmesi yok): 30 kâğıt girerken veri kaybı olmasın.
+   - ÇSS `input`'ta anında kaydedilir; açık uçlu `change`'de ya da gezinirken.
+   - Yazarken `renderAll` çağrılmaz. Yalnız satır toplamı ve alt özet tazelenir; kayıt `saveSoon` ile.
+4. **Satır tamamen boşaltılırsa** oturum "girilmedi"ye döner. Yanlış satıra girilen kâğıt geri alınabilir.
+5. **Dolu satırda girilmemiş ÇSS = boş = yanlış.** Kâğıtta işaretsiz soru budur; ayrı "eksik" durumu,
+   e-Okul'da toplamı boş bırakırdı.
+6. **Geçersiz giriş sessizce kırpılmaz.** Şıklarda olmayan harf, 0–max dışı puan ya da sayı olmayan değer
+   hücreyi kırmızı yapar (`aria-invalid`) ve önceki değer korunur.
+7. **Taslak sınav ilk kâğıt kaydında "kâğıtta uygulandı" olur:**
+   - `uygulama = "kagit"`, `status = "published"`, `startsAt` = "Uygulama tarihi" alanı (bugün ön seçili).
+   - Gerekçe: analizler ve yönetici panosu yalnız yayınlı sınavı sayar. Dönem filtresi (§103) de bu
+     tarihten bulunur.
+   - Öğrencide böyle bir sınav **"Kâğıt üzerinde uygulandı"** (kapalı) görünür; çevrimiçi başlatılamaz.
+8. **Çevrimiçi yayındaki sınava dokunulmaz (karışık sınav).** Çevrimiçi girenlerin satırı salt okunur
+   ("çevrimiçi" rozeti). Kâğıt yalnız girmemiş öğrenciler (devamsızlar) içindir. Sınavın durumu ve tarihi
+   değişmez.
+9. **Puanlama kuyruğunda boş kart yok.** Kâğıttan girilmiş ama açık uçlu puanı yazılmamış yanıt,
+   "Kâğıt sınav" kartıyla ve "Kâğıt sonuçlarına git" düğmesiyle görünür. Eskiden `ev` yoksa kart boş
+   dönüyordu; bu durumda kuyruk sayısı görünmeyen bir karta işaret ederdi.
+10. **YZ önerisinden onaylanmış puan korunur.** Hücre boşaltılsa bile silinmez; yalnız "kagit_elle"
+    puanı hücreyle birlikte silinir.
+11. **Klavye:**
+    - A–E yazınca sağdaki hücreye geçilir (satır sonunda alt satırın başına).
+    - ←/→ hücreler arasında (sayı alanında imleç uçtayken); ↑/↓ ve Enter satırlar arasında.
+    - Tab doğal sırada çalışır.
+    - Her hücrenin erişilebilir adı "Ada Yılmaz, soru 3, şık" biçiminde.
+    - Tablo kendi kabında kayar; başlık ve öğrenci sütunu yapışkan.
+12. **Yazdırma değişmedi** (§59): kâğıt ve ayrı anahtar.
+
+**Yan bulgu, düzeltildi:** `activateExam` sınav alanlarını tek tek kopyalıyor (kodda uyarı var).
+`uygulama` listeye eklenmeseydi, sınav değiştirilince "kâğıtta uygulandı" bilgisi kaybolurdu. Eklendi ve
+testle sabitlendi.
+
+**KVKK:** Yeni veri türü yok. Yanıt metni çevrimiçi sınavda zaten vardı; kâğıtta isteğe bağlıdır ve yalnız
+öneri istenirse modele gider (izin + ad maskesi aynı). `privacy-policy.html` "Sınav verisi" maddesine tek
+cümle eklendi.
+
+**Doğrulama (statik sunucu 8849, PID 21048 ile durduruldu; [::1] dahil port kontrolü):**
+- `npm test` **802/802** (38 dosya; +19 `test/kagit-sinav.test.ts`). Kapsadığı:
+  - normalleştirme;
+  - satır uygulama: dolu, boş, geçersiz, öneri, onaylı puanın korunması, graded;
+  - çevrimiçi oturumun salt okunurluğu;
+  - kâğıt ve çevrimiçi oturumun e-Okul CSV'de **aynı toplamı** vermesi;
+  - bağlantılar; `activateExam`.
+- `kvkk-yz-izin.test.ts` çağrı sayımı 3 → 4 güncellendi: yeni `aiEvaluate` çağrısı öğrenci kimliğini
+  `sid` ile geçiriyor.
+- lint temiz (çıkış 0); öz-kontrol %100 (**654 ad**); FFFD 0.
+- Tarayıcı `kagit.mjs`, 30 öğrenci × 20 soru (17 ÇSS + 3 açık uçlu), 1280 ve 390 px: **46/46**.
+  - Yazdır: kâğıtta sıra = ızgara sütunları; anahtar kâğıtta yok.
+  - İlk satır gerçek tuşlarla yazıldı: toplam 97,5, satır sonunda alt satıra geçti, sınav
+    published/kagit oldu. Gezinme ↑, Enter, ← ile sınandı.
+  - Geçersiz harf işaretlendi, oturum değişmedi.
+  - **Akıcılık ölçümü** (577 hücre programatik): hücre işleyicisi medyan 0,5 ms, p95 0,8 ms, en kötü
+    2,2 ms; 30×20 tam çizim 15 ms; ızgara açılışı 27–38 ms.
+  - YZ önerisi (taklit `/api/ai/evaluate`): `aiEvals` 16, onay yok, hücrede "öneri 16".
+  - Puanlama: öneri kartı + 2 "Kâğıt sınav" kartı. Onay → eksikler ızgarada → "Sonuçları Yayınla" →
+    30/30 graded, hepsi `kaynak: kagit`.
+  - KR-20 ve alfa n=30 hesaplandı. Sentetik desenli veride değerler negatif; veri yapay, hesap §101'deki
+    fonksiyon.
+  - e-Okul CSV 30 satır, bekleyen 0. Veli kartı dolu.
+  - Öğrencide "Karnemi Gör"; kâğıdı girilmemiş öğrencide "Kâğıt üzerinde uygulandı".
+  - Yeniden yüklemede kayıt korundu.
+  - 1280'de 20 sütun kaba sığıyor; 390'da tablo kendi kabında kayıyor, sayfada yatay taşma 0.
+  - Konsol hatası 0, gerçek `/api/ai` POST 0.
+- `kontroller.mjs` 28/28 + 28/28; `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0.
+- Kanıt: `side-session-notes\local_fbcef29b-…\W9-kagit-sinav\` (ızgara ve analitik 1280/390 + loglar ve
+  betik).
+
+**Bilinen sınırlar:**
+- Kâğıtta basılmayan (onaysız) soru sınavda kalırsa ızgarada sütunu yoktur. Analizler onu yanıtsız sayar;
+  yayın zaten onaysız soruyla yapılamaz.
+- Öğretmen başka sekmeye geçmeden sayfayı kapatırsa son açık uçlu hücre `change` almamış olabilir. ÇSS
+  hücreleri her tuşta kaydedilir.
+
