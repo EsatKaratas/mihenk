@@ -4160,6 +4160,9 @@ var AUDIT_ETIKET = {
   /* §99: elle yazılan soru taslağı. İnsan olayıdır; model sayımına (MODEL_URETIMI)
      GİRMEZ. Onayı yine ayrı bir "soru_onaylandi" kaydıdır (elle: true). */
   soru_elle_yazildi:    { ad: "Soru elle yazıldı",        sinif: "pill-neutral", aktor: "içerik uzmanı" },
+  /* §104b: reddedilen sorunun doğrudan havuza alınması. Düğme öğretmen panelinde;
+     kayıttaki `rol` o anki rolü ayrıca tutar. Kabul oranına GİRMEZ. */
+  soru_havuza_alindi:   { ad: "Reddedilen soru havuza alındı", sinif: "pill-warning", aktor: "öğretmen" },
   rubrik_onerildi:      { ad: "Rubrik önerildi",          sinif: "pill-accent",  aktor: "yapay zekâ" },
   rubrik_kabul_edildi:  { ad: "Rubrik taslağı kabul edildi", sinif: "pill-success", aktor: "öğretmen" },
   bagimsiz_cozum:       { ad: "Bağımsız çözüm",            sinif: "pill-neutral", aktor: "yapay zekâ" },
@@ -4223,6 +4226,8 @@ function auditOzet() {
     oneri: oneri, aynen: aynen, degisen: degisen, elle: elle,
     uretilen: uretilen, onaylanan: onaylanan, reddedilen: reddedilen, elleOnay: elleOnay,
     anahtarDuzeltme: anahtarDuzeltme,
+    // §104b: ayrı sayaç; "insan onayladı" (YZ önerisinin kabulü) sayısına girmez.
+    havuzaAlinan: g.filter(function (k) { return k.tur === "soru_havuza_alindi"; }).length,
     modeller: modeller,
     ilk: g.length ? g[0].at : null, son: g.length ? g[g.length - 1].at : null,
   };
@@ -4239,7 +4244,9 @@ function auditCsv() {
   var basliklar = ["zaman", "olay", "aktor", "model", "yedekMi", "soru", "ogrenciNo",
                    "aiPuan", "nihaiPuan", "degisti", "guven", "not", "supheler",
                    /* §104: sona eklendi; eski sütunların sırası değişmedi. */
-                   "redKodu", "anahtarDegisimi", "rozetA1A2"];
+                   "redKodu", "anahtarDegisimi", "rozetA1A2",
+                   /* §104b: havuza alma kaydı için; yine sona. */
+                   "oncekiDurum", "rol"];
   var satirlar = state.auditLog.map(function (k) {
     var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
     return [
@@ -4253,6 +4260,7 @@ function auditCsv() {
       k.redKodu || "",
       k.anahtarYeni ? k.anahtarEski + "→" + k.anahtarYeni : (k.anahtarIzlendi ? "aynı" : ""),
       Array.isArray(k.rozetA1A2) ? k.rozetA1A2.join(",") : "",
+      k.oncekiDurum || "", k.rol || "",
     ].map(function (h) {
       h = String(h == null ? "" : h);
       return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
@@ -4294,7 +4302,12 @@ function auditSatirHtml(k) {
   if (k.injectionAttempt) detay.push('<span class="au-inj">yanıt modele talimat vermeye çalışmış</span>');
   if (k.not) detay.push(escapeHtml(k.not));
   // §104: red nedeni ve anahtar değişimi günlük satırında da görünür.
-  if (k.redKodu) detay.push("neden: " + escapeHtml(redKoduAdi(k.redKodu)));
+  if (k.tur === "soru_havuza_alindi") {
+    // §104b: önceki durum ve rol; eski red nedeni aşağıdaki satırda.
+    detay.push("önceki durum: " + escapeHtml(k.oncekiDurum === "rejected" ? "reddedilmiş" : String(k.oncekiDurum || "?")) +
+      (k.rol ? " · rol: " + escapeHtml(rolAdi(k.rol)) : ""));
+  }
+  if (k.redKodu) detay.push((k.tur === "soru_havuza_alindi" ? "eski red nedeni: " : "neden: ") + escapeHtml(redKoduAdi(k.redKodu)));
   if (k.anahtarYeni) detay.push("anahtar <b>" + escapeHtml(k.anahtarEski) + " → " + escapeHtml(k.anahtarYeni) + "</b>");
   if (Array.isArray(k.rozetA1A2) && k.rozetA1A2.length) detay.push("rozet: " + escapeHtml(k.rozetA1A2.join(", ")));
 
@@ -4361,6 +4374,7 @@ function auditGunluguHtml() {
     '<div class="au-kutu"><div class="au-sayi">' + o.onaylanan + '</div><div class="au-etiket">insan onayladı</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.reddedilen + '</div><div class="au-etiket">insan reddetti</div></div>' +
     (o.elleOnay ? '<div class="au-kutu"><div class="au-sayi">' + o.elleOnay + '</div><div class="au-etiket">elle yazılan onaylandı</div></div>' : "") +
+    (o.havuzaAlinan ? '<div class="au-kutu"><div class="au-sayi">' + o.havuzaAlinan + '</div><div class="au-etiket">reddedilen havuza alındı</div></div>' : "") +
     '<div class="au-kutu"><div class="au-sayi">' + o.oneri + '</div><div class="au-etiket">YZ puan önerdi</div></div>' +
     '<div class="au-kutu"><div class="au-sayi">' + o.aynen + '</div><div class="au-etiket">aynen onaylandı</div></div>' +
     '<div class="au-kutu au-vurgu"><div class="au-sayi">' + o.degisen + '</div><div class="au-etiket">öğretmen değiştirdi</div></div>' +
@@ -7020,6 +7034,19 @@ function rejectedPoolHtml(mod) {
       : '<div class="empty-state">Reddedilen soru yok.</div>') + '</div>';
 }
 
+/** §104b: reddedilen soru doğrudan havuza alındı — denetim izi. Durumu DEĞİŞTİRMEZ. */
+function havuzaAlindiKaydet(q) {
+  auditKaydet("soru_havuza_alindi", { qid: q.id, soru: auditKisalt(q.body), model: q.uretenModel || null,
+    oncekiDurum: q.status || null, redKodu: q.redKodu || null, rol: state.role || null,
+    elle: q.yazan === "insan" ? true : null });
+}
+
+/** Rol kimliğinin okunur adı ("teacher" → "Öğretmen"); bilinmeyen olduğu gibi. */
+function rolAdi(id) {
+  const r = ROLES.filter(function (x) { return x.id === id; })[0];
+  return r ? r.label : String(id || "");
+}
+
 function wireRejectedPool(mod) {
   const tg = document.getElementById("btnToggleRejected-" + mod);
   if (tg) tg.onclick = function () {
@@ -7037,6 +7064,11 @@ function wireRejectedPool(mod) {
     b.onclick = function () {
       const q = findQuestion(b.dataset.qid);
       if (!q) return;
+      /* §104b: "↩ Havuza Al" bir İNSAN KARARIDIR (reddedilmiş soru onaylı havuza
+         girer) ama denetim izine yazılmıyordu. Davranış AYNEN: ek onay, modal yok;
+         yalnız kayıt eklenir. Bu bir "soru_onaylandi" değildir: YZ önerisinin
+         kabul oranına girmez (auditOzet yalnız soru_onaylandi sayar). */
+      if (b.dataset.mode === "approve") havuzaAlindiKaydet(q);
       delete q.redKodu;   // §104: artık reddedilmiş değil; neden denetim izinde kalır
       q.status = b.dataset.mode === "approve" ? "approved" : "ai_generated";
       renderAll();
@@ -14601,6 +14633,8 @@ function bosDurumHtml(mesaj) {
     // §104 red nedeni + karar kaydı (W10)
     "redKoduAdi", "redKoduRozetiHtml", "redKoduSeciciHtml", "redKoduOku", "soruyuReddet",
     "anahtarIzli", "rozetA1A2", "anahtarDuzeltmeHtml",
+    // §104b havuza alma izi (W10)
+    "havuzaAlindiKaydet", "rolAdi",
     // §75 kısa metin ön uyarısı (W3)
     "ceMetinKapasitesi", "ceMetinUzunlugu", "ceUyariOgeleriHtml", "ceUyarilariYenile",
     // §75b onay kartı sadeleşmesi (W3)
