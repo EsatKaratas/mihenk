@@ -19456,6 +19456,7 @@ function bosDurumHtml(mesaj) {
     "agHatasiMi", "hataMetniTr", "agHataMetni", "aiSunucuYok",
     "ortakSinavMi", "ortakSinavAlaniHtml", "yonKarsilastirmaKayitlari", "yonOrtakDisiSayisi", "yonOrtakNotuHtml",
     "depoSurumOku", "sekmeCakismasiBildir", "depoSurumuBizimMi", "depoyaSurumluYaz", "renderSekmeCakismasi", "sekmeDepoOlayi",
+    "surumAnahtari",   // §123
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
