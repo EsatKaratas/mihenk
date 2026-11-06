@@ -12399,3 +12399,68 @@ ekranlar (dolu-teacher-4-390 %33,9, dolu-admin-1-390 %28,0); hap yoğun olmayan
 Ekranlar ve ham çıktılar: `C:\Users\ASUS\Downloads\Mihenk\ekran-p7\`
 (`axe\axe-once.json`, `axe\axe-sonra.json`, `gorsel-once\`, `gorsel-sonra\rapor.md`,
 `kart-once\`, `kart-sonra\`, `kontroller-*.log`, `demo\`, `duyuru-*.json`).
+
+## 116. ÜÇÜNCÜ ENTEGRASYON + ÜÇÜNCÜ YAYIN — §114 OYSS + §115 erişilebilirlik (6 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Dal:** `entegrasyon-7kasim-c`, taban main `acc0e02`. Sırayla birleştirildi:
+- `feature/erisilebilirlik` (fcba3e1, §115) → `970a751`. Tek çakışma PROGRESS sonu.
+- `feature/oyss-senaryo` (9d4e754, §114) → `17aa6d9`. İki çakışma:
+  - `app.js` öz-kontrol listesi: iki tarafın adları birleştirildi (HEAD 117 ad + yalnız OYSS'te olan 29 ad).
+  - PROGRESS: bölümler §113 → §114 → §115 sırasına dizildi.
+
+**Kurulum:** worktree'ye gerçek `npm ci` yapıldı (junction değil). `axe-core` 4.14.0 kuruldu.
+npm, `esbuild` ve `workerd` kurulum betiklerini yeni onay politikası yüzünden atladı. vitest, wrangler dry-run ve deploy bundan etkilenmedi.
+
+**Entegrasyonda bulunan sapma ve düzeltmesi** (`19b7cd9`):
+- Sorun: OYSS kartında `.oyss-kod` yazısı ekranda **11,96 px** ölçüldü (ilk ölçümde kartta ve plan kutusunda 6'şar öğe).
+- Sebep: kural main'de zaten vardı (`font-size: 0.92em`, OYSS paketi 800cd79). §114 aynı sınıfı 13 px'lik tabloda kullanınca yazı 12 px'in altına düştü.
+- Neden kaçtı: §115'in 12 px testi yalnız px/rem/pt değerlerine bakıyordu. axe taraması da OYSS kartını açmıyordu.
+- Düzeltme: `font-size: max(var(--fs-1), 0.92em)`.
+- Yeni test `test/duzeltme-116.test.ts` (+2): CSS'te 12 px tabanına bağlanmamış göreli küçültmeleri yakalar (em < 1, % < 100, `smaller`). Eski dosyada `0.92em`'i yakaladığı sınandı. Bütün CSS'te başka örnek yoktu.
+
+**Yayın öncesi ölçüm** (19b7cd9):
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **920/920**, 46 dosya. Dağılım: 879 + 17 (a11y) + 22 (OYSS) + 2 (§116). Düzeltmeden önce 918/918 |
+| Öz-kontrol | %100, 743 ad (711 + 3 a11y + 29 OYSS) |
+| `olcum:dogrula` | 37/37 |
+| Lint, `check:config` | temiz; iki dosyada GEÇERLİ |
+| Sır taraması | 0. Tek eşleşme küçültülmüş tesseract vendor kodunda; bu turda dokunulmadı |
+| Bu turda eklenen 64 hex | 0 |
+| public | 202 dosya, disk = blob |
+| vendor | SHA256SUMS OK |
+| `src/`, wrangler ayarları, `_headers` | main'e göre fark yok |
+| axe (52 ekran × 1280/390 × açık/koyu) | critical, serious, moderate, minor: **0**. Düzeltmeden sonra yeniden koşuldu |
+| Taramada 12 px altı yazı | 0 |
+| `kontroller.mjs` | 28/28, hem 1280 hem 390 |
+| `demo-yuru.mjs` | 5 adım, hem 1280 hem 390 |
+| Konsol hatası, POST | 0 |
+
+**OYSS kartı erişilebilirlik ölçümü** (`oyss-a11y.mjs`, 390 ve 1280):
+- Kullanılan dosyalar: depo fikstürü `oyss-sentetik.xlsx` ve gerçek ÖDSGM `turkce2.xlsx` (depo dışında, yalnız okundu). Seçim: 7. SINIF, Senaryo 3.
+- axe kapsamı: kart kapalı, açık-boş, dolu ve 2. adımdaki plan kutusu. Dört durumda da ihlal düğümü 0.
+- 12 px altı yazı: önce 6 öğe, düzeltmeden sonra 0.
+- Tab ile kartta 11 durak var; hepsinin erişilebilir adı var.
+- Durum mesajı ortak `role="status"` bölgesinden okunuyor. Bozuk dosya mesajı `role="alert"` ile, 12,5 px.
+- Taşma 0, konsol hatası 0, POST 0. "Taslağa yaz" sınavı `draft` olarak açıyor: 2. adım, 5 soru.
+- Summary'de "odak görünmüyor" ölçümü yanlış alarm çıktı. Sebep betiğin programatik odaklaması. Klavyeyle gelince `:focus-visible` doğru ve tarayıcının varsayılan halkası görünüyor (`summary-odak.mjs`).
+
+**Yayın:**
+- main ff-only `acc0e02` → `19b7cd9`.
+- `npm run deploy:demo` (worktree'den, aynı commit) → **Version `35c57d6b-3c4b-4a18-ae74-aa8791073d14`**, 16:15.
+
+**Canlı doğrulama** (model çağrısı yapılmadı):
+- SHA: 200 dosya, canlı = disk = blob, 200/200.
+- `/`, `/veri-nereye-gider`, `/privacy-policy`, `/robots.txt`: 200.
+- Başlıklar yerinde: CSP, nosniff, DENY, referrer ve permissions politikaları.
+- `/veri-nereye-gider` 1280 ve 390 px'te: CSP ihlali 0, konsol hatası 0, taşma 0.
+- `/api/ai/status` doğru yanıt veriyor.
+- `/api/ai/butce` yayından önce ve sonra bayt bayt aynı: `harcanan 0`, `doldu/tukendi: true`.
+  Bu bayrak yayından önce de böyleydi, bu tur değiştirmedi. 03:00 ölçüm tabanı bozulmadı.
+- `kontroller.mjs` ve `demo-yuru.mjs` canlıda 1280 ve 390 px'te: 28/28 ve 5 adım, konsol hatası 0.
+  Her genişlikte 1 `/api/ai/evaluate` POST'u Playwright'ta kesildi (§105 gibi).
+- OYSS akışı canlıda 390 ve 1280 px'te: yereldeki sonuçların aynısı.
+  Canlı CSP satır içi axe enjeksiyonunu engelledi (CSP'nin çalıştığını gösteriyor). Ölçüm için yalnız test bağlamında `bypassCSP` açıldı.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oyss-once, oyss, oyss-canli, sha.log, kontroller, demo logları ve betikler var.
