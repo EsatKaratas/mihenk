@@ -11785,3 +11785,119 @@ cümle eklendi.
 - Öğretmen başka sekmeye geçmeden sayfayı kapatırsa son açık uçlu hücre `change` almamış olabilir. ÇSS
   hücreleri her tuşta kaydedilir.
 
+## 107. ONAYLI SORU DÜZENLEME İZİ + YENİ ÖĞRENCİDE "RIZA BEKLENİYOR" (6 Kasım 2026, W10, dal `feature/iz-izin-paket`, Orchestrator 3 emriyle; Madde 7 + 9)
+
+### 107a. Onaylı soru düzenlenince iz (Madde 7)
+
+**Neden:** Öğretmen onaylı bir soruyu sınav sihirbazındaki havuzda düzenleyebiliyordu (`poolEditHtml`).
+Soru, yeniden onaya girmeden değişiyordu ve günlükte iz kalmıyordu (§99 ve §104'te not edilmişti).
+
+**Ne yapıldı:**
+- **Davranış aynı:** onay sürer, yeniden onay ya da modal yok.
+- Düzenleme açılınca sorunun anlık görüntüsü alınır (`duzenlemeAnligiAl`). Bu görüntü yalnız arayüzde
+  tutulur; KALICI_ALANLAR'a girmez.
+- Düzenleme kapanırken (Kaydet, Vazgeç, "Kapat" ya da başka soruyu açma) fark varsa
+  `onayli_soru_duzenlendi` kaydı yazılır. Alanları:
+  - `qid`, `rol`;
+  - `alanlar`: gövde, şık, anahtar ve/veya kazanım (`govde` / `sik` / `anahtar` / `kazanim`);
+  - anahtar değiştiyse `anahtarEski` → `anahtarYeni`.
+- Düzenlemeler canlı uygulandığı için "Vazgeç" de geri almaz; bu yüzden o da iz bırakır.
+- Soruya isteğe bağlı `onaydanSonraDuzenlendi` alanı yazılır. Öğretmen havuzunda ve CE havuz ağacında
+  "onaydan sonra düzenlendi" hapı çıkar.
+- Karar Günlüğü satırında "değişen: gövde, anahtar · rol: Öğretmen · onay sürüyor" ve "anahtar A → B"
+  görünür. CSV'nin sonuna `degisenAlanlar` sütunu eklendi; anahtar değişimi var olan `anahtarDegisimi`
+  sütununda.
+- **Kabul oranına girmez:** kayıt `soru_onaylandi` değildir. "İnsan onayladı" ve §104 anahtar düzeltme
+  oranı değişmez.
+
+**Bilinen sınırlar:**
+- Sayfa düzenleme ortasında yenilenirse o düzenlemenin izi düşer (anlık görüntü bellekte).
+- Zorluk ve süre değişikliği izlenmez (emir: gövde/şık/anahtar/kazanım).
+
+### 107b. Yeni gerçek öğrencide YZ izni varsayılanı "rıza bekleniyor" (Madde 9)
+
+**Neden:** §88b'de alan yoksa izin var sayılıyordu. Öğretmenin yeni eklediği gerçek öğrencinin cevabı,
+rıza formu alınmadan yapay zekâya gidebiliyordu.
+
+**Ne yapıldı:**
+- Tekli ekleme (`btnOgrenciEkle`) ve e-Okul toplu ekleme (`topluOgrenciEkle`) artık `yeniGercekOgrenci`
+  kullanır: `yzIzniYok: true` + `yzRizaBekliyor: true`. Etiket "YZ: rıza bekleniyor"; veli reddi olan
+  "izin yok"tan ayrışır. Puanlama kartında da "YZ rızası bekleniyor" yazar.
+- **`yzIzniVar` değişmedi, göç yok:** alanı olmayan eski kayıt hâlâ izinli. Demo tohumu
+  (`VARSAYILAN_OGRENCILER`, `ensureStudents`) ve simülasyon öğrencileri değişmedi. Bu testle gösterildi.
+- Sınıf sayfasında şerit: "X öğrencinin yapay zekâ rızası bekleniyor · Tümünü işaretle (rıza formu
+  alındıysa)".
+  - Düğme `onayliEylem` onay penceresi açar ("Yalnız velisinden yazılı rıza formu ALINMIŞ öğrenciler
+    için yapın").
+  - Onaylanınca yalnız "rıza bekleniyor" olanlar açılır; "izin yok" (veli reddi) dokunulmaz.
+  - `yz_izni_toplu` kaydı yazılır (adet, sınıf, rol, öğrenci kimlikleri; **ad yazılmaz**).
+- Tek tek düğmeyle karar verilince `yzRizaBekliyor` silinir.
+- **Mevcut davranış kontrol edildi:** `aiEvaluate` ilk iş `yzIzniVar` ile döner (`yzIzinsizSonuc`,
+  `apiPost`'tan önce). İzinsiz öğrencinin cevabı YZ'ye gitmez, elle puanlama kuyruğuna düşer (§88b).
+- `public/privacy-policy.html` (bölüm 5, tek cümle; son güncelleme 06.11.2026) ve
+  `docs/kvkk/pilot-ogretmen-kontrol-listesi.md` güncellendi. Kontrol listesindeki "varsayılan izin var;
+  toplu yapıştırılan da izin var" cümlesi artık yanlıştı, değiştirildi.
+- `test/kvkk-yz-izin.test.ts`'teki "yeni öğrenci izin alanı YAZMAZ" testi bu emirle bilerek değişti.
+  Yeni hâli: tekli ve toplu ekleme `yeniGercekOgrenci` kullanır, `ensureStudents` kullanmaz.
+
+**Ölçüldü (§107a + §107b + §111 birlikte):**
+- `npm test` 38 dosya, **800/800** (yeni `test/iz-izin-paket.test.ts` 17 test; §104/§104b CSV testleri
+  yeni sütun için, §88b testi yeni davranış için güncellendi). `npm run lint` temiz. Öz-kontrol 647 ad,
+  %100. FFFD 0.
+- Tarayıcı (yerel statik sunucu, `/api` taklit, **model çağrısı 0**), 1280 ve 390 px, demo senaryosu
+  yüklü:
+  - Öğretmen → 7-A → sihirbaz 2. adım: ilk onaylı sorunun gövdesi ve anahtarı değiştirildi, Kaydet.
+    Soru `approved` kaldı. Kayıt `alanlar [govde, anahtar], A → B, rol teacher`; hap 1.
+  - Öğrenciler sekmesi: "Deneme Öğrenci" eklendi → "YZ: rıza bekleniyor", `yzIzniVar` false. Tohum
+    öğrenciler izinli. Şerit "1 öğrencinin…" → düğme → pencere "1 öğrencinin yapay zekâ izni açılsın
+    mı?" → onay → izinli, şerit kalktı, `yz_izni_toplu` adsız.
+  - Konsol hatası 0, yatay taşma 0. Ekranlar: `Downloads\Mihenk\ekran-iz-izin-paket\` (6 PNG).
+
+## 111. ANONİM ARAŞTIRMA PAKETİ (6 Kasım 2026, W10, dal `feature/iz-izin-paket`, Orchestrator 3 emriyle; Madde 14)
+
+**Neden:** Karar Günlüğü'nün CSV/JSON dışa aktarımı soru metni, öğrenci numarası (`sid`) ve serbest
+notları içeriyor. Araştırma (docs/ARASTIRMA.md) için kişisel veri ve metin içermeyen bir paket
+gerekiyordu.
+
+**Ne yapıldı (yalnız istemci; ağa hiçbir şey gitmez):**
+- Karar Günlüğü'nde "Araştırma paketi (anonim)" düğmesi.
+  - Paket önce **ekranda** gösterilir: açıklama + JSON önizlemesi (kaydırılır, `pre`).
+  - Ardından "Paketi indir (JSON)" ile `mihenk-arastirma-paketi-anonim.json` iner. "Kapat" ile kapanır.
+- **Beyaz liste** (`ARASTIRMA_ALANLARI`): yalnız adı geçen alanlar kopyalanır. Günlüğe yeni bir alan
+  eklenirse pakete kendiliğinden girmez (testle gösterildi).
+  - Çıkarılanlar: `soru` (soru metni), `sid` (öğrenci no), `not` (serbest not), YZ gerekçesi.
+  - Öğrenci cevabı günlükte zaten yok.
+- **Soru kimliği:** SHA-256(oturum tuzu + ":" + qid), Web Crypto. Tuz sayfa açılışında rastgele
+  (16 bayt) üretilir. Pakete yazılmaz, saklanmaz. Aynı paket içinde aynı soru aynı özeti alır,
+  oturumlar arası eşleşmez.
+- **Eklenenler:**
+  - model ve istem sürümü: sunucunun `meta.istemSurumu` alanı artık soruya ve `soru_uretildi` kaydına
+    yazılıyor;
+  - karar türleri sayacı;
+  - `redKodu`, anahtar değişimi (`anahtarEski` / `anahtarYeni`), `rozetA1A2`, `supheler`;
+  - puan önerisi ↔ nihai puan farkı (`puanFarki` = nihai − öneri);
+  - değişen alanlar, rol, önceki durum, soru türü;
+  - dakika hassasiyetinde zaman.
+
+**Ölçüldü:**
+- Test (`test/iz-izin-paket.test.ts`):
+  - Demo öğrenci adları (`VARSAYILAN_OGRENCILER` + `SIM_ISIMLER`, 12 ad) ve `DEMO_SORULAR` gövdeleri
+    app.js'ten okundu ve `sid` / `soru` / `not` alanlarına dağıtılarak sahte bir günlük kuruldu.
+  - Ham günlükte bunlar 5'ten fazla kez geçiyor; **pakette 0**.
+  - Pakette `sid` / `soru` / `not` / `name` anahtarı yok; tuz pakette yok.
+  - Soru özeti Node'un `createHash('sha256')` sonucuyla birebir aynı; farklı tuzla farklı.
+- Tarayıcı, 1280 ve 390 px, demo senaryosu + yukarıdaki düzenleme ve rıza işlemlerinden sonra:
+  - paket 8 kayıt;
+  - `state.students`'taki 5 ad → pakette 0;
+  - soru gövdelerinin 3'ü → pakette 0 (ikisi ham günlükte vardı);
+  - öğrenci cevabı 1 → pakette 0;
+  - indirme olayı alındı;
+  - `/api/ai` çağrısı 0.
+
+**Bilinen sınırlar:**
+- Zaman damgası dakika hassasiyetinde kalır; çok küçük bir sınıfta sıra bilgisiyle birleşince dolaylı
+  tanılama riski sıfır değildir. Paylaşmadan önce önizleme bunun için var.
+- Çözücü istem sürümü (`meta.cozucuIstemSurumu`) henüz saklanmıyor; pakete yalnız üretim istem sürümü
+  girer.
+- Bu turdan önce üretilmiş sorularda istem sürümü yoktur (alan boş kalır).
+
