@@ -38,7 +38,7 @@ nihai puanı her zaman öğretmen onaylıyor. Kalıcı veritabanı ve kimlik do�
 | Canlı sistem | https://mihenk.bies.workers.dev ← birincil · eski adres https://mihenk.bies.workers.dev de çalışıyor (başvuru linki, silinmedi) |
 | GitHub (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
-| Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
+| Cloudflare hesabı | karatasesat@hotmail.com · account id `<CF_ACCOUNT_ID — wrangler whoami ile görülür>` |
 | GitHub kullanıcısı | EsatKaratas |
 
 **Yarışma:** T3 Vakfı Bursiyer Yapay Zekâ Creathon — **Problem 2**

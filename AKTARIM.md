@@ -47,7 +47,7 @@
 | Gizlilik / KVKK | `/privacy-policy` |
 | Depo (public) | https://github.com/EsatKaratas/mihenk |
 | Yerel klasör | `C:\Users\pc\t3-olcme-degerlendirme` |
-| Cloudflare hesabı | karatasesat@hotmail.com · account id `8f038be6be2c6e5ad71da437d444584a` |
+| Cloudflare hesabı | karatasesat@hotmail.com · account id `<CF_ACCOUNT_ID — wrangler whoami ile görülür>` |
 | Takım BİES | Esat Talha Karataş · İrem Yazıcı · Zeynep Sude Demir · Burak Özçelik |
 | Son commit | `a1eded6` · etiketler `v1.0-teslim`, `v1.1-basvuru` (**`v-demo` HENÜZ ATILMADI** — bkz. §5.6) |
 | 🔴 **SIRADAKİ İŞ** | **`PROGRESS.md` §28s'ten sonrası.** Esat'ın 7 maddesi + 8 maddelik ikinci liste 3 Eylül'de bitti. Sude ve Burak'ın 7'şer maddesi hâlâ onlardadır ve BİRLEŞTİRİLMEMİŞTİR — bu devrin asıl amacı odur. |
