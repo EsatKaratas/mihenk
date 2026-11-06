@@ -36,7 +36,8 @@ function kur() {
   };
   const cagrilar: string[] = [];
   const kod = ['elleSoruOlustur', 'elleSoruEksikleri', 'elleEksikMetni', 'soruyuOnayla', 'auditOzet',
-    'soruKaynakTuru', 'denetimDurumHtml', 'cozumImzasi', 'filteredPool'].map(fonksiyonMetni).join('\n');
+    'soruKaynakTuru', 'denetimDurumHtml', 'cozumImzasi', 'filteredPool',
+    'anahtarIzli', 'rozetA1A2'].map(fonksiyonMetni).join('\n');   // §104: soruyuOnayla bağımlılıkları
   // eslint-disable-next-line no-new-func
   const api = new Function('state', 'cagrilar', 'escapeHtml',
     'let qIdSeq = 100; const ELLE_SIKLAR = ["A", "B", "C", "D"];\n' +

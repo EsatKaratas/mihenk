@@ -261,3 +261,7 @@
 #panel-content_expert .elle-bilgi .field-kz { flex: 2 1 240px; }
 #panel-content_expert .elle-eksik { align-self: center; font-size: 11.5px; color: var(--text-muted); }
 #panel-content_expert .elle-eksik:empty { display: none; }
+
+/* §104 — isteğe bağlı red nedeni (Reddet'in yanında) ve reddedilen sorudaki neden hapı. */
+#panel-content_expert .red-kodu { max-width: 100%; min-width: 0; flex: 0 1 240px; font-size: 12px;
+  padding: 4px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface, #fff); color: var(--text); }
