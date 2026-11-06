@@ -10888,3 +10888,72 @@ iddia edilmez. `src/` değişmedi.
 
 **Sınırlar:** Cevaplar kurgulanmış (gerçek öğrenci değil), tek model, tek tekrar,
 48 cevap; altın puanlar tek kaynaktan. Sonuç yalnız bu kurulum için geçerli.
+
+## 93. VENDOR `@` YÖNLENDİRMESİ + HESAP DÜZEYİ NEURON BÜTÇESİ (6 Kasım 2026, W10, dal `butce-vendor`)
+
+### A. Vendor klasörlerinde `@` (commit 11e532f)
+
+**Neden (ölçüldü, canlı, 06.11):** `curl -sI https://mihenk.bies.workers.dev/vendor/pdfjs-dist@4.7.76/LICENSE`
+→ `307` + `Location: /vendor/pdfjs-dist%404.7.76/LICENSE`; mammoth için de aynısı; `%40` biçimi doğrudan `200`.
+Yani `@` içeren yoldaki 117 dosyanın her biri için fazladan bir gidiş-dönüş (§91 bulgusu).
+
+**Yapılan:** 6 klasör `paket-sürüm` adına taşındı (`pdfjs-dist-4.7.76`, `mammoth-1.8.0`, `mermaid-11.17.2`,
+`tesseract.js-5.1.1`, `tesseract.js-core-5.1.1`, `tesseract-tur-1.0.0`). Başvurular: `app.js` (pdf.js +
+`workerSrc`, mammoth, tesseract `workerPath`/`corePath`/`langPath`), `mimari.js` (mermaid), `SHA256SUMS`
+(146/146 `sha256sum -c` OK). CSP ve `_headers` yol içermiyor (yalnız `'self'`), değişmedi.
+
+**Kanıt (yerel, port 8851, `_headers` CSP'si uygulanan statik sunucu):** 147/147 vendor dosyası 200.
+Tarayıcıda: pdf.js worker küçük bir PDF'i açtı; mammoth yüklendi; Tesseract (worker + çekirdek + Türkçe
+dil verisi) "Deneme" yazısını doğru okudu; mimari.html'de mermaid 2 diyagram çizdi. Konsolda vendor/CSP
+hatası 0 (tek 404, statik sunucuda olmayan `/api/ai/status`). Canlıda 307'nin kalktığı **yayından sonra**
+ölçülecek; bu dalda ölçülmedi.
+
+### B. Hesap düzeyi günlük tahmini Neuron bütçesi (müdür onayı: Orchestrator 2, 06.11, 5 düzeltmeyle)
+
+**Sorun:** §86 adres başına 60 çağrı sınırı tek hesabın 10.000 Neuron/gün havuzunu korumuyor: birkaç
+adres birlikte havuzu bitirip modeli 3036 ile herkese kapatabilir.
+
+**Yapı (`src/lib/neuron-butce.ts`, DO sınıfı `NeuronButce`, bağlama `NEURON_BUTCE`, tek global nesne):**
+- Katsayılar resmi sayfadan (developers.cloudflare.com/workers-ai/platform/pricing, 20.10.2026 güncel,
+  06.11 okundu): 70B 26.668 / 204.805, **Scout 24.545 / 77.273** Neuron/M token (giriş/çıkış). §86'daki
+  "Scout fiyatı doğrulanmadı" notu böylece kapandı. Bilinmeyen workers-ai modeli → en yüksek katsayı + log.
+  Harici sağlayıcılar (openai/anthropic) sayılmaz (başka havuz).
+- Çağrı öncesi **rezerv** = (istem karakteri / 2) × giriş + `max_tokens` × çıkış katsayısı (üst sınır).
+  `harcanan + rezerv + yeni > eşik` ise model çağrılmaz. Eşik `AI_GUNLUK_NEURON_ESIGI`, varsayılan 9.000.
+- Çağrı sonrası **kapat**: rezerv düşülür, Workers AI yanıtındaki `usage` token'larından tahmin eklenir.
+- 3036 → rezerv iade + gün "tükendi" (sonraki istekler model çağırmadan reddedilir). Dakikalık hız hatası
+  → rezerv iade. Bütçe reddinde o çağrı için yenen adres hakkı da iade edilir.
+- **Ret:** 503 `gunluk_butce` + `Retry-After`; zincir durur, **yedeğe geçilmez**. Arayüz metni
+  `AI_BUTCE_METNI`; "elle devam" kısmı kota ve günlük sınır metinleriyle **tek sabitten** (`AI_ELLE_DEVAM`),
+  yani arayüzde olmayan bir yol vaat edilmez. Toplu çözme bu kodda da beklemeden durur.
+- **Durum ucu:** `GET /api/ai/butce` (salt okunur, DO'da yazma yok, adres başına 30/dk). `/status`'a
+  `gunlukButce: { esik, mod }` eklendi.
+- **Gösterge:** öğretmen ve içerik uzmanı panelinde model çipinin içinde "Bugün ≈%X (tahmini)" (yüzde
+  10.000'lik havuza göre), eşikte "Bugünkü bütçe doldu (tahmini)". İpucu ve ayrıntı paneli kaynağı açıklar:
+  token'dan tahmin, yalnız bu uygulamanın çağrıları. Periyodik sorgu yok: açılışta ve her AI çağrısından sonra 1 GET.
+- **Sıralama:** DO istekleri platformda giriş kapısıyla sıralı; ayrıca nesne içi söz kuyruğu her işlemi
+  sırayla çalıştırır (test ortamında da kanıtlanabilsin diye).
+- **Ücretsiz plan:** çağrı başına ≤ 2 DO yazması (rezerv + kapat), durum okuması yazmaz. 10.000 Neuron'luk
+  havuz günde en çok birkaç yüz çağrıya izin verir → yazma ve istek sayısı 100.000/gün sınırlarının çok altında.
+- **Arıza:** DO hata verirse bellek sayacına düşer ve `ev: "butce_do_hata"` loglanır (§86 IP sayacıyla aynı politika).
+- `cf-connecting-ip` yoksa (yalnız `app.request` testleri) bütçe kancası da uygulanmaz (§86 ile aynı).
+
+**Yapılandırma:** `wrangler.demo.jsonc`'de v1 (`v1-gunluk-sayac`) **değişmedi**, yalnız
+`v2-neuron-butce` (`new_sqlite_classes`) eklendi. `wrangler.jsonc` ve `wrangler.deneme.jsonc`'ye aynı
+bağlama adlarıyla (GUNLUK_SAYAC, NEURON_BUTCE) v1 + v2 eklendi. `wrangler deploy --dry-run` üç
+yapılandırmada da iki DO bağlamasını listeledi; **gerçek deploy yapılmadı**.
+
+**Bilinen fazla sayım (bilerek, temkinli taraf):** model çağrısı 3036 ve dakikalık hız dışındaki bir
+hatayla (zaman aşımı dahil) dönerse ve yanıtta `usage` yoksa rezerv **harcanmış sayılır**. Gerçek tüketim
+daha az olabilir; sayaç bu durumlarda havuzu olduğundan dolu gösterir.
+
+**Dürüst sınırlar:** sayaç yalnız bu Worker'ın çağrılarını görür; aynı hesaptan REST ile yapılan ölçüm
+koşuları (ör. §92, ~7.600 Neuron) görünmez. Neuron token'dan tahmindir, faturalamayla birebir değildir.
+Workers AI binding'inin canlıda `usage` döndürdüğü **bu dalda ölçülmedi** (REST yanıtında var, §92 betiği
+onu okudu); dönmezse sayaç temkinli rezervle çalışır. Rezervdeki "karakter/2" oranı ölçülmedi, bilerek cömert.
+
+**Testler:** `test/neuron-butce.test.ts` (katsayılar, saf adımlar, DO yazma sayısı, **eşzamanlı iki istek
+eşiğin hemen altında: biri kabul biri ret**, DO arızası, rota: eşikte 503 ve model çağrılmaz, 3036 →
+tükendi, zaman aşımında rezerv kalır, usage yokken temkinli). `test/ai-rozet-tohum.test.ts`'e metin/gösterge
+testleri; `test/guvenilirlik.test.ts`'te bellek bütçesi testler arasında sıfırlanıyor (3036 artık günü
+kapattığı için). `npm test` 558/558, `tsc --noEmit` temiz, `check:config` iki yapılandırmada GEÇERLİ.
