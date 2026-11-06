@@ -207,3 +207,12 @@
   #panel-teacher .kg-tablo .kg-ad { min-width: 96px; max-width: 110px; }
   #panel-teacher .kg-kap { max-height: 58vh; }
 }
+
+/* §112 — Ölçüt bazında nihai puan (onay kartı). Varsayılan kapalı; açılınca
+   her ölçüt satırının altında küçük sayı alanı. */
+#panel-teacher .kr-arac { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: var(--sp-2) 0; }
+#panel-teacher .kr-satir { display: flex; align-items: center; gap: var(--sp-1); margin: 2px 0 4px; font-size: var(--fs-2); }
+#panel-teacher .kr-satir[hidden] { display: none; }
+#panel-teacher .kr-etiket { display: inline-flex; align-items: center; gap: var(--sp-1); font-weight: 600; }
+#panel-teacher .kr-nihai { width: 64px; min-height: var(--hedef-min); text-align: center; font: inherit; }
+#panel-teacher .kr-nihai.kr-gecersiz { border: 2px solid var(--critical); }

@@ -11901,3 +11901,79 @@ gerekiyordu.
   girer.
 - Bu turdan önce üretilmiş sorularda istem sürümü yoktur (alan boş kalır).
 
+## 112. KRİTER BAZINDA NİHAİ PUAN (6 Kasım 2026, W9, dal `feature/kriter-puan`, Orchestrator 3 emriyle; Madde 6)
+
+**Taban:** `feature/kagit-sinav` a76f12c. Üstüne `feature/iz-izin-paket` (fefcf4d, W10'un §107 + §111'i)
+birleştirildi (9e8c108). Gerekçe: §111 araştırma paketinin kodu (`ARASTIRMA_ALANLARI`, `arastirmaPaketi`)
+yalnız o dalda. Kriter farkı pakete ancak böyle eklenebildi; iki dal da zaten birlikte entegre edilecek.
+- Tek çakışma PROGRESS.md'nin sonuydu (§106 ile §107/§111). İkisi de korundu.
+- Birleşme sonrası `npm test` 819/819, öz-kontrol %100, lint temiz; `kagit.mjs` yine 46/46.
+
+Yalnız istemci. Model çağrısı ve `/api/ai` POST yok.
+
+**Neden:** A7 raporu "öğretmen yalnız toplam puan verdiği için kriter bazında fark ölçülemiyor" diyordu.
+Araştırma (docs/ARASTIRMA.md) yapay zekânın hangi ölçütte yanıldığını soruyor.
+
+**Ne yapıldı:**
+- **Kart:** Onay kartındaki model dökümünün altında **"Ölçüt puanlarını düzelt"** düğmesi var
+  (aria-expanded). Açılınca her ölçüt satırında "Nihai [ ] / tavan · öneri x" alanı çıkar; odak ilk
+  alana gider.
+  - Yazdıkça **nihai toplam kendiliğinden yeniden hesaplanır**; rubrik tavanına sınırlıdır.
+  - Not satırı (role=status) "Toplam ölçütlerden: 13 (öneri 14,5)" yazar.
+  - Yazarken `renderAll` çağrılmaz.
+- **Onay hâlâ öğretmenin tıklaması:** "Puanı Güncelle ve Onayla". Otomatik onay yok.
+- **Zorunlu değil:** Varsayılan kart değişmedi (alanlar gizli, nihai = YZ önerisi). Tek Tıkla Onayla
+  aynen çalışır ve kayda kriter yazmaz.
+- **Kayıt (isteğe bağlı, göç yok):** `review.kriterler` ve `puan_karari.kriterler` = `[{ad, oneri, nihai, max}]`.
+  Yalnız en az bir ölçüt değiştiyse yazılır. Karar Günlüğü satırı "ölçüt düzeltmesi: Örnek 4,5 → 3,5"
+  der. Ekrandaki taslak geçicidir (`_kriterTaslak`, KALICI_ALANLAR'a girmez).
+- **Rapor (A7):** `kriterFarkOzeti` + "Kriter bazında fark" tablosu: ölçüt, n, değişen, ortalama fark.
+  - **Yalnız öğretmenin ölçüt düzelttiği kararlardan** hesaplanır. Düzeltilmeyen kararda kriter nihai
+    puanı yoktur ve tahmin edilmez.
+  - Veri yoksa kart "artık ölçülebiliyor (öğretmen düzelttiyse)" der.
+  - Rapor CSV'sine `kriterFarki` sütunu eklendi: "ölçüt=fark | …".
+  - README A7 satırı güncellendi.
+- **§111 paketi:** `arastirmaKriterFarklari` ile `kriterFarklari = [{sira, max, oneri, nihai, fark}]`
+  eklendi (beyaz liste). **Ölçüt adı ve metin pakete girmez:** `kriterler` alanı pakete kopyalanmaz,
+  yalnız sayılar ve sıra geçer.
+- **Kâğıt modu (§106):** YZ önerisi aynı onay kartına düştüğü için aynı ölçüt düzeltmesi orada da var
+  (tarayıcıda gösterildi).
+
+**Kararlar (belirsizdi; gerekçeleriyle):**
+1. **Ölçüt değiştirilince Tek Tıkla kapanır** (aria-describedby ile not satırı). Açık kalsaydı YZ puanını
+   onaylayıp düzeltmeyi **sessizce yok sayardı**. Ölçüt değişmediyse (düzeltme açık olsa bile) açık kalır.
+2. **Düzeltmeyi kapatmak = vazgeçmek:** alanlar öneriye döner, nihai puan yeniden YZ önerisi olur.
+3. **Geçersiz ölçüt puanı** (0–tavan dışı, sayı olmayan) sessizce kırpılmaz. Alan kırmızı ve
+   aria-invalid olur, "Puanı Güncelle ve Onayla" kapanır.
+4. **Öğretmen ölçütlerden sonra nihai puanı elle değiştirirse** o değer onaylanır. Kriterler yine
+   kaydedilir; toplamla eşit olması zorunlu tutulmadı, nihai karar öğretmenin.
+5. **§103 enjeksiyon kısıtı aynen:** işaretli cevapta Tek Tıkla hiç çizilmez; ölçüt düzeltme kullanılabilir.
+
+**Not (§107'den):** Bu daldan itibaren arayüzden eklenen yeni gerçek öğrenci "rıza bekleniyor" ile doğar.
+Kâğıt modunda böyle bir öğrenci için "YZ puan önerisi iste" modele gitmez, "elle puanlanacak" kartı çıkar.
+Bu doğru davranış (§88b izin yolu).
+
+**Doğrulama (statik sunucu 8849, PID 27344 ile durduruldu; [::1] dahil):**
+- `npm test` **834/834** (40 dosya; +15 `test/kriter-puan.test.ts`). Kapsadığı:
+  - normalleştirme, değişmeyen = null, geçersiz, toplam ve tavan;
+  - rapor özeti yalnız düzeltilenlerden; CSV sütunu;
+  - paket: ham günlükteki ölçüt adı ve soru metni pakette 0, `kriterler` ve `sid` anahtarı yok, soru
+    özeti Node SHA-256 ile aynı;
+  - kart/onay bağlantıları, README, KALICI_ALANLAR.
+- `enjeksiyon-donem.test.ts`'deki nihai alan beklentisi `kriterNihaiDegeri`'ne uyarlandı; o fonksiyon
+  düzeltme yokken yine `ev.aiScore` döndürüyor.
+- lint temiz (çıkış 0); öz-kontrol %100 (**683 ad**); FFFD 0.
+- Tarayıcı `kriter.mjs`, 1280 ve 390 px: **34/34**.
+  - Varsayılan kart değişmedi.
+  - Düzelt → 3 alan, odak ilk alanda.
+  - 4,5 → 3: nihai 14,5 → 13, Tek Tıkla kapalı.
+  - 99 → aria-invalid, onay kapalı.
+  - 3,5 ile onay → finalScore 13,5, `review.kriterler` ve `puan_karari.kriterler` yazıldı.
+  - Düzeltmesiz Tek Tıkla → approved_as_is, kriter yok.
+  - Enjeksiyonlu kartta Tek Tıkla yok, düzelt var. Kâğıt oturumu aynı kartı kullanıyor.
+  - Kapat = vazgeç.
+  - Rapor tablosu 3 ölçüt; CSV 1 dolu satır; paket `kriterFarklari` fark −1, ölçüt adı sızıntısı 0.
+  - Analitik sekmesinde bölüm görünüyor. Taşma 0, konsol hatası 0, POST 0.
+- `kagit.mjs` (§106) 46/46; `kontroller.mjs` 28/28 + 28/28; `demo-yuru.mjs` 1280 ve 390: 5 adım, konsol hatası 0.
+- Kanıt: `side-session-notes\local_fbcef29b-…\W9-kriter-puan\` (kart ve rapor 1280/390, loglar, betik).
+
