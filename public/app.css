@@ -650,7 +650,7 @@
     padding: 1px 6px; border-radius: 10px; background: rgba(127,127,127,.18); }
   .student-chip .sc-tag { font-size: 12px; font-weight: 600; text-transform: uppercase;
     letter-spacing: .04em; }   /* §120: opacity .75 kontrastı 4,24:1'e düşürüyordu */
-  .eval-card.eval-tamam { background: var(--surface-2); }   /* §120: soluklaştırma yerine zemin */
+  /* §120/§122: onaylanmış kart = css/ogretmen.css .eval-onayli (§123'te tek kural). */
   .student-chip.sim .sc-class { color: var(--text); }   /* §120: açık temada 3,89:1 idi */
 
   .conf-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: -2px 0 10px; }

@@ -285,3 +285,57 @@
 #panel-teacher .ia-sik-tablo th[scope="row"] { font-family: "IBM Plex Mono", monospace; color: var(--text); }
 #panel-teacher .ia-sik-tablo .pill { white-space: normal; }
 #panel-teacher .ia-alt-baslik { margin: var(--sp-4, 16px) 0 var(--sp-1); font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* §122 — adsız ve soru soru puanlama + kâğıda geri bildirim fişi (P4). */
+#panel-teacher .kg-ust-dugmeler { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+#panel-teacher .pk-arac { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4);
+  margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface-2); }
+#panel-teacher .pk-secenek { display: inline-flex; align-items: center; gap: var(--sp-1); font-size: var(--fs-2); cursor: pointer;
+  min-height: 32px; }
+#panel-teacher .pk-secenek input { width: 18px; height: 18px; margin: 0; }
+#panel-teacher .pk-anahtar { font-weight: 600; }
+#panel-teacher .pk-gorunum { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-3);
+  margin: 0; padding: 0; border: 0; min-width: 0; }
+#panel-teacher .pk-gorunum legend { float: left; margin-right: var(--sp-2); padding: 0; font-size: var(--fs-2); color: var(--text-muted); }
+#panel-teacher .pk-not { flex: 1 1 100%; margin: 0; }
+#panel-teacher .adsiz-chip { font-variant-numeric: tabular-nums; }
+#panel-teacher .pk-grup { margin-bottom: var(--sp-4); }
+/* Rubrik grubun başında yapışkan: aynı sorunun yanıtları kayarken ölçütler görünür kalır. */
+#panel-teacher .pk-grup-bas { position: sticky; top: var(--kabuk-yuk, 0px); z-index: 4; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3); box-shadow: 0 2px 6px rgba(0, 0, 0, .06); }
+#panel-teacher .pk-grup-baslik { margin: 0; font-size: var(--fs-3); }
+#panel-teacher .pk-grup-soru { font-size: var(--fs-2); margin: var(--sp-1) 0; overflow-wrap: anywhere; }
+#panel-teacher .pk-rubrik { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3);
+  font-size: var(--fs-2); }
+#panel-teacher .pk-rubrik li { min-width: 0; overflow-wrap: anywhere; }
+#panel-teacher .pk-rubrik-acik { color: var(--text-muted); }
+#panel-teacher .pk-fis { margin-top: var(--sp-4); }
+@media (max-width: 600px) {
+  /* Dar ekranda yapışkan başlık kısa kalsın: ölçüt açıklamaları gizli, soru metni iki satır. */
+  #panel-teacher .pk-rubrik-acik { display: none; }
+  #panel-teacher .pk-grup-soru { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+}
+@media print {
+  body.yazdiriliyor #yazdirKabi[data-tur="fis"] { page: yzFis; }
+  @page yzFis { size: A4; margin: 10mm 12mm; }
+  #yazdirKabi .gf-yonerge { margin: 0 0 4pt; font-size: 9pt; color: #333; }
+  /* Fiş bölünmez; alt kenarı kes çizgisi (✂). A4'e içeriğe göre 3–5 fiş. */
+  #yazdirKabi .gf-fis { position: relative; break-inside: avoid; page-break-inside: avoid; padding: 8pt 0 10pt;
+    border-bottom: 1pt dashed #000; font-size: 10pt; line-height: 1.35; }
+  #yazdirKabi .gf-fis::after { content: "\2702"; position: absolute; left: 4pt; bottom: -7pt; background: #fff; padding: 0 3pt; font-size: 11pt; }
+  #yazdirKabi .gf-bas { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2pt 12pt; font-size: 11pt; margin-bottom: 3pt; }
+  #yazdirKabi .gf-sinav { font-size: 9.5pt; color: #333; }
+  #yazdirKabi .gf-mc { margin: 2pt 0 4pt; }
+  #yazdirKabi .gf-et { font-weight: 700; margin-right: 4pt; }
+  #yazdirKabi .gf-mc-h { display: inline-block; min-width: 26pt; margin-right: 3pt; white-space: nowrap; }
+  #yazdirKabi .gf-acik th, #yazdirKabi .gf-acik td { font-size: 9.5pt; padding: 2pt 4pt; }
+  #yazdirKabi .gf-acik th:first-child, #yazdirKabi .gf-acik td:first-child { width: 34pt; }
+  #yazdirKabi .gf-acik th:nth-child(2), #yazdirKabi .gf-acik td:nth-child(2) { width: 74pt; white-space: nowrap; }
+  #yazdirKabi .gf-kriter { font-size: 8.5pt; color: #333; margin-top: 1pt; }
+  #yazdirKabi .gf-alt { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2pt 12pt; margin-top: 4pt; }
+  #yazdirKabi .gf-ibare { font-size: 8.5pt; font-style: italic; }
+}
+/* §122: onaylanmış kart saydam değil (kontrast); soluk zemin + yeşil kenar. */
+#panel-teacher .eval-card.eval-onayli { background: var(--surface-2); border-left: 3px solid var(--success); }
