@@ -31,7 +31,9 @@ hizmet katmanında sağlayıcıyla KVKK standart sözleşmesi imzalanmamaktadır
 rızanız istenmektedir. Cloudflare, bu hizmette müşteri içeriğini izin olmadan model eğitiminde kullanmadığını
 ve ayrı bir depolama ürünü eklenmedikçe saklamadığını beyan etmektedir
 (<https://developers.cloudflare.com/workers-ai/platform/privacy/>, [erişim tarihi]). Mihenk sunucusu cevabı
-saklamaz; sınav verileri öğretmenin cihazındaki tarayıcıda tutulur.
+saklamaz; sınav verileri öğretmenin cihazındaki tarayıcıda tutulur. Öğretmen bu verilerin yedeğini alırsa
+yedek dosyası (`.mihenk`) öğretmenin cihazına iner, ad içerdiği için parolayla şifrelenir ve Mihenk
+sunucusuna gönderilmez.
 
 Ayrıntılı aydınlatma metni: [uygulama adresi]/privacy-policy.html
 

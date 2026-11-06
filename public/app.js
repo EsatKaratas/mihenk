@@ -1875,6 +1875,482 @@ function kitapligiSil() {
   });
 }
 
+/* ==================== §108 TAM YEDEK (.mihenk) ====================
+   NEDEN: bütün veri bu tarayıcıda (localStorage tek anahtar + IndexedDB
+   kitaplık). Cihaz değişir, tarayıcı temizlenir ya da "Sıfırla"ya basılırsa
+   her şey gider; geri dönüş yolu yoktu.
+   DOSYA: 1. satır "MIHENK-YEDEK <biçim>" (biçim JSON'dan ÖNCE okunur — yeni
+   bir biçim gövdeyi değiştirse bile eski uygulama "desteklenmiyor" diyebilsin),
+   2. satır zarf JSON'u: uygulama sürümü, oluşturma zamanı, adsız/şifreli
+   bayrakları, SHA-256 (başlık alanları + veri; yedekShaGirdisi) ve veri.
+   ŞİFRE: öğrenci/öğretmen adı varsa PAROLA ZORUNLU — PBKDF2 (SHA-256,
+   310.000 yineleme, 16 bayt rastgele tuz) → AES-GCM 256 (12 bayt rastgele
+   IV); zarfın başlık alanları AAD olarak bağlanır. Parola dosyaya da
+   localStorage'a da yazılmaz.
+   GERİ YÜKLEME: SHA tutmazsa "bozuk", GCM açmazsa "parola yanlış" — ikisinde
+   de hiçbir şey değişmez. Özet + onaylaModal (varsayılan Vazgeç) → mevcut
+   verinin "geri al" kopyası belleğe → önce IndexedDB (tek işlem), sonra
+   localStorage → sayfa yenilenir ve loadState göçleri normal açılıştaki gibi
+   çalışır. Sunucuya HİÇBİR şey gitmez. */
+const YEDEK_BASLIK = "MIHENK-YEDEK";
+const YEDEK_BICIM_SURUMU = 1;
+const MIHENK_UYGULAMA_SURUMU = "1.1.0";
+const YEDEK_PBKDF2_YINELEME = 310000;
+const YEDEK_PAROLA_EN_AZ = 8;
+const YEDEK_ONAY_METNI = "Mevcut veriler bu yedekle DEĞİŞTİRİLECEK.";
+const YEDEK_HATA_METINLERI = {
+  bicim_yok: "Bu dosya bir Mihenk yedeği değil (.mihenk başlığı yok).",
+  bozuk: "Yedek dosyası bozuk ya da değiştirilmiş (bütünlük denetimi tutmadı). Hiçbir veri değiştirilmedi.",
+  desteklenmiyor: "Bu yedek daha yeni bir Mihenk sürümüyle oluşturulmuş; bu sürüm desteklemiyor. Hiçbir veri değiştirilmedi.",
+  parola_gerekli: "Bu yedek parolayla şifreli. Parolayı yazın.",
+  parola_yanlis: "Parola yanlış. Hiçbir veri değiştirilmedi.",
+  parola_zorunlu: "Yedekte öğrenci ya da öğretmen adı var: parola zorunlu (ya da \"Adsız yedek\"i seçin).",
+  parola_kisa: "Parola en az 8 karakter olmalı.",
+  parola_eslesmiyor: "İki parola aynı değil.",
+  kitaplik_okunamadi: "Kitaplık (IndexedDB) okunamadı; eksik yedek alınmadı.",
+  sifreleme_yok: "Bu tarayıcıda şifreleme (WebCrypto) kullanılamıyor; güvenli bağlantıda (https) açın."
+};
+var _yedekGeriAl = null;   // { durum, kitaplik, at } — yalnız bellekte; sayfa yenilenince silinir
+var _yedekYenilemeBekliyor = false;
+
+/** Hata nesnesi: kod + kullanıcı metni. */
+function yedekHata(kod) {
+  const e = new Error(YEDEK_HATA_METINLERI[kod] || kod);
+  e.kod = kod;
+  return e;
+}
+
+/** Kayıtlı durumun saveState ile AYNI biçimdeki kopyası (derin). */
+function yedekDurumAl() {
+  if (typeof aktifOturumuYaz === "function") { try { aktifOturumuYaz(); } catch (e) { /* oturum yoksa sorun değil */ } }
+  const d = { _qIdSeq: qIdSeq };
+  KALICI_ALANLAR.forEach(function (k) { d[k] = state[k]; });
+  return JSON.parse(JSON.stringify(d));
+}
+
+/** Kitaplığın bütün kayıtları ({id, pages}). Okunamazsa: kitaplık boşsa [],
+ *  doluysa hata — eksik yedek sessizce alınmaz. */
+async function yedekKitaplikAl() {
+  try {
+    const hepsi = await dbIslem("readonly", function (s) { return s.getAll(); });
+    return Array.isArray(hepsi) ? hepsi : [];
+  } catch (e) {
+    if (!(state.library || []).length) return [];
+    throw yedekHata("kitaplik_okunamadi");
+  }
+}
+
+/** Kitaplığı TEK işlemde değiştirir (temizle + yaz); işlem iptal olursa eski kalır. */
+function yedekKitaplikYaz(kayitlar) {
+  return dbIslem("readwrite", function (s) {
+    s.clear();
+    (kayitlar || []).forEach(function (k) { s.put(k); });
+    return null;
+  });
+}
+
+/** Kayıttaki öğretmen adları (activeTeacherName, sınavların teacherName'i). */
+function yedekOgretmenAdlari(durum) {
+  const adlar = [];
+  const ekle = function (a) { a = String(a || "").trim(); if (a && adlar.indexOf(a) < 0) adlar.push(a); };
+  const gez = function (x) {
+    if (Array.isArray(x)) { x.forEach(gez); return; }
+    if (!x || typeof x !== "object") return;
+    Object.keys(x).forEach(function (k) {
+      if (/^(teacherName|activeTeacherName|ogretmenAdi)$/.test(k) && typeof x[k] === "string") ekle(x[k]);
+      else gez(x[k]);
+    });
+  };
+  gez(durum || {});
+  return adlar;
+}
+
+/** Yedekte kişisel veri (öğrenci ya da öğretmen adı) var mı? */
+function yedekKisiselVarMi(durum) {
+  const d = durum || {};
+  const ogrenci = (d.students || []).some(function (s) { return s && String(s.name || "").trim(); });
+  return ogrenci || yedekOgretmenAdlari(d).length > 0;
+}
+
+/** Bir değerin bütün metinlerine (anahtarlar dahil) fn uygular; yeni kopya döner. */
+function yedekDerinMetin(deger, fn) {
+  if (typeof deger === "string") return fn(deger);
+  if (Array.isArray(deger)) return deger.map(function (x) { return yedekDerinMetin(x, fn); });
+  if (deger && typeof deger === "object") {
+    const yeni = {};
+    Object.keys(deger).forEach(function (k) { yeni[fn(k)] = yedekDerinMetin(deger[k], fn); });
+    return yeni;
+  }
+  return deger;
+}
+
+/** kisiselAdKaliplari'nın etiketli hâli: önce bütün ad+soyad kalıpları, sonra tek parçalar. */
+function yedekAdKaliplari(kisiler) {
+  const tam = [], parca = [];
+  kisiler.forEach(function (k) {
+    kisiselAdKaliplari(k.ad).forEach(function (kp) {
+      (kp.tam ? tam : parca).push({ re: kp.re, sozcukAd: !!kp.sozcukAd, etiket: k.etiket });
+    });
+  });
+  return tam.concat(parca);
+}
+
+/** Metindeki adları etiketle değiştirir (kisiselMaskele kuralı: sözcük de olan
+ *  ad tek başına yalnız Büyük harf + kesme işaretiyle). */
+function yedekAdsizMetin(metin, kaliplar) {
+  let m = String(metin);
+  kaliplar.forEach(function (k) {
+    m = m.replace(k.re, function (bulunan) {
+      if (k.sozcukAd) {
+        const ilk = bulunan.charAt(0);
+        if (!(ilk !== ilk.toLocaleLowerCase("tr") && /['’`ʼ]/.test(bulunan))) return bulunan;
+      }
+      return k.etiket;
+    });
+  });
+  return m;
+}
+
+/** Adsız kopya: öğrenciler "Öğrenci 1…", öğretmenler "Öğretmen 1…"; bütün
+ *  metinlerde (soru, cevap, kayıt, kitaplık) bu adlar da değiştirilir. */
+function yedekAdsizYap(veri) {
+  const durum = JSON.parse(JSON.stringify(veri.durum || {}));
+  const kisiler = [];
+  (durum.students || []).forEach(function (s, i) {
+    const etiket = "Öğrenci " + (i + 1);
+    if (s && String(s.name || "").trim()) kisiler.push({ ad: String(s.name), etiket: etiket });
+    if (s) s.name = etiket;
+  });
+  yedekOgretmenAdlari(durum).forEach(function (ad, i) { kisiler.push({ ad: ad, etiket: "Öğretmen " + (i + 1) }); });
+  const ogretmenEtiketi = {};
+  kisiler.forEach(function (k) { if (/^Öğretmen /.test(k.etiket)) ogretmenEtiketi[k.ad.trim()] = k.etiket; });
+  const kaliplar = yedekAdKaliplari(kisiler);
+  const fn = function (m) { return ogretmenEtiketi[m.trim()] || yedekAdsizMetin(m, kaliplar); };
+  // students[].name zaten etiket; derin geçiş onları bozmaz ("Öğrenci 1" bir ad kalıbına uymaz).
+  return {
+    durum: yedekDerinMetin(durum, fn),
+    kitaplik: yedekDerinMetin(veri.kitaplik || [], fn),
+    adsiz: true
+  };
+}
+
+/** Uint8Array ↔ base64 (büyük dizilerde parça parça). */
+function yedekB64(bayt) {
+  let s = "";
+  for (let i = 0; i < bayt.length; i += 0x8000) s += String.fromCharCode.apply(null, bayt.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+function yedekB64Coz(metin) {
+  const s = atob(String(metin || ""));
+  const b = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+  return b;
+}
+
+/** SHA-256 (onaltılık) — metnin UTF-8 baytları. */
+async function yedekSha256(metin) {
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(metin)));
+  return Array.prototype.map.call(h, function (x) { return x.toString(16).padStart(2, "0"); }).join("");
+}
+
+/** Paroladan AES-GCM anahtarı (PBKDF2-SHA-256). */
+async function yedekAnahtar(parola, tuz, yineleme) {
+  const ham = await crypto.subtle.importKey("raw", new TextEncoder().encode(parola), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: tuz, iterations: yineleme },
+    ham, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+/** Şifreli veriye bağlanan başlık (AAD): biri değiştirilirse çözme başarısız olur. */
+function yedekAad(zarf) {
+  return new TextEncoder().encode(JSON.stringify([zarf.baslik, zarf.bicim, zarf.uygulama, zarf.olusturma, !!zarf.adsiz]));
+}
+
+/** Bütünlük özetinin girdisi: zarfın bütün başlık alanları + veri. Başlıkta
+ *  tek bayt değişse de SHA tutmaz → "bozuk" (parola yanlış sanılmaz). */
+function yedekShaGirdisi(zarf) {
+  return JSON.stringify([zarf.baslik, zarf.bicim, zarf.uygulama, zarf.olusturma, !!zarf.adsiz, !!zarf.sifreli,
+    zarf.kdf || null, zarf.sifre || null]) + "\n" + zarf.veri;
+}
+
+/** Yedek dosyasının metni. secenek: { parola, simdi }. veri: { durum, kitaplik, adsiz }. */
+async function yedekOlustur(veri, secenek) {
+  const o = secenek || {};
+  if (!(typeof crypto !== "undefined" && crypto.subtle)) throw yedekHata("sifreleme_yok");
+  const parola = String(o.parola || "");
+  if (!veri.adsiz && yedekKisiselVarMi(veri.durum) && !parola) throw yedekHata("parola_zorunlu");
+  if (parola && parola.length < YEDEK_PAROLA_EN_AZ) throw yedekHata("parola_kisa");
+  const zarf = { baslik: YEDEK_BASLIK, bicim: YEDEK_BICIM_SURUMU, uygulama: MIHENK_UYGULAMA_SURUMU,
+    olusturma: new Date(o.simdi || Date.now()).toISOString(), adsiz: !!veri.adsiz, sifreli: !!parola };
+  const yuk = JSON.stringify({ durum: veri.durum || {}, kitaplik: veri.kitaplik || [] });
+  let govde = yuk;
+  if (parola) {
+    const tuz = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const anahtar = await yedekAnahtar(parola, tuz, YEDEK_PBKDF2_YINELEME);
+    const sifreli = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv, additionalData: yedekAad(zarf) },
+      anahtar, new TextEncoder().encode(yuk));
+    zarf.kdf = { ad: "PBKDF2", hash: "SHA-256", yineleme: YEDEK_PBKDF2_YINELEME, tuz: yedekB64(tuz) };
+    zarf.sifre = { ad: "AES-GCM", iv: yedekB64(iv) };
+    govde = yedekB64(new Uint8Array(sifreli));
+  }
+  zarf.veri = govde;
+  zarf.sha256 = await yedekSha256(yedekShaGirdisi(zarf));
+  return YEDEK_BASLIK + " " + YEDEK_BICIM_SURUMU + "\n" + JSON.stringify(zarf);
+}
+
+/** Dosya metnini çözer → { zarf, durum, kitaplik }. Hata: e.kod (bicim_yok,
+ *  bozuk, desteklenmiyor, parola_gerekli, parola_yanlis). Yan etkisi YOK. */
+async function yedekCoz(metin, parola) {
+  const m = String(metin || "").replace(/^﻿/, "");
+  const nl = m.indexOf("\n");
+  const ilk = (nl < 0 ? m : m.slice(0, nl)).trim();
+  const eslesme = /^MIHENK-YEDEK (\d+)$/.exec(ilk);
+  if (!eslesme) throw yedekHata("bicim_yok");
+  const bicim = Number(eslesme[1]);
+  if (bicim > YEDEK_BICIM_SURUMU) throw yedekHata("desteklenmiyor");
+  if (bicim < 1) throw yedekHata("bozuk");
+  let zarf;
+  try { zarf = JSON.parse(m.slice(nl + 1)); } catch (e) { throw yedekHata("bozuk"); }
+  if (!zarf || zarf.baslik !== YEDEK_BASLIK || zarf.bicim !== bicim || typeof zarf.veri !== "string") throw yedekHata("bozuk");
+  if (!(typeof crypto !== "undefined" && crypto.subtle)) throw yedekHata("sifreleme_yok");
+  if (await yedekSha256(yedekShaGirdisi(zarf)) !== zarf.sha256) throw yedekHata("bozuk");
+  let yuk = zarf.veri;
+  if (zarf.sifreli) {
+    if (!parola) throw yedekHata("parola_gerekli");
+    const kdf = zarf.kdf || {}, sf = zarf.sifre || {};
+    if (kdf.ad !== "PBKDF2" || kdf.hash !== "SHA-256" || sf.ad !== "AES-GCM" || !(kdf.yineleme >= 1)) throw yedekHata("bozuk");
+    let acik;
+    try {
+      const anahtar = await yedekAnahtar(String(parola), yedekB64Coz(kdf.tuz), kdf.yineleme);
+      acik = await crypto.subtle.decrypt({ name: "AES-GCM", iv: yedekB64Coz(sf.iv), additionalData: yedekAad(zarf) },
+        anahtar, yedekB64Coz(zarf.veri));
+    } catch (e) { throw yedekHata("parola_yanlis"); }
+    yuk = new TextDecoder().decode(acik);
+  }
+  let ic;
+  try { ic = JSON.parse(yuk); } catch (e) { throw yedekHata("bozuk"); }
+  if (!ic || typeof ic.durum !== "object" || !ic.durum || Array.isArray(ic.durum) || !Array.isArray(ic.kitaplik)) throw yedekHata("bozuk");
+  return { zarf: zarf, durum: ic.durum, kitaplik: ic.kitaplik };
+}
+
+/** Geri yükleme öncesi özet (sayılar + tarih). */
+function yedekOzet(veri) {
+  const d = (veri && veri.durum) || {};
+  const say = function (x) { return Array.isArray(x) ? x.length : 0; };
+  return { soru: say(d.questions), sinav: say(d.exams), ogrenci: say(d.students), kitap: say(veri && veri.kitaplik),
+    tarih: (veri && veri.zarf && veri.zarf.olusturma) || "", uygulama: (veri && veri.zarf && veri.zarf.uygulama) || "",
+    adsiz: !!(veri && veri.zarf && veri.zarf.adsiz) };
+}
+
+/** Özetin düz metni (onaylaModal metni). */
+function yedekOzetMetni(oz) {
+  let tarih = oz.tarih;
+  const t = new Date(oz.tarih);
+  if (oz.tarih && !isNaN(t)) tarih = t.toLocaleString("tr-TR", { dateStyle: "long", timeStyle: "short" });
+  return "Yedek tarihi: " + (tarih || "bilinmiyor") + (oz.uygulama ? " (Mihenk " + oz.uygulama + ")" : "") + "\n" +
+    oz.soru + " soru · " + oz.sinav + " sınav · " + oz.ogrenci + " öğrenci · " + oz.kitap + " kitap" +
+    (oz.adsiz ? "\nAdsız yedek: öğrenci adları \"Öğrenci 1…\" biçiminde." : "");
+}
+
+/** Verilen veriyi bu tarayıcıya yazar: önce kitaplık (tek işlem), sonra
+ *  durum. Bekleyen kayıt zamanlayıcısı ve saveState durdurulur ki eski
+ *  bellek durumu yeni kaydın üstüne yazılmasın. */
+async function yedekUygula(veri) {
+  _resetting = true;
+  if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  const kitaplik = veri.kitaplik || [];
+  try { await yedekKitaplikYaz(kitaplik); }
+  catch (e) { if (kitaplik.length) throw e; /* IndexedDB yok ve yazılacak kitap yok: sorun değil */ }
+  localStorage.setItem(STORE_KEY, JSON.stringify(veri.durum));
+}
+
+/** Çözülmüş yedeği onayla geri yükler. Vazgeç → hiçbir şey değişmez (false).
+ *  Onay → mevcut verinin geri al kopyası belleğe, sonra yazım; yazım
+ *  başarısız olursa geri al kopyası yerine konur ve hata fırlatılır. */
+async function yedekGeriYukle(veri) {
+  const ok = await onaylaModal({
+    baslik: "Yedek geri yüklensin mi?",
+    metin: yedekOzetMetni(yedekOzet(veri)) + "\n\n" + YEDEK_ONAY_METNI +
+      "\n\nGeri yüklemeden hemen önce mevcut verilerinizin bir \"geri al\" kopyası alınır.",
+    onayEtiketi: "Evet, geri yükle", tehlikeli: true
+  });
+  if (!ok) return false;
+  const eski = { durum: yedekDurumAl(), kitaplik: await yedekKitaplikAl(), at: Date.now() };
+  _yedekGeriAl = eski;
+  try {
+    await yedekUygula({ durum: veri.durum, kitaplik: veri.kitaplik });
+  } catch (e) {
+    try { await yedekUygula(eski); } catch (e2) { /* en azından denendi */ }
+    _resetting = false;
+    throw e;
+  }
+  return true;
+}
+
+/** Yedek dosyası adı: mihenk-yedek-2026-11-06[-adsiz].mihenk */
+function yedekDosyaAdi(adsiz, simdi) {
+  const t = new Date(simdi || Date.now());
+  const iki = function (n) { return String(n).padStart(2, "0"); };
+  return "mihenk-yedek-" + t.getFullYear() + "-" + iki(t.getMonth() + 1) + "-" + iki(t.getDate()) +
+    (adsiz ? "-adsiz" : "") + ".mihenk";
+}
+
+/** ⋯ → "Yedekle…" penceresi. kaynak verilirse (geri al kopyası) o indirilir;
+ *  donus verilirse Vazgeç/indirme sonrası oraya dönülür. */
+function yedekAlAc(kaynak, donus) {
+  _kabukMenu = null;
+  renderKabukEk();
+  const geriAl = !!kaynak;
+  openModal('<h3>' + (geriAl ? "Geri al kopyasını indir" : "Yedekle") + '</h3>' +
+    '<p>' + (geriAl ? "Geri yüklemeden hemen önceki verileriniz" :
+      "Bu tarayıcıdaki bütün Mihenk verileri (sorular, sınavlar, öğrenciler, puanlar, kayıtlar ve kitaplık)") +
+    ' tek bir <b>.mihenk</b> dosyasına yazılır. Dosya yalnız bu cihaza iner; Mihenk sunucusuna gönderilmez.</p>' +
+    (geriAl ? "" : '<label class="yedek-secim"><input type="checkbox" id="yedekAdsiz"> <span><b>Adsız yedek</b> — öğrenci adları ' +
+      '"Öğrenci 1, Öğrenci 2…", öğretmen adları "Öğretmen 1…" ile değiştirilir; parolasız olabilir. Serbest metinde sınıf ' +
+      'listesinde olmayan bir ad varsa kalır.</span></label>') +
+    '<p class="field-yardim" id="yedekParolaNot"></p>' +
+    '<div class="field"><label for="yedekParola">Parola</label>' +
+    '<input type="password" id="yedekParola" autocomplete="new-password" minlength="' + YEDEK_PAROLA_EN_AZ + '"></div>' +
+    '<div class="field"><label for="yedekParola2">Parola (tekrar)</label>' +
+    '<input type="password" id="yedekParola2" autocomplete="new-password"></div>' +
+    '<p class="field-yardim">Parola dosyaya ve bu tarayıcıya kaydedilmez; unutulursa yedek açılamaz.</p>' +
+    '<p class="field-hata-metni" id="yedekHata" role="alert"></p>' +
+    '<p class="field-yardim" id="yedekDurum" role="status"></p>' +
+    '<div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    '<button type="button" class="btn btn-primary" id="yedekIndir">Yedeği indir</button></div>');
+  const kisisel = yedekKisiselVarMi(geriAl ? kaynak.durum : state);
+  const adsizKutu = document.getElementById("yedekAdsiz");
+  const notEl = document.getElementById("yedekParolaNot");
+  const notYaz = function () {
+    const adsiz = !!(adsizKutu && adsizKutu.checked);
+    notEl.textContent = (kisisel && !adsiz) ?
+      "Bu verilerde öğrenci ya da öğretmen adı var: parola ZORUNLU (en az " + YEDEK_PAROLA_EN_AZ + " karakter). Dosya parolayla şifrelenir (AES-GCM)." :
+      "Parola isteğe bağlı; yazarsanız dosya şifrelenir (en az " + YEDEK_PAROLA_EN_AZ + " karakter).";
+  };
+  notYaz();
+  const hataSil = function () { document.getElementById("yedekHata").textContent = ""; };
+  if (adsizKutu) adsizKutu.onchange = function () { notYaz(); hataSil(); };
+  ["yedekParola", "yedekParola2"].forEach(function (id) { document.getElementById(id).oninput = hataSil; });
+  const iptal = document.getElementById("modalCancel");
+  document.getElementById("yedekIndir").onclick = async function () {
+    const hataEl = document.getElementById("yedekHata");
+    const durumEl = document.getElementById("yedekDurum");
+    const btn = this;
+    hataEl.textContent = "";
+    const p1 = document.getElementById("yedekParola").value;
+    const p2 = document.getElementById("yedekParola2").value;
+    if (p1 !== p2) { hataEl.textContent = YEDEK_HATA_METINLERI.parola_eslesmiyor; return; }
+    btn.disabled = true;
+    durumEl.textContent = "Yedek hazırlanıyor…";
+    try {
+      let veri = geriAl ? { durum: kaynak.durum, kitaplik: kaynak.kitaplik } :
+        { durum: yedekDurumAl(), kitaplik: await yedekKitaplikAl() };
+      if (adsizKutu && adsizKutu.checked) veri = yedekAdsizYap(veri);
+      const metin = await yedekOlustur(veri, { parola: p1 });
+      const ad = geriAl ? yedekDosyaAdi(false).replace("mihenk-yedek-", "mihenk-geri-al-") : yedekDosyaAdi(veri.adsiz);
+      if (!auditIndir(metin, ad, "application/octet-stream")) throw new Error("Dosya indirilemedi.");
+      const oz = yedekOzet({ durum: veri.durum, kitaplik: veri.kitaplik });
+      durumEl.textContent = "İndirildi: " + ad + " — " + oz.soru + " soru, " + oz.sinav + " sınav, " + oz.ogrenci +
+        " öğrenci, " + oz.kitap + " kitap" + (p1 ? ", parolayla şifreli." : ", şifresiz.");
+      document.getElementById("yedekParola").value = "";
+      document.getElementById("yedekParola2").value = "";
+      iptal.textContent = "Kapat";
+      if (donus) { const d = donus; setTimeout(function () { d("Geri al kopyası indirildi: " + ad); }, 0); }
+    } catch (e) {
+      durumEl.textContent = "";
+      hataEl.textContent = (e && e.message) || String(e);
+    }
+    btn.disabled = false;
+  };
+  kabukModalOdagi(".js-ek-menu");
+  if (donus) iptal.onclick = function () { donus(); };
+  const ilkAlan = adsizKutu || document.getElementById("yedekParola");
+  if (ilkAlan) ilkAlan.focus();
+}
+
+/** ⋯ → "Yedekten geri yükle…" penceresi: dosya + (şifreliyse) parola. */
+function yedekGeriYukleAc() {
+  _kabukMenu = null;
+  renderKabukEk();
+  openModal('<h3>Yedekten geri yükle</h3>' +
+    '<p>Bir <b>.mihenk</b> yedek dosyası seçin. Önce özeti görürsünüz; onaylamadıkça hiçbir şey değişmez.</p>' +
+    '<div class="field"><label for="yedekDosya">Yedek dosyası</label>' +
+    '<input type="file" id="yedekDosya" accept=".mihenk"></div>' +
+    '<div class="field"><label for="yedekAcParola">Parola (şifreli yedekler için)</label>' +
+    '<input type="password" id="yedekAcParola" autocomplete="off"></div>' +
+    '<p class="field-hata-metni" id="yedekHata" role="alert"></p>' +
+    '<p class="field-yardim" id="yedekDurum" role="status"></p>' +
+    '<div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    '<button type="button" class="btn btn-primary" id="yedekAc">Yedeği aç</button></div>');
+  document.getElementById("yedekAc").onclick = async function () {
+    const hataEl = document.getElementById("yedekHata");
+    const durumEl = document.getElementById("yedekDurum");
+    const dosya = (document.getElementById("yedekDosya").files || [])[0];
+    const parola = document.getElementById("yedekAcParola").value;
+    hataEl.textContent = "";
+    if (!dosya) { hataEl.textContent = "Önce bir .mihenk dosyası seçin."; return; }
+    const btn = this;
+    btn.disabled = true;
+    durumEl.textContent = "Yedek okunuyor…";
+    let veri;
+    try {
+      veri = await yedekCoz(await dosya.text(), parola);
+    } catch (e) {
+      durumEl.textContent = "";
+      hataEl.textContent = (e && e.message) || String(e);
+      btn.disabled = false;
+      if (e && (e.kod === "parola_gerekli" || e.kod === "parola_yanlis")) document.getElementById("yedekAcParola").focus();
+      return;
+    }
+    try {
+      const oldu = await yedekGeriYukle(veri);
+      if (oldu) yedekSonucAc(yedekOzet(veri), "");
+    } catch (e) {
+      openModal('<h3>Geri yükleme yapılamadı</h3><p class="field-hata-metni" role="alert">' + escapeHtml((e && e.message) || String(e)) +
+        '</p><p>Mevcut verileriniz yerinde bırakıldı.</p><div class="modal-actions">' +
+        '<button type="button" class="btn btn-secondary" id="modalCancel">Kapat</button></div>');
+    }
+  };
+  kabukModalOdagi(".js-ek-menu");
+  document.getElementById("yedekDosya").focus();
+}
+
+/** Geri yükleme bitti: geri al kopyası (bellek) + indirme önerisi + yenile.
+ *  Bu pencere HANGİ yoldan kapanırsa kapansın sayfa yenilenir (eski bellek
+ *  durumu ekranda kalıp yeni kaydın üstüne yazılmasın). */
+function yedekSonucAc(oz, bilgi) {
+  _yedekYenilemeBekliyor = true;
+  openModal('<h3>Yedek geri yüklendi</h3>' +
+    '<p>' + oz.soru + ' soru · ' + oz.sinav + ' sınav · ' + oz.ogrenci + ' öğrenci · ' + oz.kitap + ' kitap yazıldı. ' +
+    'Sayfa yeniden açılınca yedekteki veriler yüklenir (eski sürüm yedekler bu sırada güncellenir).</p>' +
+    '<p><b>Geri al kopyası:</b> geri yüklemeden hemen önceki verileriniz bu sayfanın belleğinde duruyor; ' +
+    'sayfa yenilenince silinir. Saklamak isterseniz şimdi indirin.</p>' +
+    (bilgi ? '<p class="field-yardim" role="status">' + escapeHtml(bilgi) + '</p>' : "") +
+    '<div class="modal-actions">' +
+    '<button type="button" class="btn btn-secondary js-yedek-geri-al-indir">Geri al kopyasını indir…</button>' +
+    '<button type="button" class="btn btn-secondary js-yedek-geri-al">Geri al (önceki verilere dön)</button>' +
+    '<button type="button" class="btn btn-primary" id="modalCancel">Yenile ve aç</button></div>');
+  const yenile = function () { location.reload(); };
+  document.getElementById("modalCancel").onclick = yenile;
+  document.querySelector(".js-yedek-geri-al-indir").onclick = function () {
+    yedekAlAc(_yedekGeriAl, function (b) { yedekSonucAc(oz, b || ""); });
+  };
+  document.querySelector(".js-yedek-geri-al").onclick = async function () {
+    this.disabled = true;
+    try { await yedekUygula(_yedekGeriAl); }
+    catch (e) { yedekSonucAc(oz, "Geri al yazılamadı: " + ((e && e.message) || e) + " — önce geri al kopyasını indirin."); return; }
+    yenile();
+  };
+  const kaplama = document.getElementById("modalOverlay");
+  if (!yedekSonucAc._gozcu) {
+    yedekSonucAc._gozcu = new MutationObserver(function () {
+      if (_yedekYenilemeBekliyor && !kaplama.classList.contains("open")) yenile();
+    });
+    yedekSonucAc._gozcu.observe(kaplama, { attributes: true, attributeFilter: ["class"] });
+  }
+  document.getElementById("modalCancel").focus();
+}
+
 /* ==================== Demo senaryosu ====================
    KÖKEN — §48b'de DEĞİŞTİ, dürüstçe yazılıyor.
 
@@ -14116,6 +14592,16 @@ function renderKabukEk() {
       ' aria-label="Rehberli demo, 5 adım — örnek veriyle soru onayından analize">' +
       '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
       '<span class="kb-oge-not">Örnek veriyle soru onayından analize</span></button>' +
+      /* §108: tam yedek — yalnız okul rollerinde (veriyi onlar yönetir). */
+      (okul ? '<div class="kb-ayrac" role="separator"></div>' +
+        '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-yedekle" data-kb="ek:yedekle"' +
+        ' aria-label="Yedekle — bütün veriler tek .mihenk dosyasına, adlar varsa parolayla">' +
+        '<span class="kb-oge-ad">Yedekle…</span>' +
+        '<span class="kb-oge-not">Bütün veriler tek .mihenk dosyasına</span></button>' +
+        '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-geri-yukle" data-kb="ek:geri-yukle"' +
+        ' aria-label="Yedekten geri yükle — önce özet ve onay">' +
+        '<span class="kb-oge-ad">Yedekten geri yükle…</span>' +
+        '<span class="kb-oge-not">Önce özet ve onay</span></button>' : "") +
       (okul ? '<div class="kb-ayrac" role="separator"></div>' +
         '<button type="button" role="menuitem" tabindex="-1" class="kb-oge kb-tehlike js-ek-sifirla" data-kb="ek:sifirla"' +
         ' aria-label="Tüm verileri sıfırla — önce onay sorulur">' +
@@ -14127,6 +14613,8 @@ function renderKabukEk() {
   });
   document.querySelectorAll(".js-ek-demo").forEach(function (b) { b.onclick = demoBaslat; });
   document.querySelectorAll(".js-ek-sifirla").forEach(function (b) { b.onclick = sifirlaOnayAc; });
+  document.querySelectorAll(".js-ek-yedekle").forEach(function (b) { b.onclick = function () { yedekAlAc(); }; });
+  document.querySelectorAll(".js-ek-geri-yukle").forEach(function (b) { b.onclick = yedekGeriYukleAc; });
 }
 
 /** §64 — SIFIRLAMA ARTIK ONAYLI. Eskiden üst çubuktaki "Sıfırla" düğmesi
@@ -15628,6 +16116,11 @@ function bosDurumHtml(mesaj) {
     /* §64 — kabuk: panel menüsü, ⋯ menüsü, onaylı sıfırlama ve demo.
        Biri düşerse üst çubuk ya da giriş sessizce ölür. */
     "kabukRolGrubu", "kabukGruplari", "rolRozetleri", "panelMenuHtml", "rolSec", "kabukMenuAc",
+    /* §108 — tam yedek (.mihenk): şifreleme, adsız kopya, geri yükleme. */
+    "yedekHata", "yedekDurumAl", "yedekKitaplikAl", "yedekKitaplikYaz", "yedekOgretmenAdlari", "yedekKisiselVarMi",
+    "yedekDerinMetin", "yedekAdKaliplari", "yedekAdsizMetin", "yedekAdsizYap", "yedekB64", "yedekB64Coz",
+    "yedekSha256", "yedekAnahtar", "yedekAad", "yedekShaGirdisi", "yedekOlustur", "yedekCoz", "yedekOzet", "yedekOzetMetni",
+    "yedekUygula", "yedekGeriYukle", "yedekDosyaAdi", "yedekAlAc", "yedekGeriYukleAc", "yedekSonucAc",
     "renderKabukEk", "sifirlaOnayAc", "demoBaslat", "kabukDinleyicileriKur", "kabukYuksekligiIzle", "kabukYuksekliginiYaz",
     "kabukOdagiKoy", "kabukMenuKlavye", "girisInertEsitle", "etkinPaneleOdaklan", "kabukModalOdagi",
     /* §29 — Sude entegrasyonu: rubrik şablon uyarısı ve öğretmen
