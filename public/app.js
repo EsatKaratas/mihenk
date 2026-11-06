@@ -9187,20 +9187,9 @@ function cevapAnahtariHtml(sorular) {
 function sinavYazdir(tur) {
   const y = yazdirSorulari();
   if (!y.sorular.length) return;
-  let kap = document.getElementById("yazdirKabi");
-  if (!kap) { kap = document.createElement("div"); kap.id = "yazdirKabi"; document.body.appendChild(kap); }
-  kap.innerHTML = tur === "anahtar" ? cevapAnahtariHtml(y.sorular) : sinavKagidiHtml(y.sorular);
-  kap.dataset.tur = tur === "anahtar" ? "anahtar" : "kagit";   // app.css: sayfa kenar kutuları
-  document.body.classList.add("yazdiriliyor");
-  document.documentElement.classList.add("yazdiriliyor");   // kenar boşluğu zemini (koyu tema)
-  const temizle = function () {
-    document.body.classList.remove("yazdiriliyor");
-    document.documentElement.classList.remove("yazdiriliyor");
-    kap.innerHTML = "";
-    window.removeEventListener("afterprint", temizle);
-  };
-  window.addEventListener("afterprint", temizle);
-  window.print();
+  // §102: kap doldurma/temizleme karne yazdırmayla ortak (yazdirKabindanBas).
+  yazdirKabindanBas(tur === "anahtar" ? cevapAnahtariHtml(y.sorular) : sinavKagidiHtml(y.sorular),
+    tur === "anahtar" ? "anahtar" : "kagit");
 }
 
 /** Sınav Taslağı kartındaki yazdırma çubuğu. */
@@ -12090,7 +12079,9 @@ function wireStudentTab2() {
 
 function studentTab3Html() {
   if (state.examStatus !== "graded") {
-    return '<div class="card"><div class="empty-state">' + (state.examStatus === "submitted" ? "Öğretmenin henüz onaylamadı. Onaylandığında karnen burada görünecek." : "Sınavı tamamladığında karnen burada görünecek.") + '</div></div>';
+    // §102: bu sınav onaylanmadıysa da önceki onaylı sınavlardan öğrenme çıktısı kartı görünür.
+    return '<div class="card"><div class="empty-state">' + (state.examStatus === "submitted" ? "Öğretmenin henüz onaylamadı. Onaylandığında karnen burada görünecek." : "Sınavı tamamladığında karnen burada görünecek.") + '</div></div>' +
+      ogrenmeCiktisiKartiHtml(state.activeStudentId, "ogrenci");
   }
   const items = state.exam.questionIds.map(function (id) { return state.questions.find(function (q) { return q.id === id; }); }).filter(Boolean);
   let totalScore = 0, totalMax = 0;
@@ -12220,7 +12211,8 @@ function studentTab3Html() {
       (yuzde == null ? "" : '<div class="kt-yuzde tabular">%' + yuzde + '</div>') +
       '<div class="kt-not">Bu, sınavdan aldığın <b>nihai puan</b>. ' +
       'Aşağıda her soruda ne yazdığını, kaç puan aldığını, sorunun hangi kazanımı ölçtüğünü ve puanın hangi ölçütlerden geldiğini görebilirsin.</div>' +
-    '</div>' + rows + '</div>';
+    '</div>' + rows + '</div>' +
+    ogrenmeCiktisiKartiHtml(state.activeStudentId, "ogrenci");   // §102
 }
 
 // Öğrenci panelinde "hangi öğrenciyim?" seçici. Gerçek üründe bu kimlik
@@ -12242,7 +12234,8 @@ function renderStudent() {
   const tabs = [
     { id: 2, label: "Sınavı Çöz", pasif: false },
     { id: 1, label: "Sınavlarım", pasif: false },
-    { id: 3, label: "Karne", pasif: state.examStatus !== "graded" }
+    // §102: başka bir onaylı sınav varsa Karne (öğrenme çıktısı kartı) açıktır.
+    { id: 3, label: "Karne", pasif: state.examStatus !== "graded" && !veliSonuclari(state.activeStudentId).length }
   ];
   root.innerHTML = studentPickerHtml() + '<div class="tabs" id="studentTabs">' +
     tabs.map(function (t) {
@@ -12257,7 +12250,7 @@ function renderStudent() {
   const content = document.getElementById("studentTabContent");
   if (state.studentTab === 1) { content.innerHTML = studentTab1Html(); wireStudentTab1(); }
   if (state.studentTab === 2) { content.innerHTML = studentTab2Html(); wireStudentTab2(); }
-  if (state.studentTab === 3) { content.innerHTML = studentTab3Html(); }
+  if (state.studentTab === 3) { content.innerHTML = studentTab3Html(); wireKarneYazdir("#panel-student"); }
 }
 
 /* ===========================================================================
@@ -14620,6 +14613,223 @@ function riskListesiHtml(f) {
    · Kimlik doğrulama YOKTUR; çocuk seçimi simülasyondur ve ekranda öyle
      yazar. Gerçek eşleştirme Better Auth ile üretimde yapılacaktır. */
 
+/* ==================== §102 ÖĞRENME ÇIKTISI KARTI ====================
+   Öğrenci ve veli panelinde, kazanım başına "nerede güçlü, nerede gelişime
+   açık, sırada ne var" kartı.
+
+   KAYNAK — Hattie, J. ve Timperley, H. (2007). The Power of Feedback.
+   Review of Educational Research, 77(1), 81–112. Etkili geri bildirim üç
+   soruya cevap verir; kart bu üç soruyu sırayla karşılar:
+     · Nereye gidiyorum? (feed up)     → kazanım (öğretim programındaki hedef)
+     · Nasıl gidiyorum?  (feed back)   → "Güçlü" / "Gelişime açık"
+     · Sırada ne var?    (feed forward)→ "Sıradaki adım"
+
+   🔴 İNSAN KARARI (AGENTS.md §1): hesap YALNIZ öğretmenin onayladığı
+   puanlardan yapılır (veliSonuclari: yayındaki sınav + "graded" oturum +
+   açık uçluda rv.finalScore). Yapay zekâ önerisi (aiEvals) hiç okunmaz.
+   Onay bekleyen cevaplar sayılır ve kartta AÇIKÇA yazılır (sessiz düşüş yok).
+   Model ÇAĞRILMAZ: "Sıradaki adım" metni kazanımın adından kurala dayalı
+   türetilir.
+
+   EŞİKLER TEK YERDE: veli panelindeki "Konulara göre durum" satırları da
+   (veliKonuSatiriHtml) bu sabitleri kullanır; ikisi birbirini yalanlayamaz. */
+const OGRENME_ESIK = { GUCLU: 70, DESTEK: 50 };   // % — ≥GUCLU güçlü; <DESTEK desteğe ihtiyaç
+const OGRENME_SIRADAKI_EN_FAZLA = 2;              // "Sıradaki adım": en düşük 1–2 kazanım
+
+/** SAF: kazanım toplamlarından kart verisi. kazanimlar = {kod: {alinan, tam}}.
+    Güçlü: yüzde ≥ esik.GUCLU; gelişime açık: altı. Sıradaki adım: gelişime
+    açıklardan en düşük 1–2; hiçbiri yoksa en düşük tek kazanım (pekiştirme). */
+function ogrenmeCiktisiHesapla(kazanimlar, bekleyen, esik) {
+  const e = esik || OGRENME_ESIK;
+  const satirlar = Object.keys(kazanimlar || {}).map(function (kod) {
+    const v = kazanimlar[kod] || {};
+    const tam = Number(v.tam) || 0;
+    return { kod: kod, yuzde: tam > 0 ? Math.round(((Number(v.alinan) || 0) / tam) * 100) : null };
+  }).filter(function (x) { return x.yuzde != null; });
+  const azalan = satirlar.slice().sort(function (a, b) { return b.yuzde - a.yuzde || (a.kod < b.kod ? -1 : 1); });
+  const guclu = azalan.filter(function (x) { return x.yuzde >= e.GUCLU; });
+  const gelisime = azalan.filter(function (x) { return x.yuzde < e.GUCLU; });
+  const artan = gelisime.length ? gelisime.slice().reverse() : azalan.slice().reverse();
+  const siradaki = artan.slice(0, gelisime.length ? OGRENME_SIRADAKI_EN_FAZLA : 1);
+  return { guclu: guclu, gelisime: gelisime, siradaki: siradaki, bekleyen: Math.max(0, Number(bekleyen) || 0) };
+}
+
+/** Öğrencinin onaylı sınavlarından kazanım toplamları (veliSonuclari üzerinden). */
+function ogrenmeKazanimToplami(sonuclar) {
+  const birlesik = {};
+  (sonuclar || []).forEach(function (s) {
+    Object.keys(s.kazanimlar || {}).forEach(function (k) {
+      if (!birlesik[k]) birlesik[k] = { alinan: 0, tam: 0 };
+      birlesik[k].alinan += s.kazanimlar[k].alinan;
+      birlesik[k].tam += s.kazanimlar[k].tam;
+    });
+  });
+  return birlesik;
+}
+
+/** Öğretmen onayı bekleyen cevap sayısı (yayındaki sınavlar):
+    · "submitted" oturum → sınavın tüm soruları (sonuç henüz paylaşılmadı);
+    · "graded" oturum → incelemesi (review) olmayan açık uçlu sorular. */
+function onayBekleyenSayisi(sid) {
+  let n = 0;
+  (state.exams || []).forEach(function (kayit) {
+    const ex = kayit.id === state.activeExamId ? state.exam : kayit;
+    if (!ex || ex.status !== "published") return;
+    const o = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)
+      ? { examStatus: state.examStatus, reviews: state.reviews }
+      : ((kayit.sessions || {})[sid] || null);
+    if (!o) return;
+    const sorular = (ex.questionIds || [])
+      .map(function (id) { return state.questions.find(function (q) { return q.id === id; }); })
+      .filter(Boolean);
+    if (o.examStatus === "submitted") { n += sorular.length; return; }
+    if (o.examStatus !== "graded") return;
+    sorular.forEach(function (q) { if (q.type !== "mc" && !(o.reviews || {})[q.id]) n++; });
+  });
+  return n;
+}
+
+/** Bir öğrencinin kart verisi + onaylı sonuçları (ekran ve kâğıt aynı kaynaktan). */
+function ogrenmeCiktisiVerisi(sid) {
+  const sonuclar = veliSonuclari(sid);
+  return { sonuclar: sonuclar, kart: ogrenmeCiktisiHesapla(ogrenmeKazanimToplami(sonuclar), onayBekleyenSayisi(sid)) };
+}
+
+/** Kazanımın okunur kısa adı (uzun MEB metni kısaltılır). */
+function ogrenmeKazanimAdi(kod) {
+  if (!kod || kod === "—") return "Kazanımı belirtilmemiş sorular";
+  const o = OUTCOMES_LIST().find(function (x) { return x.code === kod; }) || { code: kod, label: kod };
+  return truncate(kazanimKisaAd(o).ad, 80);
+}
+
+/** SAF (ad verilirse): "Sıradaki adım" önerisi — kazanım adından, kurala dayalı.
+    kitle: "ogrenci" (sen dili) | "veli" (siz dili). Model çağrılmaz. */
+function siradakiAdimMetni(ad, yuzde, kitle, esik) {
+  const e = esik || OGRENME_ESIK;
+  const veli = kitle === "veli";
+  const konu = "“" + ad + "”";
+  if (yuzde < e.DESTEK) {
+    return veli
+      ? "Çocuğunuzla " + konu + " konusunun temel kavramlarını ders kitabından birlikte yeniden okuyun; yanlış yapılan soruları öğretmeniyle gözden geçirmesini isteyin."
+      : konu + " konusunun temel kavramlarını ders kitabından yeniden oku; yanlış yaptığın soruları öğretmeninle birlikte gözden geçir.";
+  }
+  if (yuzde < e.GUCLU) {
+    return veli
+      ? "Çocuğunuz " + konu + " konusunda 2–3 benzer soru çözsün ve her yanıtının nedenini size kendi cümleleriyle anlatsın."
+      : konu + " konusunda 2–3 benzer soru çöz; her yanıtında “neden?” sorusunu kendi cümlelerinle açıkla.";
+  }
+  return veli
+    ? "Çocuğunuz " + konu + " konusunu size kendi cümleleriyle anlatarak pekiştirebilir."
+    : konu + " konusunu bir arkadaşına kendi cümlelerinle anlatarak pekiştir.";
+}
+
+/** Onay bekleyen not metni (ekran ve kâğıt). */
+function ogrenmeBekleyenMetni(n) {
+  return n + " cevap öğretmen onayı bekliyor; kart onaydan sonra güncellenir.";
+}
+
+/** Kartın ekran HTML'i. Onaylı sonuç da bekleyen de yoksa boş döner. */
+function ogrenmeCiktisiKartiHtml(sid, kitle) {
+  const v = ogrenmeCiktisiVerisi(sid);
+  const k = v.kart;
+  if (!v.sonuclar.length && !k.bekleyen) return "";
+  const satir = function (x) {
+    return '<li><span class="oc-ad">' + escapeHtml(ogrenmeKazanimAdi(x.kod)) + '</span>' +
+      '<span class="oc-yuzde tabular">%' + x.yuzde + '</span></li>';
+  };
+  const liste = function (dizi, bos) {
+    return dizi.length ? '<ul class="oc-liste">' + dizi.map(satir).join("") + '</ul>' : '<p class="oc-bos">' + bos + '</p>';
+  };
+  const veli = kitle === "veli";
+  return '<div class="card oc-kart" data-kitle="' + (veli ? "veli" : "ogrenci") + '">' +
+    '<div class="card-head"><h3>Öğrenme çıktısı kartı</h3>' +
+    (v.sonuclar.length
+      ? '<button type="button" class="btn btn-secondary btn-sm js-karne-yazdir" data-sid="' + escapeHtml(String(sid)) +
+        '" data-kitle="' + (veli ? "veli" : "ogrenci") + '">🖨 Yazdır</button>'
+      : "") + '</div>' +
+    (k.bekleyen ? '<div class="oc-bekleyen" role="status">⏳ ' + escapeHtml(ogrenmeBekleyenMetni(k.bekleyen)) + '</div>' : "") +
+    (v.sonuclar.length
+      ? '<div class="oc-bolumler">' +
+          '<section class="oc-bolum oc-guclu"><h4><span aria-hidden="true">✓</span> Güçlü</h4>' +
+            liste(k.guclu, "Henüz %" + OGRENME_ESIK.GUCLU + " ve üzerinde bir kazanım yok.") + '</section>' +
+          '<section class="oc-bolum oc-gelisime"><h4><span aria-hidden="true">◐</span> Gelişime açık</h4>' +
+            liste(k.gelisime, "Gelişime açık kazanım yok.") + '</section>' +
+          '<section class="oc-bolum oc-siradaki"><h4><span aria-hidden="true">→</span> Sıradaki adım</h4><ul class="oc-liste oc-oneri">' +
+            k.siradaki.map(function (x) {
+              return '<li>' + escapeHtml(siradakiAdimMetni(ogrenmeKazanimAdi(x.kod), x.yuzde, kitle)) + '</li>';
+            }).join("") + '</ul></section>' +
+        '</div>' +
+        '<p class="oc-not">Yalnız <b>öğretmenin onayladığı</b> puanlardan, kazanım başına hesaplanır: %' + OGRENME_ESIK.GUCLU +
+        ' ve üzeri güçlü, altı gelişime açık. Öneriler kurala dayalıdır; yapay zekâ kullanılmaz.</p>'
+      : "") + '</div>';
+}
+
+/** §102 — karne kâğıdı (A4 tek sayfa). Yalnız onaylı puan; yapay zekâ önerisi,
+    onaysız puan, başka öğrenci, numara KÂĞIDA ÇIKMAZ (§88: yalnız kendi kaydı). */
+function karneKagidiHtml(sid, kitle) {
+  const ogr = (state.students || []).find(function (o) { return String(o.id) === String(sid); }) || {};
+  const v = ogrenmeCiktisiVerisi(sid);
+  const k = v.kart;
+  const tarih = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const sinavlar = v.sonuclar.slice(-8);   // tek sayfa: en yeni 8 onaylı sınav
+  const liste = function (dizi, bos) {
+    return dizi.length
+      ? "<ul>" + dizi.slice(0, 6).map(function (x) {
+          return "<li>" + escapeHtml(ogrenmeKazanimAdi(x.kod)) + " — %" + x.yuzde + "</li>";
+        }).join("") + "</ul>"
+      : '<p class="yk-bos">' + bos + "</p>";
+  };
+  return '<div class="yz-sayfa yk-sayfa"><div class="yz-bas"><div class="yz-baslik">Öğrenme Karnesi</div>' +
+    '<div class="yz-alt">Mihenk · ' + escapeHtml(tarih) + "</div></div>" +
+    '<div class="yz-ogrenci"><span>Öğrenci: <b>' + escapeHtml(ogr.name || ("#" + sid)) + "</b></span>" +
+    (ogr.sinif ? "<span>Sınıf: " + escapeHtml(ogr.sinif) + "</span>" : "") + "</div>" +
+    '<table class="yk-sinav"><thead><tr><th>Sınav</th><th>Onaylı puan</th><th>%</th></tr></thead><tbody>' +
+    sinavlar.map(function (s) {
+      return "<tr><td>" + escapeHtml(s.baslik) + "</td><td>" + ondalikTr(s.puan) + " / " + ondalikTr(s.tam) +
+        "</td><td>" + (s.yuzde != null ? "%" + s.yuzde : "—") + "</td></tr>";
+    }).join("") + "</tbody></table>" +
+    (v.sonuclar.length > sinavlar.length ? '<p class="yk-bos">Yalnız en yeni ' + sinavlar.length + " onaylı sınav gösterildi.</p>" : "") +
+    '<div class="yk-kart"><div class="yk-kart-bas">Öğrenme çıktısı kartı</div>' +
+    '<div class="yk-bolum"><b>Güçlü</b>' + liste(k.guclu, "—") + "</div>" +
+    '<div class="yk-bolum"><b>Gelişime açık</b>' + liste(k.gelisime, "—") + "</div>" +
+    '<div class="yk-bolum"><b>Sıradaki adım</b><ul>' + k.siradaki.map(function (x) {
+      return "<li>" + escapeHtml(siradakiAdimMetni(ogrenmeKazanimAdi(x.kod), x.yuzde, kitle)) + "</li>";
+    }).join("") + "</ul></div></div>" +
+    (k.bekleyen ? '<p class="yk-not">' + escapeHtml(ogrenmeBekleyenMetni(k.bekleyen)) + " Bu cevaplar karneye dahil değildir.</p>" : "") +
+    '<p class="yk-not">Bu karnede yalnız öğretmenin onayladığı puanlar yer alır. Güçlü: %' + OGRENME_ESIK.GUCLU +
+    " ve üzeri. Öneriler kurala dayalıdır; yapay zekâ önerisi içermez.</p></div>";
+}
+
+/** Yazdırma kabını doldurur, yazdırır, sonra boşaltır (§59 altyapısı, ortak). */
+function yazdirKabindanBas(html, tur) {
+  let kap = document.getElementById("yazdirKabi");
+  if (!kap) { kap = document.createElement("div"); kap.id = "yazdirKabi"; document.body.appendChild(kap); }
+  kap.innerHTML = html;
+  kap.dataset.tur = tur;   // app.css: sayfa kenar kutuları
+  document.body.classList.add("yazdiriliyor");
+  document.documentElement.classList.add("yazdiriliyor");   // kenar boşluğu zemini (koyu tema)
+  const temizle = function () {
+    document.body.classList.remove("yazdiriliyor");
+    document.documentElement.classList.remove("yazdiriliyor");
+    kap.innerHTML = "";
+    window.removeEventListener("afterprint", temizle);
+  };
+  window.addEventListener("afterprint", temizle);
+  window.print();
+}
+
+/** Karne yazdır: onaylı sonuç yoksa hiçbir şey basılmaz. */
+function karneYazdir(sid, kitle) {
+  if (!veliSonuclari(sid).length) return;
+  yazdirKabindanBas(karneKagidiHtml(sid, kitle), "karne");
+}
+
+function wireKarneYazdir(kokSecici) {
+  document.querySelectorAll(kokSecici + " .js-karne-yazdir").forEach(function (b) {
+    b.onclick = function () { karneYazdir(b.dataset.sid, b.dataset.kitle); };
+  });
+}
+
 function veliCocugu() {
   const liste = state.students || [];
   if (!liste.length) return null;
@@ -14702,7 +14912,8 @@ function renderParent() {
   const sonuclar = veliSonuclari(cocuk.id);
   const kart = veliCocukKartiHtml(cocuk, sonuclar.length);
   if (!sonuclar.length) {
-    root.innerHTML = secici + kart + veliBosDurumHtml(cocuk);
+    // §102: onaylı sonuç yokken kart yalnız "onay bekliyor" notunu taşır (varsa).
+    root.innerHTML = secici + kart + veliBosDurumHtml(cocuk) + ogrenmeCiktisiKartiHtml(cocuk.id, "veli");
     wireParent();
     return;
   }
@@ -14726,7 +14937,7 @@ function renderParent() {
   const son = sonuclar[sonuclar.length - 1];
   const onceki = sonuclar.slice(0, -1).reverse();
 
-  root.innerHTML = secici + kart + veliSonSonucHtml(son) +
+  root.innerHTML = secici + kart + veliSonSonucHtml(son) + ogrenmeCiktisiKartiHtml(cocuk.id, "veli") +
     (onceki.length
       ? '<div class="card veli-onceki"><div class="card-head"><h3>Önceki onaylı sınavlar</h3>' +
         '<span class="hint tabular">' + onceki.length + ' sınav</span></div>' +
@@ -14743,7 +14954,8 @@ function renderParent() {
     '<p class="veli-not">Yüzdeler <b>yalnızca çocuğunuzun kendi yanıtlarından</b> hesaplanır; ' +
     'sınıfla karşılaştırma içermez.</p>' +
     kazanimSatirlari.map(veliKonuSatiriHtml).join("") +
-    '<div class="veli-not">%70 ve üzeri güçlü, %50\'nin altı birlikte çalışılması önerilen konulardır. ' +
+    '<div class="veli-not">%' + OGRENME_ESIK.GUCLU + ' ve üzeri güçlü, %' + OGRENME_ESIK.DESTEK +
+    '\'nin altı birlikte çalışılması önerilen konulardır. ' +
     'Bu bir not değil, <b>yol göstericidir</b>.</div></div>' +
 
     (onay
@@ -14808,8 +15020,8 @@ function veliSonSonucHtml(s) {
 
 /** Bir konu (kazanım) satırı: sade ad önde, durum sözcükle + simgeyle + renkle; kod ikincil. */
 function veliKonuSatiriHtml(k) {
-  const d = k.yuzde >= 70 ? { ton: "guclu", simge: "✓", metin: "Güçlü" }
-    : (k.yuzde >= 50 ? { ton: "gelisiyor", simge: "◐", metin: "Gelişiyor" }
+  const d = k.yuzde >= OGRENME_ESIK.GUCLU ? { ton: "guclu", simge: "✓", metin: "Güçlü" }
+    : (k.yuzde >= OGRENME_ESIK.DESTEK ?{ ton: "gelisiyor", simge: "◐", metin: "Gelişiyor" }
       : { ton: "destek", simge: "!", metin: "Desteğe ihtiyaç var" });
   const o = OUTCOMES_LIST().find(function (x) { return x.code === k.kod; }) || { code: k.kod, label: k.kod };
   const kk = k.kod === "—" ? { ad: "Kazanımı belirtilmemiş sorular", kod: "" } : kazanimKisaAd(o);
@@ -14837,6 +15049,7 @@ function wireParent() {
   document.querySelectorAll('#panel-parent [data-vid]').forEach(function (b) {
     b.onclick = function () { state.parentStudentId = Number(b.dataset.vid); saveState(); renderAll(); };
   });
+  wireKarneYazdir("#panel-parent");   // §102
 }
 
 /* ==================== DİKKAT SİNYALİ (§28e) ====================
@@ -15341,6 +15554,10 @@ function bosDurumHtml(mesaj) {
     "ogrNoktalariBagla", "ogrGozdenHtml", "kazanimAdKodHtml",
     "yonBilgiHtml", "yonGercekSatirlar", "yonEylemKartiHtml", "yonOrnekBolumHtml", "yonSeciliOgretmen", "teacherSatirHtml",
     "veliSeciciHtml", "veliCocukKartiHtml", "veliYorumlarHtml", "veliSonSonucHtml", "veliKonuSatiriHtml", "veliBosDurumHtml",
+    /* §102 öğrenme çıktısı kartı + karne yazdırma */
+    "ogrenmeCiktisiHesapla", "ogrenmeKazanimToplami", "onayBekleyenSayisi", "ogrenmeCiktisiVerisi",
+    "ogrenmeKazanimAdi", "siradakiAdimMetni", "ogrenmeBekleyenMetni", "ogrenmeCiktisiKartiHtml",
+    "karneKagidiHtml", "yazdirKabindanBas", "karneYazdir", "wireKarneYazdir",
     /* §74 — yönetici filtreleri (W4). */
     "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
