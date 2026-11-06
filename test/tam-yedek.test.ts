@@ -32,6 +32,9 @@ const ISLEVLER = ['yedekHata', 'yedekDurumAl', 'yedekKitaplikAl', 'yedekKitaplik
   'yedekB64Coz', 'yedekSha256', 'yedekAnahtar', 'yedekAad', 'yedekShaGirdisi', 'yedekOlustur', 'yedekCoz',
   'yedekOzet', 'yedekOzetMetni', 'yedekUygula', 'yedekGeriYukle', 'yedekDosyaAdi', 'kisiselDesen', 'kisiselAdKaliplari'];
 
+const SEKME = ['SURUM_KEY', 'SEKME_KIMLIGI'].map(sabit).join('\n') + '\n' +
+  ['depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz'].map(tanim).join('\n');
+
 type Kayit = { id: number; pages: unknown };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
@@ -64,6 +67,9 @@ function ortam(opts: { state?: Any; kitaplik?: Kayit[]; onay?: boolean; setItemH
   const KALICI_ALANLAR = ['questions', 'exams', 'students', 'library', 'activeTeacherName', 'auditLog', 'answers', 'outcomes', 'subjects'];
   const k = new Function('state', 'KALICI_ALANLAR', 'STORE_KEY', 'localStorage', 'dbIslem', 'onaylaModal', 'crypto',
     'let qIdSeq = 7; let _resetting = false; let _saveTimer = null; let _yedekGeriAl = null;\n' +
+    // §119: yedekUygula/yedekGeriYukle sürümlü yazımı ve sekme denetimini kullanır (gerçek işlevler).
+    'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null; function renderSekmeCakismasi() {}\n' +
+    SEKME + '\n' +
     SABITLER + '\n' + ISLEVLER.map(tanim).join('\n') +
     '\nreturn { ' + ISLEVLER.join(', ') + ', YEDEK_ONAY_METNI, YEDEK_PBKDF2_YINELEME, MIHENK_UYGULAMA_SURUMU,' +
     ' geriAl: function () { return _yedekGeriAl; }, resetting: function () { return _resetting; } };'
@@ -239,11 +245,16 @@ describe('§108 sürüm ve göç', () => {
     const state: Any = { ceForm: { atolye: '' }, outcomes: [], subjects: [], gocDeneyapDersi: true, examStatus: 'not_started' };
     const KALICI = ['outcomes', 'subjects', 'ceForm', 'students', 'questions', 'exams', 'gocDeneyapDersi'];
     const sonuc = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR',
-      'let qIdSeq = 1;\n' + ['KESIF_SINIFI', 'ATOLYELER', 'DENEYAP_DERSI'].map(sabit).join('\n') +
+      'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null;\n' +
+      [sabit('SURUM_KEY'), tanim('depoSurumOku')].join('\n') + '\n' +
+      ['KESIF_SINIFI', 'ATOLYELER', 'DENEYAP_DERSI'].map(sabit).join('\n') +
       '\nconst VARSAYILAN_KAZANIMLAR = [];\n' + tanim('loadState') +
-      '\nreturn { ok: loadState(), qIdSeq, KESIF_SINIFI, DENEYAP_DERSI };'
+      '\nreturn { ok: loadState(), qIdSeq, KESIF_SINIFI, DENEYAP_DERSI, surum: _bilinenSurum };'
     )(state, { getItem: (key: string) => e.ls[key] ?? null }, 't3-olcme-durum-v1', KALICI);
     expect(sonuc.ok).toBe(true);
+    // §119: geri yükleme sürümü artırdı; yeniden açılan sekme o sürümü bilir.
+    expect(sonuc.surum).toBe(JSON.parse(e.ls['t3-olcme-durum-v1:surum']).rev);
+    expect(sonuc.surum).toBeGreaterThanOrEqual(1);
     expect(sonuc.qIdSeq).toBe(4);
     expect(state.outcomes[0]).toMatchObject({ grade: sonuc.KESIF_SINIFI, atolye: 'Fizik Atölyesi' });
     expect(state.ceForm).toMatchObject({ grade: sonuc.KESIF_SINIFI, atolye: 'Fizik Atölyesi' });

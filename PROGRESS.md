@@ -12635,3 +12635,117 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-116\`. İçinde axe, oys
 - `/api/ai/butce` yayından önce ve sonra aynı: `harcanan 0`; `doldu/tukendi: true` bayrağı §116'dan beri böyle.
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-118\`. İçinde PDF denetimi (`denetim.txt`, `eslem_denetle.py`), karşılaştırma betikleri ve JSON çıktıları, axe, OYSS, SHA, kontroller ve demo kayıtları var.
+
+---
+
+## §119 — P1 "veri güvenliği + dürüst YZ durumu" (W9, 6.11; dal `feature/sekme-guvenligi`, taban main 0f186f3)
+
+Kaynak: `fikir2-C-urun.md` madde 1 ve 7, `fikir2-A-ogretmen-meb.md` madde 5. Model çağrısı 0: bütün ölçümlerde `/api/**` POST'ları Playwright'ta kesildi. Push ve deploy yok.
+
+### 1. Sekme çakışması: sessiz veri silinmesi kapandı
+
+**Önce (ölçüldü, taban 0f186f3, aynı origin iki Playwright sayfası):**
+- A sekmesi soru ekleyip kaydettikten sonra B sekmesi eski belleğiyle bir kez çizildiğinde A'nın sorusu depodan silindi; uyarı çıkmadı (senaryo 3 ve 4 ✗).
+- Kök neden: `renderAll` → `saveState` her çizimde bütün durumu tek anahtara yazıyor; `storage` dinleyicisi yok.
+- fikir2'deki senaryo 1 (B'de rol kartı) bu ölçümde kayıpsız bitti; nedeni A'nın sonradan yeniden yazması, yani kimin son yazdığına bağlı bir yarış. Kayıp senaryo 3 ve 4'te her koşuda tekrarlandı.
+
+**Çözüm (`app.js` §119 bloğu):**
+- Sürüm kaydı `t3-olcme-durum-v1:surum` = `{rev, sekme, at}`. Sekme açılışta sürümü veriden ÖNCE okur. Her yazımdan önce depodaki sürümün kendi bildiğiyle aynı olduğunu denetler; değilse yazmaz.
+- `storage` olayı dinlenir (`sekmeDepoOlayi`): başka sekme durumu ya da sürümü değiştirince bu sekme yazmayı hemen durdurur.
+- İki yolda da üstte kapatılamayan kutu çıkar: "Veri başka sekmede değişti — yeniden yükleyin." Kutu `role="alert"` ve tek düğmesi "Yeniden yükle". Sessiz birleştirme yok.
+- Aynı içerik yeniden yazılmaz. Böylece yalnız açılan ya da hiçbir şey değiştirmeyen sekme diğerini kilitlemez (ölçüldü: B ve C açılınca A'da kutu yok).
+- Doğrudan yazan yollar da sürümlü:
+  - Yedek geri yükleme sürümü artırır ve çakışma varken reddedilir (`sekme_cakisma`). Böylece "geri al" kopyası bayat bellekten alınmaz.
+  - Sıfırla sürüm kaydını da siler.
+- IndexedDB (kitaplık):
+  - Çakışma varken `dbIslem("readwrite")` reddedilir; kitap kaydı ile durum kaydı birbirinden kopmaz.
+  - Açık bağlantıya `onversionchange` → kapat eklendi, böylece başka sekmenin Sıfırla'sı kitaplığı silebiliyor (ölçüldü: "silindi").
+
+**Sonra (`tools/dogrula/sekme-cakisma.mjs`, depoya eklendi):**
+- 6 senaryo, 14 denetim, 3 koşuda 14/14.
+- Tabanda aynı betik senaryo 3 ve 4'te 4 denetimde düşüyor ve 5. senaryoda kutu olmadığı için duruyor.
+
+**Sınır (ölçüldü):** Chrome'da sekmeler arası localStorage eşitlemesi asenkron. Bir yazımdan sonraki aynı birkaç milisaniye içinde diğer sekme eski sürümü görebiliyor. Betikte bu, 300 ms beklemeyle kapandı; insan hızındaki iki tıklama arasında bu pencere yok. Tam atomiklik için Web Locks API gerekir; yapılmadı.
+
+### 2. YZ kapalı / kota dolu / ağ hatası: dürüst durum
+
+**Önce (ölçüldü):**
+- **Kota dolu** (status ready + bütçe `doldu`): `renderAll` sonrası bütün YZ düğmeleri zaten kapalıydı (§100). fikir2'nin "etkin kalıyor" gözlemi bu ölçümde ve kendi ekran görüntüsünde (`12-elle-soru-form-1280.png`, düğmeler soluk) doğrulanmadı.
+- **Sunucuya ulaşılamıyor** (mod `simulation`): yerel yedeği olmayan dört düğme etkindi ve tıklanınca "Failed to fetch" çıkıyordu. Bunlar: kazanım denetimi, bağımsız çöz, toplu çöz, kavram yanılgısı.
+- **Canlı ama ağ kesik:** 4 düğmede ekrana İngilizce "Failed to fetch" düştü. Rehberli demonun 4. adımında (390 px) jürinin gördüğü durum birebir üretildi: "Failed to fetch".
+
+**Çözüm:**
+- `apiPost`: `fetch` reddi Türkçe ve ne yapılacağını söyleyen cümleye çevrildi (kod `ag_hatasi`): "Yapay zekâ sunucusuna ulaşılamadı: internet bağlantısı kesik ya da sunucu yanıt vermiyor. Bağlantınızı denetleyip yeniden deneyin."
+  - Uca göre elle devam yolu da eklenir (§93 `aiElleDevam`).
+  - Başarılı ama okunamayan yanıt: `gecersiz_yanit`.
+  - Gövdesiz HTTP hatası: Türkçe cümle içinde kod.
+  - Hata yine hata: sessiz yedek yok.
+- `hataMetniTr`: eski kayıtlarda kalmış İngilizce ağ metni gösterilirken çevrilir; veri değişmez. Kullanıldığı yerler: değerlendirme kartı, demo tohum uyarısı, kazanım denetimi, kavram yanılgısı, bağımsız çözüm.
+- Katalog, Deneyap listesi ve materyal yüklemesindeki ağ hataları için `agHataMetni` eklendi.
+- Mod `simulation` iken `AI_SUNUCU_DUGME_SECICI` (`#btnAlign, .js-coz, #btnTopluCoz, .mis-run`) kapanır.
+  - `title` ve `aria-describedby` verilir; neden kabuktaki aynı şeritte görünür: "Yapay zekâ sunucusuna ulaşılamıyor: kazanım denetimi, bağımsız çözüm ve kavram analizi kapalı; soru üretimi ve puan önerisi yerel simülasyonla (işaretli) çalışır."
+  - Üretim, puan önerisi, rubrik ve sınıf simülasyonu kapanmaz; bunların işaretli yerel simülasyonu bilinçli tasarım (§17).
+  - `unknown` (denetleniyor) iken hiçbir düğmeye dokunulmaz.
+- Üretim hata metninde öneri iki kez yazılmasın diye `oneriIceriyor` eklendi.
+
+**Sonra (ölçüldü, 1280):**
+
+| Kip | Etkin kalan YZ düğmesi | Ekranda İngilizce ağ metni |
+|---|---|---|
+| Kota dolu | 0 | 0 |
+| Sunucuya ulaşılamıyor | 2: üretim ve rubrik (yerel simülasyonlu) | 0 |
+| Canlı, ağ kesik | hepsi (canlı mod) | 0 (tabanda 4 düğmenin sonucunda var) |
+
+- Demo 4. adım (390): taban "Failed to fetch", dal Türkçe cümle.
+
+### 3. MEB uyumu: ortak yazılı sınavda şube karşılaştırması
+
+**Kaynak:** ÖDSGM'nin 11.09.2025 tarih ve 140379263 sayılı yazısı, madde 11: "İlke ve okul geneli yapılan ortak yazılı sınavların sonucuna göre öğrenci toplu listeleri yayımlanmayacaktır. Okullar ve sınıflar arası karşılaştırmalı veri çıkarılmayacaktır."
+- Metin memurlar.net'in 19.09.2025 haberinden alındı. Yazının taranmış görüntüsü okunamadı; resmî metinle karşılaştırılmadı.
+
+**Önce (ölçüldü, rehberli demo 5. adım):**
+- Hedefi "Tüm sınıflar" olan tek sınav iki şubede onaylandı. Yönetici grafiği FEN.7.1.2'de 7-A %94 ile 7-B %48'i yan yana koydu.
+- Eylem kartı "7-B şubesi … okuldaki en düşük değer" dedi.
+- Sınav OYSS senaryosuna bağlansa da görünüm aynıydı. Sonuç: çelişiyor.
+
+**Çözüm:**
+- `ortakSinavMi(ex)`: önce açık işaret (`exam.ortakSinav`) okunur; işaret yoksa OYSS senaryosuna bağlı sınav ortak sayılır.
+- Sihirbaz 1. adımında (var olan sınav) "Ortak yazılı sınav (il ya da okul geneli)" kutusu eklendi; kaynak yanında yazılı.
+- Ortak sınavlar yönetici ekranının şube karşılaştırmasına girmez: grafik, eylem kartı (aynı satırlar) ve sınav geçmişi (`yonKarsilastirmaKayitlari`).
+- Grafik kartında kaynaklı tek cümle görünür: "N ortak yazılı sınav bu şube karşılaştırmasına katılmadı: MEB, ortak yazılı sınav sonuçlarından okullar ve sınıflar arası karşılaştırmalı veri çıkarılmamasını istiyor (ÖDSGM, 11.09.2025 tarih ve 140379263 sayılı yazı, madde 11)."
+- Öğretmenin kendi sınıf analizi değişmedi (madde 16: analiz öğretmenin kullanımı içindir). Tamamlanma ve onay bekleyen sayıları okul geneli olduğu için yerinde kaldı.
+
+**Sonra (ölçüldü, 1280 ve 390):**
+
+| Durum | Karşılaştırılan kazanım | Not |
+|---|---|---|
+| OYSS planı yok | 1 (değişmedi) | yok |
+| OYSS planlı | 0 | var |
+| Elle işaretli | 0 | var |
+| İşaret kaldırılmış | 1 | yok |
+
+- Kutuya tıklama `state.exam.ortakSinav = true` yazıyor ve yönetici notu çıkıyor.
+
+**Açık soru:** Risk listesi (adlı, okul geneli öğrenci listesi) ortak sınav sonuçlarını hâlâ kullanıyor. Madde 11'deki "toplu liste yayımlanmaz" hükmü yayımlamayı söylüyor; risk listesi yayımlanmıyor, yalnız yöneticinin ekranında. Karşılaştırma görünümü olmadığı için bu turda dokunulmadı; müdür kararı gerekir.
+
+### Testler ve ölçüm seti
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **982/982**, 49 dosya; tabanda 961. Yeni: `sekme-guvenligi` 10, `meb-ortak-sinav` 6, `kota-dayaniklilik` +3, `ai-rozet-tohum` +2. Düzeltilen eski test: "HTTP 500" artık Türkçe cümle |
+| Mutasyon denetimi | `saveState` bekçisi kaldırılınca `sekme-guvenligi` 4 testte düşüyor |
+| Öz-kontrol | %100, 770 ad (+15) |
+| `olcum:dogrula` | 37/37 |
+| Lint (`tsc`), `check:config` | temiz; GEÇERLİ ×2 |
+| Sır taraması | 0. Tek eşleşme vendor `tesseract-core-simd.wasm.js` içinde, tabanda da var; yanlış pozitif. Yeni 64-hex: 0 |
+| public | 202 dosya, disk = blob; vendor SHA256SUMS OK; `src/`, wrangler, `_headers` değişmedi |
+| axe (52 ekran, statik sunucu, YZ "sunucu yok" şeridiyle) | ihlal 0; 12 px altı 0 |
+| Yeni öğeler (çakışma kutusu, YZ şeridi, ortak sınav kutusu, yönetici notu) | axe 0, 12 px altı 0, taşma 0; açık ve koyu tema, 1280 ve 390. Kutunun düğmesine odak gidiyor (outline 2px) |
+| `kontroller.mjs` | 28/28, 1280 ve 390 |
+| Demo | 5 adım, 1280 ve 390. İlk 390 koşusunda 2 `ERR_CONNECTION_REFUSED` çıktı; aynı anda aynı tek iş parçacıklı statik sunucuya ikinci betik çalışıyordu. İki yeniden koşuda 0; tabanda da 0 |
+| `sekme-cakisma.mjs` | 14/14, 3 koşu |
+| `/api/ai` POST | hiçbir ölçümde sunucuya ulaşmadı (hepsi Playwright'ta kesildi) |
+
+**Gizlilik:** Bu tur toplanan ya da sunucuya giden veriyi değiştirmiyor. Yeni anahtar `t3-olcme-durum-v1:surum` yalnız sürüm sayısı, sekme kimliği ve zaman taşır, kişisel veri yok. Bu yüzden `privacy-policy.html` değişmedi (AGENTS §7).
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-p1-119\`. İçinde taban ve dal ölçüm çıktıları, betikler ve ekran görüntüleri var.

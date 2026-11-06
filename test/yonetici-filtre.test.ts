@@ -20,6 +20,7 @@ const ADLAR = [
   'yonSinavUygunMu', 'yonOgrenciler', 'yonOturum', 'yonFiltreSecenekleri', 'yonFiltreGecerli',
   'yonFiltreOzet', 'yonPuanlar', 'yonSinavGecmisi', 'yonKayitlariSuz', 'okulGercekDurum',
   'yonSinavAtandiMi', 'yonYayindakiKayitlar', 'riskOgrencileri', 'yonDonem', 'yonDonemAdi',
+  'ortakSinavMi', 'yonKarsilastirmaKayitlari',   // §119
 ];
 
 const KAZANIMLAR = [

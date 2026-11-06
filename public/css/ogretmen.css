@@ -140,6 +140,12 @@
   #panel-teacher .ogt-sh-alt .btn { flex: 1 1 auto; }
 }
 
+/* §119 — "Ortak yazılı sınav" kutusu (sihirbaz 1. adım) */
+#panel-teacher .ogt-ortak { margin-top: var(--sp-3); }
+#panel-teacher .ogt-ortak-etiket { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--hedef-min, 24px);
+  font-size: var(--fs-3); font-weight: 600; color: var(--text); cursor: pointer; }
+#panel-teacher .ogt-ortak-etiket input { width: 18px; height: 18px; margin: 0; }
+
 /* §100 — Sihirbaz 3. adım kapasite ön hesabı (yalnız bilgi, hiçbir şeyi engellemez). */
 #panel-teacher .ogt-kapasite {
   margin: var(--sp-3) 0; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);

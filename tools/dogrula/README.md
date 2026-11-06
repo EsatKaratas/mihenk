@@ -9,6 +9,7 @@ Depo kökünden çalıştırılır. Tarayıcı: `playwright-core` + kurulu Chrom
 | `sha-karsilastir.sh [commit] [url]` | `public/` altındaki izlenen her dosyayı `curl -L` ile canlıdan çeker; **canlı = disk dosyası** ve **canlı = git blob'u** (bayt bayt) karşılaştırır. `_headers` ve `_redirects` varlık olarak sunulmaz, atlanır | 0 |
 | `demo-yuru.mjs <url> <çıktı-klasörü> [genişlik] [--model-evaluate]` | Rehberli demonun 5 adımını **gerçek tıklamayla** yürür. `/api/ai/*` POST engelli; `--model-evaluate` verilirse yalnız `/api/ai/evaluate` geçer (**1 çağrı**) ve yanıt `evaluate-yanit-<genişlik>.json` olarak kaydedilir | 0 ya da 1 |
 | `kontroller.mjs <url> <genişlik> [ornek-evaluate-yanit.json]` | 28 denetim, gerçek tuşlarla: §71 şüpheli soru (TOHUMLA), karar günlüğü, Sıfırla (odak ⋯), katalog (seçim varken Escape eklemez), sınavı bitir + "Evet, bitir" sonrası odak (§84), yönetici filtresi ×3, kısa metin uyarısı, 12 rol/sekme ekranında konsol hatası ve taşma. `/evaluate`, verilen kayıtlı **gerçek** yanıtla 1,5 sn gecikmeli karşılanır | 0 |
+| `sekme-cakisma.mjs <url>` | §119: aynı origin iki-altı Playwright sayfası. Başka sekmenin yazımı eski bellekli sekmece sessizce silinemiyor mu, "Veri başka sekmede değişti" kutusu ve "Yeniden yükle" çalışıyor mu, çakışmada kitaplığa (IndexedDB) yazılmıyor mu, açık bağlantı Sıfırla'yı bloklamıyor mu. Çıkış kodu 0 = 14/14 | 0 |
 | `ornek-evaluate-yanit.json` | 5 Kasım'da canlıdan alınmış gerçek bir `/evaluate` yanıtı (sentetik demo yanıtı; kişisel veri yok) | — |
 
 Örnek (yayından sonra):
