@@ -129,7 +129,9 @@ describe('enjeksiyon — kartta tek tıkla onay kapanır, puan değişmez', () =
     expect(kart).toContain('enjeksiyonIsareti(ev, ans.text).var ? "" :');
     expect(kart).toContain('injectionWarnHtml(ev, ans.text)');
     expect(kart).toContain('class="btn btn-secondary revise-approve"');
-    expect(kart).toContain('value="\' + ev.aiScore + \'"');
+    // §112: değer kriterNihaiDegeri'nden gelir; ölçüt düzeltmesi yokken o da ev.aiScore döner.
+    expect(kart).toContain('value="\' + kriterNihaiDegeri(q.id, student.id, ev, rub) + \'"');
+    expect(fonksiyonMetni('kriterNihaiDegeri')).toContain('return ev.aiScore;');
   });
   it('approve-as-is tıklaması da işarette çalışmaz (savunma)', () => {
     const bag = app.slice(app.indexOf('document.querySelectorAll(".approve-as-is")'), app.indexOf('document.querySelectorAll(".revise-approve")'));

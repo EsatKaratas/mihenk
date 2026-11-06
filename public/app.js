@@ -4964,6 +4964,11 @@ function auditSatirHtml(k) {
   if (k.aiScore != null && k.finalScore != null) {
     detay.push("Yapay zekâ önerisi <b>" + k.aiScore + "</b> → öğretmen <b>" + k.finalScore + "</b>" +
       (k.degisti ? ' <span class="au-degisti">değiştirdi</span>' : ' <span class="au-aynen">aynen onayladı</span>'));
+    /* §112: ölçüt bazında düzeltme (öğretmen düzelttiyse). */
+    if (Array.isArray(k.kriterler) && k.kriterler.length) {
+      detay.push("ölçüt düzeltmesi: " + k.kriterler.filter(function (c) { return Math.abs(c.nihai - c.oneri) > 0.001; })
+        .map(function (c) { return escapeHtml(c.ad) + " " + ondalikTr(c.oneri) + " → <b>" + ondalikTr(c.nihai) + "</b>"; }).join(", "));
+    }
   } else if (k.aiScore != null) {
     detay.push("Yapay zekâ önerisi: <b>" + k.aiScore + "</b>" + (k.confidence != null ? " (güven " + k.confidence + ")" : ""));
   } else if (k.tur === "puan_karari") {
@@ -5164,6 +5169,16 @@ const ARASTIRMA_ALANLARI = ["model", "fellBack", "istemSurumu", "redKodu", "anah
   "rozetA1A2", "supheler", "aiScore", "finalScore", "degisti", "confidence", "elle", "alanlar", "oncekiDurum", "rol",
   "adet", "injectionAttempt"];
 
+/** §112: kriter listesinden pakete giren alanlar (beyaz liste): sıra, tavan, öneri, nihai, fark. */
+function arastirmaKriterFarklari(kriterler) {
+  const sayi = function (x) { const n = Number(x); return isFinite(n) ? n : null; };
+  return (kriterler || []).map(function (c, i) {
+    const oneri = sayi(c && c.oneri), nihai = sayi(c && c.nihai);
+    return { sira: i + 1, max: sayi(c && c.max), oneri: oneri, nihai: nihai,
+      fark: oneri != null && nihai != null ? Math.round((nihai - oneri) * 100) / 100 : null };
+  });
+}
+
 /** Anonim paket (saf; tuz dışarıdan). Dönen nesnede kişisel veri ve metin yoktur. */
 async function arastirmaPaketi(gunluk, sorular, tuz) {
   const soruBul = function (qid) { return (sorular || []).filter(function (q) { return q.id === qid; })[0] || null; };
@@ -5188,6 +5203,8 @@ async function arastirmaPaketi(gunluk, sorular, tuz) {
     if (typeof k.aiScore === "number" && typeof k.finalScore === "number") {
       r.puanFarki = Math.round((k.finalScore - k.aiScore) * 100) / 100;   // nihai − öneri
     }
+    /* §112: ölçüt bazında fark — ölçüt ADI ve metni YOK; yalnız sıra ve sayılar. */
+    if (Array.isArray(k.kriterler) && k.kriterler.length) r.kriterFarklari = arastirmaKriterFarklari(k.kriterler);
     sayac[k.tur] = (sayac[k.tur] || 0) + 1;
     kayitlar.push(r);
   }
@@ -11099,6 +11116,172 @@ function studentChip(student) {
     (student.yzIzniYok ? ' <span class="sc-tag">' + (student.yzRizaBekliyor ? "YZ rızası bekleniyor" : "YZ izni yok") + '</span>' : "") + '</span>';
 }
 
+/* ===========================================================================
+   §112 — KRİTER BAZINDA NİHAİ PUAN (madde 6, W9)
+   ===========================================================================
+   Onay kartındaki model dökümünde (breakdown) öğretmen İSTERSE "Ölçüt
+   puanlarını düzelt" ile her kriterin nihai puanını yazar; nihai toplam
+   kendiliğinden yeniden hesaplanır ama onay yine "Puanı Güncelle ve Onayla"
+   ile ÖĞRETMENİN tıklamasıdır. Düzeltme zorunlu değil: varsayılan kart ve
+   Tek Tıkla Onayla değişmedi; yalnız ölçüt değiştirildiyse tek tık kapanır
+   (düzeltmeyi sessizce yok sayardı). §103 enjeksiyon kısıtı aynen geçerli.
+   Kâğıt sınavdaki (§106) YZ önerisi aynı kartla onaylanır.
+   Kayıt (isteğe bağlı, göç yok): review.kriterler ve puan_karari.kriterler =
+   [{ad, oneri, nihai, max}]. Ekrandaki taslak geçici (_kriterTaslak). */
+var _kriterTaslak = {};   // "qid|sid" -> { acik, degerler: [metin] } (kalıcı değil)
+
+function kriterAnahtari(qid, sid) { return String(qid) + "|" + String(sid); }
+
+/** Ölçüt hücresi: 0…max sayı (virgül olur); boş ya da geçersizse null. */
+function kriterPuanNormal(deger, max) {
+  const t = String(deger == null ? "" : deger).trim().replace(",", ".");
+  if (!t) return null;
+  if (!/^\d+(\.\d+)?$/.test(t)) return null;
+  const n = Number(t);
+  return n >= 0 && n <= Number(max) ? n : null;
+}
+
+/** Saf: döküm + girilen değerler → değişen varsa [{ad, oneri, nihai, max}], hiçbiri
+    değişmediyse null, geçersiz değer varsa "gecersiz" (onay engellenir). */
+function kriterKaydi(breakdown, degerler) {
+  const bd = breakdown || [];
+  if (!bd.length || !degerler) return null;
+  let degisti = false, gecersiz = false;
+  const liste = bd.map(function (b, i) {
+    const ham = degerler[i];
+    const n = ham === undefined ? Number(b.points) : kriterPuanNormal(ham, b.max);
+    if (n === null) { gecersiz = true; return null; }
+    if (Math.abs(n - Number(b.points)) > 0.001) degisti = true;
+    return { ad: String(b.label || ""), oneri: Number(b.points), nihai: n, max: Number(b.max) };
+  });
+  if (gecersiz) return "gecersiz";
+  return degisti ? liste : null;
+}
+
+/** Saf: kriter nihai toplamı, rubrik tavanına sınırlı, 2 basamak. */
+function kriterToplami(liste, tavan) {
+  const t = (liste || []).reduce(function (a, c) { return a + Number(c.nihai || 0); }, 0);
+  return Math.round(Math.min(Number(tavan), Math.max(0, t)) * 100) / 100;
+}
+
+function kriterDegisti(qid, sid, ev) {
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  if (!t || !t.acik) return false;
+  const k = kriterKaydi(ev.breakdown, t.degerler);
+  return k === "gecersiz" || Array.isArray(k);
+}
+
+/** Nihai puan alanının değeri: ölçüt düzeltildiyse onların toplamı, değilse YZ önerisi. */
+function kriterNihaiDegeri(qid, sid, ev, rub) {
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  if (t && t.acik) {
+    const k = kriterKaydi(ev.breakdown, t.degerler);
+    if (Array.isArray(k)) return kriterToplami(k, rub.maxScore);
+  }
+  return ev.aiScore;
+}
+
+function kriterGirdiHtml(qid, sid, b, i) {
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  const acik = !!(t && t.acik);
+  const deger = t && t.degerler && t.degerler[i] !== undefined ? t.degerler[i] : String(b.points).replace(".", ",");
+  return '<div class="kr-satir" data-kr-satir="' + escapeHtml(kriterAnahtari(qid, sid)) + '"' + (acik ? "" : " hidden") + ">" +
+    '<label class="kr-etiket">Nihai <input type="text" inputmode="decimal" class="kr-nihai" data-qid="' + qid + '" data-sid="' + sid +
+    '" data-i="' + i + '" value="' + escapeHtml(deger) + '" aria-label="' + escapeHtml(b.label) + " ölçütü, nihai puan, en çok " +
+    ondalikTr(b.max) + '" autocomplete="off"></label><span class="lbl-hint"> / ' + ondalikTr(b.max) + " · öneri " + ondalikTr(b.points) + "</span></div>";
+}
+
+function kriterDuzeltDugmesiHtml(qid, sid, ev) {
+  if (!(ev.breakdown || []).length) return "";
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  const acik = !!(t && t.acik);
+  const id = "krNot-" + qid + "-" + sid;
+  return '<div class="kr-arac"><button type="button" class="btn btn-secondary btn-sm kr-ac" data-qid="' + qid + '" data-sid="' + sid +
+    '" aria-expanded="' + acik + '">' + (acik ? "Ölçüt düzeltmesini kapat" : "Ölçüt puanlarını düzelt") + "</button>" +
+    '<span class="lbl-hint kr-not" id="' + id + '" role="status">' + escapeHtml(kriterNotMetni(qid, sid, ev)) + "</span></div>";
+}
+
+function kriterNotMetni(qid, sid, ev) {
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  if (!t || !t.acik) return "";
+  const k = kriterKaydi(ev.breakdown, t.degerler);
+  if (k === "gecersiz") return "Bir ölçüt puanı geçersiz (0 ile tavan arası sayı). Onay için düzeltin.";
+  if (!k) return "İsterseniz ölçüt puanlarını değiştirin; değiştirmezseniz YZ önerisi aynen kalır.";
+  return "Toplam ölçütlerden: " + ondalikTr(kriterToplami(k, Infinity)) + " (öneri " + ondalikTr(ev.aiScore) +
+    "). Onay için “Puanı Güncelle ve Onayla”; tek tıkla onay düzeltmeleri yok sayacağı için kapalı.";
+}
+
+/** Kart içinde canlı tazeleme (renderAll yok — yazarken odak kaybolmasın). */
+function kriterKartTazele(qid, sid) {
+  const ss = readSession(sid);
+  const ev = (ss.aiEvals || {})[qid];
+  const rub = state.rubrics[qid];
+  if (!ev || !rub) return;
+  const sel = '[data-qid="' + qid + '"][data-sid="' + sid + '"]';
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  const k = t && t.acik ? kriterKaydi(ev.breakdown, t.degerler) : null;
+  const fs = document.querySelector(".final-score" + sel);
+  if (fs) fs.value = kriterNihaiDegeri(qid, sid, ev, rub);
+  const not = document.getElementById("krNot-" + qid + "-" + sid);
+  if (not) not.textContent = kriterNotMetni(qid, sid, ev);
+  const tek = document.querySelector(".approve-as-is" + sel);
+  if (tek) {
+    const kapali = kriterDegisti(qid, sid, ev);
+    tek.disabled = kapali;
+    if (kapali) tek.setAttribute("aria-describedby", "krNot-" + qid + "-" + sid); else tek.removeAttribute("aria-describedby");
+  }
+  const rev = document.querySelector(".revise-approve" + sel);
+  if (rev) rev.disabled = k === "gecersiz";
+  document.querySelectorAll(".kr-nihai" + sel).forEach(function (el) {
+    const b = (ev.breakdown || [])[Number(el.dataset.i)];
+    const gecersiz = !!(t && t.acik) && b && kriterPuanNormal(el.value, b.max) === null;
+    el.setAttribute("aria-invalid", String(gecersiz));
+    el.classList.toggle("kr-gecersiz", gecersiz);
+  });
+}
+
+function wireKriterDuzelt() {
+  document.querySelectorAll(".kr-ac").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
+      const a = kriterAnahtari(qid, sid);
+      const t = _kriterTaslak[a] || (_kriterTaslak[a] = { acik: false, degerler: {} });
+      t.acik = !t.acik;
+      if (!t.acik) t.degerler = {};   // kapatmak = düzeltmeden vazgeç (öneri aynen)
+      document.querySelectorAll('[data-kr-satir="' + a + '"]').forEach(function (el) { el.hidden = !t.acik; });
+      document.querySelectorAll('.kr-nihai[data-qid="' + qid + '"][data-sid="' + sid + '"]').forEach(function (el) {
+        if (!t.acik) {
+          const ev = (readSession(sid).aiEvals || {})[qid] || {};
+          const bd = (ev.breakdown || [])[Number(el.dataset.i)];
+          if (bd) el.value = String(bd.points).replace(".", ",");
+        }
+      });
+      b.setAttribute("aria-expanded", String(t.acik));
+      b.textContent = t.acik ? "Ölçüt düzeltmesini kapat" : "Ölçüt puanlarını düzelt";
+      kriterKartTazele(qid, sid);
+      if (t.acik) { const ilk = document.querySelector('.kr-nihai[data-qid="' + qid + '"][data-sid="' + sid + '"]'); if (ilk) { ilk.focus(); ilk.select(); } }
+    };
+  });
+  document.querySelectorAll(".kr-nihai").forEach(function (el) {
+    el.oninput = function () {
+      const qid = Number(el.dataset.qid), sid = Number(el.dataset.sid);
+      const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+      if (!t) return;
+      t.degerler[Number(el.dataset.i)] = el.value;
+      kriterKartTazele(qid, sid);
+    };
+  });
+}
+
+/** Onay anında: açık ve değişmiş ölçüt düzeltmesi varsa kayıt listesi, yoksa null. */
+function kriterOnayListesi(qid, sid) {
+  const t = _kriterTaslak[kriterAnahtari(qid, sid)];
+  if (!t || !t.acik) return null;
+  const ev = (readSession(sid).aiEvals || {})[qid] || {};
+  const k = kriterKaydi(ev.breakdown, t.degerler);
+  return Array.isArray(k) ? k : (k === "gecersiz" ? "gecersiz" : null);
+}
+
 function evalCardHtml(q, student, ev) {
   const ss = readSession(student.id);
   const ans = (ss.answers || {})[q.id] || { text: "" };
@@ -11117,19 +11300,23 @@ function evalCardHtml(q, student, ev) {
     injectionWarnHtml(ev, ans.text) +
     adMaskeNotuHtml(ev) +
     degerlendirmeDilUyarisiHtml(ev) +
-    (ev.breakdown || []).map(function (b) {
+    (ev.breakdown || []).map(function (b, i) {
       return '<div class="crit-line"><span>' + escapeHtml(b.label) + ' (%' + b.weight + ')</span><span class="tabular">' + ondalikTr(b.points) + '/' + ondalikTr(b.max) + '</span></div>' +
+        kriterGirdiHtml(q.id, student.id, b, i) +
         '<div class="bar-track" style="margin-bottom:4px;"><div class="bar-fill" style="width:' + Math.round(b.points / b.max * 100) + '%;"></div></div>' +
         (b.reason ? '<div class="crit-reason">' + escapeHtml(b.reason) + '</div>' : "");
-    }).join("") + '<div class="justification">' + escapeHtml(ev.justification) + '</div>' +
+    }).join("") + kriterDuzeltDugmesiHtml(q.id, student.id, ev) + '<div class="justification">' + escapeHtml(ev.justification) + '</div>' +
     feedbackDraftHtml(q, student, ev) + '</div></div>' +
     '<div class="field-row" style="margin-top:14px;align-items:flex-end;">' +
-    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + ev.aiScore + '"></div>' +
+    '<div class="field" style="max-width:160px;"><label>Nihai puan</label><input type="number" class="final-score" data-qid="' + q.id + '" data-sid="' + student.id + '" min="0" max="' + rub.maxScore + '" step="0.5" value="' + kriterNihaiDegeri(q.id, student.id, ev, rub) + '"></div>' +
     '<div class="field" style="flex:2;"><label>Not (isteğe bağlı)</label><input type="text" class="teacher-comment" data-qid="' + q.id + '" data-sid="' + student.id + '" placeholder="öğrenciye görünecek kısa not"></div></div>' +
     /* §103: enjeksiyon işareti varsa tek tıkla onay (YZ puanını incelemeden
        kabul) çizilmez; tek tek onay ("Puanı Güncelle ve Onayla") kalır. */
     '<div class="actions">' + (enjeksiyonIsareti(ev, ans.text).var ? "" :
-      '<button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '">✓ Tek Tıkla Onayla (YZ puanı: ' + ev.aiScore + ')</button>') +
+      '<button class="btn btn-success approve-as-is" data-qid="' + q.id + '" data-sid="' + student.id + '"' +
+      /* §112: ölçüt düzeltildiyse tek tık düzeltmeleri yok sayardı → kapalı. */
+      (kriterDegisti(q.id, student.id, ev) ? ' disabled aria-describedby="krNot-' + q.id + '-' + student.id + '"' : "") +
+      '>✓ Tek Tıkla Onayla (YZ puanı: ' + ev.aiScore + ')</button>') +
     '<button class="btn btn-secondary revise-approve" data-qid="' + q.id + '" data-sid="' + student.id + '">Puanı Güncelle ve Onayla</button>' +
     (ev.fromCache ? '<button class="btn btn-secondary retry-eval" data-qid="' + q.id + '" data-sid="' + student.id + '">Yapay Zekâ ile Yeniden Dene</button>' : "") +
     '</div></div>';
@@ -11537,13 +11724,18 @@ function wireTeacherTab3() {
       const sel = '[data-qid="' + qid + '"][data-sid="' + sid + '"]';
       const scoreEl = document.querySelector('.final-score' + sel);
       const commentEl = document.querySelector('.teacher-comment' + sel);
-      finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised", sid);
+      /* §112: açık ve değişmiş ölçüt düzeltmesi varsa kayda girer (isteğe bağlı). */
+      const kriterler = kriterOnayListesi(qid, sid);
+      if (kriterler === "gecersiz") return;   // düğme zaten kapalı
+      delete _kriterTaslak[kriterAnahtari(qid, sid)];
+      finalizeReview(qid, Number(scoreEl.value), commentEl.value, "revised", sid, kriterler || undefined);
     };
   });
+  wireKriterDuzelt();   // §112
 }
 /* Öğretmenin nihai puan kararı. Sonuç yayınlandığında (publishResults)
    sunucuya gönderilir; öğrenci onaylanmış puanı kendi cihazından görür. */
-function finalizeReview(qid, score, comment, decision, sid) {
+function finalizeReview(qid, score, comment, decision, sid, kriterler) {
   const ogrId = sid != null ? sid : state.activeStudentId;
   const rub = state.rubrics[qid];
   const ss = readSession(ogrId);
@@ -11555,6 +11747,8 @@ function finalizeReview(qid, score, comment, decision, sid) {
     decision: decision,
     aiScore: ev.aiScore != null ? ev.aiScore : null
   };
+  /* §112: öğretmen ölçüt puanlarını düzelttiyse (isteğe bağlı alan, göç yok). */
+  if (Array.isArray(kriterler) && kriterler.length) yeniReviews[qid].kriterler = kriterler;
   writeSession(ogrId, { reviews: yeniReviews });
   /* Denetim izi: NİHAİ KARAR. Bu kayıt HITL tezinin en doğrudan kanıtıdır —
      yapay zekânın ne önerdiği (aiScore) ile insanın ne verdiği (finalScore)
@@ -11567,6 +11761,7 @@ function finalizeReview(qid, score, comment, decision, sid) {
     aiScore: ai, finalScore: nihai,
     degisti: ai == null ? undefined : Math.abs(nihai - ai) > 0.001,
     not: comment ? auditKisalt(comment) : null,
+    kriterler: yeniReviews[qid].kriterler,   // §112: [{ad, oneri, nihai, max}] ya da yok
   });
   renderAll();
 }
@@ -12249,7 +12444,8 @@ function teacherExamRecords(teacherName) {
           soru: q ? q.body : "(soru bulunamadı)",
           maxScore: rub ? rub.maxScore : (evq ? evq.maxScore : null),
           ai: Number(r.aiScore), nihai: Number(r.finalScore),
-          confidence: evq && evq.confidence != null ? Number(evq.confidence) : null
+          confidence: evq && evq.confidence != null ? Number(evq.confidence) : null,
+          kriterler: Array.isArray(r.kriterler) ? r.kriterler : null   // §112
         });
       });
     });
@@ -12286,9 +12482,9 @@ function teacherRoster() {
    Ne YENİ: soru bazında tablo, fark dağılımı grafiği, rapor CSV'si. Ortalama
    yön/sapma ve aynen onay ZATEN calibrationFromRecords'ta; burada yeniden
    hesaplanmaz, aynı motor çağrılır (iki ekran birbirini yalanlayamaz).
-   DÜRÜST SINIR: öğretmen yalnız TOPLAM puan verir; kriter bazında nihai puan
-   state'te yoktur. Bu yüzden "kriter bazında fark" HESAPLANMAZ ve rapor bunu
-   açıkça yazar. Öğrenci ADI CSV'ye yazılmaz (öğrenci no) — Karar Günlüğü
+   §112: öğretmen İSTERSE ölçüt puanlarını düzeltir (review.kriterler); kriter
+   bazında fark YALNIZ bu kararlardan hesaplanır (kriterFarkOzeti). Düzeltilmeyen
+   kararlarda kriter nihai puanı yoktur ve tahmin edilmez. Öğrenci ADI CSV'ye yazılmaz (öğrenci no) — Karar Günlüğü
    CSV'siyle aynı ilke. */
 var kararRaporuKayitlari = {};   // rapor id -> kayıtlar (CSV düğmesi için)
 
@@ -12323,7 +12519,30 @@ function kararRaporu(kayitlar) {
   ];
   const farklar = kayitlar.map(function (k) { return Number(k.nihai) - Number(k.ai); });
   const dagilim = kutular.map(function (b) { return { ad: b.ad, adet: farklar.filter(b.f).length }; });
-  return { genel: genel, sorular: sorular, dagilim: dagilim };
+  return { genel: genel, sorular: sorular, dagilim: dagilim, kriter: kriterFarkOzeti(kayitlar) };
+}
+
+/** §112 (A7) — kriter bazında fark: YALNIZ öğretmenin ölçüt düzelttiği kararlardan.
+    Satır = ölçüt adı; n = o ölçütün geçtiği düzeltilmiş karar; ortFark = nihai − öneri.
+    Düzeltilmeyen kararlar buraya girmez (onlarda kriter nihai puanı yok — tahmin YOK). */
+function kriterFarkOzeti(kayitlar) {
+  const gruplar = {}, sira = [];
+  let karar = 0;
+  (kayitlar || []).forEach(function (k) {
+    if (!Array.isArray(k.kriterler) || !k.kriterler.length) return;
+    karar++;
+    k.kriterler.forEach(function (c) {
+      const ad = String(c.ad || "(adsız ölçüt)");
+      if (!gruplar[ad]) { gruplar[ad] = []; sira.push(ad); }
+      gruplar[ad].push(Number(c.nihai) - Number(c.oneri));
+    });
+  });
+  const ort = function (d) { return d.reduce(function (a, b) { return a + b; }, 0) / d.length; };
+  return { karar: karar, olcutler: sira.map(function (ad) {
+    const d = gruplar[ad];
+    return { ad: ad, n: d.length, ortFark: Math.round(ort(d) * 100) / 100,
+      degisen: d.filter(function (x) { return Math.abs(x) > 0.001; }).length };
+  }) };
 }
 
 /** Fark dağılımı: basit yatay çubuk SVG (renk = mevcut belirteçler). */
@@ -12370,19 +12589,38 @@ function kararRaporuHtml(id, kayitlar, kapsam) {
     tablo +
     '<div class="karar-dagilim-bas">Fark dağılımı <span class="lbl-hint">nihai − YZ, puan</span></div>' +
     kararDagilimSvg(r.dagilim) +
-    '<div class="karar-sinir"><b>Ölçülemeyen:</b> kriter bazında fark. Öğretmen yalnız toplam puan veriyor; ' +
-      "kriter bazında nihai puan kaydı yok. Yapay zekânın kriter kırılımı değerlendirme kartlarında görülebilir.</div>" +
+    kriterFarkHtml(r.kriter) +
     '<button type="button" class="btn btn-secondary btn-sm js-karar-csv" data-rapor="' + id + '">Rapor CSV indir</button>' +
     "</div>";
 }
 
+/** §112: kriter bazında fark bölümü. Veri yoksa ne zaman ölçüleceğini söyler. */
+function kriterFarkHtml(kr) {
+  if (!kr || !kr.karar) {
+    return '<div class="karar-sinir"><b>Kriter bazında fark</b> artık ölçülebiliyor (öğretmen düzelttiyse): onay kartında ' +
+      "“Ölçüt puanlarını düzelt” ile girilen ölçüt puanları burada ölçüt ölçüt karşılaştırılır. Bu kapsamda henüz ölçüt " +
+      "düzeltmesi yok; düzeltilmemiş kararlar için kriter nihai puanı yoktur, tahmin edilmez.</div>";
+  }
+  return '<div class="karar-dagilim-bas">Kriter bazında fark <span class="lbl-hint">yalnız öğretmenin ölçüt düzelttiği ' +
+    kr.karar + " karar · nihai − YZ, puan</span></div>" +
+    '<div class="table-wrap"><table class="karar-tablo kriter-fark"><thead><tr><th>Ölçüt</th><th>n</th><th>Değişen</th><th>Ort. fark</th></tr></thead><tbody>' +
+    kr.olcutler.map(function (o) {
+      return "<tr><td>" + escapeHtml(o.ad) + '</td><td class="tabular">' + o.n + '</td><td class="tabular">' + o.degisen +
+        '</td><td class="tabular">' + (o.ortFark > 0.001 ? "+" : "") + ondalikTr(o.ortFark, 1) + "</td></tr>";
+    }).join("") + "</tbody></table></div>";
+}
+
 /** Rapor CSV'si: satır satır karar (öğrenci adı YOK, öğrenci no). */
 function kararRaporuCsv(kayitlar) {
-  const bas = ["ogrenciNo", "soru", "tavan", "yzPuan", "nihaiPuan", "fark", "aynenMi", "guven"];
+  const bas = ["ogrenciNo", "soru", "tavan", "yzPuan", "nihaiPuan", "fark", "aynenMi", "guven", "kriterFarki"];
   const satir = kayitlar.map(function (k) {
     const fark = Number(k.nihai) - Number(k.ai);
     return [k.sid != null ? k.sid : "", k.soru || "", k.maxScore != null ? k.maxScore : "", k.ai, k.nihai,
-      Math.round(fark * 100) / 100, Math.abs(fark) <= 0.001 ? "evet" : "hayır", k.confidence != null ? k.confidence : ""
+      Math.round(fark * 100) / 100, Math.abs(fark) <= 0.001 ? "evet" : "hayır", k.confidence != null ? k.confidence : "",
+      /* §112: "ölçüt=nihai−öneri | …" — yalnız ölçüt düzeltildiyse dolu. */
+      Array.isArray(k.kriterler) ? k.kriterler.map(function (c) {
+        return String(c.ad) + "=" + (Math.round((c.nihai - c.oneri) * 100) / 100);
+      }).join(" | ") : ""
     ].map(function (h) {
       h = String(h == null ? "" : h);
       return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
@@ -16722,7 +16960,7 @@ function bosDurumHtml(mesaj) {
     "teacherTab1Html", "teacherTab2Html", "teacherTab3Html", "teacherTab4Html",
     "wireTeacherTab1", "wireTeacherTab2", "wireTeacherTab3",
     "critRowHtml", "evalCardHtml", "evalFailedCardHtml", "doneCardHtml", "confBadge",
-    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
+    "injectionWarnHtml", "enjeksiyonKatla", "enjeksiyonKalipBul", "enjeksiyonIsareti", "degerlendirmeDilUyarisiHtml", "soruSupheleri", "supheAcikMi", "supheSeridiHtml", "supheMetni", "cozumImzasi", "bagimsizCozumGecerli", "denetimDurumHtml", "bagimsizCoz", "bekleyenleriCoz", "topluCozBarHtml", "calibrationKayitlari", "kararRaporu", "kararDagilimSvg", "kararRaporuHtml", "kararRaporuCsv", "kriterFarkOzeti", "kriterFarkHtml", "arastirmaKriterFarklari", "kriterAnahtari", "kriterPuanNormal", "kriterKaydi", "kriterToplami", "kriterDegisti", "kriterNihaiDegeri", "kriterGirdiHtml", "kriterDuzeltDugmesiHtml", "kriterNotMetni", "kriterKartTazele", "wireKriterDuzelt", "kriterOnayListesi", "wireKararRaporu", "kurumKararKayitlari", "yazdirSorulari", "soruDersEtiketi", "sinavDersEtiketi", "yazdirBaslikHtml", "yazdirPuan", "sinavKagidiHtml", "cevapAnahtariHtml", "sinavYazdir", "yazdirCubuguHtml", "wireYazdir", "oyssAdaylari", "oyssMetni", "oyssSecimi", "oyssGuncelMetin", "oyssPaketHtml", "oyssSayiNotu", "oyssKopyala", "wireOyss", "eokulPuanCsv", "eokulVerisi", "eokulTabloHtml", "wireEokulTablo", "ogtDurum", "eokulSatiriAd", "adAnahtari", "puanlanabilirSinavVar", "sinavYokHtml", "wireSinavYok", "ogretmenKimHtml", "wireOgretmenKim", "ogtSinif", "aktifSinavKaydi", "sinifOgrenciIdleri", "sinavOzeti", "sinifSinavlari", "sinifKartiHtml", "siniflarimHtml", "yeniSinifFormHtml", "topluAdAyikla", "topluOzetMetni", "topluOgrenciEkle", "yeniSinifKaydet", "sinifiAc", "wireSiniflarim", "sinifSayfasiHtml", "wireSinifSayfasi", "sinavSeciciHtml", "wireSinavSecici", "sinavKartiHtml", "sinavIslemi", "kagitSikNormal", "kagitPuanNormal", "kagitDuzenlenebilir", "kagitSatirUygula", "kagitSatirOzeti", "kagitHucreMetni", "kagitOgrencileri", "kagitTarihDegeri", "kagitGirisHtml", "kagitTopMetni", "kagitGenelOzetMetni", "kagitPanelHtml", "kagitEksikKartHtml", "kagitSinaviIsaretle", "kagitSatirKaydet", "kagitHucreSinifi", "kagitKomsu", "kagitOneriIste", "kagitPanelBagla", "wireKagitGiris", "kagitSorulari", "sihirbazHtml", "sihirbazAdim1Html", "sihirbazAdim2Html", "sihirbazAdim3Html", "sihirbazAdimaGit", "yeniSinavOlustur", "wireOgtSihirbaz",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
