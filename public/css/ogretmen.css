@@ -275,3 +275,13 @@
 #panel-teacher .ogt-elle-baslik { margin: 0 0 var(--sp-1); font-size: var(--fs-3); }
 #panel-teacher .ogt-elle-taslaklar .es-eylemler { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
 #panel-teacher .ogt-elle-taslaklar .q-card .actions { flex-wrap: wrap; align-items: center; }
+
+/* §121 — YZ puanlayıcı denetimi + madde analizi (şık × grup, açık uçlu) */
+#panel-teacher .yzd-kart .yzd-satir .ia-legend { margin-top: 2px; }
+#panel-teacher .yzd-bilgi { margin-top: var(--sp-3); }
+#panel-teacher .yzd-bilgi a { color: var(--accent, inherit); text-decoration: underline; }
+#panel-teacher .ia-sik-wrap { margin-top: var(--sp-2); }
+#panel-teacher .ia-sik-tablo caption { text-align: left; font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 0 0 4px; }
+#panel-teacher .ia-sik-tablo th[scope="row"] { font-family: "IBM Plex Mono", monospace; color: var(--text); }
+#panel-teacher .ia-sik-tablo .pill { white-space: normal; }
+#panel-teacher .ia-alt-baslik { margin: var(--sp-4, 16px) 0 var(--sp-1); font-size: 13px; font-weight: 700; color: var(--text); }

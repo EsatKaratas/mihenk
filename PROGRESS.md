@@ -12827,3 +12827,85 @@ Sınırlar ve açık noktalar:
 - 2. açık uçlu sorunun örnek önerisi model çıktısı değil. Canlı model yanıtı istenirse aynı girdiyle 1 `/evaluate` çağrısı gerekiyor; bu görevde POST yasaktı.
 
 Ekranlar: `Downloads\Mihenk\ekran-demo-120\`.
+
+---
+
+## §121 — YZ PUANLAYICI DENETİMİ + MADDE ANALİZİNİN TAMAMLANMASI (7 Kasım 2026, P3, dal `feature/yz-denetim`, taban main 0f186f3, Orchestrator 3 emriyle)
+
+Fikir kaynağı: `Downloads\Mihenk\fikir2-B-rakip-olcme.md` madde 1 ve 3. Yalnız istemci: `public/app.js`,
+`public/app.css` (2 satır), `public/css/ogretmen.css`, yeni `test/yz-denetim.test.ts`. Model çağrısı ve
+`/api/ai` POST **0**; sunucu, şema, `src/` değişmedi. Worktree: `Downloads\Mihenk\mihenk-p3-yz`
+(`mihenk-p3` adı eski `feature/ogrenci-veli-karti` worktree'sine ait olduğu için kullanılmadı).
+
+**1. YZ Puanlayıcı Denetimi kartı** (Öğretmen › Analitik, "Öğretmen – Yapay Zekâ Uyumu" kartının hemen altında):
+- Öğretmenin nihai puanı ile YZ önerisi arasında, uyum kartıyla **aynı kayıtlardan** (`calibrationKayitlari`):
+  - **QWK** (karesel ağırlıklı kappa). Puan ×2 ile tamsayı kategori, aralık 0 … 2×tavan. Yanında tam uyum %
+    ve "en çok 0,5 puan fark" %.
+  - **SMD** = (ort_YZ − ort_öğretmen) / √((s²_YZ + s²_öğr)/2), s² n−1 ile (havuzlanmış ss, arXiv 2505.22771).
+  - **Uzunluk–fark ρ**: yanıt uzunluğu (karakter) ile YZ − nihai arasında Spearman. **Yön varsayılmaz**;
+    cümle ρ'nun işaretinden kurulur, |ρ| < 0,10 ise "belirgin ilişki görülmedi". "İlişki neden göstermez" yazar.
+  - **Sıra kayması**: karar sırası Karar Günlüğü'ndeki aynı (öğrenci, soru) için son `puan_karari` kaydının
+    zamanından; ilk ⌊n/2⌋ ile kalan kararların ortalama YZ − nihai farkı. Süre tutulmaz.
+- **n < 20 çiftte hiçbir sayı gösterilmez:** "Yorum için yetersiz veri … en az 20 çiftte hesaplanır". Uzunluk ve
+  kayma da kendi n'leri 20'nin altındaysa ayrı ayrı "yetersiz veri" der.
+- **Eşikler** (QWK ≥ 0,70, |SMD| ≤ 0,15) her yerde "kaynakta önerilen" diye etiketli: Williamson, Xi ve Breyer
+  (2012). İkincil kaynaktan; özgün metinde birebir doğrulanamadı (fikir dosyasıyla aynı sınır). Kaynak URL'leri
+  kodda blok yorumunda; ekranda ⓘ ("Bu ölçüler ve eşikler nereden?") içinde kısa açıklama + arXiv bağlantısı.
+  Etiket rengi yeşil/sarı; kırmızı (hata rengi) kullanılmaz.
+- **Kart karar vermez:** hiçbir puanı değiştirmez, onayı engellemez, otomatik eylem yok (testle denetlenir:
+  kart ve madde analizi gövdesinde `finalizeReview`, `writeSession`, `auditKaydet`, `apiPost`, `saveState`, `fetch(` yok).
+
+**2. Madde analizi tamamlandı** (`itemAnalysis` / `itemAnalysisHtml`):
+- ÇSS: her maddeye **şık × grup tablosu** (Şık · Tümü · Üst · Alt · Durum). Üst/alt grup mevcut kural: n ≥ 10'da
+  %27, altında yarı. Durum: anahtar · hiç seçilmedi · **%5'in altında seçildi: işlevsiz sayılır** · **üst grup daha
+  çok seçti: anahtar ya da ifade belirsiz olabilir** · işlevsel (≥ %5 ve alt > üst; Downing çizgisi) · üst = alt:
+  ayırt etmiyor. Oranların paydası grubun tüm öğrencileri (boş bırakan dahil).
+- Mevcut "hiç seçilmeyen şık" notu ve şık çipleri **aynen korundu**.
+- Açık uçlu: **güçlük** = ortalama nihai / tam puan, **ayırt edicilik** = düzeltilmiş madde–toplam korelasyonu
+  (madde puanı ile sınavın geri kalanının toplamı). Yalnız onaylı nihai puan; satır kuralı Cronbach alfa ile aynı
+  (bir puanı onaysız öğrenci çıkar, sayısı yazılır). n < 10'da mevcut "gösterge niteliğindedir" uyarısı. Yorum
+  hapları mevcut `pYorum`/`dYorum`. Yalnız açık uçlu sorudan oluşan sınavda da bölüm görünür (eskiden kart hiç çıkmıyordu).
+- `app.css`: `.ia-opt-pct` ve `.ia-opt-dead` opaklığı kaldırıldı. Yayınlanmış sınavın Analitik sekmesinde axe
+  color-contrast ihlaliydi (9 düğüm; mevcut şık çipleri + §101 güvenirlik satırı). Standart taramada sınav
+  yayınlanmadığı için görünmüyordu.
+
+**3. Saf fonksiyonlar ve test** (`test/yz-denetim.test.ts`, 32 test):
+- `qwk`, `smdHesapla`, `spearmanRho` (eşitlikte ortalama sıra), `pearsonR`, `siraKaymasi`, `yzDenetimOzeti`,
+  `celdiriciAnalizi`, `maddeToplamKorelasyonu`, `acikMaddeGuclugu` + yorum yardımcıları.
+- **QWK bilinen örnek:** Cohen (1968) 3×3 tablosu (200 hasta), DMAR vinyeti
+  (https://cran.r-universe.dev/DMAR/doc/weighted_kappa.html): kaynak κ = 0,4545455; Mihenk ±0,001 içinde,
+  tam 5/11. Elle yeniden kuruldu: gözlenen ağırlıklı uyumsuzluk 0,60, beklenen 1,10.
+- Elle hesaplananlar: SMD 0,5 ve −2/√2,5; ρ = 8/√95; kayma 4/3; çeldirici oranları (10 ve 25 öğrenci, %4 / %8
+  sınırı); madde–toplam r = 1, 5/√34, 0,8 ve düzeltmesiz değerden farkı; n = 19'da özet yalnız `{n, yeterli:false, altN}`.
+- Öz-kontrol listesine 22 ad eklendi.
+
+**Ölçüldü:**
+
+| Ölçüm | Sonuç |
+|---|---|
+| `npm test` | 48 dosya, **993/993** (yeni 32) |
+| `npm run lint` | temiz (çıkış 0) |
+| Öz-kontrol | **777 ad, %100** |
+| `olcum:dogrula` | 37/37, `PANO.md` değişmedi |
+| `tools/erisilebilirlik-tara.mjs` (52 ekran, 1280/390 × açık/koyu) | critical/serious/moderate/minor **0**; 12 px altı **0** |
+| Ek tarama: yayınlanmış sınav, Analitik, demo (3 çift) ve sentetik (+24 öğrenci, 27 çift; ⓘ açık), 1280/390 × açık/koyu | axe **0**, 12 px altı **0**, yatay taşma 0, POST 0 |
+| Konsol | 1 hata/ekran: taramanın kendisinin iptal ettiği `/api/ai/*` isteği (ERR_FAILED); uygulama hatası 0 |
+| FFFD | 0 |
+
+- Statik sunucu: kendi betiği, 127.0.0.1:8871, PID 31568 ile durduruldu. Sunucu günlüğünde POST 0.
+- Ekranlar: `Downloads\Mihenk\ekran-p3\`: `demo-yzd-*`, `demo-madde-*`, `sentetik-yzd-*`, `sentetik-madde-*`,
+  `sentetik-analitik-tam-*` (1280, 390), `axe-p3.json`, `p3-kontrol.json`. Aynı klasördeki `karne-*`, `veli-*`,
+  `ogrenci-*` dosyaları eski P3'ün (§102), dokunulmadı.
+- Sentetik veri yalnız tarayıcı belleğinde üretildi (24 öğrenci, tohumlu); depoya yazılmadı. Demo tohumunda 3 çift
+  olduğu için demoda kart "yorum için yetersiz veri" der. Bu bilinçli bir sonuç.
+
+**Bilinen sınırlar:**
+- Farklı tam puanlı sorular tek QWK'de birleştirilir (kategori aralığı en büyük tavana göre). Geniş ölçekte
+  (ör. 20 puan = 41 kategori) 0,5–1 puanlık farklar QWK'yi az düşürür. Sentetik örnekte QWK 0,98, tam uyum
+  %33 çıktı. Bu yüzden tam ve ±0,5 uyum yanında yazılıyor. Soru başına QWK yapılmadı.
+- Sıra kayması Karar Günlüğü'ne dayanır. Günlük `AUDIT_LIMIT`'te kırpıldıysa ya da aynı öğrenci + soru kimliği
+  başka sınavda da puanlandıysa en son kayıt kullanılır.
+- İnsan–insan uyumu yok. Williamson'ın "insan–insan κ'dan düşüş ≤ 0,10" ölçütü kör etiketleme (§109) verisi gelince
+  eklenebilir. A7 CSV'sine yeni sütun ve yönetici karnesine kart **eklenmedi** (kapsam dışı).
+- ÇSS için nokta-çift serili r (fikir 3d) yapılmadı; ayırt edicilik ÇSS'de mevcut d.
+- Push, birleştirme, yayın yok.
