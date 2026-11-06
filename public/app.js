@@ -2571,7 +2571,7 @@ function kazanimSecildi(kod) {
  * Türkçe'de kodda ünite YOKTUR; temalar kazanımlara diktir (aynı okuma
  * kazanımı her temada çalışılır), bu yüzden tema dayatmak yanlış olurdu.
  */
-function kazanimSecenekleriHtml() {
+function kazanimEkleVerisi() {
   const eklenmisKodlar = {};
   OUTCOMES_LIST().forEach(function (o) { eklenmisKodlar[o.code] = true; });
 
@@ -2583,28 +2583,18 @@ function kazanimSecenekleriHtml() {
     return state.ceForm.showAllOutcomes || o.uygunluk === "yazili";
   });
 
-  const konuGruplari = {};
-  const konuSirasi = [];
-  katalog.forEach(function (o) {
-    const g = o.grup || "Diğer";
-    if (!konuGruplari[g]) { konuGruplari[g] = []; konuSirasi.push(g); }
-    konuGruplari[g].push(o);
+  /* §93: konu gruplaması korunur — artık optgroup değil, ortak seçicinin
+     ünite düzeyi (grup: Fen/Mat ünite, Türkçe beceri alanı). Ders ve sınıf
+     formdan geldiği için o düzeyler tek değerlidir ve atlanır. Kaçırma
+     (escapeHtml) seçicinin içinde yapılır. */
+  const ogeler = katalog.map(function (o) {
+    return { deger: o.code, kod: o.code,
+      etiket: String(o.label || "").replace(o.code, "").replace(/^\s*[—–-]\s*/, ""),
+      ders: o.subject, sinif: o.grade, unite: o.grup || "" };
   });
 
-  /* value özniteliği de kaçırılır: kod serbest metindir ve tırnak içeren bir
-     kod, özniteliği kapatıp kendi HTML'ini yazabilirdi. */
-  const secenek = function (o) {
-    return '<option value="' + escapeHtml(o.code) + '">' + escapeHtml(o.label) + "</option>";
-  };
-  const grupla = function (baslik, liste) {
-    if (!liste.length) return "";
-    return '<optgroup label="' + escapeHtml(baslik) + '">' +
-      liste.map(secenek).join("") + "</optgroup>";
-  };
-
-  /* Yer tutucu HER ZAMAN seçilidir: burası bir "seçim" alanı değil bir "ekle"
-     alanıdır. Seçilen kazanım sekmeye taşındığı için seçici yeniden boşa
-     döner ve aynı kazanım ikinci kez eklenemez. */
+  /* Burası bir "seçim" alanı değil bir "ekle" alanıdır: seçilen kazanım
+     sekmeye taşınır, listeden düşer ve ikinci kez eklenemez. */
   /* Birleştirme (§52 + §51): W1'in "yükleniyor / yüklenemedi" ayrımı AYNEN;
      anahtar seciliKatalogAnahtari()'den (Deneyap'ta atölyeli), metinler
      mebYerine'den geçer — MEB'de birebir eski metin. */
@@ -2614,8 +2604,7 @@ function kazanimSecenekleriHtml() {
      ardından 25 kazanım geliyordu). Yükleniyor / yüklenemedi ayrı söylenir;
      durum tek yerden (katalogBeklemeDurumu) okunur — Deneyap indeksi dahil. */
   const bekleme = katalogBeklemeDurumu();
-  const yerTutucu = '<option value="" selected>' +
-    (katalog.length
+  const yerTutucu = (katalog.length
       ? mebYerine("MEB öğretim programından", "TÜBİTAK Deneyap kitabından") + " kazanım ekleyin… (" + katalog.length + " kazanım)"
       : bekleme === "hata"
         ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yüklenemedi (aşağıdaki nota bakın) —"
@@ -2623,10 +2612,19 @@ function kazanimSecenekleriHtml() {
         ? "— " + mebYerine("MEB kataloğu", "Deneyap kataloğu") + " yükleniyor… —"
       : katalogVar
         ? "— bu ders/sınıfın kataloğundaki kazanımların hepsi eklendi —"
-        : "— bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; “+” ile kendiniz yazın —") +
-    "</option>";
+        : "— bu ders/sınıf için hazır " + mebYerine("MEB kataloğu", "katalog") + " yok; “+” ile kendiniz yazın —");
 
-  return yerTutucu + konuSirasi.map(function (g) { return grupla(g, konuGruplari[g]); }).join("");
+  return { ogeler: ogeler, yerTutucu: yerTutucu };
+}
+
+/** B2 — "katalogdan ekle" seçicisi (ortak seçici, mod "ekle"). Düğme metni
+    eski yer tutucunun AYNISIDIR (yükleniyor / yüklenemedi / hepsi eklendi). */
+function ceKazanimEkleSeciciHtml(kaynakAd) {
+  const v = kazanimEkleVerisi();
+  return kazanimSeciciHtml({
+    kimlik: "kz-ce-ekle", mod: "ekle", acilir: true, etiket: kaynakAd + " kazanım ekle",
+    ogeler: v.ogeler, secili: "", dugmeMetni: v.yerTutucu,
+  });
 }
 
 /**
@@ -2642,7 +2640,7 @@ function kazanimSecenekleriHtml() {
  *
  * Kök neden: sayı `uygunKazanimlar()`'dan geliyordu; o yalnızca
  * `OUTCOMES_LIST()`'i (okula EKLENMİŞ kazanımları) süzer ve KATALOĞA hiç
- * bakmaz. Oysa `kazanimSecenekleriHtml()` kataloğu da listeler. İki fonksiyon
+ * bakmaz. Oysa `kazanimEkleVerisi()` kataloğu da listeler. İki fonksiyon
  * "neyin seçilebilir olduğu" konusunda anlaşmıyordu.
  *
  * Çözüm: sayı, seçicinin uyguladığı filtrenin BİREBİR AYNISIYLA hesaplanır.
@@ -2656,7 +2654,7 @@ function kazanimNotuHtml() {
 
   /* GERÇEKTEN seçilebilir olanlar = SEKMELER + SEÇİCİ.
      Aşağıdaki iki filtre `kazanimSecicisiHtml()` (eklenmiş kazanım sekmeleri)
-     ve `kazanimSecenekleriHtml()` (MEB katalog seçicisi) ile BİREBİR AYNIDIR;
+     ve `kazanimEkleVerisi()` (MEB katalog seçicisi) ile BİREBİR AYNIDIR;
      ayrışırlarsa bu satır yeniden ekranı yalanlamaya başlar — bu dosyada bir
      kez gerçekleşmiş bir hata sınıfıdır (yukarıdaki uzun nota bakınız). */
   const gosterilenEklenmis = state.ceForm.showAllOutcomes
@@ -5299,15 +5297,12 @@ function ceAdim1Html() {
     '</select></div>' +
     // Keşif/Deneyap: sınıftan hemen sonra atölye (§50d); değilse çizilmez.
     atolyeSecicisiHtml() +
-    /* Kazanım seçici YENİDEN YAZILMADI (tur 1 kapsamı): sekmeler + açılır
-       liste + katalog modalı aynen. Yalnız etiketler sadeleşti. */
+    /* §93: sekmeler (B1) ve katalog penceresi (B3) aynen; "katalogdan ekle"
+       açılır listesi ortak kazanım seçicisine geçti (B2). */
     '<div class="field field-outcome"><label>Kazanım</label>' +
     kazanimSecicisiHtml() +
     '<div class="input-with-actions kazanim-ekle-satiri">' +
-    '<select id="ceOutcome" aria-label="' + kaynakAd + ' kazanım ekle"' +
-    (katalogKazanimlari().length ? "" : " disabled") + ">" +
-    kazanimSecenekleriHtml() +
-    '</select>' +
+    ceKazanimEkleSeciciHtml(kaynakAd) +
     '<button class="btn btn-secondary btn-sm" id="btnKatalog" title="' + kaynakAd +
     ' kazanım seç">Tüm listeyi aç</button></div>' +
     ceKazanimNotuHtml() + kazanimKaynakHtml() + '</div>' +
@@ -5592,6 +5587,345 @@ const HAVUZ_KAYNAKLARI = [
   { id: "demo", ad: "Demo örneği" },
 ];
 
+/* =====================================================================
+   §93 — KAZANIM TEK SEÇİCİ (W1). Dört nokta aynı bileşeni kullanır:
+     A1 öğretmen sihirbazı soru filtresi   (mod "filtre", açılır)
+     A2 sihirbazda soru düzenleme kazanımı  (mod "tekli",  açılır)
+     B2 içerik uzmanı "katalogdan ekle"     (mod "ekle",   açılır)
+     C  soru havuzu ağacı                   (mod "filtre", satır içi)
+   Ağaç: ders → sınıf → ünite → kazanım; tek değerli düzey atlanır.
+   Bileşen state'e DOKUNMAZ: öğeler ve seçim geri çağrısı dışarıdan gelir,
+   yazılan alanlar (poolFilter.outcome, q.outcome, kazanimSecildi,
+   cePool.dugum) eskisiyle aynıdır. Geçici hâl (açık dallar, arama metni,
+   panel) kalıcı olmayan _kzHal'dedir; KALICI_ALANLAR'a girmez, göç yok
+   (TUZAK 13). Liste kaynakları yalnız OUTCOMES_LIST()/katalogKazanimlari()
+   üzerinden okunur, VARSAYILAN_* doğrudan okunmaz.
+   B3 (katalog penceresi) bu turda bilerek dışarıda: "coklu" mod
+   kazanimAgacHtml'deki öğe dalına aria-checked eklenerek gelir.
+   ===================================================================== */
+const KZ_SINIR = 200;
+const _kzHal = {};
+const _kzKayit = {};
+
+function kzHal(kimlik) {
+  return _kzHal[kimlik] || (_kzHal[kimlik] = { acik: {}, ara: "", panel: false, odak: "", dugmeOdak: false });
+}
+
+/** Kazanımın ünitesi. Sıra: yüklü katalogda koda göre grup (Fen/Mat ünite,
+    Türkçe beceri alanı) → kaydın grup'u → kaydın alan'ı YALNIZ dersten
+    farklıysa (ölçüldü: MAT kayıtlarında alan = "Matematik", ünite değil) →
+    Keşif/Deneyap atölyesi. Bulunamazsa "" ("Ünitesiz") — tahmin yok. */
+function kazanimUnitesi(kod) {
+  const kat = state.katalog || {};
+  for (const a in kat) {
+    const k = kat[a];
+    if (!k || !Array.isArray(k.kazanimlar)) continue;
+    const x = k.kazanimlar.filter(function (y) { return y.kod === kod; })[0];
+    if (x && (x.grup || x.alan)) return String(x.grup || x.alan);
+  }
+  const o = OUTCOMES_LIST().filter(function (x) { return x.code === kod; })[0];
+  if (!o) return "";
+  if (o.grup) return String(o.grup);
+  if (o.alan && String(o.alan) !== String(o.subject || "")) return String(o.alan);
+  if (o.atolye) return String(o.atolye);
+  return "";
+}
+
+/** Koddan seçici öğesi (A1, A2): ders/sınıf soruAgacYolu ile aynı kaynaktan. */
+function kazanimOgesi(kod, sayi) {
+  const y = soruAgacYolu({ outcome: kod });
+  const etiket = String(outcomeLabel(kod) || "").replace(kod, "").replace(/^\s*[—–-]\s*/, "");
+  return { deger: kod, kod: kod, etiket: etiket, ders: y.ders, sinif: y.sinif,
+    sinifAd: y.sinif ? sinifEtiketi(y.sinif) : "Sınıfı belirsiz", unite: kazanimUnitesi(kod), sayi: sayi };
+}
+
+/** Öğeleri ağaca dizer. o.sabitDuzey: hep çizilecek düzeyler (C'de ders ve
+    sınıf seçilebilir düğümdür); diğerleri yalnız birden çok değer varsa. */
+function kazanimAgaci(ogeler, o) {
+  const sabit = (o && o.sabitDuzey) || [];
+  const cok = function (alan) {
+    const s = {};
+    ogeler.forEach(function (x) { s[String(x[alan] || "")] = 1; });
+    return Object.keys(s).length > 1;
+  };
+  const duzeyler = ["ders", "sinif", "unite"].filter(function (a) { return sabit.indexOf(a) >= 0 || cok(a); });
+  const kok = { cocuk: [], ogeler: [] };
+  ogeler.forEach(function (x) {
+    let d = kok;
+    const yol = [];
+    duzeyler.forEach(function (alan) {
+      const v = String(x[alan] || "");
+      yol.push(v);
+      const anahtar = alan + ":" + yol.join("|");
+      let c = d.cocuk.filter(function (g) { return g.anahtar === anahtar; })[0];
+      if (!c) {
+        const ad = alan === "ders" ? (v || "Dersi belirsiz")
+          : alan === "sinif" ? (x.sinifAd || v || "Sınıfı belirsiz")
+          : (v || "Ünitesiz");
+        const deger = o && o.grupDegeri ? o.grupDegeri(alan, x) : null;
+        c = { anahtar: anahtar, alan: alan, ad: ad, ham: v, deger: deger == null ? null : String(deger), cocuk: [], ogeler: [], sayi: 0 };
+        d.cocuk.push(c);
+      }
+      c.sayi += x.sayi != null ? x.sayi : 1;
+      d = c;
+    });
+    d.ogeler.push(x);
+  });
+  const sirala = function (d) {
+    d.cocuk.sort(function (a, b) {
+      if (a.alan === "sinif") return (parseInt(a.ham, 10) || 99) - (parseInt(b.ham, 10) || 99) || a.ad.localeCompare(b.ad, "tr");
+      if (a.alan === "unite") return (a.ham ? 0 : 1) - (b.ham ? 0 : 1); // katalog sırası korunur, Ünitesiz sonda
+      return a.ad.localeCompare(b.ad, "tr");
+    });
+    d.cocuk.forEach(sirala);
+  };
+  sirala(kok);
+  return kok;
+}
+
+/** Aramaya uyan öğeler (kod + metin, tr küçük harf). */
+function kazanimAra(ogeler, metin) {
+  const a = String(metin || "").trim().toLocaleLowerCase("tr");
+  if (!a) return ogeler;
+  return ogeler.filter(function (x) { return (x.kod + " " + x.etiket).toLocaleLowerCase("tr").indexOf(a) >= 0; });
+}
+
+/** Ağacın <li> satırları. Kapalı dalların içi ÇİZİLMEZ (DNY 622 kazanım). */
+function kazanimAgacHtml(kimlik) {
+  const r = _kzKayit[kimlik], o = r.o, h = kzHal(kimlik);
+  const aranan = String(h.ara || "").trim();
+  const ogeler = kazanimAra(r.ogeler, aranan);
+  const agac = kazanimAgaci(ogeler, o);
+  let kalan = KZ_SINIR;
+  r.eslesen = ogeler.length;
+  r.gizli = 0;
+  const icerir = function (g) {
+    return g.ogeler.some(function (x) { return x.deger === o.secili; }) || g.cocuk.some(icerir) ||
+      (g.deger != null && o.secili && String(o.secili).indexOf(g.deger + "|") === 0);
+  };
+  const acikMi = function (g) {
+    if (aranan) return true;
+    if (h.acik[g.anahtar] !== undefined) return h.acik[g.anahtar];
+    return ogeler.length <= 12 || icerir(g);
+  };
+  const oge = function (x, seviye) {
+    if (kalan <= 0) { r.gizli++; return ""; }
+    kalan--;
+    const sec = x.deger === o.secili;
+    return '<li role="treeitem" class="kz-oge' + (sec ? " secili" : "") + '" aria-level="' + seviye +
+      '" aria-selected="' + sec + '" tabindex="-1" data-kz-anahtar="k:' + escapeHtml(x.deger) +
+      '" data-kz-deger="' + escapeHtml(x.deger) + '">' +
+      '<span class="kz-kod">' + escapeHtml(x.kod) + "</span>" +
+      (x.etiket ? '<span class="kz-metin">' + escapeHtml(x.etiket) + "</span>" : "") +
+      (o.sayac ? '<span class="kz-say">' + (x.sayi || 0) + "</span>" : "") + "</li>";
+  };
+  const grup = function (g, seviye) {
+    const acik = acikMi(g);
+    const secilebilir = g.deger != null;
+    const sec = secilebilir && g.deger === o.secili;
+    const ic = acik
+      ? g.cocuk.map(function (c) { return grup(c, seviye + 1); }).join("") +
+        g.ogeler.map(function (x) { return oge(x, seviye + 1); }).join("")
+      : "";
+    return '<li role="treeitem" class="kz-grup kz-g-' + g.alan + (sec ? " secili" : "") + '" aria-level="' + seviye +
+      '" aria-expanded="' + acik + '"' + (secilebilir ? ' aria-selected="' + sec + '" data-kz-deger="' + escapeHtml(g.deger) + '"' : "") +
+      ' tabindex="-1" data-kz-anahtar="' + escapeHtml(g.anahtar) + '">' +
+      '<span class="kz-satir"><span class="kz-ok" aria-hidden="true"></span>' +
+      '<span class="kz-grup-ad">' + escapeHtml(g.ad) + "</span>" +
+      (o.sayac ? '<span class="kz-say">' + g.sayi + "</span>" : "") + "</span>" +
+      (acik ? '<ul role="group">' + ic + "</ul>" : "") + "</li>";
+  };
+  let html = "";
+  if (o.mod === "filtre" && !aranan) {
+    const sec = !o.secili;
+    html += '<li role="treeitem" class="kz-oge kz-tumu' + (sec ? " secili" : "") + '" aria-level="1" aria-selected="' + sec +
+      '" tabindex="-1" data-kz-anahtar="k:" data-kz-deger="">' +
+      '<span class="kz-kod">' + escapeHtml(o.tumuEtiketi || "Tümü") + "</span>" +
+      (o.sayac && o.tumuSayi != null ? '<span class="kz-say">' + o.tumuSayi + "</span>" : "") + "</li>";
+  }
+  html += agac.cocuk.map(function (g) { return grup(g, 1); }).join("") +
+    agac.ogeler.map(function (x) { return oge(x, 1); }).join("");
+  return html;
+}
+
+/** Arama sonucu satırı (role=status): sessiz kırpma yok. */
+function kzDurumMetni(kimlik) {
+  const r = _kzKayit[kimlik], h = kzHal(kimlik);
+  if (!String(h.ara || "").trim()) return "";
+  if (!r.eslesen) return "Aramaya uyan kazanım yok.";
+  return r.eslesen + " kazanım bulundu" +
+    (r.gizli ? " — ilk " + KZ_SINIR + " tanesi gösteriliyor, aramayı daraltın." : ".");
+}
+
+/**
+ * Seçicinin HTML'i. o: { kimlik, mod: "tekli"|"filtre"|"ekle", etiket,
+ * ogeler, secili, acilir, dugmeMetni, etiketId, bosMetin, sayac, tumuEtiketi,
+ * tumuSayi, sabitDuzey, grupDegeri }. kimlik sayfada tekildir (beş panel
+ * aynı anda DOM'da — TUZAK 1); tüm alt id'ler ondan türer.
+ */
+function kazanimSeciciHtml(o) {
+  _kzKayit[o.kimlik] = { o: o, ogeler: o.ogeler || [], eslesen: 0, gizli: 0 };
+  const h = kzHal(o.kimlik);
+  const k = escapeHtml(o.kimlik);
+  const bos = !(o.ogeler || []).length;
+  if (o.acilir && bos) h.panel = false;
+  /* Kapalı açılır panel temiz açılır: önceki arama (ör. başka dersteki)
+     yeni listede "sonuç yok" gösterip yanıltmasın. */
+  if (o.acilir && !h.panel) h.ara = "";
+  let govde;
+  if (bos && !o.acilir) {
+    govde = '<div class="kz-bos">' + escapeHtml(o.bosMetin || "Kazanım yok.") + "</div>";
+  } else {
+    const satirlar = bos ? "" : kazanimAgacHtml(o.kimlik);
+    govde = (o.ogeler.length > 6
+      ? '<input type="search" class="kz-ara" id="' + k + '-ara" value="' + escapeHtml(h.ara) +
+        '" placeholder="Kod ya da metin ara…" aria-label="' + escapeHtml(o.etiket) + ' içinde ara" aria-controls="' + k +
+        '-agac" autocomplete="off" spellcheck="false">'
+      : "") +
+      '<div class="kz-durum" id="' + k + '-durum" role="status" aria-live="polite">' + escapeHtml(bos ? "" : kzDurumMetni(o.kimlik)) + "</div>" +
+      '<ul class="kz-agac" role="tree" id="' + k + '-agac" aria-label="' + escapeHtml(o.etiket) + '">' + satirlar + "</ul>";
+  }
+  const dugme = o.acilir
+    ? '<button type="button" class="kz-ac" id="' + k + '-ac" aria-expanded="' + !!h.panel + '" aria-controls="' + k + '-govde"' +
+      (o.etiketId ? ' aria-labelledby="' + escapeHtml(o.etiketId) + " " + k + '-metin"' : "") +
+      (bos ? " disabled" : "") + '><span class="kz-ac-metin" id="' + k + '-metin">' + escapeHtml(o.dugmeMetni || "") + "</span>" +
+      '<span class="kz-ok" aria-hidden="true"></span></button>'
+    : "";
+  return '<div class="kz-secici kz-' + o.mod + (o.acilir ? " kz-acilir" : "") + '" id="' + k + '">' + dugme +
+    '<div class="kz-govde" id="' + k + '-govde"' + (o.acilir && !h.panel ? " hidden" : "") + ">" + govde + "</div></div>";
+}
+
+function kzBul(agac, anahtar) {
+  const hepsi = agac.querySelectorAll('[role="treeitem"]');
+  for (let i = 0; i < hepsi.length; i++) if (hepsi[i].getAttribute("data-kz-anahtar") === anahtar) return hepsi[i];
+  return null;
+}
+
+/** Gezici sekme: ağaçta tek tabindex=0 — seçili satır, yoksa ilki. */
+function kzGeziciSekme(agac) {
+  const hepsi = agac.querySelectorAll('[role="treeitem"]');
+  if (!hepsi.length) return;
+  const hedef = agac.querySelector('[role="treeitem"][aria-selected="true"]') || hepsi[0];
+  hepsi.forEach(function (el) { el.tabIndex = -1; });
+  hedef.tabIndex = 0;
+}
+
+function kzOdakla(agac, el) {
+  agac.querySelectorAll('[role="treeitem"]').forEach(function (x) { x.tabIndex = -1; });
+  el.tabIndex = 0;
+  el.focus();
+}
+
+/** Olaylar. secildi(deger) yalnız seçimde çağrılır; aç/kapa ve arama
+    renderAll ÇAĞIRMAZ (TUZAK 3: yazarken odak kaybı) — yalnız ağaç tazelenir. */
+function kazanimSeciciBagla(kimlik, secildi) {
+  const kok = document.getElementById(kimlik);
+  const r = _kzKayit[kimlik];
+  if (!kok || !r) return;
+  const h = kzHal(kimlik);
+  const agac = document.getElementById(kimlik + "-agac");
+  const ara = document.getElementById(kimlik + "-ara");
+  const ac = document.getElementById(kimlik + "-ac");
+  const govde = document.getElementById(kimlik + "-govde");
+  const durum = document.getElementById(kimlik + "-durum");
+  const tazele = function (odakAnahtar) {
+    if (!agac) return;
+    agac.innerHTML = kazanimAgacHtml(kimlik);
+    kzGeziciSekme(agac);
+    if (durum) durum.textContent = kzDurumMetni(kimlik);
+    if (odakAnahtar) { const el = kzBul(agac, odakAnahtar); if (el) kzOdakla(agac, el); }
+  };
+  const paneli = function (acik, dugmeyeDon) {
+    if (!ac || !govde) return;
+    h.panel = acik;
+    if (!acik && ara && ara.value) { ara.value = ""; h.ara = ""; tazele(); }
+    govde.hidden = !acik;
+    ac.setAttribute("aria-expanded", String(acik));
+    if (acik) {
+      const hedef = ara || (agac && agac.querySelector('[role="treeitem"][tabindex="0"]'));
+      if (hedef) hedef.focus();
+    } else if (dugmeyeDon) ac.focus();
+  };
+  if (agac) kzGeziciSekme(agac);
+  if (ac) {
+    ac.onclick = function () { paneli(!h.panel, false); };
+    ac.onkeydown = function (e) { if (e.key === "Escape" && h.panel) { e.preventDefault(); paneli(false, true); } };
+  }
+  if (ara) {
+    ara.oninput = function () { h.ara = ara.value; tazele(); };
+    ara.onkeydown = function (e) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const ilk = agac && agac.querySelector('[role="treeitem"]');
+        if (ilk) kzOdakla(agac, ilk);
+      } else if (e.key === "Escape") {
+        if (ara.value) { e.preventDefault(); ara.value = ""; h.ara = ""; tazele(); }
+        else if (ac && h.panel) { e.preventDefault(); paneli(false, true); }
+      } else if (e.key === "Enter") e.preventDefault();
+    };
+  }
+  if (!agac) return;
+  const sec = function (li) {
+    if (!li.hasAttribute("data-kz-deger")) return false;
+    if (ac) { h.panel = false; h.dugmeOdak = true; } else h.odak = li.getAttribute("data-kz-anahtar");
+    secildi(li.getAttribute("data-kz-deger"));
+    return true;
+  };
+  const cevir = function (li, acik) {
+    h.acik[li.getAttribute("data-kz-anahtar")] = acik;
+    tazele(li.getAttribute("data-kz-anahtar"));
+  };
+  agac.onclick = function (e) {
+    const li = e.target.closest('[role="treeitem"]');
+    if (!li || !agac.contains(li)) return;
+    if (!li.classList.contains("kz-grup")) { sec(li); return; }
+    const acik = li.getAttribute("aria-expanded") === "true";
+    if (li.hasAttribute("data-kz-deger") && li.getAttribute("aria-selected") !== "true") {
+      h.acik[li.getAttribute("data-kz-anahtar")] = true;
+      sec(li);
+    } else cevir(li, !acik);
+  };
+  agac.onkeydown = function (e) {
+    const li = e.target.closest('[role="treeitem"]');
+    if (!li || !agac.contains(li)) return;
+    const hepsi = Array.prototype.slice.call(agac.querySelectorAll('[role="treeitem"]'));
+    const i = hepsi.indexOf(li);
+    const grupMu = li.classList.contains("kz-grup");
+    const acik = li.getAttribute("aria-expanded") === "true";
+    let hedef = null;
+    switch (e.key) {
+      case "ArrowDown": hedef = hepsi[i + 1] || null; break;
+      case "ArrowUp":
+        hedef = hepsi[i - 1] || null;
+        if (!hedef && ara) { e.preventDefault(); ara.focus(); return; }
+        break;
+      case "Home": hedef = hepsi[0]; break;
+      case "End": hedef = hepsi[hepsi.length - 1]; break;
+      case "ArrowRight":
+        if (grupMu && !acik) { e.preventDefault(); cevir(li, true); return; }
+        if (grupMu) hedef = hepsi[i + 1] || null;
+        break;
+      case "ArrowLeft":
+        if (grupMu && acik) { e.preventDefault(); cevir(li, false); return; }
+        hedef = li.parentElement ? li.parentElement.closest('[role="treeitem"]') : null;
+        break;
+      case "Enter": case " ":
+        e.preventDefault();
+        if (!sec(li) && grupMu) cevir(li, !acik);
+        return;
+      case "Escape":
+        if (ac && h.panel) { e.preventDefault(); paneli(false, true); }
+        return;
+      default: return;
+    }
+    e.preventDefault();
+    if (hedef) kzOdakla(agac, hedef);
+  };
+  /* Seçim renderAll'u tetikler; odak yeni çizimde yerine döner. */
+  if (h.dugmeOdak && ac) { h.dugmeOdak = false; ac.focus(); }
+  else if (h.odak) { const el = kzBul(agac, h.odak); h.odak = ""; if (el) kzOdakla(agac, el); }
+}
+
 function havuzFiltresi() {
   const f = state.cePool || {};
   return { durum: f.durum || "approved", suphe: !!f.suphe, kaynak: f.kaynak || "tumu", dugum: f.dugum || "" };
@@ -5643,38 +5977,29 @@ function dugumIcinde(q, dugum) {
 }
 
 function havuzAgaciHtml(sorular, f) {
-  const agac = {};
+  /* §93: ortak kazanım seçicisi (C). Düğüm değeri eskisiyle AYNI biçimde
+     "ders|sınıf|kod" (cePool.dugum); ünite yalnız görsel gruptur, anahtara
+     girmez. Ders ve sınıf düğümleri seçilebilir kalır (sabitDuzey). */
+  const sayac = {};
+  const ogeler = [];
   sorular.forEach(function (q) {
-    const y = havuzDugumu(q);
-    agac[y[0]] = agac[y[0]] || {};
-    agac[y[0]][y[1]] = agac[y[0]][y[1]] || {};
-    agac[y[0]][y[1]][y[2]] = (agac[y[0]][y[1]][y[2]] || 0) + 1;
+    const y = soruAgacYolu(q);
+    const deger = y.ders + "|" + y.sinif + "|" + y.kazanim;
+    if (sayac[deger]) { sayac[deger].sayi++; return; }
+    const etiket = String(outcomeLabel(y.kazanim) || "").replace(y.kazanim, "").replace(/^\s*[—–-]\s*/, "");
+    sayac[deger] = { deger: deger, kod: y.kazanim, etiket: etiket, ders: y.ders, sinif: y.sinif,
+      sinifAd: y.sinif ? sinifEtiketi(y.sinif) : "Sınıfı belirsiz", unite: kazanimUnitesi(q.outcome || ""), sayi: 1 };
+    ogeler.push(sayac[deger]);
   });
-  const say = function (o) { return typeof o === "number" ? o : Object.keys(o).reduce(function (s, k) { return s + say(o[k]); }, 0); };
-  const secim = f.dugum.split("|");
-  const dugum = function (yol, ad, n, derinlik) {
-    return '<button type="button" class="havuz-dugum havuz-d' + derinlik + (f.dugum === yol ? " secili" : "") +
-      '" data-havuz-dugum="' + escapeHtml(yol) + '" aria-pressed="' + (f.dugum === yol) + '">' +
-      '<span class="havuz-dugum-ad">' + ad + '</span><span class="havuz-dugum-say">' + n + '</span></button>';
-  };
-  let html = dugum("", "Tüm sorular", sorular.length, 0);
-  Object.keys(agac).sort(function (a, b) { return a.localeCompare(b, "tr"); }).forEach(function (d) {
-    html += dugum(d, escapeHtml(d), say(agac[d]), 0);
-    // Yalnız seçili dersin dalı açılır; ağaç kısa kalır.
-    if (secim[0] !== d) return;
-    Object.keys(agac[d]).sort(function (a, b) {
-      return (parseInt(a, 10) || 99) - (parseInt(b, 10) || 99) || a.localeCompare(b, "tr");
-    }).forEach(function (s) {
-      const sy = d + "|" + s;
-      html += dugum(sy, escapeHtml(s ? sinifEtiketi(s) : "Sınıfı belirsiz"), say(agac[d][s]), 1);
-      if (secim.slice(0, 2).join("|") !== sy) return;
-      Object.keys(agac[d][s]).sort(function (a, b) { return a.localeCompare(b, "tr"); }).forEach(function (k) {
-        const etiket = String(outcomeLabel(k) || "").replace(k, "").replace(/^\s*[—–-]\s*/, "");
-        html += dugum(sy + "|" + k, "<b>" + escapeHtml(k) + "</b>" + (etiket ? " " + escapeHtml(etiket) : ""), agac[d][s][k], 2);
-      });
-    });
-  });
-  return '<nav class="havuz-agac" aria-label="Ders, sınıf ve kazanım">' + html + "</nav>";
+  ogeler.sort(function (a, b) { return a.kod.localeCompare(b.kod, "tr"); });
+  return '<div class="havuz-agac">' + kazanimSeciciHtml({
+    kimlik: "kz-havuz", mod: "filtre", etiket: "Ders, sınıf ve kazanım", ogeler: ogeler,
+    secili: f.dugum || "", sayac: true, tumuEtiketi: "Tüm sorular", tumuSayi: sorular.length,
+    bosMetin: "Bu süzgece uyan soru yok.", sabitDuzey: ["ders", "sinif"],
+    grupDegeri: function (alan, x) {
+      return alan === "ders" ? x.ders : alan === "sinif" ? x.ders + "|" + x.sinif : null;
+    },
+  }) + "</div>";
 }
 
 function havuzSecimHtml(ad, liste, secili, veri) {
@@ -5753,6 +6078,7 @@ function wireCeHavuz() {
   document.querySelectorAll("#panel-content_expert [data-havuz-dugum]").forEach(function (el) {
     el.onclick = function () { f().dugum = el.dataset.havuzDugum; renderAll(); };
   });
+  kazanimSeciciBagla("kz-havuz", function (yol) { f().dugum = yol; renderAll(); });
   // Bekleyen soru: incelemek için Soru Üret sekmesine, o kartın üstüne.
   document.querySelectorAll("#panel-content_expert [data-havuz-incele]").forEach(function (el) {
     el.onclick = function () {
@@ -5903,12 +6229,14 @@ function renderContentExpert() {
   };
   /* Seçici artık bir "ekle" kanalıdır. Boş değer YER TUTUCU satırıdır; onu
      `kazanimSecildi("")`e geçirmek seçili kazanımı SESSİZCE silerdi. */
-  document.getElementById("ceOutcome").onchange = function (e) {
-    if (!e.target.value) return;
+  /* §93: eski koşulsuz #ceOutcome onchange bağlaması kaldırıldı
+     (öğe artık yok; kalsaydı TypeError tüm bağlamaları durdururdu). */
+  kazanimSeciciBagla("kz-ce-ekle", function (kod) {
+    if (!kod) return;
     state.outcomeError = "";
-    kazanimSecildi(e.target.value);
+    kazanimSecildi(kod);
     renderAll();
-  };
+  });
   /* §31: kazanım modunda #ceText hiç render edilmez; eski kod koşulsuz
      getElementById().oninput yazıyordu ve bu modda TypeError atardı. */
   const ceTextEl = document.getElementById("ceText");
@@ -7865,26 +8193,45 @@ function poolEditHtml(q) {
     [["easy", "Kolay"], ["medium", "Orta"], ["hard", "Zor"]].map(function (d) {
       return '<option value="' + d[0] + '"' + (q.difficulty === d[0] ? " selected" : "") + '>' + d[1] + '</option>';
     }).join("") + '</select></div>' +
-    '<div class="field"><label>Kazanım</label><select class="pe-outcome" data-qid="' + q.id + '" aria-label="Kazanım">' +
-    /* §51: tüm derslerin kazanımları karışık listeleniyordu; bir Fen sorusuna
-       Matematik kazanımı atanabiliyordu. Sorunun dersine ait olanlar + mevcut
-       kazanımı listelenir (ders, soruDersSinif ile aynı kaynaktan). */
-    OUTCOMES_LIST().filter(function (o) {
-      const ders = soruDersSinif(q).subject;
-      /* §58: Deneyap ve Keşif'te süzgeç ATÖLYE düzeyine iner (ölçüldü: bir
-         Malzeme Bilimi sorusunda 5 atölyenin 11 kazanımı listeleniyordu). */
-      const kayit = OUTCOMES_LIST().filter(function (x) { return x.code === q.outcome; })[0];
-      const atolye = kayit && kayit.atolye;
-      if (o.code === q.outcome || !ders) return true;
-      if ((o.subject || kodDanDers(o.code)) !== ders) return false;
-      return !atolye || o.atolye === atolye;
-    }).map(function (o) {
-      return '<option value="' + escapeHtml(o.code) + '"' + (q.outcome === o.code ? " selected" : "") + '>' + escapeHtml(o.code) + '</option>';
-    }).join("") + '</select></div>' +
+    '<div class="field field-kz"><label id="kz-pe-' + escapeHtml(String(q.id)) + '-lbl">Kazanım</label>' + peKazanimSeciciHtml(q) + '</div>' +
     '<div class="field"><label>Süre (sn)</label>' +
     '<input type="number" class="pe-time" data-qid="' + q.id + '" aria-label="Süre (saniye)" min="15" max="900" value="' + q.aiTime + '"></div></div>' +
     '<button class="btn btn-primary btn-sm pe-save" data-qid="' + q.id + '">Değişiklikleri Kaydet</button> ' +
     '<button class="btn btn-secondary btn-sm pe-cancel">Vazgeç</button></div>';
+}
+
+/** §93 A1 — sihirbaz soru filtresi: ortak kazanım seçicisi (mod "filtre").
+    Yazdığı alan aynı: state.poolFilter.outcome ("" = Tümü). Eskiden yalnız
+    kod listeleniyordu; artık etiket, ders/sınıf/ünite ve soru sayısı da. */
+function ogtKazanimFiltresiHtml(kazanimlar) {
+  const f = state.poolFilter;
+  const kodlar = Object.keys(kazanimlar).filter(function (k) { return k; }).sort(function (a, b) { return a.localeCompare(b, "tr"); });
+  const toplam = kodlar.reduce(function (t, k) { return t + kazanimlar[k]; }, 0);
+  const etiket = f.outcome ? String(outcomeLabel(f.outcome) || f.outcome) : "Tümü";
+  return kazanimSeciciHtml({
+    kimlik: "kz-ogt-filtre", mod: "filtre", acilir: true, etiket: "Kazanım filtresi", etiketId: "kz-ogt-filtre-lbl",
+    ogeler: kodlar.map(function (k) { return kazanimOgesi(k, kazanimlar[k]); }),
+    secili: f.outcome || "", sayac: true, tumuEtiketi: "Tümü", tumuSayi: toplam,
+    dugmeMetni: truncate(etiket, 60),
+  });
+}
+
+/** §93 A2 — soru düzenlemede kazanım: ortak seçici (mod "tekli"). Süzgeç
+    eskisinin aynısı (§51 ders, §58 atölye; mevcut kod hep listede). */
+function peKazanimSeciciHtml(q) {
+  const ders = soruDersSinif(q).subject;
+  const kayit = OUTCOMES_LIST().filter(function (x) { return x.code === q.outcome; })[0];
+  const atolye = kayit && kayit.atolye;
+  const liste = OUTCOMES_LIST().filter(function (o) {
+    if (o.code === q.outcome || !ders) return true;
+    if ((o.subject || kodDanDers(o.code)) !== ders) return false;
+    return !atolye || o.atolye === atolye;
+  });
+  return kazanimSeciciHtml({
+    kimlik: "kz-pe-" + q.id, mod: "tekli", acilir: true, etiket: "Sorunun kazanımı", etiketId: "kz-pe-" + q.id + "-lbl",
+    ogeler: liste.map(function (o) { return kazanimOgesi(o.code); }),
+    secili: q.outcome, dugmeMetni: truncate(String(outcomeLabel(q.outcome) || q.outcome || "Kazanım seçin"), 60),
+  });
 }
 
 function poolFilterHtml() {
@@ -7899,7 +8246,7 @@ function poolFilterHtml() {
   const kazanimlar = {};
   const subeler = {};
   state.questions.filter(function (q) { return q.status === "approved"; })
-    .forEach(function (q) { kazanimlar[q.outcome] = true; if (q.sube) subeler[q.sube] = true; });
+    .forEach(function (q) { kazanimlar[q.outcome] = (kazanimlar[q.outcome] || 0) + 1; if (q.sube) subeler[q.sube] = true; });
   const sec = function (id, deger, secenekler) {
     return '<select id="' + id + '"><option value="">Tümü</option>' +
       secenekler.map(function (o) {
@@ -7908,8 +8255,7 @@ function poolFilterHtml() {
   };
   const subeAlanlari = Object.keys(subeler).sort();
   return '<div class="pool-filter">' +
-    '<div class="field"><label>Kazanım</label>' + sec("fltOutcome", f.outcome,
-      Object.keys(kazanimlar).map(function (k) { return { v: k, t: k }; })) + '</div>' +
+    '<div class="field field-kz"><label id="kz-ogt-filtre-lbl">Kazanım</label>' + ogtKazanimFiltresiHtml(kazanimlar) + '</div>' +
     '<div class="field"><label>Zorluk</label>' + sec("fltDiff", f.difficulty,
       [{ v: "easy", t: "Kolay" }, { v: "medium", t: "Orta" }, { v: "hard", t: "Zor" }]) + '</div>' +
     '<div class="field"><label>Soru türü</label>' + sec("fltType", f.type,
@@ -8104,8 +8450,7 @@ function wireTeacherTab1() {
     state.poolFilter = { outcome: "", difficulty: "", type: "", sube: "" };
     saveSoon(); renderAll();
   };
-  const fo = document.getElementById("fltOutcome");
-  if (fo) fo.onchange = function (e) { state.poolFilter.outcome = e.target.value; renderAll(); };
+  kazanimSeciciBagla("kz-ogt-filtre", function (kod) { state.poolFilter.outcome = kod; renderAll(); });
   const fd = document.getElementById("fltDiff");
   if (fd) fd.onchange = function (e) { state.poolFilter.difficulty = e.target.value; renderAll(); };
   const ft = document.getElementById("fltType");
@@ -8141,8 +8486,9 @@ function wireTeacherTab1() {
   document.querySelectorAll(".pe-diff").forEach(function (el) {
     el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.difficulty = el.value; renderAll(); } };
   });
-  document.querySelectorAll(".pe-outcome").forEach(function (el) {
-    el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.outcome = el.value; renderAll(); } };
+  document.querySelectorAll('.kz-secici[id^="kz-pe-"]').forEach(function (el) {
+    const qid = el.id.slice(6);
+    kazanimSeciciBagla(el.id, function (kod) { const q = findQuestion(qid); if (q) { q.outcome = kod; renderAll(); } });
   });
   document.querySelectorAll(".pe-time").forEach(function (el) {
     el.onchange = function () { const q = findQuestion(el.dataset.qid); if (q) { q.aiTime = Math.max(15, Math.min(900, Number(el.value) || 60)); renderAll(); } };
@@ -13725,7 +14071,7 @@ function bosDurumHtml(mesaj) {
     "feedbackDraftHtml",
     "bindFieldLabels",
     "kaynakRozetHtml", "sinavKaynakUyarisiHtml",
-    "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimSecenekleriHtml", "kazanimNotuHtml",
+    "outcomeSeciminiTazele", "outcomeUyusmazlikHtml", "kazanimEkleVerisi", "ceKazanimEkleSeciciHtml", "kazanimNotuHtml",
     "calibration", "calibrationHtml",
     "miscKey", "miscQuestions", "miscAnswers", "runMisconceptions", "misconceptionHtml", "wireMisconceptions",
     "katalogYukle", "katalogAc", "katalogModalHtml", "katalogModalGoster", "katalogSatirlari",
@@ -13743,7 +14089,9 @@ function bosDurumHtml(mesaj) {
     "kartDetayHtml",
     // §75c soru havuzu ağacı (W3)
     "havuzFiltresi", "soruKaynakTuru", "soruAgacYolu", "havuzDugumu", "havuzSorulari", "dugumIcinde",
-    "havuzAgaciHtml", "havuzSecimHtml", "havuzSoruHtml", "wireCeHavuz",
+    "havuzAgaciHtml", "kzHal", "kazanimUnitesi", "kazanimOgesi", "kazanimAgaci", "kazanimAra",
+    "kazanimAgacHtml", "kzDurumMetni", "kazanimSeciciHtml", "kzBul", "kzGeziciSekme", "kzOdakla",
+    "kazanimSeciciBagla", "ogtKazanimFiltresiHtml", "peKazanimSeciciHtml", "havuzSecimHtml", "havuzSoruHtml", "wireCeHavuz",
     "aiGenerateQuestions", "aiEvaluate", "aiSuggestRubric", "rubrikTaslaginiKabulEt", "tekrarFormunuKazanimaAyarla", "ondalikTr", "simIsmiSec", "katalogBeklemeDurumu", "retryEvaluation",
     "relabelOptionsAndGetKeyMap", "remapCorrectKeyAndRationale", "fisherYatesShuffle", "shuffleQuestionOptions", "moveOption", "previouslyGeneratedQuestionBodies",
     "startExam", "finishExam", "publishResults", "finalizeReview", "deleteQuestion",
