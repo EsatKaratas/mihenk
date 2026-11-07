@@ -461,7 +461,7 @@ describe('§86 madde 4 — IP başına günlük sınır', () => {
 
   it('/status günlük sınırı ve modu açıkça söyler (bağlama yok → bellek)', async () => {
     const j: any = await (await app.request('/api/ai/status', {}, { AI_GUNLUK_IP_SINIRI: '25' })).json();
-    expect(j.gunlukSinir).toEqual({ limit: 25, mod: 'bellek' });
+    expect(j.gunlukSinir).toEqual({ limit: 25, mod: 'bellek', neuronPayi: 4500 });   // §129: adres Neuron payı
     expect(j.gateway).toBe(false);
   });
 

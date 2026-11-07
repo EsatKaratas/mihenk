@@ -23,7 +23,7 @@ import {
 import {
   callModelJson, providerName, modelName, fallbackConfigured, fallbackEnv,
   fallbackSorunu, saglayiciHazirMi, type AiEnv,
-  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, AiButceHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
+  AiKotaHatasi, AiSemaHatasi, AiGunlukSinirHatasi, AiButceHatasi, AiAdresPayiHatasi, saniyeUtcGunSonuna, gatewaySecenekleri, hataOzeti,
   type CagriKancasi,
 } from '../lib/ai';
 import {
@@ -32,11 +32,14 @@ import {
 } from '../lib/neuron-butce';
 import {
   gunlukHakKullan, gunlukHakIade, gunlukSinirDegeri, gunlukSinirModu, type GunlukSinirEnv,
+  adresRezerv, adresKapat, adresNeuronPayi, type AdresPayEnv,
 } from '../lib/gunluk-sinir';
+import { istekAdresi } from '../lib/adres';   // §129: IPv6 → /64
 import {
   RATE_LIMIT_PER_MIN,
   RATE_LIMIT_EVAL_PER_MIN,
   RATE_LIMIT_IP_PER_MIN,
+  RATE_LIMIT_GEN_ADRES_PER_MIN, MAX_EXCLUDE_TOTAL_CHARS, haricListesiniKirp,
   rateLimited as rateLimitedRaw,
   soruDilUyarisi,
   metinDilUyarisi,
@@ -162,6 +165,17 @@ function modelHatasiYaniti(c: any, e: unknown) {
       503
     );
   }
+  if (e instanceof AiAdresPayiHatasi) {
+    // §129: alt sınıf olduğu için AiGunlukSinirHatasi'ndan ÖNCE denetlenir.
+    c.header('Retry-After', String(saniyeUtcGunSonuna()));
+    return c.json(
+      {
+        error: 'adres_payi',
+        message: `Bu bağlantının bugünkü yapay zekâ payı doldu (tahmini ${e.kullanilan.toLocaleString('tr-TR')}/${e.pay.toLocaleString('tr-TR')} Neuron); 03:00'te (TR) yenilenir. Payın amacı, tek bir bağlantının bütün okulların günlük havuzunu bitirmesini önlemek.`,
+      },
+      429
+    );
+  }
   if (e instanceof AiGunlukSinirHatasi) {
     c.header('Retry-After', String(saniyeUtcGunSonuna()));
     return c.json(
@@ -196,7 +210,7 @@ function modelHatasiYaniti(c: any, e: unknown) {
  * sürmeye devam eder.
  */
 function gunlukKanca(c: any): CagriKancasi {
-  const ip = (c.req.header('cf-connecting-ip') || '').trim();
+  const ip = istekAdresi((ad) => c.req.header(ad));   // §129: IPv6 /64 öneki
   /* §93 (W10, W6 P3-d): bütçe GLOBALDİR, başlık yoksa da uygulanır; başlık
      yoksa yalnız ADRES sınırı atlanır (adres bilinmiyor).
      §93 — HESAP DÜZEYİ NEURON BÜTÇESİ (src/lib/neuron-butce.ts). Yalnız
@@ -204,9 +218,13 @@ function gunlukKanca(c: any): CagriKancasi {
      için açık rezerv tek değişkende tutulur. Sıra: önce adres hakkı, sonra
      bütçe; bütçe reddederse yenen adres hakkı iade edilir (model çağrılmadı). */
   let acikRezerv = 0;
+  let adresAcik = 0;   // §129: adresin Neuron payından açık rezerv
   const rezerviKapat = async (gercek: number, tukendi = false) => {
     const r = acikRezerv;
     acikRezerv = 0;
+    const a = adresAcik;
+    adresAcik = 0;
+    if (ip && a > 0) await adresKapat(c.env, ip, a, gercek);
     if (r > 0 || tukendi) await butceKapat(c.env, r, gercek, tukendi);
   };
   return {
@@ -220,9 +238,25 @@ function gunlukKanca(c: any): CagriKancasi {
         console.log(JSON.stringify({ ev: 'butce_bilinmeyen_model', model: b.model }));
       }
       const miktar = Math.ceil(rezervTahmini(b.model, b.istemKarakter, b.maxTokens));
+      /* §129: önce adresin payı (tek adres havuzun en çok payını alabilir),
+         sonra hesap bütçesi. Hangisi reddederse etsin model ÇAĞRILMAZ ve
+         o ana kadar alınan haklar/rezervler iade edilir. */
+      if (ip) {
+        const a = await adresRezerv(c.env, ip, miktar);
+        if (!a.izin) {
+          await gunlukHakIade(c.env, ip);
+          console.log(JSON.stringify({ ev: 'adres_payi', miktar, harcanan: Math.round(a.harcanan), rezerv: Math.round(a.rezerv), pay: a.pay }));
+          throw new AiAdresPayiHatasi(a.pay, Math.round(a.harcanan + a.rezerv));
+        }
+        adresAcik = miktar;
+      }
       const r = await butceRezerv(c.env, miktar);
       if (!r.izin) {
-        if (ip) await gunlukHakIade(c.env, ip);
+        if (ip) {
+          await gunlukHakIade(c.env, ip);
+          await adresKapat(c.env, ip, adresAcik, 0);
+          adresAcik = 0;
+        }
         throw new AiButceHatasi(r.durum.esik, r.durum.tahminiNeuron);
       }
       acikRezerv = miktar;
@@ -267,7 +301,7 @@ const ai = new Hono<{ Bindings: Bindings }>();
    sayılır. GET /status sayılmaz (model çağırmaz). */
 ai.use('*', async (c, next) => {
   if (c.req.method !== 'POST') return next();
-  const adres = (c.req.header('cf-connecting-ip') || '').trim() || 'yerel';
+  const adres = istekAdresi((ad) => c.req.header(ad)) || 'yerel';   // §129: IPv6 /64
   if (rateLimited(`ip:${adres}`, RATE_LIMIT_IP_PER_MIN)) {
     return c.json(
       {
@@ -286,7 +320,7 @@ ai.use('*', async (c, next) => {
  * dakikada 30 ile sınırlı (arayüz yalnız açılışta ve AI çağrısından sonra sorar).
  */
 ai.get('/butce', async (c) => {
-  const adres = (c.req.header('cf-connecting-ip') || '').trim() || 'yerel';
+  const adres = istekAdresi((ad) => c.req.header(ad)) || 'yerel';
   if (rateLimited(`butce:${adres}`, 30)) {
     return c.json({ error: 'rate_limited', message: 'Bütçe durumu dakikada en fazla 30 kez sorulabilir.' }, 429);
   }
@@ -314,7 +348,8 @@ ai.get('/status', (c) => {
     fallbackSorunu: fallbackSorunu(c.env),
     /* §86: günlük adres sınırı ve sayacın nerede tutulduğu ("bellek" =
        Durable Object bağlaması henüz yok, isolate başına sayaç). */
-    gunlukSinir: { limit: gunlukSinirDegeri(c.env), mod: gunlukSinirModu(c.env) },
+    // §129: neuronPayi = adres başına günlük Neuron payı (AI_IP_NEURON_PAYI).
+    gunlukSinir: { limit: gunlukSinirDegeri(c.env), mod: gunlukSinirModu(c.env), neuronPayi: adresNeuronPayi(c.env as AdresPayEnv) },
     // §93: hesap düzeyi tahmini Neuron bütçesi (ayrıntı: GET /api/ai/butce).
     gunlukButce: { esik: butceEsigi(c.env), mod: butceModu(c.env) },
     // §86: AI Gateway açık mı (AI_GATEWAY_ID). Bugün kapalı.
@@ -335,6 +370,18 @@ ai.post('/generate-questions', zValidator('json', generateQuestionsSchema, onInv
   if (total < 1) {
     return c.json({ error: 'invalid_request', message: 'En az bir soru istenmelidir.' }, 400);
   }
+
+  /* §129: docKey istemci seçimi; üretim ayrıca adres başına sayılır. */
+  const genAdres = istekAdresi((ad) => c.req.header(ad)) || 'yerel';
+  if (rateLimited(`gen-adres:${genAdres}`, RATE_LIMIT_GEN_ADRES_PER_MIN)) {
+    return c.json(
+      { error: 'rate_limited', message: `Bu bağlantıdan dakikada en fazla ${RATE_LIMIT_GEN_ADRES_PER_MIN} soru üretim isteği gönderilebilir. Bir dakika bekleyip tekrar deneyin.` },
+      429
+    );
+  }
+  /* §129: tekrar önleme listesi toplamda MAX_EXCLUDE_TOTAL_CHARS'ı aşarsa
+     en eskiler düşülür (reddedilmez); istem ve max_tokens kırpılmış listeyle kurulur. */
+  b.excludeQuestions = haricListesiniKirp(b.excludeQuestions || [], MAX_EXCLUDE_TOTAL_CHARS);
 
   if (rateLimited(`gen:${b.docKey}`)) {
     return c.json(

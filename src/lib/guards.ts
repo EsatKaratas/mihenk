@@ -13,6 +13,37 @@
 export const RATE_LIMIT_PER_MIN = 5;
 
 /**
+ * §129 (fikir3-E Y2): `docKey` İSTEMCİNİN seçtiği bir addır; her istekte
+ * değiştirilirse yukarıdaki 5/dk sınırı hiç işlemez. Üretim (en pahalı uç,
+ * ≈400–1.250 Neuron) bu yüzden ayrıca ADRES başına sayılır. 10: aynı okul
+ * ağından iki öğretmenin aynı dakikada ikişer belgeyle çalışmasına yer
+ * bırakır; docKey sınırı (5/dk, agents.md §4) olduğu gibi durur.
+ */
+export const RATE_LIMIT_GEN_ADRES_PER_MIN = 10;
+
+/**
+ * §129: tekrar önleme listesinin (`excludeQuestions`) toplam karakter
+ * tavanı. Liste isteme eklenir ve max_tokens'ı büyütür; 50 × 2.000
+ * karakterlik bir liste tek isteği ≈1.250 Neuron'a taşıyordu. İstemci son 30
+ * gövdeyi yollar (meşru ≈ 30 × 300 ≈ 9.000); taşan kısım REDDEDİLMEZ, en
+ * ESKİLER düşülür (en yeni sorular tekrar önlemede en değerlisi).
+ */
+export const MAX_EXCLUDE_TOTAL_CHARS = 8_000;
+
+/** §129 SAF: listeyi sondan başa doğru tavana sığacak kadar tutar (sıra korunur). */
+export function haricListesiniKirp(liste: string[], tavan: number = MAX_EXCLUDE_TOTAL_CHARS): string[] {
+  const sonuc: string[] = [];
+  let toplam = 0;
+  for (let i = liste.length - 1; i >= 0; i--) {
+    const n = String(liste[i] || '').length;
+    if (toplam + n > tavan) break;
+    toplam += n;
+    sonuc.unshift(liste[i]);
+  }
+  return sonuc;
+}
+
+/**
  * Değerlendirme ucu için dakika limiti. Bir sınıfın tamamı değerlendirilirken
  * onlarca MEŞRU çağrı olur (40 kişilik sınıf); buraya 5 koymak gerçek
  * kullanımı bozardı. Amaç kazara sonsuz döngüyü ve kötü niyetli kota
