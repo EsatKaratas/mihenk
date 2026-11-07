@@ -338,3 +338,48 @@ describe('§108 arayüz bağlantıları ve metinler', () => {
     expect(kvkk).toContain('.mihenk');
   });
 });
+
+// §124: kalıcı madde geçmişi ve rubrik örnek yanıtları soru kaydının içinde
+// (questions → KALICI_ALANLAR) taşınır. Tam yedek ikisini de korur; adsız
+// yedekte örnek metninde kalmış olabilecek kayıtlı ad da etiketlenir, geçmişin
+// sayıları değişmez.
+describe('§124 madde geçmişi + örnek yanıtlar tam yedekte', () => {
+  const GECMIS = [{ anahtar: 's1', tarih: '2026-11-03', sube: '7-A', n: 23, gucluk: 0.523, ayirt: 0.417, olcu: 'r', imza: 'abc' }];
+  const ORNEK = [{ id: 'oy1', puan: 8, tavan: 10, metin: "[ÖĞRENCİ] dedi ki; Mehmet Öztürk'ün örneği balata.", tarih: '2026-11-07' }];
+  function durumQ1(): Any {
+    const d = ornekDurum();
+    d.questions[1] = { ...d.questions[1], type: 'open', difficulty: 'hard', maddeGecmisi: GECMIS, ornekYanitlar: ORNEK };
+    return d;
+  }
+
+  it('parolalı yedek gidiş-dönüş: iki alan birebir geri gelir; eski soru (alansız) alansız kalır', async () => {
+    const { k } = ortam();
+    const veri = { durum: durumQ1(), kitaplik: [] };
+    const metin: string = await k.yedekOlustur(veri, { parola: 'gizli-parola-42' });
+    expect(metin.includes('balata')).toBe(false);   // şifreli
+    const geri = await k.yedekCoz(metin, 'gizli-parola-42');
+    expect(geri.durum.questions[1].maddeGecmisi).toEqual(GECMIS);
+    expect(geri.durum.questions[1].ornekYanitlar).toEqual(ORNEK);
+    expect(geri.durum.questions[0].maddeGecmisi).toBeUndefined();
+    expect(geri.durum).toEqual(veri.durum);
+  }, 30000);
+
+  it('adsız yedek: örnek metnindeki kayıtlı ad etiketlenir; geçmişin sayıları ve şube aynı kalır', async () => {
+    const { k } = ortam();
+    const a = k.yedekAdsizYap({ durum: durumQ1(), kitaplik: [] });
+    const q = a.durum.questions[1];
+    expect(q.maddeGecmisi).toEqual(GECMIS);
+    expect(q.ornekYanitlar[0].metin).toBe('[ÖĞRENCİ] dedi ki; Öğrenci 2 örneği balata.');
+    expect(q.ornekYanitlar[0]).toMatchObject({ id: 'oy1', puan: 8, tavan: 10 });
+    expect(JSON.stringify(a.durum)).not.toMatch(/Mehmet|Öztürk/);
+  });
+
+  it('yedekDurumAl soruları derin kopyalar (KALICI_ALANLAR içinde "questions")', () => {
+    const { k, state } = ortam({ state: { students: [], questions: [{ id: 2, maddeGecmisi: GECMIS, ornekYanitlar: ORNEK }], exams: [] } });
+    const d = k.yedekDurumAl();
+    expect(d.questions[0].maddeGecmisi).toEqual(GECMIS);
+    expect(d.questions[0].ornekYanitlar).not.toBe(state.questions[0].ornekYanitlar);
+    const gercek = app.match(/const KALICI_ALANLAR = \[[^\]]*\]/)![0];
+    expect(gercek).toContain('"questions"');
+  });
+});

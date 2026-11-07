@@ -29,6 +29,8 @@ const ADLAR = [
   'enjeksiyonKatla', 'enjeksiyonKalipBul', 'enjeksiyonIsareti', 'aiKaynakRozetiHtml', 'degerlendirmeDilUyarisiHtml',
   'puanTercihNormal', 'adsizRastgele', 'adsizKaristir', 'adsizNumaralar', 'adsizChipHtml', 'adsizCiz',
   'soruGruplari', 'soruGrubuBasHtml', 'puanKuyruguHtml', 'adsizOnayliKartHtml', 'puanAracCubuguHtml',
+  // §124: onaylı kart ve soru soru grubu örnek yanıt alanını da çizer.
+  'ornekYanitGruplari', 'ornekYanitlarHtml', 'ornekYanitAlaniHtml',
   'geriBildirimFisVerisi', 'geriBildirimFisiHtml',
 ];
 const DONUS = ADLAR.concat(['_disari']);
@@ -73,7 +75,7 @@ function kur() {
     arasi('const KISISEL_SOZCUK_ADLAR', 'function adMaskeNotuHtml(') + fonksiyonMetni('adMaskeNotuHtml') +
     arasi('const ENJEKSIYON_KALIPLARI', 'function enjeksiyonKatla(') +
     arasi('const PUAN_TERCIH_ANAHTAR', '/** SAF: kayıtlı tercih') +
-    'var _kriterTaslak = {};\n' +
+    'var _kriterTaslak = {};\nvar _ornekTaslak = null;\nconst ORNEK_YANIT_LIMIT = 12;\nconst ORNEK_YANIT_UZUNLUK = 2000;\n' +   // §124
     'function readSession(sid) { return OTURUMLAR[sid] || {}; }\n' +
     'function aiKaynakMetinleri() { return []; }\nfunction dilTetikleyiciMetni() { return ""; }\n' +
     ADLAR.map(fonksiyonMetni).join('\n') +

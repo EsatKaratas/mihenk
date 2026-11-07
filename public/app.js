@@ -8479,12 +8479,13 @@ function havuzSoruHtml(q) {
     '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + "</span>" + bloomPill(q.bloom) +
     '<span class="pill pill-neutral">' + escapeHtml(q.outcome || "kazanımsız") + "</span>" +
     '<span class="pill pill-neutral">' + escapeHtml(kaynak ? kaynak.ad : "") + "</span>" +
-    subeRozetiHtml(q) +
+    subeRozetiHtml(q) + maddeGecmisiRozetiHtml(q) +   // §124
     (supheler.length
       ? '<span class="pill pill-warning" title="' + escapeHtml(supheler.map(function (t) { return supheMetni(t.etiket, q); }).join(", ")) +
         '">⚠ ' + supheler.length + " şüphe</span>"
       : "") +
-    '</div></div><div class="havuz-eylem">' + eylem + "</div></div>";
+    "</div>" + guclukUyumsuzlukNotuHtml(q) + maddeGecmisiAyrintiHtml(q) +   // §124
+    '</div><div class="havuz-eylem">' + eylem + "</div></div>";
 }
 
 // 2. sekme: soru havuzu (ağaç + filtre). Onaylı, bekleyen ve reddedilmiş tek yerde.
@@ -10391,7 +10392,7 @@ function sihirbazAdim2Html() {
       return '<div class="pool-item"><input type="checkbox" class="pool-check" data-qid="' + q.id + '" ' + (inExam(q.id) ? "checked" : "") + " " + (soruKilidi ? "disabled" : "") + ' aria-label="Bu soruyu sınava ekle">' +
         '<div class="p-body">' + escapeHtml(q.body) + '<div class="p-tags"><span class="pill pill-accent">' + (q.type === "mc" ? "ÇSS" : "Açık Uçlu") + '</span>' +
         '<span class="pill pill-neutral">' + diffLabel(q.difficulty) + '</span>' + bloomPill(q.bloom) +
-        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + onaydanSonraHapHtml(q) + ornekPaketRozetiHtml(q) + '</div>' +
+        '<span class="pill pill-neutral">' + escapeHtml(q.outcome) + '</span>' + subeRozetiHtml(q) + onaydanSonraHapHtml(q) + ornekPaketRozetiHtml(q) + maddeGecmisiRozetiHtml(q) + '</div>' +
         (duzenleniyor ? poolEditHtml(q) : "") + '</div>' +
         '<button class="btn btn-secondary btn-sm pool-edit-btn" data-qid="' + q.id + '" title="Bu soruyu düzenle">' +
         (duzenleniyor ? "Kapat" : "Düzenle") + '</button></div>';
@@ -10851,7 +10852,9 @@ function examTrayHtml() {
       (rubrikEksik ? '<span class="pill pill-critical">⚠️ Rubrik Tanımı Eksik</span>' : "") +
       '</span></span>' +
       '<span class="t-controls">' +
-      '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" max="900" value="' + sure + '" ' + (locked ? "disabled" : "") + ' title="Bu soru için önerilen süre (saniye)"><span class="t-unit">sn</span>' +
+      '<input type="number" class="tray-time" data-qid="' + q.id + '" min="10" max="900" value="' + sure + '" ' + (locked ? "disabled" : "") + ' title="Bu soru için önerilen süre (saniye)"' +
+        /* §124 yan düzeltme: yalnız title vardı (axe label-title-only, yayınlanmış sınavın 2. adımında ölçüldü). */
+        ' aria-label="' + (i + 1) + '. soru süresi (saniye)"><span class="t-unit">sn</span>' +
       (locked ? "" :
         '<button class="icon-btn tray-up" data-idx="' + i + '" title="Yukarı taşı" ' + (i === 0 ? "disabled" : "") + '>↑</button>' +
         '<button class="icon-btn tray-down" data-idx="' + i + '" title="Aşağı taşı" ' + (i === items.length - 1 ? "disabled" : "") + '>↓</button>' +
@@ -13614,7 +13617,7 @@ function doneCardHtml(q, student, ev, rv) {
       ? '<span class="pill pill-accent2">öğretmen revize etti</span>'
       : '<span class="pill pill-accent">YZ önerisiyle aynı</span>') +
     (rv.comment ? '<div style="margin-top:6px;color:var(--text-muted);">Not: ' + escapeHtml(rv.comment) + '</div>' : "") +
-    '</div></div>';
+    '</div>' + ornekYanitAlaniHtml(q, student, rv) + '</div>';   // §124
 }
 
 /* ===========================================================================
@@ -13864,7 +13867,8 @@ function puanKuyruguHtml(bekleyen, sorular, tercih, adsizNo, ogrenciler) {
   const kart = function (x) { return adsizCiz(adsizNo, ogrenciler, function () { return evalCardHtml(x.q, x.student, x.ev); }); };
   if (tercih.gorunum !== "soru") return bekleyen.map(kart).join("");
   return soruGruplari(bekleyen, sorular).map(function (g) {
-    return '<section class="pk-grup" aria-labelledby="pkGrup-' + g.q.id + '">' + soruGrubuBasHtml(g) + g.ogeler.map(kart).join("") + "</section>";
+    return '<section class="pk-grup" aria-labelledby="pkGrup-' + g.q.id + '">' + soruGrubuBasHtml(g) + ornekYanitlarHtml(g.q) +   // §124
+      g.ogeler.map(kart).join("") + "</section>";
   }).join("");
 }
 
@@ -14149,6 +14153,7 @@ function teacherTab3Html() {
     ? '<div class="card-head" style="margin-bottom:10px;"><h3>Açık Uçlu — Onay Bekleyen (' + pending.length + ')</h3><span class="hint">' +
       (tercih.gorunum === "soru" ? "soru soru; her soruda yapay zekânın en az emin olduğu yanıt en üstte" : "yapay zekânın en az emin olduğu yanıt en üstte") + '</span></div>' +
       puanAracCubuguHtml(tercih, geriBildirimFisOgrencileri().length > 0) +   // §122
+      (tercih.gorunum === "soru" && pending.length ? "" : ornekYanitPaneliHtml(opens)) +   // §124 (soru soru: grup başında)
       '<div id="puanKuyrugu" data-gorunum="' + tercih.gorunum + '" data-adsiz="' + !!adsizNo + '">' +
       (pending.length ? puanKuyruguHtml(pending, opens, tercih, adsizNo, gonderenler) : '<div class="empty-state">Bekleyen değerlendirme yok.</div>') + '</div>'
     : '<div class="empty-state">Bu sınavda açık uçlu soru yok; tüm sorular cevap anahtarıyla puanlandı.</div>';
@@ -14242,6 +14247,7 @@ function wireTeacherTab3() {
   });
   wireKriterDuzelt();   // §112
   wirePuanArac();       // §122
+  wireOrnekYanit();     // §124
 }
 /* Öğretmenin nihai puan kararı. Sonuç yayınlandığında (publishResults)
    sunucuya gönderilir; öğrenci onaylanmış puanı kendi cihazından görür. */
@@ -14302,7 +14308,10 @@ function publishResults() {
     const ss = readSession(s.id);
     if (ss.examStatus === "submitted") writeSession(s.id, { examStatus: "graded" });
   });
+  /* §124: sonuçlanan sınavın toplu madde istatistiği soruların geçmişine (yalnız onaylı puanlar). */
+  const islenen = maddeGecmisiniIsle();
   renderAll();
+  if (islenen) durumDuyur("Sonuçlar yayınlandı; " + islenen + " sorunun madde geçmişi güncellendi.");
 }
 
 function computeDemoClassScores() {
@@ -14789,6 +14798,348 @@ function acikMaddeHtml(ac) {
           : (ac.tekMadde ? "hesaplanamadı (sınavda tek madde var)" : "hesaplanamadı (puanlarda değişkenlik yok)")) + "</span>" +
       "</div></div>";
   }).join("");
+}
+
+/* ===========================================================================
+   §124 — KALICI MADDE GEÇMİŞİ + RUBRİK ÖRNEK YANITLARI (Q1; fikir2-B madde 4–5)
+   ===========================================================================
+   1) MADDE GEÇMİŞİ. Öğretmen "Sonuçları Öğrenciye Yayınla" dediğinde
+      (publishResults; yalnız bütün açık uçlu yanıtlar onaylıyken çalışır) her
+      sorunun kaydına o sınavın TOPLU istatistiği eklenir: gün, şube, n,
+      güçlük, ayırt edicilik. Hesap §121'in saf fonksiyonlarıyla
+      (itemAnalysis → ÇSS p/d; acikMaddeAnalizi → güçlük + düzeltilmiş
+      madde–toplam r; yalnız onaylı nihai puan). Öğrenci kimliği, adı, yanıtı
+      KAYDEDİLMEZ. Aynı sınav yeniden yayınlanırsa kendi satırı güncellenir
+      (çoğalmaz). Ortak yazılı sınavda şube yazılmaz (§119, ÖDSGM madde 11).
+      Alan isteğe bağlıdır: `q.maddeGecmisi` yoksa geçmiş boştur, göç yok.
+      Yapay zekânın kolay/orta/zor etiketi ile gözlenen güçlük (n ≥ 20)
+      uyuşmazsa NOT görünür; etiket kendiliğinden DEĞİŞMEZ.
+   2) RUBRİK ÖRNEK YANITLARI (yalnız gösterim, 0 Neuron). Öğretmen onaylı bir
+      yanıtı "bu puan düzeyine örnek" diye işaretler; metin kisiselMaskele
+      (§88) ile temizlenir, öğretmen temizlenmiş metni görür, düzenler ve
+      açıkça kaydeder. Kayıtta öğrenci kimliği yoktur. `q.ornekYanitlar`
+      hiçbir apiPost gövdesine girmez (gövdeler alan alan kurulur; testle).
+   Tam yedek (§108) iki alanı da taşır (questions içinde); anonim araştırma
+   paketi (§111) beyaz listeyle kurulduğu için ikisini de dışlar (testle).
+   =========================================================================== */
+const MADDE_GECMISI_LIMIT = 40;          // soru başına en çok satır (en eskisi düşer)
+const MADDE_GECMISI_UYUM_EN_AZ_N = 20;   // etiket–gözlem notu için en az toplam öğrenci
+const ORNEK_YANIT_LIMIT = 12;            // soru başına en çok örnek
+const ORNEK_YANIT_UZUNLUK = 2000;        // örnek metni üst sınırı (karakter)
+var _ornekTaslak = null;                 // yalnız arayüz (KALICI_ALANLAR'a girmez)
+
+/** Yerel gün "YYYY-AA-GG" (gün hassasiyeti; saat tutulmaz). */
+function maddeGunu(zaman) {
+  const d = new Date(zaman);
+  if (isNaN(d.getTime())) return "";
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+/** "2026-11-07" → "07.11.2026". */
+function maddeGunuTr(gun) {
+  const p = String(gun || "").split("-");
+  return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : String(gun || "");
+}
+
+/** Sorunun içerik imzası: gövde + şıklar + anahtar. Soru sonradan düzenlenirse eski satırlar ayrışır. */
+function maddeGecmisiImza(q) {
+  const o = (q && q.options || []).map(function (x) { return String(x.key) + ":" + String(x.text || ""); }).join("|");
+  return hash32(String((q && q.body) || "") + "#" + o + "#" + String((q && q.correctKey) || ""));
+}
+
+/** SAF: itemAnalysis() çıktısından geçmiş satırları. Yalnız sayılar; öğrenci bilgisi yok. */
+function maddeGecmisiKayitlari(analiz, sinav, gun) {
+  const a = analiz || {};
+  const s = sinav || {};
+  const yuvarla = function (x) { return x == null || !isFinite(x) ? null : Math.round(x * 1000) / 1000; };
+  const kayit = function (q, n, gucluk, ayirt, olcu) {
+    const k = { anahtar: String(s.anahtar || ""), tarih: String(gun || ""), sube: s.ortak ? "" : String(s.sube || ""),
+      n: n, gucluk: yuvarla(gucluk), ayirt: yuvarla(ayirt), olcu: olcu, imza: maddeGecmisiImza(q) };
+    if (s.ortak) k.ortak = true;
+    return { qid: q.id, kayit: k };
+  };
+  const cikti = [];
+  (a.maddeler || []).forEach(function (m) { if (a.n > 0) cikti.push(kayit(m.q, a.n, m.p, m.d, "d")); });
+  const ac = a.acik;
+  if (ac && ac.n > 0) {
+    (ac.maddeler || []).forEach(function (m) { if (m.gucluk != null) cikti.push(kayit(m.q, ac.n, m.gucluk, m.r, "r")); });
+  }
+  return cikti;
+}
+
+/** SAF: aynı sınav anahtarlı satır varsa yerine konur, yoksa eklenir; en çok MADDE_GECMISI_LIMIT. */
+function maddeGecmisineEkle(liste, kayit) {
+  const eski = Array.isArray(liste) ? liste : [];
+  const yeni = eski.filter(function (x) { return !(x && kayit.anahtar && x.anahtar === kayit.anahtar); }).concat([kayit]);
+  return yeni.slice(Math.max(0, yeni.length - MADDE_GECMISI_LIMIT));
+}
+
+/** SAF: sorunun güncel sürümüne ait satırların n ağırlıklı özeti. Alan yoksa null. */
+function maddeGecmisiOzeti(q) {
+  const tum = (q && Array.isArray(q.maddeGecmisi) ? q.maddeGecmisi : []).filter(function (x) { return x && x.n > 0; });
+  if (!tum.length) return null;
+  const imza = maddeGecmisiImza(q);
+  const gecerli = tum.filter(function (x) { return x.imza === imza; });
+  const agirlikli = function (alan) {
+    let t = 0, n = 0;
+    gecerli.forEach(function (x) { if (x[alan] != null && isFinite(x[alan])) { t += x[alan] * x.n; n += x.n; } });
+    return n ? t / n : null;
+  };
+  return { sinav: gecerli.length, n: gecerli.reduce(function (t, x) { return t + x.n; }, 0),
+    gucluk: agirlikli("gucluk"), ayirt: agirlikli("ayirt"), olcu: q.type === "mc" ? "d" : "r",
+    eskiSurum: tum.length - gecerli.length };
+}
+
+/** Gözlenen güçlük düzeyi (pYorum ile aynı sınırlar): p > 0,70 kolay · p < 0,30 zor · arası orta. */
+function gozlenenGuclukDuzeyi(p) {
+  if (p == null || !isFinite(p)) return null;
+  return p > 0.70 ? "easy" : (p < 0.30 ? "hard" : "medium");
+}
+
+/** SAF: etiket ile gözlenen güçlük uyuşmuyor mu? Yalnız toplam n ≥ 20 iken; etikete DOKUNMAZ. */
+function guclukUyumsuzlugu(q) {
+  if (!q || ["easy", "medium", "hard"].indexOf(q.difficulty) < 0) return null;
+  const o = maddeGecmisiOzeti(q);
+  if (!o || o.n < MADDE_GECMISI_UYUM_EN_AZ_N || o.gucluk == null) return null;
+  const gozlenen = gozlenenGuclukDuzeyi(o.gucluk);
+  if (gozlenen === q.difficulty) return null;
+  return { etiket: q.difficulty, gozlenen: gozlenen, gucluk: o.gucluk, n: o.n, sinav: o.sinav };
+}
+
+/** Etiketi yapay zekâ mı verdi? (elle yazılan, örnek paket ve demo soruları insan yazımı) */
+function guclukEtiketiYzMi(q) {
+  return !(q && (q.yazan === "insan" || q.ornekPaket || q.demo));
+}
+
+/** Havuz kartı rozeti: "2 sınav · n 46 · p 0,55 · d 0,38". Geçmiş yoksa "". */
+function maddeGecmisiRozetiHtml(q) {
+  const o = maddeGecmisiOzeti(q);
+  if (!o || !o.sinav) return "";
+  const g = q.type === "mc" ? "p" : "güçlük";
+  return '<span class="pill pill-neutral mg-rozet" title="Bu sorunun sonuçlanmış sınavlardaki toplu istatistiği (yalnız onaylı puanlar)">' +
+    o.sinav + " sınav · n " + o.n + (o.gucluk != null ? " · " + g + " " + ondalikTr(o.gucluk, 2) : "") +
+    (o.ayirt != null ? " · " + o.olcu + " " + ondalikTr(o.ayirt, 2) : "") + "</span>" +
+    (guclukUyumsuzlugu(q) ? '<span class="pill pill-warning mg-uyumsuz-hap">⚠ etiket ≠ gözlenen güçlük</span>' : "");
+}
+
+/** Uyuşmazlık notu (görünür metin). Etiket değiştirilmez; karar öğretmenin. */
+function guclukUyumsuzlukNotuHtml(q) {
+  const u = guclukUyumsuzlugu(q);
+  if (!u) return "";
+  return '<p class="mg-uyumsuz" role="note"><b>Zorluk etiketi gözlenenle uyuşmuyor.</b> Etiket “' + diffLabel(u.etiket) + "”" +
+    (guclukEtiketiYzMi(q) ? " (yapay zekâ önerisi)" : "") + "; gözlenen güçlük " + ondalikTr(u.gucluk, 2) +
+    " → " + diffLabel(u.gozlenen).toLocaleLowerCase("tr") + " (" + u.sinav + " sınav, " + u.n + " öğrenci). " +
+    "Etiket kendiliğinden değişmez; gerekirse soruyu düzenleyerek siz değiştirin.</p>";
+}
+
+/** Ayrıntı: kullanım geçmişi tablosu (katlı). */
+function maddeGecmisiAyrintiHtml(q) {
+  const liste = q && Array.isArray(q.maddeGecmisi) ? q.maddeGecmisi.filter(function (x) { return x && x.n > 0; }) : [];
+  if (!liste.length) return "";
+  const imza = maddeGecmisiImza(q);
+  const olcu = q.type === "mc" ? "d (üst − alt)" : "r (madde–toplam)";
+  const satirlar = liste.slice().sort(function (a, b) { return String(b.tarih).localeCompare(String(a.tarih)); }).map(function (x) {
+    const notlar = [];
+    if (x.ortak) notlar.push("ortak sınav");
+    if (x.imza !== imza) notlar.push("soru bu tarihten sonra düzenlendi");
+    if (x.n < 10) notlar.push("az öğrenci: gösterge");
+    return '<tr><td>' + escapeHtml(maddeGunuTr(x.tarih)) + "</td><td>" + escapeHtml(x.ortak ? "—" : (x.sube || "tüm sınıflar")) +
+      '</td><td class="tabular">' + x.n + '</td><td class="tabular">' + (x.gucluk != null ? ondalikTr(x.gucluk, 2) : "—") +
+      '</td><td class="tabular">' + (x.ayirt != null ? ondalikTr(x.ayirt, 2) : "—") + "</td><td>" + escapeHtml(notlar.join(" · ")) + "</td></tr>";
+  }).join("");
+  return '<details class="mg-ayrinti"><summary>Kullanım geçmişi (' + liste.length + " sınav)</summary>" +
+    '<div class="table-wrap"><table class="karar-tablo mg-tablo"><caption>Sonuçlanmış sınavlarda toplu istatistik; yalnız öğretmenin onayladığı puanlar, öğrenci bilgisi yok</caption>' +
+    '<thead><tr><th scope="col">Tarih</th><th scope="col">Şube</th><th scope="col">n</th><th scope="col">Güçlük</th><th scope="col">' +
+    olcu + '</th><th scope="col">Not</th></tr></thead><tbody>' + satirlar + "</tbody></table></div></details>";
+}
+
+/** Aktif sınavın istatistiğini sorulara işler. Yalnız publishResults çağırır. Döner: işlenen satır sayısı. */
+function maddeGecmisiniIsle() {
+  const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+  if (!kayit) return 0;
+  if (!kayit.maddeGecmisiAnahtari) kayit.maddeGecmisiAnahtari = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const ortak = ortakSinavMi(state.exam);
+  const sinav = { anahtar: kayit.maddeGecmisiAnahtari, sube: String(state.exam.targetClass || ""), ortak: ortak };
+  const liste = maddeGecmisiKayitlari(itemAnalysis(), sinav, maddeGunu(state.exam.startsAt || Date.now()));
+  liste.forEach(function (x) {
+    const q = findQuestion(x.qid);
+    if (q) q.maddeGecmisi = maddeGecmisineEkle(q.maddeGecmisi, x.kayit);
+  });
+  return liste.length;
+}
+
+/** SAF: örnek yanıt metnini temizler: kayıtlı öğrenci adları → [ÖĞRENCİ], numara ifadeleri ve
+    yanıtı yazan öğrencinin okul numarası → [NUMARA]. Döner: { metin, degisti }. */
+function ornekYanitTemizle(metin, ogrenciler, ogrenci) {
+  const r = kisiselMaskele(String(metin == null ? "" : metin), ogrenciler || []);
+  let m = r.metin, degisti = r.maskelendi;
+  const no = String((ogrenci && ogrenci.okulNo) || "").trim();
+  if (/^\d{2,11}$/.test(no)) {
+    const re = new RegExp("(?<!\\d)" + no + "(?!\\d)", "g");
+    if (re.test(m)) { m = m.replace(re, "[NUMARA]"); degisti = true; }
+  }
+  return { metin: m, degisti: degisti };
+}
+
+/** SAF: kaydedilecek örnek; geçersizse { hata }. Öğrenci kimliği BİLEREK yok. */
+function ornekYanitKaydi(metin, puan, tavan, gun, id) {
+  const m = String(metin || "").trim();
+  const p = Number(puan), t = Number(tavan);
+  if (!m) return { hata: "Örnek metni boş olamaz." };
+  if (m.length > ORNEK_YANIT_UZUNLUK) return { hata: "Örnek metni en çok " + ORNEK_YANIT_UZUNLUK + " karakter olabilir." };
+  if (!(t > 0) || !isFinite(p) || p < 0 || p > t || Math.round(p * 2) !== p * 2) {
+    return { hata: "Puan düzeyi 0 ile " + ondalikTr(t) + " arasında, yarım puan adımlı olmalı." };
+  }
+  return { kayit: { id: String(id), puan: p, tavan: t, metin: m, tarih: String(gun || "") } };
+}
+
+/** SAF: listeye ekler (soru başına en çok ORNEK_YANIT_LIMIT); dolu ise null. */
+function ornekYanitEkle(liste, kayit) {
+  const eski = Array.isArray(liste) ? liste : [];
+  if (eski.length >= ORNEK_YANIT_LIMIT) return null;
+  return eski.concat([kayit]);
+}
+
+/** SAF: düzeylere göre (yüksekten düşüğe) gruplar. */
+function ornekYanitGruplari(liste) {
+  const gruplar = {};
+  (Array.isArray(liste) ? liste : []).forEach(function (x) {
+    if (!x) return;
+    const k = String(x.puan);
+    (gruplar[k] = gruplar[k] || { puan: x.puan, tavan: x.tavan, ornekler: [] }).ornekler.push(x);
+  });
+  return Object.keys(gruplar).map(function (k) { return gruplar[k]; }).sort(function (a, b) { return b.puan - a.puan; });
+}
+
+/** Bir sorunun örnek yanıtları (düzey başına). Örnek yoksa "". */
+function ornekYanitlarHtml(q, baslik) {
+  const liste = q && Array.isArray(q.ornekYanitlar) ? q.ornekYanitlar : [];
+  if (!liste.length) return "";
+  return '<details class="oy-kutu" open><summary>' + escapeHtml(baslik || "Rubrik örnek yanıtları") + " (" + liste.length +
+    ') <span class="oy-not">yalnız size gösterilir · yapay zekâya gönderilmez</span></summary>' +
+    ornekYanitGruplari(liste).map(function (g) {
+      return '<div class="oy-duzey"><div class="oy-duzey-bas">' + ondalikTr(g.puan) + " / " + ondalikTr(g.tavan) + " puan düzeyi</div>" +
+        g.ornekler.map(function (x) {
+          return '<div class="oy-ornek"><blockquote class="oy-metin">' + escapeHtml(x.metin) + "</blockquote>" +
+            '<button type="button" class="btn btn-secondary btn-sm js-ornek-sil" data-qid="' + q.id + '" data-oid="' + escapeHtml(x.id) +
+            '" aria-label="Örneği sil (' + ondalikTr(g.puan) + " / " + ondalikTr(g.tavan) + ' düzeyi)">Sil</button></div>';
+        }).join("") + "</div>";
+    }).join("") + "</details>";
+}
+
+/** Tek liste görünümünde (ya da bekleyen yokken) sınavın bütün örnekleri tek kartta. */
+function ornekYanitPaneliHtml(sorular) {
+  const varOlan = (sorular || []).filter(function (q) { return q && Array.isArray(q.ornekYanitlar) && q.ornekYanitlar.length; });
+  if (!varOlan.length) return "";
+  return '<div class="card oy-panel"><div class="card-head"><h3>Rubrik örnek yanıtları</h3><span class="hint">puan düzeyi başına · yalnız gösterim</span></div>' +
+    varOlan.map(function (q) {
+      const sira = (sorular || []).indexOf(q) + 1;
+      return ornekYanitlarHtml(q, "Soru " + sira + ": " + truncate(q.body, 70));
+    }).join("") + "</div>";
+}
+
+/** Onaylı kartın altındaki alan: "Örnek yanıt olarak işaretle" ya da taslak düzenleyici. */
+function ornekYanitAlaniHtml(q, student, rv) {
+  if (!q || !student || !rv || rv.finalScore == null) return "";
+  const t = _ornekTaslak;
+  const kim = q.id + "-" + student.id;
+  if (t && t.qid === q.id && t.sid === student.id) {
+    return '<div class="oy-taslak" role="group" aria-labelledby="oyBas-' + kim + '">' +
+      '<p class="oy-taslak-bas" id="oyBas-' + kim + '"><b>Örnek yanıt taslağı</b> — kaydetmeden önce okuyun.</p>' +
+      '<p class="lbl-hint" id="oyAcik-' + kim + '">' + (t.degisti
+        ? "Kayıtlı öğrenci adları [ÖĞRENCİ], numara ifadeleri [NUMARA] ile değiştirildi."
+        : "Metinde kayıtlı bir ad ya da numara bulunmadı.") +
+      " Sınıf listesinde olmayan bir ad kalmış olabilir; metni düzenleyebilirsiniz. Örnek öğrenci bilgisi olmadan, yalnız bu tarayıcıda saklanır ve yapay zekâya gönderilmez.</p>" +
+      '<label class="oy-etiket" for="oyMetin-' + kim + '">Örnek metni</label>' +
+      '<textarea id="oyMetin-' + kim + '" class="oy-metin-girdi" rows="4" maxlength="' + ORNEK_YANIT_UZUNLUK + '" aria-describedby="oyAcik-' + kim + '">' +
+      escapeHtml(t.metin) + "</textarea>" +
+      '<label class="oy-etiket" for="oyPuan-' + kim + '">Puan düzeyi (en çok ' + ondalikTr(t.tavan) + ")</label>" +
+      '<input type="number" id="oyPuan-' + kim + '" class="oy-puan-girdi" min="0" max="' + t.tavan + '" step="0.5" value="' + t.puan + '">' +
+      (t.hata ? '<p class="oy-hata" role="alert">' + escapeHtml(t.hata) + "</p>" : "") +
+      '<div class="actions"><button type="button" class="btn btn-primary btn-sm js-ornek-kaydet" data-qid="' + q.id + '" data-sid="' + student.id + '">Örnek olarak kaydet</button>' +
+      '<button type="button" class="btn btn-secondary btn-sm js-ornek-vazgec">Vazgeç</button></div></div>';
+  }
+  const ss = readSession(student.id);
+  if (!String(((ss.answers || {})[q.id] || {}).text || "").trim()) return "";
+  if ((q.ornekYanitlar || []).length >= ORNEK_YANIT_LIMIT) {
+    return '<p class="lbl-hint oy-dolu">Bu soruda ' + ORNEK_YANIT_LIMIT + " örnek var; yenisi için önce birini silin.</p>";
+  }
+  return '<div class="oy-isaretle"><button type="button" class="btn btn-secondary btn-sm js-ornek-isaretle" data-qid="' + q.id + '" data-sid="' + student.id + '">' +
+    "Örnek yanıt olarak işaretle</button></div>";
+}
+
+/** Örnek yanıt olaylarının bağlanması (Puanlama sekmesi). Hiçbiri puan/onay yazmaz. */
+function wireOrnekYanit() {
+  document.querySelectorAll(".js-ornek-isaretle").forEach(function (b) {
+    b.onclick = function () {
+      const qid = Number(b.dataset.qid), sid = Number(b.dataset.sid);
+      const q = findQuestion(qid), ss = readSession(sid), rv = (ss.reviews || {})[qid];
+      if (!q || !rv || rv.finalScore == null) return;   // yalnız onaylı yanıt
+      const ogr = (state.students || []).find(function (s) { return s.id === sid; });
+      const temiz = ornekYanitTemizle(((ss.answers || {})[qid] || {}).text, state.students, ogr);
+      const rub = state.rubrics[qid] || {};
+      _ornekTaslak = { qid: qid, sid: sid, metin: temiz.metin.slice(0, ORNEK_YANIT_UZUNLUK), degisti: temiz.degisti,
+        puan: rv.finalScore, tavan: rub.maxScore || 20, hata: "" };
+      renderAll();
+      const el = document.getElementById("oyMetin-" + qid + "-" + sid); if (el) el.focus();
+    };
+  });
+  document.querySelectorAll(".oy-metin-girdi").forEach(function (el) {
+    el.oninput = function () { if (_ornekTaslak) _ornekTaslak.metin = el.value; };
+  });
+  document.querySelectorAll(".oy-puan-girdi").forEach(function (el) {
+    el.oninput = function () { if (_ornekTaslak) _ornekTaslak.puan = el.value; };
+  });
+  document.querySelectorAll(".js-ornek-vazgec").forEach(function (b) {
+    b.onclick = function () { _ornekTaslak = null; renderAll(); durumDuyur("Örnek yanıt kaydedilmedi."); };
+  });
+  document.querySelectorAll(".js-ornek-kaydet").forEach(function (b) { b.onclick = ornekYanitKaydet; });
+  document.querySelectorAll(".js-ornek-sil").forEach(function (b) {
+    b.onclick = function () { ornekYanitSil(Number(b.dataset.qid), b.dataset.oid); };
+  });
+}
+
+/** Kaydet: metin yeniden temizlenir; değişirse kaydetmez, temizlenmiş metni gösterir. */
+function ornekYanitKaydet() {
+  const t = _ornekTaslak;
+  if (!t) return;
+  const q = findQuestion(t.qid);
+  const kim = t.qid + "-" + t.sid;
+  const metinEl = document.getElementById("oyMetin-" + kim), puanEl = document.getElementById("oyPuan-" + kim);
+  const metin = metinEl ? metinEl.value : t.metin;
+  t.puan = puanEl ? puanEl.value : t.puan;
+  const ogr = (state.students || []).find(function (s) { return s.id === t.sid; });
+  const temiz = ornekYanitTemizle(metin, state.students, ogr);
+  if (temiz.metin !== metin) {
+    t.metin = temiz.metin; t.degisti = true;
+    t.hata = "Metinde yine kayıtlı bir ad ya da numara vardı; temizlendi. Kontrol edip yeniden kaydedin.";
+    renderAll(); return;
+  }
+  const s = ornekYanitKaydi(metin, t.puan, t.tavan, maddeGunu(Date.now()), "oy" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  const yeni = q && !s.hata ? ornekYanitEkle(q.ornekYanitlar, s.kayit) : null;
+  if (!q || s.hata || !yeni) {
+    t.metin = metin;
+    t.hata = s.hata || "Bu soruda en çok " + ORNEK_YANIT_LIMIT + " örnek olabilir.";
+    renderAll(); return;
+  }
+  q.ornekYanitlar = yeni;
+  _ornekTaslak = null;
+  renderAll();
+  durumDuyur("Örnek yanıt kaydedildi: " + ondalikTr(s.kayit.puan) + " / " + ondalikTr(s.kayit.tavan) + " düzeyi.");
+}
+
+/** Sil: onayla (geri alınamaz). Öğrencinin yanıtı ve puanı değişmez. */
+async function ornekYanitSil(qid, oid) {
+  const q = findQuestion(qid);
+  if (!q || !(q.ornekYanitlar || []).some(function (x) { return x.id === oid; })) return false;
+  const tamam = await onaylaModal({ baslik: "Örnek yanıt silinsin mi?",
+    metin: "Bu örnek rubrikten kalıcı olarak silinecek. Öğrencinin kendi yanıtı ve puanı değişmez.",
+    onayEtiketi: "Örneği sil", tehlikeli: true });
+  if (!tamam) return false;
+  q.ornekYanitlar = (q.ornekYanitlar || []).filter(function (x) { return x.id !== oid; });
+  renderAll();
+  durumDuyur("Örnek yanıt silindi.");
+  return true;
 }
 
 /* ===========================================================================
@@ -20110,6 +20461,12 @@ function bosDurumHtml(mesaj) {
     "adsizNumaralar", "adsizChipHtml", "adsizCiz", "soruGruplari", "soruGrubuBasHtml", "puanKuyruguHtml",
     "adsizOnayliKartHtml", "puanAracCubuguHtml", "geriBildirimFisVerisi", "geriBildirimFisiHtml",
     "geriBildirimFisOgrencileri", "geriBildirimFisleriHtml", "geriBildirimFisleriYazdir", "puanFisKutusuHtml", "wirePuanArac",
+    /* §124 — kalıcı madde geçmişi + rubrik örnek yanıtları (Q1). */
+    "maddeGunu", "maddeGunuTr", "maddeGecmisiImza", "maddeGecmisiKayitlari", "maddeGecmisineEkle", "maddeGecmisiOzeti",
+    "gozlenenGuclukDuzeyi", "guclukUyumsuzlugu", "guclukEtiketiYzMi", "maddeGecmisiRozetiHtml", "guclukUyumsuzlukNotuHtml",
+    "maddeGecmisiAyrintiHtml", "maddeGecmisiniIsle", "ornekYanitTemizle", "ornekYanitKaydi", "ornekYanitEkle",
+    "ornekYanitGruplari", "ornekYanitlarHtml", "ornekYanitPaneliHtml", "ornekYanitAlaniHtml", "wireOrnekYanit",
+    "ornekYanitKaydet", "ornekYanitSil",
     /* §74 — yönetici filtreleri (W4). */
     "yonFiltreAl", "yonFiltreKaydet", "yonFiltreAktif", "yonSinavi", "yonOgretmenAdi", "yonSinavSorulari",
     "yonSoruDersi", "yonSoruUygunMu", "yonSinavUygunMu", "yonOgrenciler", "yonOturum", "yonFiltreSecenekleri",
