@@ -13507,3 +13507,85 @@ Ekranlar: `Downloads\Mihenk\ekran-q3\` (10 ekran × 1280/390 × açık/koyu = 40
   "Veri başka sekmede değişti" kutusuna düşer. Ölçüldü: iki sekme arasındaki tek fark `teacherTab 3 → 0`. Veri kaybı yok
   (kutu çıkıyor), ama gereksiz kilit; ayrı iş olarak müdüre bırakıldı.
 - NVDA ile dinleme yapılmadı; Safari/Firefox denenmedi.
+
+---
+
+---
+
+## 127. JÜRİ İÇİN KANIT BELGELERİ — uyum tablosu, sistem kartı, iddia dizini, demo senaryosu (7 Kasım 2026, belge worker'ı, dal `docs/juri-kanit`, Orchestrator 3 emriyle; paket Q4)
+
+**Taban:** `entegrasyon-7kasim-d` ucu `2c4f3a9` (§123). Worktree `Downloads\Mihenk\mihenk-q4-belge`, `node_modules` junction (`mihenk-entegre-7kasim-d`). Kaynak: `Downloads\Mihenk\fikir3-D-juri-kanit.md` madde 1, 3, 5, 6.
+- Kod değişmedi: `public/app.js` ve `src/` 0 satır.
+- Model çağrısı, `/api/ai` POST, deploy, push ve main birleştirme yok.
+- §124–§126 numaraları paralel dallarda; itiraz mekanizması §126'da geliştiriliyor.
+
+**Yeni belgeler:**
+1. **`docs/UYUM-TABLOSU.md`** — MEB *Eğitimde YZ Uygulamaları Etik Kılavuzu*'nun 8 ilkesi ve 50 alt maddesi. Her satırda durum (✓ / ◐ / ✗ / ⧗ / ○) ve kanıt yer alıyor.
+   - Ayrıca: YAZEK Tablo 1 eşlemesi, AB YZ Yasası Md. 13, 14 ve 26 ile Ek III (Türkiye'de bağlayıcı değil, referans) ve öğretmenin YAZEK "Açıklama" alanına yapıştıracağı hazır metin (1.156 karakter).
+   - Kaynak PDF resmî adresten indirildi: 36 sayfa, SHA-256 `ba063f15…6630e03d45`.
+   - Sayfa numaraları `pdftotext` ile doğrulandı. **Basılı numara = PDF numarası − 1.**
+     - Tablo 1: basılı s. 23 (fikir dosyasıyla aynı).
+     - §2.6 itiraz maddesi: basılı **s. 11**. Fikir dosyasındaki "s. 12" PDF numarasıydı.
+     - Fikir dosyasındaki "Rev. 0.8" PDF'te bulunamadı.
+   - AB metni artificialintelligenceact.eu'dan okundu. 26(6) "en az altı ay", 26(11) bilgilendirme, 14(4)(a)–(e) doğrulandı.
+   - Ek III 3(d) (sınav sırasında davranış izleme) Mihenk'in sınav bütünlüğü kaydıyla ilişkili olabilir; bu not tabloya eklendi.
+2. **`docs/SISTEM-KARTI.md`** — model kartı yapısında: amaç, kapsam dışı, model (`wrangler.demo.jsonc` ile doğrulandı), girdi/çıktı, 7 insan denetimi noktası, ölçümler, sınırlar, 8 izleme bulgusu ve düzeltmesi, veri akışı (`veri-nereye-gider.html` ile tutarlı), kota/maliyet.
+3. **`docs/IDDIA-KANIT.md`** — README'deki sayısal iddiaların hepsi; her birinde kanıt, komut ya da §, tarih ve durum var.
+4. **`docs/DEMO-SENARYOSU-2026-11.md`** — Masaüstündeki 23 Ekim senaryosundan güncellendi (kaynak yalnız okundu). İçerik:
+   - 5 dk akış;
+   - 60 sn kanıt turu: Karar Günlüğü + CSV → karne ibaresi → `/veri-nereye-gider` → PANO 37/37;
+   - §99–§123 "sorulursa nerede" tablosu;
+   - 8 jüri sorusu ve kanıtlı cevapları;
+   - güncel B planı.
+
+**README düzeltmeleri (ölçüme göre):**
+
+| Ne yazıyordu | Ne yapıldı |
+|---|---|
+| Rozet 413, metin 538 / 25 dosya, altbilgi 538 + 542 ad | **1072 / 52 dosya, 834 ad**. Dosya listesi kaldırıldı |
+| `ci.yml` satırında "538 test" | Sayı kaldırıldı, adımlar yazıldı |
+| "Workers Paid üzerindedir", "ön ödemeli kredi" | Ücretsiz plan, 9.000 eşik, Durable Object sayaçları (§85, §91, §93) |
+| "~4 puan fark" ve "15-16/20 vs 20/20" bugünkü yedek Scout'a atfediliyordu | Bu ölçümler **gpt-5.6-luna** ile yapılmıştı (§16, §19); Scout ile ölçülmedi. Bu yazıldı |
+| "6 istem / altı AI ucu" | 7 (`buildSolvePrompt` ve `/solve` dahil; ikisinde de güvenlik bloğu ve hız sınırı var) |
+| `index.html` "~2 KB" | 6.979 bayt → "~7 KB" |
+| "§54'e kadar" | §127 |
+| "Dönem filtresi yok" | §103 notu eklendi |
+| "40 kâğıt yerine birkaçına odaklanma" (§11.2 ve SSS) | **Ölçülmedi** diye yumuşatıldı; pilot ölçümü önerildi |
+| — | §10'a `veri-nereye-gider`, uyum tablosu ve sistem kartı bağlantısı eklendi |
+
+**Diğer dosyalar:**
+- `agents.md` **yalnız §8** yeniden yazıldı: eski D1 tohumu ve test hesabı maddeleri çıktı. Yerine 9 madde geldi: sürüm/SHA, demo yürüyüşü, kota, status, sayfalar, kanıt turu sekmeleri, ölçüm seti, B planı.
+- `docs/kvkk/pilot-ogretmen-kontrol-listesi.md`: YAZEK maddesinden uyum tablosuna bağlantı.
+
+**Demo yürüyüşü (yerel statik sunucu `127.0.0.1:8893`, PID ile durduruldu, port boş doğrulandı; `/api/ai` POST engelli):**
+- `tools/dogrula/demo-yuru.mjs` 1280 px: 5 adım geçti, konsol hatası 0, POST 0. KR-20 0,78, α 0,88, 24 öğrenci, 10 madde.
+- Kanıt turu betiği (scratchpad, depoya girmedi), 1280 ve 390 px:
+  - "Açık Uçlu — Onay Bekleyen (2)", düğme "✓ Tek Tıkla Onayla (YZ puanı: 16)";
+  - değerlendirme beklemesi 4 ms;
+  - YZ Puanlayıcı Denetimi QWK 0,98, 48 çift, SMD +0,09;
+  - Karar Günlüğü 97 kayıt, 48 öneri, 25 aynen, 23 değişti, "%48 oranında değişiklik";
+  - "CSV indir (Excel)" → `yapay-zeka-karar-gunlugu.csv`;
+  - şeritte "3 Öğrenci" → "Karne" → "Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı.";
+  - konsol hatası 0, POST 0.
+- **Bu sayılar demonun örnek verisidir**; senaryoda öyle söylendi.
+
+**Ölçüm seti:**
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1072/1072**, 52 dosya (değişiklik öncesi ve sonrası aynı) |
+| `npm run lint` | çıkış 0 |
+| `check:config` | GEÇERLİ ×2 |
+| Öz-kontrol | 834 ad, %100 |
+| `olcum:dogrula` | 37/37, `PANO.md` değişmedi |
+| Sır taraması (2c4f3a9'a göre eklenen 743 satır; 32/64-hex, anahtar/token desenleri) | **0**. Hesap kimliği yok |
+| Bağlantı denetimi (7 belge, 175 yerel bağlantı ve yol) | eksik 0. Tek uyarı yanlış pozitif: dal adı `docs/juri-kanit` |
+
+**Doğrulanamayanlar / açık:**
+- Kanıt turu ve rozetler canlıda yürünmedi. §119–§122 canlıda değil (canlı `7496cf7d`, §118). Senaryo başta bunu söylüyor; yayın kararı müdürün.
+- Deneyap canlı üretim adımının tıklama sırası §95/§98 sonrası provada yürünmedi (adlar `app.js`'te var).
+- YAZEK formunun karakter sınırı bilinmiyor.
+- Ek III ertelemesi (2027) doğrulanamadı.
+- İstem enjeksiyonu 5/5 Ağustos'tan beri koşulmadı.
+- Scout ile puan tutarlılığı ölçülmedi.
+- AGENTS güncellik notundaki "338 test / 380 ad" tarihsel kaldı; bu turda yalnız §8'e dokunma izni vardı.
