@@ -13,6 +13,12 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { durumSemasiKodu, appIslev as islev, appSabit as sabit, appKaynak as app } from './durum-semasi-kod';
 
+// §130: görünüm alanları sürüm kaydını tetiklemez — saveState/loadState düzeneklerine eklenen kod.
+const GORUNUM_KOD = (() => {
+  const k = (ad: string) => { const b = app.indexOf('\nfunction ' + ad + '('); return app.slice(b + 1, app.indexOf('\n}\n', b) + 3); };
+  return (app.match(/\nconst GORUNUM_ALANLARI = [^\n]*\n/) as RegExpMatchArray)[0] + ['veriImzasi', 'metinVeriImzasi', 'gorunumYaz'].map(k).join('');
+})();
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -103,7 +109,7 @@ describe('§128 açılış: bozuk kayıt EZİLMEZ, karantinaya alınır, yazım 
     const KALICI = ['questions', 'students', 'exams', 'ceForm', 'outcomes', 'subjects'];
     const ilk = JSON.stringify({ questions: [], students: [], exams: [], ceForm: { atolye: 'A' }, outcomes: [], subjects: [] });
     const f = new Function('state', 'localStorage', 'KALICI_ALANLAR', 'STORE_KEY', 'ilk',
-      'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null; let _resetting = false; let _saveTimer = null;\n' +
+      'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null; let _sonYazilanVeri = null;\n' + GORUNUM_KOD + ' let _resetting = false; let _saveTimer = null;\n' +
       'let sekmeCakismasi = null; var depoHatasi = ""; let _ilkDurum = ilk; const SEKME_KIMLIGI = "test";\n' +
       'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\nfunction renderSekmeCakismasi() {}\n' +
       [sabit('SURUM_KEY'), sabit('KESIF_SINIFI'), sabit('ATOLYELER'), sabit('DENEYAP_DERSI')].join('\n') + '\nconst VARSAYILAN_KAZANIMLAR = [];\n' +

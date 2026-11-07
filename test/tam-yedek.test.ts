@@ -12,6 +12,12 @@ import { durumSemasiKodu } from './durum-semasi-kod';
 const kok = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
 
+// §130: görünüm alanları sürüm kaydını tetiklemez — saveState/loadState düzeneklerine eklenen kod.
+const GORUNUM_KOD = (() => {
+  const k = (ad: string) => { const b = app.indexOf('\nfunction ' + ad + '('); return app.slice(b + 1, app.indexOf('\n}\n', b) + 3); };
+  return (app.match(/\nconst GORUNUM_ALANLARI = [^\n]*\n/) as RegExpMatchArray)[0] + ['veriImzasi', 'metinVeriImzasi', 'gorunumYaz'].map(k).join('');
+})();
+
 function tanim(ad: string): string {
   const bas = app.search(new RegExp('^(async )?function ' + ad + '\\(', 'm'));
   expect(bas, ad + ' bulunamadı').toBeGreaterThanOrEqual(0);
@@ -71,7 +77,7 @@ function ortam(opts: { state?: Any; kitaplik?: Kayit[]; onay?: boolean; setItemH
   const k = new Function('state', 'KALICI_ALANLAR', 'STORE_KEY', 'localStorage', 'dbIslem', 'onaylaModal', 'crypto',
     'let qIdSeq = 7; let _resetting = false; let _saveTimer = null; let _yedekGeriAl = null;\n' +
     // §119: yedekUygula/yedekGeriYukle sürümlü yazımı ve sekme denetimini kullanır (gerçek işlevler).
-    'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null; function renderSekmeCakismasi() {}\n' +
+    'let _bilinenSurum = null; let _sonYazilanMetin = null; let _sonYazilanVeri = null;\n' + GORUNUM_KOD + ' let sekmeCakismasi = null; function renderSekmeCakismasi() {}\n' +
     SEKME + '\n' + durumSemasiKodu() +
     SABITLER + '\n' + ISLEVLER.map(tanim).join('\n') +
     '\nreturn { ' + ISLEVLER.join(', ') + ', YEDEK_ONAY_METNI, YEDEK_PBKDF2_YINELEME, MIHENK_UYGULAMA_SURUMU,' +
@@ -248,7 +254,7 @@ describe('§108 sürüm ve göç', () => {
     const state: Any = { ceForm: { atolye: '' }, outcomes: [], subjects: [], gocDeneyapDersi: true, examStatus: 'not_started' };
     const KALICI = ['outcomes', 'subjects', 'ceForm', 'students', 'questions', 'exams', 'gocDeneyapDersi'];
     const sonuc = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR',
-      'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null;\n' +
+      'let qIdSeq = 1; let _bilinenSurum = null; let _sonYazilanMetin = null; let _sonYazilanVeri = null;\n' + GORUNUM_KOD + '\n' +
       // §120: loadState kayıt anahtarını demo bayrağına göre seçer; burada demo dışı.
       'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\n' +
       [sabit('SURUM_KEY'), tanim('surumAnahtari'), tanim('depoSurumOku')].join('\n') + '\n' +

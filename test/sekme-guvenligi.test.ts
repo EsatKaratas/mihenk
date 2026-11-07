@@ -12,6 +12,12 @@ import path from 'node:path';
 const kok = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
 
+// §130: görünüm alanları sürüm kaydını tetiklemez — saveState/loadState düzeneklerine eklenen kod.
+const GORUNUM_KOD = (() => {
+  const k = (ad: string) => { const b = app.indexOf('\nfunction ' + ad + '('); return app.slice(b + 1, app.indexOf('\n}\n', b) + 3); };
+  return (app.match(/\nconst GORUNUM_ALANLARI = [^\n]*\n/) as RegExpMatchArray)[0] + ['veriImzasi', 'metinVeriImzasi', 'gorunumYaz'].map(k).join('');
+})();
+
 function tanim(ad: string): string {
   const bas = app.search(new RegExp('^(async )?function ' + ad + '\\(', 'm'));
   expect(bas, ad + ' bulunamadı').toBeGreaterThanOrEqual(0);
@@ -62,13 +68,13 @@ function sekmeAc(P: ReturnType<typeof paylasilanDepo>, demo = false) {
   const k = new Function('state', 'localStorage', 'STORE_KEY', 'KALICI_ALANLAR', 'kutuSay', 'idbYaz', 'demoBayrak',
     'function demoAlaniMi() { return demoBayrak; }\nfunction saveSoon() { saveState(); }\n' +
     'let qIdSeq = 1; let _resetting = false; let _saveTimer = null; let depoHatasi = ""; const KITAPLIK_STORE = "kitaplar";\n' +
-    'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null;\n' +
+    'let _bilinenSurum = null; let _sonYazilanMetin = null; let _sonYazilanVeri = null;\n' + GORUNUM_KOD + ' let sekmeCakismasi = null;\n' +
     'function renderSekmeCakismasi() { kutuSay(); }\n' +
     'function dbAc() { return Promise.resolve({ transaction: function () { idbYaz(); const tx = { objectStore: function () { return {}; } };' +
     ' setTimeout(function () { tx.oncomplete && tx.oncomplete(); }, 0); return tx; } }); }\n' +
     KOD +
     '\n// loadState açılışı (yalnız §119 kısmı + veri)\n' +
-    'const _m = depoSurumOku(); _bilinenSurum = _m ? _m.rev : null; const _raw = localStorage.getItem(depoAnahtari(demoAlaniMi())); _sonYazilanMetin = _raw;\n' +
+    'const _m = depoSurumOku(); _bilinenSurum = _m ? _m.rev : null; const _raw = localStorage.getItem(depoAnahtari(demoAlaniMi())); _sonYazilanMetin = _raw; _sonYazilanVeri = metinVeriImzasi(_raw);\n' +
     'if (_raw) { const d = JSON.parse(_raw); KALICI_ALANLAR.forEach(function (a) { if (d[a] !== undefined) state[a] = d[a]; }); }\n' +
     'return { saveState, sekmeDepoOlayi, dbIslem, cakisma: function () { return sekmeCakismasi; }, surum: function () { return _bilinenSurum; } };'
   )(state, localStorage, STORE_KEY, ['questions', 'role'], () => { s.kutu++; }, () => { s.idbYazim++; }, demo);
@@ -121,6 +127,32 @@ describe('§119 iki sekme, tek depo', () => {
     // A çalışmaya devam eder
     A.state.questions.push({ id: 2 }); A.k.saveState();
     expect(soruSayisi(P)).toBe(2);
+  });
+
+  it('§130 (Q3 bulgusu): yeni sekme yalnız ekran alanlarını (rol, sekme) yazınca ilk sekme kilitlenmez, sürüm artmaz', () => {
+    const P = paylasilanDepo();
+    const A = sekmeAc(P); A.state.questions = [{ id: 1 }]; A.state.role = 'teacher'; A.k.saveState();
+    const surum = JSON.parse(P.ls[STORE_KEY + ':surum']).rev;
+    const B = sekmeAc(P);
+    B.state.role = 'student'; B.k.saveState();                      // ekran değişti, veri aynı
+    expect(JSON.parse(P.ls[STORE_KEY]).role).toBe('student');      // kayıt yazıldı (yenilemede aynı ekran)
+    expect(JSON.parse(P.ls[STORE_KEY + ':surum']).rev).toBe(surum); // sürüm artmadı
+    A.olaylariIsle();
+    expect(A.k.cakisma()).toBeNull(); expect(A.kutu).toBe(0);
+    A.state.questions.push({ id: 2 }); A.k.saveState();             // A veriyle devam eder
+    expect(soruSayisi(P)).toBe(2);
+    B.olaylariIsle();
+    expect(B.kutu).toBe(1);                                         // veri değişti → B'de kutu (koruma aynen)
+  });
+
+  it('§130: veri ile birlikte ekran değişirse sürüm artar; eski sekme veriyi ezemez', () => {
+    const P = paylasilanDepo();
+    const A = sekmeAc(P); A.state.questions = [{ id: 1 }]; A.k.saveState();
+    const B = sekmeAc(P);
+    A.state.questions.push({ id: 2 }); A.state.role = 'admin'; A.k.saveState();
+    B.state.role = 'teacher'; B.k.saveState();                      // olayı işlemeden, yalnız ekran değiştirerek
+    expect(soruSayisi(P)).toBe(2);
+    expect(B.kutu).toBe(1);                                         // sürüm damgası tuttu
   });
 
   it('aynı sekmenin ardışık yazımları sürümü artırır, kendi yazımı kendini kilitlemez', () => {
@@ -178,9 +210,14 @@ describe('§119 kaynak sözleşmesi', () => {
   it('saveState sürüm denetiminden geçmeden yazmaz; doğrudan STORE_KEY yazımı yalnız sürümlü yazıcıda', () => {
     expect(tanim('saveState')).toMatch(/if \(!depoSurumuBizimMi\(\)\) return;/);
     // §123: durum kaydına (kullanıcı ya da demo alanı) doğrudan yazım yalnız sürümlü yazıcıda.
+    // §130: ikinci yazıcı gorunumYaz (yalnız görünüm alanları değiştiyse, sürüm artmadan); yalnız saveState çağırır.
     const yazimlar = app.match(/localStorage\.setItem\((STORE_KEY|DEMO_STORE_KEY|depoAnahtari\()/g) || [];
-    expect(yazimlar.length).toBe(1);
+    expect(yazimlar.length).toBe(2);
     expect(tanim('depoyaSurumluYaz')).toMatch(/localStorage\.setItem\(depoAnahtari\(demo\), metin\)/);
+    expect(tanim('gorunumYaz')).toMatch(/localStorage\.setItem\(depoAnahtari\(demoAlaniMi\(\)\), metin\)/);
+    expect((app.match(/[^n] gorunumYaz\(metin\)/g) || []).length).toBe(1);   // tanım hariç tek çağrı
+    const ss = tanim('saveState');
+    expect(ss.indexOf('gorunumYaz(metin)')).toBeGreaterThan(ss.indexOf('if (!depoSurumuBizimMi()) return;'));
   });
   it('yedek geri yükleme çakışmada reddedilir; sıfırlama sürüm kaydını da siler', () => {
     expect(tanim('yedekGeriYukle')).toMatch(/depoSurumuBizimMi\(\)\) throw yedekHata\("sekme_cakisma"\)/);

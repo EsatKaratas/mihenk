@@ -1948,6 +1948,27 @@ function surumAnahtari(demo) {
 const SEKME_KIMLIGI = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 var _bilinenSurum = null;      // bu sekmenin yüklediği ya da son yazdığı rev; null = sürüm kaydı yoktu
 var _sonYazilanMetin = null;   // depodaki metnin bu sekmenin bildiği hâli (aynıysa yeniden yazılmaz)
+var _sonYazilanVeri = null;    // §130: aynı metnin görünüm alanları çıkarılmış hâli (veri imzası)
+/* §130 — GÖRÜNÜM ALANLARI SÜRÜMÜ TETİKLEMEZ (Q3 bulgusu, ölçüldü): yeni açılan
+   sekme yalnız teacherTab=0 yazıyor ve ilk sekmeyi yersiz "veri başka sekmede
+   değişti" kutusuna düşürüyordu. Bu alanlar hangi ekranın açık olduğunu tutar,
+   kullanıcının verisi değildir. Yalnız bunlar değiştiyse kayıt yine yazılır
+   (yenilemede aynı ekran açılsın) ama sürüm ARTMAZ ve öbür sekmeler bu yazımı
+   çakışma saymaz. Veri değişirse §119 koruması aynen çalışır. */
+const GORUNUM_ALANLARI = ["role", "teacherTab", "studentTab", "ceTab", "rubricSelectedQ", "poolFilter", "parentStudentId"];
+
+/** SAF: kayıt nesnesinin görünüm alanları dışındaki kısmının JSON'u. */
+function veriImzasi(d) {
+  const v = {};
+  Object.keys(d || {}).forEach(function (k) { if (GORUNUM_ALANLARI.indexOf(k) < 0) v[k] = d[k]; });
+  return JSON.stringify(v);
+}
+
+/** Kayıt metninin veri imzası; okunamazsa null. */
+function metinVeriImzasi(metin) {
+  if (metin == null) return null;
+  try { return veriImzasi(JSON.parse(metin)); } catch (e) { return null; }
+}
 var sekmeCakismasi = null;     // null ya da { neden: "olay" | "surum", at }
 const SEKME_CAKISMA_BASLIK = "Veri başka sekmede değişti — yeniden yükleyin.";
 const SEKME_CAKISMA_METNI = "Bu sekme, diğer sekmedeki çalışmanın üzerine yazmamak için kaydetmeyi " +
@@ -1982,12 +2003,19 @@ function depoSurumuBizimMi() {
 }
 
 /** Durumu yazar ve sürümü bir artırır. Doğrudan yazan akışlar (yedek) da kullanır. */
-function depoyaSurumluYaz(metin) {
+function depoyaSurumluYaz(metin, veri) {
   const yeni = (_bilinenSurum || 0) + 1;
   const demo = demoAlaniMi();
   localStorage.setItem(depoAnahtari(demo), metin);
   localStorage.setItem(surumAnahtari(demo), JSON.stringify({ rev: yeni, sekme: SEKME_KIMLIGI, at: Date.now() }));
   _bilinenSurum = yeni;
+  _sonYazilanMetin = metin;
+  _sonYazilanVeri = veri !== undefined ? veri : metinVeriImzasi(metin);
+}
+
+/** §130: yalnız görünüm alanları değişti → kayıt yazılır, sürüm artmaz. */
+function gorunumYaz(metin) {
+  localStorage.setItem(depoAnahtari(demoAlaniMi()), metin);
   _sonYazilanMetin = metin;
 }
 
@@ -2029,6 +2057,9 @@ function sekmeDepoOlayi(e) {
     if (typeof saveSoon === "function") saveSoon();
     return;
   }
+  /* §130: başka sekmenin yalnız görünüm alanlarını değiştiren yazımı çakışma değildir. */
+  if (e.key === veriAnahtari && e.newValue !== null && _sonYazilanVeri !== null &&
+      metinVeriImzasi(e.newValue) === _sonYazilanVeri) return;
   if (e.key === surumAnah) {
     let m = null;
     try { m = e.newValue ? JSON.parse(e.newValue) : null; } catch (x) { m = null; }
@@ -2052,7 +2083,11 @@ function saveState() {
     if (demoAlaniMi()) { d._demoAdim = state.demoAdim || null; d._demoEnUzak = state.demoEnUzak || null; }
     /* §123: sürümlü yazım etkin alana gider (kullanıcı ya da demo; §119 + §120). */
     const metin = JSON.stringify(d);
-    if (metin !== _sonYazilanMetin) depoyaSurumluYaz(metin);
+    if (metin !== _sonYazilanMetin) {
+      const veri = veriImzasi(d);
+      if (veri === _sonYazilanVeri) gorunumYaz(metin);   // §130: yalnız ekran değişti
+      else depoyaSurumluYaz(metin, veri);
+    }
     depoHatasi = "";
   } catch (e) {
     // Kota dolu ya da gizli sekme. Sessizce geçilirse kullanıcı çalışmasının
@@ -2074,6 +2109,7 @@ function loadState() {
     _bilinenSurum = surum ? surum.rev : null;
     raw = localStorage.getItem(depoAnahtari(demoAlaniMi()));
     _sonYazilanMetin = raw;
+    _sonYazilanVeri = metinVeriImzasi(raw);   // §130
     _acilisHam = raw;   // §128: açılış sonradan patlarsa karantinaya bu (dokunulmamış) metin gider
     if (!raw) return false;
     /* §128: tek doğrulayıcı. Bozuksa kayıt karantinaya, yazım durur, kurtarma
@@ -3512,6 +3548,7 @@ function demoAlaninaGec() {
     const ds = depoSurumOku();
     _bilinenSurum = ds ? ds.rev : null;
     try { _sonYazilanMetin = localStorage.getItem(DEMO_STORE_KEY); } catch (e) { _sonYazilanMetin = null; }
+    _sonYazilanVeri = metinVeriImzasi(_sonYazilanMetin);   // §130
   }
   const ilk = JSON.parse(_ilkDurum || "{}");
   KALICI_ALANLAR.forEach(function (k) {
@@ -21445,6 +21482,7 @@ function bosDurumHtml(mesaj) {
     "ortakSinavMi", "ortakSinavAlaniHtml", "yonKarsilastirmaKayitlari", "yonOrtakDisiSayisi", "yonOrtakNotuHtml",
     "depoSurumOku", "sekmeCakismasiBildir", "depoSurumuBizimMi", "depoyaSurumluYaz", "renderSekmeCakismasi", "sekmeDepoOlayi",
     "surumAnahtari",   // §123
+    "veriImzasi", "metinVeriImzasi", "gorunumYaz",   // §130
     // §125 gözlem formu + not ipucu
     "gozlemFormlari", "gozlemSinifDuzeyi", "gozlemAdaylari", "gozlemDuzeyleriKopya", "gozlemFormuKur", "gozlemPuanla",
     "gozlemOgrencileri", "gozlemDagilim", "gozlemOgrenciOzeti", "gozlemTarihMetni", "gozlemKartBolumuHtml", "gozlemKagitBolumuHtml",

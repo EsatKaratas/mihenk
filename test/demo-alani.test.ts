@@ -21,6 +21,12 @@ import { durumSemasiKodu } from './durum-semasi-kod';
 const kok = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
 
+// §130: görünüm alanları sürüm kaydını tetiklemez — saveState/loadState düzeneklerine eklenen kod.
+const GORUNUM_KOD = (() => {
+  const k = (ad: string) => { const b = app.indexOf('\nfunction ' + ad + '('); return app.slice(b + 1, app.indexOf('\n}\n', b) + 3); };
+  return (app.match(/\nconst GORUNUM_ALANLARI = [^\n]*\n/) as RegExpMatchArray)[0] + ['veriImzasi', 'metinVeriImzasi', 'gorunumYaz'].map(k).join('');
+})();
+
 /** Üst düzey fonksiyonun metni (kapanış: satır başındaki ilk "}"). */
 function tanim(ad: string): string {
   const bas = app.search(new RegExp('^(async )?function ' + ad + '\\(', 'm'));
@@ -62,7 +68,7 @@ describe('§120-1 · ayrı kayıt alanı', () => {
       'const KALICI_ALANLAR = ["questions", "exam"];\nconst ATOLYELER = []; const VARSAYILAN_KAZANIMLAR = [];\n' +
       'function demoAlaniMi() { return demoBayrak; }\n' + tanim('depoAnahtari') +
       // §123: saveState/loadState §119 sürümlü yazımıyla birleşti (sekme koruması).
-      'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null; let _saveTimer = null;\n' +
+      'let _bilinenSurum = null; let _sonYazilanMetin = null; let _sonYazilanVeri = null;\n' + GORUNUM_KOD + ' let sekmeCakismasi = null; let _saveTimer = null;\n' +
       'function renderSekmeCakismasi() {}\n' + ['SURUM_KEY', 'SEKME_KIMLIGI'].map((a) => sabit(a, ';')).join('\n') + '\n' +
       ['surumAnahtari', 'depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz'].map(tanim).join('') +
       tanim('saveState') + 'let _ilkDurum = null;\n' + durumSemasiKodu() +
