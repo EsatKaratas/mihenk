@@ -13080,3 +13080,65 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e5-123\`:
 - `e5\` — `e5-olc.json` ve ekran görüntüleri;
 - `demo\`;
 - `betik\` — çözümleyiciler ve ölçüm betikleri.
+
+---
+
+## 124. KALICI MADDE GEÇMİŞİ + RUBRİK ÖRNEK YANITLARI (7 Kasım 2026, Q1, dal `feature/madde-gecmisi`, taban `2c4f3a9`, Orchestrator 3 emriyle)
+
+Fikir kaynağı: `Downloads\Mihenk\fikir2-B-rakip-olcme.md` madde 4 ve 5. Worktree `Downloads\Mihenk\mihenk-q1-gecmis` (`npm ci`, axe-core 4.14.0 yerelde). Yalnız istemci: `public/app.js` ("§124" bloğu, madde analizinin hemen altı + 7 küçük çağrı yeri), `css/ogretmen.css`, `privacy-policy.html`, yeni `test/madde-gecmisi.test.ts`; `test/tam-yedek` (+3), `test/adsiz-puanlama` (düzenek). Sunucu, şema, `src/` değişmedi. Model çağrısı ve `/api/ai` POST **0**. Push, deploy, main birleştirmesi yok.
+
+### 1. Madde geçmişi (`q.maddeGecmisi`, isteğe bağlı alan)
+- **Ne zaman yazılır:** yalnız öğretmen "Sonuçları Öğrenciye Yayınla" dediğinde (`publishResults`; `allOpensReviewed` kapısından sonra, tek çağrı yeri). Yani yalnız onaylı puanlar. Aynı sınav yeniden yayınlanırsa kendi satırı güncellenir (sınav kaydına rastgele `maddeGecmisiAnahtari`), çoğalmaz. Soru başına en çok 40 satır.
+- **Satır:** `{anahtar, tarih (YYYY-AA-GG, sınavın günü), sube, n, gucluk, ayirt, olcu: "d"|"r", imza}`. Öğrenci kimliği, adı, yanıtı **yok** (test: anahtar listesi birebir; ad/no/yanıt sızıntısı 0).
+- **Hesap §121'in saf fonksiyonlarıyla:** ÇSS `itemAnalysis` → p ve d; açık uçlu `acikMaddeAnalizi` → güçlük (ort. nihai / tam puan) ve düzeltilmiş madde–toplam r. Onaysız puanı olan öğrenci açık uçlu satırına girmez (n düşer).
+- **Ortak yazılı sınav** (§119, ÖDSGM madde 11): şube yazılmaz, satır `ortak: true`.
+- **İmza** (`hash32` gövde + şıklar + anahtar): soru sonradan düzenlenirse eski satırlar özete girmez, tabloda "soru bu tarihten sonra düzenlendi" yazar.
+- **Görünüm:** İçerik Uzmanı havuz kartında rozet "1 sınav · n 23 · p 0,61 · d 0,83" (açık uçluda "güçlük … · r …") + katlı "Kullanım geçmişi" tablosu (Tarih · Şube · n · Güçlük · d/r · Not; caption'lı). Öğretmenin sınav sihirbazı havuzunda aynı rozet.
+- **Etiket–gözlem notu:** toplam n ≥ 20 ve kolay/orta/zor etiketi gözlenen güçlükten farklıysa (sınırlar `pYorum` ile aynı: p > 0,70 kolay, < 0,30 zor) sarı not: "Zorluk etiketi gözlenenle uyuşmuyor … Etiket kendiliğinden değişmez; gerekirse soruyu düzenleyerek siz değiştirin." Yapay zekâ üretmediyse (elle, örnek paket, demo) "(yapay zekâ önerisi)" yazmaz. Etiket hiçbir yolda değiştirilmez (test: §124 bloğunda `.difficulty =`, `.status =`, `finalizeReview(`, `writeSession(`, `apiPost(`, `fetch(`, `auditKaydet(` yok; tarayıcıda yayından önce/sonra etiketler aynı).
+- **Göç yok:** alan yoksa geçmiş boş; rozet/not/tablo "" döner.
+
+### 2. Rubrik örnek yanıtları (`q.ornekYanitlar`, yalnız gösterim, 0 Neuron)
+- Onaylı kartta (`doneCardHtml`) "Örnek yanıt olarak işaretle" (yalnız onaylı ve metni olan yanıtta). Tıklama **kaydetmez**: taslak açar.
+- Taslak: metin `kisiselMaskele` (§88, §122'nin kullandığı yardımcı) ile temizlenir — kayıtlı öğrenci adları `[ÖĞRENCİ]`, "okul numaram 57" türü ifadeler ve yazan öğrencinin `okulNo`'su `[NUMARA]`. Öğretmen temizlenmiş metni görür, düzenler, puan düzeyini (varsayılan nihai puan, 0–tavan, 0,5 adım) seçer, "Örnek olarak kaydet"e basar. Kaydederken metin yeniden temizlenir; değişirse **kaydetmez**, temizlenmiş metni gösterip uyarır (`role="alert"`).
+- Kayıt `{id, puan, tavan, metin, tarih}`: öğrenci kimliği ve sınav bağı yok. Soru başına en çok 12, metin en çok 2000 karakter.
+- Puanlamada: "Soru soru" görünümde her grubun rubrik başlığının altında, "Tek liste"de (ve bekleyen yokken) kuyruğun üstünde tek kartta; puan düzeyine göre (yüksekten düşüğe) gruplu. Her örnekte "Sil" (onaylaModal, kırmızı, odak Vazgeç; öğrencinin yanıtı/puanı değişmez).
+- **Modele gitmez:** bütün `apiPost` gövdeleri alan alan kuruluyor; test her gövdede `ornekYanit|maddeGecmisi` ve soru/rubrik nesnesinin bütün olarak geçmediğini, evaluate'in yalnız `criteria.map(label, weight)` gönderdiğini denetler.
+
+### 3. Yedek ve araştırma paketi
+- **Tam yedek (§108):** iki alan `questions` içinde → `KALICI_ALANLAR` → yedekte. Test: parolalı gidiş-dönüş birebir; adsız yedekte örnek metninde kalmış kayıtlı ad "Öğrenci N" olur, geçmişin sayıları ve şubesi aynı kalır.
+- **Anonim araştırma paketi (§111):** beyaz listeyle kurulduğu için ikisi de **dışarıda** (test: anahtar adları, şube, değerler, örnek metni, soru metni pakette 0).
+- `privacy-policy.html` "Sınav verisi" maddesine toplu istatistik ve örnek yanıt cümleleri (AGENTS §7).
+
+### Yan düzeltme
+- Yayınlanmış sınavın sihirbaz 2. adımındaki süre kutusu (`.tray-time`) yalnız `title` taşıyordu: axe `label-title-only` (serious, 10 düğüm; main'de de var, standart taramada sınav yayınlanmadığı için görünmüyordu). `aria-label="N. soru süresi (saniye)"` eklendi.
+
+### Ölçüldü (uç bu commit)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1096/1096**, 53 dosya (taban 1072; yeni `madde-gecmisi` 21, `tam-yedek` +3) |
+| Lint (`tsc --noEmit`), `node --check` | temiz |
+| Öz-kontrol | **%100, 857 ad** (+23) |
+| `olcum:dogrula` | 37/37, `PANO.md` değişmedi |
+| `check:config` | çıkış 0 |
+| Sır taraması (diff: anahtar/parola/token kalıpları, 64-hex) | 0 |
+| axe `erisilebilirlik-tara` (52 ekran, 1280/390 × açık/koyu) | ihlal 0; 12 px altı 0 |
+| Yeni ekranlar (`q1-olc.mjs`: taslak, soru soru, yayın sonrası panel, havuz geçmişi, öğretmen havuzu; 1280/390 × açık/koyu) | **112/112**: axe 0, 12 px altı 0, yatay taşma 0, konsol 0, POST 0 |
+| `kontroller.mjs` | 38/38, 1280 ve 390 |
+| Demo (`demo-yuru.mjs`) | 5 adım, 1280 ve 390; konsol 0, POST 0 |
+| `sekme-cakisma.mjs` | 16/16 |
+
+`q1-olc.mjs` akışı (dolu demo, 23 gönderen, gerçek tıklama; kurulum adımları evaluate): bir yanıta kayıtlı ad + "okul numaram 57" yazıldı → gerçek "Puanı Güncelle ve Onayla" → "Örnek yanıt olarak işaretle" → taslakta ad 0, `[ÖĞRENCİ]`/`[NUMARA]` var, kayıt 0 → öğretmen yeniden ad yazınca kayıt 0 + uyarı → açık kaydet: 1 örnek, kimlik alanı yok → soru soru grubunda ve tek liste panelinde görünür → kalanlar onaylandı, gerçek "Sonuçları Öğrenciye Yayınla" → 10/10 soruda 1 satır (n = 23), ad sızıntısı 0, etiketler aynı; yeniden işleme çoğaltmadı → havuzda 4 uyuşmazlık notu (hesapla eşit) → Sil: Escape silmez, onay siler, öğrencinin puanı aynı.
+
+Statik sunucular kendi betiğim: 127.0.0.1:8875 ve 8876 (python), PID ile durduruldu; servis edilen app.js SHA = disk.
+
+Ekranlar ve kanıt: `Downloads\Mihenk\ekran-q1\q1-{1-taslak,2-soru-soru,3-yayin-sonrasi-panel,4-havuz-gecmis,5-ogretmen-havuz}-{1280,390}-{light,dark}.png`, `q1-olcum.json`, `kanit\` (betik + bütün günlükler).
+
+**Bilinen sınırlar:**
+- Geçmiş yalnız "Sonuçları Öğrenciye Yayınla" ile yazılır. Bu turdan önce yayınlanmış sınavlar geriye dönük işlenmez; demo tohumu da geçmiş taşımaz (demoda ilk yayından sonra görünür).
+- Rozetteki d/r özeti sınavların n ağırlıklı ortalamasıdır; farklı sınıf ve sınav bağlamları karışır (her satır şube ve n ile tabloda ayrı durur).
+- Farklı sınavda aynı soru, o sınavın gruplarıyla (ÇSS d'nin üst/alt grubu o sınavın ÇSS doğrularından) hesaplanır; sınavlar arası doğrudan karşılaştırılabilir değildir.
+- fikir2-B'nin "negatif d → İçerik Uzmanı inceleme listesi" ve ARASTIRMA için "etiket–p Spearman ρ" kısmı yapılmadı; veri artık tutuluyor.
+- Örnek yanıtlar OYSS/puanlama anahtarı çıktısına eklenmedi; modele few-shot gönderimi bilinçli olarak yok (ayrı karar, Neuron maliyeti).
+- Maskeleme §88 kurallarıyla sınırlı: sınıf listesinde olmayan ad kalabilir (taslakta yazılı); sözcük de olan soyadlar metinde aynı sözcüğü de maskeler (demo öğrencilerinin soyadı "Örnek" olduğu için demoda "örnek" sözcüğü de `[ÖĞRENCİ]` olur — gizlilik yönünde hata).
+- Paralel worker (gözlem formu + öğretmen notu ipucu) app.js'te çalışıyor; çakışma olası yerler: `doneCardHtml` son satırı, `puanKuyruguHtml` soru dalı, `teacherTab3Html` araç çubuğu satırı, `wireTeacherTab3` sonu, öz-kontrol listesi.
