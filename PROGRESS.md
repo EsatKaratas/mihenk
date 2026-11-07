@@ -13080,3 +13080,49 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e5-123\`:
 - `e5\` — `e5-olc.json` ve ekran görüntüleri;
 - `demo\`;
 - `betik\` — çözümleyiciler ve ölçüm betikleri.
+
+## §97 — Workers AI `usage` ölçümü ve "harcanan 0 ama tükendi" sorunu (W10, 7.11 03:12 TR; dal `olcum-97`, taban 2c4f3a9)
+
+Orchestrator 3'ün zamanlı ölçümü (DEVIR §00-E madde 1). Canlı: mihenk.bies.workers.dev. **Tek** `/api/ai/evaluate` POST'u atıldı; kod değişmedi. Hesap kimliği ve belirteç bu belgeye yazılmadı.
+
+**1. Sıfırlanma (çağrıdan önce, 00:12 UTC):** `GET /api/ai/butce` → `harcanan 0, rezerv 0, doldu false, tukendi false`. Sayaç 00:00 UTC'de beklendiği gibi yenilenmiş.
+
+**2. Tek çağrı** (`wrangler tail` açıkken, 00:14:20 UTC).
+- Girdi: 2 kriterli kısa bir açık uçlu yanıt (maxScore 10, sürtünme sorusu).
+- Yanıt: HTTP 200, 31,1 sn, `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, attempts 1, fellBack false. Puan 10/10, iki kriter gerekçeli.
+- Tail kaydı: tek `ai_call` olayı (`approxPromptChars 5324`, `maxTokens 820`, `sureMs 30744`, `yanitUzunlugu 707`). DO alt istekleri sırayla şöyle: `/kullan` (adres hakkı) → `/rezerv` → `/kapat`.
+- **`butce_usage_yok` logu YOK.** Workers AI binding'i canlıda `usage` döndürüyor. §93'te "binding'in usage döndürdüğü ölçülmedi" diye açık bırakılan nokta böylece kapandı.
+
+**3. Sayaç ve tahmin.**
+- `butce` önce 0 → sonra **98** (`harcanan 98, rezerv 0`). Rezerv kapanmış, gerçek tahmin yazılmış.
+- Çağrı öncesi rezerv koddan hesaplandı: 5324/2 × 26.668 + 820 × 204.805 → **239**. Gerçek tahmin 98, yani rezerv gerçeğin ~2,4 katı. Rezerv bilerek üst sınır; eşzamanlı istekler eşiği aşmasın diye.
+- `usage` gelmeseydi metin tahmini (`metindenTahmin`) ≈ **143** olurdu (temkinli taraf).
+- **Cloudflare analitiği (gerçek faturalama sayacı):** 7.11 00:14 UTC, 1 istek, **98 Neuron**, `requestSource: unknown` (Worker binding), errorCode 0. Uygulama sayacı (98) Cloudflare'in kendi sayısıyla **birebir aynı**: usage tabanlı tahmin ve resmî katsayılar doğru.
+
+**4. 110 Neuron/değerlendirme sabiti** (`KAPASITE_DEGERLENDIRME_NEURON`, app.js).
+- Bu ölçüm 98 verdi. Ancak çağrı kısa bir yanıt ve 2 kriterliydi. Gerçek sınıf kullanımında varsayılan rubrik 3 kriterli ve yanıtlar daha uzun; bu yüzden istem ve çıkış biraz büyür.
+- **Öneri: 110 kalsın.** Tek ölçüm aynı büyüklükte ve sabitin altında; sabit kapasite ön hesabında "yalnız bilgi" olarak kullanılıyor ve temkinli taraf.
+- Güncellemek için 3 kriterli demo girdisiyle 3–5 çağrının ortalaması gerekir. Bu ölçümde tek POST izni vardı.
+
+**5. Dün (6.11) "harcanan 0 ama doldu/tukendi: true" — neden.**
+
+GraphQL `aiInferenceAdaptiveGroups` (salt okuma; boyutlar `requestSource`, `errorCode`, `datetimeHour`):
+
+| UTC gün | Kaynak | İstek | Neuron | Hata kodu |
+|---|---|---|---|---|
+| 5.11 | `unknown` | 24 | 6.730 | 0 |
+| 6.11 00–01 UTC | **`rest api`** | **68** | **7.614** | 0 |
+| 6.11 05 UTC | `unknown` | 1 | 0 | **4006** |
+
+- 6 Kasım'ın neredeyse tüm tüketimi gün açılır açılmaz (03:00–04:00 TR) **REST API** ile yapılan 68 çağrıdan geliyor. Bunlar Worker'dan geçmiyor; zaman ve kalıp, hesap anahtarıyla doğrudan `accounts/<id>/ai/run` çağıran ölçüm koşularına (`tools/olcum/puanlama-deney.mjs` türü) uyuyor.
+- Worker'ın sayacı (§93 DO) yalnız kendi çağrılarını gördüğü için 0'da kaldı. 05 UTC'de Worker'dan giden ilk çağrı Cloudflare'den kota hatası aldı (analitikte 4006, uygulamada 3036 sınıfı). `kotaIade` günü `tukendi: true` işaretledi. Sonuç "harcanan 0 ama tükendi" oldu. Kod doğru davrandı: Cloudflare kapattıysa bütçe kapalı görünmeli.
+- Analitiğe göre o gün toplam 7.614 Neuron, yani 10.000'in altında. Buna rağmen 4006 gelmesinin olası iki açıklaması var; ikisi de ölçülmedi:
+  - adaptif örnekleme toplamı eksik gösteriyor olabilir;
+  - ücretsiz pay, panodaki toplamdan farklı hesaplanıyor olabilir.
+- **Başka Worker havuzu kullanıyor mu?** Hesaptaki Worker'lar (API, salt okuma): `mihenk` (AI bağlaması **var**) ve `pizza` (AI bağlaması **yok**). Pizza havuzdan yemiyor. Aynı 10.000'lik havuzu **Mihenk Worker'ı ile hesap anahtarıyla yapılan REST çağrıları** paylaşıyor.
+- **Öneri:**
+  - REST ölçüm koşuları jüri ya da pilot günlerinde yapılmasın; yapılırsa önceki gün yapılsın.
+  - Ya da ölçüm betiği her koşudan önce `neuron-gunluk.mjs` ile kalan payı okuyup ≤ 3.000 Neuron'la sınırlansın.
+  - `/api/ai/butce` "tükendi" durumunda bunun Worker dışı tüketimden de olabileceğini söyleyebilir (arayüz metni, ayrı iş).
+
+Kanıt: scratchpad `p2/tail97.jsonl` (tail), `p2/evaluate97.json` (yanıt), `p2/gql97.mjs` ve `p2/scripts97.mjs` (salt okuma sorguları; hesap kimliği ortam değişkeninden, çıktıda yok).
