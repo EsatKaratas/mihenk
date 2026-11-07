@@ -3,7 +3,9 @@
 > **Kaynak:** Esat'ın masaüstündeki "Mihenk - Mülakat Demo Senaryosu.md"
 > (Worker 4, 23 Ekim 2026; main `106a0d3`). O dosya yalnız okundu, değiştirilmedi.
 > **Bu sürüm:** 7 Kasım 2026, taban `2c4f3a9` (PROGRESS §123). §99–§123
-> eklemelerine göre yeniden yazıldı.
+> eklemelerine göre yeniden yazıldı. **§132 (7 Kasım, yayın 7):** W10'un canlı
+> provasına göre düzeltildi: şerit adı, onay kartlarındaki puanlar, K2 düğmesi,
+> Deneyap adımı; demo alanında üst bant artık "Demo · model çağrılmaz" der.
 >
 > **Kural (aynen):** Söylenen her sayı ölçülmüştür. Ölçülmemiş bir şeyi söyleme.
 > Sayının kaynağı satırında yazılıdır.
@@ -50,18 +52,18 @@ Tırnak içindeki her ad ekrandaki düğmenin kendisidir. Adlar 7 Kasım'da `pub
 | Süre | Tıklama | Esat'ın tek cümlesi | Kaynak |
 |---|---|---|---|
 | 0:00 | Giriş: rol kartları → **"▶ Rehberli demo (5 adım)"** | "Mihenk ortaokul için uçtan uca bir ölçme-değerlendirme sistemi. Tezi tek cümle: yapay zekâ önerir, öğretmen karar verir." | — |
-| 0:15 | Şerit: "Adım 1/5 · Örnek veri · kendi veriniz korunuyor" | "Demo kendi ayrı alanında açılıyor. Örnek sınıf 24 kişilik, kimsenin gerçek verisine dokunmuyor, yapay zekâya da istek göndermiyor." | §120 |
+| 0:15 | Şerit: **"DEMO AKIŞI"** + numaralı daireler ①–⑤ (yalnız şu anki adımın adı yazılı; dar ekranda rozet de gizli) · "Örnek veri · kendi veriniz korunuyor"; üst bantta **"Demo · model çağrılmaz"** | "Demo kendi ayrı alanında açılıyor. Örnek sınıf 24 kişilik, kimsenin gerçek verisine dokunmuyor, yapay zekâya da istek göndermiyor." | §120 |
 | 0:25 | Onay bekleyen kart → **"✓ Onayla → Havuza Aktar"** → **"Sonraki Adım → Öğretmen"** | "Yapay zekânın ürettiği soru, bir içerik uzmanı onaylamadan havuza giremez. Reddederse nedenini hata taksonomisinden seçebilir." | `agents.md` §1, §104 |
 | 0:45 | **"Tüm sınıflar"** kartı (24 öğrenci) → sınav kartında **"Yayınla"** → **"Sonraki Adım → Öğrenci"** | "Sorular yalnız onaylı havuzdan geliyor. İsterse sınavı kâğıtta yapıp sonuçları ızgaraya girebiliyor." | §106 |
 | 1:05 | **"Sınava Başla"** → **"Gözden geçir ve bitir"** → **"Sınavı bitir"** → **"Evet, bitir"** | "Öğrenci bitirmeden önce boş ve işaretli sorularını görüyor." | — |
 | 1:25 | **"Sonraki Adım → Öğretmen Onayı"**: **"Açık Uçlu — Onay Bekleyen (2)"** | "Öğretmen önerinin puanını, ölçüt dökümünü ve gerekçesini yan yana görüyor. Bu öneriler örnek veri; rozet de bunu söylüyor." | §120 |
 | 1:45 | ⊕ Kartta **"Ölçüt puanlarını düzelt"**'i aç ve kapat (kapatmak vazgeçmektir) | "Puanı ölçüt ölçüt düzeltebilir. Düzelttiği anda 'Tek Tıkla Onayla' kapanır, düzeltmesi sessizce kaybolmasın diye." | §112, §113 |
-| 2:00 | **"✓ Tek Tıkla Onayla (YZ puanı: 16)"** ×2 → **"✓ Sonuçları Öğrenciye Yayınla"** | "Karar onun. Her öneri ve karar zaman damgasıyla Karar Günlüğü'ne yazılıyor." | §104 |
+| 2:00 | İki onay kartı: **"✓ Tek Tıkla Onayla (YZ puanı: 16)"** ve **"✓ Tek Tıkla Onayla (YZ puanı: 17)"** → **"✓ Sonuçları Öğrenciye Yayınla"** | "Karar onun. Her öneri ve karar zaman damgasıyla Karar Günlüğü'ne yazılıyor." | §104 |
 | 2:15 | ⊕ Öğretmen → **Analitik**: "YZ Puanlayıcı Denetimi" kartı | "Burada yapay zekânın öğretmenden ne kadar saptığı ölçülüyor: QWK 0,98, 48 çift. Ama bu **demonun örnek verisi**, modelin gerçek başarısı değil. 20 çiftin altında kart sayı göstermiyor." | §121; yerel ölçüm 7 Kasım |
 | 2:35 | **"Sonraki Adım → Eğitim Yöneticisi"**: "Önce buraya bakın" + Kazanım Başarı Grafiği | "Yönetici yalnız onaylı sonucu görüyor. Ortak yazılı sınav şube karşılaştırmasına girmiyor, çünkü MEB'in yazısı bunu yasaklıyor." | §119 |
 | 2:50 | **→ 60 sn kanıt turu (§2)** | | |
 | 3:50 | Şeritte **"Demoyu Bitir"** → giriş ekranında "Demodan çıktınız…" | "Demo verisi silindi; kendi verim olduğu gibi duruyor." | §120 |
-| 4:00 ⊕ | **İçerik Uzmanı** → ders **"Deneyap Atölyeleri"** (adına bas, × silmeye sorar) → **"Yapay Zekâ (66 kazanım · 25 yazılı)"** → **"Tüm listeyi aç"** → bir kazanım → **"Seçilenleri Ekle"** → "Değiştir" → **"🎯 Yalnız kazanım"** → **"🤖 Yapay Zekâ ile Soru Üret"** | (beklerken) "Araştırma sorum burası: model bu soruları üretirken hangi hataları yapıyor, denetimler ne kadarını yakalıyor. A5 ölçümünde denetimler kusurlu soruların %61'ini işaretledi; ≈57'si yine uyarısız geçti. Bu yüzden onay zorunlu." | PANO 37/37; ARASTIRMA §6.8 |
+| 4:00 ⊕ | **İçerik Uzmanı** → ders **"Deneyap Atölyeleri"** (adına bas, × silmeye sorar) → açılır listede seçenek **"Yapay Zekâ (66 kazanım · 25 yazılı)"** → önce bir **hafta grubunu aç** → bir kazanım işaretle → **"Seçilenleri Ekle"** (⚠ hiçbir kazanım işaretli değilken basma) → **"🎯 Yalnız kazanım"** zaten seçili gelir → **"🤖 Yapay Zekâ ile Soru Üret"** | (beklerken) "Araştırma sorum burası: model bu soruları üretirken hangi hataları yapıyor, denetimler ne kadarını yakalıyor. A5 ölçümünde denetimler kusurlu soruların %61'ini işaretledi; ≈57'si yine uyarısız geçti. Bu yüzden onay zorunlu." | PANO 37/37; ARASTIRMA §6.8 |
 | 4:30 | Kapanış | "Etiketleri şimdilik bir yapay zekâ verdi. Burs süresinde öğretmenlerle kör etiketleme yapacağım; aracı hazır." | §109 |
 
 **⊕ satırları** süre aşılırsa kesilir: ölçüt düzeltme, YZ denetim kartı, Deneyap
@@ -70,9 +72,10 @@ doluysa yapay zekâ düğmeleri pasiftir ve şerit "Yapay zekâ bugünlük kotas
 doldurdu…" der (§100). Bunu göster ve şunu söyle: "Kota bitince sistem durmuyor;
 elle soru, elle puanlama ve analiz çalışıyor."
 
-> Deneyap adımlarının düğme adları 23 Ekim senaryosundan alındı ve 7 Kasım'da
-> `app.js`'te hepsi bulundu. Ancak §95/§98'deki ortak kazanım seçicisinden sonra
-> **tıklama sırası provada yeniden yürünmedi**. İlk provada denetle.
+> Deneyap adımının tıklama sırası 7 Kasım'da W10'un canlı provasında yürünüp
+> düzeltildi (§132): atölye bir açılır listede seçenektir, kazanımlar hafta
+> gruplarındadır, üretim türü "🎯 Yalnız kazanım" seçili gelir. Boş seçimle
+> "Seçilenleri Ekle"ye basılırsa hiçbir kazanım eklenmez; önce işaretle.
 
 ---
 
@@ -84,7 +87,7 @@ silinir. Süreler 7 Kasım'da yerel yürüyüşte ölçüldü (1280 / 390 px).
 | # | Tıklama | Ne görünür | Cümle | Kaynak |
 |---|---|---|---|---|
 | K1 (15 sn) | Yönetici sayfasında **"Yapay Zekâ Karar Günlüğü"** kartına in → **"CSV indir (Excel)"** | "97 kayıt · 48 YZ puan önerdi · 25 aynen onaylandı · 23 öğretmen değiştirdi" ve "Öğretmen, yapay zekâ puan önerilerinde %48 oranında değişiklik yaptı." İnen dosya: `yapay-zeka-karar-gunlugu.csv` | "'İnsan onayını nasıl ispatlıyorsunuz?' sorusunun cevabı bir cümle değil, bu dosya. Buradaki %48 demonun örnek kararlarından; gerçek sınıfta bu oranı öğretmenin kendi kararları verir." | §21, §104; yerel ölçüm (K1 118 / 867 ms) |
-| K2 (15 sn) | Şeritte **"3 Öğrenci"** adımı → **"Karne"** sekmesi | "Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı." | "Öğrenci puanın nasıl oluştuğunu görüyor. Öğretmen değiştirdiyse 'Yapay zekâ N puan önermişti; öğretmen … olarak belirledi' yazıyor. MEB kılavuzunun 'YZ çıktısı ile öğretmen katkısı ayırt edilebilir olmalı' maddesi." | MEB §2.3, s. 10; `app.js` karne; yerel ölçüm |
+| K2 (15 sn) | Şeritte **"✓ Öğrenci"** düğmesi: tamamlanan 3. adım ekranda yalnız **✓** dairesidir (üzerine gelince "3. Öğrenci"; ekran okuyucu "Öğrenci — adım 3/5") → **"Karne"** sekmesi | "Yapay zekâ bu puanı önerdi; öğretmenin yanıtını okuyup onayladı." | "Öğrenci puanın nasıl oluştuğunu görüyor. Öğretmen değiştirdiyse 'Yapay zekâ N puan önermişti; öğretmen … olarak belirledi' yazıyor. MEB kılavuzunun 'YZ çıktısı ile öğretmen katkısı ayırt edilebilir olmalı' maddesi." | MEB §2.3, s. 10; `app.js` karne; yerel ölçüm |
 | K3 (15 sn) | Üçüncü sekme: `/veri-nereye-gider` | "Her şey yerelde" demeyen sayfa | "Kayıtlar tarayıcıda. Yapay zekâya giden metin ABD'deki Cloudflare'e gidiyor; öğrenci adı gitmiyor, cevaptaki adlar maskeleniyor. Bunu biz de açıkça yazıyoruz." | §110; [SISTEM-KARTI §8](./SISTEM-KARTI.md) |
 | K4 (15 sn) | Dördüncü sekme: `docs/olcum/PANO.md` | "Sonuç: 37 / 37 kontrol tuttu." | "README'deki araştırma sayılarını depodaki ham veriden yeniden hesaplayan betik CI'da koşuyor. Tutmayan sayı CI'ı kırar." | §109; `npm run olcum:dogrula` (7 Kasım: 37/37) |
 
