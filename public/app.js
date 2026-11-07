@@ -1891,7 +1891,10 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "parentStudentId",
   /* Öğretmenin "veliye bildirilsin" onayı (§28e). Bu bir İNSAN KARARIDIR ve
      kaybolmamalıdır; sinyalin kendisi her seferinde yeniden hesaplanır. */
-  "dikkatOnay"];
+  "dikkatOnay",
+  /* §125: Türkçe dinleme/konuşma gözlem formları (öğretmenin işaretlediği
+     düzeyler) ve not ipucu tercihi. İkisi de öğretmen kararıdır, kalıcıdır. */
+  "gozlemFormlari", "notIpucuKapali"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -4054,6 +4057,8 @@ const state = {
           // §29: bu sınavı hangi öğretmen değerlendiriyor (bkz. state.activeTeacherName).
           teacherName: "" },
   parentStudentId: null,  // veli panelinde seçili çocuk (§28f, simüle)
+  gozlemFormlari: [],     // §125 gözlem formları (dinleme/konuşma)
+  notIpucuKapali: false,  // §125 not ipucu tercihi
   answers: {},
   // Madde 5: öğrencinin "gözden geçir" için işaretlediği sorular (qid -> true).
   // Yanıtlanmış/yanıtlanmamış durumundan BAĞIMSIZ bir etikettir; puanlamayı
@@ -9863,7 +9868,8 @@ function sinifSayfasiHtml() {
     { id: 1, ad: "Sınavlar" },
     { id: 5, ad: "Öğrenciler" },
     { id: 3, ad: "Puanlama", rozet: pendingReviewCount() },
-    { id: 4, ad: "Analitik" }
+    { id: 4, ad: "Analitik" },
+    { id: 6, ad: "Gözlem" }   // §125 Türkçe dinleme/konuşma gözlem formu
   ];
   return '<div class="ogt-yol"><button type="button" class="ogt-geri" id="ogtSiniflarimaDon">‹ Sınıflarım</button>' +
     '<h2 class="ogt-sinif-ad">' + (sf ? escapeHtml(sf) : "Tüm sınıflar") + '</h2>' +
@@ -16325,13 +16331,14 @@ function renderTeacher() {
   const content = document.getElementById("teacherTabContent");
   if (state.teacherTab === 1 || state.teacherTab === 2) { content.innerHTML = teacherTab1Html(); wireTeacherTab1(); }
   if (state.teacherTab === 5) { content.innerHTML = sinifYonetimHtml(); wireSinifYonetim(); }
+  if (state.teacherTab === 6) { content.innerHTML = gozlemHtml(); wireGozlem(); return; }   // §125
   /* W3 P1-3 / P2-4: sınıfta sınav yoksa Puanlama ve Analitik YALNIZ boş
      durumu gösterir (seçici, ad alanı, Dikkat kartı yok). */
   const sinavYok = (state.teacherTab === 3 || state.teacherTab === 4) && !puanlanabilirSinavVar();
   if (sinavYok) { content.innerHTML = sinavYokHtml(); wireSinavYok(); return; }
   if (state.teacherTab === 3) {
-    content.innerHTML = sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") + teacherTab3Html();
-    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3();
+    content.innerHTML = sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") + teacherTab3Html() + notIpucuAyarHtml();
+    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3(); wireNotIpucuAyar();   // §125 ipucu
   }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
@@ -19591,7 +19598,8 @@ function ogrenmeBekleyenMetni(n) {
 function ogrenmeCiktisiKartiHtml(sid, kitle) {
   const v = ogrenmeCiktisiVerisi(sid);
   const k = v.kart;
-  if (!v.sonuclar.length && !k.bekleyen) return "";
+  const gz = gozlemOgrenciOzeti(sid, state.gozlemFormlari);   // §125: ayrı bölüm, yüzdeye girmez
+  if (!v.sonuclar.length && !k.bekleyen && !gz.length) return "";
   const satir = function (x) {
     return '<li><span class="oc-ad">' + escapeHtml(ogrenmeKazanimAdi(x.kod)) + '</span>' +
       '<span class="oc-yuzde tabular">%' + x.yuzde + '</span></li>';
@@ -19602,7 +19610,7 @@ function ogrenmeCiktisiKartiHtml(sid, kitle) {
   const veli = kitle === "veli";
   return '<div class="card oc-kart" data-kitle="' + (veli ? "veli" : "ogrenci") + '">' +
     '<div class="card-head"><h3>Öğrenme çıktısı kartı</h3>' +
-    (v.sonuclar.length
+    (v.sonuclar.length || gz.length
       ? '<button type="button" class="btn btn-secondary btn-sm js-karne-yazdir" data-sid="' + escapeHtml(String(sid)) +
         '" data-kitle="' + (veli ? "veli" : "ogrenci") + '">🖨 Yazdır</button>'
       : "") + '</div>' +
@@ -19620,7 +19628,7 @@ function ogrenmeCiktisiKartiHtml(sid, kitle) {
         '</div>' +
         '<p class="oc-not">Yalnız <b>öğretmenin onayladığı</b> puanlardan, kazanım başına hesaplanır: %' + OGRENME_ESIK.GUCLU +
         ' ve üzeri güçlü, altı gelişime açık. Öneriler kurala dayalıdır; yapay zekâ kullanılmaz.</p>'
-      : "") + '</div>';
+      : "") + gozlemKartBolumuHtml(gz) + '</div>';
 }
 
 /** §102 — karne kâğıdı (A4 tek sayfa). Yalnız onaylı puan; yapay zekâ önerisi,
@@ -19629,6 +19637,7 @@ function karneKagidiHtml(sid, kitle) {
   const ogr = (state.students || []).find(function (o) { return String(o.id) === String(sid); }) || {};
   const v = ogrenmeCiktisiVerisi(sid);
   const k = v.kart;
+  const gz = gozlemOgrenciOzeti(sid, state.gozlemFormlari);   // §125
   const tarih = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
   const sinavlar = v.sonuclar.slice(-8);   // tek sayfa: en yeni 8 onaylı sınav
   const liste = function (dizi, bos) {
@@ -19642,6 +19651,7 @@ function karneKagidiHtml(sid, kitle) {
     '<div class="yz-alt">Mihenk · ' + escapeHtml(tarih) + "</div></div>" +
     '<div class="yz-ogrenci"><span>Öğrenci: <b>' + escapeHtml(ogr.name || ("#" + sid)) + "</b></span>" +
     (ogr.sinif ? "<span>Sınıf: " + escapeHtml(ogr.sinif) + "</span>" : "") + "</div>" +
+    (v.sonuclar.length ? (
     '<table class="yk-sinav"><thead><tr><th>Sınav</th><th>Onaylı puan</th><th>%</th></tr></thead><tbody>' +
     sinavlar.map(function (s) {
       return "<tr><td>" + escapeHtml(s.baslik) + "</td><td>" + ondalikTr(s.puan) + " / " + ondalikTr(s.tam) +
@@ -19653,7 +19663,8 @@ function karneKagidiHtml(sid, kitle) {
     '<div class="yk-bolum"><b>Gelişime açık</b>' + liste(k.gelisime, "—") + "</div>" +
     '<div class="yk-bolum"><b>Sıradaki adım</b><ul>' + k.siradaki.map(function (x) {
       return "<li>" + escapeHtml(siradakiAdimMetni(ogrenmeKazanimAdi(x.kod), x.yuzde, kitle)) + "</li>";
-    }).join("") + "</ul></div></div>" +
+    }).join("") + "</ul></div></div>") : '<p class="yk-bos">Henüz öğretmenin onayladığı yazılı sınav sonucu yok.</p>') +
+    gozlemKagitBolumuHtml(gz) +
     (k.bekleyen ? '<p class="yk-not">' + escapeHtml(ogrenmeBekleyenMetni(k.bekleyen)) + " Bu cevaplar karneye dahil değildir.</p>" : "") +
     '<p class="yk-not">Bu karnede yalnız öğretmenin onayladığı puanlar yer alır. Güçlü: %' + OGRENME_ESIK.GUCLU +
     " ve üzeri. Öneriler kurala dayalıdır; yapay zekâ önerisi içermez.</p></div>";
@@ -19679,7 +19690,7 @@ function yazdirKabindanBas(html, tur) {
 
 /** Karne yazdır: onaylı sonuç yoksa hiçbir şey basılmaz. */
 function karneYazdir(sid, kitle) {
-  if (!veliSonuclari(sid).length) return;
+  if (!veliSonuclari(sid).length && !gozlemOgrenciOzeti(sid, state.gozlemFormlari).length) return;   // §125
   yazdirKabindanBas(karneKagidiHtml(sid, kitle), "karne");
 }
 
@@ -20300,6 +20311,627 @@ function wireEokulTablo() {
   };
 }
 
+/* ==================== §125 GÖZLEM FORMU (Türkçe dinleme / konuşma) ====================
+   NEDEN: Katalog, Türkçe'nin dinleme/izleme ve konuşma kazanımlarını "gözlemle
+   ölçülür" diye işaretliyor (§12c: uygunluk "performans" / "surec") ama
+   ölçmenin bir yolu yoktu; öğretmen kâğıt form doldurup puanı ayrıca
+   hesaplıyordu (fikir2-A madde 2).
+   MEB: "Türkçe … sınavları yazılı ve uygulamalı (dinleme ve konuşma) olmak
+   üzere iki aşamada yapılacaktır" — ÖDSGM 11.09.2025 tarih ve 140379263 sayılı
+   yazı, madde 13; metin memurlar.net 19.09.2025 haberinden okundu:
+   https://www.memurlar.net/haber/1146648/meb-olcme-ve-degerlendirme-uygulamalarinda-dikkat-edilecek-hususlari-acikladi.html
+   KURALLAR:
+   • YAPAY ZEKÂ YOK. Düzeyi öğretmen işaretler; hiçbir öneri, hiçbir ağ isteği yok.
+   • Sonuç YAZILI SINAV PUANINA KARIŞMAZ: öğrenme çıktısı kartında ve karnede
+     ayrı "Gözlem (uygulamalı)" bölümünde, düzey olarak (ör. 3/4) görünür;
+     ogrenmeCiktisiHesapla'ya ve ısı haritasına girmez.
+   • Öğrenci/veli kartına yalnız öğretmenin "kartta göster" dediği formlar
+     çıkar (yarım doldurulmuş form veliye görünmesin; karar öğretmende).
+   • Veri state.gozlemFormlari'nda (KALICI_ALANLAR): tam yedek (§108) taşır;
+     anonim araştırma paketi (§111) yalnız karar günlüğünü beyaz listeyle okur,
+     gözlem formu ona hiç girmez (günlüğe kayıt yazılmaz).
+   VARSAYILAN DÜZEY TANIMLARI — Ortaokul Türkçe Dersi Öğretim Programı (Türkiye
+   Yüzyılı Maarif Modeli), Ek 3 "Ölçme ve Değerlendirme Araçları Örnekleri":
+   no. 58 Genel Konuşma Becerileri Bütüncül Dereceli Puanlama Anahtarı (s. 233)
+   ve no. 60 Konuşma Becerisi İçin Analitik Dereceli Puanlama Anahtarı (s. 234,
+   4 düzey: akıcılık, sözcük bilgisi, söyleyiş, dil yapıları, etkileşim).
+   Metinler bu iki anahtarın düzey dilinden özetlendi (birebir alıntı değil);
+   öğretmen her formda düzenleyebilir.
+   https://tymm.meb.gov.tr/assets/pdf/ortaokul-turkce-dersi_20260902_111157_977.pdf */
+const GOZLEM_ALANLARI = ["Dinleme/İzleme", "Konuşma"];
+const GOZLEM_MEB_NOTU = "MEB'e göre Türkçe sınavları yazılı ve uygulamalı (dinleme ve konuşma) olmak üzere iki aşamada yapılır " +
+  "(ÖDSGM, 11.09.2025 tarih ve 140379263 sayılı yazı, madde 13). Bu form uygulamalı aşamanın gözlemle puanlanması içindir; " +
+  "sonuç yazılı sınav puanına katılmaz.";
+const GOZLEM_MEB_URL = "https://www.memurlar.net/haber/1146648/meb-olcme-ve-degerlendirme-uygulamalarinda-dikkat-edilecek-hususlari-acikladi.html";
+const GOZLEM_PROGRAM_URL = "https://tymm.meb.gov.tr/assets/pdf/ortaokul-turkce-dersi_20260902_111157_977.pdf";
+const GOZLEM_VARSAYILAN_DUZEYLER = [
+  { ad: "Başlangıç", tanim: "Kazanıma yönelik davranışı çok sınırlı gösterdi: söyledikleri ya da dinlediğine ilişkin yanıtı konuyla az ilgili, ileti zor anlaşıldı; sürekli yönlendirme gerekti." },
+  { ad: "Gelişmekte", tanim: "Kazanımı kısmen gösterdi: bilgilerin bir bölümü konuyla ilgili ve düzenli; anlatım yavaş, kesik kesik ya da sözcük seçimi sınırlı; düzenli yönlendirme gerekti." },
+  { ad: "Yeterli", tanim: "Kazanımı büyük ölçüde gösterdi: anlatımı genellikle tutarlı, düzenli ve anlaşılır; ara sıra duraksadı ya da yönlendirmeye gereksinim duydu." },
+  { ad: "İleri", tanim: "Kazanımı bağımsız ve tutarlı biçimde gösterdi: anlatımı konuyla ilgili, iyi düzenlenmiş ve akıcı; sözcük dağarcığı uygun ve geniş, yönlendirme gerekmedi." },
+];
+const GOZLEM_TANIM_EN_FAZLA = 400;
+const GOZLEM_AD_EN_FAZLA = 80;
+
+/** Gözlem formları dizisi (yoksa kurulur). */
+function gozlemFormlari() {
+  if (!Array.isArray(state.gozlemFormlari)) state.gozlemFormlari = [];
+  return state.gozlemFormlari;
+}
+
+/** SAF: şube adından sınıf düzeyi ("7-A" → 7); bulunamazsa 7. Katalog 5–8. */
+function gozlemSinifDuzeyi(sf) {
+  const m = String(sf || "").match(/^\s*(\d{1,2})/);
+  const n = m ? Number(m[1]) : 7;
+  return n >= 5 && n <= 8 ? n : 7;
+}
+
+/** SAF: katalogdan gözlemle ölçülen kazanımlar (uygunluk "yazili" DEĞİL).
+    tumu=false → yalnız dinleme/izleme ve konuşma; true → okuma/yazma süreç kazanımları da. */
+function gozlemAdaylari(katalog, tumu) {
+  return ((katalog && katalog.kazanimlar) || []).filter(function (k) {
+    return k && k.kod && k.uygunluk && k.uygunluk !== "yazili" && (tumu || GOZLEM_ALANLARI.indexOf(k.alan) >= 0);
+  }).map(function (k) { return { kod: k.kod, metin: k.metin, alan: k.alan, uygunluk: k.uygunluk }; });
+}
+
+/** SAF: düzey listesinin temiz kopyası (ad/tanım kırpılır; 4 düzey). */
+function gozlemDuzeyleriKopya(kaynak) {
+  const k = Array.isArray(kaynak) && kaynak.length === GOZLEM_VARSAYILAN_DUZEYLER.length ? kaynak : GOZLEM_VARSAYILAN_DUZEYLER;
+  return k.map(function (d, i) {
+    const vars = GOZLEM_VARSAYILAN_DUZEYLER[i];
+    const ad = String((d && d.ad) || "").trim().slice(0, 40);
+    return { ad: ad || vars.ad, tanim: String((d && d.tanim) || "").slice(0, GOZLEM_TANIM_EN_FAZLA) };
+  });
+}
+
+/** SAF: yeni form nesnesi ya da { hata }. kazanimlar: [{kod, metin, alan}]. */
+function gozlemFormuKur(veri) {
+  const v = veri || {};
+  const kazanimlar = (v.kazanimlar || []).filter(function (k) { return k && k.kod; });
+  if (!kazanimlar.length) return { hata: "En az bir kazanım seçin." };
+  const tarih = /^\d{4}-\d{2}-\d{2}$/.test(String(v.tarih || "")) ? v.tarih : new Date().toISOString().slice(0, 10);
+  return {
+    id: v.id || ("gz-" + Date.now().toString(36)),
+    ad: String(v.ad || "").replace(/\s+/g, " ").trim().slice(0, GOZLEM_AD_EN_FAZLA) || "Dinleme ve konuşma gözlemi",
+    sinif: String(v.sinif || ""),
+    sinifDuzeyi: Number(v.sinifDuzeyi) || 7,
+    tarih: tarih,
+    kazanimlar: kazanimlar.map(function (k) { return { kod: String(k.kod), metin: String(k.metin || ""), alan: String(k.alan || "") }; }),
+    duzeyler: gozlemDuzeyleriKopya(v.duzeyler),
+    puanlar: {},
+    kartta: false,
+  };
+}
+
+/** SAF: bir hücreyi işaretler. Aynı düzeye ikinci dokunuş temizler. Geçersiz
+    düzey (1..n dışı) hiçbir şeyi değiştirmez; dönüş: hücrenin yeni değeri (ya da null). */
+function gozlemPuanla(form, sid, kod, duzey) {
+  const n = (form.duzeyler || []).length || 4;
+  const d = Number(duzey);
+  const once = ((form.puanlar || {})[sid] || {})[kod] || null;
+  if (!(d >= 1 && d <= n && Math.floor(d) === d)) return once;
+  form.puanlar = form.puanlar || {};
+  const satir = Object.assign({}, form.puanlar[sid] || {});
+  if (once === d) delete satir[kod]; else satir[kod] = d;
+  if (Object.keys(satir).length) form.puanlar[sid] = satir; else delete form.puanlar[sid];
+  return satir[kod] || null;
+}
+
+/** SAF: formun öğrencileri (form.sinif boşsa bütün sınıf listesi). */
+function gozlemOgrencileri(form, ogrenciler) {
+  return (ogrenciler || []).filter(function (s) { return !form.sinif || (s.sinif || "") === form.sinif; });
+}
+
+/** SAF: bir kazanımda işaretlenen öğrenci sayısı ve düzey dağılımı. */
+function gozlemDagilim(form, ogrenciler, kod) {
+  const sayac = (form.duzeyler || []).map(function () { return 0; });
+  let isaretli = 0;
+  ogrenciler.forEach(function (s) {
+    const d = ((form.puanlar || {})[s.id] || {})[kod];
+    if (d) { isaretli++; sayac[d - 1] = (sayac[d - 1] || 0) + 1; }
+  });
+  return { isaretli: isaretli, toplam: ogrenciler.length, sayac: sayac };
+}
+
+/** SAF: öğrencinin kartta gösterilecek gözlem özeti. Yalnız kartta=true
+    formlar; kazanım başına EN YENİ (tarih, eşitse dizideki sonraki) gözlem. */
+function gozlemOgrenciOzeti(sid, formlar) {
+  const enYeni = {};
+  (formlar || []).forEach(function (f, sira) {
+    if (!f || !f.kartta) return;
+    const satir = (f.puanlar || {})[sid] || (f.puanlar || {})[String(sid)];
+    if (!satir) return;
+    (f.kazanimlar || []).forEach(function (k) {
+      const d = Number(satir[k.kod]);
+      if (!d) return;
+      const once = enYeni[k.kod];
+      if (once && (once.tarih > f.tarih || (once.tarih === f.tarih && once.sira > sira))) return;
+      const duz = (f.duzeyler || [])[d - 1] || {};
+      enYeni[k.kod] = { kod: k.kod, metin: k.metin, duzey: d, en: (f.duzeyler || []).length || 4,
+        duzeyAd: duz.ad || "", tarih: f.tarih, sira: sira };
+    });
+  });
+  return Object.keys(enYeni).sort(function (a, b) { return a.localeCompare(b, "tr", { numeric: true }); })
+    .map(function (kod) { return enYeni[kod]; });
+}
+
+/** Tarih "2026-11-07" → "7 Kasım 2026". */
+function gozlemTarihMetni(t) {
+  const m = String(t || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return String(t || "");
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+    .toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** Kart bölümü (öğrenci ve veli ekranı). Boş özet → "". */
+function gozlemKartBolumuHtml(ozet) {
+  if (!ozet || !ozet.length) return "";
+  return '<section class="oc-gozlem" aria-label="Gözlem sonuçları"><h4>Gözlem (uygulamalı) — dinleme ve konuşma</h4>' +
+    '<ul class="oc-liste">' + ozet.map(function (x) {
+      return '<li><span class="oc-ad">' + escapeHtml(x.kod + " " + truncate(x.metin, 80)) + '</span>' +
+        '<span class="oc-yuzde tabular">Düzey ' + x.duzey + '/' + x.en + (x.duzeyAd ? " · " + escapeHtml(x.duzeyAd) : "") + '</span></li>';
+    }).join("") + '</ul>' +
+    '<p class="oc-not">Kaynak: öğretmen gözlemi (son: ' + escapeHtml(gozlemTarihMetni(ozet.reduce(function (m, x) { return x.tarih > m ? x.tarih : m; }, ""))) +
+    '). Yazılı sınav yüzdelerine katılmaz; yapay zekâ kullanılmaz.</p></section>';
+}
+
+/** Karne kâğıdı bölümü. Boş özet → "". */
+function gozlemKagitBolumuHtml(ozet) {
+  if (!ozet || !ozet.length) return "";
+  return '<div class="yk-kart yk-gozlem"><div class="yk-kart-bas">Gözlem (uygulamalı) — dinleme ve konuşma</div><ul>' +
+    ozet.slice(0, 6).map(function (x) {
+      return "<li>" + escapeHtml(x.kod + " " + truncate(x.metin, 80)) + " — Düzey " + x.duzey + "/" + x.en +
+        (x.duzeyAd ? " (" + escapeHtml(x.duzeyAd) + ")" : "") + "</li>";
+    }).join("") + "</ul>" +
+    '<p class="yk-bos">Kaynak: öğretmen gözlemi. Yazılı sınav puanına katılmaz.</p></div>';
+}
+
+/** Gözlem arayüz durumu (kalıcı değil; ogtDurum içinde). */
+function gozlemDurum() {
+  const o = ogtDurum();
+  if (!o.gozlem) o.gozlem = { acik: null, yeni: null, kazanim: null, hata: "", sonuc: "" };
+  return o.gozlem;
+}
+
+/** Yeni form taslağı (arayüz durumu). */
+function gozlemYeniTaslak(sf) {
+  return { ad: "Dinleme ve konuşma gözlemi", tarih: new Date().toISOString().slice(0, 10),
+    sinifDuzeyi: gozlemSinifDuzeyi(sf), secili: {}, tumu: false, duzeyler: gozlemDuzeyleriKopya(), katalogHata: "" };
+}
+
+/** Sekme gövdesi: liste / yeni form / puanlama. */
+function gozlemHtml() {
+  const g = gozlemDurum();
+  const acik = g.acik && gozlemFormlari().find(function (f) { return f.id === g.acik; });
+  if (acik) return gozlemPuanlamaHtml(acik);
+  if (g.yeni) return gozlemYeniHtml(g.yeni);
+  return gozlemListeHtml();
+}
+
+function gozlemMebNotuHtml() {
+  return '<p class="gz-meb">' + escapeHtml(GOZLEM_MEB_NOTU) + ' <a href="' + GOZLEM_MEB_URL +
+    '" target="_blank" rel="noopener">Kaynak (memurlar.net, 19.09.2025)</a></p>';
+}
+
+function gozlemListeHtml() {
+  const sf = ogtSinif();
+  const g = gozlemDurum();
+  const liste = gozlemFormlari().filter(function (f) { return !sf || f.sinif === sf; });
+  const ogr = (state.students || []);
+  return '<div class="card gz-kart"><div class="card-head"><h3>Gözlem formları — Türkçe dinleme ve konuşma</h3>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="gzYeniAc">+ Yeni gözlem formu</button></div>' +
+    gozlemMebNotuHtml() +
+    (g.sonuc ? '<div class="ogt-sonuc" role="status">' + escapeHtml(g.sonuc) + '</div>' : "") +
+    (liste.length
+      ? '<ul class="gz-liste">' + liste.map(function (f) {
+          const ogrenciler = gozlemOgrencileri(f, ogr);
+          const dolu = ogrenciler.filter(function (s) { return (f.puanlar || {})[s.id]; }).length;
+          return '<li class="gz-satir"><div class="gz-satir-bilgi"><b>' + escapeHtml(f.ad) + '</b>' +
+            '<span class="gz-alt">' + escapeHtml(gozlemTarihMetni(f.tarih)) + ' · ' + escapeHtml(f.sinif || "Tüm sınıflar") + ' · ' +
+            f.kazanimlar.length + ' kazanım · ' + dolu + '/' + ogrenciler.length + ' öğrenci işaretli' +
+            (f.kartta ? ' · <span class="gz-kartta">kartta gösteriliyor</span>' : "") + '</span></div>' +
+            '<div class="gz-satir-eylem"><button type="button" class="btn btn-primary btn-sm gz-ac" data-gz="' + escapeHtml(f.id) + '">Puanla</button>' +
+            '<button type="button" class="btn btn-secondary btn-sm gz-yazdir" data-gz="' + escapeHtml(f.id) + '">Boş formu yazdır</button>' +
+            '<button type="button" class="btn btn-ghost btn-sm gz-sil" data-gz="' + escapeHtml(f.id) + '" aria-label="' +
+            escapeHtml(f.ad + " formunu sil") + '">Sil</button></div></li>';
+        }).join("") + '</ul>'
+      : '<div class="empty-state">Bu sınıf için henüz gözlem formu yok. Dinleme ya da konuşma etkinliğinden önce bir form oluşturun; ' +
+        'isterseniz boş formu yazdırıp kâğıtta işaretleyebilirsiniz.</div>') +
+    '<p class="gz-not">Yapay zekâ kullanılmaz: düzeyi siz işaretlersiniz. Sonuç, öğrenme çıktısı kartında ve karnede ' +
+    '“Gözlem (uygulamalı)” başlığıyla ayrı görünür; yazılı sınav puanıyla karışmaz.</p></div>';
+}
+
+/** Düzey tanımı düzenleyici (yeni formda ve açık formda ortak). */
+function gozlemDuzeyDuzenleHtml(duzeyler, onek) {
+  return '<div class="gz-duzeyler">' + duzeyler.map(function (d, i) {
+    const id = onek + "Duzey" + (i + 1);
+    return '<div class="field gz-duzey"><label for="' + id + 'Ad">Düzey ' + (i + 1) + ' adı</label>' +
+      '<input type="text" id="' + id + 'Ad" class="gz-duzey-ad" data-i="' + i + '" maxlength="40" value="' + escapeHtml(d.ad) + '">' +
+      '<label for="' + id + 'Tanim" class="gz-tanim-etiket">Tanım</label>' +
+      '<textarea id="' + id + 'Tanim" class="gz-duzey-tanim" data-i="' + i + '" rows="3" maxlength="' + GOZLEM_TANIM_EN_FAZLA + '">' +
+      escapeHtml(d.tanim) + '</textarea></div>';
+  }).join("") + '</div>' +
+  '<p class="gz-not">Varsayılan tanımlar MEB Ortaokul Türkçe Dersi Öğretim Programı (Maarif Modeli) Ek 3’teki konuşma ' +
+  'dereceli puanlama anahtarlarından (no. 58 ve 60) özetlendi. <a href="' + GOZLEM_PROGRAM_URL +
+  '" target="_blank" rel="noopener">Programı aç (PDF)</a></p>';
+}
+
+function gozlemYeniHtml(t) {
+  const g = gozlemDurum();
+  const anahtar = katalogAnahtari("Türkçe", t.sinifDuzeyi);
+  const katalog = (state.katalog || {})[anahtar];
+  if (!katalog && !t.katalogHata) {
+    katalogYukle(anahtar).then(function (j) {
+      if (!j) t.katalogHata = "Bu sınıf düzeyi için Türkçe kataloğu yok.";
+      renderAll();
+    }, function (e) {
+      t.katalogHata = "Kazanım listesi yüklenemedi (" + agHataMetni(e) + ").";
+      renderAll();
+    });
+  }
+  const adaylar = katalog ? gozlemAdaylari(katalog, t.tumu) : [];
+  const gruplar = {};
+  adaylar.forEach(function (k) { (gruplar[k.alan] = gruplar[k.alan] || []).push(k); });
+  const secSayisi = Object.keys(t.secili).length;
+  return '<div class="card gz-kart"><div class="card-head"><h3>Yeni gözlem formu</h3></div>' +
+    gozlemMebNotuHtml() +
+    '<div class="field-row gz-ust-alanlar">' +
+    '<div class="field"><label for="gzAd">Form adı</label><input type="text" id="gzAd" maxlength="' + GOZLEM_AD_EN_FAZLA + '" value="' + escapeHtml(t.ad) + '"></div>' +
+    '<div class="field"><label for="gzTarih">Gözlem tarihi</label><input type="date" id="gzTarih" value="' + escapeHtml(t.tarih) + '"></div>' +
+    '<div class="field"><label for="gzDuzey">Sınıf düzeyi (katalog)</label><select id="gzDuzey">' +
+    [5, 6, 7, 8].map(function (n) { return '<option value="' + n + '"' + (n === t.sinifDuzeyi ? " selected" : "") + '>' + n + '. sınıf</option>'; }).join("") +
+    '</select></div></div>' +
+    '<fieldset class="gz-kazanimlar"><legend>Gözlemle ölçülen kazanımlar <span class="gz-sayac" id="gzSecSayac">' + secSayisi + ' seçili</span></legend>' +
+    '<label class="gz-tumu"><input type="checkbox" id="gzTumu"' + (t.tumu ? " checked" : "") + '> Okuma ve yazmanın süreç kazanımlarını da göster</label>' +
+    (t.katalogHata
+      ? '<div class="sy-hata" role="alert">' + escapeHtml(t.katalogHata) + ' <button type="button" class="btn btn-secondary btn-sm" id="gzKatalogTekrar">Yeniden dene</button></div>'
+      : !katalog ? '<p class="gz-not" role="status">Kazanım listesi yükleniyor…</p>'
+      : Object.keys(gruplar).map(function (alan) {
+          return '<div class="gz-grup"><div class="gz-grup-ad">' + escapeHtml(alan) + '</div>' +
+            gruplar[alan].map(function (k) {
+              return '<label class="gz-kz"><input type="checkbox" class="gz-kz-sec" value="' + escapeHtml(k.kod) + '"' +
+                (t.secili[k.kod] ? " checked" : "") + '><span><b>' + escapeHtml(k.kod) + '</b> ' + escapeHtml(k.metin) +
+                (k.uygunluk === "surec" ? ' <span class="pill pill-neutral">süreç</span>' : "") + '</span></label>';
+            }).join("") + '</div>';
+        }).join("")) +
+    '</fieldset>' +
+    '<details class="gz-duzey-ac"><summary>Düzey tanımları (4 düzey — düzenlenebilir)</summary>' +
+    gozlemDuzeyDuzenleHtml(t.duzeyler, "gzYeni") + '</details>' +
+    (g.hata ? '<div class="sy-hata" role="alert">' + escapeHtml(g.hata) + '</div>' : "") +
+    '<div class="ogt-form-alt"><button type="button" class="btn btn-primary btn-sm" id="gzOlustur">Formu oluştur</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="gzVazgec">Vazgeç</button></div></div>';
+}
+
+/** Bir öğrenci satırının düzey düğmeleri. */
+function gozlemSatirHtml(form, s, kod) {
+  const d = ((form.puanlar || {})[s.id] || {})[kod] || null;
+  const grupId = "gzS-" + s.id;
+  return '<li class="gz-ogr' + (d ? " gz-dolu" : "") + '" data-sid="' + escapeHtml(String(s.id)) + '">' +
+    '<span class="gz-ogr-ad" id="' + grupId + '">' + escapeHtml(s.name || ("#" + s.id)) + '</span>' +
+    '<span class="gz-dugmeler" role="group" aria-labelledby="' + grupId + '">' +
+    form.duzeyler.map(function (dz, i) {
+      const n = i + 1;
+      return '<button type="button" class="gz-d gz-d' + n + '" data-d="' + n + '" aria-pressed="' + (d === n) + '" ' +
+        'aria-label="Düzey ' + n + ': ' + escapeHtml(dz.ad) + '" title="' + escapeHtml(dz.ad) + '">' + n + '</button>';
+    }).join("") + '</span></li>';
+}
+
+function gozlemOzetMetni(form, kod) {
+  const dg = gozlemDagilim(form, gozlemOgrencileri(form, state.students || []), kod);
+  return dg.isaretli + "/" + dg.toplam + " öğrenci işaretli" + (dg.isaretli
+    ? " · " + dg.sayac.map(function (n, i) { return "D" + (i + 1) + ": " + n; }).join(", ") : "");
+}
+
+function gozlemPuanlamaHtml(form) {
+  const g = gozlemDurum();
+  if (!g.kazanim || !form.kazanimlar.some(function (k) { return k.kod === g.kazanim; })) g.kazanim = form.kazanimlar[0].kod;
+  const kz = form.kazanimlar.find(function (k) { return k.kod === g.kazanim; });
+  const ogrenciler = gozlemOgrencileri(form, state.students || []);
+  return '<div class="card gz-kart gz-puanlama" data-gz="' + escapeHtml(form.id) + '">' +
+    '<div class="gz-yol"><button type="button" class="ogt-geri" id="gzListeyeDon">‹ Gözlem formları</button></div>' +
+    '<div class="card-head"><h3>' + escapeHtml(form.ad) + '</h3><span class="hint">' + escapeHtml(gozlemTarihMetni(form.tarih)) +
+    ' · ' + escapeHtml(form.sinif || "Tüm sınıflar") + '</span></div>' +
+    '<div class="gz-kz-secici" role="group" aria-label="Puanlanan kazanım">' + form.kazanimlar.map(function (k) {
+      return '<button type="button" class="chip gz-kz-btn" data-kod="' + escapeHtml(k.kod) + '" aria-pressed="' + (k.kod === g.kazanim) + '">' +
+        escapeHtml(k.kod) + '</button>';
+    }).join("") + '</div>' +
+    '<p class="gz-kz-metin"><b>' + escapeHtml(kz.kod) + '</b> ' + escapeHtml(kz.metin) + '</p>' +
+    '<details class="gz-duzey-ac"><summary>Düzeyler: ' + form.duzeyler.map(function (d, i) { return (i + 1) + " " + escapeHtml(d.ad); }).join(" · ") +
+    '</summary><dl class="gz-tanimlar">' + form.duzeyler.map(function (d, i) {
+      return '<dt>' + (i + 1) + ' — ' + escapeHtml(d.ad) + '</dt><dd>' + escapeHtml(d.tanim || "—") + '</dd>';
+    }).join("") + '</dl><details class="gz-duzenle"><summary>Tanımları düzenle</summary>' +
+    gozlemDuzeyDuzenleHtml(form.duzeyler, "gzForm") + '</details></details>' +
+    '<p class="gz-ilerleme" id="gzIlerleme" aria-live="polite">' + escapeHtml(gozlemOzetMetni(form, g.kazanim)) + '</p>' +
+    (ogrenciler.length
+      ? '<ul class="gz-ogrenciler">' + ogrenciler.map(function (s) { return gozlemSatirHtml(form, s, g.kazanim); }).join("") + '</ul>'
+      : '<div class="empty-state">Bu sınıfta öğrenci yok. Öğrenciler sekmesinden ekleyin.</div>') +
+    '<p class="gz-not">Dokunun: düzey işaretlenir ve hemen kaydedilir. Aynı düzeye yeniden dokunmak işareti kaldırır.</p>' +
+    '<label class="gz-kartta-sec"><input type="checkbox" id="gzKartta"' + (form.kartta ? " checked" : "") + '> ' +
+    'Bu formun sonuçlarını öğrenci ve veli kartında göster (yazılı sınavdan ayrı, “Gözlem” başlığıyla)</label>' +
+    '<div class="ogt-form-alt"><button type="button" class="btn btn-secondary btn-sm gz-yazdir" data-gz="' + escapeHtml(form.id) + '">Boş formu yazdır</button></div>' +
+    '</div>';
+}
+
+/** Boş (kâğıtta işaretlenecek) formun yazdırma HTML'i. */
+function gozlemBosFormHtml(form, ogrenciler) {
+  const kz = form.kazanimlar;
+  return '<div class="yz-sayfa gz-kagit"><div class="yz-bas"><div class="yz-baslik">' + escapeHtml(form.ad) + '</div>' +
+    '<div class="yz-alt">Türkçe — uygulamalı aşama (dinleme ve konuşma) gözlem formu · ' + escapeHtml(form.sinif || "Tüm sınıflar") +
+    ' · Tarih: ' + escapeHtml(gozlemTarihMetni(form.tarih)) + ' · Öğretmen: ____________________</div></div>' +
+    '<table class="gz-k-tablo"><thead><tr><th>No</th><th>Öğrenci</th>' +
+    kz.map(function (k) { return '<th>' + escapeHtml(k.kod) + '</th>'; }).join("") + '</tr></thead><tbody>' +
+    ogrenciler.map(function (s, i) {
+      return '<tr><td>' + (i + 1) + '</td><td>' + escapeHtml(s.name || "") + '</td>' +
+        kz.map(function () {
+          return '<td class="gz-k-hucre">' + form.duzeyler.map(function (d, j) { return '<span class="gz-k-kutu">' + (j + 1) + '</span>'; }).join(" ") + '</td>';
+        }).join("") + '</tr>';
+    }).join("") + '</tbody></table>' +
+    '<div class="gz-k-alt"><div><b>Kazanımlar</b><ul>' + kz.map(function (k) {
+      return '<li><b>' + escapeHtml(k.kod) + '</b> ' + escapeHtml(k.metin) + '</li>';
+    }).join("") + '</ul></div><div><b>Düzeyler</b><ul>' + form.duzeyler.map(function (d, i) {
+      return '<li><b>' + (i + 1) + ' — ' + escapeHtml(d.ad) + ':</b> ' + escapeHtml(d.tanim || "") + '</li>';
+    }).join("") + '</ul></div></div>' +
+    '<p class="yk-not">' + escapeHtml(GOZLEM_MEB_NOTU) + '</p></div>';
+}
+
+function gozlemYazdir(id) {
+  const f = gozlemFormlari().find(function (x) { return x.id === id; });
+  if (!f) return;
+  yazdirKabindanBas(gozlemBosFormHtml(f, gozlemOgrencileri(f, state.students || [])), "gozlem");
+}
+
+/** Düzey tanımı alanlarını bir düzey dizisine bağlar (yazarken renderAll yok). */
+function gozlemDuzeyBagla(kok, duzeyler) {
+  kok.querySelectorAll(".gz-duzey-ad").forEach(function (el) {
+    el.oninput = function () { duzeyler[Number(el.dataset.i)].ad = el.value.slice(0, 40); saveSoon(); };
+    el.onchange = function () { if (!el.value.trim()) { el.value = GOZLEM_VARSAYILAN_DUZEYLER[Number(el.dataset.i)].ad; el.oninput(); } };
+  });
+  kok.querySelectorAll(".gz-duzey-tanim").forEach(function (el) {
+    el.oninput = function () { duzeyler[Number(el.dataset.i)].tanim = el.value.slice(0, GOZLEM_TANIM_EN_FAZLA); saveSoon(); };
+  });
+}
+
+function wireGozlem() {
+  const g = gozlemDurum();
+  const kok = document.getElementById("teacherTabContent");
+  if (!kok) return;
+  const yeniAc = document.getElementById("gzYeniAc");
+  if (yeniAc) yeniAc.onclick = function () {
+    g.yeni = gozlemYeniTaslak(ogtSinif()); g.hata = ""; g.sonuc = ""; renderAll();
+    const el = document.getElementById("gzAd"); if (el) el.focus();
+  };
+  kok.querySelectorAll(".gz-ac").forEach(function (b) {
+    b.onclick = function () { g.acik = b.dataset.gz; g.kazanim = null; g.sonuc = ""; renderAll(); };
+  });
+  kok.querySelectorAll(".gz-yazdir").forEach(function (b) { b.onclick = function () { gozlemYazdir(b.dataset.gz); }; });
+  kok.querySelectorAll(".gz-sil").forEach(function (b) {
+    b.onclick = async function () {
+      const f = gozlemFormlari().find(function (x) { return x.id === b.dataset.gz; });
+      if (!f) return;
+      const tamam = await onaylaModal({ baslik: "Gözlem formu silinsin mi?", tehlikeli: true, onayEtiketi: "Sil",
+        metin: "“" + f.ad + "” formu ve içindeki bütün işaretler silinecek. Bu işlem geri alınamaz (tam yedeğiniz varsa oradan dönebilirsiniz)." });
+      if (!tamam) return;
+      state.gozlemFormlari = gozlemFormlari().filter(function (x) { return x !== f; });
+      g.sonuc = "“" + f.ad + "” silindi."; saveState(); renderAll();
+    };
+  });
+  /* Yeni form */
+  const t = g.yeni;
+  if (t) {
+    const ad = document.getElementById("gzAd"); if (ad) ad.oninput = function () { t.ad = ad.value; };
+    const tarih = document.getElementById("gzTarih"); if (tarih) tarih.onchange = function () { t.tarih = tarih.value; };
+    const duz = document.getElementById("gzDuzey");
+    if (duz) duz.onchange = function () { t.sinifDuzeyi = Number(duz.value); t.secili = {}; t.katalogHata = ""; renderAll(); };
+    const tumu = document.getElementById("gzTumu"); if (tumu) tumu.onchange = function () { t.tumu = tumu.checked; renderAll(); };
+    const tekrar = document.getElementById("gzKatalogTekrar"); if (tekrar) tekrar.onclick = function () { t.katalogHata = ""; renderAll(); };
+    const sayac = document.getElementById("gzSecSayac");
+    kok.querySelectorAll(".gz-kz-sec").forEach(function (c) {
+      c.onchange = function () {
+        if (c.checked) t.secili[c.value] = true; else delete t.secili[c.value];
+        if (sayac) sayac.textContent = Object.keys(t.secili).length + " seçili";
+      };
+    });
+    gozlemDuzeyBagla(kok, t.duzeyler);
+    const olustur = document.getElementById("gzOlustur");
+    if (olustur) olustur.onclick = function () {
+      const katalog = (state.katalog || {})[katalogAnahtari("Türkçe", t.sinifDuzeyi)];
+      const adaylar = gozlemAdaylari(katalog, true);
+      const secilen = adaylar.filter(function (k) { return t.secili[k.kod]; });
+      const f = gozlemFormuKur({ ad: t.ad, tarih: t.tarih, sinif: ogtSinif(), sinifDuzeyi: t.sinifDuzeyi, kazanimlar: secilen, duzeyler: t.duzeyler });
+      if (f.hata) { g.hata = f.hata; renderAll(); return; }
+      gozlemFormlari().push(f);
+      g.yeni = null; g.hata = ""; g.acik = f.id; g.kazanim = null;
+      saveState(); renderAll();
+    };
+    const vazgec = document.getElementById("gzVazgec");
+    if (vazgec) vazgec.onclick = function () { g.yeni = null; g.hata = ""; renderAll(); };
+  }
+  /* Puanlama */
+  const pk = kok.querySelector(".gz-puanlama");
+  if (!pk) return;
+  const form = gozlemFormlari().find(function (f) { return f.id === pk.dataset.gz; });
+  if (!form) return;
+  const geri = document.getElementById("gzListeyeDon");
+  if (geri) geri.onclick = function () { g.acik = null; renderAll(); };
+  kok.querySelectorAll(".gz-kz-btn").forEach(function (b) {
+    b.onclick = function () { g.kazanim = b.dataset.kod; renderAll(); const y = document.querySelector('.gz-kz-btn[data-kod="' + b.dataset.kod + '"]'); if (y) y.focus(); };
+  });
+  const kartta = document.getElementById("gzKartta");
+  if (kartta) kartta.onchange = function () { form.kartta = kartta.checked; saveState(); };
+  gozlemDuzeyBagla(pk.querySelector(".gz-duzenle") || pk, form.duzeyler);
+  const ilerleme = document.getElementById("gzIlerleme");
+  pk.querySelectorAll(".gz-ogr").forEach(function (li) {
+    li.querySelectorAll(".gz-d").forEach(function (b) {
+      b.onclick = function () {
+        const yeni = gozlemPuanla(form, li.dataset.sid, g.kazanim, Number(b.dataset.d));
+        /* Yerinde tazele: renderAll yok (30 öğrenci hızlı işaretlenirken odak ve kaydırma korunur). */
+        li.querySelectorAll(".gz-d").forEach(function (x) { x.setAttribute("aria-pressed", String(Number(x.dataset.d) === yeni)); });
+        li.classList.toggle("gz-dolu", !!yeni);
+        if (ilerleme) ilerleme.textContent = gozlemOzetMetni(form, g.kazanim);
+        saveSoon();
+      };
+    });
+  });
+}
+
+/* ==================== §125 ÖĞRETMEN NOTUNA KURAL TABANLI İPUCU ====================
+   Öğretmen "Not (isteğe bağlı)" alanına (.teacher-comment) yazarken altında
+   küçük bir ipucu satırı çıkar. ENGELLEMEZ, DEĞİŞTİRMEZ: kaydetme düğmeleri
+   ipucundan habersizdir; metne dokunulmaz. "Bu ipuçlarını kapat" kalıcıdır
+   (state.notIpucuKapali, KALICI_ALANLAR); Puanlama sekmesinin altındaki
+   kutuyla yeniden açılır. Model çağrılmaz (fikir2-B madde 6).
+   KAYNAK — Hattie, J. ve Timperley, H. (2007). The Power of Feedback. Review of
+   Educational Research, 77(1), 81–112. https://doi.org/10.3102/003465430298487
+   (görev / süreç / öz düzenleme / KİŞİ düzeyi; kişiye yönelik geri bildirim en
+   az etkilisi; iyi geri bildirim "sırada ne var?" sorusunu da cevaplar) ve
+   Shute, V. J. (2008). Focus on Formative Feedback. Review of Educational
+   Research, 78(1), 153–189. https://doi.org/10.3102/0034654307313795
+   (kişiliğe değil göreve odaklan; belirli ve uygulanabilir ol; yalnız övgüden kaçın).
+   KURALLAR (öncelik sırasıyla, tek ipucu gösterilir):
+   1. kisi   — kişiyi nitelendiren olumsuz sözcük ("tembel", "dikkatsiz" …;
+               hemen ardından "değil" geliyorsa sayılmaz).
+   2. (sonraki adım varsa ipucu YOK)
+   3. ovgu   — övgü sözcüğü var, göreve ilişkin içerik sözcüğü < 2.
+   4. kisa   — 3 sözcükten az.
+   5. ileri  — sonraki adım / öneri yok (bkz. notIpucuIleriVar).
+   Yanlış pozitifleri azaltmak için 40 örnekli test seti: test/not-ipucu.test.ts. */
+const NOT_IPUCU_KISI = ["tembel", "dikkatsiz", "aptal", "salak", "beceriksiz", "yeteneksiz", "kabiliyetsiz", "sorumsuz",
+  "umursamaz", "kafasız", "haylaz", "yaramaz", "uyuşuk", "savruk", "zekasız", "zekâsız", "ahmak", "geri zekalı", "başarısızsın", "işe yaramaz"];
+const NOT_IPUCU_OVGU = ["aferin", "harika", "mükemmel", "süper", "tebrik", "tebrikler", "bravo", "helal", "muhteşem", "şahane",
+  "güzel", "iyi", "başarılı", "zeki", "zekisin", "akıllı", "akıllısın", "yetenekli", "yeteneklisin", "enfes", "müthiş", "kusursuz", "eline sağlık"];
+/* Görevle ilgili sayılmayan dolgu sözcükleri (övgü notunda "içerik" sayılmaz). */
+const NOT_IPUCU_DOLGU = ["çok", "gerçekten", "yine", "hep", "her", "zaman", "bu", "şu", "o", "sen", "siz", "sana", "size", "seni", "ve", "de", "da",
+  "ki", "bir", "gibi", "olmuş", "olmuşsun", "oldu", "olmuştu", "yanıt", "yanıtın", "cevap", "cevabın", "iş", "işti", "çalışma", "çalışman", "ödev",
+  "devam", "et", "ettin", "böyle", "tam", "puan", "sağlık", "eline", "tebrik", "ederim", "seninle", "gurur", "duyuyorum", "en", "son", "derece",
+  "sınav", "sınavda", "bugün", "harikasın", "süpersin", "mükemmelsin", "ol", "kal", "ediyorum", "ederiz", "bence", "yaptın", "yapmışsın"];
+const NOT_IPUCU_EMIR = ["ekle", "yaz", "dene", "oku", "çalış", "incele", "açıkla", "göster", "belirt", "kullan", "düşün", "karşılaştır",
+  "tekrarla", "örnekle", "gerekçelendir", "özetle", "düzelt", "hatırla", "sor", "anlat", "tamamla", "dinle", "konuş", "uygula",
+  "hesapla", "sadeleştir", "işaretle", "odaklan", "ayır", "birleştir", "belirle", "bul", "çöz", "bak", "ol", "değiştir", "geliştir",
+  "genişlet"];
+/* Emir kalıbına uyan ama emir olmayan sözcükler ("sorun" = problem). */
+const NOT_IPUCU_EMIR_DISI = ["sorun"];
+const NOT_IPUCU_ILERI_KALIPLARI = [
+  /(^| )bir (dahaki|sonraki)( |$)/u, /(^| )sonraki (adım|sefer|sınav|çalışma|yazı|konuşma)/u, /(^| )gelecek sefer/u,
+  /(^| )bundan sonra( |$)/u, /(^| )ileride( |$)/u, /(^| )unutma(yın|yınız)?( |$)/u, /(^| )dikkat et/u, /(^| )gözden geçir/u,
+  /(^| )kontrol et/u, /(^| )tekrar (et|gözden|oku|dene|çöz|yaz|düşün|dinle|bak|incele)/u, /(^| )acele etme/u,
+  /(^| )öneri(m|miz)?( |$)/u, /(^| )tavsiye/u, /(m[ae]n|m[ae]s[ıi]) (gerek|lazım)/u, /(^| )lazım( |$)/u,
+  /[a-zçğıöşü]{2,}(malı|meli)(sın|sin|sınız|siniz|ydın|ydin|ydı|ydi|yız|yiz|dır|dir)?( |$)/u,
+  /[a-zçğıöşü]+(abilir|ebilir)(sin|siniz|sın|sınız|din|dın)( |$)/u,
+  /[a-zçğıöşü]+(ars|ers|ırs|irs|urs|ürs)(a|e)n(ız|iz)?( |$)/u,
+  /[a-zçğıöşü]+(sa|se)ydı(n|nız)( |$)/u, /[a-zçğıöşü]+(sa|se)ydi(n|niz)( |$)/u,
+];
+/* "-malı/-meli" kalıbına takılan ama öneri olmayan sözcükler. */
+const NOT_IPUCU_ILERI_DISI = ["temeli", "temelli", "kemali", "cemali", "hamali", "sermayeli"];
+const NOT_IPUCU_METIN = {
+  kisi: "Not öğrenciyi nitelendiriyor gibi görünüyor. Kişi yerine yanıtın kendisine odaklanmak daha etkilidir (ör. “2. adımda birimi yazmamışsın”).",
+  ovgu: "Not yalnız övgüden oluşuyor. Neyin iyi olduğunu ve bir sonraki adımı da yazabilirsiniz (ör. “Gerekçen açık; bir dahaki sefere örnek de ekle”).",
+  kisa: "Not çok kısa. Öğrenci neyi, nasıl düzelteceğini anlayabilsin diye bir ayrıntı ekleyebilirsiniz.",
+  ileri: "Notta bir sonraki adım yok. Öğrencinin ne yapabileceğini bir cümleyle ekleyebilirsiniz (ör. “Bir dahaki sefere … dene”).",
+};
+
+/** SAF: katlanmış metin (Türkçe küçük harf, harf dışı → boşluk). */
+function notIpucuKatla(metin) {
+  return String(metin || "").normalize("NFC").toLocaleLowerCase("tr").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+/** SAF: sonraki adım / öneri var mı? */
+function notIpucuIleriVar(katli) {
+  const m = " " + katli + " ";
+  const sozcukler = katli.split(" ").filter(Boolean);
+  const emir = sozcukler.some(function (w) {
+    if (NOT_IPUCU_EMIR_DISI.indexOf(w) >= 0) return false;
+    return NOT_IPUCU_EMIR.some(function (k) {
+      return w === k || (w.indexOf(k) === 0 && /^y?[ıiuü]n([ıiuü]z)?$/u.test(w.slice(k.length)));
+    });
+  });
+  if (emir) return true;
+  const disi = NOT_IPUCU_ILERI_DISI.reduce(function (s, w) { return s.split(" " + w + " ").join("  "); }, m);
+  return NOT_IPUCU_ILERI_KALIPLARI.some(function (re) { return re.test(disi.trim()); });
+}
+
+/** SAF: not metni → { kod, metin, sozcuk? } ya da null. Boş not → null (not isteğe bağlı). */
+function notIpucuBul(metin) {
+  const katli = notIpucuKatla(metin);
+  if (!katli) return null;
+  const sozcukler = katli.split(" ");
+  for (let i = 0; i < sozcukler.length; i++) {
+    const w = sozcukler[i];
+    const iki = w + " " + (sozcukler[i + 1] || "");
+    const bulunan = NOT_IPUCU_KISI.find(function (k) { return k.indexOf(" ") > 0 ? iki.indexOf(k) === 0 : w.indexOf(k) === 0; });
+    if (bulunan && !/^değil/.test(sozcukler[i + 1] || "")) return { kod: "kisi", metin: NOT_IPUCU_METIN.kisi, sozcuk: bulunan };
+  }
+  if (notIpucuIleriVar(katli)) return null;
+  const ovguVar = sozcukler.some(function (w, i) {
+    return NOT_IPUCU_OVGU.some(function (k) { return k.indexOf(" ") > 0 ? (w + " " + (sozcukler[i + 1] || "")) === k : (w === k || w.indexOf(k) === 0 && k.length >= 5); });
+  });
+  if (ovguVar) {
+    const icerik = sozcukler.filter(function (w) {
+      if (NOT_IPUCU_DOLGU.indexOf(w) >= 0) return false;
+      return !NOT_IPUCU_OVGU.some(function (k) { return w === k || (w.indexOf(k) === 0 && k.length >= 4); });
+    });
+    if (icerik.length < 2) return { kod: "ovgu", metin: NOT_IPUCU_METIN.ovgu };
+  }
+  if (sozcukler.length < 3) return { kod: "kisa", metin: NOT_IPUCU_METIN.kisa };
+  return { kod: "ileri", metin: NOT_IPUCU_METIN.ileri };
+}
+
+/** Bir not alanının altındaki ipucu satırını günceller (yoksa kurar). */
+function notIpucuGoster(alan) {
+  if (!alan || !alan.parentNode) return;
+  let satir = alan.parentNode.querySelector(".not-ipucu");
+  const ip = state.notIpucuKapali ? null : notIpucuBul(alan.value);
+  if (!ip) { if (satir) satir.remove(); return; }
+  if (!satir) {
+    satir = document.createElement("div");
+    satir.className = "not-ipucu";
+    satir.setAttribute("role", "status");
+    alan.parentNode.appendChild(satir);
+  }
+  if (satir.dataset.kod === ip.kod) return;   // aynı ipucu: yeniden yazma (ekran okuyucu tekrar okumasın)
+  satir.dataset.kod = ip.kod;
+  satir.innerHTML = '<span class="not-ipucu-metin"><b>İpucu:</b> ' + escapeHtml(ip.metin) + ' Kaydetmeyi etkilemez.</span>' +
+    '<button type="button" class="not-ipucu-kapat">Bu ipuçlarını kapat</button>';
+}
+
+/** İpuçlarını kalıcı olarak aç/kapat. */
+function notIpucuAyarla(kapali) {
+  state.notIpucuKapali = !!kapali;
+  saveState();
+  document.querySelectorAll(".teacher-comment").forEach(notIpucuGoster);
+  const kutu = document.getElementById("notIpucuAyar");
+  if (kutu) kutu.checked = !state.notIpucuKapali;
+}
+
+/** Puanlama sekmesinin altındaki aç/kapat kutusu. */
+function notIpucuAyarHtml() {
+  return '<label class="not-ipucu-ayar"><input type="checkbox" id="notIpucuAyar"' + (state.notIpucuKapali ? "" : " checked") + '> ' +
+    'Not yazarken geri bildirim ipuçlarını göster (yalnız övgü, sonraki adım yok, çok kısa, kişiye yönelik; kurala dayalı, kaydetmeyi etkilemez)</label>';
+}
+
+function wireNotIpucuAyar() {
+  const k = document.getElementById("notIpucuAyar");
+  if (k) k.onchange = function () { notIpucuAyarla(!k.checked); };
+}
+
+/** Belge düzeyinde bir kez kurulur: yeniden çizimler dinleyiciyi silmez. */
+function notIpucuKur() {
+  if (typeof document === "undefined" || document._notIpucuKurulu) return;
+  document._notIpucuKurulu = true;
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains("teacher-comment")) notIpucuGoster(e.target);
+  });
+  document.addEventListener("click", function (e) {
+    const t = e.target && e.target.closest ? e.target : null;
+    if (!t) return;
+    if (t.closest(".not-ipucu-kapat")) { notIpucuAyarla(true); durumDuyur("Not ipuçları kapatıldı. Puanlama sekmesinin altından yeniden açabilirsiniz."); return; }
+    /* "Nota Aktar" değeri kodla yazar (input olayı yok): onclick bittikten sonra bak. */
+    const fb = t.closest(".fb-apply");
+    if (fb) setTimeout(function () {
+      notIpucuGoster(document.querySelector('.teacher-comment[data-qid="' + fb.dataset.qid + '"][data-sid="' + fb.dataset.sid + '"]'));
+    }, 0);
+  });
+}
+
 /* ==================== BOŞ DURUM ====================
    §43'e kadar bu fonksiyon senkron modülünün içindeydi ve boş durum mesajının
    yanına bir SINIF KODU GİRİŞ FORMU basıyordu. Sınıf kodu kaldırıldı (§43);
@@ -20330,6 +20962,12 @@ function bosDurumHtml(mesaj) {
     "ortakSinavMi", "ortakSinavAlaniHtml", "yonKarsilastirmaKayitlari", "yonOrtakDisiSayisi", "yonOrtakNotuHtml",
     "depoSurumOku", "sekmeCakismasiBildir", "depoSurumuBizimMi", "depoyaSurumluYaz", "renderSekmeCakismasi", "sekmeDepoOlayi",
     "surumAnahtari",   // §123
+    // §125 gözlem formu + not ipucu
+    "gozlemFormlari", "gozlemSinifDuzeyi", "gozlemAdaylari", "gozlemDuzeyleriKopya", "gozlemFormuKur", "gozlemPuanla",
+    "gozlemOgrencileri", "gozlemDagilim", "gozlemOgrenciOzeti", "gozlemTarihMetni", "gozlemKartBolumuHtml", "gozlemKagitBolumuHtml",
+    "gozlemDurum", "gozlemYeniTaslak", "gozlemHtml", "gozlemMebNotuHtml", "gozlemListeHtml", "gozlemDuzeyDuzenleHtml", "gozlemYeniHtml",
+    "gozlemSatirHtml", "gozlemOzetMetni", "gozlemPuanlamaHtml", "gozlemBosFormHtml", "gozlemYazdir", "gozlemDuzeyBagla", "wireGozlem",
+    "notIpucuKatla", "notIpucuIleriVar", "notIpucuBul", "notIpucuGoster", "notIpucuAyarla", "notIpucuAyarHtml", "wireNotIpucuAyar", "notIpucuKur",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
@@ -20595,6 +21233,7 @@ function acilisiTamamla() {
   ensureExamList();
   renderAll();
   girisKapisiKur();
+  notIpucuKur();   // §125
   demoAcilisiniTamamla();   // §120
 }
 /* §64: demo kendi verisi olan kullanıcıya önce sorar (demoBaslat); Sıfırla

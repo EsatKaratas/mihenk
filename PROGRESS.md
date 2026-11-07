@@ -13365,3 +13365,68 @@ Ekranlar ve kanıt: `Downloads\Mihenk\ekran-q1\q1-{1-taslak,2-soru-soru,3-yayin-
 - Örnek yanıtlar OYSS/puanlama anahtarı çıktısına eklenmedi; modele few-shot gönderimi bilinçli olarak yok (ayrı karar, Neuron maliyeti).
 - Maskeleme §88 kurallarıyla sınırlı: sınıf listesinde olmayan ad kalabilir (taslakta yazılı); sözcük de olan soyadlar metinde aynı sözcüğü de maskeler (demo öğrencilerinin soyadı "Örnek" olduğu için demoda "örnek" sözcüğü de `[ÖĞRENCİ]` olur — gizlilik yönünde hata).
 - Paralel worker (gözlem formu + öğretmen notu ipucu) app.js'te çalışıyor; çakışma olası yerler: `doneCardHtml` son satırı, `puanKuyruguHtml` soru dalı, `teacherTab3Html` araç çubuğu satırı, `wireTeacherTab3` sonu, öz-kontrol listesi.
+
+---
+
+---
+
+## 125. TÜRKÇE GÖZLEM FORMU (dinleme/konuşma) + ÖĞRETMEN NOTUNA KURAL TABANLI İPUCU (7 Kasım 2026, Q2, dal `feature/gozlem-formu`, taban `entegrasyon-7kasim-d` 2c4f3a9, Orchestrator 3 emriyle)
+
+Kaynak: `fikir2-A-ogretmen-meb.md` madde 2 ve `fikir2-B-rakip-olcme.md` madde 6. Yalnız istemci (`app.js`, yeni `css/gozlem.css`, `app.css` baskı bloğu, `index.html` bir `<link>`, `privacy-policy.html`). `src/`, wrangler, `_headers` değişmedi. Model çağrısı 0, Neuron 0; push, deploy, birleştirme yok. Bütün tarayıcı ölçümlerinde `/api/**` Playwright'ta kesildi: sunucuya giden POST 0.
+
+### 1. Gözlem formu (öğretmen → sınıf → **Gözlem** sekmesi, `teacherTab 6`)
+
+**Neden:** Katalog Türkçe'nin dinleme/izleme ve konuşma kazanımlarını "gözlemle ölçülür" diye işaretliyordu (§12c, `uygunluk` `performans`/`surec`) ama ölçmenin yolu yoktu.
+
+**Kaynaklar (kodda yorumda):**
+- MEB: Türkçe sınavları "yazılı ve uygulamalı (dinleme ve konuşma) olmak üzere iki aşamada" yapılır — ÖDSGM 11.09.2025 tarih ve 140379263 sayılı yazı, madde 13 (memurlar.net 19.09.2025; resmî taranmış metinle karşılaştırılmadı, §119'daki madde 11 ile aynı kaynak). Ekranda ve boş formda tek satır, bağlantılı.
+- Varsayılan 4 düzey tanımı: Ortaokul Türkçe Dersi Öğretim Programı (Maarif Modeli) Ek 3, no. 58 Genel Konuşma Becerileri Bütüncül DPA (s. 233) ve no. 60 Konuşma Becerisi Analitik DPA (s. 234, 4 düzey). Metinler özetlendi, birebir alıntı değil. URL: `tymm.meb.gov.tr/assets/pdf/ortaokul-turkce-dersi_20260902_111157_977.pdf` (PDF'ten metin çıkarılıp okundu).
+
+**Akış:**
+- Liste: sınıfın formları (ad, tarih, kazanım sayısı, işaretli/toplam öğrenci, "kartta gösteriliyor"), **Puanla · Boş formu yazdır · Sil** (silme `onaylaModal`, tehlikeli).
+- Yeni form: ad, tarih, sınıf düzeyi (şube adından, 5–8), katalogdan **yalnız `uygunluk ≠ yazili`** kazanımlar, varsayılan olarak yalnız Dinleme/İzleme + Konuşma; kutu ile okuma/yazmanın süreç kazanımları da açılır. Düzey adları ve tanımları formda düzenlenebilir (sonradan da).
+- Puanlama: kazanım çipleri; her öğrenci satırında 1–4 düğmesi (`aria-pressed`, erişilebilir ad "Düzey 3: Yeterli", grup adı öğrenci adı). Dokunuş anında kaydedilir (`saveSoon`, `renderAll` yok → odak ve kaydırma korunur); aynı düzeye ikinci dokunuş temizler. İlerleme satırı "23/24 öğrenci işaretli · D1: 5, D2: 6 …". 390 px'te ad üstte, dört düğme ekran genişliğinde, her biri ≥ 44 px.
+- **Kartta göster** kutusu (varsayılan kapalı): öğrenci/veli kartına yalnız öğretmenin açtığı formlar çıkar; yarım doldurulmuş form veliye görünmez. Karar öğretmende.
+- Boş form yazdırma: yatay A4 (`@page yzGozlem`), öğrenci × kazanım, hücrede 1 2 3 4 kutuları; altta kazanım metinleri, düzey tanımları, MEB satırı. İşaretli değer kâğıda basılmaz.
+
+**Kart ve karne (§102):** `gozlemOgrenciOzeti` kazanım başına **en yeni** gözlemi alır; kart ve karnede ayrı **"Gözlem (uygulamalı) — dinleme ve konuşma"** bölümü, "Düzey 3/4 · Yeterli" biçiminde, kaynak notuyla ("öğretmen gözlemi; yazılı sınav yüzdelerine katılmaz"). `ogrenmeCiktisiHesapla`, `ogrenmeCiktisiVerisi`, ısı haritası ve e-Okul CSV **değişmedi** (testle sabit). Yalnız gözlemi olan öğrencide kart ve Yazdır görünür; karnede "Henüz öğretmenin onayladığı yazılı sınav sonucu yok." satırı.
+
+**Veri:** `state.gozlemFormlari` (KALICI_ALANLAR) = `{id, ad, sinif, sinifDuzeyi, tarih, kazanimlar[{kod, metin, alan}], duzeyler[4×{ad, tanim}], puanlar{sid:{kod:1..4}}, kartta}`. Göç yok (alan yoksa boş dizi).
+- **Tam yedek (§108):** `yedekDurumAl` KALICI_ALANLAR'ı kopyaladığı için taşır; adsız yedekte öğrenci adı zaten `students`'tan değişir, formda ad yok (anahtar `sid`).
+- **Anonim araştırma paketi (§111):** paket yalnız karar günlüğünü beyaz listeyle okur; gözlem günlüğe yazılmaz. Test paketi gerçekten çalıştırıyor: `gozlemFormlari` dolu state'te çıktıda kazanım kodu/form adı yok.
+- **Gizlilik:** AGENTS §7 gereği `privacy-policy.html`'e "Gözlem verisi" maddesi eklendi (düzey, form adı/tarih; ses/görüntü yok, YZ yok, sunucuya gitmez, kartta yalnız öğretmen açarsa, tam yedeğe girer, araştırma paketine girmez).
+
+### 2. Öğretmen notuna ipucu (Puanlama kartlarındaki "Not (isteğe bağlı)", `.teacher-comment`)
+
+- Yazarken altında tek satır, `role="status"`: **kişi** (tembel, dikkatsiz, beceriksiz…; ardından "değil" gelirse sayılmaz) → sonraki adım varsa **ipucu yok** → **yalnız övgü** (övgü var, göreve ilişkin içerik sözcüğü < 2) → **çok kısa** (< 3 sözcük) → **sonraki adım yok**. Sonraki adım: emir kökleri (+ -(y)ın/-(y)ınız), "bir dahaki/sonraki", "unutma", "-malı/-meli", "-abilirsin", "-arsan", "-saydın", "gerek/lazım" vb.; "temeli", "sorun" gibi tuzaklar dışarıda.
+- **Engellemez, değiştirmez:** belge düzeyinde tek `input` dinleyicisi (`notIpucuKur`); kayıt yolları (`finalizeReview`, onay düğmeleri) ipucunu hiç okumaz, değer yazılmaz (testle sabit). "Nota Aktar" sonrası da denetlenir.
+- **Kapatılabilir, kalıcı:** satırdaki "Bu ipuçlarını kapat" → `state.notIpucuKapali` (KALICI_ALANLAR); Puanlama sekmesinin altındaki kutuyla yeniden açılır.
+- Kaynak (kodda): Hattie ve Timperley (2007) doi:10.3102/003465430298487; Shute (2008) doi:10.3102/0034654307313795.
+- **Test seti:** `test/not-ipucu.test.ts`, elle etiketli **40 not** (18 iyi not, 7 övgü, 5 kişi, 4 kısa, 6 sonraki adım yok). 40/40 beklenen; kesinlik 1,00; iyi notlarda yanlış pozitif 0. Set kuralları yazan kişi tarafından etiketlendi — bağımsız etiketçi yok, gerçek öğretmen notu yok (sınır).
+
+### Ölçüm seti (worktree `Mihenk\mihenk-q2-gozlem`, statik sunucu 127.0.0.1:8861, PID 32672 ile kapatıldı)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1141/1141**, 54 dosya (taban 1072/52). Yeni: `gozlem-formu` 19, `not-ipucu` 50; `ogrenme-ciktisi` sandbox'ına 4 ad eklendi |
+| Lint (`tsc`), `check:config` | temiz; GECERLI ×2 |
+| Öz-kontrol | %100, **868 ad** (+34) |
+| `olcum:dogrula` | 37/37 |
+| Sır taraması (diff + yeni dosyalar) | 0; yeni 64-hex 0. vendor SHA256SUMS OK |
+| axe tam tarama (`erisilebilirlik-tara`, 56 ekran; teacher sekme 6 listeye eklendi) | ihlal 0; 12 px altı 0 |
+| Yeni ekranlar (`q2-tarayici.mjs`: liste, yeni form, puanlama, öğrenci kartı, veli kartı × 1280/390 × açık/koyu) | **124/124**: axe 0, 12 px altı 0, taşma 0, konsol 0; 24 öğrenci gerçek tıkla işaretlendi, temizleme, yenilemede korunma, kartta göster aç/kapa, karne kâğıdı, boş form PDF (yatay A4, 24 öğrenci 1 sayfa + tanımlar 2. sayfa) |
+| Not ipucu (`q2-ipucu.mjs`, demo adım 1–3 gerçek tıkla, adım 4 Puanlama) | **53/53** ×4 görünüm: övgü/kişi/sonraki adım, ipucu açıkken onay kaydı not birebir, kapat → kalıcı, kutu ile geri açma; axe 0, 12 px altı 0 |
+| `sekme-cakisma.mjs` | 16/16 |
+| `kontroller.mjs` | 38/38, 1280 ve 390; konsol 0; POST 0 |
+| Demo (`demo-yuru.mjs`) | 5 adım, 1280 ve 390; konsol 0; POST 0 |
+
+İlk ölçümde 390 px puanlama listesinde 1 px yatay taşma bulundu (ızgara `minmax` alt sınırı 352 px); `min(100%, …)` ile düzeltildi, yeniden ölçüldü.
+
+**Sınırlar:**
+- Ses kaydı yok, öğrencinin kendi kayıt yüklemesi yok; gözlem yalnız öğretmenin düzey işaretidir.
+- Gözlem ısı haritasına ve madde analizine girmez (bilinçli: yazılı puanla karışmasın). Sınıf düzeyinde gözlem dağılımı yalnız formun ilerleme satırında.
+- Öğrenci sınıf listesinden silinirse puanı formda sahipsiz kalır (görünmez, zararsız).
+- MEB madde 13 metni ikincil kaynaktan (memurlar.net); ÖDSGM yazısının kendisi okunmadı.
+- İpucu kuralları Türkçe ekler yüzünden yanlış negatif verebilir (ör. alışılmadık emir kipi); set 40 not, gerçek sınıf notlarıyla ölçülmedi.
+
+Kanıt: `Downloads\Mihenk\ekran-q2\` — 24 ekran görüntüsü, `bos-gozlem-formu.pdf`, `q2-*-sonuc.txt`, `log\` (test, lint, öz-kontrol, ölçüm, axe, kontroller, demo, sekme), `betik\`.

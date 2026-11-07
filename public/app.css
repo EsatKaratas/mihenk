@@ -2105,4 +2105,18 @@
   #yazdirKabi .yk-bolum li { margin: 1pt 0; }
   #yazdirKabi .yk-bos { margin: 2pt 0; font-size: 9.5pt; color: #333; }
   #yazdirKabi .yk-not { margin: 8pt 0 0; font-size: 9.5pt; color: #333; }
+  #yazdirKabi .yk-gozlem { margin-top: 8pt; }
+  #yazdirKabi .yk-gozlem ul { margin: 2pt 0 0 16pt; padding: 0; font-size: 10.5pt; }
+  /* §125 — boş gözlem formu: yatay A4, öğrenci × kazanım, hücrede 1–4 kutuları. */
+  body.yazdiriliyor #yazdirKabi[data-tur="gozlem"] { page: yzGozlem; }
+  @page yzGozlem { size: A4 landscape; margin: 12mm;
+    @bottom-right { content: "Sayfa " counter(page) " / " counter(pages); font: 9pt Arial, sans-serif; color: #000; } }
+  #yazdirKabi .gz-k-tablo th, #yazdirKabi .gz-k-tablo td { font-size: 9.5pt; padding: 2pt 4pt; }
+  #yazdirKabi .gz-k-tablo tr { break-inside: avoid; page-break-inside: avoid; }
+  #yazdirKabi .gz-k-hucre { white-space: nowrap; text-align: center; }
+  #yazdirKabi .gz-k-kutu { display: inline-block; width: 13pt; height: 13pt; line-height: 13pt; border: 0.8pt solid #000;
+    border-radius: 2pt; text-align: center; font-size: 8.5pt; margin: 0 1pt; }
+  #yazdirKabi .gz-k-alt { display: flex; gap: 14pt; margin-top: 8pt; font-size: 9pt; break-inside: avoid; page-break-inside: avoid; }
+  #yazdirKabi .gz-k-alt > div { flex: 1; }
+  #yazdirKabi .gz-k-alt ul { margin: 2pt 0 0 12pt; padding: 0; }
 }

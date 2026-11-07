@@ -27,6 +27,8 @@ const ADLAR = [
   'ondalikTr', 'escapeHtml', 'kazanimKisaAd', 'veliSonuclari',
   'ogrenmeCiktisiHesapla', 'ogrenmeKazanimToplami', 'onayBekleyenSayisi', 'ogrenmeCiktisiVerisi',
   'ogrenmeKazanimAdi', 'siradakiAdimMetni', 'ogrenmeBekleyenMetni', 'ogrenmeCiktisiKartiHtml', 'karneKagidiHtml',
+  // §125: kart ve karne gözlem bölümünü ayrı çizer (state.gozlemFormlari yoksa boş).
+  'gozlemOgrenciOzeti', 'gozlemTarihMetni', 'gozlemKartBolumuHtml', 'gozlemKagitBolumuHtml',
 ];
 
 const KAZANIMLAR = [
