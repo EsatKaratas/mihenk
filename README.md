@@ -763,8 +763,8 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   çağrısı ve hesap geneli 9.000 Neuron eşiği Durable Object'te tutulur
   (PROGRESS §86, §91, §93). Ödeme yöntemi yoktur; proje ücretsiz plandadır
   (§85).
-- **Birim testleri:** `npm test` ile 52 dosyada **1072 test** koşar (7 Kasım
-  2026, taban `2c4f3a9`, PROGRESS §123 ve §127; dosya bazında dağılım
+- **Birim testleri:** `npm test` ile 58 dosyada **1245 test** koşar (7 Kasım
+  2026, dal `entegrasyon-7kasim-e`, PROGRESS §130; dosya bazında dağılım
   `npx vitest run` çıktısındadır). Sunucu tarafında kaynak tespiti, hız
   sınırı, yabancı alfabe denetimi, Zod şema sınırları, JSON onarımı, istem
   enjeksiyonu savunması, sağlayıcı/yedek seçimi ve Neuron bütçesi kapsanır.
@@ -773,7 +773,7 @@ bir alan adı için `wrangler.jsonc` içindeki yorumlu `routes` bloğunu etkinle
   sınav, adsız puanlama, OYSS okuyucu vb.) dosya metninden çıkarıp Node
   altında koşturur. Ekran akışları ise tarayıcı betikleriyle (`tools/dogrula/`)
   ölçülür. Ayrıca
-  dosya sonunda **834 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
+  dosya sonunda **946 fonksiyon adını çift yönlü denetleyen bir öz-kontrol**
   (`node tools/ozkontrol-dogrula.mjs` — listede olup tanımı olmayan **ve**
   tanımlı olup listede olmayan ad CI'ı kırar) ile elle sürülen uçtan uca
   senaryolar kullanılıyor. Ayrıca tekrar koşulabilir bir
@@ -934,7 +934,7 @@ Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi
 
 <br/>
 
-Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 7 Kasım 2026, taban `2c4f3a9` (1072/1072 test, 52 dosya · öz-kontrol 834 ad %100 · `olcum:dogrula` 37/37) · canlı sürüm `7496cf7d` (6 Kasım, PROGRESS §118) · kanıtlar: [`docs/IDDIA-KANIT.md`](./docs/IDDIA-KANIT.md)
+Teslim sürümü: [`v1.0-teslim`](https://github.com/EsatKaratas/mihenk/releases/tag/v1.0-teslim) · Son ölçüm: 7 Kasım 2026, dal `entegrasyon-7kasim-e` (1245/1245 test, 58 dosya · öz-kontrol 946 ad %100 · `olcum:dogrula` 37/37) · canlı sürüm `fcd867ef` (7 Kasım, PROGRESS §130) · kanıtlar: [`docs/IDDIA-KANIT.md`](./docs/IDDIA-KANIT.md)
 
 Projenin tam geliştirme kaydı, verilen kararlar ve gerekçeleri:
 [`PROGRESS.md`](./PROGRESS.md) · Geliştirme kuralları: [`agents.md`](./agents.md)

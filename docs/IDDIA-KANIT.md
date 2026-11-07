@@ -16,7 +16,7 @@
 
 | README'de ne yazıyordu | Gerçek (ölçüm) | Ne yapıldı |
 |---|---|---|
-| Rozet `test-413/413`; §9 metninde "25 dosyada 538 test"; altbilgide "538 test · öz-kontrol 542 ad" | `npx vitest run` → **1072/1072, 52 dosya**. `node tools/ozkontrol-dogrula.mjs` → **834 ad, %100** | ✎ Rozet, §9 ve altbilgi güncellendi. Dosya bazında eski liste kaldırıldı (bayatlıyordu); dağılım `npx vitest run` çıktısında |
+| Rozet `test-413/413`; §9 metninde "25 dosyada 538 test"; altbilgide "538 test · öz-kontrol 542 ad" | `npx vitest run` → **1245/1245, 58 dosya**. `node tools/ozkontrol-dogrula.mjs` → **834 ad, %100** | ✎ Rozet, §9 ve altbilgi güncellendi. Dosya bazında eski liste kaldırıldı (bayatlıyordu); dağılım `npx vitest run` çıktısında |
 | `ci.yml` satırında "538 test" | CI adımları: lint, `npm test`, `check:config`, öz-kontrol, `olcum:dogrula` (`.github/workflows/ci.yml`) | ✎ Sayı kaldırıldı, adımlar yazıldı |
 | "Proje Workers Paid üzerindedir, kota artık engel değil"; "pratik koruma ön ödemeli kredi" | Workers Paid 26 Ekim'de bitti; ücretsiz plan, 9.000 Neuron eşiği, Durable Object sayaçları (PROGRESS §85, §91, §93) | ✎ §3.1 ve §9 güncellendi |
 | "İki model … ölçtük ~4 puan fark"; "birincil 15-16/20, yedek 20/20" bugünkü yedek Scout'a bağlanıyordu | O ölçümler Ağustos'taki yedek **gpt-5.6-luna** ile yapıldı (§16, §19). Scout ile karşılaştırma yok | ✎ Ölçümün hangi modelle yapıldığı ve Scout'un ölçülmediği yazıldı |
@@ -30,7 +30,7 @@
 
 | İddia | Kanıt | Komut / kaynak | Durum |
 |---|---|---|---|
-| Testler 1072/1072 | 52 dosya, `test/` | `npm test` (7 Kasım: 1072 geçti, 1,6 sn) | ✓ |
+| Testler 1245/1245 | 58 dosya, `test/` | `npm test` (7 Kasım, §130: 1245 geçti) | ✓ |
 | Model Llama 3.3 70B, yedek Llama 4 Scout | `wrangler.demo.jsonc` `AI_MODEL`, `AI_FALLBACK_MODEL` | `npm run check:config` (çıktıda iki model yazılı) | ✓ |
 | Injection testi 5/5 | `tools/injection-test.py` | PROGRESS §5, §10e, §16. Son koşum Ağustos 2026. Yeniden koşmak model çağrısı ister; bu turda yasaktı | ◷ |
 | Karar Günlüğü CSV/JSON | `public/app.js` `auditKaydet`, `AUDIT_LIMIT = 500` | `test/karar-kaydi.test.ts`, `test/havuza-al-izi.test.ts`, `test/iz-izin-paket.test.ts` | ✓ |
@@ -55,8 +55,8 @@
 | Şüpheli soruda Enter onaylamaz; klavye testi 9/9 | §71, §81 | ◷ |
 | Atama düzeltmesi: 2 yerine 5; %75 → %100 | §78 | ◷ |
 | Analitik 3/4, 3/3, 2/2 | §79 | ◷ |
-| Testler 346 → 402, öz-kontrol 516 (o tur) | §83 | ◷ tarihsel; bugünkü değer 1072 / 834 |
-| Canlı `aba0563e`, 51 dosya bayt bayt aynı | §83 | ◷ tarihsel. Bugünkü canlı `7496cf7d`, 200 dosya canlı = disk = blob (§118) |
+| Testler 346 → 402, öz-kontrol 516 (o tur) | §83 | ◷ tarihsel; bugünkü değer 1245 / 946 |
+| Canlı `aba0563e`, 51 dosya bayt bayt aynı | §83 | ◷ tarihsel. Bugünkü canlı `fcd867ef`, canlı = disk = blob (§130) |
 
 ## 4. "Son değişiklikler — 6 Eylül" tablosu
 
@@ -102,9 +102,9 @@
 
 ```bash
 npm ci
-npm test                         # 1072/1072, 52 dosya
+npm test                         # 1245/1245, 58 dosya
 npm run lint                     # tsc --noEmit
 npm run check:config             # iki yapılandırma GEÇERLİ
-node tools/ozkontrol-dogrula.mjs # 834 ad, %100
+node tools/ozkontrol-dogrula.mjs # 946 ad, %100
 npm run olcum:dogrula            # 37/37, docs/olcum/PANO.md
 ```

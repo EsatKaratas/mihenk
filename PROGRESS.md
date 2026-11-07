@@ -13703,3 +13703,23 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e6-130\`:
 - `log\`, `axe\`, `demo\`, `e5\`;
 - `once\` ve `sonra\` — (c) ve (e) ölçümleri;
 - betikler scratchpad'de (`e6-*.py`, `e6-olc.mjs`).
+
+### Altıncı yayın (7 Kasım, Orchestrator 3 emriyle)
+
+- `npm run deploy:demo` (worktree'den, uç `fb6582b`) → **Version `fcd867ef-97c2-4d9c-9735-3995fa47600b`**.
+- Ardından belge commit'i (yalnız `README.md` ve `docs/`; `public/` değişmedi), main ff-only, `git push origin main`.
+
+**Canlı doğrulama** (model çağrısı yok, `/api/ai` POST 0):
+- SHA: canlı = disk = blob, **202/202**.
+- `/`, `/veri-nereye-gider`, `/privacy-policy`, `/robots.txt`: 200. Beş güvenlik başlığı yerinde.
+- `kontroller.mjs` **38/38**: 1280 açık, 1280 koyu, 390 açık, 390 koyu. Demo 5 adım, 1280 ve 390.
+- `veri-saglamligi.mjs` 39/39 ×2.
+- `sekme-cakisma.mjs` 18/18.
+- Entegrasyon (c, e) 12/12.
+- **Bütçe ve yeni pay alanı** (GET):
+  - `/api/ai/status` → `gunlukSinir: { limit: 60, mod: "durable-object", neuronPayi: 4500 }`. Yayından önce `neuronPayi` yoktu; §129'daki değer doğru görünüyor.
+  - `/api/ai/butce` yayından önce ve sonra aynı: harcanan 98, `doldu: false`.
+  - 413 ve `adres_payi` reddi canlıda denenmedi (POST yasak); birim ve uçtan testte sınandı (§129).
+- Canlıda axe koşulamaz: CSP satır içi betiği engelliyor (beklenen). axe yerel statik sunucuda ölçüldü.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-130\`.

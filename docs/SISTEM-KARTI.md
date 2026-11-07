@@ -4,7 +4,7 @@
 > ve AB YZ Yasası Md. 13(3)'teki "kullanım talimatı" başlıklarıyla yazıldı.
 > AB Yasası Türkiye'de bağlayıcı değildir; burada yalnız referans çerçevesidir
 > ([UYUM-TABLOSU.md](./UYUM-TABLOSU.md) §3). Sürüm: 7 Kasım 2026, taban `2c4f3a9`
-> (PROGRESS §123). Canlı sürüm: §118'deki yayın, Version `7496cf7d`.
+> (PROGRESS §123; §130'da güncellendi). Canlı sürüm: Version `fcd867ef` (7 Kasım, PROGRESS §130).
 > Her sayının kaynağı satırında yazılıdır. Kaynağı yazılmamış sayı yoktur;
 > ölçülmeyen şey "ölçülmedi" diye geçer.
 
@@ -120,8 +120,9 @@ uzunluğu ile YZ − öğretmen farkı) eklendi. Gerçek sınıf verisiyle henü
 |---|---|---|
 | Plan | Cloudflare **ücretsiz** plan. Workers Paid 26 Ekim 2026'da bitti; ödeme yapılmaz | §85 |
 | Günlük havuz | 10.000 Neuron. Ürün eşiği **9.000** (`AI_GUNLUK_NEURON_ESIGI`); sıfırlanma 00:00 UTC = 03:00 TR | §85, §93 |
-| Adres başına | Günde 60 model çağrısı; dakikada en çok 60 istek. Aynı belge, soru ya da kazanım için dakikada 5 istek; değerlendirmede 45 | §86; `src/lib/guards.ts` (`RATE_LIMIT_PER_MIN`, `RATE_LIMIT_EVAL_PER_MIN`, `RATE_LIMIT_IP_PER_MIN`) |
-| Çağrı başına Neuron | Puanlama ≈110, üretim ≈400 (ortalama). En kötü üretim isteği ≈4.250 | §86 tablosu. Canlı `usage` ile güncellenmedi (§100) |
+| Adres başına | Günde 60 model çağrısı; dakikada en çok 60 istek. Aynı belge, soru ya da kazanım için dakikada 5 istek; değerlendirmede 45; üretim ayrıca adres başına dakikada 10 | §86, §129; `src/lib/guards.ts` (`RATE_LIMIT_PER_MIN`, `RATE_LIMIT_EVAL_PER_MIN`, `RATE_LIMIT_IP_PER_MIN`, `RATE_LIMIT_GEN_ADRES_PER_MIN`) |
+| Adres başına Neuron payı | Günde **4.500 Neuron** (eşiğin yarısı; `AI_IP_NEURON_PAYI`, 1–10.000). Tek adres havuzun yarısından fazlasını alamaz; aşılırsa 429 `adres_payi`. IPv6 adresler **/64 önekiyle** sayılır. `/api/ai/*` POST gövdesi en çok 256 KB (fazlası 413) | §129; `src/lib/gunluk-sinir.ts`, `src/lib/adres.ts`, `test/butce-saglamlik.test.ts`. Sınır: birden çok adresi olan biri havuzu yine bitirebilir (Turnstile yok) |
+| Çağrı başına Neuron | **Ölçüldü (§97):** canlıda tek kısa, 2 ölçütlü değerlendirme = **98 Neuron**. Uygulamanın sayacı Cloudflare analitiğiyle birebir aynı (98 = 98); Workers AI bağlaması `usage` döndürüyor. Kapasite hesabındaki 110 sabiti temkinli tarafta bırakıldı (3 ölçütlü, uzun yanıtlar biraz daha pahalı). Üretim ≈400 (ortalama), en kötü üretim isteği ≈4.250 (§86, ölçüm değil hesap) | §97, §86 |
 | Kapasite (hesap) | 9.000 / 110 ≈ **81 açık uçlu değerlendirme/gün**, yalnız puanlama yapılırsa | §100 sihirbaz ön hesabıyla aynı formül; bir tahmindir, ölçülmedi |
 | Kota dolunca | Yapay zekâ düğmeleri kapanır, elle soru, elle puanlama ve analiz sürer; sessiz yedek yok | §100, §119 |
 | Para maliyeti | 0 TL (ücretsiz plan). Ücretli plana geçilirse fiyat Cloudflare sayfasından yeniden hesaplanmalı | §85, §93 |

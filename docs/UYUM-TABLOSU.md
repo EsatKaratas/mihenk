@@ -2,9 +2,8 @@
 
 > **Öz değerlendirmedir, hukuki görüş değildir.** Takım BIES'in kendi ürününe
 > bakışıdır. Bir okulda kullanmadan önce okulun yapay zekâ etiği ekibi ve
-> hukuk birimi bakmalıdır. Hazırlanma tarihi: 7 Kasım 2026. Taban: dal
-> `entegrasyon-7kasim-d` ucu `2c4f3a9` (PROGRESS §123). Canlı sürüm bu dalın
-> gerisindedir: §118'deki yayın, Version `7496cf7d`.
+> hukuk birimi bakmalıdır. Hazırlanma tarihi: 7 Kasım 2026. Güncelleme: dal
+> `entegrasyon-7kasim-e` (PROGRESS §130; §124–§129 birleşti). Canlı sürüm: Version `fcd867ef` (7 Kasım, PROGRESS §130).
 
 ## 0. Kaynaklar ve sayfa numaraları
 
@@ -52,7 +51,7 @@ yalnız "Ankara, 2026" yazıyor.
 | Fiziksel, psikolojik ve sosyal zarar en aza | ◐ | Veli ekranında sınıf ortalaması ve sıralama yok (README §2). Sınav bütünlüğü sinyali veliye ancak öğretmen onaylarsa gider (`public/privacy-policy.html` "Sınav bütünlüğü verisi"). Zarar riski ölçülmedi. |
 | Dijital esenlik: ekran süresi, bilişsel yük | ○ | Ürün bir ölçme aracıdır, öğrencinin ekran süresi sınavla sınırlıdır. Ayrıca ölçülmedi. |
 | Öğrenciye zarar verebilecek yönlendirici karar üretilmemeli | ✓ | Yapay zekâ çıktısı nihai karar olamaz (`agents.md` §1). Öğrenciye yalnız öğretmenin onayladığı puan ve geri bildirim gider (§51; `ogrenmeCiktisiHesapla` `aiEvals` okumaz — §102, `test/ogrenme-ciktisi.test.ts`). |
-| Katılım, geri bildirim ve ifade hakkı | ⧗ | Öğrencinin puana itiraz etmesinin yolu yok. Puan itirazı PROGRESS §126'da (paralel dal) **geliştiriliyor**. Bu tabanda `public/app.js`'te itiraz akışı yok. |
+| Katılım, geri bildirim ve ifade hakkı | ✓ | **Var (§126).** Öğrenci ya da veli yayınlanmış bir açık uçlu puan için "Yeniden incelensin" der (en çok 300 karakter gerekçe); talep öğretmenin Puanlama ekranındaki "İtirazlar" kuyruğuna düşer; karar ve açıklama Karar Günlüğü'ne ve CSV'nin itiraz sütununa yazılır (`test/itiraz.test.ts`). Sınır: tek cihaz, öğretmene bildirim gitmez (README §3 "Bedeli açık"). |
 | Bireysel ihtiyaçlara uyarlanabilirlik | ◐ | Öğrenme çıktısı kartı kazanım bazında "Sıradaki adım" önerir; kurala dayalıdır, yapay zekâ kullanmaz (§102). |
 | Eleştirel düşünme, yaratıcılık, problem çözme | ◐ | Soru istemi beceri temelli soru ister (bağlam → veri → görev). A/B ölçüldü: veri içeren soru %55 → %100 (README "Son değişiklikler", §48). Öğrenci üzerindeki etkisi ölçülmedi. |
 | Sosyal-duygusal gelişim, insan etkileşimi | ○ | Ürünün kapsamı dışında. |
@@ -112,7 +111,7 @@ yalnız "Ankara, 2026" yazıyor.
 | Öğretmen YZ çıktısını düzeltebilmeli | ✓ | Soru düzenleme, anahtar değiştirme (§104), ölçüt bazında puan düzeltme (§112, `test/kriter-puan.test.ts`). |
 | **Karar süreçleri kayıt altına alınmalı, geriye dönük denetlenebilmeli** | ✓ | Yapay Zekâ Karar Günlüğü: öneri, onay, red (red nedeni kodlu), anahtar değişimi, onaydan sonra düzenleme, havuza geri alma. CSV/JSON indirilir (§104, §104b, §107a; `test/karar-kaydi.test.ts`, `test/havuza-al-izi.test.ts`). Sınır: en çok 500 kayıt (`AUDIT_LIMIT`). Aşılırsa en eski kayıt düşer ve ekranda yazar. |
 | İnsan denetimi olmadan otomatik karar yok | ✓ | Otomatik onay eşiği yasak (`agents.md` §1). §121 YZ denetim kartı ve §122 adsız puanlama bloklarında onay ya da yazma çağrısı olmadığı testle denetleniyor (`test/yz-denetim.test.ts`, `test/adsiz-puanlama.test.ts`). |
-| **Öğrenci/veli için itiraz mekanizması** | ⧗ | **Bu tabanda eksik.** PROGRESS §126'da (paralel dal) geliştiriliyor. Planlanan akış (fikir3-D madde 2): öğrenci "yeniden incelensin" ister → öğretmenin kuyruğuna düşer → öğretmen karar verir → Karar Günlüğü'ne yazılır. Tek cihazlı yapı nedeniyle itiraz gerçekte sınıf içinde, öğretmenin cihazında kalır. |
+| **Öğrenci/veli için itiraz mekanizması** | ✓ | **Var (§126).** Akış: öğrenci ya da veli "yeniden incelensin" ister → öğretmenin kuyruğuna düşer → öğretmen karar verir (puan değişti / aynı kaldı, açıklamayla) → Karar Günlüğü'ne ve CSV'ye yazılır. Yapay zekâ yeniden çağrılmaz. Kâğıt sınav ya da başka cihazdan gelen talebi öğretmen elle ekler. "Adları gizle" açıkken kuyrukta da ad yerine "Yanıt N" görünür (§130). Tek cihazlı yapı nedeniyle itiraz sınıf içinde, öğretmenin cihazında kalır. |
 
 ### 2.7 Eğitsel Değer ve Nitelikli Katkı (s. 12)
 
@@ -203,7 +202,7 @@ uygulanıp uygulanmadığını **değerlendirmedik**; hukuki görüş gerekir.
 
 ## 4. Eksikler ve plan (gizlenmeden)
 
-1. **İtiraz mekanizması** (MEB §2.6 son madde): ⧗ §126'da geliştiriliyor; bu tabanda yok.
+1. **İtiraz mekanizması** (MEB §2.6 son madde): ✓ §126 ile var, sınıf içi (tek cihaz). Uzaktan başvuru yolu ve öğretmene bildirim yok.
 2. **Grup bazında performans ve yanlılık** (MEB §2.2, AB 13(3)(b)(v)): ölçülmedi. Mihenk grup bilgisi toplamıyor; ölçmek için pilotta ayrı bir çalışma tasarlanmalı.
 3. **İnsan uzmanın doğruluk ölçümü**: etiketleyicilerin hepsi yapay zekâ. Kör etiketleme aracı hazır (`tools/etiket/`, §109); insan etiketi henüz yok.
 4. **6 aylık kayıt saklama** (AB 26(6), referans): ürün içinde yok; dışa aktarım ve okulda saklama ile karşılanabilir.
@@ -220,8 +219,8 @@ uygulanıp uygulanmadığını **değerlendirmedik**; hukuki görüş gerekir.
 > metin yaklaşık 1.150 karakterdir. Sınır daha kısaysa ilk iki cümle yeter.
 
 ```text
-[Ders] dersinde [sınıf/şube] öğrencilerinin yazılı sınav ve kısa sınavlarında Mihenk adlı ölçme-değerlendirme aracı kullanılacaktır. Yapay zekâ (Cloudflare Workers AI üzerinde Meta Llama 3.3 70B; yedek Llama 4 Scout) yalnız ÖNERİ üretir: MEB öğrenme çıktısına bağlı soru taslağı ve açık uçlu cevaplar için rubriğe göre puan ve geri bildirim önerisi. Hiçbir soru öğretmen onayı olmadan sınava girmez. Hiçbir puan öğretmen okuyup onaylamadan öğrenciye ve veliye ulaşmaz; öğretmen her öneriyi değiştirebilir ya da reddedebilir. Öğrenci karnesinde puanın yapay zekâ önerisi mi, öğretmen kararı mı olduğu ayrıca yazar. Her öneri ve karar zaman damgasıyla Karar Günlüğü'ne kaydedilir ve okulda saklanmak üzere dışa aktarılabilir. Öğrenci adı, numarası ve okul bilgisi yapay zekâya gönderilmez; cevap metnindeki kayıtlı adlar gönderimden önce maskelenir. Cevap metinleri yurt dışındaki (ABD) yapay zekâ hizmetine iletilir; velisi rıza vermeyen öğrencinin cevabı gönderilmez ve öğretmen tarafından elle puanlanır. Kayıtlar okul bilgisayarının tarayıcısında tutulur; ürünün sunucuda veritabanı yoktur. Puana itiraz [okulun mevcut itiraz yolu] ile öğretmene yapılır.
+[Ders] dersinde [sınıf/şube] öğrencilerinin yazılı sınav ve kısa sınavlarında Mihenk adlı ölçme-değerlendirme aracı kullanılacaktır. Yapay zekâ (Cloudflare Workers AI üzerinde Meta Llama 3.3 70B; yedek Llama 4 Scout) yalnız ÖNERİ üretir: MEB öğrenme çıktısına bağlı soru taslağı ve açık uçlu cevaplar için rubriğe göre puan ve geri bildirim önerisi. Hiçbir soru öğretmen onayı olmadan sınava girmez. Hiçbir puan öğretmen okuyup onaylamadan öğrenciye ve veliye ulaşmaz; öğretmen her öneriyi değiştirebilir ya da reddedebilir. Öğrenci karnesinde puanın yapay zekâ önerisi mi, öğretmen kararı mı olduğu ayrıca yazar. Her öneri ve karar zaman damgasıyla Karar Günlüğü'ne kaydedilir ve okulda saklanmak üzere dışa aktarılabilir. Öğrenci adı, numarası ve okul bilgisi yapay zekâya gönderilmez; cevap metnindeki kayıtlı adlar gönderimden önce maskelenir. Cevap metinleri yurt dışındaki (ABD) yapay zekâ hizmetine iletilir; velisi rıza vermeyen öğrencinin cevabı gönderilmez ve öğretmen tarafından elle puanlanır. Kayıtlar okul bilgisayarının tarayıcısında tutulur; ürünün sunucuda veritabanı yoktur. Puana itiraz Mihenk'teki "Yeniden incelensin" düğmesiyle ya da [okulun mevcut itiraz yolu] ile öğretmene yapılır; karar Karar Günlüğü'ne yazılır.
 ```
 
-Son cümlede "okulun mevcut itiraz yolu" yazıyor, çünkü ürün içi itiraz bu
-sürümde yok (§4 madde 1). §126 birleşince bu cümle güncellenmelidir.
+Son cümle §130'da güncellendi: ürün içi itiraz (§126) var, ama tek cihazda çalıştığı
+için okulun kendi itiraz yolu da açık tutulur (§4 madde 1).

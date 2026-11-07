@@ -10,10 +10,8 @@
 
 ## ⚠ Önce: bu senaryo hangi sürümde geçerli?
 
-Canlıdaki sürüm `7496cf7d`'dir (6 Kasım, PROGRESS §118). **§119–§122 henüz
-canlıda değil** (§123 entegrasyonu yayın kaydı içermiyor). Aşağıdaki akış şu
-eklemelere dayanır ve bunlar ancak **§123 dalı yayınlandıktan sonra** canlıda
-görünür:
+Canlıdaki sürüm `fcd867ef`'dir (7 Kasım, PROGRESS §130). §119–§129 canlıda.
+Aşağıdaki akış şu eklemelere dayanır:
 - demonun ayrı alanda çalışması;
 - 24 öğrencili dolu sınıf;
 - "Örnek veri" puan önerisi;
@@ -118,7 +116,7 @@ Dönüş: şeritte **"5 Yönetici"** → **"Demoyu Bitir"**.
 ## 4. Söylenmemesi gerekenler (güncel)
 
 - "T3 AI ile çalışıyor" — **değil** (ARASTIRMA §5.2).
-- "MEB kılavuzuna tam uyuyoruz" — **hayır.** "Kılavuzla madde madde karşılaştırdık. Eksiğimiz itiraz mekanizması, o geliştiriliyor" ([UYUM-TABLOSU](./UYUM-TABLOSU.md)).
+- "MEB kılavuzuna tam uyuyoruz" — **hayır.** "Kılavuzla madde madde karşılaştırdık. İtiraz mekanizması artık var ama tek cihazda, sınıf içinde çalışıyor; grup bazında yanlılığı ölçmedik" ([UYUM-TABLOSU](./UYUM-TABLOSU.md)).
 - "Öğretmene şu kadar zaman kazandırıyor" ya da "40 kâğıt yerine birkaçı" — **ölçülmedi** ([IDDIA-KANIT](./IDDIA-KANIT.md) §6).
 - "QWK 0,98, yapay zekâ öğretmenle uyumlu" — **hayır**, o demonun örnek verisi.
 - "İnsan onayı hataları şu kadar azaltıyor" — ölçülmedi.
@@ -141,7 +139,7 @@ Dönüş: şeritte **"5 Yönetici"** → **"Demoyu Bitir"**.
    Ücretsiz planda günlük 10.000 Neuron havuz var; kendi eşiğimiz 9.000. Eşik dolunca model çağrılmıyor ve yapay zekâ düğmeleri kapanıyor. Elle soru, elle puanlama, analiz ve kâğıt sınav çalışmaya devam ediyor; sessiz sahte puan yok. Kaba hesap: yalnız puanlama yapılırsa günde ≈81 açık uçlu değerlendirme (≈110 Neuron/çağrı ortalamasıyla; tahmin). → §85, §86, §93, §100; [SISTEM-KARTI §9](./SISTEM-KARTI.md)
 
 4. **"Öğrenci puana itiraz edebiliyor mu?"**
-   Bu sürümde ürün içinde hayır. MEB kılavuzu bunu istiyor (§2.6, s. 11) ve bizim karşılaştırmamızda tek somut eksik bu. Geliştiriliyor (§126): öğrenci talep eder, öğretmen karar verir, karar günlüğe yazılır. Bugün itiraz okulun mevcut yoluyla öğretmene yapılıyor.
+   Evet (§126). MEB kılavuzu bunu istiyor (§2.6, s. 11). Öğrenci ya da veli "Yeniden incelensin" der, talep öğretmenin İtirazlar kuyruğuna düşer, öğretmen karar verir, karar Karar Günlüğü'ne yazılır; yapay zekâ yeniden çağrılmaz. Sınırı: tek cihaz, öğretmene bildirim gitmez; kâğıt ya da başka cihazdan gelen talebi öğretmen elle ekler.
 
 5. **"İnsan onayının biçimsel olmadığını nasıl biliyorsunuz?"**
    Karar Günlüğü her öneriyi ve kararı ayrı kaydediyor ve "öğretmen %N oranında değiştirdi" diyor; oran sıfırsa kart bunun biçimsel onay olduğunu yazıyor. Şüpheli soruda ikinci onay isteniyor ve Enter ile onaylanamıyor. Ölçüt düzeltilince tek tık kapanıyor. → §104, §71, §112; K1
