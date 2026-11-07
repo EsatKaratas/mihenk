@@ -13589,3 +13589,117 @@ Ekranlar: `Downloads\Mihenk\ekran-q3\` (10 ekran × 1280/390 × açık/koyu = 40
 - İstem enjeksiyonu 5/5 Ağustos'tan beri koşulmadı.
 - Scout ile puan tutarlılığı ölçülmedi.
 - AGENTS güncellik notundaki "338 test / 380 ad" tarihsel kaldı; bu turda yalnız §8'e dokunma izni vardı.
+
+---
+
+## 130. ALTINCI ENTEGRASYON + ALTINCI YAYIN — §97/§129 + §128 + §124 + §125 + §126 + §127 (7 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Taban:** main `ab5d4d9` (yayın 5). Dal `entegrasyon-7kasim-e`, worktree `Downloads\Mihenk\mihenk-entegre-7kasim-e` (`npm ci`). Model çağrısı 0; `/api/ai` POST 0.
+
+**Birleştirme sırası** (hepsi `--no-ff`, hepsinin tabanı `2c4f3a9`):
+1. `fix/butce-saglamlik` 274fc34 (§97 ölçüm + §129)
+2. `fix/veri-saglamligi` c19386b (§128)
+3. `feature/madde-gecmisi` beb02bb (§124)
+4. `feature/gozlem-formu` fcfa29d (§125)
+5. `feature/itiraz` 0abb39e (§126)
+6. `docs/juri-kanit` 5b0606e (§127)
+
+**Kendiliğinden çözülemeyen çakışmalar:**
+- **Açılış (§125 ↔ §128):** §128 açılışı `acilisiTamamla()` içine taşımıştı. §125'in `notIpucuKur()` çağrısı da oraya kondu.
+- **Kalıcı alanlar ve öz-kontrol listesi:** ikisinde de iki taraf birleştirildi (`gozlemFormlari`, `notIpucuKapali`, `itirazlar`).
+- **Puanlama sekmesi:** §126'nın itiraz kuyruğu ve §125'in ipucu ayarı birlikte duruyor.
+- **Gizlilik metni:** madde istatistiği, rubrik örneği, gözlem verisi ve itiraz paragrafları birlikte duruyor.
+- **PROGRESS:** her dalda iki taraf da tutuldu.
+
+### Zorunlu entegrasyon işleri
+
+**a) Q5 kuralı: yeni alanlar şemada ve KVKK silmede.**
+- `DURUM_SEMASI` üç yeni alan aldı:
+  - `gozlemFormlari: "kayitlar"`
+  - `notIpucuKapali: "bool?"`
+  - `itirazlar: "kayitlar"`
+- `DURUM_ALT_SEMA` genişledi:
+  - soruya `maddeGecmisi` ve `ornekYanitlar` (§124);
+  - sınava `maddeGecmisiAnahtari`;
+  - `gozlemFormlari` öğesi `{ id, puanlar, duzeyler, kazanimlar }`;
+  - `itirazlar` öğesi `{ id, sid, qid, examId }`.
+  - Liste alanları bilerek `"kayitlar?"` değil, `"kayitlar"`: `durumuDogrula` öğe öğe süzgeci yalnız tam `"kayitlar"` türünde uyguluyor. Eksik alan zaten denetlenmiyor, eski kayıtlar etkilenmez.
+- `ogrenciVerisiniSil` artık şunları da siliyor:
+  - o öğrencinin gözlem puanlarını (her formdan);
+  - itirazlarını (günlük satırları zaten `sid` ile gidiyordu);
+  - adının geçtiği rubrik örneklerini.
+- `ogrenciVeriOzeti` ve onay penceresi gözlem ve itiraz sayısını da gösteriyor.
+- **Ad 0 testi:** birim testte ve `veri-saglamligi.mjs` [5]'te, silmeden önce hedef öğrenciye bir gözlem puanı, bir itiraz ve adlı bir rubrik örneği eklendi. Silmeden sonra ad localStorage, sessionStorage ve IndexedDB'de **0**.
+
+**b) csvHucre itiraz sütununu da kapsıyor.** Birleştirmede §128'in ortak yazıcısı (`.map(csvHucre)`) korundu; §126'nın kendi tırnaklama fonksiyonu kaldırıldı. Testte `=HYPERLINK(...)` gerekçesi ve `=1+1` değeri formül olarak çalışmıyor; hücre `=` ile başlamıyor.
+
+**c) Demo soyadı "Örnek" → "Örnekoğlu" (maskeleme değişmedi).**
+- Seçenekler tartıldı:
+  - Maskelemeyi tam ad eşleşmesine çekmek gerçek sınıflarda yalnız adla geçen öğrenciyi ("Baran dedi ki") açıkta bırakırdı; bu bir gizlilik gerilemesi.
+  - Soyadını değiştirmek yalnız demo verisine dokunuyor. Bu seçildi.
+- "Örnekoğlu" kurgunun belli olmasını koruyor ama sıradan bir sözcük değil. Kalıp sözcük sınırıyla çalıştığı için "örnek"e dokunmuyor. 24 öğrencinin hepsi `demo: true` ve "simüle" rozetli kaldı.
+- Ölçüm, aynı 4 sıradan cümle ve aynı yol (`kisiselMaskele`, rubrik örneği temizliği):
+
+  | | Yanlış maske | "Baran ‹soyad› … örnek vermedi" cümlesindeki maske |
+  |---|---|---|
+  | Önce (canlı yayın 5) | **3** | 2 (adın yanında sözcük de) |
+  | Sonra | **0** | 1 (yalnız ad) |
+
+**d) Görünüm alanları sürüm kaydını tetiklemiyor (Q3 bulgusu).**
+- `GORUNUM_ALANLARI` = `role`, `teacherTab`, `studentTab`, `ceTab`, `rubricSelectedQ`, `poolFilter`, `parentStudentId`.
+- Yalnız bunlar değiştiyse kayıt yine yazılıyor (`gorunumYaz`), böylece yenilemede aynı ekran açılıyor. Ancak sürüm **artmıyor**. Öbür sekme de veri imzası (`veriImzasi`) aynı olan yazımı çakışma saymıyor.
+- Veri değişirse §119 koruması aynen çalışıyor.
+- `gorunumYaz` yalnız `saveState`'te ve sürüm denetiminden sonra çağrılıyor. Sürüm tutuyorsa depodaki veri bu sekmenin bildiği veriyle aynıdır, yani üzerine yazmak güvenli.
+- Ölçüm: `sekme-cakisma.mjs` [8]'de yeni sekme rol kartına tıklayıp 3. sekmeye geçince ilk sekmede kutu yok, sürüm aynı. Ardından ilk sekme veri yazınca yeni sekmede kutu çıkıyor.
+
+**e) Adsız mod itirazlarda da adı gizliyor (Q3 sınırı).**
+- "Adları gizle" açıkken itiraz kartı ve karar geçmişi ad yerine Puanlama'daki **aynı** "Yanıt N" numarasını gösteriyor: aynı gönderen listesi, aynı tohum, aynı sınav kimliği.
+- Yanıt, gerekçe ve açıklamadaki kayıtlı adlar maskeleniyor.
+- **Ölçümde bulunan gerileme:** §126'nın "Elle itiraz ekle" formu öğrenciyi adıyla seçtiriyor. Bu yüzden adsız modda puanlama panelinin DOM'unda 23 ad kalıyordu (§123'te 0'dı).
+  - Düzeltme: adlar gizliyken form çizilmiyor. Yerine "Adlar gizliyken elle itiraz eklenemez, çünkü kâğıttaki öğrenciyi adıyla seçmeniz gerekir…" satırı çıkıyor.
+  - Sonra: panelde **0 ad**, 1280/390 × açık/koyu.
+
+**f) Belgeler:**
+- README, IDDIA-KANIT, SISTEM-KARTI, UYUM-TABLOSU ve DEMO-SENARYOSU'ndaki sayılar bu ölçüme göre güncellendi.
+- UYUM-TABLOSU'nda itiraz "⧗ geliştiriliyor" → "✓ var (§126)"; sınırları yanında yazıyor: tek cihaz, bildirim yok. Veli bilgilendirme metninin son cümlesi de güncellendi.
+- SISTEM-KARTI'na iki satır eklendi:
+  - §97: kısa bir değerlendirme 98 Neuron; uygulama sayacı Cloudflare sayacıyla birebir aynı.
+  - §129: adres başına 4.500 Neuron, IPv6 /64, üretimde adres başına 10/dk, gövde 256 KB → 413.
+
+**Araçlar:**
+- `kontroller.mjs` artık `MIHENK_TEMA=dark` ile koyu temada da koşuyor.
+- `sekme-cakisma.mjs` 18 denetim; yeni [8] (d) maddesini ölçüyor.
+- `veri-saglamligi.mjs` 39 denetim; yeni §130 alanlarını da kapsıyor.
+
+### Ölçüm seti (uç `52d01b5` + belge)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1245/1245**, 58 dosya |
+| Öz-kontrol | %100, **946** ad |
+| `olcum:dogrula` | 37/37 |
+| Lint, `check:config` | temiz; GEÇERLİ ×2 |
+| `wrangler deploy --dry-run` (demo) | paketleme temiz |
+| Sır taraması | 0. Tek eşleşme bilinen vendor yanlış pozitifi |
+| Yeni 64-hex | 0 |
+| vendor | SHA256SUMS OK |
+| `_headers`, wrangler | değişmedi |
+| `src/` | yalnız §129: 6 dosya, +269 −6 |
+| axe (`erisilebilirlik-tara`, 56 ekran, 1280/390 × açık/koyu) | ihlal 0; 12 px altı 0 |
+| `kontroller.mjs` | **38/38**: 1280 açık, 1280 koyu, 390 açık, 390 koyu |
+| Demo (`demo-yuru.mjs`) | 5 adım, 1280 ve 390; konsol 0; POST 0 |
+| `sekme-cakisma.mjs` | 18/18; son 4 koşunun 3'ü ve son tekrarların 3/3'ü |
+| `veri-saglamligi.mjs` | 39/39 (1280 ×4, 390 ×2) |
+| Entegrasyon (`e6-olc`: c, e) | 12/12 |
+| §123 denetimi (`e5-olc`) | 41/41: demo × sekme, YZ kartı (46 çift), adsız mod 0 ad, örnek paket |
+
+**Kararsız koşu (açıkça):** son tam setin içinde `sekme-cakisma` bir kez sonuç satırı yazmadan çıktı (`state is not defined`). Aynı koşuda `veri-saglamligi` 1280'de kurtarma ekranını ölçemedi (37/39). İkisi de sayfanın 1,2 MB'lık `app.js`'i tek iş parçacıklı yerel sunucudan yükleyemediği bir anda oldu. Hemen ardından üçer tekrarın hepsi geçti. Canlıda (Cloudflare) da koşuldu, aşağıda.
+
+**Açık kalan:**
+- Adsız modda elle itiraz eklenemiyor (bilinçli). Öğretmen adları açıp ekliyor.
+- "Örnekoğlu" gerçek bir soyadı olabilir; ama demo listesinde hepsi aynı soyadlı ve "simüle" rozetli.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-e6-130\`:
+- `log\`, `axe\`, `demo\`, `e5\`;
+- `once\` ve `sonra\` — (c) ve (e) ölçümleri;
+- betikler scratchpad'de (`e6-*.py`, `e6-olc.mjs`).
