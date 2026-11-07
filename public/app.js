@@ -2237,12 +2237,17 @@ const DURUM_SEMASI = {
   exams: "kayitlar", activeExamId: "kimlik?", students: "kayitlar", activeStudentId: "kimlik?",
   evalCache: "nesne", misconceptions: "nesne", alignment: "nesne", sources: "kayitlar", library: "kayitlar",
   auditLog: "kayitlar", auditDusen: "sayi?", sinifKuruldu: "bool?", gocDeneyapDersi: "bool?",
-  activeTeacherName: "metin?", parentStudentId: "kimlik?", dikkatOnay: "nesne?"
+  activeTeacherName: "metin?", parentStudentId: "kimlik?", dikkatOnay: "nesne?",
+  /* §130 (entegrasyon §125 + §126): gözlem formları, not ipucu tercihi, itirazlar. */
+  gozlemFormlari: "kayitlar", notIpucuKapali: "bool?", itirazlar: "kayitlar"
 };
 /* Kayıt listelerinde öğe alanları ve nesne alanlarının iç alanları ("?" = olmayabilir/null). */
 const DURUM_ALT_SEMA = {
-  questions: { id: "kimlik", type: "metin?", body: "metin?", options: "dizi?" },
-  exams: { id: "kimlik", questionIds: "dizi?", sessions: "nesne?", timeOverrides: "nesne?" },
+  /* §130: §124 madde geçmişi ve rubrik örnekleri sorunun içinde, sınav anahtarı sınav kaydında. */
+  questions: { id: "kimlik", type: "metin?", body: "metin?", options: "dizi?", maddeGecmisi: "dizi?", ornekYanitlar: "dizi?" },
+  exams: { id: "kimlik", questionIds: "dizi?", sessions: "nesne?", timeOverrides: "nesne?", maddeGecmisiAnahtari: "metin?" },
+  gozlemFormlari: { id: "kimlik", puanlar: "nesne?", duzeyler: "dizi?", kazanimlar: "dizi?" },
+  itirazlar: { id: "kimlik", sid: "kimlik?", qid: "kimlik?", examId: "kimlik?" },
   students: { id: "kimlik", name: "metin?", sinif: "metin?" },
   outcomes: { code: "metin?" },
   sources: { id: "kimlik?" },
@@ -3221,11 +3226,15 @@ const DEMO_KAZANIMLAR = [
   { code: "FB.7.2.3", label: "FB.7.2.3 — Enerji dönüşümünden hareketle enerjinin korunduğuna yönelik tümevarımsal akıl yürütebilme", subject: "Fen Bilimleri", grade: 7 }
 ];
 
-/* §120 — Örnek sınıf: 24 UYDURMA ad. Soyadı bilerek "Örnek": listede, karnede,
-   e-Okul dosyasında gerçek bir öğrenci sanılmasın. Hepsi demo: true ("simüle"). */
+/* §120 — Örnek sınıf: 24 UYDURMA ad. Soyadı bilerek uydurma: listede, karnede,
+   e-Okul dosyasında gerçek bir öğrenci sanılmasın. Hepsi demo: true ("simüle").
+   §130: soyadı "Örnek" idi; §88 maskelemesi soyadı tek başına da maskelediği için
+   demoda sıradan "örnek" sözcüğü (rubrikteki "Örnek / uygulama" dahil) [ÖĞRENCİ]
+   oluyordu (ölçüldü: 6 cümlede 4 yanlış maske). "Örnekoğlu" sözcük değildir;
+   maskeleme sözcük sınırıyla çalıştığı için "örnek"e dokunmaz (ölçüldü: 0). */
 const DEMO_OGRENCI_ADLARI = ["Ada", "Baran", "Ceren", "Doruk", "Ece", "Efe", "Elif", "Emir", "Eylül", "Kaan",
   "Lina", "Mert", "Naz", "Ozan", "Pelin", "Rüzgar", "Selin", "Tuna", "Umut", "Yağmur", "Yiğit", "Zehra", "Arda", "Defne"]
-  .map(function (a) { return a + " Örnek"; });
+  .map(function (a) { return a + " Örnekoğlu"; });
 const DEMO_SINIF = "7-A";
 
 /* Demo ders notu. Beceri temelli soruların dayanağı burada: yalnızca tanım
@@ -9479,7 +9488,10 @@ function ogrenciVeriOzeti(sid) {
     puan += Object.keys(o.ss.reviews || {}).length + Object.keys(o.ss.mcResults || {}).length;
   });
   const gunluk = (state.auditLog || []).filter(function (k) { return ogrenciGunlukKaydiMi(k, sid, ad); }).length;
-  return { ad: ad, oturum: oturumlar.length, yanit: yanit, puan: puan, gunluk: gunluk };
+  /* §130: §125 gözlem puanları ve §126 itirazları da öğrenciye bağlı. */
+  const gozlem = (state.gozlemFormlari || []).filter(function (f) { return f && f.puanlar && (f.puanlar[sid] || f.puanlar[String(sid)]); }).length;
+  const itiraz = (state.itirazlar || []).filter(function (t) { return t && String(t.sid) === String(sid); }).length;
+  return { ad: ad, oturum: oturumlar.length, yanit: yanit, puan: puan, gunluk: gunluk, gozlem: gozlem, itiraz: itiraz };
 }
 
 /** SAF: günlük kaydı bu öğrenciye mi ait? (sid ya da adın kendisi) */
@@ -9513,6 +9525,19 @@ function ogrenciVerisiniSil(sid) {
     if (iceriyor) { delete state.misconceptions[m]; analiz++; }
   });
   if (state.dikkatOnay) { delete state.dikkatOnay[sid]; delete state.dikkatOnay[String(sid)]; }
+  /* §130: gözlem puanları (§125), itirazlar (§126; günlük satırları sid ile yukarıda gitti) ve
+     adı içeren rubrik örnekleri (§124; kayıtta kimlik yok, ad maskelenmiş olmalı — yine de taranır). */
+  let ornek = 0;
+  (state.gozlemFormlari || []).forEach(function (f) {
+    if (f && f.puanlar) { delete f.puanlar[sid]; delete f.puanlar[String(sid)]; }
+  });
+  if (Array.isArray(state.itirazlar)) state.itirazlar = state.itirazlar.filter(function (t) { return !(t && String(t.sid) === String(sid)); });
+  if (ad) (state.questions || []).forEach(function (q) {
+    if (!q || !Array.isArray(q.ornekYanitlar)) return;
+    const n = q.ornekYanitlar.length;
+    q.ornekYanitlar = q.ornekYanitlar.filter(function (o) { return String((o && o.metin) || "").indexOf(ad) < 0; });
+    ornek += n - q.ornekYanitlar.length;
+  });
   if (String(state.parentStudentId) === String(sid)) state.parentStudentId = null;
   state.students = (state.students || []).filter(function (x) { return String(x.id) !== String(sid); });
   if (aktifti) {
@@ -9528,7 +9553,8 @@ function ogrenciVerisiniSil(sid) {
     });
   }
   auditKaydet("ogrenci_verisi_silindi", { not: "1 öğrencinin verisi silindi", rol: state.role || "" });
-  return { oturum: ozet.oturum, yanit: ozet.yanit, puan: ozet.puan, gunluk: ozet.gunluk, onbellek: onbellek, analiz: analiz, karantina: karantina };
+  return { oturum: ozet.oturum, yanit: ozet.yanit, puan: ozet.puan, gunluk: ozet.gunluk, onbellek: onbellek, analiz: analiz, karantina: karantina,
+    gozlem: ozet.gozlem, itiraz: ozet.itiraz, ornek: ornek };
 }
 
 /** SAF: metinde adın kaç kez geçtiği (tam ad, büyük/küçük harf duyarlı). */
@@ -9563,7 +9589,8 @@ function ogrenciSilAc() {
   const ozetYaz = function () {
     const o = ogrenciVeriOzeti(sec.value);
     document.getElementById("ogrSilOzet").innerHTML = "<b>Silinecek:</b> ad · " + o.oturum + " sınav oturumu · " + o.yanit +
-      " yanıt · " + o.puan + " puan · " + o.gunluk + " karar günlüğü kaydı · bu öğrencinin YZ önbelleği ve analizleri.";
+      " yanıt · " + o.puan + " puan · " + o.gunluk + " karar günlüğü kaydı" + (o.gozlem ? " · " + o.gozlem + " gözlem formundaki işaretleri" : "") +
+      (o.itiraz ? " · " + o.itiraz + " itiraz" : "") + " · bu öğrencinin YZ önbelleği ve analizleri.";
   };
   sec.onchange = ozetYaz;
   ozetYaz();

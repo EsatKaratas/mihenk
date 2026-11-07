@@ -200,10 +200,22 @@ describe('§120-2 · dolu sınıf (deterministik)', () => {
     expect(kodlar.size).toBe(4);                 // ısı haritası 4 sütun
   });
 
-  it('24 uydurma ad, hepsi "Örnek" soyadlı ve tekil', () => {
+  it('24 uydurma ad, hepsi "Örnekoğlu" soyadlı ve tekil (§130: "Örnek" sözcük olduğu için değişti)', () => {
     expect(k.DEMO_OGRENCI_ADLARI).toHaveLength(24);
     expect(new Set(k.DEMO_OGRENCI_ADLARI).size).toBe(24);
-    for (const a of k.DEMO_OGRENCI_ADLARI) expect(a).toMatch(/^\S+ Örnek$/);
+    for (const a of k.DEMO_OGRENCI_ADLARI) expect(a).toMatch(/^\S+ Örnekoğlu$/);
+  });
+
+  it('§130: demo sınıfıyla maskeleme sıradan "örnek" sözcüğüne dokunmaz, adları yine maskeler', () => {
+    const m = new Function('state', ['KISISEL_HARF_SINIFI', 'KISISEL_EK', 'KISISEL_SOZCUK_ADLAR'].map((a) => sabit(a, ';')).join('\n') + '\n' +
+      tanim('kisiselDesen') + tanim('kisiselAdKaliplari') + tanim('kisiselMaskele') + '\nreturn kisiselMaskele;')({ students: [] });
+    const ogr = k.DEMO_OGRENCI_ADLARI.map((n: string, i: number) => ({ id: i + 1, name: n }));
+    const maske = (t: string) => (m(t, ogr).metin.match(/\[ÖĞRENCİ\]/g) || []).length;
+    expect(maske('Bu örnek yanıt kavramı doğru açıklıyor.')).toBe(0);
+    expect(maske('Örnek olarak itme kuvvetini vermiş.')).toBe(0);
+    expect(maske('Rubrik: Örnek / uygulama ölçütü karşılandı.')).toBe(0);
+    expect(maske('Baran Örnekoğlu bu soruda örnek vermedi.')).toBe(1);
+    expect(maske("Ece de Baran'ın örneğini kullanmış.")).toBe(2);
   });
 
   it('yanıt deseni deterministik: aynı tohum → aynı sınıf', () => {

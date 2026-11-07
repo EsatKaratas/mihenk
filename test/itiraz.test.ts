@@ -43,7 +43,7 @@ const ITIRAZ_FN = ['itirazAnahtari', 'itirazSinavi', 'itirazOturumu', 'itirazOtu
   'itirazDurumHtml', 'itirazFormHtml', 'itirazSatirHtml', 'itirazKartiHtml', 'itirazKararAdi', 'itirazKuyrukKartiHtml',
   'itirazKararFormuHtml', 'itirazGecmisSatirHtml', 'itirazElleFormHtml', 'itirazKuyruguHtml', 'itirazGunlukDetay'];
 const DIGER_FN = ['readSession', 'writeSession', 'sessionOf', 'examSessions', 'bosOturum', 'findQuestion',
-  'ensureAudit', 'auditKaydet', 'auditKisalt', 'auditZaman', 'ondalikTr', 'truncate', 'auditCsv',
+  'ensureAudit', 'auditKaydet', 'auditKisalt', 'auditZaman', 'ondalikTr', 'truncate', 'auditCsv', 'csvHucre',   // §130: §128 ortak CSV yazıcı
   'sha256Hex', 'arastirmaKriterFarklari', 'arastirmaPaketi', 'geriBildirimFisiHtml'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -224,6 +224,19 @@ describe('§126 öğretmen kararı', () => {
     expect(st.auditLog[1]).toMatchObject({ tur: 'itiraz_karari', degisti: false, oncekiPuan: 6, finalScore: 6 });
     expect(f.auditCsv().split('\n')[2].endsWith(';puan aynı 6')).toBe(true);
     expect(f.itirazGunlukDetay(st.auditLog[1])).toContain('puan aynı kaldı');
+  });
+
+  it('§130: itiraz sütunu da §128 CSV formül nötrlemesinden geçer (gerekçe "=" ile başlasa bile)', () => {
+    const { st, f } = hazir();
+    st.auditLog.push({ at: 9, tur: 'itiraz_acildi', itirazYolu: 'veli', gerekce: '=HYPERLINK("x")' });
+    st.auditLog.push({ at: 10, tur: 'itiraz_karari', degisti: true, oncekiPuan: '=1+1', finalScore: 5 });
+    const satirlar = f.auditCsv().replace(/^\uFEFF/, '').split('\n');
+    const acildi = satirlar[satirlar.length - 2], karar = satirlar[satirlar.length - 1];
+    expect(acildi.endsWith(';"açıldı (veli): =HYPERLINK(""x"")"')).toBe(true);   // hücre "=" ile BAŞLAMIYOR
+    expect(karar.endsWith(";puan değişti =1+1→5")).toBe(true);
+    // Hücre başı formül karakteri olan bir değer tek başına gelirse ' ile nötrlenir (ortak yazıcı).
+    expect(f.csvHucre('=1+1')).toBe("'=1+1");
+    expect(f.auditCsv()).not.toMatch(/;=/);
   });
 
   it('aktif sınav + aktif öğrenci: karar canlı alana (state.reviews) yazılır', () => {

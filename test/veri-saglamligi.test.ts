@@ -321,7 +321,7 @@ describe('§128 KVKK: öğrencinin tüm verisini sil', () => {
   it('özet: silinecek oturum/yanıt/puan/günlük sayıları (state değişmez)', () => {
     const { f, state } = kur();
     const once = KALICI(state);
-    expect(f.ogrenciVeriOzeti(2)).toEqual({ ad: 'Baran Örnek', oturum: 2, yanit: 2, puan: 2, gunluk: 3 });
+    expect(f.ogrenciVeriOzeti(2)).toEqual({ ad: 'Baran Örnek', oturum: 2, yanit: 2, puan: 2, gunluk: 3, gozlem: 0, itiraz: 0 });
     expect(KALICI(state)).toBe(once);
   });
 
@@ -353,6 +353,29 @@ describe('§128 KVKK: öğrencinin tüm verisini sil', () => {
     expect(Object.keys(ls)).toEqual([STORE_KEY + ':bozuk-2026-11-06']);
   });
 
+  it('§130: gözlem puanları (§125), itirazlar (§126) ve adı içeren rubrik örneği (§124) de silinir; ad 0', () => {
+    const { f, state } = kur();
+    state.gozlemFormlari = [
+      { id: 'gz-1', ad: 'Dinleme', puanlar: { 2: { 'T.7.1.1': 3 }, 1: { 'T.7.1.1': 2 } }, duzeyler: [], kazanimlar: [] },
+      { id: 'gz-2', ad: 'Konuşma', puanlar: { 1: { 'T.7.2.1': 4 } }, duzeyler: [], kazanimlar: [] },
+    ];
+    state.itirazlar = [
+      { id: 1, sid: 2, qid: 10, examId: 1, gerekce: 'Baran Örnek adına itiraz', onceki: { comment: 'Baran Örnek iyi' } },
+      { id: 2, sid: 1, qid: 10, examId: 1, gerekce: 'Ali itirazı' },
+    ];
+    state.notIpucuKapali = true;
+    state.questions[0].ornekYanitlar = [{ id: 'o1', puan: 4, tavan: 5, metin: 'Baran Örnek şöyle yazdı' }, { id: 'o2', puan: 5, tavan: 5, metin: 'adsız örnek' }];
+    expect(f.ogrenciVeriOzeti(2)).toMatchObject({ gozlem: 1, itiraz: 1 });
+    const r = f.ogrenciVerisiniSil(2);
+    expect(r).toMatchObject({ gozlem: 1, itiraz: 1, ornek: 1 });
+    expect(state.gozlemFormlari[0].puanlar).toEqual({ 1: { 'T.7.1.1': 2 } });
+    expect(state.gozlemFormlari[1].puanlar).toEqual({ 1: { 'T.7.2.1': 4 } });
+    expect(state.itirazlar.map((t: Any) => t.id)).toEqual([2]);
+    expect(state.questions[0].ornekYanitlar.map((o: Any) => o.id)).toEqual(['o2']);
+    const metin = KALICI(state).split('Ali yanıtı; Baran Örnek bana söyledi').join('');
+    expect(f.adGecisSayisi(metin, 'Baran Örnek')).toBe(0);
+  });
+
   it('günlük: o öğrencinin kayıtları silinir, kişisel veri içermeyen TEK satır eklenir', () => {
     const { f, state } = kur();
     f.ogrenciVerisiniSil(2);
@@ -379,5 +402,16 @@ describe('§128 KVKK: öğrencinin tüm verisini sil', () => {
     expect(pp).toContain('geri alınamaz biçimde');
     expect(pp).toContain('karantina');
     expect(pp).not.toContain('<b>“Verileri sıfırla”</b> düğmesi cihazdaki tüm yerel veriyi');
+  });
+});
+
+describe('§130 entegrasyon: yeni kalıcı alanlar şemada', () => {
+  it('gözlem formları, not ipucu tercihi ve itirazlar şemada; soru/sınav alt şeması madde geçmişini ve örnekleri tanır', () => {
+    const app = fs.readFileSync(path.resolve(__dirname, '..', 'public', 'app.js'), 'utf8');
+    const sema = app.slice(app.indexOf('const DURUM_SEMASI = {'), app.indexOf('const DURUM_TUR_ADI'));
+    expect(sema).toContain('gozlemFormlari: "kayitlar", notIpucuKapali: "bool?", itirazlar: "kayitlar"');
+    expect(sema).toMatch(/questions: \{[^}]*maddeGecmisi: "dizi\?", ornekYanitlar: "dizi\?"/);
+    expect(sema).toMatch(/exams: \{[^}]*maddeGecmisiAnahtari: "metin\?"/);
+    expect(sema).toMatch(/itirazlar: \{ id: "kimlik", sid: "kimlik\?"/);
   });
 });

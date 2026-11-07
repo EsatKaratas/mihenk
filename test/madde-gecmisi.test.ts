@@ -314,7 +314,8 @@ describe('§124 rubrik örnek yanıtları', () => {
 
   it('kaydetme yalnız açık tıklamayla: ekleme tek yerde, ornekYanitKaydet içinde; işaretleme kaydetmez', () => {
     const atamalar = app.match(/q\.ornekYanitlar = /g) || [];
-    expect(atamalar.length).toBe(2);   // kaydet + sil
+    expect(atamalar.length).toBe(3);   // kaydet + sil + §130 KVKK öğrenci silme (yalnız süzer, eklemez)
+    expect(fonksiyonMetni('ogrenciVerisiniSil')).toContain('q.ornekYanitlar = q.ornekYanitlar.filter(');
     expect(fonksiyonMetni('ornekYanitKaydet')).toContain('q.ornekYanitlar = yeni;');
     expect(fonksiyonMetni('ornekYanitSil')).toContain('onaylaModal(');
     const wire = fonksiyonMetni('wireOrnekYanit');
