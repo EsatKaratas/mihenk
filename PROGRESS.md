@@ -13723,3 +13723,110 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e6-130\`:
 - Canlıda axe koşulamaz: CSP satır içi betiği engelliyor (beklenen). axe yerel statik sunucuda ölçüldü.
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-130\`.
+
+
+---
+
+## 131. ZÜMRE ÇİFT PUANLAMA — ikinci puanlayıcı paketi, kör puanlama, uyum raporu (7 Kasım 2026, W9, fikir 1, Orchestrator 3 emriyle)
+
+**Dal:** `feature/cift-puanlama` (taban main `7a01d2e`). Main'e birleştirilmedi, yayın yok. Model çağrısı 0; `/api/ai` POST 0.
+
+**Amaç:** iki öğretmen aynı açık uçlu yanıtları bağımsız puanlar, Mihenk uyumu gösterir. Hesap ve sunucu yok; her şey dosya ile, dosyayı öğretmen verir.
+
+**Akış (Puanlama sekmesinin altında, katlı "Zümre çift puanlama" bölümü):**
+1. **A, "İkinci puanlayıcı paketi hazırla"** ile `.json` indirir. Pakette:
+   - var: soru, rubrik ölçütleri (ad, tavan, açıklama), açık uçlu yanıt metni;
+   - yok: öğrenci adı, sistem kimliği (`sid`), YZ önerisi, A'nın puanı (kör).
+   - Yanıtlar §122'nin adsız numaralandırmasıyla ("Yanıt N", pakete özgü tohum; aynı öğrenci her soruda aynı numara).
+   - Metindeki kayıtlı adlar `kisiselMaskele` ile `[ÖĞRENCİ]`. Ölçerken bulundu: `kisiselMaskele` telefon numarasını tutmuyor. Pakete ek maske kondu (`ciftEkMaske`: telefon → `[NUMARA]`, e-posta → `[E-POSTA]`).
+   - Boş yanıt pakete girmez: ikisinde de 0 olur, uyumu şişirirdi.
+2. **B, aynı bölümde "Paketi aç"** ile dosyayı açar.
+   - Bölüm, sınavı olmayan öğretmende de çizilir: Puanlama'nın "sınav yok" ekranı.
+   - Her yanıtı ölçüt ölçüt puanlar; toplam rubrik tavanına sınırlanır (`kriterToplami`).
+   - Puanlar B'nin tarayıcısına kaydedilir. Girdi yeniden çizim yapmaz, odak kalır.
+   - "Puanlanmış paketi indir" ile dönüş dosyası alınır. **Dönüşte yanıt metni yok**, yalnız numara ve puan.
+3. **A dönüşü içe alır.** Rapor:
+   - toplam puanda karesel ağırlıklı kappa, tam uyum ve "en çok 0,5 puan fark";
+   - soru bazında tablo: çift, kappa, iki yüzde, ortalama mutlak fark;
+   - ölçüt bazında yüzde uyum;
+   - en çok ayrışan 10 yanıt (fark / tavan sırasıyla);
+   - uyum CSV'si.
+   - A'nın puanı içe alma anında anlık görüntü olarak saklanır; rapor sonradan kaymaz.
+
+**Kappa mı, Krippendorff mu? Kappa (karesel ağırlıklı, Cohen 1968).**
+- İki sabit puanlayıcı var ve yalnız ikisinin de puanladığı yanıtlar sayılıyor, yani eksik veri yok.
+- Krippendorff α'nın üstünlüğü (eksik veri, ikiden çok puanlayıcı) burada işe yaramaz. İki puanlayıcı ve büyük n'de aralık α ile karesel κ neredeyse aynıdır.
+- §121 YZ denetimi zaten aynı `qwk` fonksiyonunu ve 0,5 adım kategorilerini kullanıyor. Öğretmen "YZ ↔ ben" ve "zümre ↔ ben" uyumunu aynı ölçüyle görür.
+- §121'in kuralı aynen geçerli: 20 çiftten az veride kappa gösterilmez. Yüzdeler ve ayrışma listesi betimseldir, her n'de gösterilir.
+
+**A'nın ölçüt puanı nereden?**
+- §112 ölçüt düzeltmesi varsa `review.kriterler`.
+- "YZ önerisiyle aynı" onayladıysa onayladığı döküm.
+- Ötekilerde ölçüt puanı yok; o yanıtlar ölçüt tablosuna girmez. Ekranda yazıyor.
+
+**AGENTS §1:**
+- Ayrışmada karar A'nındır. Rapor hiçbir puanı değiştirmez, ortalamaz, birleştirmez, onaylamaz.
+- Kaynak testi: §131 bloğunda `finalizeReview`, `writeSession`, `apiPost`, `fetch` ve `reviews[...] =` yok.
+- Tarayıcıda: dönüş içe alındıktan sonra 23 öğrencinin bütün kararları bayt bayt aynı.
+
+**Reddetme (§128 deseni: önce tam doğrula, sonra yaz).** Şu paketler reddedilir ve state bayt bayt aynı kalır:
+- bozuk JSON, boş dosya, başka biçim, başka sürüm, 5 MB üstü;
+- bu cihazda hazırlanmamış paket;
+- **başka sınava ait paket:** "Bu paket «…» sınavına ait. Önce yukarıdan o sınavı seçin";
+- gönderilmemiş ya da yinelenmiş yanıt numarası, tavan dışı puan, ölçüt toplamı tutmayan puan, puansız paket;
+- §119 sekme çakışması.
+
+Ayrıca:
+- A kendi paketini "ikinci puanlayıcı" olarak açamaz; B de dönüş paketini açamaz.
+- B paketi açarken yalnız bilinen alanlar kopyalanır. Biri pakete puan ya da not eklese B görmez (testte `aiScore` ve `aPuani` eklendi, temiz kopyada yok).
+
+**Kalıcı alan `ciftPuanlama`:**
+- **Şema:** `KALICI_ALANLAR` ve `DURUM_SEMASI` (`"kayitlar"`). `DURUM_ALT_SEMA`: `{ id, yon, examId?, sorular, ogeler?, donus?, yanitlar?, puanlar? }`.
+- **`ogrenciVerisiniSil`:**
+  - Gönderilen paket kaydından o öğrencinin numaraları gider, o numaraların iki puanı da gider.
+  - Gelen paketlerde kimlik yok; yine de adı içeren yanıt ve puanı silinir.
+  - Özet ve onay penceresi "çift puanlama paketlerindeki N yanıtı" satırını gösterir.
+- **CSV (`ciftUyumCsv`):**
+  - Her hücre `csvHucre`'den geçer. Testte B'nin puanlayıcı adı `=HYPERLINK(…)`; hücrede `'=HYPERLINK` olarak nötrlendi.
+  - Ad sütunu yok; "Yanıt N" var.
+- **Gizlilik politikası (AGENTS §7):** §2'ye "Zümre çift puanlama" paragrafı eklendi. Pakette ne var ne yok, dosyayı öğretmenin verdiği, dönüşte metin olmadığı, silmenin de kapsadığı ve maskelemenin anonimleştirme olmadığı yazıyor.
+- **Karar Günlüğü:** üç yeni kayıt türü (`cift_paket_hazirlandi`, `cift_paket_alindi`, `cift_donus_alindi`); kimlik ya da ad yok.
+- **"Adları gizle" (§122) açıkken:** rapordaki ayrışan yanıtlar Puanlama'daki aynı "Yanıt N" ile gösterilir, ad 0. Adlar açıkken ad ve paket numarası birlikte.
+
+**Ölçerken bulunup düzeltilenler:**
+- Bölüm, tıklama ile `toggle` olayı arasındaki bir yeniden çizimde kapalı çiziliyordu; düğme görünmez kaldı. Açık/kapalı durumu artık tıklamada eşzamanlı tutuluyor.
+- B'nin "sınav yok" ekranında başlık düzeni axe `heading-order` veriyordu (h2'den h4'e). Paket başlıkları h3, sorular h4 yapıldı.
+- Telefon maskesi (yukarıda).
+
+### Ölçüm
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1260/1260, 59 dosya (önce 1245/58)** |
+| Yeni dosya `test/cift-puanlama.test.ts` | 13 test |
+| `veri-saglamligi.test.ts` | +2 test (§131 silme, ad 0; şema) |
+| Kappa elle | A = [0; 0,5; 1; 1], B = [0; 1; 1; 0,5], tavan 1 → κ = **7/11 ≈ 0,6364**. Hücre hücre hesap test yorumunda; sayısal biçimle de sağlandı. Tam uyum %50, ≤ 0,5 puan %100 |
+| Öz-kontrol | %100, **979** ad |
+| Lint, `check:config` | temiz; GEÇERLİ ×2 |
+| İki cihaz ölçümü (`cift-olc.mjs`) | **44/44**. İki ayrı tarayıcı bağlamı, demo sınıfı (23 gönderen, 46 yanıt), 1280/390 × açık/koyu |
+| `kontroller.mjs` | **38/38** × 4 (1280 açık, 1280 koyu, 390 açık, 390 koyu); konsol 0, POST 0 |
+| axe tam tarama (`erisilebilirlik-tara`) | 56 ekran: ihlal 0 (critical/serious/moderate/minor 0); 12 px altı 0 |
+
+`cift-olc.mjs` ayrıntısı:
+- paket ve B ekranında ad 0, YZ alanı 0;
+- dönüşte yanıt metni 0;
+- bozuk ve yabancı paket reddi, kayıt bayt bayt aynı;
+- öğretmen kararları bayt bayt aynı;
+- adsız modda raporda ad 0;
+- CSV'de ad 0;
+- yeni ekranlarda axe 0 ve yatay taşma 0;
+- sayfa hatası 0, POST 0.
+
+Demo raporunda kappa ≈ 0 çıktı. Bu beklenen: B'nin puanları ölçüm betiğinin sabit desenle doldurduğu sentetik değerler. Hesabın doğruluğunu birim testteki elle örnek gösterir.
+
+**Sınırlar (açıkça):**
+- Paket yalnız bu sınavın gönderilmiş, metni olan açık uçlu yanıtlarını taşır. Kâğıt sınavda yanıt metni tutulmadığı için paket boş kalır ve bu ekranda söylenir.
+- Maskeleme anonimleştirme değildir: çocuk metni kendini ele veren ayrıntı içerebilir. Paylaşım öğretmenin kararı; gizlilik metninde yazıyor.
+- Yalnız iki puanlayıcı. Üçüncü puanlayıcı ya da puanlayıcılar arası ortak karar akışı yok; bilinçli olarak, karar A'nın.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-cift-131\`. İçinde ölçüm betiği, günlükler, ekran görüntüleri, örnek paket/dönüş/CSV ve axe çıktısı var.

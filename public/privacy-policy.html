@@ -311,6 +311,15 @@
           çıkarılan metin Müfredat Kitaplığı'nda yine <b>aynı tarayıcının</b> yerel veritabanında
           (<code>IndexedDB</code>) tutulur. Yapay Zekâ Karar Günlüğü de
           <b>yalnızca yerelde</b> kalır.
+          <b>Zümre çift puanlama (isteğe bağlı):</b> öğretmen, bir zümre arkadaşının bağımsız puanlaması
+          için bir <b>ikinci puanlayıcı paketi</b> (.json dosyası) indirebilir. Pakette soru, rubrik ve açık
+          uçlu yanıt metni bulunur; <b>öğrenci adı ve sistem içi kimlik bulunmaz</b>, yanıtlar karışık
+          numarayla (“Yanıt 7”) yer alır ve metindeki kayıtlı adlar <code>[ÖĞRENCİ]</code>, telefon/numara
+          benzeri ifadeler maskelenir. Yapay zekâ önerisi ve ilk öğretmenin puanı pakete konmaz. Dosyayı kime
+          vereceğine öğretmen karar verir; Mihenk onu hiçbir yere göndermez. Geri dönen pakette yanıt metni
+          olmaz, yalnız numara ve puan olur. Numaranın hangi öğrenciye ait olduğu yalnız paketi hazırlayan
+          öğretmenin tarayıcısında tutulur ve “Öğrencinin verisini sil” bunu da siler. Maskeleme
+          anonimleştirme değildir (aşağıdaki sınır): paketi yalnız okul içinde, ölçme amacıyla paylaşın.
           Üretim sürümünde kimlik doğrulama (Better Auth) devreye girecek ve erişim
           kullanıcı hesabıyla belirlenecektir.
         </div>

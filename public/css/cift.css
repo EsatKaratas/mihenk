@@ -1,0 +1,35 @@
+/* §131 — Zümre çift puanlama (ikinci puanlayıcı paketi, kör puanlama, uyum raporu).
+   Yalnız app.css belirteçleri; yeni renk yok. Kırmızı yalnız hata metninde (.field-hata-metni). */
+.cift-bolum { margin-top: var(--sp-4); }
+.cift-kart { padding: var(--sp-3) 0 0; min-width: 0; }
+.cift-kart > .lbl-hint { margin: 0 0 var(--sp-3); line-height: 1.55; }
+.cift-arac { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-2); }
+.cift-arac .field { margin: 0; flex: 1 1 260px; min-width: 0; }
+.cift-arac input[type="file"] { max-width: 100%; }
+.cift-kart .field-hata-metni:empty, .cift-kart .field-yardim:empty { display: none; }
+.cift-liste { list-style: none; margin: var(--sp-3) 0 0; padding: 0; }
+.cift-paket { padding: var(--sp-3) 0; border-top: 1px solid var(--border); min-width: 0; }
+.cift-paket h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-3); }
+.cift-paket h4 { margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-3); }
+.cift-cihaz { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); border-left: 3px solid var(--accent); font-size: var(--fs-2); line-height: 1.5; }
+.cift-puanlayici-alan { max-width: 360px; }
+.cift-soru { margin-top: var(--sp-3); }
+.cift-yanit { padding: var(--sp-3); margin: var(--sp-2) 0; border: 1px solid var(--border); border-radius: var(--r-md); min-width: 0; }
+.cift-yanit .answer-box { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cift-alanlar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-2); }
+.cift-alan { margin: 0; flex: 0 1 180px; min-width: 0; }
+.cift-alan input { width: 100%; }
+.cift-alan [aria-invalid="true"] { border-color: var(--critical); }
+.cift-toplam { margin: 0 0 var(--sp-2); font-weight: 700; }
+.cift-yanit .field-hata-metni:empty { display: none; }
+.cift-alt { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-3); }
+.cift-ilerleme { margin: 0; font-weight: 600; }
+.cift-ozet { margin: 0 0 var(--sp-2); font-size: var(--fs-3); line-height: 1.5; overflow-wrap: anywhere; }
+.cift-tablo-kap { overflow-x: auto; margin: var(--sp-3) 0; }
+.cift-tablo { width: 100%; border-collapse: collapse; font-size: var(--fs-2); }
+.cift-tablo caption { text-align: left; font-weight: 700; padding-bottom: var(--sp-1); }
+.cift-tablo th, .cift-tablo td { padding: var(--sp-1) var(--sp-2); border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.cift-tablo thead th { color: var(--text-muted); font-weight: 700; }
+.cift-tablo tbody th { font-weight: 600; }
+.cift-karar { margin: var(--sp-2) 0 var(--sp-3); font-size: var(--fs-2); line-height: 1.5; }

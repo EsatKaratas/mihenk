@@ -327,7 +327,7 @@ describe('§128 KVKK: öğrencinin tüm verisini sil', () => {
   it('özet: silinecek oturum/yanıt/puan/günlük sayıları (state değişmez)', () => {
     const { f, state } = kur();
     const once = KALICI(state);
-    expect(f.ogrenciVeriOzeti(2)).toEqual({ ad: 'Baran Örnek', oturum: 2, yanit: 2, puan: 2, gunluk: 3, gozlem: 0, itiraz: 0 });
+    expect(f.ogrenciVeriOzeti(2)).toEqual({ ad: 'Baran Örnek', oturum: 2, yanit: 2, puan: 2, gunluk: 3, gozlem: 0, itiraz: 0, cift: 0 });
     expect(KALICI(state)).toBe(once);
   });
 
@@ -382,6 +382,28 @@ describe('§128 KVKK: öğrencinin tüm verisini sil', () => {
     expect(f.adGecisSayisi(metin, 'Baran Örnek')).toBe(0);
   });
 
+  it('§131: çift puanlama — gönderilen paketteki yanıtları ve iki puanı, gelen paketteki adlı yanıt silinir; ad 0', () => {
+    const { f, state } = kur();
+    state.ciftPuanlama = [
+      { id: 'cp-0000000000000001', yon: 'giden', examId: 1, sorular: [{ qid: 10, no: 1, max: 5, olcutler: [] }],
+        ogeler: [{ kod: 1, sid: 2, qid: 10 }, { kod: 2, sid: 1, qid: 10 }],
+        donus: { alinma: 'x', puanlayici: 'Zümre', puanlar: [{ kod: 1, qid: 10, a: 4, b: 3 }, { kod: 2, qid: 10, a: 5, b: 5 }] } },
+      { id: 'cp-0000000000000002', yon: 'gelen', examId: 9, sorular: [{ qid: 10, no: 1, max: 5, olcutler: [] }],
+        yanitlar: [{ kod: 3, qid: 10, metin: 'Baran Örnek maskelenmemiş kalmış' }, { kod: 4, qid: 10, metin: '[ÖĞRENCİ] yazdı' }],
+        puanlar: { '3|10': { puan: 2 }, '4|10': { puan: 4 } } },
+    ];
+    expect(f.ogrenciVeriOzeti(2)).toMatchObject({ cift: 1 });
+    const r = f.ogrenciVerisiniSil(2);
+    expect(r).toMatchObject({ cift: 1 });
+    expect(state.ciftPuanlama[0].ogeler).toEqual([{ kod: 2, sid: 1, qid: 10 }]);
+    expect(state.ciftPuanlama[0].donus.puanlar.map((x: Any) => x.kod)).toEqual([2]);
+    expect(state.ciftPuanlama[1].yanitlar.map((x: Any) => x.kod)).toEqual([4]);
+    expect(Object.keys(state.ciftPuanlama[1].puanlar)).toEqual(['4|10']);
+    const metin = KALICI(state).split('Ali yanıtı; Baran Örnek bana söyledi').join('');
+    expect(f.adGecisSayisi(metin, 'Baran Örnek')).toBe(0);
+    expect(JSON.stringify(state.ciftPuanlama)).not.toContain('"sid":2');
+  });
+
   it('günlük: o öğrencinin kayıtları silinir, kişisel veri içermeyen TEK satır eklenir', () => {
     const { f, state } = kur();
     f.ogrenciVerisiniSil(2);
@@ -419,5 +441,13 @@ describe('§130 entegrasyon: yeni kalıcı alanlar şemada', () => {
     expect(sema).toMatch(/questions: \{[^}]*maddeGecmisi: "dizi\?", ornekYanitlar: "dizi\?"/);
     expect(sema).toMatch(/exams: \{[^}]*maddeGecmisiAnahtari: "metin\?"/);
     expect(sema).toMatch(/itirazlar: \{ id: "kimlik", sid: "kimlik\?"/);
+  });
+  it('§131: çift puanlama listesi şemada ve kalıcı alanlarda', () => {
+    const app = fs.readFileSync(path.resolve(__dirname, '..', 'public', 'app.js'), 'utf8');
+    const sema = app.slice(app.indexOf('const DURUM_SEMASI = {'), app.indexOf('const DURUM_TUR_ADI'));
+    expect(sema).toContain('ciftPuanlama: "kayitlar"');
+    expect(sema).toMatch(/ciftPuanlama: \{ id: "kimlik", yon: "metin"/);
+    const kalici = app.slice(app.indexOf('const KALICI_ALANLAR = ['), app.indexOf('];', app.indexOf('const KALICI_ALANLAR = [')));
+    expect(kalici).toContain('"ciftPuanlama"');
   });
 });

@@ -1897,7 +1897,9 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "gozlemFormlari", "notIpucuKapali",
   /* §126: öğrenci/veli itirazları (yeniden inceleme talepleri). İnsan kararı
      zinciri; kalıcı olmak ZORUNDA. Tam yedek (§108) bu listeden okur. */
-  "itirazlar"];
+  "itirazlar",
+  /* §131: zümre çift puanlama paketleri (gönderilen: A; gelen: B'nin kör puanları). */
+  "ciftPuanlama"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -2275,7 +2277,8 @@ const DURUM_SEMASI = {
   auditLog: "kayitlar", auditDusen: "sayi?", sinifKuruldu: "bool?", gocDeneyapDersi: "bool?",
   activeTeacherName: "metin?", parentStudentId: "kimlik?", dikkatOnay: "nesne?",
   /* §130 (entegrasyon §125 + §126): gözlem formları, not ipucu tercihi, itirazlar. */
-  gozlemFormlari: "kayitlar", notIpucuKapali: "bool?", itirazlar: "kayitlar"
+  gozlemFormlari: "kayitlar", notIpucuKapali: "bool?", itirazlar: "kayitlar",
+  ciftPuanlama: "kayitlar"   // §131
 };
 /* Kayıt listelerinde öğe alanları ve nesne alanlarının iç alanları ("?" = olmayabilir/null). */
 const DURUM_ALT_SEMA = {
@@ -2284,6 +2287,9 @@ const DURUM_ALT_SEMA = {
   exams: { id: "kimlik", questionIds: "dizi?", sessions: "nesne?", timeOverrides: "nesne?", maddeGecmisiAnahtari: "metin?" },
   gozlemFormlari: { id: "kimlik", puanlar: "nesne?", duzeyler: "dizi?", kazanimlar: "dizi?" },
   itirazlar: { id: "kimlik", sid: "kimlik?", qid: "kimlik?", examId: "kimlik?" },
+  /* §131: giden (A) ogeler/donus taşır, gelen (B) yanitlar/puanlar; ikisi de sorular. */
+  ciftPuanlama: { id: "kimlik", yon: "metin", examId: "kimlik?", sorular: "dizi", ogeler: "dizi?", donus: "nesne?",
+    yanitlar: "dizi?", puanlar: "nesne?" },
   students: { id: "kimlik", name: "metin?", sinif: "metin?" },
   outcomes: { code: "metin?" },
   sources: { id: "kimlik?" },
@@ -9528,7 +9534,11 @@ function ogrenciVeriOzeti(sid) {
   /* §130: §125 gözlem puanları ve §126 itirazları da öğrenciye bağlı. */
   const gozlem = (state.gozlemFormlari || []).filter(function (f) { return f && f.puanlar && (f.puanlar[sid] || f.puanlar[String(sid)]); }).length;
   const itiraz = (state.itirazlar || []).filter(function (t) { return t && String(t.sid) === String(sid); }).length;
-  return { ad: ad, oturum: oturumlar.length, yanit: yanit, puan: puan, gunluk: gunluk, gozlem: gozlem, itiraz: itiraz };
+  /* §131: çift puanlama paketlerinde bu öğrenciye bağlı yanıtlar (yalnız gönderilen paketlerde sid var). */
+  const cift = (Array.isArray(state.ciftPuanlama) ? state.ciftPuanlama : []).reduce(function (n, k) {
+    return n + ((k && Array.isArray(k.ogeler)) ? k.ogeler.filter(function (o) { return o && String(o.sid) === String(sid); }).length : 0);
+  }, 0);
+  return { ad: ad, oturum: oturumlar.length, yanit: yanit, puan: puan, gunluk: gunluk, gozlem: gozlem, itiraz: itiraz, cift: cift };
 }
 
 /** SAF: günlük kaydı bu öğrenciye mi ait? (sid ya da adın kendisi) */
@@ -9569,6 +9579,21 @@ function ogrenciVerisiniSil(sid) {
     if (f && f.puanlar) { delete f.puanlar[sid]; delete f.puanlar[String(sid)]; }
   });
   if (Array.isArray(state.itirazlar)) state.itirazlar = state.itirazlar.filter(function (t) { return !(t && String(t.sid) === String(sid)); });
+  /* §131: gönderilen paket kaydından öğrencinin yanıtları ve o paket numarasının iki puanı da gider.
+     Gelen (B) paketlerde kimlik yoktur; ad maskelenmiş olmalı, yine de adı içeren yanıt taranır. */
+  (Array.isArray(state.ciftPuanlama) ? state.ciftPuanlama : []).forEach(function (k) {
+    if (!k) return;
+    if (Array.isArray(k.ogeler)) {
+      const kodlar = k.ogeler.filter(function (o) { return o && String(o.sid) === String(sid); }).map(function (o) { return o.kod; });
+      k.ogeler = k.ogeler.filter(function (o) { return !(o && String(o.sid) === String(sid)); });
+      if (k.donus && Array.isArray(k.donus.puanlar)) k.donus.puanlar = k.donus.puanlar.filter(function (x) { return kodlar.indexOf(x && x.kod) < 0; });
+    }
+    if (ad && Array.isArray(k.yanitlar)) {
+      const silinen = k.yanitlar.filter(function (y) { return String((y && y.metin) || "").indexOf(ad) >= 0; });
+      k.yanitlar = k.yanitlar.filter(function (y) { return silinen.indexOf(y) < 0; });
+      silinen.forEach(function (y) { if (k.puanlar) delete k.puanlar[y.kod + "|" + String(y.qid)]; });
+    }
+  });
   if (ad) (state.questions || []).forEach(function (q) {
     if (!q || !Array.isArray(q.ornekYanitlar)) return;
     const n = q.ornekYanitlar.length;
@@ -9591,7 +9616,7 @@ function ogrenciVerisiniSil(sid) {
   }
   auditKaydet("ogrenci_verisi_silindi", { not: "1 öğrencinin verisi silindi", rol: state.role || "" });
   return { oturum: ozet.oturum, yanit: ozet.yanit, puan: ozet.puan, gunluk: ozet.gunluk, onbellek: onbellek, analiz: analiz, karantina: karantina,
-    gozlem: ozet.gozlem, itiraz: ozet.itiraz, ornek: ornek };
+    gozlem: ozet.gozlem, itiraz: ozet.itiraz, ornek: ornek, cift: ozet.cift };
 }
 
 /** SAF: metinde adın kaç kez geçtiği (tam ad, büyük/küçük harf duyarlı). */
@@ -9627,7 +9652,7 @@ function ogrenciSilAc() {
     const o = ogrenciVeriOzeti(sec.value);
     document.getElementById("ogrSilOzet").innerHTML = "<b>Silinecek:</b> ad · " + o.oturum + " sınav oturumu · " + o.yanit +
       " yanıt · " + o.puan + " puan · " + o.gunluk + " karar günlüğü kaydı" + (o.gozlem ? " · " + o.gozlem + " gözlem formundaki işaretleri" : "") +
-      (o.itiraz ? " · " + o.itiraz + " itiraz" : "") + " · bu öğrencinin YZ önbelleği ve analizleri.";
+      (o.itiraz ? " · " + o.itiraz + " itiraz" : "") + (o.cift ? " · çift puanlama paketlerindeki " + o.cift + " yanıtı" : "") + " · bu öğrencinin YZ önbelleği ve analizleri.";
   };
   sec.onchange = ozetYaz;
   ozetYaz();
@@ -16293,6 +16318,618 @@ function calibrationHtml() {
 }
 
 /* ===========================================================================
+   §131 — ZÜMRE ÇİFT PUANLAMA (fikir 1, W9)
+   ===========================================================================
+   İki öğretmen aynı açık uçlu yanıtları BAĞIMSIZ puanlar; Mihenk uyumu gösterir.
+   Hesap ve sunucu yok — her şey dosya ile (Mihenk dosyayı kimseye göndermez):
+     1. A "İkinci puanlayıcı paketi" indirir: soru, rubrik, yanıt metni. Öğrenci
+        adı ve sistem kimliği YOK; yanıtlar §122 adsız numaralandırmasıyla
+        ("Yanıt N", pakete özgü tohum), metindeki kayıtlı adlar kisiselMaskele
+        ile [ÖĞRENCİ]. YZ önerisi ve A'nın puanı pakete HİÇ konmaz (kör).
+     2. B paketi kendi Mihenk'inde açar, ölçüt ölçüt puanlar, puanlanmış paketi
+        indirir. Dönen pakette yanıt metni yoktur: yalnız numara + puan.
+     3. A dönen paketi içe alır: ölçüt bazında yüzde uyum, karesel ağırlıklı
+        kappa (§121'in qwk'si, aynı 0,5 adım kategorileri), en çok ayrışanlar.
+   NEDEN KAPPA, KRIPPENDORFF DEĞİL: iki sabit puanlayıcı ve yalnız ikisinin de
+   puanladığı yanıtlar (eksik veri yok). Krippendorff α'nın üstünlüğü (eksik
+   veri, ikiden çok puanlayıcı) burada işe yaramaz; iki puanlayıcı ve büyük n'de
+   aralık α ile karesel κ neredeyse aynıdır. Ayrıca §121 YZ denetimi zaten QWK
+   kullanıyor: öğretmen aynı ölçüyle "YZ ↔ ben" ve "zümre ↔ ben" karşılaştırır.
+   altN (20) altında κ gösterilmez (§121 kuralı); yüzde uyum ve ayrışma listesi
+   betimseldir, her n'de gösterilir.
+   AGENTS §1: ayrışmada karar A'nındır. Hiçbir puan değişmez, birleştirilmez,
+   onaylanmaz; rapor yalnız bilgi verir. Bozuk ya da başka sınava ait paket
+   reddedilir ve mevcut veriye dokunulmaz (§128 deseni: önce tam doğrula, sonra yaz).
+   Kalıcı alan: state.ciftPuanlama (DURUM_SEMASI, ogrenciVerisiniSil, CSV).
+   =========================================================================== */
+const CIFT_BICIM = "mihenk-ikinci-puanlayici";
+const CIFT_SURUM = 1;
+const CIFT_DOSYA_EN_BUYUK = 5 * 1024 * 1024;
+const CIFT_METIN_SINIRI = 20000;
+const CIFT_PUANLAYICI_SINIRI = 60;
+const CIFT_KIMLIK_DESENI = /^cp-[0-9a-f]{16}$/;
+Object.assign(AUDIT_ETIKET, {
+  cift_paket_hazirlandi: { ad: "İkinci puanlayıcı paketi hazırlandı", sinif: "pill-neutral", aktor: "öğretmen" },
+  cift_paket_alindi:     { ad: "İkinci puanlayıcı paketi açıldı (kör puanlama)", sinif: "pill-neutral", aktor: "ikinci öğretmen" },
+  cift_donus_alindi:     { ad: "Çift puanlama dönüşü alındı", sinif: "pill-neutral", aktor: "öğretmen" },
+});
+var _ciftMesaj = null;   // { tur: "hata"|"bilgi", metin } — yalnız arayüz
+var _ciftAcik = false;   // bölüm açık mı — yalnız arayüz
+
+/** §131 sabitleri (testler de buradan okur). altN §121 ile aynı. */
+function ciftSabitleri() { return { altN: yzDenetimSabitleri().altN, ayrisan: 10 }; }
+
+function ciftKayitlari() { return Array.isArray(state.ciftPuanlama) ? state.ciftPuanlama : []; }
+
+function ciftYeniKimlik() {
+  const b = new Uint8Array(8);
+  try { crypto.getRandomValues(b); } catch (e) { for (let i = 0; i < 8; i++) b[i] = Math.floor(Math.random() * 256); }
+  return "cp-" + Array.prototype.map.call(b, function (x) { return (x < 16 ? "0" : "") + x.toString(16); }).join("");
+}
+
+/** SAF: rubrik → paket ölçütleri. Sıra rubrikteki gibi (YZ dökümüyle aynı sıra); tavan kriterPuani. */
+function ciftOlcutleri(rub) {
+  const r = rub || { maxScore: 20, criteria: [] };
+  return (r.criteria || []).map(function (c, i) {
+    return { ad: String((c && c.label) || "").trim() || "Ölçüt " + (i + 1), agirlik: Number(c && c.weight) || 0,
+      aciklama: String((c && c.description) || "").trim(), max: kriterPuani(r, c || {}) };
+  });
+}
+
+/** SAF: paket + A'nın kaydı. g = { sinav: {id, baslik}, sorular: [q] (sınav sırası), rubrikler,
+    ogrenciler: [{id}], oturum: sid → oturum, maskeListesi, tohum, kimlik, simdi }.
+    Boş yanıt pakete girmez (iki puanlayıcıda da 0 olur, uyumu şişirirdi). */
+function ciftPaketHazirla(g) {
+  const sorular = [], yanitlar = [], ogeler = [];
+  const acik = [];
+  (g.sorular || []).forEach(function (q, i) {
+    if (!q || q.type !== "open") return;
+    const rub = (g.rubrikler || {})[q.id] || {};
+    const max = rub.maxScore != null ? Number(rub.maxScore) : (q.maxScore != null ? Number(q.maxScore) : 20);
+    acik.push(q);
+    sorular.push({ qid: q.id, no: i + 1, govde: String(q.body || ""), max: max, olcutler: ciftOlcutleri(Object.assign({ maxScore: max }, rub)) });
+  });
+  const kodlar = adsizNumaralar((g.ogrenciler || []).map(function (s) { return s.id; }), g.tohum, g.sinav.id);
+  let bos = 0;
+  (g.ogrenciler || []).forEach(function (s) {
+    const ss = g.oturum(s.id) || {};
+    acik.forEach(function (q) {
+      const m = String((((ss.answers || {})[q.id]) || {}).text || "").trim();
+      if (!m) { bos++; return; }
+      const kod = kodlar[String(s.id)];
+      yanitlar.push({ kod: kod, qid: q.id, metin: ciftEkMaske(kisiselMaskele(m, g.maskeListesi || []).metin).slice(0, CIFT_METIN_SINIRI) });
+      ogeler.push({ kod: kod, sid: s.id, qid: q.id });
+    });
+  });
+  const no = {};
+  sorular.forEach(function (s) { no[String(s.qid)] = s.no; });
+  const sira = function (a, b) { return a.kod - b.kod || no[String(a.qid)] - no[String(b.qid)]; };
+  yanitlar.sort(sira); ogeler.sort(sira);
+  const sinav = { examId: g.sinav.id, baslik: String(g.sinav.baslik || "Adsız Sınav") };
+  return {
+    paket: { bicim: CIFT_BICIM, surum: CIFT_SURUM, asama: "puanlanacak", paketId: g.kimlik, olusturma: g.simdi,
+      sinav: sinav, sorular: sorular, yanitlar: yanitlar },
+    kayit: { id: g.kimlik, yon: "giden", examId: g.sinav.id, baslik: sinav.baslik, olusturma: g.simdi, tohum: g.tohum,
+      sorular: sorular.map(function (s) {
+        return { qid: s.qid, no: s.no, max: s.max, olcutler: s.olcutler.map(function (c) { return { ad: c.ad, max: c.max }; }) };
+      }),
+      ogeler: ogeler, donus: null },
+    bos: bos
+  };
+}
+
+/** SAF: pakete giden metinde kisiselMaskele'nin tutmadığı telefon / e-posta benzeri ifadeler
+    (desen §126 itirazKisiselVeriVar ile aynı aile). Ad maskesi ayrıca kisiselMaskele'de. */
+function ciftEkMaske(metin) {
+  return String(metin || "").replace(/[^\s@]+@[^\s@]+\.[^\s@]{2,}/g, "[E-POSTA]").replace(/\d(?:[\s().-]{0,2}\d){9,}/g, "[NUMARA]");
+}
+
+function ciftHata(metin) { return { ok: false, hata: metin }; }
+function ciftSayiMi(x, alt, ust) { return typeof x === "number" && isFinite(x) && x >= alt && x <= ust; }
+
+/** SAF: dosya metni → { ok, paket } ya da { ok:false, hata }. Ortak zarf denetimi (iki aşama). */
+function ciftPaketCoz(metin) {
+  if (typeof metin !== "string" || !metin.trim()) return ciftHata("Dosya boş.");
+  if (metin.length > CIFT_DOSYA_EN_BUYUK) return ciftHata("Dosya çok büyük (en çok 5 MB). Bu bir Mihenk ikinci puanlayıcı paketi değil.");
+  let p;
+  try { p = JSON.parse(metin.replace(/^﻿/, "")); } catch (e) {
+    return ciftHata("Dosya okunamadı: bozuk ya da bir Mihenk ikinci puanlayıcı paketi değil.");
+  }
+  if (!p || typeof p !== "object" || Array.isArray(p) || p.bicim !== CIFT_BICIM) return ciftHata("Bu dosya bir Mihenk ikinci puanlayıcı paketi değil.");
+  if (p.surum !== CIFT_SURUM) return ciftHata("Bu paket sürümü desteklenmiyor.");
+  if (typeof p.paketId !== "string" || !CIFT_KIMLIK_DESENI.test(p.paketId)) return ciftHata("Paket kimliği bozuk.");
+  if (p.asama !== "puanlanacak" && p.asama !== "puanlandi") return ciftHata("Paketin aşaması bilinmiyor.");
+  if (!p.sinav || typeof p.sinav !== "object" || !durumTurUyar(p.sinav.examId, "kimlik") || typeof p.sinav.baslik !== "string") {
+    return ciftHata("Paketteki sınav bilgisi bozuk.");
+  }
+  return { ok: true, paket: p };
+}
+
+/** SAF: puanlanacak paketi (B tarafı) denetler; yalnız bilinen alanlardan temiz kopya döner.
+    Bilinmeyen alanlar (ör. biri pakete puan eklediyse) kopyalanmaz: B yalnız yanıtı görür. */
+function ciftGelenDogrula(p) {
+  if (p.asama !== "puanlanacak") return ciftHata("Bu paket zaten puanlanmış (dönüş paketi). Onu paketi hazırlayan öğretmen içe alır.");
+  if (!Array.isArray(p.sorular) || !p.sorular.length || p.sorular.length > 200) return ciftHata("Paketteki soru listesi bozuk.");
+  if (!Array.isArray(p.yanitlar) || !p.yanitlar.length || p.yanitlar.length > 10000) return ciftHata("Paketteki yanıt listesi bozuk.");
+  const sorular = [], qidler = {};
+  for (let i = 0; i < p.sorular.length; i++) {
+    const s = p.sorular[i];
+    if (!s || !durumTurUyar(s.qid, "kimlik") || qidler[String(s.qid)] || !ciftSayiMi(s.no, 1, 1000) || typeof s.govde !== "string" ||
+      s.govde.length > CIFT_METIN_SINIRI || !ciftSayiMi(s.max, 0.5, 1000) || !Array.isArray(s.olcutler) || s.olcutler.length > 20) {
+      return ciftHata("Paketteki " + (i + 1) + ". soru bozuk.");
+    }
+    const olcutler = [];
+    for (let j = 0; j < s.olcutler.length; j++) {
+      const c = s.olcutler[j];
+      if (!c || typeof c.ad !== "string" || c.ad.length > 200 || !ciftSayiMi(c.max, 0, s.max)) return ciftHata("Paketteki " + (i + 1) + ". sorunun ölçütleri bozuk.");
+      olcutler.push({ ad: c.ad, agirlik: ciftSayiMi(c.agirlik, 0, 100) ? c.agirlik : 0, aciklama: typeof c.aciklama === "string" ? c.aciklama.slice(0, 1000) : "", max: c.max });
+    }
+    qidler[String(s.qid)] = true;
+    sorular.push({ qid: s.qid, no: s.no, govde: s.govde, max: s.max, olcutler: olcutler });
+  }
+  const yanitlar = [], gorulen = {};
+  for (let i = 0; i < p.yanitlar.length; i++) {
+    const y = p.yanitlar[i];
+    const anahtar = y ? y.kod + "|" + String(y.qid) : "";
+    if (!y || !Number.isInteger(y.kod) || y.kod < 1 || !qidler[String(y.qid)] || gorulen[anahtar] ||
+      typeof y.metin !== "string" || y.metin.length > CIFT_METIN_SINIRI) {
+      return ciftHata("Paketteki " + (i + 1) + ". yanıt bozuk.");
+    }
+    gorulen[anahtar] = true;
+    yanitlar.push({ kod: y.kod, qid: y.qid, metin: y.metin });
+  }
+  return { ok: true, temiz: { paketId: p.paketId, examId: p.sinav.examId, baslik: p.sinav.baslik.slice(0, 300),
+    olusturma: typeof p.olusturma === "string" ? p.olusturma.slice(0, 40) : "", sorular: sorular, yanitlar: yanitlar } };
+}
+
+/** SAF: B'nin girdiği ölçüt değerleri (metin) → { ok, puan, kriterler } | { ok, bos } | { ok:false, hata }.
+    Ölçüt yoksa degerler[0] toplam puandır. Toplam rubrik tavanına sınırlanır (kriterToplami). */
+function ciftPuanHesapla(soru, degerler) {
+  const d = degerler || [];
+  const olc = soru.olcutler || [];
+  const hepsiBos = (olc.length ? olc : [0]).every(function (c, i) { return !String(d[i] == null ? "" : d[i]).trim(); });
+  if (hepsiBos) return { ok: true, bos: true };
+  if (!olc.length) {
+    const n = kriterPuanNormal(d[0], soru.max);
+    return n == null ? ciftHata("0 ile " + ondalikTr(soru.max) + " arasında bir puan yazın.") : { ok: true, puan: n, kriterler: null };
+  }
+  const kr = olc.map(function (c, i) { return kriterPuanNormal(d[i], c.max); });
+  if (kr.some(function (x) { return x == null; })) return ciftHata("Her ölçüte 0 ile ölçüt tavanı arasında bir puan yazın.");
+  return { ok: true, puan: kriterToplami(kr.map(function (x) { return { nihai: x }; }), soru.max), kriterler: kr };
+}
+
+/** SAF: B'nin dönüş paketi. Yanıt metni GERİ GÖNDERİLMEZ: yalnız numara + puan. */
+function ciftDonusPaketi(kayit, simdi) {
+  const puanlar = [];
+  (kayit.yanitlar || []).forEach(function (y) {
+    const p = (kayit.puanlar || {})[y.kod + "|" + String(y.qid)];
+    if (p && isFinite(Number(p.puan))) puanlar.push({ kod: y.kod, qid: y.qid, puan: Number(p.puan), kriterler: Array.isArray(p.kriterler) ? p.kriterler.slice() : null });
+  });
+  return { bicim: CIFT_BICIM, surum: CIFT_SURUM, asama: "puanlandi", paketId: kayit.id, olusturma: kayit.olusturma || "", puanlanma: simdi,
+    sinav: { examId: kayit.examId, baslik: kayit.baslik }, puanlayici: String(kayit.puanlayici || "").slice(0, CIFT_PUANLAYICI_SINIRI), puanlar: puanlar };
+}
+
+/** SAF: dönen paketi A'nın kaydına ve AKTİF sınava karşı denetler. Bir tek sorun bile varsa
+    hiçbir puan alınmaz. Döner { ok, puanlar, puanlayici } | { ok:false, hata }. */
+function ciftDonusDogrula(p, kayit, aktifSinavId) {
+  if (p.asama !== "puanlandi") return ciftHata("Bu, puanlanmamış ilk paket. İkinci öğretmenin puanlayıp geri verdiği paketi seçin.");
+  if (!kayit) return ciftHata("Bu paket bu cihazda hazırlanmadı ya da kaydı silindi; içe alınmadı.");
+  if (String(p.sinav.examId) !== String(kayit.examId)) return ciftHata("Paketteki sınav bilgisi kayıtla uyuşmuyor; içe alınmadı.");
+  if (String(kayit.examId) !== String(aktifSinavId)) {
+    return ciftHata("Bu paket «" + kayit.baslik + "» sınavına ait. Önce yukarıdan o sınavı seçin; hiçbir şey değişmedi.");
+  }
+  if (p.puanlayici != null && (typeof p.puanlayici !== "string" || p.puanlayici.length > CIFT_PUANLAYICI_SINIRI)) return ciftHata("Puanlayıcı adı bozuk.");
+  if (!Array.isArray(p.puanlar) || !p.puanlar.length) return ciftHata("Pakette hiç puan yok; ikinci öğretmen puanlamamış.");
+  if (p.puanlar.length > (kayit.ogeler || []).length) return ciftHata("Pakette gönderilenden çok yanıt var; içe alınmadı.");
+  const oge = {}, soru = {}, gorulen = {};
+  (kayit.ogeler || []).forEach(function (o) { oge[o.kod + "|" + String(o.qid)] = true; });
+  (kayit.sorular || []).forEach(function (s) { soru[String(s.qid)] = s; });
+  const puanlar = [];
+  for (let i = 0; i < p.puanlar.length; i++) {
+    const x = p.puanlar[i];
+    const anahtar = x ? x.kod + "|" + String(x.qid) : "";
+    const s = x ? soru[String(x.qid)] : null;
+    if (!x || !Number.isInteger(x.kod) || !oge[anahtar] || gorulen[anahtar] || !s) return ciftHata("Paketteki " + (i + 1) + ". puan bu pakette gönderilmiş bir yanıta ait değil.");
+    if (!ciftSayiMi(x.puan, 0, s.max)) return ciftHata("Paketteki " + (i + 1) + ". puan 0 ile " + ondalikTr(s.max) + " arasında değil.");
+    let kr = null;
+    if (x.kriterler != null) {
+      if (!Array.isArray(x.kriterler) || x.kriterler.length !== s.olcutler.length ||
+        x.kriterler.some(function (v, j) { return !ciftSayiMi(v, 0, s.olcutler[j].max); })) return ciftHata("Paketteki " + (i + 1) + ". puanın ölçüt puanları bozuk.");
+      const top = kriterToplami(x.kriterler.map(function (v) { return { nihai: v }; }), s.max);
+      if (Math.abs(top - x.puan) > 0.01) return ciftHata("Paketteki " + (i + 1) + ". puan ölçüt puanlarının toplamıyla tutmuyor.");
+      kr = x.kriterler.slice();
+    }
+    gorulen[anahtar] = true;
+    puanlar.push({ kod: x.kod, qid: x.qid, puan: x.puan, kriterler: kr });
+  }
+  return { ok: true, puanlar: puanlar, puanlayici: String(p.puanlayici || "").trim() };
+}
+
+/** A'nın o yanıttaki puanı (yalnız öğretmen kararı). Ölçüt puanları: öğretmen düzelttiyse
+    review.kriterler (§112); "YZ önerisiyle aynı" onayladıysa onayladığı döküm; aksi hâlde yok. */
+function ciftAPuani(sid, qid) {
+  const o = readSession(sid);
+  const rv = (o.reviews || {})[qid];
+  if (!rv || rv.finalScore == null) return null;
+  let kr = null;
+  if (Array.isArray(rv.kriterler) && rv.kriterler.length) kr = rv.kriterler.map(function (k) { return Number(k.nihai); });
+  else if (rv.decision === "approved_as_is") {
+    const ev = (o.aiEvals || {})[qid];
+    if (ev && Array.isArray(ev.breakdown) && ev.breakdown.length) kr = ev.breakdown.map(function (b) { return Number(b.points); });
+  }
+  return { puan: Number(rv.finalScore), kriterler: kr };
+}
+
+/** SAF: dönüşü A'nın kaydına yazar; A'nın o anki puanı anlık görüntü olarak alınır (rapor sonradan kaymaz). */
+function ciftDonusUygula(kayit, d, aPuani, simdi) {
+  const sid = {};
+  (kayit.ogeler || []).forEach(function (o) { sid[o.kod + "|" + String(o.qid)] = o.sid; });
+  kayit.donus = { alinma: simdi, puanlayici: d.puanlayici, puanlar: d.puanlar.map(function (x) {
+    const a = aPuani(sid[x.kod + "|" + String(x.qid)], x.qid);
+    return { kod: x.kod, qid: x.qid, b: x.puan, bk: x.kriterler, a: a ? a.puan : null, ak: a ? a.kriterler : null };
+  }) };
+  return kayit;
+}
+
+/** SAF: uyum raporu. Yalnız iki puanlayıcının da puanladığı yanıtlar. Kategoriler §121 gibi 0,5 adım. */
+function ciftUyumRaporu(kayit, sabit) {
+  const s = sabit || ciftSabitleri();
+  const soru = {};
+  (kayit.sorular || []).forEach(function (x) { soru[String(x.qid)] = x; });
+  const tum = ((kayit.donus || {}).puanlar || []);
+  const ciftler = tum.filter(function (x) { return x.a != null && x.b != null && soru[String(x.qid)]; });
+  const ozet = function (liste, ust) {
+    const ka = liste.map(function (x) { return yarimPuanKategori(x.a); }), kb = liste.map(function (x) { return yarimPuanKategori(x.b); });
+    let tam = 0, bitisik = 0, mutlak = 0;
+    for (let i = 0; i < liste.length; i++) {
+      const f = Math.abs(ka[i] - kb[i]);
+      if (f === 0) tam++;
+      if (f <= 1) bitisik++;
+      mutlak += Math.abs(liste[i].a - liste[i].b);
+    }
+    const n = liste.length;
+    return { n: n, tamUyum: n ? tam / n : null, bitisikUyum: n ? bitisik / n : null, ortMutlak: n ? mutlak / n : null,
+      qwk: n >= s.altN ? qwk(ka, kb, 0, yarimPuanKategori(ust)) : null };
+  };
+  const enCok = Math.max.apply(null, [0].concat((kayit.sorular || []).map(function (x) { return x.max; })));
+  const sorular = (kayit.sorular || []).map(function (x) {
+    return Object.assign({ qid: x.qid, no: x.no, max: x.max }, ozet(ciftler.filter(function (c) { return String(c.qid) === String(x.qid); }), x.max));
+  });
+  const olcutler = [];
+  (kayit.sorular || []).forEach(function (x) {
+    (x.olcutler || []).forEach(function (c, j) {
+      const l = ciftler.filter(function (p) {
+        return String(p.qid) === String(x.qid) && Array.isArray(p.ak) && Array.isArray(p.bk) &&
+          p.ak.length === x.olcutler.length && p.bk.length === x.olcutler.length;
+      }).map(function (p) { return { a: p.ak[j], b: p.bk[j] }; });
+      const o = ozet(l, c.max);
+      olcutler.push({ qid: x.qid, no: x.no, ad: c.ad, max: c.max, n: o.n, tamUyum: o.tamUyum, bitisikUyum: o.bitisikUyum });
+    });
+  });
+  const ayrisanlar = ciftler.map(function (x) {
+    const m = soru[String(x.qid)].max;
+    return { kod: x.kod, qid: x.qid, no: soru[String(x.qid)].no, a: x.a, b: x.b, fark: x.b - x.a, max: m, oran: m > 0 ? Math.abs(x.b - x.a) / m : 0 };
+  }).filter(function (x) { return Math.abs(x.fark) > 0.001; })
+    .sort(function (x, y) { return y.oran - x.oran || x.kod - y.kod || x.no - y.no; }).slice(0, s.ayrisan);
+  return { n: ciftler.length, toplam: (kayit.ogeler || []).length, aYok: tum.filter(function (x) { return x.a == null; }).length,
+    bYok: Math.max(0, (kayit.ogeler || []).length - tum.length), altN: s.altN,
+    genel: ozet(ciftler, enCok), sorular: sorular, olcutler: olcutler, ayrisanlar: ayrisanlar };
+}
+
+/** SAF: uyum tablosu CSV'si (her yanıt bir satır). Ad yok: paket numarası. Her hücre csvHucre'den geçer. */
+function ciftUyumCsv(kayit) {
+  const soru = {};
+  (kayit.sorular || []).forEach(function (x) { soru[String(x.qid)] = x; });
+  const kr = function (l) { return Array.isArray(l) ? l.map(function (v) { return ondalikTr(v); }).join(" | ") : ""; };
+  const d = kayit.donus || {};
+  const basliklar = ["Sınav", "İkinci puanlayıcı", "Paket yanıt no", "Soru", "Tavan", "Sizin puanınız", "İkinci puan", "Fark (ikinci − siz)",
+    "Sizin ölçütleriniz", "İkinci ölçütler"];
+  const satirlar = (d.puanlar || []).map(function (x) {
+    const s = soru[String(x.qid)] || {};
+    return [kayit.baslik, d.puanlayici || "", "Yanıt " + x.kod, s.no, csvSayi(s.max), x.a == null ? "puanlamadınız" : csvSayi(x.a), csvSayi(x.b),
+      x.a == null ? "" : csvSayi(x.b - x.a), kr(x.ak), kr(x.bk)].map(csvHucre).join(";");
+  });
+  return "﻿" + basliklar.map(csvHucre).join(";") + "\n" + satirlar.join("\n");
+}
+
+/** Aktif sınavdan paket hazırlanabilir mi? (yayında, gönderen ve açık uçlu soru var) */
+function ciftHazirlanabilir() {
+  if (!state.exam || state.exam.status !== "published") return false;
+  const acik = (state.exam.questionIds || []).some(function (id) { const q = findQuestion(id); return q && q.type === "open"; });
+  return acik && submittedStudents().length > 0;
+}
+
+function ciftDosyaAdi(asama, simdi) {
+  return "mihenk-ikinci-puanlayici-" + (asama === "puanlandi" ? "puanlandi-" : "") + String(simdi).slice(0, 10) + ".json";
+}
+
+/** A: paketi hazırlar, kaydı yazar, dosyayı indirir. */
+function ciftPaketIndir() {
+  if (itirazCakismaVar()) { _ciftMesaj = { tur: "hata", metin: ITIRAZ_CAKISMA_METNI }; renderAll(); return null; }
+  if (!ciftHazirlanabilir()) return null;
+  const simdi = new Date().toISOString();
+  const r = ciftPaketHazirla({
+    sinav: { id: state.activeExamId, baslik: state.exam.title },
+    sorular: (state.exam.questionIds || []).map(findQuestion), rubrikler: state.rubrics,
+    ogrenciler: submittedStudents(), oturum: readSession, maskeListesi: state.students || [],
+    tohum: Math.floor(Math.random() * 4294967296), kimlik: ciftYeniKimlik(), simdi: simdi });
+  if (!r.paket.yanitlar.length) { _ciftMesaj = { tur: "hata", metin: "Paketlenecek yanıt metni yok (kâğıt sınavda yanıt metni tutulmaz)." }; renderAll(); return null; }
+  state.ciftPuanlama = ciftKayitlari().concat([r.kayit]);
+  auditKaydet("cift_paket_hazirlandi", { not: r.paket.yanitlar.length + " yanıt, " + r.paket.sorular.length + " soru; ad yok, YZ önerisi ve sizin puanınız yok" +
+    (r.bos ? "; " + r.bos + " boş yanıt pakete girmedi" : "") });
+  auditIndir(JSON.stringify(r.paket, null, 1), ciftDosyaAdi("puanlanacak", simdi), "application/json");
+  _ciftMesaj = { tur: "bilgi", metin: "Paket indirildi: " + r.paket.yanitlar.length + " yanıt" + (r.bos ? " (" + r.bos + " boş yanıt girmedi)" : "") +
+    ". Dosyayı zümre arkadaşınıza siz verin; puanlayıp geri verdiğinde buradan içe alın." };
+  _ciftAcik = true;
+  saveSoon();
+  renderAll();
+  return r;
+}
+
+/** Dosya metnini işler: puanlanacak → B olarak aç; puanlandı → A olarak dönüş al.
+    Döner { ok, hata?, metin? }. Hata durumunda state'e hiç dokunulmaz. */
+function ciftDosyaIsle(metin) {
+  if (itirazCakismaVar()) return ciftHata(ITIRAZ_CAKISMA_METNI);
+  const c = ciftPaketCoz(metin);
+  if (!c.ok) return c;
+  const p = c.paket;
+  const mevcut = ciftKayitlari().filter(function (k) { return k.id === p.paketId; })[0] || null;
+  const simdi = new Date().toISOString();
+  if (p.asama === "puanlanacak") {
+    if (mevcut && mevcut.yon === "giden") return ciftHata("Bu paketi bu cihazda siz hazırladınız. Kör puanlama için zümre arkadaşınıza verin; puanlanmış dönüşünü buradan içe alın.");
+    if (mevcut) return { ok: true, metin: "Bu paket zaten açık; puanlarınız yerinde." };
+    const g = ciftGelenDogrula(p);
+    if (!g.ok) return g;
+    const t = g.temiz;
+    state.ciftPuanlama = ciftKayitlari().concat([{ id: t.paketId, yon: "gelen", examId: t.examId, baslik: t.baslik, olusturma: t.olusturma,
+      alinma: simdi, sorular: t.sorular, yanitlar: t.yanitlar, puanlar: {}, puanlayici: "" }]);
+    auditKaydet("cift_paket_alindi", { not: t.yanitlar.length + " yanıt, " + t.sorular.length + " soru; YZ önerisi ve ilk puan pakette yok" });
+    saveSoon();
+    return { ok: true, metin: "Paket açıldı: " + t.yanitlar.length + " yanıt. Aşağıda puanlayın." };
+  }
+  if (mevcut && mevcut.yon === "gelen") return ciftHata("Bu sizin puanladığınız paket. Onu paketi hazırlayan öğretmen içe alır.");
+  const d = ciftDonusDogrula(p, mevcut, state.activeExamId);
+  if (!d.ok) return d;
+  const yeniden = !!mevcut.donus;
+  ciftDonusUygula(mevcut, d, ciftAPuani, simdi);
+  state.ciftPuanlama = ciftKayitlari().slice();
+  auditKaydet("cift_donus_alindi", { not: d.puanlar.length + " yanıtın ikinci puanı alındı" + (yeniden ? " (önceki dönüşün yerine)" : "") +
+    "; hiçbir puan değişmedi, karar öğretmenin" });
+  saveSoon();
+  return { ok: true, metin: "Dönüş alındı: " + d.puanlar.length + " yanıt" + (yeniden ? " (önceki dönüşün yerine geçti)" : "") + ". Hiçbir puan değişmedi; uyum aşağıda." };
+}
+
+function ciftTarih(iso) {
+  const t = new Date(iso);
+  return isNaN(t.getTime()) ? "" : t.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** A'nın raporundaki yanıt etiketi: adlar açıksa ad; "Adları gizle" açıksa Puanlama'daki "Yanıt N". */
+function ciftYanitEtiketi(kayit, kod, adsizNo) {
+  const o = (kayit.ogeler || []).filter(function (x) { return x.kod === kod; })[0];
+  const ogr = o ? (state.students || []).filter(function (s) { return String(s.id) === String(o.sid); })[0] : null;
+  if (!o || !ogr) return "Paket yanıtı " + kod;
+  if (adsizNo) return adsizNo[String(o.sid)] ? "Yanıt " + adsizNo[String(o.sid)] : "Paket yanıtı " + kod;
+  return escapeHtml(ogr.name) + ' <span class="lbl-hint">(paket ' + kod + ")</span>";
+}
+
+function ciftYuzde(x) { return x == null ? "—" : "%" + Math.round(x * 100); }
+
+function ciftRaporHtml(kayit) {
+  const r = ciftUyumRaporu(kayit);
+  const d = kayit.donus;
+  const tercih = puanTercihAl();
+  const adsizNo = tercih.adsiz ? adsizNumaralar(submittedStudents().map(function (s) { return s.id; }), adsizTohumAl(), state.activeExamId) : null;
+  const k = r.genel.qwk;
+  const kMetni = function (q, n) {
+    if (n < r.altN) return "yetersiz veri (" + n + " < " + r.altN + ")";
+    return q && q.deger != null ? ondalikTr(q.deger, 2) : "hesaplanamadı" + (q && q.neden ? ": " + escapeHtml(q.neden) : "");
+  };
+  const satirSoru = r.sorular.map(function (s) {
+    return "<tr><th scope=\"row\">Soru " + s.no + "</th><td class=\"tabular\">" + s.n + "</td><td class=\"tabular\">" + kMetni(s.qwk, s.n) +
+      "</td><td class=\"tabular\">" + ciftYuzde(s.tamUyum) + "</td><td class=\"tabular\">" + ciftYuzde(s.bitisikUyum) +
+      "</td><td class=\"tabular\">" + (s.ortMutlak == null ? "—" : ondalikTr(s.ortMutlak, 2)) + "</td></tr>";
+  }).join("");
+  const satirOlcut = r.olcutler.map(function (o) {
+    return "<tr><th scope=\"row\">Soru " + o.no + " · " + escapeHtml(o.ad) + "</th><td class=\"tabular\">" + o.n + "</td><td class=\"tabular\">" +
+      ciftYuzde(o.tamUyum) + "</td><td class=\"tabular\">" + ciftYuzde(o.bitisikUyum) + "</td></tr>";
+  }).join("");
+  const isaretli = function (x) { return (x > 0.0005 ? "+" : "") + ondalikTr(x); };
+  const satirAyrisan = r.ayrisanlar.map(function (x) {
+    return "<tr><th scope=\"row\">" + ciftYanitEtiketi(kayit, x.kod, adsizNo) + "</th><td>Soru " + x.no + "</td><td class=\"tabular\">" +
+      ondalikTr(x.a) + " / " + ondalikTr(x.max) + "</td><td class=\"tabular\">" + ondalikTr(x.b) + "</td><td class=\"tabular\">" + isaretli(x.fark) + "</td></tr>";
+  }).join("");
+  return '<div class="cift-rapor">' +
+    '<p class="cift-ozet"><b>' + escapeHtml(d.puanlayici || "İkinci puanlayıcı") + "</b> · dönüş " + escapeHtml(ciftTarih(d.alinma)) + " · " +
+    r.n + " yanıtı ikiniz de puanladınız" + (r.aYok ? " · " + r.aYok + " yanıtı siz henüz puanlamamıştınız (hesaba girmedi)" : "") +
+    (r.bYok ? " · " + r.bYok + " yanıt ikinci puanlayıcıda puansız" : "") + ".</p>" +
+    '<div class="ia-item"><div class="ia-metrics"><span class="ia-metric"><b>Karesel ağırlıklı kappa</b> = ' + kMetni(k, r.genel.n) + "</span>" +
+    '<span class="ia-metric"><b>Tam uyum</b> = ' + ciftYuzde(r.genel.tamUyum) + "</span>" +
+    '<span class="ia-metric"><b>En çok 0,5 puan fark</b> = ' + ciftYuzde(r.genel.bitisikUyum) + "</span></div>" +
+    '<div class="ia-legend">Toplam puanlarda, 0,5 puan adımlı. Kappa, şans eseri beklenecek uyumu hesaptan çıkarır; ' + r.altN +
+    " çiftten azında gösterilmez (YZ denetimiyle aynı kural). Yüzdeler betimseldir.</div></div>" +
+    '<div class="cift-tablo-kap"><table class="cift-tablo"><caption>Soru bazında</caption><thead><tr><th scope="col">Soru</th><th scope="col">Çift</th>' +
+    '<th scope="col">Kappa</th><th scope="col">Tam uyum</th><th scope="col">≤ 0,5 puan</th><th scope="col">Ort. mutlak fark</th></tr></thead><tbody>' + satirSoru + "</tbody></table></div>" +
+    (satirOlcut ? '<div class="cift-tablo-kap"><table class="cift-tablo"><caption>Ölçüt bazında yüzde uyum</caption><thead><tr><th scope="col">Ölçüt</th>' +
+      '<th scope="col">Çift</th><th scope="col">Tam uyum</th><th scope="col">≤ 0,5 puan</th></tr></thead><tbody>' + satirOlcut + "</tbody></table>" +
+      '<p class="lbl-hint">Sizin ölçüt puanınız yalnız ölçütleri düzelttiğiniz ya da yapay zekâ dökümünü olduğu gibi onayladığınız yanıtlarda vardır; ötekiler bu tabloya girmez.</p></div>' : "") +
+    (satirAyrisan ? '<div class="cift-tablo-kap"><table class="cift-tablo"><caption>En çok ayrışan yanıtlar</caption><thead><tr><th scope="col">Yanıt</th>' +
+      '<th scope="col">Soru</th><th scope="col">Sizin puanınız</th><th scope="col">İkinci puan</th><th scope="col">Fark</th></tr></thead><tbody>' + satirAyrisan + "</tbody></table></div>"
+      : '<p class="lbl-hint">İki puanlayıcının farklı puan verdiği yanıt yok.</p>') +
+    '<p class="cift-karar"><b>Karar sizindir.</b> Mihenk hiçbir puanı değiştirmez, ortalamaz ya da birleştirmez; ayrışan yanıtı yeniden okuyup karar vermek size kalır.</p>' +
+    '<button type="button" class="btn btn-secondary btn-sm js-cift-csv" data-id="' + escapeHtml(kayit.id) + '">Uyum tablosunu indir (CSV)</button></div>';
+}
+
+function ciftGidenHtml(kayit) {
+  return '<li class="cift-paket"><h3>Gönderilen paket · ' + escapeHtml(ciftTarih(kayit.olusturma)) + " · " + (kayit.ogeler || []).length + " yanıt</h3>" +
+    (kayit.donus ? ciftRaporHtml(kayit) : '<p class="lbl-hint">İkinci puanlayıcıdan dönüş bekleniyor. Puanlanmış paketi yukarıdan açın.</p>') + "</li>";
+}
+
+function ciftPuanliSayisi(kayit) {
+  return (kayit.yanitlar || []).filter(function (y) { return (kayit.puanlar || {})[y.kod + "|" + String(y.qid)]; }).length;
+}
+
+function ciftGelenYanitHtml(kayit, soru, y) {
+  const p = (kayit.puanlar || {})[y.kod + "|" + String(y.qid)];
+  const kimlik = "cift-" + kayit.id + "-" + y.kod + "-" + escapeHtml(String(y.qid));
+  const veri = ' data-id="' + escapeHtml(kayit.id) + '" data-kod="' + y.kod + '" data-qid="' + escapeHtml(String(y.qid)) + '"';
+  const alan = function (i, etiket, max, deger) {
+    return '<div class="field cift-alan"><label for="' + kimlik + "-" + i + '">' + etiket + ' <span class="lbl-hint">(0–' + ondalikTr(max) + ")</span></label>" +
+      '<input type="text" inputmode="decimal" autocomplete="off" class="cift-olcut" id="' + kimlik + "-" + i + '"' + veri + ' data-i="' + i + '" value="' +
+      (deger == null ? "" : escapeHtml(ondalikTr(deger))) + '" aria-describedby="' + kimlik + '-hata"></div>';
+  };
+  const alanlar = soru.olcutler.length
+    ? soru.olcutler.map(function (c, i) { return alan(i, escapeHtml(c.ad), c.max, p && p.kriterler ? p.kriterler[i] : null); }).join("")
+    : alan(0, "Puan", soru.max, p ? p.puan : null);
+  return '<div class="cift-yanit" role="group" aria-labelledby="' + kimlik + '-bas"><div class="q-meta"><span class="student-chip adsiz-chip" id="' + kimlik + '-bas">Yanıt ' + y.kod +
+    " · Soru " + soru.no + "</span></div>" +
+    '<div class="answer-box">' + escapeHtml(y.metin) + "</div>" +
+    '<div class="cift-alanlar">' + alanlar + '<p class="cift-toplam tabular" id="' + kimlik + '-toplam">Toplam: ' + (p ? ondalikTr(p.puan) : "—") + " / " + ondalikTr(soru.max) + "</p></div>" +
+    '<p class="field-hata-metni" id="' + kimlik + '-hata" role="alert"></p></div>';
+}
+
+function ciftGelenHtml(kayit) {
+  const toplam = (kayit.yanitlar || []).length;
+  return '<li class="cift-paket cift-gelen"><h3>Kör puanlama · ' + escapeHtml(kayit.baslik) + "</h3>" +
+    '<p class="cift-cihaz">Bu pakette yapay zekâ önerisi ve ilk öğretmenin puanı yoktur. Her yanıtı rubriğe göre kendiniz puanlayın; puanlar bu tarayıcıya kaydedilir. ' +
+    "Bitince puanlanmış paketi indirip ilk öğretmene geri verin: geri giden dosyada yanıt metni olmaz, yalnız numara ve puan olur.</p>" +
+    '<div class="field cift-puanlayici-alan"><label for="ciftPuanlayici-' + escapeHtml(kayit.id) + '">Puanlayıcı (isteğe bağlı, ör. “Fen zümresi 2”)</label>' +
+    '<input type="text" maxlength="' + CIFT_PUANLAYICI_SINIRI + '" class="cift-puanlayici" id="ciftPuanlayici-' + escapeHtml(kayit.id) + '" data-id="' + escapeHtml(kayit.id) +
+    '" value="' + escapeHtml(kayit.puanlayici || "") + '"></div>' +
+    kayit.sorular.map(function (s) {
+      return '<section class="cift-soru" aria-labelledby="ciftSoru-' + escapeHtml(kayit.id) + "-" + s.no + '"><h4 id="ciftSoru-' + escapeHtml(kayit.id) + "-" + s.no + '">Soru ' + s.no +
+        ' <span class="lbl-hint">en çok ' + ondalikTr(s.max) + " puan</span></h4>" +
+        '<div class="pk-grup-soru">' + escapeHtml(s.govde) + "</div>" +
+        (s.olcutler.length ? '<ul class="pk-rubrik" aria-label="Rubrik ölçütleri">' + s.olcutler.map(function (c) {
+          return "<li><b>" + escapeHtml(c.ad) + '</b> <span class="tabular">' + ondalikTr(c.max) + " puan</span>" +
+            (c.aciklama ? '<span class="pk-rubrik-acik"> — ' + escapeHtml(c.aciklama) + "</span>" : "") + "</li>";
+        }).join("") + "</ul>" : "") +
+        kayit.yanitlar.filter(function (y) { return String(y.qid) === String(s.qid); }).map(function (y) { return ciftGelenYanitHtml(kayit, s, y); }).join("") +
+        "</section>";
+    }).join("") +
+    '<div class="cift-alt"><p class="cift-ilerleme" id="ciftIlerleme-' + escapeHtml(kayit.id) + '" role="status">' + ciftPuanliSayisi(kayit) + " / " + toplam + " yanıt puanlandı.</p>" +
+    '<button type="button" class="btn btn-primary btn-sm js-cift-donus" data-id="' + escapeHtml(kayit.id) + '">Puanlanmış paketi indir</button></div></li>';
+}
+
+function ciftKartHtml() {
+  const kayitlar = ciftKayitlari();
+  const giden = kayitlar.filter(function (k) { return k.yon === "giden" && String(k.examId) === String(state.activeExamId); });
+  const gelen = kayitlar.filter(function (k) { return k.yon === "gelen"; });
+  const m = _ciftMesaj;
+  return '<div class="cift-kart" id="ciftKart">' +
+    '<p class="lbl-hint">Bir zümre arkadaşınız aynı açık uçlu yanıtları sizin puanınızı ve yapay zekâ önerisini görmeden puanlar; Mihenk uyumu gösterir. ' +
+    "Pakette öğrenci adı yoktur: yanıtlar karışık numarayla gelir, sınıf listesindeki adlar [ÖĞRENCİ] ile gizlenir. Dosyayı siz verirsiniz; Mihenk hiçbir yere göndermez.</p>" +
+    '<div class="cift-arac">' +
+    (ciftHazirlanabilir() ? '<button type="button" class="btn btn-secondary btn-sm js-cift-hazirla">İkinci puanlayıcı paketi hazırla</button>' : "") +
+    '<div class="field cift-dosya"><label for="ciftDosya">Paket dosyası (.json): zümreden gelen ya da puanlanıp dönen</label>' +
+    '<input type="file" id="ciftDosya" accept=".json,application/json"></div>' +
+    '<button type="button" class="btn btn-secondary btn-sm js-cift-ac">Paketi aç</button></div>' +
+    '<p class="field-hata-metni" id="ciftHata" role="alert">' + (m && m.tur === "hata" ? escapeHtml(m.metin) : "") + "</p>" +
+    '<p class="field-yardim" id="ciftDurum" role="status">' + (m && m.tur === "bilgi" ? escapeHtml(m.metin) : "") + "</p>" +
+    (giden.length || gelen.length ? '<ul class="cift-liste">' + giden.map(ciftGidenHtml).join("") + gelen.map(ciftGelenHtml).join("") + "</ul>" : "") +
+    "</div>";
+}
+
+/** Puanlama sekmesinin altındaki katlı bölüm. Gelen paket ya da mesaj varsa açık çizilir. */
+function ciftBolumuHtml() {
+  const acik = _ciftAcik || !!_ciftMesaj || ciftKayitlari().some(function (k) { return k.yon === "gelen"; });
+  return '<details class="ogt-katli cift-bolum" id="ciftBolum"' + (acik ? " open" : "") + "><summary>Zümre çift puanlama</summary>" + ciftKartHtml() + "</details>";
+}
+
+/** Bir yanıtın girdilerini okuyup kaydeder; yeniden çizmez (odak kalır, PROGRESS §5). */
+function ciftGirdiKaydet(el) {
+  const id = el.dataset.id, kod = Number(el.dataset.kod), qid = el.dataset.qid;
+  const kayit = ciftKayitlari().filter(function (k) { return k.id === id && k.yon === "gelen"; })[0];
+  if (!kayit) return;
+  const soru = kayit.sorular.filter(function (s) { return String(s.qid) === String(qid); })[0];
+  const y = kayit.yanitlar.filter(function (x) { return x.kod === kod && String(x.qid) === String(qid); })[0];
+  if (!soru || !y) return;
+  const kimlik = "cift-" + id + "-" + kod + "-" + qid;
+  const hataEl = document.getElementById(kimlik + "-hata");
+  const girdiler = Array.prototype.slice.call(document.querySelectorAll(".cift-olcut")).filter(function (g) {
+    return g.dataset.id === id && Number(g.dataset.kod) === kod && g.dataset.qid === String(qid);
+  });
+  if (itirazCakismaVar()) { if (hataEl) hataEl.textContent = ITIRAZ_CAKISMA_METNI; return; }
+  const sonuc = ciftPuanHesapla(soru, girdiler.map(function (g) { return g.value; }));
+  girdiler.forEach(function (g) { g.removeAttribute("aria-invalid"); });
+  if (!sonuc.ok) {
+    if (hataEl) hataEl.textContent = sonuc.hata;
+    girdiler.forEach(function (g, i) {
+      const max = soru.olcutler.length ? soru.olcutler[i].max : soru.max;
+      if (String(g.value).trim() && kriterPuanNormal(g.value, max) == null) g.setAttribute("aria-invalid", "true");
+    });
+    return;
+  }
+  if (hataEl) hataEl.textContent = "";
+  kayit.puanlar = Object.assign({}, kayit.puanlar || {});
+  const anahtar = kod + "|" + String(y.qid);
+  if (sonuc.bos) delete kayit.puanlar[anahtar];
+  else kayit.puanlar[anahtar] = { puan: sonuc.puan, kriterler: sonuc.kriterler };
+  const top = document.getElementById(kimlik + "-toplam");
+  if (top) top.textContent = "Toplam: " + (sonuc.bos ? "—" : ondalikTr(sonuc.puan)) + " / " + ondalikTr(soru.max);
+  const il = document.getElementById("ciftIlerleme-" + id);
+  if (il) il.textContent = ciftPuanliSayisi(kayit) + " / " + kayit.yanitlar.length + " yanıt puanlandı.";
+  saveSoon();
+}
+
+function wireCiftPuanlama() {
+  const bolum = document.getElementById("ciftBolum");
+  if (!bolum) return;
+  /* Açık/kapalı durumu tıklamada EŞZAMANLI tutulur: toggle olayı geç gelir; arada bir yeniden
+     çizim (ör. demo zamanlayıcısı) bölümü kapalı çiziyordu (ölçüldü: düğme görünmez kaldı). */
+  const ozet = bolum.querySelector("summary");
+  if (ozet) ozet.onclick = function () { _ciftAcik = !bolum.open; };
+  bolum.ontoggle = function () { _ciftAcik = bolum.open; };
+  const hazirla = bolum.querySelector(".js-cift-hazirla");
+  if (hazirla) hazirla.onclick = function () { ciftPaketIndir(); };
+  const ac = bolum.querySelector(".js-cift-ac");
+  if (ac) ac.onclick = async function () {
+    const dosya = (document.getElementById("ciftDosya").files || [])[0];
+    if (!dosya) { _ciftMesaj = { tur: "hata", metin: "Önce bir paket dosyası seçin." }; }
+    else if (dosya.size > CIFT_DOSYA_EN_BUYUK) { _ciftMesaj = { tur: "hata", metin: "Dosya çok büyük (en çok 5 MB). Bu bir Mihenk ikinci puanlayıcı paketi değil." }; }
+    else {
+      let metin = "";
+      try { metin = await dosya.text(); } catch (e) { metin = ""; }
+      const r = ciftDosyaIsle(metin);
+      _ciftMesaj = r.ok ? { tur: "bilgi", metin: r.metin } : { tur: "hata", metin: r.hata };
+    }
+    _ciftAcik = true;
+    renderAll();
+    const odak = document.getElementById(_ciftMesaj && _ciftMesaj.tur === "hata" ? "ciftDosya" : "ciftDurum");
+    if (odak && odak.focus) odak.focus();
+  };
+  bolum.querySelectorAll(".cift-olcut").forEach(function (g) { g.onchange = function () { ciftGirdiKaydet(g); }; });
+  bolum.querySelectorAll(".cift-puanlayici").forEach(function (g) {
+    g.onchange = function () {
+      const k = ciftKayitlari().filter(function (x) { return x.id === g.dataset.id && x.yon === "gelen"; })[0];
+      if (!k || itirazCakismaVar()) return;
+      k.puanlayici = String(g.value || "").trim().slice(0, CIFT_PUANLAYICI_SINIRI);
+      saveSoon();
+    };
+  });
+  bolum.querySelectorAll(".js-cift-donus").forEach(function (b) {
+    b.onclick = function () {
+      const k = ciftKayitlari().filter(function (x) { return x.id === b.dataset.id && x.yon === "gelen"; })[0];
+      if (!k) return;
+      const n = ciftPuanliSayisi(k);
+      const durum = document.getElementById("ciftDurum"), hata = document.getElementById("ciftHata");
+      if (!n) { if (hata) hata.textContent = "Henüz hiçbir yanıtı puanlamadınız."; return; }
+      if (hata) hata.textContent = "";
+      const simdi = new Date().toISOString();
+      auditIndir(JSON.stringify(ciftDonusPaketi(k, simdi), null, 1), ciftDosyaAdi("puanlandi", simdi), "application/json");
+      if (durum) durum.textContent = "Puanlanmış paket indirildi (" + n + " / " + k.yanitlar.length + " yanıt" +
+        (n < k.yanitlar.length ? "; puansız yanıtlar pakete girmedi" : "") + "). Dosyayı ilk öğretmene geri verin.";
+    };
+  });
+  bolum.querySelectorAll(".js-cift-csv").forEach(function (b) {
+    b.onclick = function () {
+      const k = ciftKayitlari().filter(function (x) { return x.id === b.dataset.id && x.yon === "giden"; })[0];
+      if (k && k.donus) auditIndir(ciftUyumCsv(k), "mihenk-cift-puanlama-uyum.csv", "text/csv;charset=utf-8");
+    };
+  });
+}
+
+/* ===========================================================================
    §121 — YZ PUANLAYICI DENETİMİ (QWK, SMD, uzunluk–fark ilişkisi, sıra kayması)
    ===========================================================================
    NEDEN: "Uyum %" kartı alanda kabul gören bir ölçü değildir. Otomatik puanlama
@@ -16885,11 +17522,15 @@ function renderTeacher() {
   /* W3 P1-3 / P2-4: sınıfta sınav yoksa Puanlama ve Analitik YALNIZ boş
      durumu gösterir (seçici, ad alanı, Dikkat kartı yok). */
   const sinavYok = (state.teacherTab === 3 || state.teacherTab === 4) && !puanlanabilirSinavVar();
-  if (sinavYok) { content.innerHTML = sinavYokHtml(); wireSinavYok(); return; }
+  /* §131: zümreden gelen paketi puanlayan öğretmenin sınıfında sınav olmayabilir; çift puanlama bölümü yine çizilir. */
+  if (sinavYok) {
+    content.innerHTML = sinavYokHtml() + (state.teacherTab === 3 ? ciftBolumuHtml() : "");
+    wireSinavYok(); if (state.teacherTab === 3) wireCiftPuanlama(); return;
+  }
   if (state.teacherTab === 3) {
     content.innerHTML = itirazKuyruguHtml(true) + sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") +
-      teacherTab3Html() + itirazKuyruguHtml(false) + notIpucuAyarHtml();   // §126 itiraz kuyruğu + §125 ipucu
-    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3(); wireItirazKuyrugu(); wireNotIpucuAyar();
+      teacherTab3Html() + itirazKuyruguHtml(false) + notIpucuAyarHtml() + ciftBolumuHtml();   // §126 itiraz kuyruğu + §125 ipucu + §131
+    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3(); wireItirazKuyrugu(); wireNotIpucuAyar(); wireCiftPuanlama();
   }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
@@ -21532,6 +22173,12 @@ function bosDurumHtml(mesaj) {
     "itirazKararAdi", "itirazKuyrukKartiHtml", "itirazKararFormuHtml", "itirazGecmisSatirHtml", "itirazElleFormHtml",
     "itirazKuyruguHtml", "wireItirazKuyrugu", "itirazElleEkle", "itirazGunlukDetay",
     "itirazAdsizNo", "itirazAdsizCiz", "itirazKuyrukKartiHamHtml", "itirazGecmisSatirHamHtml",   // §130
+    /* §131 — zümre çift puanlama */
+    "ciftSabitleri", "ciftKayitlari", "ciftYeniKimlik", "ciftOlcutleri", "ciftPaketHazirla", "ciftEkMaske", "ciftHata", "ciftSayiMi", "ciftPaketCoz",
+    "ciftGelenDogrula", "ciftPuanHesapla", "ciftDonusPaketi", "ciftDonusDogrula", "ciftAPuani", "ciftDonusUygula", "ciftUyumRaporu",
+    "ciftUyumCsv", "ciftHazirlanabilir", "ciftDosyaAdi", "ciftPaketIndir", "ciftDosyaIsle", "ciftTarih", "ciftYanitEtiketi", "ciftYuzde",
+    "ciftRaporHtml", "ciftGidenHtml", "ciftPuanliSayisi", "ciftGelenYanitHtml", "ciftGelenHtml", "ciftKartHtml", "ciftBolumuHtml",
+    "ciftGirdiKaydet", "wireCiftPuanlama",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
