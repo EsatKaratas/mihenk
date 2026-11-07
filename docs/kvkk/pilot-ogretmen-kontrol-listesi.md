@@ -54,6 +54,9 @@
 - [ ] Kurumun belirlediği süre sonunda cihazlardaki yerel veri "Verileri sıfırla" ile silindi; indirilen CSV
       dosyaları ve `.mihenk` yedekleri imha edildi.
 - [ ] Veli başvuruları (m.11) ve rıza geri almaları kayda geçirildi ve en geç 30 gün içinde yanıtlandı (m.13).
+      Tek öğrencinin silme başvurusu ⋯ → "Öğrencinin verisini sil" ile karşılandı (iki adımlı onay, geri
+      alınamaz; günlükte yalnız "1 öğrencinin verisi silindi" kalır). O öğrencinin adını taşıyan CSV ve
+      `.mihenk` kopyaları ayrıca imha edildi.
 
 ---
 

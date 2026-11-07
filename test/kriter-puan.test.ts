@@ -19,7 +19,7 @@ function sabitMetni(ad: string): string {
   return app.slice(bas, app.indexOf('\n];\n', bas) + 4);
 }
 
-const ADLAR = ['kriterPuanNormal', 'kriterKaydi', 'kriterToplami', 'kriterFarkOzeti', 'arastirmaKriterFarklari', 'kararRaporuCsv'];
+const ADLAR = ['kriterPuanNormal', 'kriterKaydi', 'kriterToplami', 'kriterFarkOzeti', 'arastirmaKriterFarklari', 'kararRaporuCsv', 'csvHucre'];
 function kur() {
   // eslint-disable-next-line no-new-func
   return new Function(ADLAR.map(fonksiyonMetni).join('\n') + '\nreturn {' + ADLAR.join(',') + '};')();

@@ -158,8 +158,8 @@
     <div class="doc-head">
       <h1>Gizlilik Politikası ve KVKK Aydınlatma Metni</h1>
       <div class="meta">
-        <span>Sürüm <span class="mono">1.2</span></span>
-        <span>Son güncelleme: <span class="mono">06.11.2026</span></span>
+        <span>Sürüm <span class="mono">1.3</span></span>
+        <span>Son güncelleme: <span class="mono">07.11.2026</span></span>
         <span>Kapsam: <span class="mono">Mihenk — Yapay Zekâ Destekli Ölçme ve Değerlendirme Sistemi</span></span>
       </div>
     </div>
@@ -394,8 +394,12 @@
           uzunluğu, deneme sayısı, başarı). Bir model hatasında kısa bir teknik hata iletisi kaydedilir; bu ileti
           model çıktısından kısa bir parça içerebilir.</li>
           <li><b>Tarayıcıda:</b> Sınıf listesi, cevaplar, puanlar ve karar günlüğü kullanılan cihazın tarayıcısında
-          (<code>localStorage</code>/<code>IndexedDB</code>) kullanıcı silene kadar kalır. "Verileri sıfırla"
-          düğmesi hepsini siler. Kurum bu veriler için bir süre belirlemelidir:
+          (<code>localStorage</code>/<code>IndexedDB</code>) kullanıcı silene kadar kalır. "Tüm verileri sıfırla"
+          hepsini siler; tek bir öğrencinin verisi ⋯ → "Öğrencinin verisini sil" ile ayrıca silinebilir (bkz. bölüm 9).
+          Kayıtlı veri açılışta okunamazsa (bozuk ya da yarım kayıt) uygulama onu silmez ve üzerine yazmaz:
+          ham kaydın bir kopyası aynı tarayıcıda ayrı bir anahtarda (<b>karantina</b>) tutulur ve kullanıcıya
+          "indir / yeniden dene / sıfırla" seçenekleri gösterilir. Karantina kopyası "Tüm verileri sıfırla" ile
+          silinir; içinde adı geçen öğrencinin verisi silinirken o kopya da silinir. Kurum bu veriler için bir süre belirlemelidir:
           <span class="fill">[eğitim-öğretim dönemi sonu + X ay]</span>.</li>
           <li><b>Yedek dosyası (<code>.mihenk</code>):</b> Öğretmen ⋯ menüsünden "Yedekle" derse bütün yerel
           veriler tek bir dosyaya yazılır ve <b>cihazdan çıkar</b> (indirme klasörüne iner). Dosyada öğrenci ya da
@@ -463,9 +467,17 @@
         <p>Mihenk'te hiçbir puan yalnızca yapay zekâ ile kesinleşmez; nihai karar öğretmenindir (bkz. bölüm 4).</p>
         <div class="hitl-box">
           <span class="tag">Bu prototipte silme hakkı</span>
-          Silme hakkı bu prototipte <b>başvuru beklemeden, doğrudan arayüzden</b> kullanılabilir:
-          <b>“Verileri sıfırla”</b> düğmesi cihazdaki tüm yerel veriyi (yanıtlar, karar günlüğü,
-          Müfredat Kitaplığı) siler. Sunucuda silinecek bir veri yoktur: sınıf kodu ile senkron
+          Silme hakkı bu prototipte <b>başvuru beklemeden, doğrudan arayüzden</b> kullanılabilir.
+          <b>Tek öğrenci için</b> (ör. bir velinin yalnız kendi çocuğu için başvurusu): öğretmen ya da eğitim
+          yöneticisi ⋯ menüsünden <b>“Öğrencinin verisini sil”</b>i seçer; iki adımlı onaydan sonra öğrencinin
+          adı, bütün sınav oturumları, yanıtları, puanları, yapay zekâ önerileri, öğretmen yorumları ve karar
+          günlüğündeki kayıtları bu cihazdan <b>geri alınamaz biçimde</b> silinir. Karar günlüğünde yalnız kişisel
+          veri içermeyen “1 öğrencinin verisi silindi” satırı ve tarihi kalır; soru havuzu ve madde
+          istatistikleri gibi adsız toplamlar silinmez. Başka bir öğrencinin yazdığı metinde bu öğrencinin adı
+          geçiyorsa o metin başkasına ait olduğu için silinmez; pencere bunun sayısını gösterir. Daha önce
+          indirilmiş yedek (.mihenk) ve CSV dosyaları cihazın dışındadır; onları kurum ayrıca imha etmelidir.
+          <b>Bütün sınıf için:</b> <b>“Tüm verileri sıfırla”</b> cihazdaki tüm yerel veriyi (yanıtlar, karar
+          günlüğü, Müfredat Kitaplığı) siler. Sunucuda silinecek bir veri yoktur: sınıf kodu ile senkron
           5 Eylül 2026'da kaldırıldığından sınav ve yanıt verisi sunucuya hiç gönderilmez.
         </div>
       </section>

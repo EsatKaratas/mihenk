@@ -2031,6 +2031,9 @@ window.addEventListener("storage", sekmeDepoOlayi);
 
 function saveState() {
   if (_resetting) return;
+  if (typeof _acilisSuruyor !== "undefined" && _acilisSuruyor) return;   // §128: açılış bitmeden yazılmaz
+  /* §128: kayıt okunamadıysa kullanıcı karar verene kadar YAZILMAZ (bozuk kayıt ezilmesin). */
+  if (typeof _kurtarma !== "undefined" && _kurtarma && !_kurtarma.devam) return;
   if (!depoSurumuBizimMi()) return;   // §119: başka sekme yazdı → bu sekme yazmaz
   try {
     const d = { _qIdSeq: qIdSeq };
@@ -2053,16 +2056,23 @@ function saveState() {
 }
 
 function loadState() {
+  let raw = null;
   try {
     // §119: sürüm, veriden ÖNCE okunur. Arada başka sekme yazarsa ilk
     // kayıtta sürüm tutmaz → çakışma kutusu (eski veri üstüne yazılmaz).
     // §123: ikisi de etkin alandan (kullanıcı ya da demo, §120).
     const surum = depoSurumOku();
     _bilinenSurum = surum ? surum.rev : null;
-    const raw = localStorage.getItem(depoAnahtari(demoAlaniMi()));
+    raw = localStorage.getItem(depoAnahtari(demoAlaniMi()));
     _sonYazilanMetin = raw;
+    _acilisHam = raw;   // §128: açılış sonradan patlarsa karantinaya bu (dokunulmamış) metin gider
     if (!raw) return false;
-    const d = JSON.parse(raw);
+    /* §128: tek doğrulayıcı. Bozuksa kayıt karantinaya, yazım durur, kurtarma
+       ekranı açılır; okunabilen alanlar yine yüklenir (sorunlu alan varsayılan). */
+    const cozum = durumKaydiniCoz(raw);
+    if (cozum.hatalar.length) kurtarmaBaslat(raw, cozum.hatalar, !!cozum.d);
+    if (!cozum.d) return false;
+    const d = cozum.d;
     KALICI_ALANLAR.forEach(function (k) { if (d[k] !== undefined) state[k] = d[k]; });
     if (d._qIdSeq) qIdSeq = d._qIdSeq;
     if (demoAlaniMi()) { state.demoAdim = d._demoAdim || null; state.demoEnUzak = d._demoEnUzak || null; }   // §120
@@ -2133,19 +2143,31 @@ function loadState() {
       state.ceForm.fileName = "";
     }
     return true;
-  } catch (e) { return false; }
+  } catch (e) {
+    /* §128: eskiden burada sessizce false dönülüyor, ilk çizim varsayılanı
+       kaydın ÜSTÜNE yazıyordu. Yarım yüklenmiş bellek atılır, kayıt korunur. */
+    if (raw) { durumuVarsayilanaDondur(); kurtarmaBaslat(raw, [{ alan: "", neden: "kayıt açılışta işlenemedi (" + String((e && e.message) || e).slice(0, 120) + ")" }], false); }
+    return false;
+  }
 }
 
 let _resetting = false;
 function resetState() {
   /* §120: demo alanında "sıfırla" kullanıcının kaydını ve kitaplığını SİLMEZ;
      yalnız demo kaydı atılır ve kullanıcının kendi verisine dönülür. */
-  if (demoAlaniMi()) { demoAlanindanCik(); return; }
+  if (demoAlaniMi()) {
+    /* §128: demo alanının karantina kopyaları da gider (kullanıcınınkine dokunulmaz). */
+    karantinaAnahtarlari().forEach(function (k) { try { localStorage.removeItem(k); } catch (e) { /* önemsiz */ } });
+    demoAlanindanCik();
+    return;
+  }
   // saveState() ile localStorage.removeItem arasında yarış vardı: bekleyen bir
   // kayıt zamanlayıcısı, temizlikten SONRA eski durumu geri yazabiliyordu.
   _resetting = true;
   if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
   try { localStorage.removeItem(STORE_KEY); localStorage.removeItem(SURUM_KEY); } catch (e) {}
+  /* §128: Sıfırla "tüm veriler" der — bozuk kaydın karantina kopyaları da silinir. */
+  karantinaAnahtarlari().forEach(function (k) { try { localStorage.removeItem(k); } catch (e) { /* önemsiz */ } });
   // Kitaplık ayrı bir depoda (IndexedDB). Yalnızca localStorage silinirse
   // kitap içerikleri diskte kalır ve arayüzde onları silecek bir liste de
   // kalmaz — erişilemeyen artık veri olur. Silme bloklanırsa (başka sekme
@@ -2173,6 +2195,271 @@ function kitapligiSil() {
   });
 }
 
+/* ==================== §128 TEK DURUM ŞEMASI + KURTARMA EKRANI ====================
+   ÖLÇÜLDÜ (fikir3-E Y1 + O3, taban 2c4f3a9):
+     • Yedek dosyası yalnız "durum bir nesne mi" diye denetleniyordu. Uygulamanın
+       kendi yedekOlustur'uyla üretilmiş `{students:"x"}` geri yüklenince her
+       açılışta `state.students.forEach` TypeError'ı: rol kartı 0, ⋯ menüsü 0 —
+       öğretmen Sıfırla'ya bile ulaşamıyordu. Aynısı questions:{}, exams:5,
+       ceForm:null kayıtlarında.
+     • Yarım JSON kaydı loadState'in catch'inde sessizce yutuluyor, ilk
+       renderAll → saveState varsayılan durumu ÜSTÜNE yazıyordu (ham veri yok).
+   ÇÖZÜM: loadState ve yedekCoz AYNI doğrulayıcıyı (durumuDogrula) kullanır:
+   alan türü (liste/nesne/metin/sayı), kayıt listelerinde her öğenin nesne
+   olması ve kimliği, bilinen anahtarlar, boyut sınırı.
+     • Geri yükleme: tek sorun bile varsa dosya REDDEDİLİR (Türkçe neden),
+       mevcut veriye hiç dokunulmaz.
+     • Açılış: bozuk kayıt SİLİNMEZ ve EZİLMEZ — ham metin ayrı anahtara
+       (…:bozuk-<zaman>) kopyalanır, kayıt yazımı durur ve kurtarma ekranı
+       çıkar: ham kaydı indir / yeniden dene / okunabilenle devam / sıfırla.
+       Okunabilen alanlar arkada yüklenir; sorunlu alan varsayılana döner.
+     • Açılışın kendisi (göçler, ilk çizim) hata verirse de aynı ekran:
+       bellek varsayılana döner, uygulama açılır, Sıfırla her zaman erişilir.
+   KALICI_ALANLAR'a yeni alan eklenirse DURUM_SEMASI'na da yazılmalı
+   (test/veri-saglamligi.test.ts bunu denetler). */
+/* Karakter; localStorage zaten ~5 MB taşır. */
+const DURUM_EN_BUYUK = 20 * 1024 * 1024;
+const DURUM_SEMASI = {
+  role: "metin?", teacherTab: "sayi?", studentTab: "sayi?", ceTab: "sayi?", genCount: "sayi?",
+  ceForm: "nesne", questions: "kayitlar", rubrics: "nesne", rubricSelectedQ: "kimlik?",
+  exam: "nesne", answers: "nesne", flagged: "nesne", examStatus: "metin", currentQIndex: "sayi?",
+  remainingSec: "sayi?", aiEvals: "nesne", reviews: "nesne", mcResults: "nesne", kaynak: "serbest",
+  remedial: "nesne?", integrity: "nesne", outcomes: "kayitlar", subjects: "metinler", poolFilter: "nesne",
+  exams: "kayitlar", activeExamId: "kimlik?", students: "kayitlar", activeStudentId: "kimlik?",
+  evalCache: "nesne", misconceptions: "nesne", alignment: "nesne", sources: "kayitlar", library: "kayitlar",
+  auditLog: "kayitlar", auditDusen: "sayi?", sinifKuruldu: "bool?", gocDeneyapDersi: "bool?",
+  activeTeacherName: "metin?", parentStudentId: "kimlik?", dikkatOnay: "nesne?"
+};
+/* Kayıt listelerinde öğe alanları ve nesne alanlarının iç alanları ("?" = olmayabilir/null). */
+const DURUM_ALT_SEMA = {
+  questions: { id: "kimlik", type: "metin?", body: "metin?", options: "dizi?" },
+  exams: { id: "kimlik", questionIds: "dizi?", sessions: "nesne?", timeOverrides: "nesne?" },
+  students: { id: "kimlik", name: "metin?", sinif: "metin?" },
+  outcomes: { code: "metin?" },
+  sources: { id: "kimlik?" },
+  library: { id: "kimlik" },
+  auditLog: { tur: "metin?" },
+  exam: { questionIds: "dizi?", timeOverrides: "nesne?", sessions: "nesne?" },
+  integrity: { events: "dizi?" }
+};
+const DURUM_TUR_ADI = { metin: "metin", sayi: "sayı", bool: "doğru/yanlış", nesne: "nesne", dizi: "liste",
+  kayitlar: "kayıt listesi", metinler: "metin listesi", kimlik: "kimlik (sayı ya da metin)" };
+var _kurtarma = null;   // §128: null ya da { anahtar, karantina, karantinaHatasi, hatalar, toplam, ham, okunabilir, devam }
+var _acilisSuruyor = false;   // §128: açılış adımları sürerken saveState yazmaz
+var _acilisHam = null;        // §128: loadState'in okuduğu ham kayıt (açılış hatasında karantinaya bu gider)
+
+/** SAF: değerin okunur tür adı ("liste", "metin", "boş (null)"…). */
+function durumDegerTuru(v) {
+  if (v === null) return "boş (null)";
+  if (Array.isArray(v)) return "liste";
+  if (typeof v === "string") return "metin";
+  if (typeof v === "number") return isFinite(v) ? "sayı" : "geçersiz sayı";
+  if (typeof v === "boolean") return "doğru/yanlış";
+  if (typeof v === "object") return "nesne";
+  return typeof v;
+}
+
+/** SAF: değer şema türüne uyuyor mu? "?" sonekli tür null/undefined kabul eder. */
+function durumTurUyar(v, tur) {
+  const bos = tur.slice(-1) === "?";
+  const t = bos ? tur.slice(0, -1) : tur;
+  if (bos && (v === null || v === undefined)) return true;
+  switch (t) {
+    case "serbest": return true;
+    case "metin": return typeof v === "string";
+    case "sayi": return typeof v === "number" && isFinite(v);
+    case "bool": return typeof v === "boolean";
+    case "kimlik": return (typeof v === "number" && isFinite(v)) || (typeof v === "string" && v.length > 0 && v.length <= 200);
+    case "nesne": return !!v && typeof v === "object" && !Array.isArray(v);
+    case "dizi": case "kayitlar": return Array.isArray(v);
+    case "metinler": return Array.isArray(v) && v.every(function (x) { return typeof x === "string"; });
+    default: return false;
+  }
+}
+
+/** SAF: bir nesnenin iç alanlarını alt şemaya göre denetler; ilk sorunun metni ya da "". */
+function durumAltSorunu(x, alt) {
+  if (!x || typeof x !== "object" || Array.isArray(x)) return "nesne olmalı, " + durumDegerTuru(x) + " bulundu";
+  const alanlar = Object.keys(alt || {});
+  for (let i = 0; i < alanlar.length; i++) {
+    const a = alanlar[i], tur = alt[a];
+    if (x[a] === undefined && tur.slice(-1) === "?") continue;
+    if (!durumTurUyar(x[a], tur)) {
+      return "«" + a + "» " + DURUM_TUR_ADI[tur.replace("?", "")] + " olmalı, " +
+        (x[a] === undefined ? "alan yok" : durumDegerTuru(x[a]) + " bulundu");
+    }
+  }
+  return "";
+}
+
+/** SAF — TEK DURUM DOĞRULAYICI (loadState + yedekCoz). Girdiyi değiştirmez.
+ *  Dönüş: { temiz, hatalar: [{alan, neden}], bilinmeyen: [anahtar] }.
+ *  temiz yalnız şemaya uyan alanları taşır; kayıt listelerinde bozuk öğeler
+ *  atılır (her biri hatalar'da). Bilinmeyen anahtar hata değildir, alınmaz. */
+function durumuDogrula(d) {
+  const s = { temiz: {}, hatalar: [], bilinmeyen: [] };
+  const hata = function (alan, neden) { s.hatalar.push({ alan: alan, neden: neden }); };
+  if (!d || typeof d !== "object" || Array.isArray(d)) {
+    hata("", "kayıt bir nesne olmalı, " + durumDegerTuru(d) + " bulundu");
+    return s;
+  }
+  Object.keys(d).forEach(function (k) {
+    const v = d[k];
+    if (k === "_qIdSeq" || k === "_demoAdim" || k === "_demoEnUzak") {
+      if (durumTurUyar(v, k === "_qIdSeq" ? "sayi" : "sayi?")) s.temiz[k] = v;
+      else hata(k, "sayı olmalı, " + durumDegerTuru(v) + " bulundu");
+      return;
+    }
+    if (!Object.prototype.hasOwnProperty.call(DURUM_SEMASI, k)) { s.bilinmeyen.push(k); return; }
+    const tur = DURUM_SEMASI[k];
+    if (!durumTurUyar(v, tur)) {
+      hata(k, DURUM_TUR_ADI[tur.replace("?", "")] + " olmalı, " + durumDegerTuru(v) + " bulundu");
+      return;
+    }
+    const alt = DURUM_ALT_SEMA[k];
+    if (tur === "kayitlar") {
+      s.temiz[k] = v.filter(function (x, i) {
+        const n = durumAltSorunu(x, alt);
+        if (n) hata(k + "[" + i + "]", n);
+        return !n;
+      });
+    } else if (alt && v) {
+      const n = durumAltSorunu(v, alt);
+      if (n) hata(k, n); else s.temiz[k] = v;
+    } else s.temiz[k] = v;
+  });
+  return s;
+}
+
+/** SAF: hata listesinin kısa Türkçe metni (ilk `enFazla` sorun + kalan sayısı). */
+function durumHataMetni(hatalar, enFazla) {
+  const n = enFazla || 4;
+  const ilk = (hatalar || []).slice(0, n).map(function (h) { return (h.alan ? "«" + h.alan + "» " : "") + h.neden; });
+  const kalan = (hatalar || []).length - ilk.length;
+  return ilk.join("; ") + (kalan > 0 ? "; ve " + kalan + " sorun daha" : "");
+}
+
+/** SAF: ham kayıt metni → { d, hatalar }. Boyut, JSON ve şema denetimi tek yerde. */
+function durumKaydiniCoz(ham) {
+  if (ham.length > DURUM_EN_BUYUK) {
+    return { d: null, hatalar: [{ alan: "", neden: "kayıt çok büyük (" + ham.length + " karakter; sınır " + DURUM_EN_BUYUK + ")" }] };
+  }
+  let ic;
+  try { ic = JSON.parse(ham); }
+  catch (e) { return { d: null, hatalar: [{ alan: "", neden: "kayıt okunamadı: JSON yarım ya da bozuk (" + ham.length + " karakter)" }] }; }
+  const s = durumuDogrula(ic);
+  return { d: s.hatalar.length && !Object.keys(s.temiz).length ? null : s.temiz, hatalar: s.hatalar, bilinmeyen: s.bilinmeyen };
+}
+
+/** Bozuk kaydı karantinaya alır (aynısı zaten varsa yeniden yazmaz) ve
+ *  kayıt yazımını durdurur. Kaydın kendisine DOKUNMAZ. */
+function kurtarmaBaslat(ham, hatalar, okunabilir) {
+  if (_kurtarma) { _kurtarma.hatalar = _kurtarma.hatalar.concat(hatalar || []); _kurtarma.toplam = _kurtarma.hatalar.length; return _kurtarma; }
+  const anahtar = depoAnahtari(demoAlaniMi());
+  let karantina = karantinaAnahtarlari().filter(function (k) {
+    try { return localStorage.getItem(k) === ham; } catch (e) { return false; }
+  })[0] || null;
+  let karantinaHatasi = "";
+  if (!karantina) {
+    karantina = anahtar + ":bozuk-" + new Date().toISOString().replace(/[:.]/g, "-");
+    try { localStorage.setItem(karantina, ham); }
+    catch (e) { karantinaHatasi = String((e && e.name) || "depolama hatası"); karantina = null; }
+  }
+  if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
+  _kurtarma = { anahtar: anahtar, karantina: karantina, karantinaHatasi: karantinaHatasi, hatalar: (hatalar || []).slice(),
+    toplam: (hatalar || []).length, ham: ham, okunabilir: !!okunabilir, devam: false };
+  console.warn("Mihenk: kayıt okunamadı, kurtarma ekranı açıldı —", durumHataMetni(hatalar, 6));
+  return _kurtarma;
+}
+
+/** Bu alanın (kullanıcı ya da demo) karantina anahtarları. */
+function karantinaAnahtarlari() {
+  const on = depoAnahtari(demoAlaniMi()) + ":bozuk-";
+  const liste = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf(on) === 0) liste.push(k);
+    }
+  } catch (e) { /* depo okunamıyor */ }
+  return liste.sort();
+}
+
+/** Bellekteki kalıcı alanları açılıştaki varsayılana döndürür (yarım yüklenmiş durum atılır). */
+function durumuVarsayilanaDondur() {
+  const ilk = JSON.parse(_ilkDurum || "{}");
+  KALICI_ALANLAR.forEach(function (k) {
+    if (Object.prototype.hasOwnProperty.call(ilk, k)) state[k] = ilk[k];
+  });
+  qIdSeq = 1;
+}
+
+/** Açılış (göç/ilk çizim) hata verdiyse: bellek varsayılana, kayıt karantinaya, ekran açılır. */
+function acilisHatasiniKurtar(e) {
+  let ham = _acilisHam;
+  if (ham == null) { try { ham = localStorage.getItem(depoAnahtari(demoAlaniMi())); } catch (x) { ham = null; } }
+  durumuVarsayilanaDondur();
+  kurtarmaBaslat(ham == null ? "" : ham, [{ alan: "", neden: "uygulama bu kayıtla açılamadı (" +
+    String((e && e.name) || "hata") + ": " + String((e && e.message) || e).slice(0, 120) + ")" }], false);
+}
+
+/** Kurtarma ekranı (role=alertdialog). Uygulamanın geri kalanı inert; her
+ *  koşulda dört çıkış: indir, yeniden dene, okunabilenle devam (varsa), sıfırla. */
+function renderKurtarma() {
+  let el = document.getElementById("veriKurtarma");
+  if (!_kurtarma || _kurtarma.devam) {
+    if (el) el.remove();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-kurtarma-inert]"), function (x) {
+      x.inert = false; x.removeAttribute("data-kurtarma-inert");
+    });
+    return;
+  }
+  if (el) return;
+  const k = _kurtarma;
+  el = document.createElement("div");
+  el.id = "veriKurtarma";
+  el.className = "veri-kurtarma";
+  el.innerHTML = '<div class="veri-kurtarma-kutu" role="alertdialog" aria-modal="true" aria-labelledby="vkBaslik" aria-describedby="vkMetin">' +
+    '<h2 id="vkBaslik">Kayıtlı veriler okunamadı</h2>' +
+    '<div id="vkMetin"><p>Bu tarayıcıdaki Mihenk kaydı bozuk ya da beklenen biçimde değil. <b>Hiçbir şey silinmedi ve üzerine yazılmadı</b>; ' +
+    'siz seçene kadar kayıt yazılmıyor.</p>' +
+    '<p class="vk-neden"><b>Neden:</b> ' + escapeHtml(durumHataMetni(k.hatalar, 4)) + '</p>' +
+    '<p>' + (k.karantina ? "Ham kaydın bir kopyası ayrı bir anahtarda saklandı (karantina)."
+      : "Ham kaydın kopyası alınamadı (" + escapeHtml(k.karantinaHatasi || "depo") + "); kayıt yerinde duruyor — önce indirin.") +
+    ' İndirdiğiniz dosyada öğrenci adları olabilir: güvenli bir yerde saklayın.</p></div>' +
+    '<div class="vk-eylem">' +
+    '<button type="button" class="btn btn-primary js-vk-indir">Ham kaydı indir</button>' +
+    '<button type="button" class="btn btn-secondary js-vk-yeniden">Yeniden dene</button>' +
+    (k.okunabilir ? '<button type="button" class="btn btn-secondary js-vk-devam">Okunabilenle devam et</button>' : "") +
+    '<button type="button" class="btn btn-critical js-vk-sifirla">Sıfırla…</button></div>' +
+    (k.okunabilir ? '<p class="vk-not">“Okunabilenle devam et”: sorunlu alanlar varsayılana döner, okunabilen alanlar kaydedilir; ham kopya karantinada kalır.</p>' : "") +
+    '<div class="vk-onay" hidden><p role="alert"><b>Geri alınamaz:</b> bu tarayıcıdaki bütün Mihenk verileri ve karantina kopyası silinir. ' +
+    'Ham kaydı indirmediyseniz önce indirin.</p><div class="vk-eylem">' +
+    '<button type="button" class="btn btn-secondary js-vk-vazgec">Vazgeç</button>' +
+    '<button type="button" class="btn btn-critical btn-dolu js-vk-sifirla-onay">Evet, tümünü sil</button></div></div>' +
+    '<p class="vk-durum" role="status"></p></div>';
+  Array.prototype.forEach.call(document.body.children, function (x) {
+    if (x !== el && !x.inert && x.tagName !== "SCRIPT") { x.inert = true; x.setAttribute("data-kurtarma-inert", ""); }
+  });
+  document.body.appendChild(el);
+  const sec = function (s) { return el.querySelector(s); };
+  sec(".js-vk-indir").onclick = function () {
+    const ad = "mihenk-bozuk-kayit-" + yerelDamga(new Date()).replace("T", "-").replace(":", "") + ".json";
+    if (auditIndir(k.ham, ad, "application/json")) sec(".vk-durum").textContent = "İndirildi: " + ad;
+  };
+  sec(".js-vk-yeniden").onclick = function () { location.reload(); };
+  if (sec(".js-vk-devam")) sec(".js-vk-devam").onclick = function () {
+    k.devam = true;
+    renderKurtarma();
+    saveState();
+    renderAll();
+  };
+  sec(".js-vk-sifirla").onclick = function () { sec(".vk-onay").hidden = false; sec(".js-vk-vazgec").focus(); };
+  sec(".js-vk-vazgec").onclick = function () { sec(".vk-onay").hidden = true; sec(".js-vk-sifirla").focus(); };
+  sec(".js-vk-sifirla-onay").onclick = function () { resetState(); };
+  sec(".js-vk-indir").focus();
+}
+
 /* ==================== §108 TAM YEDEK (.mihenk) ====================
    NEDEN: bütün veri bu tarayıcıda (localStorage tek anahtar + IndexedDB
    kitaplık). Cihaz değişir, tarayıcı temizlenir ya da "Sıfırla"ya basılırsa
@@ -2194,6 +2481,9 @@ const YEDEK_BASLIK = "MIHENK-YEDEK";
 const YEDEK_BICIM_SURUMU = 1;
 const MIHENK_UYGULAMA_SURUMU = "1.1.0";
 const YEDEK_PBKDF2_YINELEME = 310000;
+/* §128 (fikir3-E D1): dosyadan okunan yinelemenin üst sınırı ve dosya boyutu (bayt; okunmadan reddedilir). */
+const YEDEK_PBKDF2_EN_COK = 2000000;
+const YEDEK_DOSYA_EN_BUYUK = 50 * 1024 * 1024;
 const YEDEK_PAROLA_EN_AZ = 8;
 const YEDEK_ONAY_METNI = "Mevcut veriler bu yedekle DEĞİŞTİRİLECEK.";
 const YEDEK_HATA_METINLERI = {
@@ -2207,7 +2497,10 @@ const YEDEK_HATA_METINLERI = {
   parola_eslesmiyor: "İki parola aynı değil.",
   kitaplik_okunamadi: "Kitaplık (IndexedDB) okunamadı; eksik yedek alınmadı.",
   sifreleme_yok: "Bu tarayıcıda şifreleme (WebCrypto) kullanılamıyor; güvenli bağlantıda (https) açın.",
-  sekme_cakisma: "Veri başka bir sekmede değişti; bu sekmeden geri yükleme yapılmadı. Önce sayfayı yeniden yükleyin."   // §119
+  sekme_cakisma: "Veri başka bir sekmede değişti; bu sekmeden geri yükleme yapılmadı. Önce sayfayı yeniden yükleyin.",   // §119
+  /* §128: tek durum şeması. {neden} ilk sorunlarla doldurulur. */
+  gecersiz: "Yedekteki veri Mihenk biçimine uymuyor ({neden}). Dosya reddedildi; hiçbir veri değiştirilmedi.",
+  cok_buyuk: "Yedek dosyası çok büyük (en fazla 50 MB). Hiçbir veri değiştirilmedi."
 };
 var _yedekGeriAl = null;   // { durum, kitaplik, at } — yalnız bellekte; sayfa yenilenince silinir
 var _yedekYenilemeBekliyor = false;
@@ -2418,6 +2711,10 @@ async function yedekCoz(metin, parola) {
     if (!parola) throw yedekHata("parola_gerekli");
     const kdf = zarf.kdf || {}, sf = zarf.sifre || {};
     if (kdf.ad !== "PBKDF2" || kdf.hash !== "SHA-256" || sf.ad !== "AES-GCM" || !(kdf.yineleme >= 1)) throw yedekHata("bozuk");
+    /* §128 (fikir3-E D1): yineleme dosyadan okunuyor; 1e10 sekmeyi dondururdu. */
+    let boylarDogru = false;
+    try { boylarDogru = yedekB64Coz(kdf.tuz).length === 16 && yedekB64Coz(sf.iv).length === 12; } catch (e) { boylarDogru = false; }
+    if (!boylarDogru || !(kdf.yineleme >= YEDEK_PBKDF2_YINELEME && kdf.yineleme <= YEDEK_PBKDF2_EN_COK)) throw yedekHata("bozuk");
     let acik;
     try {
       const anahtar = await yedekAnahtar(String(parola), yedekB64Coz(kdf.tuz), kdf.yineleme);
@@ -2429,7 +2726,23 @@ async function yedekCoz(metin, parola) {
   let ic;
   try { ic = JSON.parse(yuk); } catch (e) { throw yedekHata("bozuk"); }
   if (!ic || typeof ic.durum !== "object" || !ic.durum || Array.isArray(ic.durum) || !Array.isArray(ic.kitaplik)) throw yedekHata("bozuk");
-  return { zarf: zarf, durum: ic.durum, kitaplik: ic.kitaplik };
+  /* §128: SHA anahtarsız — herkes "geçerli" dosya üretebilir. İçerik tek durum
+     şemasından geçmezse dosya REDDEDİLİR; mevcut veriye dokunulmaz. */
+  const dog = durumuDogrula(ic.durum);
+  const kitapSorunu = ic.kitaplik.map(function (x, i) {
+    const n = durumAltSorunu(x, { id: "kimlik", pages: "serbest" });
+    return n ? { alan: "kitaplik[" + i + "]", neden: n } : null;
+  }).filter(Boolean);
+  const sorunlar = dog.hatalar.concat(kitapSorunu);
+  if (sorunlar.length) {
+    const e = yedekHata("gecersiz");
+    e.message = YEDEK_HATA_METINLERI.gecersiz.replace("{neden}", durumHataMetni(sorunlar, 3));
+    e.sorunlar = sorunlar;
+    throw e;
+  }
+  /* Bilinmeyen anahtarlar yazılmaz; sayısı özette görünür (sessiz düşüş yok). */
+  delete dog.temiz._demoAdim; delete dog.temiz._demoEnUzak;   // §120: yalnız demo kaydında anlamlı
+  return { zarf: zarf, durum: dog.temiz, kitaplik: ic.kitaplik, bilinmeyen: dog.bilinmeyen };
 }
 
 /** Geri yükleme öncesi özet (sayılar + tarih). */
@@ -2438,7 +2751,8 @@ function yedekOzet(veri) {
   const say = function (x) { return Array.isArray(x) ? x.length : 0; };
   return { soru: say(d.questions), sinav: say(d.exams), ogrenci: say(d.students), kitap: say(veri && veri.kitaplik),
     tarih: (veri && veri.zarf && veri.zarf.olusturma) || "", uygulama: (veri && veri.zarf && veri.zarf.uygulama) || "",
-    adsiz: !!(veri && veri.zarf && veri.zarf.adsiz) };
+    adsiz: !!(veri && veri.zarf && veri.zarf.adsiz),
+    bilinmeyen: (veri && Array.isArray(veri.bilinmeyen)) ? veri.bilinmeyen.slice() : [] };   // §128
 }
 
 /** Özetin düz metni (onaylaModal metni). */
@@ -2448,7 +2762,10 @@ function yedekOzetMetni(oz) {
   if (oz.tarih && !isNaN(t)) tarih = t.toLocaleString("tr-TR", { dateStyle: "long", timeStyle: "short" });
   return "Yedek tarihi: " + (tarih || "bilinmiyor") + (oz.uygulama ? " (Mihenk " + oz.uygulama + ")" : "") + "\n" +
     oz.soru + " soru · " + oz.sinav + " sınav · " + oz.ogrenci + " öğrenci · " + oz.kitap + " kitap" +
-    (oz.adsiz ? "\nAdsız yedek: öğrenci adları \"Öğrenci 1…\" biçiminde." : "");
+    (oz.adsiz ? "\nAdsız yedek: öğrenci adları \"Öğrenci 1…\" biçiminde." : "") +
+    /* §128: tanınmayan alanlar yazılmaz — kullanıcı bunu onaydan ÖNCE görür. */
+    (oz.bilinmeyen && oz.bilinmeyen.length ? "\nBu sürümün tanımadığı " + oz.bilinmeyen.length + " alan yüklenmeyecek: " +
+      oz.bilinmeyen.slice(0, 5).join(", ") + (oz.bilinmeyen.length > 5 ? "…" : "") + "." : "");
 }
 
 /** Verilen veriyi bu tarayıcıya yazar: önce kitaplık (tek işlem), sonra
@@ -2591,6 +2908,7 @@ function yedekGeriYukleAc() {
     const parola = document.getElementById("yedekAcParola").value;
     hataEl.textContent = "";
     if (!dosya) { hataEl.textContent = "Önce bir .mihenk dosyası seçin."; return; }
+    if (dosya.size > YEDEK_DOSYA_EN_BUYUK) { hataEl.textContent = YEDEK_HATA_METINLERI.cok_buyuk; return; }   // §128 (D1)
     const btn = this;
     btn.disabled = true;
     durumEl.textContent = "Yedek okunuyor…";
@@ -5537,6 +5855,9 @@ var AUDIT_ETIKET = {
   /* Dikkat sinyalinin veliye iletilmesi bir İNSAN KARARIDIR ve denetim izine
      öyle yazılır: aktör öğretmendir, sistem değil (§28e). */
   dikkat_veliye_bildirildi:{ad:"Dikkat sinyali veliye bildirildi", sinif: "pill-warning", aktor: "öğretmen" },
+  /* §128 KVKK: tek öğrencinin bütün verisi silindi. Kayıt KİŞİSEL VERİ TAŞIMAZ
+     (ad yok, sid yok): yalnız "1 öğrencinin verisi silindi", tarih ve rol. */
+  ogrenci_verisi_silindi:{ ad: "Öğrenci verisi silindi (KVKK)", sinif: "pill-neutral", aktor: "öğretmen" },
 };
 
 /**
@@ -5627,10 +5948,7 @@ function auditCsv() {
       Array.isArray(k.rozetA1A2) ? k.rozetA1A2.join(",") : "",
       k.oncekiDurum || "", k.rol || "",
       Array.isArray(k.alanlar) ? k.alanlar.join(",") : "",
-    ].map(function (h) {
-      h = String(h == null ? "" : h);
-      return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
-    }).join(";");
+    ].map(csvHucre).join(";");   // §128: ortak yazıcı (formül nötrleme, O1)
   });
   // BOM: Excel'in UTF-8'i doğru açması için gerekli (Türkçe karakterler).
   return "﻿" + basliklar.join(";") + "\n" + satirlar.join("\n");
@@ -9083,6 +9401,184 @@ function ogrenciSilGuard(id) {
   });
 }
 
+/* ==================== §128 KVKK: ÖĞRENCİNİN TÜM VERİSİNİ SİL ====================
+   ÖLÇÜLDÜ (fikir3-E O2): "Sınıftan çıkar" yalnız listeden siliyordu; sınav
+   oturumu, yanıtlar ve karar günlüğünde aynı sid ile 4 kayıt kalıyordu. Bir
+   velinin yalnız kendi çocuğu için silme başvurusu (KVKK m.7) ancak bütün
+   sınıfı sıfırlayarak karşılanabiliyordu.
+   SİLİNEN: ad (öğrenci kaydı), bütün sınavlardaki oturumu (yanıt, ÇSS sonucu,
+   YZ önerisi, öğretmen puanı ve yorumu, bütünlük olayları), aktif öğrenciyse
+   canlı alanlar, karar günlüğünde o sid'in ya da adın geçtiği kayıtlar, yanıt
+   metnini anahtar olarak taşıyan YZ önbelleği, yanıtını ya da adını taşıyan
+   kavram yanılgısı analizleri, veliye bildirim onayı, adı taşıyan karantina
+   kopyaları. KALAN: soru havuzu, rubrikler, madde istatistikleri gibi adsız
+   toplamlar. Günlüğe kişisel veri içermeyen TEK satır yazılır.
+   Öğrencinin kendi kaydı dışındaki serbest metinde (başka öğrencinin yanıtı)
+   ad geçiyorsa SİLİNMEZ — o veri başkasınındır; sonuç penceresi sayısını söyler. */
+
+/** Öğrencinin bütün sınavlardaki oturumları ([{kayit, ss, canli}]). Aktif
+ *  sınavda aktif öğrenciyse canlı alanlar okunur (sid metin de olabilir:
+ *  seçici değeri). tumu: canlı + kayıttaki eski kopya ikisi de döner. */
+function ogrenciOturumlari(sid, tumu) {
+  const liste = [];
+  (state.exams || []).forEach(function (kayit) {
+    const canli = kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId);
+    const kayitli = (kayit.sessions || {})[sid] || null;
+    if (canli) {
+      const o = {};
+      OTURUM_ALANLARI.forEach(function (k) { o[k] = state[k]; });
+      liste.push({ kayit: kayit, ss: o, canli: true });
+    }
+    if (kayitli && (!canli || tumu)) liste.push({ kayit: kayit, ss: kayitli, canli: false });
+  });
+  return liste;
+}
+
+/** Öğrencinin yazdığı açık uçlu yanıt metinleri (önbellek ve analiz temizliği için). */
+function ogrenciYanitMetinleri(sid) {
+  const metinler = [];
+  ogrenciOturumlari(sid, true).forEach(function (o) {
+    Object.keys(o.ss.answers || {}).forEach(function (qid) {
+      const t = String(((o.ss.answers || {})[qid] || {}).text || "").trim();
+      if (t && metinler.indexOf(t) < 0) metinler.push(t);
+    });
+  });
+  return metinler;
+}
+
+/** Silmeden önce özet: ne silinecek? (state'i değiştirmez) */
+function ogrenciVeriOzeti(sid) {
+  const ogr = (state.students || []).find(function (x) { return String(x.id) === String(sid); });
+  const ad = ogr ? String(ogr.name || "") : "";
+  const oturumlar = ogrenciOturumlari(sid).filter(function (o) {
+    return o.ss.examStatus && o.ss.examStatus !== "not_started" || Object.keys(o.ss.answers || {}).length;
+  });
+  let yanit = 0, puan = 0;
+  oturumlar.forEach(function (o) {
+    yanit += Object.keys(o.ss.answers || {}).length;
+    puan += Object.keys(o.ss.reviews || {}).length + Object.keys(o.ss.mcResults || {}).length;
+  });
+  const gunluk = (state.auditLog || []).filter(function (k) { return ogrenciGunlukKaydiMi(k, sid, ad); }).length;
+  return { ad: ad, oturum: oturumlar.length, yanit: yanit, puan: puan, gunluk: gunluk };
+}
+
+/** SAF: günlük kaydı bu öğrenciye mi ait? (sid ya da adın kendisi) */
+function ogrenciGunlukKaydiMi(k, sid, ad) {
+  if (!k) return false;
+  if (k.sid != null && String(k.sid) === String(sid)) return true;
+  return !!ad && JSON.stringify(k).indexOf(ad) >= 0;
+}
+
+/** Öğrencinin bütün verisini siler (geri alınamaz). Dönüş: silinenlerin sayıları. */
+function ogrenciVerisiniSil(sid) {
+  const ozet = ogrenciVeriOzeti(sid);
+  const ad = ozet.ad;
+  const yanitlar = ogrenciYanitMetinleri(sid);
+  const aktifti = String(state.activeStudentId) === String(sid);
+  let onbellek = 0, analiz = 0, karantina = 0;
+  (state.exams || []).forEach(function (kayit) {
+    if (kayit.sessions) { delete kayit.sessions[sid]; delete kayit.sessions[String(sid)]; }
+  });
+  if (state.exam && state.exam.sessions) { delete state.exam.sessions[sid]; delete state.exam.sessions[String(sid)]; }
+  state.auditLog = (state.auditLog || []).filter(function (k) { return !ogrenciGunlukKaydiMi(k, sid, ad); });
+  Object.keys(state.evalCache || {}).forEach(function (h) {
+    const e = state.evalCache[h] || {};
+    let a = "";
+    try { a = String(JSON.parse(e.key || "{}").a || ""); } catch (x) { a = ""; }
+    if ((a && yanitlar.indexOf(a) >= 0) || (ad && JSON.stringify(e).indexOf(ad) >= 0)) { delete state.evalCache[h]; onbellek++; }
+  });
+  Object.keys(state.misconceptions || {}).forEach(function (m) {
+    const j = JSON.stringify(state.misconceptions[m] || {});
+    const iceriyor = (ad && j.indexOf(ad) >= 0) || yanitlar.some(function (t) { return t.length >= 8 && j.indexOf(t) >= 0; });
+    if (iceriyor) { delete state.misconceptions[m]; analiz++; }
+  });
+  if (state.dikkatOnay) { delete state.dikkatOnay[sid]; delete state.dikkatOnay[String(sid)]; }
+  if (String(state.parentStudentId) === String(sid)) state.parentStudentId = null;
+  state.students = (state.students || []).filter(function (x) { return String(x.id) !== String(sid); });
+  if (aktifti) {
+    /* Canlı alanlar silinen öğrencinindi: aktifOturumuYaz ÇAĞRILMAZ (geri yazardı). */
+    state.activeStudentId = state.students.length ? state.students[0].id : null;
+    const kayit = (state.exams || []).find(function (x) { return x.id === state.activeExamId; });
+    const s = kayit && state.activeStudentId != null ? sessionOf(kayit, state.activeStudentId) : bosOturum();
+    OTURUM_ALANLARI.forEach(function (k) { state[k] = s[k] !== undefined ? s[k] : bosOturum()[k]; });
+  }
+  if (ad) {
+    karantinaAnahtarlari().forEach(function (k) {
+      try { if (String(localStorage.getItem(k) || "").indexOf(ad) >= 0) { localStorage.removeItem(k); karantina++; } } catch (x) { /* önemsiz */ }
+    });
+  }
+  auditKaydet("ogrenci_verisi_silindi", { not: "1 öğrencinin verisi silindi", rol: state.role || "" });
+  return { oturum: ozet.oturum, yanit: ozet.yanit, puan: ozet.puan, gunluk: ozet.gunluk, onbellek: onbellek, analiz: analiz, karantina: karantina };
+}
+
+/** SAF: metinde adın kaç kez geçtiği (tam ad, büyük/küçük harf duyarlı). */
+function adGecisSayisi(metin, ad) {
+  if (!ad) return 0;
+  return String(metin || "").split(ad).length - 1;
+}
+
+/** ⋯ → "Öğrencinin verisini sil…" (öğretmen ve yönetici). İki adımlı onay. */
+function ogrenciSilAc() {
+  _kabukMenu = null;
+  renderKabukEk();
+  const liste = (state.students || []).slice().sort(function (a, b) {
+    return String(a.sinif || "").localeCompare(String(b.sinif || ""), "tr") || String(a.name || "").localeCompare(String(b.name || ""), "tr");
+  });
+  openModal('<h3>Öğrencinin tüm verisini sil</h3>' +
+    '<p>KVKK silme başvurusu (m.7) için: seçtiğiniz öğrencinin bu tarayıcıdaki bütün kişisel verisi kalıcı olarak silinir.</p>' +
+    (liste.length ? '<div class="field"><label for="ogrSilSec">Öğrenci</label><select id="ogrSilSec">' +
+      liste.map(function (o) {
+        return '<option value="' + escapeHtml(String(o.id)) + '">' + escapeHtml((o.name || "#" + o.id) + (o.sinif ? " · " + o.sinif : "")) + "</option>";
+      }).join("") + "</select></div>" +
+      '<div id="ogrSilOzet" class="ogr-sil-ozet" aria-live="polite"></div>'
+      : '<p class="field-yardim">Sınıf listesinde öğrenci yok.</p>') +
+    '<p class="field-yardim"><b>Kalanlar:</b> soru havuzu, rubrikler ve madde istatistikleri gibi adsız toplamlar. Karar günlüğüne kişisel veri ' +
+    'içermeyen tek satır yazılır: “1 öğrencinin verisi silindi” ve tarih. Daha önce indirilen yedek (.mihenk) ve CSV dosyaları ' +
+    'bu tarayıcının dışındadır; onları ayrıca silmeniz gerekir.</p>' +
+    '<div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Vazgeç</button>' +
+    (liste.length ? '<button type="button" class="btn btn-critical" id="ogrSilDevam">Devam…</button>' : "") + "</div>");
+  kabukModalOdagi(".js-ek-menu");
+  const sec = document.getElementById("ogrSilSec");
+  if (!sec) return;
+  const ozetYaz = function () {
+    const o = ogrenciVeriOzeti(sec.value);
+    document.getElementById("ogrSilOzet").innerHTML = "<b>Silinecek:</b> ad · " + o.oturum + " sınav oturumu · " + o.yanit +
+      " yanıt · " + o.puan + " puan · " + o.gunluk + " karar günlüğü kaydı · bu öğrencinin YZ önbelleği ve analizleri.";
+  };
+  sec.onchange = ozetYaz;
+  ozetYaz();
+  document.getElementById("ogrSilDevam").onclick = async function () {
+    const sid = sec.value;
+    const o = ogrenciVeriOzeti(sid);
+    const tamam = await onaylaModal({
+      baslik: "“" + o.ad + "” öğrencisinin bütün verisi silinsin mi?",
+      metin: "Bu işlem GERİ ALINAMAZ. Ad, " + o.oturum + " sınav oturumu, " + o.yanit + " yanıt, " + o.puan + " puan ve " +
+        o.gunluk + " karar günlüğü kaydı bu tarayıcıdan kalıcı olarak silinir.\n\nGeri al kopyası alınmaz.",
+      onayEtiketi: "Evet, kalıcı olarak sil", tehlikeli: true
+    });
+    if (!tamam) return;
+    const sonuc = ogrenciVerisiniSil(sid);
+    saveState();
+    renderAll();
+    let kalan = 0;
+    try {
+      for (let i = 0; i < localStorage.length; i++) kalan += adGecisSayisi(localStorage.getItem(localStorage.key(i)), o.ad);
+    } catch (e) { kalan = -1; }
+    openModal('<h3>Öğrencinin verisi silindi</h3>' +
+      '<p role="status">' + sonuc.oturum + " sınav oturumu, " + sonuc.yanit + " yanıt, " + sonuc.puan + " puan, " + sonuc.gunluk +
+      " karar günlüğü kaydı, " + sonuc.onbellek + " önbellek kaydı" + (sonuc.analiz ? ", " + sonuc.analiz + " analiz" : "") +
+      (sonuc.karantina ? ", " + sonuc.karantina + " karantina kopyası" : "") + " silindi. Karar günlüğüne kişisel veri içermeyen " +
+      "“1 öğrencinin verisi silindi” satırı eklendi.</p>" +
+      '<p class="field-yardim">' + (kalan === 0 ? "Denetim: bu tarayıcının kayıtlarında ad artık geçmiyor."
+        : kalan > 0 ? "Denetim: ad başka kayıtların serbest metninde " + kalan + " kez geçiyor (başka öğrencinin yanıtı gibi); o veri başkasına ait olduğu için silinmedi."
+        : "Denetim yapılamadı: tarayıcı deposu okunamadı.") + "</p>" +
+      (depoHatasi || (typeof sekmeCakismasi !== "undefined" && sekmeCakismasi) ? '<p class="field-hata-metni" role="alert">Silme kaydedilemedi: ' +
+        escapeHtml(depoHatasi || SEKME_CAKISMA_BASLIK) + "</p>" : "") +
+      '<div class="modal-actions"><button type="button" class="btn btn-primary" id="modalCancel">Kapat</button></div>');
+    kabukModalOdagi(".js-ek-menu");
+  };
+}
+
 /** Öğretmen hiç dokunmadıysa liste hâlâ VARSAYILAN_OGRENCILER'in (takım
  *  isimleri) aynısı mı? Öyleyse "bu örnektir" ipucu + tek tık temizleme
  *  gösterilir — §28q: kullanıcı kendi sınıfını kurarken 4 sahte isimle
@@ -9507,7 +10003,8 @@ function wireSinifYonetim() {
       if (!ogr) return;
       onayliEylem(b, { baslik: "“" + ogr.name + "” sınıftan çıkarılsın mı?",
         metin: ogrenciSilGuard(id)
-          ? "Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; çıkarırsanız kayıtlar isimsiz kalır (silinmez)."
+          ? "Bu öğrencinin gönderilmiş/onaylanmış sınav yanıtları var; çıkarırsanız kayıtlar isimsiz kalır (silinmez).\n\n" +
+            "Bütün verisini silmek için (KVKK): ⋯ → Öğrencinin verisini sil."   // §128
           : "Öğrenci bu sınıfın listesinden çıkarılacak.",
         onayEtiketi: "Sınıftan çıkar", tehlikeli: true }, function () {
         state.students = state.students.filter(function (x) { return x.id !== id; });
@@ -14781,10 +15278,7 @@ function kararRaporuCsv(kayitlar) {
       Array.isArray(k.kriterler) ? k.kriterler.map(function (c) {
         return String(c.ad) + "=" + (Math.round((c.nihai - c.oneri) * 100) / 100);
       }).join(" | ") : ""
-    ].map(function (h) {
-      h = String(h == null ? "" : h);
-      return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
-    }).join(";");
+    ].map(function (h) { return csvHucre(h); }).join(";");   // §128: ortak yazıcı (formül nötrleme, O1)
   });
   return "﻿" + bas.join(";") + "\n" + satir.join("\n");
 }
@@ -18000,7 +18494,7 @@ function renderKabukEk() {
         '<span class="kb-oge-etiket">Model durumu</span> ' + escapeHtml(modelMetni) +
         (butceMetni ? '<br><span class="kb-oge-etiket">Günlük bütçe</span> ' + escapeHtml(butceMetni) : "") + '</div>' : "") +
       '<button type="button" role="menuitem" tabindex="-1" class="kb-oge js-ek-demo" data-kb="ek:demo"' +
-      ' aria-label="Rehberli demo, 5 adım — örnek veriyle soru onayından analize">' +
+      ' aria-label="Rehberli demo (5 adım) — örnek veriyle soru onayından analize">' +
       '<span class="kb-oge-ad">▶ Rehberli demo (5 adım)</span>' +
       '<span class="kb-oge-not">Örnek veriyle soru onayından analize</span></button>' +
       /* §120: demo alanında yedek/geri yükleme/sıfırlama YOK (kullanıcının
@@ -18020,6 +18514,12 @@ function renderKabukEk() {
         ' aria-label="Yedekten geri yükle — önce özet ve onay">' +
         '<span class="kb-oge-ad">Yedekten geri yükle…</span>' +
         '<span class="kb-oge-not">Önce özet ve onay</span></button>' : "") +
+      /* §128 KVKK: tek öğrencinin bütün verisi — öğretmen ve yönetici (demo alanında demo verisinde çalışır). */
+      (state.role === "teacher" || state.role === "admin" ? '<div class="kb-ayrac" role="separator"></div>' +
+        '<button type="button" role="menuitem" tabindex="-1" class="kb-oge kb-tehlike js-ek-ogrenci-sil" data-kb="ek:ogrenci-sil"' +
+        ' aria-label="Öğrencinin verisini sil — KVKK, iki adımlı onay">' +
+        '<span class="kb-oge-ad">Öğrencinin verisini sil…</span>' +
+        '<span class="kb-oge-not">KVKK · iki adımlı onay</span></button>' : "") +
       (okul && !demoAlaniMi() ? '<div class="kb-ayrac" role="separator"></div>' +
         '<button type="button" role="menuitem" tabindex="-1" class="kb-oge kb-tehlike js-ek-sifirla" data-kb="ek:sifirla"' +
         ' aria-label="Tüm verileri sıfırla — önce onay sorulur">' +
@@ -18034,6 +18534,7 @@ function renderKabukEk() {
   document.querySelectorAll(".js-ek-sifirla").forEach(function (b) { b.onclick = sifirlaOnayAc; });
   document.querySelectorAll(".js-ek-yedekle").forEach(function (b) { b.onclick = function () { yedekAlAc(); }; });
   document.querySelectorAll(".js-ek-geri-yukle").forEach(function (b) { b.onclick = yedekGeriYukleAc; });
+  document.querySelectorAll(".js-ek-ogrenci-sil").forEach(function (b) { b.onclick = ogrenciSilAc; });   // §128
 }
 
 /** §64 — SIFIRLAMA ARTIK ONAYLI. Eskiden üst çubuktaki "Sıfırla" düğmesi
@@ -19219,10 +19720,24 @@ function wireDikkat() {
      · başta UTF-8 BOM — yoksa "ğ ş ı" bozuk görünür
    Ondalık sayılar da virgülle yazılır (12,5), Excel bunu sayı olarak okur. */
 
-/** CSV hücresi kaçışı — auditCsv() ile aynı kural. */
+/** CSV hücresi kaçışı — BÜTÜN CSV dışa aktarımlarının tek yazıcısı
+ *  (auditCsv, kararRaporuCsv, csvSatirlar: öğrenci, sınıf/kazanım, e-Okul).
+ *  §128 (fikir3-E O1, ölçüldü): öğrencinin yazdığı yanıt "=HYPERLINK(…)" ise
+ *  Excel onu FORMÜL olarak çalıştırıyordu; tırnağa almak engellemez.
+ *  OWASP CSV Injection önerisi (https://owasp.org/www-community/attacks/CSV_Injection):
+ *  = + - @ sekme (0x09) ya da satır başı (0x0D) ile başlayan hücrenin başına
+ *  tek tırnak (') konur; hücre içindeki çift tırnak ikilenir ve hücre tırnağa
+ *  alınır. Ek olarak: baştaki boşluklardan sonra gelen bu işaretler ve tam
+ *  genişlikli eşleri (＝＋－＠) de nötrlenir.
+ *  SAYI İSTİSNASI: yalnız sayı olan hücre ("-3", "12,5", "-1.5") formül
+ *  değildir, önek almaz — e-Okul soru puanları ve fark sütunları bozulmaz.
+ *  "-3 çünkü x=5" gibi yanıt "'-3 çünkü x=5" olur: okunur kalır, #AD? vermez.
+ *  CR de tırnak gerektirir: tırnaksız CR yeni satır açıp formülü satır başına taşırdı. */
 function csvHucre(h) {
   h = String(h == null ? "" : h);
-  return /[";\n]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
+  const sayi = /^[+-]?(\d+([.,]\d+)*|[.,]\d+)([eE][+-]?\d+)?$/.test(h);
+  if (!sayi && (/^[\t\r]/.test(h) || /^[\s 　]*[=+\-@＝＋－＠]/.test(h))) h = "'" + h;
+  return /[";\n\r]/.test(h) ? '"' + h.replace(/"/g, '""') + '"' : h;
 }
 
 /** Sayıyı Türkçe Excel'in SAYI olarak okuyacağı biçime çevir. */
@@ -19662,7 +20177,12 @@ function bosDurumHtml(mesaj) {
     "deneyapIndeksYukle", "mebYerine", "katalogKaynakAdi", "uygunlukNotu", "kazanimKaynakHtml",
     "uretimKaynakTuru",
     "sinifEtiketi", "materyalBilgisi", "seciliMateryal", "materyalDurumu",
-    "materyalGetir", "materyalHazirla", "materyalSeridiHtml", "materyalDizinYukle"
+    "materyalGetir", "materyalHazirla", "materyalSeridiHtml", "materyalDizinYukle",
+    /* §128 — tek durum şeması + kurtarma ekranı, CSV formül nötrleme, KVKK öğrenci silme. */
+    "durumDegerTuru", "durumTurUyar", "durumAltSorunu", "durumuDogrula", "durumHataMetni", "durumKaydiniCoz",
+    "kurtarmaBaslat", "karantinaAnahtarlari", "durumuVarsayilanaDondur", "acilisHatasiniKurtar", "renderKurtarma",
+    "acilisiTamamla", "ogrenciOturumlari", "ogrenciYanitMetinleri", "ogrenciVeriOzeti",
+    "ogrenciGunlukKaydiMi", "ogrenciVerisiniSil", "adGecisSayisi", "ogrenciSilAc"
   ];
   const eksik = gerekli.filter(function (f) { return typeof window[f] !== "function"; });
   if (eksik.length) {
@@ -19692,29 +20212,47 @@ loadState();
    `pdfLoading` de AYNI kusuru taşıyor: yarım kalmış bir PDF/DOCX okuma
    işleminden sonra uygulama açılışta "Dosya okunuyor…" ekranında kilitli
    kalıyordu. Üçü de burada sıfırlanır — durum verisine (kitaplık, sorular,
-   oturumlar) dokunulmaz, yalnızca bu geçici bayraklar temizlenir. */
-state.ceForm.ocrLoading = false;
-state.ceForm.ocrProgress = "";
-state.ceForm.pdfLoading = false;
-// localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
-// doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
-ensureOutcomeMeta();
-/* AÇILIŞTA SEÇİMİ NORMALLEŞTİR (kullanıcı bildirdi).
-   `outcomeSeciminiTazele()` yalnızca ders/sınıf DEĞİŞİNCE çağrılıyordu.
-   localStorage'dan uyumsuz bir seçim gelirse (ör. ders Türkçe, sınıf 7 ama
-   kazanım FEN.7.1.2) hiç düzeltilmiyor, ekranda "(başka ders/sınıf)" etiketiyle
-   duruyordu. Kullanıcı seçimi kendisi bozmadı — eski durum öyle kalmıştı. */
-outcomeSeciminiTazele();
-ensureSources();
-ensureStudents();
-ensureExamList();
+   oturumlar) dokunulmaz, yalnızca bu geçici bayraklar temizlenir.
+   §128: açılışın kayda bağlı adımları acilisiTamamla'da. Biri hata verirse
+   (şemaya uyan ama yine de işlenemeyen kayıt) bellek varsayılana döner,
+   kayıt karantinaya alınır ve adımlar bir kez daha koşar: uygulama her
+   koşulda açılır, kurtarma ekranından Sıfırla'ya ulaşılır. */
+function acilisiTamamla() {
+  state.ceForm.ocrLoading = false;
+  state.ceForm.ocrProgress = "";
+  state.ceForm.pdfLoading = false;
+  // localStorage'daki eski kazanımlarda subject/grade yok; kod önekinden
+  // doldurulur ki ders/sınıf filtresi eski verilerde de doğru çalışsın.
+  ensureOutcomeMeta();
+  /* AÇILIŞTA SEÇİMİ NORMALLEŞTİR (kullanıcı bildirdi).
+     `outcomeSeciminiTazele()` yalnızca ders/sınıf DEĞİŞİNCE çağrılıyordu.
+     localStorage'dan uyumsuz bir seçim gelirse (ör. ders Türkçe, sınıf 7 ama
+     kazanım FEN.7.1.2) hiç düzeltilmiyor, ekranda "(başka ders/sınıf)" etiketiyle
+     duruyordu. Kullanıcı seçimi kendisi bozmadı — eski durum öyle kalmıştı. */
+  outcomeSeciminiTazele();
+  ensureSources();
+  ensureStudents();
+  ensureExamList();
+  renderAll();
+  girisKapisiKur();
+  demoAcilisiniTamamla();   // §120
+}
 /* §64: demo kendi verisi olan kullanıcıya önce sorar (demoBaslat); Sıfırla
    üst çubuktan ⋯ menüsüne taşındı ve onaylı (sifirlaOnayAc) — btnReset yok. */
 document.getElementById("btnDemoSeed").onclick = demoBaslat;
 setInterval(function () { if (state.ai.busy) tickBusy(); }, 250);
-renderAll();
-girisKapisiKur();
-demoAcilisiniTamamla();   // §120
+/* §128: açılış bitene kadar kayıt YAZILMAZ (ölçüldü: göç adımı yazıp sonraki adım
+   patlayınca karantinaya değişmiş kayıt gidiyordu). Başarılı açılışın sonunda
+   bir kez yazılır — eskiden ilk renderAll'ın yaptığı kayıt. */
+_acilisSuruyor = true;
+try { acilisiTamamla(); }
+catch (e) {
+  acilisHatasiniKurtar(e);
+  try { acilisiTamamla(); } catch (e2) { console.error("Mihenk: varsayılan durumla da açılamadı:", e2); }
+}
+_acilisSuruyor = false;
+if (!_kurtarma) saveState();
+renderKurtarma();         // §128: kayıt okunamadıysa kurtarma ekranı (yoksa hiçbir şey)
 probeAiMode();
 depoKaliciIste(typeof navigator !== "undefined" ? navigator : null);   // §100
 // Açılışta seçili ders/sınıfın MEB kazanım kataloğunu getir — öğretmen

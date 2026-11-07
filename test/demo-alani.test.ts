@@ -16,6 +16,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { durumSemasiKodu } from './durum-semasi-kod';
 
 const kok = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
@@ -64,7 +65,7 @@ describe('§120-1 · ayrı kayıt alanı', () => {
       'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null; let _saveTimer = null;\n' +
       'function renderSekmeCakismasi() {}\n' + ['SURUM_KEY', 'SEKME_KIMLIGI'].map((a) => sabit(a, ';')).join('\n') + '\n' +
       ['surumAnahtari', 'depoSurumOku', 'sekmeCakismasiBildir', 'depoSurumuBizimMi', 'depoyaSurumluYaz'].map(tanim).join('') +
-      tanim('saveState') +
+      tanim('saveState') + 'let _ilkDurum = null;\n' + durumSemasiKodu() +
       tanim('loadState').replace(/\/\* ---- GÖÇ[\s\S]*?(?=\n    \/\/ Süresi dolmuş)/, '') +
       '\nreturn { saveState, loadState, depoAnahtari, oku: () => qIdSeq };'
     )(state, localStorage, demo);

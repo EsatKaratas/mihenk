@@ -35,7 +35,7 @@ function kur(supheler: string[] = []) {
   const state: any = { questions: [], auditLog: [] };
   const kod = sabitMetni('RED_KODLARI') + '\n' + [
     'redKoduAdi', 'redKoduRozetiHtml', 'redKoduSeciciHtml', 'soruyuReddet', 'soruyuOnayla',
-    'anahtarIzli', 'rozetA1A2', 'auditOzet', 'anahtarDuzeltmeHtml', 'auditCsv',
+    'anahtarIzli', 'rozetA1A2', 'auditOzet', 'anahtarDuzeltmeHtml', 'auditCsv', 'csvHucre',
     'remapCorrectKeyAndRationale', 'relabelOptionsAndGetKeyMap',
   ].map(fonksiyonMetni).join('\n');
   // eslint-disable-next-line no-new-func
