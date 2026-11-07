@@ -247,7 +247,10 @@
         katmanda temizlenir:</p>
         <ul>
           <li><b>Tarayıcıda, gönderimden önce:</b> sınıf listesinde kayıtlı adlar <code>[ÖĞRENCİ]</code>,
-          "okul numaram 123" ya da "no: 57" gibi ifadeler <code>[NUMARA]</code> olur. Türkçe büyük-küçük
+          "okul numaram 123" ya da "no: 57" gibi ifadeler <code>[NUMARA]</code> olur. Telefon numarası
+          ("0532 111 22 33", "+90 …") ve T.C. kimlik numarası <code>[NUMARA]</code>, e-posta adresi
+          <code>[E-POSTA]</code> olur; tarih, puan, yıl ve sınıf gibi sayılara dokunulmaz. Başında 0 ya da +90
+          olmayan sabit hat numarası yakalanmaz. Türkçe büyük-küçük
           harf, ş/s, ı/i gibi klavyesiz yazımlar ve ekler ("Ayşe'nin", "ayşenin") de yakalanır.</li>
           <li><b>Sunucuda, ikinci katman:</b> "benim adım …", "Ad Soyad: …" gibi açık tanıtım kalıpları
           maskelenir. İstekte ad, soyad, okul numarası, sınıf gibi bir alan adı varsa istek reddedilir ve

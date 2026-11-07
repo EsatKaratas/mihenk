@@ -105,8 +105,10 @@ describe('tercih: varsayılan kapalı, tek liste', () => {
   });
   it('tercih kalıcı: ayrı localStorage anahtarı, try/catch ile (özel pencere bozmaz)', () => {
     const al = fonksiyonMetni('puanTercihAl'), kaydet = fonksiyonMetni('puanTercihKaydet');
-    expect(al).toContain('localStorage.getItem(PUAN_TERCIH_ANAHTAR)');
-    expect(kaydet).toContain('localStorage.setItem(PUAN_TERCIH_ANAHTAR');
+    // §132: anahtar alana göre (demo alanı "-demo" ekli ayrı anahtar; test/demo-tercih-bant).
+    expect(al).toContain('localStorage.getItem(puanTercihAnahtari())');
+    expect(kaydet).toContain('localStorage.setItem(puanTercihAnahtari()');
+    expect(fonksiyonMetni('puanTercihAnahtari')).toContain('PUAN_TERCIH_ANAHTAR +');
     expect(al).toMatch(/try \{/); expect(kaydet).toMatch(/try \{/);
     expect(fonksiyonMetni('adsizTohumAl')).toContain('sessionStorage');
   });

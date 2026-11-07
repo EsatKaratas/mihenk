@@ -1244,6 +1244,33 @@ function kisiselMaskele(metin, ogrenciler) {
   let m = String(metin == null ? "" : metin);
   let degisti = false;
   const liste = ogrenciler || (typeof state !== "undefined" && state.students) || [];
+  /* §132 — iletişim ve kimlik bilgisi (önce §131 paketinde ciftEkMaske idi; artık
+     modele giden metin de aynı kuraldan geçer). SESSİZ YANLIŞ MASKE YOK: desenler
+     yalnız telefon / e-posta / T.C. kimlik biçimini tutar; tarih (07.11.2026),
+     puan (16/20), yıl (2026), sınıf (7/B), büyük sayı (1000000000), uzun ondalık
+     (3.14159265358979) ve boşluklu sayı listesi dokunulmaz (test/iletisim-maske).
+     Sınır: başında 0 / +90 olmayan sabit hat ("212 555 12 34") tutulmaz.
+     Ad ve okul-no maskesinden ÖNCE: "ayse_yilmaz@…" bütün olarak, "numaram 0532…" telefon olarak. */
+  const sayiSinir = "(?![\\d]|[.,/]\\d)";
+  const kaliplar = [
+    { re: /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)*\.\p{L}{2,}/gu, etiket: "[E-POSTA]" },
+    { re: new RegExp("(?<![\\d.,/])[1-9]\\d{10}" + sayiSinir, "g"), etiket: "[NUMARA]", tc: true },
+    { re: new RegExp("(?<![\\d.,/])(?:(?:\\+|00)90[\\s.-]?\\(?0?|\\(?0[\\s.-]?\\(?)[2-5]\\d{2}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{2}[\\s.-]?\\d{2}" + sayiSinir, "g"), etiket: "[NUMARA]" },
+    { re: new RegExp("(?<![\\d.,/+])\\(?5\\d{2}\\)?[\\s.-]\\d{3}[\\s.-]\\d{2}[\\s.-]?\\d{2}" + sayiSinir, "g"), etiket: "[NUMARA]" },
+  ];
+  kaliplar.forEach(function (k) {
+    m = m.replace(k.re, function (b) {
+      if (k.tc) {   // T.C. kimlik no denetim haneleri: rastgele 11 haneli sayı maskelenmez
+        const d = b.split("").map(Number);
+        const tek = d[0] + d[2] + d[4] + d[6] + d[8], cift = d[1] + d[3] + d[5] + d[7];
+        const on = ((tek * 7 - cift) % 10 + 10) % 10;
+        const top = d.slice(0, 10).reduce(function (a, x) { return a + x; }, 0) % 10;
+        if (d[9] !== on || d[10] !== top) return b;
+      }
+      degisti = true;
+      return k.etiket;
+    });
+  });
   const tumKaliplar = [];
   liste.forEach(function (s) { kisiselAdKaliplari(s && s.name).forEach(function (k) { tumKaliplar.push(k); }); });
   // Önce ad+soyad (uzun kalıp), sonra tek parçalar.
@@ -1750,6 +1777,11 @@ function aiAyrintiHtml() {
       '<span class="aim-deger' + (mono ? " mono" : "") + '">' + escapeHtml(deger) + "</span></div>";
   };
   var icerik = "";
+  if (typeof demoAlaniMi === "function" && demoAlaniMi()) {   // §132
+    icerik += satir("Durum", DEMO_AI_BANT_METNI);
+    icerik += '<div class="aim-not">' + escapeHtml(DEMO_AI_KAPALI_METNI) + " Demodan çıkınca bant gerçek modeli gösterir.</div>";
+    return '<div class="ai-mode-detay" id="aiModeDetay">' + icerik + "</div>";
+  }
   if (a.mode === "live") {
     icerik += satir("Sağlayıcı", saglayiciAdi(a.provider));
     icerik += satir("Model", a.model || "—", true);
@@ -1789,12 +1821,16 @@ function aiAyrintiHtml() {
 function renderAiBadge() {
   const el = document.getElementById("aiModeSlot");
   if (el) {
-    const live = state.ai.mode === "live";
+    /* §132: demo alanında apiPost modele istek göndermez (§120); bant "Gerçek model ·
+       Llama…" demesin. Gerçek alanda metin ve renk aynen kalır. */
+    const demo = typeof demoAlaniMi === "function" && demoAlaniMi();
+    const live = !demo && state.ai.mode === "live";
     const kisa = modelKisaAd(state.ai.model) || saglayiciAdi(state.ai.provider);
-    const txt = state.ai.mode === "unknown" ? "Model denetleniyor…"
+    const txt = demo ? DEMO_AI_BANT_METNI
+      : state.ai.mode === "unknown" ? "Model denetleniyor…"
       : live ? ((state.ai.usingFallback ? "Yedek model · " : "Gerçek model · ") + kisa)
       : "Yerel simülasyon";
-    const cls = !live ? "pill-warning" : (state.ai.usingFallback ? "pill-accent2" : "pill-success");
+    const cls = demo ? "pill-neutral" : !live ? "pill-warning" : (state.ai.usingFallback ? "pill-accent2" : "pill-success");
     el.innerHTML =
       '<button class="ai-chip ' + cls + '" id="btnAiDetay" aria-expanded="' + (state.aiAyrintiAcik ? "true" : "false") +
       '" title="Model ayrıntılarını göster/gizle">' +
@@ -1825,7 +1861,8 @@ function renderAiBadge() {
        ve saklanmaz. Cümle bunu olduğu gibi söyler — abartmaz. */
     const depoNotu = "sınav ve yanıt verileri yalnızca bu tarayıcıda saklanır ve sunucuya gönderilmez; " +
       "yalnızca yapay zekâ adımlarında ilgili metin modele iletilir.";
-    const model = state.ai.mode === "live"
+    const model = demoAlaniMi() ? DEMO_AI_KAPALI_METNI   // §132
+      : state.ai.mode === "live"
       ? "Soru üretimi ve açık uçlu puan önerisi gerçek bir dil modeli tarafından üretilir; nihai puan her zaman öğretmen onayıyla kesinleşir."
       : "Model sunucusuna ulaşılamadığı için yapay zekâ adımları şablon tabanlı yerel yedeğe düşmüştür.";
     col.textContent = model + " Bu prototip " + rolAdedi + " rolü aynı tarayıcı oturumunda simüle eder; " + depoNotu;
@@ -1858,6 +1895,12 @@ const DEMO_ALAN_BAYRAGI = "mihenk-demo-alani";      // sessionStorage
 const DEMO_CIKIS_BAYRAGI = "mihenk-demo-cikti";      // sessionStorage, tek seferlik bilgi
 const DEMO_KORUMA_METNI = "Kendi verileriniz ayrı saklanıyor ve değişmiyor; demodan çıkınca olduğu gibi geri gelir.";
 const DEMO_AI_KAPALI_METNI = "Demo alanında yapay zekâya istek gönderilmez (0 Neuron); önceden kaydedilmiş örnek veri kullanılır.";
+const DEMO_AI_BANT_METNI = "Demo · model çağrılmaz";   // §132: üst bant, yalnız demo alanında
+/* §132: "Adları gizle" ve görünüm tercihi demo alanında AYRI anahtarda tutulur;
+   demo, öğretmenin gerçek alan tercihini hiç yazmaz (puanTercihAnahtari). */
+const PUAN_TERCIH_DEMO_EK = "-demo";
+/** Demo alanının puanlama tercihi anahtarı (§122 anahtarı + "-demo"). Literal: açılışta, §122 sabiti tanımlanmadan çağrılır. */
+function puanTercihDemoAnahtari() { return "mihenk.puanlama.tercih.v1" + PUAN_TERCIH_DEMO_EK; }
 let _demoAlani = false;
 
 /** Demo alanında mı? (sekmeye özel) */
@@ -1871,7 +1914,7 @@ function demoAlaniniOku() {
   let bayrak = false;
   try { bayrak = sessionStorage.getItem(DEMO_ALAN_BAYRAGI) === "1"; } catch (e) { bayrak = false; }
   _demoAlani = bayrak;
-  if (!bayrak) { try { localStorage.removeItem(DEMO_STORE_KEY); } catch (e) { /* önemsiz */ } }
+  if (!bayrak) { try { localStorage.removeItem(DEMO_STORE_KEY); localStorage.removeItem(puanTercihDemoAnahtari()); } catch (e) { /* önemsiz */ } }
   return bayrak;
 }
 
@@ -3550,6 +3593,9 @@ function demoAlaninaGec() {
     }
     _demoAlani = true;
     try { sessionStorage.setItem(DEMO_ALAN_BAYRAGI, "1"); } catch (e) { /* özel pencere: yalnız bu sayfa ömrü */ }
+    /* §132: demo kendi puanlama tercihiyle (varsayılan: adlar açık) başlar; gerçek tercih okunmaz, yazılmaz. */
+    try { localStorage.removeItem(puanTercihDemoAnahtari()); } catch (e) { /* önemsiz */ }
+    _puanTercih = null;
     /* §123: bundan sonraki yazımlar demo alanının sürümüyle denetlenir. */
     const ds = depoSurumOku();
     _bilinenSurum = ds ? ds.rev : null;
@@ -3573,6 +3619,8 @@ function demoAlanindanCik() {
   _resetting = true;   // aradaki hiçbir kayıt yazılmasın
   if (typeof _saveTimer !== "undefined" && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null; }
   try { localStorage.removeItem(DEMO_STORE_KEY); localStorage.removeItem(surumAnahtari(true)); } catch (e) { /* önemsiz */ }
+  try { localStorage.removeItem(puanTercihDemoAnahtari()); } catch (e) { /* §132 */ }
+  _puanTercih = null;
   try { sessionStorage.removeItem(DEMO_ALAN_BAYRAGI); sessionStorage.setItem(DEMO_CIKIS_BAYRAGI, "1"); } catch (e) { /* önemsiz */ }
   _demoAlani = false;
   location.reload();
@@ -13876,10 +13924,16 @@ function puanTercihNormal(h) {
   return { adsiz: h.adsiz === true, gorunum: h.gorunum === "soru" ? "soru" : "liste" };
 }
 
+/** §132: tercih anahtarı alana göre. Demo alanı kendi anahtarını kullanır; demoda
+    "Adları gizle"ye basmak gerçek alandaki tercihi DEĞİŞTİRMEZ. */
+function puanTercihAnahtari() {
+  return PUAN_TERCIH_ANAHTAR + (typeof demoAlaniMi === "function" && demoAlaniMi() ? PUAN_TERCIH_DEMO_EK : "");
+}
+
 function puanTercihAl() {
   if (!_puanTercih) {
     let h = {};
-    try { h = JSON.parse(localStorage.getItem(PUAN_TERCIH_ANAHTAR) || "{}"); } catch (e) { h = {}; }
+    try { h = JSON.parse(localStorage.getItem(puanTercihAnahtari()) || "{}"); } catch (e) { h = {}; }
     _puanTercih = puanTercihNormal(h);
   }
   return _puanTercih;
@@ -13887,7 +13941,7 @@ function puanTercihAl() {
 
 function puanTercihKaydet(degisiklik) {
   _puanTercih = puanTercihNormal(Object.assign({}, puanTercihAl(), degisiklik));
-  try { localStorage.setItem(PUAN_TERCIH_ANAHTAR, JSON.stringify(_puanTercih)); } catch (e) { /* özel pencere: yalnız bu oturum */ }
+  try { localStorage.setItem(puanTercihAnahtari(), JSON.stringify(_puanTercih)); } catch (e) { /* özel pencere: yalnız bu oturum */ }
   return _puanTercih;
 }
 
@@ -16397,7 +16451,7 @@ function ciftPaketHazirla(g) {
       const m = String((((ss.answers || {})[q.id]) || {}).text || "").trim();
       if (!m) { bos++; return; }
       const kod = kodlar[String(s.id)];
-      yanitlar.push({ kod: kod, qid: q.id, metin: ciftEkMaske(kisiselMaskele(m, g.maskeListesi || []).metin).slice(0, CIFT_METIN_SINIRI) });
+      yanitlar.push({ kod: kod, qid: q.id, metin: kisiselMaskele(m, g.maskeListesi || []).metin.slice(0, CIFT_METIN_SINIRI) });
       ogeler.push({ kod: kod, sid: s.id, qid: q.id });
     });
   });
@@ -16416,12 +16470,6 @@ function ciftPaketHazirla(g) {
       ogeler: ogeler, donus: null },
     bos: bos
   };
-}
-
-/** SAF: pakete giden metinde kisiselMaskele'nin tutmadığı telefon / e-posta benzeri ifadeler
-    (desen §126 itirazKisiselVeriVar ile aynı aile). Ad maskesi ayrıca kisiselMaskele'de. */
-function ciftEkMaske(metin) {
-  return String(metin || "").replace(/[^\s@]+@[^\s@]+\.[^\s@]{2,}/g, "[E-POSTA]").replace(/\d(?:[\s().-]{0,2}\d){9,}/g, "[NUMARA]");
 }
 
 function ciftHata(metin) { return { ok: false, hata: metin }; }
@@ -22174,7 +22222,7 @@ function bosDurumHtml(mesaj) {
     "itirazKuyruguHtml", "wireItirazKuyrugu", "itirazElleEkle", "itirazGunlukDetay",
     "itirazAdsizNo", "itirazAdsizCiz", "itirazKuyrukKartiHamHtml", "itirazGecmisSatirHamHtml",   // §130
     /* §131 — zümre çift puanlama */
-    "ciftSabitleri", "ciftKayitlari", "ciftYeniKimlik", "ciftOlcutleri", "ciftPaketHazirla", "ciftEkMaske", "ciftHata", "ciftSayiMi", "ciftPaketCoz",
+    "ciftSabitleri", "ciftKayitlari", "ciftYeniKimlik", "ciftOlcutleri", "ciftPaketHazirla", "ciftHata", "ciftSayiMi", "ciftPaketCoz",
     "ciftGelenDogrula", "ciftPuanHesapla", "ciftDonusPaketi", "ciftDonusDogrula", "ciftAPuani", "ciftDonusUygula", "ciftUyumRaporu",
     "ciftUyumCsv", "ciftHazirlanabilir", "ciftDosyaAdi", "ciftPaketIndir", "ciftDosyaIsle", "ciftTarih", "ciftYanitEtiketi", "ciftYuzde",
     "ciftRaporHtml", "ciftGidenHtml", "ciftPuanliSayisi", "ciftGelenYanitHtml", "ciftGelenHtml", "ciftKartHtml", "ciftBolumuHtml",
@@ -22306,7 +22354,7 @@ function bosDurumHtml(mesaj) {
     "ogrenmeKazanimAdi", "siradakiAdimMetni", "ogrenmeBekleyenMetni", "ogrenmeCiktisiKartiHtml",
     "karneKagidiHtml", "yazdirKabindanBas", "karneYazdir", "wireKarneYazdir",
     /* §122 — adsız + soru soru puanlama, kâğıda geri bildirim fişi (P4). */
-    "puanTercihNormal", "puanTercihAl", "puanTercihKaydet", "adsizTohumAl", "adsizRastgele", "adsizKaristir",
+    "puanTercihNormal", "puanTercihAl", "puanTercihKaydet", "puanTercihAnahtari", "puanTercihDemoAnahtari", "adsizTohumAl", "adsizRastgele", "adsizKaristir",
     "adsizNumaralar", "adsizChipHtml", "adsizCiz", "soruGruplari", "soruGrubuBasHtml", "puanKuyruguHtml",
     "adsizOnayliKartHtml", "puanAracCubuguHtml", "geriBildirimFisVerisi", "geriBildirimFisiHtml",
     "geriBildirimFisOgrencileri", "geriBildirimFisleriHtml", "geriBildirimFisleriYazdir", "puanFisKutusuHtml", "wirePuanArac",

@@ -32,7 +32,7 @@ function sabit(ad: string): string {
 }
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-const CIFT_FN = ['ciftSabitleri', 'ciftKayitlari', 'ciftOlcutleri', 'ciftEkMaske', 'ciftPaketHazirla', 'ciftHata', 'ciftSayiMi', 'ciftPaketCoz',
+const CIFT_FN = ['ciftSabitleri', 'ciftKayitlari', 'ciftOlcutleri', 'ciftPaketHazirla', 'ciftHata', 'ciftSayiMi', 'ciftPaketCoz',
   'ciftGelenDogrula', 'ciftPuanHesapla', 'ciftDonusPaketi', 'ciftDonusDogrula', 'ciftAPuani', 'ciftDonusUygula', 'ciftUyumRaporu',
   'ciftUyumCsv', 'ciftDosyaIsle', 'ciftPuanliSayisi', 'ciftYuzde'];
 const DIGER_FN = ['yzDenetimSabitleri', 'qwk', 'yarimPuanKategori', 'kriterPuani', 'kriterPuanNormal', 'kriterToplami',
@@ -148,7 +148,7 @@ describe('§131 paket: kör ve adsız', () => {
     expect(metin).not.toMatch(/"sid"|aiScore|finalScore|reviews|breakdown|aiEvals|decision/);
     expect(metin).not.toContain('0532');
     expect(metin).toContain('telefonum [NUMARA]');
-    expect(f.ciftEkMaske('yaz: ali.veli@okul.k12.tr ya da 0 (532) 111-22-33; 12 elma')).toBe('yaz: [E-POSTA] ya da [NUMARA]; 12 elma');
+    expect(f.kisiselMaskele('yaz: ali.veli@okul.k12.tr ya da 0 (532) 111-22-33; 12 elma', []).metin).toBe('yaz: [E-POSTA] ya da [NUMARA]; 12 elma');
     expect(metin).toContain('[ÖĞRENCİ]');
     expect(r.bos).toBe(1);
     expect(r.paket.yanitlar).toHaveLength(5);

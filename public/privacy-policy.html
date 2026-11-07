@@ -314,8 +314,8 @@
           <b>Zümre çift puanlama (isteğe bağlı):</b> öğretmen, bir zümre arkadaşının bağımsız puanlaması
           için bir <b>ikinci puanlayıcı paketi</b> (.json dosyası) indirebilir. Pakette soru, rubrik ve açık
           uçlu yanıt metni bulunur; <b>öğrenci adı ve sistem içi kimlik bulunmaz</b>, yanıtlar karışık
-          numarayla (“Yanıt 7”) yer alır ve metindeki kayıtlı adlar <code>[ÖĞRENCİ]</code>, telefon/numara
-          benzeri ifadeler maskelenir. Yapay zekâ önerisi ve ilk öğretmenin puanı pakete konmaz. Dosyayı kime
+          numarayla (“Yanıt 7”) yer alır ve metindeki kayıtlı adlar <code>[ÖĞRENCİ]</code>; telefon, e-posta ve
+          T.C. kimlik numarası biçimindeki ifadeler maskelenir. Yapay zekâ önerisi ve ilk öğretmenin puanı pakete konmaz. Dosyayı kime
           vereceğine öğretmen karar verir; Mihenk onu hiçbir yere göndermez. Geri dönen pakette yanıt metni
           olmaz, yalnız numara ve puan olur. Numaranın hangi öğrenciye ait olduğu yalnız paketi hazırlayan
           öğretmenin tarayıcısında tutulur ve “Öğrencinin verisini sil” bunu da siler. Maskeleme
@@ -466,7 +466,8 @@
         <h2><span class="n">8</span> Güvenlik Tedbirleri</h2>
         <ul>
           <li><b>Veri en aza indirme:</b> öğrenci adı, numarası, sınıfı ve okulu yapay zekâ isteklerine girmez;
-          cevap metnindeki kayıtlı adlar gönderimden önce tarayıcıda maskelenir (bkz. bölüm 2).</li>
+          cevap metnindeki kayıtlı adlar ile telefon, e-posta ve T.C. kimlik numarası biçimindeki ifadeler
+          gönderimden önce tarayıcıda maskelenir (bkz. bölüm 2).</li>
           <li><b>Sunucuda ikinci katman:</b> öğrenciyi tanımlayan bir alan adı (ör. ad, soyad, okul numarası,
           sınıf) taşıyan istek reddedilir ve modele iletilmez; "benim adım …" gibi açık tanıtım kalıpları maskelenir.</li>
           <li>Tüm bağlantılar şifrelidir (HTTPS). Sunucu istek gövdesini kaydetmez.</li>
