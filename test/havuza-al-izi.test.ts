@@ -32,7 +32,7 @@ const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g,
 function kur(rol = 'teacher') {
   const state: any = { role: rol, auditLog: [] };
   const kod = sabitMetni('ROLES') + '\n' + sabitMetni('RED_KODLARI') + '\n' +
-    ['havuzaAlindiKaydet', 'rolAdi', 'redKoduAdi', 'auditOzet', 'auditCsv', 'auditSatirHtml'].map(fonksiyonMetni).join('\n');
+    ['havuzaAlindiKaydet', 'rolAdi', 'redKoduAdi', 'auditOzet', 'auditCsv', 'csvHucre', 'auditSatirHtml'].map(fonksiyonMetni).join('\n');
   // eslint-disable-next-line no-new-func
   return new Function('state', 'escapeHtml',
     'const AUDIT_ETIKET = {};\n' +

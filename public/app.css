@@ -1595,6 +1595,24 @@
   .sekme-cakisma p { margin: 0; flex: 1 1 260px; }
   .sekme-cakisma .btn { background: #fff; color: var(--critical); border-color: #fff; font-weight: 700; min-height: 32px; }
 
+  /* §128 — Kurtarma ekranı: kayıt okunamadı. Her şeyin üstünde (giriş kapısı dahil);
+     arka plan inert. Kırmızı yalnız hata vurgusunda (kenar), metin normal renkte. */
+  .veri-kurtarma { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-start;
+    justify-content: center; overflow-y: auto; padding: 32px 16px; background: rgba(13,17,23,.62); }
+  .veri-kurtarma-kutu { width: 100%; max-width: 560px; padding: 20px 22px; border-radius: 12px;
+    background: var(--surface); color: var(--text); border-top: 4px solid var(--critical);
+    box-shadow: 0 8px 32px rgba(0,0,0,.4); font-size: 14px; line-height: 1.6; }
+  .veri-kurtarma-kutu h2 { margin: 0 0 10px; font-size: 19px; }
+  .veri-kurtarma-kutu p { margin: 0 0 10px; }
+  .veri-kurtarma .vk-neden { padding: 8px 12px; border-radius: 8px; background: var(--surface-2);
+    overflow-wrap: anywhere; font-size: 13px; }
+  .veri-kurtarma .vk-eylem { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; }
+  .veri-kurtarma .vk-not, .veri-kurtarma .vk-durum { font-size: 13px; color: var(--text-muted); }
+  .veri-kurtarma .vk-onay { margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--critical); }
+  .veri-kurtarma .vk-onay p { margin: 0; }
+  /* §128 KVKK silme penceresi: "Silinecek" özeti pencere metniyle aynı boyda. */
+  .ogr-sil-ozet { margin: 4px 0 10px; font-size: 14px; line-height: 1.55; }
+
   /* Model çıktısında yabancı alfabe uyarısı — kapsayıcıdan bağımsız (§6.3-2). */
   .dil-uyari { margin: 8px 0 4px; padding: 9px 12px; border-radius: 8px;
     background: var(--warning-soft); color: var(--text);

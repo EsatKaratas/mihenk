@@ -13192,3 +13192,112 @@ Yayından sonra yapılacak canlı doğrulama (POST gerektirir, Orchestrator kara
 - `/api/ai/status` → `neuronPayi: 4500`;
 - tek evaluate sonrası adres kaydının (`n`) gerçek tüketimle kapanması;
 - Workers Logs'ta `adres_payi` olayının yalnız ret anında görünmesi.
+
+---
+
+---
+
+## 128. VERİ SAĞLAMLIĞI — tek durum şeması + kurtarma ekranı, CSV formül nötrleme, KVKK "öğrencinin verisini sil" (7 Kasım 2026, Q5, dal `fix/veri-saglamligi`, taban `entegrasyon-7kasim-d` 2c4f3a9, Orchestrator 3 emriyle)
+
+Kaynak: `Downloads\Mihenk\fikir3-E-guvenlik.md` Y1, O3, O1, O2 (+ D1'in istemci kısmı). Y2 (sunucu bütçesi) bu paketin dışında: `src/`, wrangler ve `_headers` değişmedi. Model çağrısı 0, `/api/ai` POST 0, push/deploy/main birleştirmesi yok. Kod commit'i `a672d09`.
+
+### 1. Y1 + O3 — tek durum şeması ve kurtarma ekranı (`app.js` "§128 TEK DURUM ŞEMASI" bloğu, §108'in hemen üstü)
+- `durumuDogrula(d)` (SAF): `DURUM_SEMASI` her kalıcı alanın türünü tutar (metin, sayı, bool, nesne, kayıt listesi, metin listesi, kimlik; `?` = null olabilir). `DURUM_ALT_SEMA` kayıt öğelerinin ve `exam`/`integrity`'nin iç alanlarını tutar (ör. `questions[i].id`, `options` liste; `exams[i].questionIds` liste, `sessions` nesne; `students[i].id`). Kayıt listesinde bozuk öğe tek tek atılır. Bilinmeyen anahtar hata değildir ama alınmaz. Boyut sınırı 20 M karakter.
+- Test: `KALICI_ALANLAR`'daki her alanın şemada türü olmalı. Paralel dallar alan eklerse test kırılır; alanı şemaya da yazmaları gerekir.
+- **Geri yükleme** (`yedekCoz`): tek sorun bile varsa `gecersiz` hatası döner: "Yedekteki veri Mihenk biçimine uymuyor («students» kayıt listesi olmalı, metin bulundu). Dosya reddedildi; hiçbir veri değiştirilmedi." Onay penceresi açılmaz, depo bayt bayt aynı kalır. Tanınmayan alan varsa onay özetinde "Bu sürümün tanımadığı N alan yüklenmeyecek: …" yazar.
+- D1: dosyadaki PBKDF2 yinelemesi yalnız [310.000; 2.000.000] aralığında, tuz 16 B, IV 12 B olmalı. 50 MB'tan büyük dosya okunmadan reddedilir.
+- **Açılış** (`loadState` → `durumKaydiniCoz`): bozuk ya da yarım kayıt SİLİNMEZ ve EZİLMEZ.
+  - Ham metin `t3-olcme-durum-v1:bozuk-<ISO zaman>` anahtarına kopyalanır. Aynı içerik zaten varsa yeni kopya açılmaz. Demo alanında anahtar `…-demo:bozuk-…`.
+  - `saveState` kullanıcı karar verene kadar yazmaz.
+  - Okunabilen alanlar arkada yüklenir; sorunlu alan varsayılana döner.
+- **Kurtarma ekranı** (`renderKurtarma`): `role="alertdialog"`; giriş kapısı dahil arka plan `inert`; odak "Ham kaydı indir"de. Nedeni ilk 4 sorunla, Türkçe söyler. Dört çıkış var:
+  - *Ham kaydı indir*: `.json` dosyası; "öğrenci adı olabilir" uyarısıyla.
+  - *Yeniden dene*: sayfayı yeniden yükler.
+  - *Okunabilenle devam et*: yalnız okunabilen alan varsa görünür; karantina kopyası kalır.
+  - *Sıfırla…*: ekranın içinde ikinci adım açılır ("Geri alınamaz…"), odak Vazgeç'e gider.
+  - Kırmızı yalnız üst kenarda ve tehlike düğmesinde.
+- **Açılış hatası** (şemaya uyan ama göçte ya da ilk çizimde patlayan kayıt): açılış adımları `acilisiTamamla`'ya alındı ve `try/catch` içinde çalışıyor. Hata olursa bellek varsayılana (`_ilkDurum`) döner, kayıt karantinaya alınır ve adımlar bir kez daha koşar. Uygulama her koşulda açılır.
+- **Bulunan ek tuzak (ölçüldü):** göç adımı kaydı yazıp sonraki adım patlayınca karantinaya *değişmiş* kayıt gidiyordu.
+  - Düzeltme: açılış sürerken `saveState` yazmaz (`_acilisSuruyor`).
+  - Karantinaya `loadState`'in okuduğu, dokunulmamış metin (`_acilisHam`) gider.
+  - Başarılı açılışın sonunda kayıt bir kez yazılır; eskiden bu kaydı ilk `renderAll` yapıyordu.
+- `resetState` karantina kopyalarını da siler. Demo alanında yalnız demonunkileri siler; kullanıcının kaydı bayt bayt aynı kalır.
+- §119/§120 uyumu: karantina anahtarları sürüm ya da veri anahtarı olmadığı için başka sekmede çakışma olayı üretmez. Kurtarma da sürümlü yazım yolunu kullanır.
+
+### 2. O1 — CSV formül nötrleme (`csvHucre`, tek yazıcı)
+- Kural OWASP CSV Injection önerisinden (kaynak URL yorumda). Şunlarla başlayan metin hücresine `'` öneki konur: `= + - @`, sekme, CR. Baştaki boşluklardan sonra gelen bu işaretler ve tam genişlikli eşleri (＝＋－＠) de kapsanır.
+- CR içeren hücre artık tırnağa alınır. Tırnaksız CR yeni satır açıp formülü satır başına taşırdı.
+- **Sayı istisnası:** yalnız sayı olan hücre önek almaz (`-3`, `12,5`, `-1.5`, `+2`). "-3 çünkü x=5" → `'-3 çünkü x=5`: okunur kalır, `#AD?` vermez.
+- `auditCsv` ve `kararRaporuCsv`'deki kopya kaçış kuralları silindi; ikisi de `csvHucre`'yi kullanıyor. `csvSatirlar` (öğrenci, sınıf/kazanım, e-Okul) zaten kullanıyordu.
+- **e-Okul:**
+  - Puan hücreleri `csvSayi` çıktısıdır, yani yalnız sayı; önek almaz.
+  - Normal veride dosya §101 kuralıyla birebir aynı. Testte eski kaçış işleviyle satır satır karşılaştırıldı.
+  - Ad sütunu formül işaretiyle başlarsa önek alır. e-Okul'a adla elle eşleme yapıldığı için bu sorun çıkarmaz.
+
+### 3. O2 — KVKK "Öğrencinin tüm verisini sil" (`ogrenciSilGuard`'ın altı)
+- Giriş: ⋯ → **"Öğrencinin verisini sil…"**. Yalnız Öğretmen ve Eğitim Yöneticisi rolünde görünür; demo alanında demo verisinde çalışır.
+- 1. adım: öğrenci seçici ve özet ("Silinecek: ad · N sınav oturumu · N yanıt · N puan · N karar günlüğü kaydı …"); kalanlar ve indirilen yedek/CSV uyarısı.
+- 2. adım: `onaylaModal`, tehlikeli; "Bu işlem GERİ ALINAMAZ…"; odak Vazgeç'te.
+- Silinenler:
+  - öğrenci kaydı (ad);
+  - bütün sınavlardaki oturumu: yanıt, ÇSS sonucu, YZ önerisi, öğretmen puanı ve yorumu, bütünlük olayları;
+  - aktif öğrenciyse canlı alanlar. `aktifOturumuYaz` çağrılmaz (veriyi geri yazardı); sonraki öğrenci aktif olur;
+  - karar günlüğünde o `sid`'in ya da adın geçtiği kayıtlar;
+  - yanıt metnini anahtar olarak taşıyan YZ önbelleği;
+  - yanıtını ya da adını taşıyan kavram yanılgısı analizleri;
+  - veliye bildirim onayı ve veli seçimi;
+  - adı taşıyan karantina kopyaları.
+- Kalanlar: soru havuzu, rubrikler, madde istatistikleri gibi adsız toplamlar.
+- Günlüğe tek satır yazılır: `{tur: "ogrenci_verisi_silindi", not: "1 öğrencinin verisi silindi", rol, at}`. `sid` ve ad YOK.
+- Sonuç penceresi tarayıcı deposunu tarar. İki sonuçtan birini yazar: "ad artık geçmiyor" ya da "başka kayıtların serbest metninde N kez geçiyor (başkasına ait, silinmedi)".
+- "Sınıftan çıkar" penceresi (yanıtı olan öğrenci için) yeni yolu gösterir.
+- Belgeler:
+  - `privacy-policy.html` (sürüm 1.3, 07.11.2026): §9'daki silme hakkı, tek öğrenci ve bütün sınıf için gerçek davranışa göre yeniden yazıldı. §6'ya karantina kopyası eklendi.
+  - `docs/kvkk/pilot-ogretmen-kontrol-listesi.md`: D bölümüne tek öğrenci silme maddesi eklendi.
+
+**Yan düzeltme:** ⋯ menüsündeki "Rehberli demo" düğmesinin `aria-label`'ı görünen metinle başlamıyordu (axe `label-content-name-mismatch`; tabanda da var, ölçüldü). Yeni etiket: "Rehberli demo (5 adım) — …".
+
+### Ölçüm
+
+**Raporun betikleri, taban ve dal karşılaştırması.** Taban 2c4f3a9, `git archive` ile ayrı klasörden sunuldu.
+
+| Senaryo | Taban | Dal |
+|---|---|---|
+| `saglam.mjs`: questions nesne, students metin, ceForm null, exams sayı | TypeError; rol kartı 0, ⋯ 0. questions nesnede kayıt EZİLDİ | sayfa hatası 0; kayıt AYNI; rol kartı 5, ⋯ 1 |
+| `saglam.mjs`: kesik JSON | kayıt varsayılanla ezildi (`veri-saglamligi` [1] tabanda "DEĞİŞTİ") | kayıt AYNI + karantina + kurtarma ekranı |
+| `yedek.mjs`: `{students:"x"}` yedeği | onay penceresi "0 öğrenci" dedi; yenilemede `state.students.forEach` TypeError; rol kartı 0, iki yenilemede de | dosya reddedildi, onay penceresi açılmadı |
+| `kvkk.mjs`: `csvHucre` | `=HYPERLINK…`, `-3 çünkü…`, `+90 555`, `@SUM` olduğu gibi çıktı | dördü de `'` önekli |
+| `kvkk.mjs`: "Sınıftan çıkar" | oturum ve 4 günlük kaydı kalıyor | davranış bilerek aynı bırakıldı; yeni yol ayrı (aşağıda) |
+| `tools/dogrula/veri-saglamligi.mjs` (yeni, 38 denetim) | 6 bozuk biçimin 6'sında ✗; kurtarma düğmesi olmadığı için betik orada duruyor | **38/38**, 1280 ve 390 |
+
+**`veri-saglamligi.mjs` KVKK ölçümü:**
+- Demo (24 öğrenci): "Baran Örnek" öğrencisinin 1 oturumu, 10 yanıtı, 10 puanı ve 4 günlük kaydı silindi. Sonra ad: localStorage'da 0, sessionStorage'da 0, IndexedDB'de 0.
+- Kendi veri, Eğitim Yöneticisi rolü, kitaplık veritabanı açık: "Deniz Yıldırım" silindi. localStorage'da 0, IndexedDB'de (`t3-mufredat`) 0.
+  - Ali Kaya ve onaylı soru günlüğü kaldı; önbellek silindi.
+  - 2. adımda Vazgeç'e basılınca hiçbir şey silinmedi.
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1104/1104**, 53 dosya (taban 1072). Yeni: `test/veri-saglamligi.test.ts` (32 test) ve yardımcı `test/durum-semasi-kod.ts`. 6 eski test düzeneği yeni işlevleri yükleyecek biçimde güncellendi; beklentileri değişmedi |
+| Mutasyon (4 koruma tek tek bozuldu: kurtarma bekçisi, yedek şema reddi, CSV öneki, günlük silme) | sırasıyla 6, 6, 3 ve 2 test kırıldı |
+| Öz-kontrol | %100, 853 ad (+19) |
+| Lint (`tsc`), `check:config` | temiz; GEÇERLİ ×2 |
+| `olcum:dogrula` | 37/37 |
+| Sır taraması | 0. Tek eşleşme vendor `tesseract-core-simd.wasm.js` içinde, tabanda da var |
+| Yeni ekranlar: 7 ekran × 1280/390 × açık/koyu = 28 (kurtarma, kurtarma sıfırla onayı, yedek reddi, ⋯ menü, KVKK 1. adım, 2. adım, sonuç) | axe **0**, 12 px altı **0**, yatay taşma 0, konsol hatası 0 |
+| `erisilebilirlik-tara` (52 ekran) | ihlal **0** (critical/serious/moderate/minor 0), 12 px altı **0** |
+| `kontroller.mjs` | **38/38**, 1280 ve 390; konsol 0; POST 0 |
+| Demo 5 adım (`demo-yuru.mjs`) | 1280 ve 390; konsol 0; POST 0; KR-20 0,78, α 0,88 (değişmedi) |
+| `sekme-cakisma.mjs` | 16/16, 3 koşu (ayrıca uçtan önce 3 koşu daha, 16/16) |
+| `/api/ai` POST | 0; bütün ölçümlerde Playwright'ta kesildi |
+
+Ekranlar ve kayıtlar: `Downloads\Mihenk\ekran-q5\`. İçinde `*-1280|390-light|dark.png`, `olcum.json`, `log\` (taban ve dal çıktıları) ve `betik\` (raporun uyarlanmış betikleri) var.
+
+**Sınırlar:**
+- Şema yapısal bir denetimdir (tür, dizi/nesne, kimlik); anlamı denetlemez. Şemaya uyup derin bir alanda bozuk olan kayıt açılışta değil, sonradan bir ekranda hata verebilir. Hata açılışta çıkarsa [3] yolu yakalar; açılıştan sonra çıkarsa yakalanmaz.
+- Silme yalnız bu tarayıcıda yapılır. Daha önce indirilen `.mihenk` yedekleri ve CSV'ler cihazın dışındadır; pencere ve politika bunu söylüyor.
+- Başka öğrencinin yanıtında geçen ad silinmez; sayısı gösterilir.
+- Kitaplığa (IndexedDB) yüklenen ders belgesinde ad geçerse dokunulmaz; bu öğrenci verisi sayılmadı.
+- Silinen öğrencinin verisi madde istatistiklerinden (p, d, KR-20) de çıkar, çünkü bu değerler oturumlardan yeniden hesaplanır.
+- Karantina kopyası kotadan yer kaplar. Kota doluysa kopya alınamaz; ekran bunu söyler, kayıt yerinde kalır ve önce indirmek önerilir.
+- Paralel dallar (madde geçmişi, gözlem formu, itiraz) yeni kalıcı alan ya da öğrenciye bağlı kayıt eklerse iki şey gerekir: alanın türü `DURUM_SEMASI`'na yazılmalı (test bunu zorlar) ve silmesi `ogrenciVerisiniSil`'e eklenmeli.

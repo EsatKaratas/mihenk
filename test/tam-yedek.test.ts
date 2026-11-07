@@ -7,6 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { durumSemasiKodu } from './durum-semasi-kod';
 
 const kok = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(kok, 'public', 'app.js'), 'utf8');
@@ -24,7 +25,7 @@ function sabit(ad: string): string {
   return app.slice(bas + 1, app.indexOf(';\n', bas) + 2);
 }
 
-const SABITLER = ['YEDEK_BASLIK', 'YEDEK_BICIM_SURUMU', 'MIHENK_UYGULAMA_SURUMU', 'YEDEK_PBKDF2_YINELEME',
+const SABITLER = ['YEDEK_BASLIK', 'YEDEK_BICIM_SURUMU', 'MIHENK_UYGULAMA_SURUMU', 'YEDEK_PBKDF2_YINELEME', 'YEDEK_PBKDF2_EN_COK',
   'YEDEK_PAROLA_EN_AZ', 'YEDEK_ONAY_METNI', 'YEDEK_HATA_METINLERI',
   'KISISEL_SOZCUK_ADLAR', 'KISISEL_HARF_SINIFI', 'KISISEL_EK'].map(sabit).join('\n');
 const ISLEVLER = ['yedekHata', 'yedekDurumAl', 'yedekKitaplikAl', 'yedekKitaplikYaz', 'yedekOgretmenAdlari',
@@ -71,7 +72,7 @@ function ortam(opts: { state?: Any; kitaplik?: Kayit[]; onay?: boolean; setItemH
     'let qIdSeq = 7; let _resetting = false; let _saveTimer = null; let _yedekGeriAl = null;\n' +
     // §119: yedekUygula/yedekGeriYukle sürümlü yazımı ve sekme denetimini kullanır (gerçek işlevler).
     'let _bilinenSurum = null; let _sonYazilanMetin = null; let sekmeCakismasi = null; function renderSekmeCakismasi() {}\n' +
-    SEKME + '\n' +
+    SEKME + '\n' + durumSemasiKodu() +
     SABITLER + '\n' + ISLEVLER.map(tanim).join('\n') +
     '\nreturn { ' + ISLEVLER.join(', ') + ', YEDEK_ONAY_METNI, YEDEK_PBKDF2_YINELEME, MIHENK_UYGULAMA_SURUMU,' +
     ' geriAl: function () { return _yedekGeriAl; }, resetting: function () { return _resetting; } };'
@@ -252,7 +253,7 @@ describe('§108 sürüm ve göç', () => {
       'function demoAlaniMi() { return false; }\nfunction depoAnahtari(d) { return d ? STORE_KEY + "-demo" : STORE_KEY; }\n' +
       [sabit('SURUM_KEY'), tanim('surumAnahtari'), tanim('depoSurumOku')].join('\n') + '\n' +
       ['KESIF_SINIFI', 'ATOLYELER', 'DENEYAP_DERSI'].map(sabit).join('\n') +
-      '\nconst VARSAYILAN_KAZANIMLAR = [];\n' + tanim('loadState') +
+      '\nconst VARSAYILAN_KAZANIMLAR = [];\nlet _ilkDurum = null;\n' + durumSemasiKodu() + tanim('loadState') +
       '\nreturn { ok: loadState(), qIdSeq, KESIF_SINIFI, DENEYAP_DERSI, surum: _bilinenSurum };'
     )(state, { getItem: (key: string) => e.ls[key] ?? null }, 't3-olcme-durum-v1', KALICI);
     expect(sonuc.ok).toBe(true);

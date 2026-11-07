@@ -35,7 +35,7 @@ function kur(state: any) {
   const kod = [
     'soruAnligi', 'duzenlemeAnligiAl', 'duzenlemeFarki', 'duzenlemeIziniKapat', 'onaydanSonraHapHtml',
     'yeniGercekOgrenci', 'rizaBekleyenler', 'rizaTopluIsaretle', 'yzIzinEtiketi', 'rizaSeridiHtml', 'yzIzniVar',
-    'auditOzet', 'auditCsv', 'sha256Hex', 'arastirmaPaketi', 'arastirmaTuzu',
+    'auditOzet', 'auditCsv', 'csvHucre', 'sha256Hex', 'arastirmaPaketi', 'arastirmaTuzu',
   ].map(fonksiyonMetni).join('\n');
   // eslint-disable-next-line no-new-func
   return new Function('state', 'escapeHtml',
