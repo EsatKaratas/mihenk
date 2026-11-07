@@ -10,6 +10,8 @@
 - [ ] **MEB YAZEK etik beyanı:** Kamu okulunda çalışıyorsanız, MEB Eğitimde Yapay Zekâ Uygulamaları Etik
       Kılavuzu ve YAZEK beyan sistemi kapsamındaki **çevrimiçi etik beyanınızı** yaptınız. (MEB Yapay Zekâ
       Uygulamaları Etik Kurulu Yönergesi 22/23 Ekim 2025'te yürürlüğe girdi; kılavuz 10.01.2026'da duyuruldu.)
+      Puan önerisi kılavuzun Tablo 1 C satırına girer, beyan zorunludur. "Açıklama" alanı için hazır metin ve
+      ilke ilke uyum tablosu: [`docs/UYUM-TABLOSU.md`](../UYUM-TABLOSU.md) §2 ve §5.
 - [ ] **Veli rıza formu** (`docs/kvkk/veli-riza-formu-taslak.md`) hukuk incelemesinden geçti ve her veliye
       dağıtıldı. Formda **iki ayrı açık rıza** (işleme; yurt dışına aktarım) ve "reddetmek dezavantaj
       yaratmaz" cümlesi var.

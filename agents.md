@@ -175,12 +175,36 @@ schema.sql                # Referans şema — migrations/ ile senkron tutulur
 
 ## 8. Demo günü kontrol listesi
 
-1. `main` üzerinde `v-demo` tag'i atılmış mı?
-2. `wrangler d1 execute ... --remote --file=./seed.sql` ile demo verisi yüklü mü?
-3. Jüri için en az bir İçerik Uzmanı, bir Öğretmen ve bir Öğrenci test hesabı
-   hazır mı (bkz. README → Demo Akışı)?
-4. Workers Logs açık mı (canlı sorgu/hata göstermek için)?
-5. `/privacy-policy` ve `/robots.txt` prod alan adında erişilebiliyor mu?
-   (⚠️ Bu madde eskiden `/gizlilik-politikasi` diyordu; **öyle bir yol hiç
-   olmadı**, 404 döndürüyordu. Gerçek yol `/privacy-policy` — canlıda 200
-   doğrulandı, `public/robots.txt` de bu yolu izin veriyor.)
+*(7 Kasım 2026'da güncellendi, PROGRESS §127. Eski liste D1 tohumu ve test
+hesapları istiyordu; ikisi de bugün yok. Senaryo:
+[`docs/DEMO-SENARYOSU-2026-11.md`](./docs/DEMO-SENARYOSU-2026-11.md).)*
+
+1. **Sürüm:** `main` üzerinde `v-demo` tag'i atılmış mı (§3 dondurma, 24 saat
+   önce)? Canlıdaki sürüm demoda anlatılacak özellikleri içeriyor mu? Bunun
+   için `bash tools/dogrula/sha-karsilastir.sh HEAD` çalıştır: canlı = disk = blob
+   olmalı. §119–§122 (demo alanı, 24 öğrencili sınıf) ancak §123 dalı
+   yayınlandıktan sonra canlıdadır.
+2. **Demo verisi:** D1 yok; demo tohumu istemcidedir (`loadDemoScenario`, §120
+   demo alanı). Gizli pencerede **"▶ Rehberli demo (5 adım)"** baştan sona
+   yürünür; `node tools/dogrula/demo-yuru.mjs <canlı-url> <klasör> 1280` ve
+   `390` çalıştır: 5 adım, konsol hatası 0, `/api/ai` POST 0.
+3. **Hesaplar:** kimlik doğrulama yok, test hesabı gerekmez. Rol giriş
+   ekranından seçilir. Arayüzde "Demo sürümü: kimlik doğrulama yoktur" yazar.
+4. **Kota:** `GET /api/ai/butce` → `doldu: false` mu? Doluysa canlı soru
+   üretimi (senaryodaki ⊕ satırı) atlanır, "kota dolu" şeridi gösterilir.
+   Sayaç 00:00 UTC'de (03:00 TR) sıfırlanır (§93). Demo günü öncesinde
+   gereksiz model çağrısı yapılmaz.
+5. **Durum:** `GET /api/ai/status` → `ready`; birincil model
+   `llama-3.3-70b-instruct-fp8-fast`, yedek Scout. Workers Logs açık mı?
+6. **Sayfalar:** `/`, `/privacy-policy`, `/veri-nereye-gider`, `/robots.txt`
+   prod alan adında 200 dönüyor mu, güvenlik başlıkları yerinde mi (§118)?
+   (⚠️ Eski madde `/gizlilik-politikasi` diyordu; **öyle bir yol hiç olmadı**.
+   Gerçek yol `/privacy-policy`.)
+7. **Kanıt turu sekmeleri** hazır mı: `/veri-nereye-gider` ve GitHub'da
+   `docs/olcum/PANO.md` (37/37). Kanıt turu, "Demoyu Bitir"den **önce**
+   yapılır; demodan çıkınca demo verisi silinir.
+8. **Ölçüm seti yeşil mi:** `npm test`, `npm run lint`, `npm run check:config`,
+   `node tools/ozkontrol-dogrula.mjs`, `npm run olcum:dogrula`. README rozeti
+   ve altbilgideki sayılar bu çıktılarla aynı mı ([`docs/IDDIA-KANIT.md`](./docs/IDDIA-KANIT.md))?
+9. **B planı:** `docs/ekran/` ve dolu sınıf görüntüleri açılabilir durumda
+   mı? Senaryonun §6'sına bak.
