@@ -94,6 +94,22 @@ await U.evaluate(() => { state.questions.push({ id: 990007, type: 'mc', status: 
 await G.waitForTimeout(400);
 ok('kullanıcı yazımı demo sekmesini kilitlemedi; U\'nun sorusu kayıtta', !(await kutu(G)) && (await depo(U)).ids.includes(990007));
 
+console.log('[8] §130 (Q3 bulgusu): yeni sekme yalnız ekran değiştirir (rol, sekme) → ilk sekme kilitlenmez');
+const H = await ac();
+await H.evaluate(() => { state.questions.push({ id: 990008, type: 'mc', status: 'draft', body: 'H sorusu', options: [], outcome: '' }); renderAll(); });
+await H.waitForTimeout(300);
+const hSurum = await H.evaluate((k) => localStorage.getItem(k + ':surum'), KEY);
+const I = await ac();
+await I.locator('#girisKapisi .gk-kart[data-role="teacher"]').click();
+await I.waitForTimeout(300);
+await I.evaluate(() => { state.teacherTab = 3; renderAll(); });
+await H.waitForTimeout(400);
+ok('yeni sekmenin ekran yazımı: H\'de kutu yok, sürüm aynı, H\'nin sorusu kayıtta',
+  !(await kutu(H)) && (await H.evaluate((k) => localStorage.getItem(k + ':surum'), KEY)) === hSurum && (await depo(H)).ids.includes(990008));
+await H.evaluate(() => { state.questions.push({ id: 990009, type: 'mc', status: 'draft', body: 'H ikinci', options: [], outcome: '' }); renderAll(); });
+await I.waitForTimeout(400);
+ok('H veri yazınca I\'da kutu (veri koruması aynen)', !!(await kutu(I)) && (await depo(H)).ids.includes(990009));
+
 ok('sayfa hatası 0', hata.length === 0, hata.join(' | ').slice(0, 120));
 ok('/api POST 0', POST.length === 0, String(POST.length));
 console.log(`\nSONUÇ: ${gec} geçti, ${kal} kaldı`);

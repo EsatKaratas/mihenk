@@ -14417,6 +14417,8 @@ const ITIRAZ_CIHAZ_METNI = "Mihenk’te hesap ve sunucu yok: talep yalnız bu ci
   "öğretmen onu bu cihazdaki “İtirazlar” listesinde görür ve kendisine bildirim gitmez.";
 const ITIRAZ_OGRETMEN_CIHAZ_METNI = "Talepler yalnız bu cihazın tarayıcısında durur: öğrenci ya da veli başka bir " +
   "cihazdan istediyse ya da sınav kâğıttaysa talebi aşağıdaki “Elle itiraz ekle” ile siz girin.";
+const ITIRAZ_ADSIZ_ELLE_METNI = "Adlar gizliyken elle itiraz eklenemez, çünkü kâğıttaki öğrenciyi adıyla seçmeniz gerekir. " +
+  "Eklemek için bu sayfadaki “Adları gizle” seçeneğini kapatın.";   // §130
 const ITIRAZ_KISISEL_UYARI = "Kişisel bilgi yazmayın: ad, telefon, kimlik numarası ya da sağlık bilgisi gerekmez; " +
   "yalnız puanla ilgili gerekçeyi yazın.";
 Object.assign(AUDIT_ETIKET, {
@@ -14812,7 +14814,9 @@ function itirazKuyruguHtml(ust) {
     (bekleyen.length ? bekleyen.map(itirazKuyrukKartiHtml).join("") : '<p class="itz-alt">Bekleyen itiraz yok.</p>') +
     (karar.length ? '<details class="itz-gecmis"><summary>Karara bağlananlar (' + karar.length + ")</summary><ul>" +
       karar.map(itirazGecmisSatirHtml).join("") + "</ul></details>" : "") +
-    itirazElleFormHtml(sinif) + "</section>";
+    /* §130: elle itiraz formu öğrenciyi ADIYLA seçtirir (kâğıttaki ad); "Adları gizle" açıkken
+       çizilmez — yoksa 23 ad seçicide DOM'a düşüyordu (ölçüldü). */
+    (puanTercihAl().adsiz ? '<p class="itz-alt">' + escapeHtml(ITIRAZ_ADSIZ_ELLE_METNI) + "</p>" : itirazElleFormHtml(sinif)) + "</section>";
 }
 
 /** Kuyruk bağlantıları. Hata alanın altında; yazılanlar kaybolmaz (renderAll yalnız başarıda). */

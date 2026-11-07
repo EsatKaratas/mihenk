@@ -9,6 +9,15 @@ const W = Number(process.argv[3] || 1280);
 const YANIT = process.argv[4];
 let tarayici;
 try { tarayici = await chromium.launch({ channel: 'chrome' }); } catch { tarayici = await chromium.launch(); }
+// §130: MIHENK_TEMA=dark → koyu tema. index.html açığı sabitler; erisilebilirlik-tara gibi data-theme ile zorlanır.
+if (process.env.MIHENK_TEMA === 'dark') {
+  const ilkBaglam = tarayici.newContext.bind(tarayici);
+  tarayici.newContext = async (o) => {
+    const c = await ilkBaglam(o);
+    await c.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { document.documentElement.dataset.theme = 'dark'; }); });
+    return c;
+  };
+}
 const p = await (await tarayici.newContext({ viewport: { width: W, height: W < 600 ? 844 : 800 } })).newPage();
 const hatalar = [], engellenen = [], dialoglar = [];
 p.on('console', (m) => { if (m.type() === 'error' && !((m.location()?.url) || '').includes('/api/ai/')) hatalar.push(m.text()); });

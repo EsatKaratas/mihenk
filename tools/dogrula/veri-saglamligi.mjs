@@ -160,8 +160,19 @@ console.log('[5] KVKK: öğrencinin tüm verisini sil (demo alanı, dolu sınıf
   await p.evaluate(() => { state.role = 'teacher'; renderAll(); });
   const hedef = await p.evaluate(() => {
     const ogr = state.students.find((o) => ogrenciVeriOzeti(o.id).oturum > 0 && ogrenciVeriOzeti(o.id).gunluk > 0) || state.students[0];
+    /* §130: §124–§126'nın öğrenciye bağlı yeni kalıcı alanları da silinmeli — gözlem puanı, itiraz,
+       adı geçen rubrik örneği. Gerçek yollarla aynı biçimde kurulur, sonra kaydedilir. */
+    const form = gozlemFormuKur({ ad: 'Dinleme gözlemi', sinif: ogr.sinif || '7-A', kazanimlar: [{ kod: 'T.7.1.1', metin: 'Dinleme' }] });
+    gozlemPuanla(form, ogr.id, 'T.7.1.1', 3);
+    state.gozlemFormlari = (state.gozlemFormlari || []).concat([form]);
+    const q = state.questions.find((x) => x.type === 'open');
+    state.itirazlar = (state.itirazlar || []).concat([{ id: 900, examId: state.activeExamId, qid: q.id, sid: ogr.id, yol: 'veli',
+      gerekce: ogr.name + ' adına yeniden inceleme', at: Date.now(), durum: 'bekliyor', onceki: { finalScore: 1, comment: '' } }]);
+    q.ornekYanitlar = (q.ornekYanitlar || []).concat([{ id: 'oy-900', puan: 1, tavan: 2, metin: ogr.name + ' böyle yazmıştı', tarih: '2026-11-07' }]);
+    saveState();
     return { id: String(ogr.id), ad: ogr.name, ozet: ogrenciVeriOzeti(ogr.id), gunluk: state.auditLog.length };
   });
+  ok('§130: silinecekler özeti gözlem ve itirazı da sayar', hedef.ozet.gozlem === 1 && hedef.ozet.itiraz === 1, JSON.stringify(hedef.ozet));
   await p.locator('.js-ek-menu').first().click(); await p.waitForTimeout(150);
   await p.locator('.js-ek-ogrenci-sil').first().click(); await p.waitForTimeout(200);
   await p.locator('#ogrSilSec').selectOption(hedef.id); await p.waitForTimeout(100);

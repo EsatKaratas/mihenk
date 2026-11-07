@@ -391,6 +391,13 @@ describe('§126 ekran metinleri', () => {
     expect(f.itirazKarar(1, 'ayni', '', 'Gerekçe yerinde değil.')).toEqual({ ok: true });
     expect(f.itirazGecmisSatirHtml(st.itirazlar[0])).toContain('Yanıt ' + no + ' · ');
     expect(f.itirazGecmisSatirHtml(st.itirazlar[0])).not.toContain('Kerem');
+    // Elle itiraz formu öğrenciyi adıyla seçtirir: adlar gizliyken çizilmez (seçicide bütün adlar DOM'a düşüyordu).
+    const alt = f.itirazKuyruguHtml(false) + f.itirazKuyruguHtml(true);
+    expect(alt).not.toContain('itzElleYanit');
+    expect(alt).toContain('Adlar gizliyken elle itiraz eklenemez');
+    for (const o of OGRENCILER) expect(alt).not.toContain(o.name);
+    st._adsiz = false;
+    expect(f.itirazKuyruguHtml(false) + f.itirazKuyruguHtml(true)).toContain('itzElleYanit');
   });
 
   it('öğretmen kuyruğu: yanıt, etiketli YZ önerisi, önceki karar, gerekçe; varsayılan seçim YOK; üst/alt yerleşim', () => {
