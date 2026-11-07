@@ -124,7 +124,7 @@ describe('Karar Günlüğü satırı ve CSV', () => {
     const { auditCsv, state } = kur();
     state.auditLog = [{ tur: 'soru_havuza_alindi', at: 0, oncekiDurum: 'rejected', redKodu: 'GVD-KOKYOK', rol: 'teacher' }];
     const [bas, satir] = auditCsv().replace(/^﻿/, '').split('\n');
-    expect(bas.endsWith(';redKodu;anahtarDegisimi;rozetA1A2;oncekiDurum;rol;degisenAlanlar')).toBe(true);   // §107 sona ekledi
+    expect(bas.endsWith(';redKodu;anahtarDegisimi;rozetA1A2;oncekiDurum;rol;degisenAlanlar;itiraz')).toBe(true);   // §107, §126 sona ekledi
     expect(satir.split(';').slice(13, 18)).toEqual(['GVD-KOKYOK', '', '', 'rejected', 'teacher']);
   });
 

@@ -1894,7 +1894,10 @@ const KALICI_ALANLAR = ["role", "teacherTab", "studentTab", "ceTab", "genCount",
   "dikkatOnay",
   /* §125: Türkçe dinleme/konuşma gözlem formları (öğretmenin işaretlediği
      düzeyler) ve not ipucu tercihi. İkisi de öğretmen kararıdır, kalıcıdır. */
-  "gozlemFormlari", "notIpucuKapali"];
+  "gozlemFormlari", "notIpucuKapali",
+  /* §126: öğrenci/veli itirazları (yeniden inceleme talepleri). İnsan kararı
+     zinciri; kalıcı olmak ZORUNDA. Tam yedek (§108) bu listeden okur. */
+  "itirazlar"];
 
 /* Depolama uyarısı: localStorage kotası dolarsa kullanıcı bunu BİLMELİDİR.
    Eskiden `saveState()` hatayı sessizce yutuyordu; öğretmen soru üretmeye
@@ -5940,7 +5943,9 @@ function auditCsv() {
                    /* §104b: havuza alma kaydı için; yine sona. */
                    "oncekiDurum", "rol",
                    /* §107: onaylı soru düzenleme izi (değişen alanlar); yine sona. */
-                   "degisenAlanlar"];
+                   "degisenAlanlar",
+                   /* §126: itiraz (yeniden inceleme) özeti; yine sona. */
+                   "itiraz"];
   var satirlar = state.auditLog.map(function (k) {
     var e = AUDIT_ETIKET[k.tur] || { ad: k.tur, aktor: "" };
     return [
@@ -5956,7 +5961,10 @@ function auditCsv() {
       Array.isArray(k.rozetA1A2) ? k.rozetA1A2.join(",") : "",
       k.oncekiDurum || "", k.rol || "",
       Array.isArray(k.alanlar) ? k.alanlar.join(",") : "",
-    ].map(csvHucre).join(";");   // §128: ortak yazıcı (formül nötrleme, O1)
+      /* §126: itiraz özeti — yalnız bu kayıt türlerinde dolu (yol kodu: ogrenci/veli/ogretmen). */
+      k.tur === "itiraz_karari" ? (k.degisti ? "puan değişti " + k.oncekiPuan + "→" + k.finalScore : "puan aynı " + k.oncekiPuan)
+        : (/^itiraz_/.test(k.tur) ? "açıldı (" + (k.itirazYolu || "") + "): " + (k.gerekce || "") : ""),
+    ].map(csvHucre).join(";");   // §128: ortak yazıcı (formül nötrleme, O1) — §130: itiraz sütunu dahil
   });
   // BOM: Excel'in UTF-8'i doğru açması için gerekli (Türkçe karakterler).
   return "﻿" + basliklar.join(";") + "\n" + satirlar.join("\n");
@@ -6013,6 +6021,7 @@ function auditSatirHtml(k) {
     detay.push("değişen: " + escapeHtml(k.alanlar.map(function (a) { return DEGISEN_ALAN_ADI[a] || a; }).join(", ")) +
       (k.rol ? " · rol: " + escapeHtml(rolAdi(k.rol)) : "") + " · onay sürüyor");
   }
+  if (/^itiraz_/.test(k.tur)) detay.push(itirazGunlukDetay(k));   // §126
   if (k.redKodu) detay.push((k.tur === "soru_havuza_alindi" ? "eski red nedeni: " : "neden: ") + escapeHtml(redKoduAdi(k.redKodu)));
   if (k.anahtarYeni) detay.push("anahtar <b>" + escapeHtml(k.anahtarEski) + " → " + escapeHtml(k.anahtarYeni) + "</b>");
   if (Array.isArray(k.rozetA1A2) && k.rozetA1A2.length) detay.push("rozet: " + escapeHtml(k.rozetA1A2.join(", ")));
@@ -6192,7 +6201,9 @@ async function sha256Hex(metin) {
 /* Günlük kaydından pakete GEÇEN alanlar (beyaz liste). soru, sid, not BİLEREK yok. */
 const ARASTIRMA_ALANLARI = ["model", "fellBack", "istemSurumu", "redKodu", "anahtarIzlendi", "anahtarEski", "anahtarYeni",
   "rozetA1A2", "supheler", "aiScore", "finalScore", "degisti", "confidence", "elle", "alanlar", "oncekiDurum", "rol",
-  "adet", "injectionAttempt"];
+  "adet", "injectionAttempt",
+  /* §126: itirazda yalnız sayı ve yol; gerekçe (`gerekce`) ve açıklama (`not`) BİLEREK yok. */
+  "oncekiPuan", "itirazYolu"];
 
 /** §112: kriter listesinden pakete giren alanlar (beyaz liste): sıra, tavan, öneri, nihai, fark. */
 function arastirmaKriterFarklari(kriterler) {
@@ -13961,6 +13972,7 @@ function geriBildirimFisiHtml(v, sinavBaslik, tarih) {
       ? "kesinleşmedi (" + v.bekleyen + " yanıt onay bekliyor)"
       : ondalikTr(v.puan) + " / " + ondalikTr(v.tam)) + "</b>" +
     (v.yzGozden ? '<span class="gf-ibare">Yapay zekâ önerisi öğretmen tarafından gözden geçirildi.</span>' : "") +
+    '<span class="gf-itiraz">Puana itiraz için öğretmeninize başvurun.</span>' +   // §126 (MEB Etik Kılavuzu §2.6)
     "</div></section>";
 }
 
@@ -14318,6 +14330,444 @@ function publishResults() {
   const islenen = maddeGecmisiniIsle();
   renderAll();
   if (islenen) durumDuyur("Sonuçlar yayınlandı; " + islenen + " sorunun madde geçmişi güncellendi.");
+}
+
+/* =====================================================================
+   §126 — ÖĞRENCİ / VELİ İTİRAZI (YENİDEN İNCELEME TALEBİ), Q3.
+   Kaynak: MEB, "Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu" (Ocak 2026,
+   Rev. 0.8) §2.6, s. 12: "Hatalı veya haksız karara karşı öğrenci/veli için
+   itiraz mekanizması bulunmalıdır."
+   https://ttkb.meb.gov.tr/meb_iys_dosyalar/2026_01/09152326_egitimdeyapayzekauygulamalari_etik_kilavuzu.pdf
+   AGENTS §1: yapay zekâ yeniden ÇAĞRILMAZ, otomatik karar YOK. İtiraz yalnız
+   öğretmenin "İtirazlar" kuyruğuna düşer; puanı yalnız öğretmenin "Kararı
+   kaydet" tıklaması değiştirir. Her adım Karar Günlüğü'ne bir satır yazar.
+   DÜRÜST SINIR: hesap ve sunucu yok. Talep yalnız bu tarayıcıdadır
+   (state.itirazlar → KALICI_ALANLAR; §108 tam yedek taşır, §119 sürüm
+   koruması ve §120 demo alanı ortak saveState yolundan geçer). Kâğıt sınav
+   ya da başka cihazdan gelen talebi öğretmen elle ekler. Gerekçe metni
+   (`gerekce`) §111 araştırma paketinin beyaz listesinde YOK.
+   ===================================================================== */
+const ITIRAZ_GEREKCE_SINIRI = 300;
+const ITIRAZ_YOLLARI = { ogrenci: "öğrenci", veli: "veli", ogretmen: "öğretmen girdi" };
+const ITIRAZ_CIHAZ_METNI = "Mihenk’te hesap ve sunucu yok: talep yalnız bu cihazın tarayıcısına kaydedilir, " +
+  "öğretmen onu bu cihazdaki “İtirazlar” listesinde görür ve kendisine bildirim gitmez.";
+const ITIRAZ_OGRETMEN_CIHAZ_METNI = "Talepler yalnız bu cihazın tarayıcısında durur: öğrenci ya da veli başka bir " +
+  "cihazdan istediyse ya da sınav kâğıttaysa talebi aşağıdaki “Elle itiraz ekle” ile siz girin.";
+const ITIRAZ_KISISEL_UYARI = "Kişisel bilgi yazmayın: ad, telefon, kimlik numarası ya da sağlık bilgisi gerekmez; " +
+  "yalnız puanla ilgili gerekçeyi yazın.";
+Object.assign(AUDIT_ETIKET, {
+  itiraz_acildi:       { ad: "Yeniden inceleme istendi (itiraz)", sinif: "pill-warning", aktor: "öğrenci / veli" },
+  itiraz_elle_eklendi: { ad: "İtiraz elle eklendi",               sinif: "pill-warning", aktor: "öğretmen" },
+  itiraz_karari:       { ad: "İtiraz kararı",                     sinif: "pill-success", aktor: "öğretmen" },
+});
+var _itirazAcik = null;     // açık talep formu (yalnız arayüz)
+var _itirazTaslak = {};     // form anahtarı → yazılan metin (yalnız arayüz, kalıcı değil)
+
+/** Aynı yanıt (sınav, soru, öğrenci) için anahtar; DOM kimliğinde de kullanılır. */
+function itirazAnahtari(examId, qid, sid) { return [examId, qid, sid].join("-"); }
+
+/** Sınavın güncel görünümü (aktif sınav canlı alanda). */
+function itirazSinavi(examId) {
+  const kayit = (state.exams || []).find(function (x) { return x.id === examId; });
+  if (!kayit) return null;
+  return kayit.id === state.activeExamId ? state.exam : kayit;
+}
+
+/** Bir öğrencinin o sınavdaki oturumu. YALNIZ OKUR: eksik oturum yaratılmaz. */
+function itirazOturumu(examId, sid) {
+  const kayit = (state.exams || []).find(function (x) { return x.id === examId; });
+  if (!kayit) return null;
+  if (kayit.id === state.activeExamId && String(sid) === String(state.activeStudentId)) return readSession(state.activeStudentId);
+  return (kayit.sessions || {})[sid] || null;
+}
+
+/** Oturuma yazar (aktif sınavda writeSession; diğerlerinde kaydın kendisi). */
+function itirazOturumYaz(examId, sid, degisiklik) {
+  const kayit = (state.exams || []).find(function (x) { return x.id === examId; });
+  if (!kayit) return false;
+  if (kayit.id === state.activeExamId) { writeSession(sid, degisiklik); return true; }
+  const s = (kayit.sessions || {})[sid];
+  if (!s) return false;
+  Object.keys(degisiklik).forEach(function (k) { s[k] = degisiklik[k]; });
+  return true;
+}
+
+/** Açık uçlu sorunun puan tavanı (rubrik; yoksa soru; yoksa 20 — kâğıt düzeniyle aynı). */
+function itirazTavan(q) {
+  const r = q && state.rubrics ? state.rubrics[q.id] : null;
+  if (r && r.maxScore != null) return Number(r.maxScore);
+  return q && q.maxScore != null ? Number(q.maxScore) : 20;
+}
+
+/** İtiraz edilebilir yanıtlar: yayındaki sınav + öğretmenin yayınladığı (`graded`)
+    oturum + açık uçlu soru + öğretmen kararı. aiEvals OKUNMAZ (karne kuralı, §102). */
+function itirazAdaylari(sid) {
+  const cikti = [];
+  (state.exams || []).forEach(function (kayit) {
+    const ex = itirazSinavi(kayit.id);
+    const o = itirazOturumu(kayit.id, sid);
+    if (!ex || ex.status !== "published" || !o || o.examStatus !== "graded") return;
+    (ex.questionIds || []).forEach(function (qid) {
+      const q = findQuestion(qid);
+      const rv = (o.reviews || {})[qid];
+      if (!q || q.type === "mc" || !rv || rv.finalScore == null) return;
+      cikti.push({ examId: kayit.id, baslik: ex.title || "Adsız Sınav", qid: q.id, sid: sid, soru: String(q.body || ""),
+        no: (ex.questionIds || []).indexOf(qid) + 1, puan: Number(rv.finalScore), max: itirazTavan(q) });
+    });
+  });
+  return cikti;
+}
+
+/** Bu yanıta ait itiraz (varsa). Yanıt başına tek itiraz. */
+function itirazBul(examId, qid, sid) {
+  return (state.itirazlar || []).filter(function (t) {
+    return t.examId === examId && String(t.qid) === String(qid) && String(t.sid) === String(sid);
+  })[0] || null;
+}
+
+/** SAF: telefon, T.C. kimlik no ya da e-posta benzeri ifade var mı? (Ad denetlenmez.) */
+function itirazKisiselVeriVar(metin) {
+  const s = String(metin || "");
+  return /[^\s@]+@[^\s@]+\.[^\s@]{2,}/.test(s) || /(?:\d[\s().-]?){10,}/.test(s);
+}
+
+/** SAF: gerekçe/açıklama denetimi. Döner {ok, metin} ya da {ok:false, hata}. */
+function itirazMetniDenetle(metin, enAz) {
+  const m = String(metin == null ? "" : metin).replace(/\s+/g, " ").trim();
+  const alt = enAz == null ? 5 : enAz;
+  if (m.length < alt) return { ok: false, hata: "Kısa bir gerekçe yazın (en az " + alt + " karakter)." };
+  if (m.length > ITIRAZ_GEREKCE_SINIRI) {
+    return { ok: false, hata: "En çok " + ITIRAZ_GEREKCE_SINIRI + " karakter yazılabilir (şu an " + m.length + ")." };
+  }
+  if (itirazKisiselVeriVar(m)) {
+    return { ok: false, hata: "Metinde telefon, kimlik numarası ya da e-posta gibi görünen bir bilgi var. Lütfen çıkarın: itiraz için gerekmez." };
+  }
+  return { ok: true, metin: m };
+}
+
+/** §119 ile uyum: bu sekme başka sekmenin yazımından sonra kayıt yapamıyorsa itiraz işlemi
+    BELLEKTE de yapılmaz (ekranda "kaydedildi" görünüp yenilemede kaybolmasın). */
+function itirazCakismaVar() {
+  return typeof sekmeCakismasi !== "undefined" && !!sekmeCakismasi;
+}
+const ITIRAZ_CAKISMA_METNI = "Veri başka sekmede değişti; bu sekme kayıt yapamıyor. Önce sayfayı yeniden yükleyin (işlem kaydedilmedi).";
+
+function itirazYeniId() {
+  return (state.itirazlar || []).reduce(function (m, t) { return Math.max(m, Number(t.id) || 0); }, 0) + 1;
+}
+
+/** İtiraz açar. Puan DEĞİŞMEZ, yapay zekâ çağrılmaz; yalnız kuyruğa kayıt + günlük satırı. */
+function itirazAc(examId, qid, sid, gerekce, yol) {
+  if (itirazCakismaVar()) return { ok: false, hata: ITIRAZ_CAKISMA_METNI };
+  if (!ITIRAZ_YOLLARI[yol]) return { ok: false, hata: "Bilinmeyen itiraz yolu." };
+  const aday = itirazAdaylari(sid).filter(function (a) { return a.examId === examId && String(a.qid) === String(qid); })[0];
+  if (!aday) return { ok: false, hata: "Bu yanıt için öğretmenin yayınladığı bir puan yok; itiraz açılamaz." };
+  if (itirazBul(examId, qid, sid)) return { ok: false, hata: "Bu yanıt için zaten bir itiraz var." };
+  const d = itirazMetniDenetle(gerekce);
+  if (!d.ok) return d;
+  const rv = (itirazOturumu(examId, sid).reviews || {})[aday.qid] || {};
+  const kayit = { id: itirazYeniId(), examId: examId, qid: aday.qid, sid: sid, yol: yol, gerekce: d.metin,
+    at: Date.now(), durum: "bekliyor",
+    onceki: { finalScore: Number(rv.finalScore), comment: String(rv.comment || ""), decision: rv.decision || null } };
+  state.itirazlar = (state.itirazlar || []).concat([kayit]);
+  auditKaydet(yol === "ogretmen" ? "itiraz_elle_eklendi" : "itiraz_acildi", {
+    qid: aday.qid, sid: sid, soru: auditKisalt(aday.soru), oncekiPuan: kayit.onceki.finalScore,
+    itirazYolu: yol, gerekce: auditKisalt(d.metin) });
+  return { ok: true, kayit: kayit };
+}
+
+/** Öğretmenin kararı. secim: "ayni" (puan aynı kalsın) | "degisti" (yeni puan + açıklama zorunlu).
+    Puanı YALNIZ bu fonksiyon değiştirir ve yalnız secim === "degisti" iken. */
+function itirazKarar(id, secim, yeniPuan, aciklama) {
+  const it = (state.itirazlar || []).filter(function (t) { return t.id === id; })[0];
+  if (itirazCakismaVar()) return { ok: false, hata: ITIRAZ_CAKISMA_METNI };
+  if (!it || it.durum !== "bekliyor") return { ok: false, hata: "İtiraz bulunamadı ya da zaten karara bağlandı." };
+  if (secim !== "ayni" && secim !== "degisti") return { ok: false, hata: "Kararınızı seçin: puan aynı kalsın ya da yeni puan.", alan: "secim" };
+  const o = itirazOturumu(it.examId, it.sid);
+  const rv = o && (o.reviews || {})[it.qid];
+  if (!rv) return { ok: false, hata: "Bu yanıtın öğretmen kararı bulunamadı." };
+  const onceki = Number(rv.finalScore), max = itirazTavan(findQuestion(it.qid) || { id: it.qid });
+  const acik = String(aciklama == null ? "" : aciklama).replace(/\s+/g, " ").trim();
+  if (acik) { const d = itirazMetniDenetle(acik, 1); if (!d.ok) return { ok: false, hata: d.hata, alan: "aciklama" }; }
+  let nihai = onceki;
+  if (secim === "degisti") {
+    const n = Number(String(yeniPuan == null ? "" : yeniPuan).replace(",", "."));
+    if (String(yeniPuan == null ? "" : yeniPuan).trim() === "" || !isFinite(n) || n < 0 || n > max) {
+      return { ok: false, hata: "Yeni puan 0 ile " + ondalikTr(max) + " arasında bir sayı olmalı.", alan: "puan" };
+    }
+    if (Math.abs(n - onceki) < 0.001) return { ok: false, hata: "Yeni puan öncekiyle aynı. Puan değişmiyorsa “Puan aynı kalsın”ı seçin.", alan: "puan" };
+    if (!acik) return { ok: false, hata: "Puan değişiyorsa öğrenciye kısa bir açıklama yazın.", alan: "aciklama" };
+    nihai = Math.round(n * 100) / 100;
+    const yeni = Object.assign({}, o.reviews);
+    yeni[it.qid] = Object.assign({}, rv, { finalScore: nihai, itiraz: { oncekiPuan: onceki, at: Date.now() } });
+    if (!itirazOturumYaz(it.examId, it.sid, { reviews: yeni })) return { ok: false, hata: "Oturum kaydı bulunamadı; puan değiştirilmedi." };
+  }
+  it.durum = "karar";
+  it.karar = { sonuc: secim, oncekiPuan: onceki, yeniPuan: nihai, aciklama: acik, at: Date.now() };
+  state.itirazlar = state.itirazlar.slice();
+  auditKaydet("itiraz_karari", { qid: it.qid, sid: it.sid, soru: auditKisalt((findQuestion(it.qid) || {}).body),
+    oncekiPuan: onceki, finalScore: nihai, degisti: secim === "degisti", not: acik || null, itirazYolu: it.yol });
+  return { ok: true };
+}
+
+/** Öğretmenin kuyruğu: seçili şubedeki öğrencilerin itirazları (şube yoksa hepsi). */
+function itirazlarSinifta(sinif) {
+  return (state.itirazlar || []).filter(function (t) {
+    if (!sinif) return true;
+    const ogr = (state.students || []).find(function (s) { return String(s.id) === String(t.sid); });
+    return !!ogr && ogr.sinif === sinif;
+  });
+}
+
+/** Öğrenci/veli tarafında itirazın durumu (bekliyor ya da öğretmen kararı). */
+function itirazDurumHtml(it, kitle) {
+  const veli = kitle === "veli";
+  const tarih = escapeHtml(auditZaman(it.at));
+  if (it.durum === "bekliyor") {
+    return '<div class="itz-durum" tabindex="-1" data-anahtar="' + itirazAnahtari(it.examId, it.qid, it.sid) + '">' +
+      '<span class="pill pill-warning">Öğretmen incelemesi bekleniyor</span>' +
+      '<p class="itz-gerekce"><b>Gerekçe:</b> ' + escapeHtml(it.gerekce) + '</p>' +
+      '<p class="itz-alt">' + tarih + " · puan öğretmen karar verene kadar değişmez</p></div>";
+  }
+  const k = it.karar || {};
+  const degisti = k.sonuc === "degisti";
+  return '<div class="itz-durum" tabindex="-1" data-anahtar="' + itirazAnahtari(it.examId, it.qid, it.sid) + '">' +
+    '<span class="pill ' + (degisti ? "pill-success" : "pill-neutral") + '">' +
+    (degisti ? "İncelendi: puan " + ondalikTr(k.oncekiPuan) + " → " + ondalikTr(k.yeniPuan) : "İncelendi: puan aynı kaldı") + "</span>" +
+    (k.aciklama ? '<p class="itz-gerekce"><b>Öğretmenin açıklaması:</b> ' + escapeHtml(k.aciklama) + "</p>" : "") +
+    '<p class="itz-alt">Gerekçe: ' + escapeHtml(it.gerekce) + " · " + escapeHtml(auditZaman(k.at)) + ". " +
+    (veli ? "Sorunuz sürerse öğretmenle görüşebilirsiniz." : "Sorun sürerse öğretmeninle konuşabilirsin.") + "</p></div>";
+}
+
+/** Talep formu (öğrenci/veli). Hata alanı DOM'da doldurulur: yazılan metin kaybolmaz. */
+function itirazFormHtml(a, kitle) {
+  const k = itirazAnahtari(a.examId, a.qid, a.sid);
+  const taslak = _itirazTaslak[k] || "";
+  return '<div class="itz-form field" data-anahtar="' + k + '">' +
+    '<label for="itzG-' + k + '">' + (kitle === "veli" ? "Neden yeniden incelensin?" : "Neden yeniden incelensin? Kısaca yaz.") + "</label>" +
+    '<textarea id="itzG-' + k + '" class="js-itiraz-gerekce" rows="3" maxlength="' + ITIRAZ_GEREKCE_SINIRI + '" data-anahtar="' + k +
+    '" aria-describedby="itzY-' + k + " itzS-" + k + " itzH-" + k + '">' + escapeHtml(taslak) + "</textarea>" +
+    '<div class="field-yardim" id="itzY-' + k + '">' + escapeHtml(ITIRAZ_KISISEL_UYARI) + "</div>" +
+    '<div class="field-yardim itz-sayac tabular" id="itzS-' + k + '">' + taslak.length + " / " + ITIRAZ_GEREKCE_SINIRI + " karakter</div>" +
+    '<div class="field-hata-metni" id="itzH-' + k + '" role="alert"></div>' +
+    '<div class="btn-grup"><button type="button" class="btn btn-primary btn-sm js-itiraz-gonder" data-anahtar="' + k +
+    '" data-exam="' + a.examId + '" data-qid="' + a.qid + '" data-sid="' + a.sid + '" data-kitle="' + (kitle === "veli" ? "veli" : "ogrenci") +
+    '">Öğretmene gönder</button><button type="button" class="btn btn-ghost btn-sm js-itiraz-vazgec" data-anahtar="' + k + '">Vazgeç</button></div></div>';
+}
+
+/** Tek yanıt satırı: soru, puan ve düğme / form / durum. */
+function itirazSatirHtml(a, kitle) {
+  const it = itirazBul(a.examId, a.qid, a.sid);
+  const k = itirazAnahtari(a.examId, a.qid, a.sid);
+  return '<li class="itz-satir"><div class="itz-ust"><span class="itz-soru"><span class="itz-sinav">' + escapeHtml(a.baslik) +
+    " · " + a.no + ". soru</span> " + escapeHtml(truncate(a.soru, 140)) + "</span>" +
+    '<span class="itz-puan tabular">' + ondalikTr(a.puan) + " / " + ondalikTr(a.max) + "</span></div>" +
+    (it ? itirazDurumHtml(it, kitle)
+      : (_itirazAcik === k ? itirazFormHtml(a, kitle)
+        : '<button type="button" class="btn btn-secondary btn-sm js-itiraz-ac" data-anahtar="' + k + '" aria-label="Yeniden incelensin: ' +
+          escapeHtml(a.baslik) + ", " + a.no + '. soru">Yeniden incelensin</button>')) + "</li>";
+}
+
+/** Karne (öğrenci) ve veli kartının altındaki itiraz kartı. Puanlanmış açık uçlu yanıt yoksa boş. */
+function itirazKartiHtml(sid, kitle) {
+  const adaylar = itirazAdaylari(sid);
+  if (!adaylar.length) return "";
+  const veli = kitle === "veli";
+  return '<section class="card itz-kart" aria-labelledby="itzBaslik-' + escapeHtml(String(sid)) + '"><div class="card-head">' +
+    '<h3 id="itzBaslik-' + escapeHtml(String(sid)) + '">Puana itiraz: yeniden inceleme</h3><span class="hint">' + adaylar.length + " açık uçlu yanıt</span></div>" +
+    '<p class="itz-aciklama">' + (veli
+      ? "Çocuğunuzun bir puanının hatalı ya da haksız olduğunu düşünüyorsanız öğretmenden yeniden incelemesini isteyebilirsiniz."
+      : "Bir puanın hatalı ya da haksız olduğunu düşünüyorsan öğretmeninden yeniden incelemesini isteyebilirsin.") +
+    " Kararı öğretmen verir; yapay zekâ yeniden puanlamaz.</p>" +
+    '<p class="itz-cihaz">' + escapeHtml(ITIRAZ_CIHAZ_METNI) + "</p>" +
+    '<ul class="itz-liste">' + adaylar.map(function (a) { return itirazSatirHtml(a, kitle); }).join("") + "</ul></section>";
+}
+
+/** Öğrenci/veli kartının bağlantıları. renderAll yalnız durum değişince çağrılır. */
+function wireItiraz(kok) {
+  const sec = function (s) { return document.querySelectorAll(kok + " " + s); };
+  sec(".js-itiraz-ac").forEach(function (b) {
+    b.onclick = function () {
+      _itirazAcik = b.dataset.anahtar; renderAll();
+      const t = document.getElementById("itzG-" + b.dataset.anahtar); if (t) t.focus();
+    };
+  });
+  sec(".js-itiraz-vazgec").forEach(function (b) {
+    b.onclick = function () {
+      const k = b.dataset.anahtar; _itirazAcik = null; renderAll();
+      const d = document.querySelector(kok + ' .js-itiraz-ac[data-anahtar="' + k + '"]'); if (d) d.focus();
+    };
+  });
+  sec(".js-itiraz-gerekce").forEach(function (t) {
+    t.oninput = function () {
+      _itirazTaslak[t.dataset.anahtar] = t.value;
+      const s = document.getElementById("itzS-" + t.dataset.anahtar);
+      if (s) s.textContent = t.value.length + " / " + ITIRAZ_GEREKCE_SINIRI + " karakter";
+    };
+  });
+  sec(".js-itiraz-gonder").forEach(function (b) { b.onclick = function () { itirazGonder(kok, b); }; });
+}
+
+/** "Öğretmene gönder": hata varsa alanın altında (role=alert), yoksa kayıt + yeniden çizim. */
+function itirazGonder(kok, b) {
+  const k = b.dataset.anahtar;
+  const t = document.getElementById("itzG-" + k);
+  const r = itirazAc(Number(b.dataset.exam), Number(b.dataset.qid), Number(b.dataset.sid), t ? t.value : "", b.dataset.kitle);
+  if (!r.ok) {
+    const h = document.getElementById("itzH-" + k);
+    if (h) h.textContent = "Hata: " + r.hata;
+    if (t) { t.setAttribute("aria-invalid", "true"); t.closest(".field").classList.add("field-hata"); t.focus(); }
+    return;
+  }
+  _itirazAcik = null; delete _itirazTaslak[k];
+  renderAll();
+  const d = document.querySelector(kok + ' .itz-durum[data-anahtar="' + k + '"]'); if (d) d.focus();
+  durumDuyur(itirazCakismaVar() ? ITIRAZ_CAKISMA_METNI
+    : "Talep kaydedildi. Öğretmen bu cihazdaki İtirazlar listesinde görecek; puan, öğretmen karar verene kadar değişmez.");
+}
+
+/** Önceki kararın okunur adı. */
+function itirazKararAdi(decision) {
+  return ({ approved_as_is: "yapay zekâ önerisini aynen onayladınız", revised: "düzelterek onayladınız",
+    kagit_elle: "kâğıttan elle girdiniz" })[decision] || "elle puanladınız";
+}
+
+/** Öğretmen kuyruğunda tek itiraz: orijinal yanıt, YZ önerisi (etiketli), önceki karar, gerekçe, karar formu. */
+function itirazKuyrukKartiHtml(it) {
+  const ogr = (state.students || []).find(function (s) { return String(s.id) === String(it.sid); }) || {};
+  const q = findQuestion(it.qid) || { id: it.qid, body: "(soru silinmiş)" };
+  const ex = itirazSinavi(it.examId) || {};
+  const o = itirazOturumu(it.examId, it.sid) || {};
+  const rv = (o.reviews || {})[it.qid] || {};
+  const ev = (o.aiEvals || {})[it.qid] || {};
+  const yanit = String(((o.answers || {})[it.qid] || {}).text || "").trim();
+  const max = itirazTavan(q);
+  const i = it.id;
+  return '<article class="itz-ogt" aria-labelledby="itzK-' + i + '"><div class="itz-ust"><h4 id="itzK-' + i + '">' +
+    escapeHtml(ogr.name || ("#" + it.sid)) + " · " + escapeHtml(ex.title || "Sınav") + "</h4>" +
+    '<span class="pill pill-warning">' + escapeHtml(ITIRAZ_YOLLARI[it.yol] || it.yol) + " · " + escapeHtml(auditZaman(it.at)) + "</span></div>" +
+    '<dl class="itz-dl"><dt>Soru</dt><dd>' + escapeHtml(q.body) + "</dd>" +
+    "<dt>Öğrencinin yanıtı</dt><dd class=\"itz-yanit\">" + (yanit ? escapeHtml(yanit) : "<i>yanıt metni kayıtlı değil (kâğıt sınav olabilir)</i>") + "</dd>" +
+    "<dt>Yapay zekâ önerisi</dt><dd>" + (ev.aiScore != null
+      ? '<span class="pill pill-accent">öneri · karar değil</span> ' + ondalikTr(ev.aiScore) + " / " + ondalikTr(max) +
+        (ev.justification ? " — " + escapeHtml(truncate(String(ev.justification), 400)) : "")
+      : "yok") + "</dd>" +
+    "<dt>Önceki kararınız</dt><dd><b>" + ondalikTr(rv.finalScore) + " / " + ondalikTr(max) + "</b> (" + escapeHtml(itirazKararAdi(rv.decision)) + ")" +
+    (rv.comment ? " — “" + escapeHtml(rv.comment) + "”" : "") + "</dd>" +
+    '<dt>İtiraz gerekçesi</dt><dd class="itz-gerekce">' + escapeHtml(it.gerekce) + "</dd></dl>" +
+    itirazKararFormuHtml(it, max) + "</article>";
+}
+
+/** Karar formu: varsayılan seçim YOK (kazara karar olmasın); YZ çağrısı yok. */
+function itirazKararFormuHtml(it, max) {
+  const i = it.id;
+  return '<fieldset class="itz-karar"><legend>Kararınız</legend><div class="itz-secim">' +
+    '<label><input type="radio" name="itzSecim-' + i + '" value="ayni" class="js-itz-secim" data-id="' + i + '"> Puan aynı kalsın</label>' +
+    '<label><input type="radio" name="itzSecim-' + i + '" value="degisti" class="js-itz-secim" data-id="' + i + '"> Yeni puan ver</label></div>' +
+    '<div class="field itz-puan-alan"><label for="itzP-' + i + '">Yeni puan (0–' + ondalikTr(max) + ")</label>" +
+    '<input id="itzP-' + i + '" type="number" min="0" max="' + max + '" step="0.5" inputmode="decimal" disabled></div>' +
+    '<div class="field"><label for="itzA-' + i + '">Öğrenciye açıklama (puan değişiyorsa zorunlu, en çok ' + ITIRAZ_GEREKCE_SINIRI + " karakter)</label>" +
+    '<textarea id="itzA-' + i + '" rows="2" maxlength="' + ITIRAZ_GEREKCE_SINIRI + '"></textarea></div>' +
+    '<div class="field-hata-metni" id="itzKH-' + i + '" role="alert"></div>' +
+    '<button type="button" class="btn btn-primary btn-sm js-itz-karar" data-id="' + i + '">Kararı kaydet</button></fieldset>';
+}
+
+/** Karara bağlanan itirazın tek satırı (kuyruk altındaki geçmiş). */
+function itirazGecmisSatirHtml(it) {
+  const ogr = (state.students || []).find(function (s) { return String(s.id) === String(it.sid); }) || {};
+  const k = it.karar || {};
+  return '<li>' + escapeHtml(ogr.name || ("#" + it.sid)) + " · " + escapeHtml((itirazSinavi(it.examId) || {}).title || "Sınav") + ": " +
+    (k.sonuc === "degisti" ? "puan " + ondalikTr(k.oncekiPuan) + " → " + ondalikTr(k.yeniPuan) : "puan aynı kaldı (" + ondalikTr(k.oncekiPuan) + ")") +
+    (k.aciklama ? " — " + escapeHtml(k.aciklama) : "") + "</li>";
+}
+
+/** Elle itiraz: kâğıt sınav ya da başka cihazdan gelen talep. Yalnız yayınlanmış puanı olan, itirazsız yanıtlar. */
+function itirazElleFormHtml(sinif) {
+  const ogrenciler = (state.students || []).filter(function (s) { return !sinif || s.sinif === sinif; });
+  const gruplar = ogrenciler.map(function (s) {
+    const adaylar = itirazAdaylari(s.id).filter(function (a) { return !itirazBul(a.examId, a.qid, a.sid); });
+    return adaylar.length ? '<optgroup label="' + escapeHtml(s.name || ("#" + s.id)) + '">' + adaylar.map(function (a) {
+      return '<option value="' + [a.examId, a.qid, a.sid].join("|") + '">' + escapeHtml(a.baslik + " · " + a.no + ". soru · " +
+        truncate(a.soru, 50) + " (" + ondalikTr(a.puan) + "/" + ondalikTr(a.max) + ")") + "</option>";
+    }).join("") + "</optgroup>" : "";
+  }).join("");
+  return '<details class="itz-elle"><summary>Elle itiraz ekle (kâğıt sınav ya da başka cihaz)</summary>' +
+    (gruplar
+      ? '<div class="field"><label for="itzElleYanit">Yanıt</label><select id="itzElleYanit"><option value="">Seçin…</option>' + gruplar + "</select></div>" +
+        '<div class="field"><label for="itzElleGerekce">Gerekçe (öğrencinin ya da velinin söylediği, en çok ' + ITIRAZ_GEREKCE_SINIRI + " karakter)</label>" +
+        '<textarea id="itzElleGerekce" rows="2" maxlength="' + ITIRAZ_GEREKCE_SINIRI + '" aria-describedby="itzElleY"></textarea>' +
+        '<div class="field-yardim" id="itzElleY">' + escapeHtml(ITIRAZ_KISISEL_UYARI) + " Eklemek karar değildir; karar yukarıdaki kuyrukta verilir.</div></div>" +
+        '<div class="field-hata-metni" id="itzElleH" role="alert"></div>' +
+        '<button type="button" class="btn btn-secondary btn-sm" id="btnItirazElle">Kuyruğa ekle</button>'
+      : '<p class="itz-alt">Yayınlanmış puanı olan ve itirazı bulunmayan açık uçlu yanıt yok.</p>') + "</details>";
+}
+
+/** Puanlama sekmesindeki "İtirazlar" kartı. Bekleyen varsa en üstte, yoksa altta (ust=false). */
+function itirazKuyruguHtml(ust) {
+  const sinif = ogtSinif();
+  const liste = itirazlarSinifta(sinif);
+  const bekleyen = liste.filter(function (t) { return t.durum === "bekliyor"; });
+  if (!!ust !== bekleyen.length > 0) return "";
+  const karar = liste.filter(function (t) { return t.durum !== "bekliyor"; });
+  return '<section class="card itz-kuyruk" aria-labelledby="itzKuyrukBaslik"><div class="card-head">' +
+    '<h3 id="itzKuyrukBaslik">İtirazlar (' + bekleyen.length + ")</h3><span class=\"hint\">yeniden inceleme talepleri</span></div>" +
+    '<p class="itz-aciklama">Karar sizin: yapay zekâ yeniden çağrılmaz ve puan siz karar verene kadar değişmez. Her adım Karar Günlüğü’ne yazılır.</p>' +
+    '<p class="itz-cihaz">' + escapeHtml(ITIRAZ_OGRETMEN_CIHAZ_METNI) + "</p>" +
+    (bekleyen.length ? bekleyen.map(itirazKuyrukKartiHtml).join("") : '<p class="itz-alt">Bekleyen itiraz yok.</p>') +
+    (karar.length ? '<details class="itz-gecmis"><summary>Karara bağlananlar (' + karar.length + ")</summary><ul>" +
+      karar.map(itirazGecmisSatirHtml).join("") + "</ul></details>" : "") +
+    itirazElleFormHtml(sinif) + "</section>";
+}
+
+/** Kuyruk bağlantıları. Hata alanın altında; yazılanlar kaybolmaz (renderAll yalnız başarıda). */
+function wireItirazKuyrugu() {
+  document.querySelectorAll(".js-itz-secim").forEach(function (r) {
+    r.onchange = function () {
+      const p = document.getElementById("itzP-" + r.dataset.id);
+      if (p) { p.disabled = r.value !== "degisti"; if (!p.disabled) p.focus(); }
+    };
+  });
+  document.querySelectorAll(".js-itz-karar").forEach(function (b) {
+    b.onclick = function () {
+      const i = Number(b.dataset.id);
+      const secili = document.querySelector('input[name="itzSecim-' + i + '"]:checked');
+      const p = document.getElementById("itzP-" + i), a = document.getElementById("itzA-" + i);
+      const r = itirazKarar(i, secili ? secili.value : "", p ? p.value : "", a ? a.value : "");
+      if (!r.ok) {
+        const h = document.getElementById("itzKH-" + i); if (h) h.textContent = "Hata: " + r.hata;
+        const odak = r.alan === "puan" ? p : (r.alan === "aciklama" ? a : document.querySelector('input[name="itzSecim-' + i + '"]'));
+        if (odak) { if (r.alan) odak.setAttribute("aria-invalid", "true"); odak.focus(); }
+        return;
+      }
+      renderAll();
+      const baslik = document.getElementById("itzKuyrukBaslik"); if (baslik) { baslik.tabIndex = -1; baslik.focus(); }
+      durumDuyur(itirazCakismaVar() ? ITIRAZ_CAKISMA_METNI : "İtiraz kararı kaydedildi ve Karar Günlüğü’ne yazıldı.");
+    };
+  });
+  const elle = document.getElementById("btnItirazElle");
+  if (elle) elle.onclick = itirazElleEkle;
+}
+
+/** "Kuyruğa ekle" (öğretmen). Ekleme karar değildir. */
+function itirazElleEkle() {
+  const s = document.getElementById("itzElleYanit"), g = document.getElementById("itzElleGerekce");
+  const h = document.getElementById("itzElleH");
+  const p = String((s && s.value) || "").split("|").map(Number);
+  const r = p.length === 3 ? itirazAc(p[0], p[1], p[2], g ? g.value : "", "ogretmen") : { ok: false, hata: "Önce yanıtı seçin." };
+  if (!r.ok) { if (h) h.textContent = "Hata: " + r.hata; (p.length === 3 ? g : s).focus(); return; }
+  renderAll();
+  const baslik = document.getElementById("itzKuyrukBaslik"); if (baslik) { baslik.tabIndex = -1; baslik.focus(); }
+  durumDuyur(itirazCakismaVar() ? ITIRAZ_CAKISMA_METNI : "İtiraz kuyruğa eklendi. Kararı kuyruktaki kartta verin.");
+}
+
+/** §126: Karar Günlüğü satırının itiraz ayrıntısı (gerekçe ekranda görünür; araştırma paketine girmez). */
+function itirazGunlukDetay(k) {
+  const yol = ITIRAZ_YOLLARI[k.itirazYolu] ? " · yol: " + ITIRAZ_YOLLARI[k.itirazYolu] : "";
+  if (k.tur === "itiraz_karari") {
+    return (k.degisti ? "puan <b>" + ondalikTr(k.oncekiPuan) + " → " + ondalikTr(k.finalScore) + "</b> (öğretmen değiştirdi)"
+      : "puan aynı kaldı: <b>" + ondalikTr(k.oncekiPuan) + "</b>") + yol + " · yapay zekâ çağrılmadı";
+  }
+  return "itiraz edilen puan: <b>" + ondalikTr(k.oncekiPuan) + "</b>" + yol + (k.gerekce ? " · gerekçe: " + escapeHtml(k.gerekce) : "");
 }
 
 function computeDemoClassScores() {
@@ -16337,8 +16787,9 @@ function renderTeacher() {
   const sinavYok = (state.teacherTab === 3 || state.teacherTab === 4) && !puanlanabilirSinavVar();
   if (sinavYok) { content.innerHTML = sinavYokHtml(); wireSinavYok(); return; }
   if (state.teacherTab === 3) {
-    content.innerHTML = sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") + teacherTab3Html() + notIpucuAyarHtml();
-    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3(); wireNotIpucuAyar();   // §125 ipucu
+    content.innerHTML = itirazKuyruguHtml(true) + sinavSeciciHtml() + (submittedStudents().length ? ogretmenKimHtml() : "") +
+      teacherTab3Html() + itirazKuyruguHtml(false) + notIpucuAyarHtml();   // §126 itiraz kuyruğu + §125 ipucu
+    wireSinavSecici(); wireOgretmenKim(); wireTeacherWhoami(); wireTeacherTab3(); wireItirazKuyrugu(); wireNotIpucuAyar();
   }
   // §42: ısı haritası kapısı da sınıfa bakar — teacherTab4Html ile AYNI koşul
   // olmak ZORUNDA, aksi hâlde kart çizilir ama içi boş kalırdı.
@@ -16985,7 +17436,10 @@ function renderStudent() {
   const content = document.getElementById("studentTabContent");
   if (state.studentTab === 1) { content.innerHTML = studentTab1Html(); wireStudentTab1(); }
   if (state.studentTab === 2) { content.innerHTML = studentTab2Html(); wireStudentTab2(); }
-  if (state.studentTab === 3) { content.innerHTML = studentTab3Html(); wireKarneYazdir("#panel-student"); }
+  if (state.studentTab === 3) {
+    content.innerHTML = studentTab3Html() + itirazKartiHtml(state.activeStudentId, "ogrenci");   // §126
+    wireKarneYazdir("#panel-student"); wireItiraz("#panel-student");
+  }
 }
 
 /* ===========================================================================
@@ -19808,6 +20262,7 @@ function renderParent() {
   const onceki = sonuclar.slice(0, -1).reverse();
 
   root.innerHTML = secici + kart + veliSonSonucHtml(son) + ogrenmeCiktisiKartiHtml(cocuk.id, "veli") +
+    itirazKartiHtml(cocuk.id, "veli") +   // §126
     (onceki.length
       ? '<div class="card veli-onceki"><div class="card-head"><h3>Önceki onaylı sınavlar</h3>' +
         '<span class="hint tabular">' + onceki.length + ' sınav</span></div>' +
@@ -19920,6 +20375,7 @@ function wireParent() {
     b.onclick = function () { state.parentStudentId = Number(b.dataset.vid); saveState(); renderAll(); };
   });
   wireKarneYazdir("#panel-parent");   // §102
+  wireItiraz("#panel-parent");         // §126
 }
 
 /* ==================== DİKKAT SİNYALİ (§28e) ====================
@@ -20968,6 +21424,12 @@ function bosDurumHtml(mesaj) {
     "gozlemDurum", "gozlemYeniTaslak", "gozlemHtml", "gozlemMebNotuHtml", "gozlemListeHtml", "gozlemDuzeyDuzenleHtml", "gozlemYeniHtml",
     "gozlemSatirHtml", "gozlemOzetMetni", "gozlemPuanlamaHtml", "gozlemBosFormHtml", "gozlemYazdir", "gozlemDuzeyBagla", "wireGozlem",
     "notIpucuKatla", "notIpucuIleriVar", "notIpucuBul", "notIpucuGoster", "notIpucuAyarla", "notIpucuAyarHtml", "wireNotIpucuAyar", "notIpucuKur",
+    /* §126 — öğrenci/veli itirazı (yeniden inceleme). */
+    "itirazAnahtari", "itirazSinavi", "itirazOturumu", "itirazOturumYaz", "itirazTavan", "itirazAdaylari", "itirazBul",
+    "itirazKisiselVeriVar", "itirazMetniDenetle", "itirazCakismaVar", "itirazYeniId", "itirazAc", "itirazKarar", "itirazlarSinifta",
+    "itirazDurumHtml", "itirazFormHtml", "itirazSatirHtml", "itirazKartiHtml", "wireItiraz", "itirazGonder",
+    "itirazKararAdi", "itirazKuyrukKartiHtml", "itirazKararFormuHtml", "itirazGecmisSatirHtml", "itirazElleFormHtml",
+    "itirazKuyruguHtml", "wireItirazKuyrugu", "itirazElleEkle", "itirazGunlukDetay",
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b

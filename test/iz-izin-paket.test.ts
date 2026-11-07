@@ -115,8 +115,8 @@ describe('§107 Madde 7 — onaylı soru düzenleme izi', () => {
     expect(f.auditOzet().onaylanan).toBe(1);
     expect(f.auditOzet().anahtarDuzeltme.rozetsiz).toBe(0);
     const [bas, , satir] = f.auditCsv().replace(/^﻿/, '').split('\n');
-    expect(bas.endsWith(';rol;degisenAlanlar')).toBe(true);
-    expect(satir.split(';').slice(14)).toEqual(['B→C', '', '', 'teacher', 'govde,anahtar']);
+    expect(bas.endsWith(';rol;degisenAlanlar;itiraz')).toBe(true);   // §126: itiraz sona
+    expect(satir.split(';').slice(14)).toEqual(['B→C', '', '', 'teacher', 'govde,anahtar', '']);
     expect(govde('sihirbazAdim2Html')).toContain('onaydanSonraHapHtml(q)');
     expect(govde('havuzSoruHtml')).toContain('onaydanSonraHapHtml(q)');
     expect(app).toMatch(/onayli_soru_duzenlendi:\{ ad: "Onaylı soru düzenlendi",[^}]*aktor: "öğretmen" \}/);

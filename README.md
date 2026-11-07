@@ -411,6 +411,12 @@ dosyalarındadır; `public/index.html` yalnızca ~2 KB'lık iskelettir.
 > **Bedeli açık:** ürün artık **tek cihazda** yaşar. Gerçek çok cihazlı çalışma,
 > oda koduyla değil **Better Auth + `users` tablosu** ile gelmelidir.
 >
+> **İtiraz da bu sınıra bağlıdır (§126):** öğrenci/veli "Yeniden incelensin"
+> talebi yalnız aynı tarayıcıda öğretmenin "İtirazlar" kuyruğuna düşer; öğretmene
+> bildirim gitmez. Başka cihazdan ya da kâğıt sınavdan gelen talebi öğretmen elle
+> ekler. Bu MEB Etik Kılavuzu §2.6'nın (itiraz mekanizması) **sınıf içi** karşılığıdır,
+> uzaktan başvuru yolu değildir.
+>
 > **Bugün hiçbir sınav/yanıt verisi cihazdan çıkmaz.** Yalnızca yapay zekâ
 > adımlarında ilgili metin modele iletilir; öğrenci adı gönderilmez. Yüklenen
 > PDF'ler ve Karar Günlüğü **hiçbir koşulda** paylaşılmaz, yalnızca tarayıcıda
