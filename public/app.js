@@ -912,6 +912,8 @@ function aiKaynakRozetiHtml(k) {
 const AI_KOTA_METNI = "Bugünkü yapay zekâ kotası doldu; 03:00'te yenilenir.";
 const AI_GUNLUK_SINIR_METNI = "Bu bağlantının bugünkü yapay zekâ istek sınırı doldu; 03:00'te yenilenir.";
 const AI_BUTCE_METNI = "Bugünkü yapay zekâ bütçesi (tahmini) doldu; 03:00'te yenilenir.";
+/* §129: adres başına Neuron payı (tek bağlantı havuzun yarısından fazlasını alamaz). */
+const AI_ADRES_PAYI_METNI = "Bu bağlantının bugünkü yapay zekâ payı doldu; 03:00'te yenilenir.";
 
 /** §93: uca göre elle devam cümlesi; o uç için arayüzde yol yoksa boş dize. */
 function aiElleDevam(url) {
@@ -930,13 +932,14 @@ function aiHataMetni(status, govde, url) {
 
 /** Gün sonuna kadar açılmayacak hata mı (yeniden denemek boşa)? */
 function aiGunlukKapali(kod) {
-  return kod === "ai_kota_bitti" || kod === "gunluk_sinir" || kod === "gunluk_butce";
+  return kod === "ai_kota_bitti" || kod === "gunluk_sinir" || kod === "gunluk_butce" || kod === "adres_payi";
 }
 
 /** §93: gün sonuna kadar kapalı kodun cümlesi (toplu çözme özeti için). */
 function aiGunlukKapaliMetni(kod) {
   if (kod === "ai_kota_bitti") return AI_KOTA_METNI;
   if (kod === "gunluk_butce") return AI_BUTCE_METNI;
+  if (kod === "adres_payi") return AI_ADRES_PAYI_METNI;   // §129
   return AI_GUNLUK_SINIR_METNI;
 }
 

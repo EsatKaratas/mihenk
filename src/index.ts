@@ -26,6 +26,22 @@ app.get('/api/health', (c) =>
   c.json({ ok: true, app: c.env.APP_NAME ?? 'Mihenk — Ölçme ve Değerlendirme Sistemi', env: c.env.APP_ENV ?? 'development' })
 );
 
+/* §129 (fikir3-E Y2/D2): gövde, ayrıştırılmadan ÖNCE boyutla sınırlanır.
+   kisiselKoruma her POST gövdesini JSON.parse ediyordu ve boyut sınırı yoktu.
+   En büyük meşru gövde kavram yanılgısı ucudur (40 × 3.000 karakter yanıt,
+   UTF-8'de ≈240 KB); 256 KB onu taşır. Başlık yoksa gövde okunup ölçülür. */
+export const MAX_AI_GOVDE_BAYT = 256 * 1024;
+app.use('/api/ai/*', async (c, next) => {
+  if (c.req.method !== 'POST') return next();
+  const uzunluk = Number(c.req.header('content-length'));
+  const asti = Number.isFinite(uzunluk) && c.req.header('content-length') != null
+    ? uzunluk > MAX_AI_GOVDE_BAYT
+    : (await c.req.raw.clone().arrayBuffer()).byteLength > MAX_AI_GOVDE_BAYT;
+  if (asti) {
+    return c.json({ error: 'payload_too_large', message: 'İstek gövdesi çok büyük (en çok 256 KB).' }, 413);
+  }
+  return next();
+});
 app.use('/api/ai/*', kisiselKoruma); // §88 KVKK: kişisel alan reddi + kendini tanıtma maskesi (src/lib/kisisel.ts)
 app.route('/api/ai', aiRoutes);
 

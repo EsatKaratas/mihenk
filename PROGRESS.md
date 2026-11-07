@@ -13126,3 +13126,53 @@ GraphQL `aiInferenceAdaptiveGroups` (salt okuma; boyutlar `requestSource`, `erro
   - `/api/ai/butce` "tükendi" durumunda bunun Worker dışı tüketimden de olabileceğini söyleyebilir (arayüz metni, ayrı iş).
 
 Kanıt: scratchpad `p2/tail97.jsonl` (tail), `p2/evaluate97.json` (yanıt), `p2/gql97.mjs` ve `p2/scripts97.mjs` (salt okuma sorguları; hesap kimliği ortam değişkeninden, çıktıda yok).
+
+## §129 — Bütçe sağlamlaştırma: tek adres günlük havuzu bitiremesin (W10, 7.11; dal `fix/butce-saglamlik`, taban `olcum-97` beb2359)
+
+Kaynak: `Downloads\Mihenk\fikir3-E-guvenlik.md` Y2 (D2'nin gövde boyutu kısmı da). Push ve deploy yapılmadı. Bu iş için `/api/ai`'ye POST atılmadı; her şey sahte AI bağlamasıyla birim ve uçtan testte sınandı.
+
+**Sorun (Y2):** Tek bir adres, kurgulanmış pahalı üretim istekleriyle (6.000 karakter kaynak, 50 × 2.000 karakter `excludeQuestions`, 8 soru → rezerv ≈1.250 Neuron) hesabın 9.000'lik eşiğini 7–8 istekte, 1–2 dakikada doldurabiliyordu. Bunu kolaylaştıran dört nokta:
+- günlük adres sınırı çağrı sayıyordu, Neuron'u değil;
+- IPv6'da her adres ayrı sayılıyordu;
+- üretimin 5/dk sınırı istemcinin seçtiği `docKey`'e bağlıydı;
+- liste ve gövde boyutunun sınırı yoktu.
+
+**Değişiklikler:**
+- **(a) Adres başına günlük Neuron payı** (`src/lib/gunluk-sinir.ts`):
+  - Hesap bütçesiyle (§93) aynı rezerv → kapat düzeni. Çağrıdan önce üst sınır rezerve ediliyor, sonra Workers AI `usage`'ından gerçek tüketim yazılıyor. §97'de bu tahminin Cloudflare sayacıyla birebir tuttuğu ölçüldü (98 = 98).
+  - Kayıt adresin mevcut `GunlukSayac` nesnesinde, ayrı `n` anahtarında; çağrı sayacına dokunulmuyor. Yeni uçlar `/nrezerv` ve `/nkapat`; yeni bağlama ya da migration gerekmiyor. Bağlama yoksa bellek yedeği var.
+  - **Pay:** varsayılan **4.500 Neuron**, yani eşiğin yarısı; `AI_IP_NEURON_PAYI` ile 1–10.000 arasında değiştirilebiliyor.
+    - Gerekçe: tek adres havuzun yarısından fazlasını alamaz.
+    - Meşru üst uç: 40 değerlendirme × 98 ≈ 3.900 Neuron (§97), pay içinde kalıyor.
+  - **Sıra:** adres çağrı hakkı → adres payı → hesap bütçesi. Hangisi reddederse etsin model çağrılmıyor ve o ana kadar alınan hak ve rezervler iade ediliyor. 3036'da adres rezervi de iade ediliyor.
+  - Ret: **429 `adres_payi`**, `Retry-After` ile. `/api/ai/status` → `gunlukSinir.neuronPayi`.
+  - İstemcide `adres_payi` "gün sonuna kadar kapalı" sayılıyor (toplu çözme durur, beklemez) ve kendi cümlesiyle gösteriliyor.
+- **(b) IPv6 /64** (`src/lib/adres.ts`, `adresAnahtari`):
+  - Bütün adres sınırları (dakikalık IP tavanı, günlük çağrı sınırı, Neuron payı, `/butce` sorgu sınırı, üretim adres sınırı) /64 önekiyle sayılıyor.
+  - IPv4 aynen kalıyor; `::ffff:a.b.c.d` IPv4'e dönüyor. Ayrıştırılamayan değer olduğu gibi kalıyor; sınır gevşemiyor.
+- **(c) docKey'e güvenmeme:** üretim ayrıca adres başına **dakikada 10** ile sınırlı (`RATE_LIMIT_GEN_ADRES_PER_MIN`). agents.md §4'teki docKey sınırı (5/dk) olduğu gibi duruyor.
+- **(d) İstek boyutu:**
+  - `excludeQuestions` toplamı **8.000 karakter**. Fazlası reddedilmiyor, en eskiler düşülüyor: istemci meşru olarak ≈9.000 karakter gönderebiliyor ve en yeni sorular en değerlisi. `max_tokens` kırpılmış listeyle hesaplanıyor.
+  - `/api/ai/*` POST gövdesi, ayrıştırılmadan önce **256 KB** ile sınırlı → 413 `payload_too_large`. `content-length` yoksa gövde ölçülüyor. En büyük meşru gövde kavram yanılgısı ucunda (40 × 3.000 karakter, ≈240 KB UTF-8); bu sınırın altında kalıyor.
+
+**Kurgulanan saldırının yeni durumu** (hesap, ölçüm değil): tek adres 4.500'e kadar tüketebiliyor; havuzun en az 4.500'ü başkalarına kalıyor. 9.000'i bitirmek için iki ayrı IPv4 ya da iki ayrı /64 gerekiyor.
+
+**Kalan risk (dürüst sınır):** birden çok adresi olan biri havuzu yine bitirebilir. Bunun çaresi fikir3-E Y2(d)'deki Turnstile; bu turda yapılmadı (CSP değişikliği gerektiriyor). Okul NAT'ı arkasında birden çok öğretmen 4.500'ü paylaşırsa pay ortam değişkeniyle artırılabilir; kod değişmez.
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1093/1093**, 53 dosya (yeni `butce-saglamlik.test.ts`: 21 test) |
+| Mutasyon (5 koruma tek tek kapatıldı: pay, /64, docKey, kırpma, gövde) | her biri en az 1 test kırdı |
+| Lint | temiz |
+| `check:config` | GEÇERLİ ×2 |
+| `olcum:dogrula` | 37/37 |
+| `wrangler deploy --dry-run` (demo) | paketleme temiz |
+| Öz-kontrol | %100 |
+| `kontroller.mjs` | 38/38, 1280 ve 390 |
+| Demo 5 adım | 1280 ve 390; konsol hatası 0; POST 0 |
+| axe (52 ekran) | ihlal 0; 12 px altı 0 |
+
+Yayından sonra yapılacak canlı doğrulama (POST gerektirir, Orchestrator kararıyla):
+- `/api/ai/status` → `neuronPayi: 4500`;
+- tek evaluate sonrası adres kaydının (`n`) gerçek tüketimle kapanması;
+- Workers Logs'ta `adres_payi` olayının yalnız ret anında görünmesi.

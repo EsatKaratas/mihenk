@@ -129,6 +129,16 @@ export class AiGunlukSinirHatasi extends Error {
   }
 }
 
+/** §129: adresin günlük Neuron payı doldu. AiGunlukSinirHatasi'nın alt
+    sınıfı: zincir aynı yerde durur, yedeğe geçilmez, model hatası sayılmaz. */
+export class AiAdresPayiHatasi extends AiGunlukSinirHatasi {
+  constructor(public readonly pay: number, public readonly kullanilan: number) {
+    super(0);
+    this.message = `Adresin günlük Neuron payı doldu (${kullanilan}/${pay})`;
+    this.name = 'AiAdresPayiHatasi';
+  }
+}
+
 /** Hata nesnesinden (iç içe olabilir) YAPISAL sayısal kodları ve metni toplar. */
 function hataIzleri(e: unknown, derinlik = 0): { kodlar: number[]; metin: string } {
   const kodlar: number[] = [];
