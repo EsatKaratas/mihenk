@@ -1610,6 +1610,8 @@
   .veri-kurtarma .vk-not, .veri-kurtarma .vk-durum { font-size: 13px; color: var(--text-muted); }
   .veri-kurtarma .vk-onay { margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--critical); }
   .veri-kurtarma .vk-onay p { margin: 0; }
+  /* §128 KVKK silme penceresi: "Silinecek" özeti pencere metniyle aynı boyda. */
+  .ogr-sil-ozet { margin: 4px 0 10px; font-size: 14px; line-height: 1.55; }
 
   /* Model çıktısında yabancı alfabe uyarısı — kapsayıcıdan bağımsız (§6.3-2). */
   .dil-uyari { margin: 8px 0 4px; padding: 9px 12px; border-radius: 8px;
