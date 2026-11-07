@@ -13080,3 +13080,17 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e5-123\`:
 - `e5\` — `e5-olc.json` ve ekran görüntüleri;
 - `demo\`;
 - `betik\` — çözümleyiciler ve ölçüm betikleri.
+
+### Beşinci yayın (7 Kasım 03:45, Orchestrator 3 emriyle; W10'un 03:12 §97 ölçümü bittikten sonra)
+
+- main ff-only `0f186f3` → `2c4f3a9`.
+- `npm run deploy:demo` (worktree'den, aynı commit) → **Version `7b9ec25b-7f4f-4e3a-b790-f0fd9f96bcc6`**.
+
+**Canlı doğrulama** (model çağrısı yok, `/api/ai` POST 0):
+- SHA: 200 dosya, canlı = disk = blob, 200/200.
+- `/`, `/veri-nereye-gider`, `/privacy-policy`, `/robots.txt`: 200. Beş güvenlik başlığı yerinde.
+- `kontroller.mjs` 38/38 ve demo 5 adım, 1280 ve 390; konsol 0.
+- `sekme-cakisma.mjs` canlıda 16/16.
+- `/api/ai/butce` yayından önce ve sonra aynı: harcanan 98 (W10'un §97 ölçümü), `doldu: false`.
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin-123\`.
