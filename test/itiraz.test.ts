@@ -41,10 +41,12 @@ const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g,
 const ITIRAZ_FN = ['itirazAnahtari', 'itirazSinavi', 'itirazOturumu', 'itirazOturumYaz', 'itirazTavan', 'itirazAdaylari',
   'itirazBul', 'itirazKisiselVeriVar', 'itirazMetniDenetle', 'itirazCakismaVar', 'itirazYeniId', 'itirazAc', 'itirazKarar', 'itirazlarSinifta',
   'itirazDurumHtml', 'itirazFormHtml', 'itirazSatirHtml', 'itirazKartiHtml', 'itirazKararAdi', 'itirazKuyrukKartiHtml',
-  'itirazKararFormuHtml', 'itirazGecmisSatirHtml', 'itirazElleFormHtml', 'itirazKuyruguHtml', 'itirazGunlukDetay'];
+  'itirazKararFormuHtml', 'itirazGecmisSatirHtml', 'itirazElleFormHtml', 'itirazKuyruguHtml', 'itirazGunlukDetay',
+  'itirazAdsizNo', 'itirazAdsizCiz', 'itirazKuyrukKartiHamHtml', 'itirazGecmisSatirHamHtml'];   // §130 adsız
 const DIGER_FN = ['readSession', 'writeSession', 'sessionOf', 'examSessions', 'bosOturum', 'findQuestion',
   'ensureAudit', 'auditKaydet', 'auditKisalt', 'auditZaman', 'ondalikTr', 'truncate', 'auditCsv', 'csvHucre',   // §130: §128 ortak CSV yazıcı
-  'sha256Hex', 'arastirmaKriterFarklari', 'arastirmaPaketi', 'geriBildirimFisiHtml'];
+  'sha256Hex', 'arastirmaKriterFarklari', 'arastirmaPaketi', 'geriBildirimFisiHtml',
+  'submittedStudents', 'adsizNumaralar', 'adsizKaristir', 'adsizRastgele', 'hash32', 'kisiselDesen', 'kisiselAdKaliplari', 'kisiselMaskele'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
@@ -54,6 +56,9 @@ function kur(state: Any) {
     'var AUDIT_LIMIT = 500;\nvar AUDIT_ETIKET = { puan_karari: { ad: "Puan kararı", aktor: "öğretmen" } };\n' +
     'let saveSayac = 0; function saveSoon() { saveSayac++; }\n' +
     'function ogtSinif() { return state._sinif || ""; }\n' +
+    // §130: "Adları gizle" tercihi testte state._adsiz ile; tohum sabit.
+    'function puanTercihAl() { return { adsiz: !!state._adsiz, gorunum: "liste" }; }\nfunction adsizTohumAl() { return 7; }\n' +
+    ['KISISEL_HARF_SINIFI', 'KISISEL_EK', 'KISISEL_SOZCUK_ADLAR'].map(sabit).join('\n') + '\n' +
     'var sekmeCakismasi = null;\n' + sabit('ITIRAZ_CAKISMA_METNI') + '\n' +
     sabitDizi('OTURUM_ALANLARI') + '\n' + sabitDizi('ARASTIRMA_ALANLARI') + '\n' +
     arasi('const ITIRAZ_GEREKCE_SINIRI', '/** Aynı yanıt') +
@@ -361,6 +366,31 @@ describe('§126 ekran metinleri', () => {
     expect(s).toContain('İncelendi: puan 6 → 9');
     expect(s).toContain('İki örnek var.');
     expect(s).toContain('9 / 10');
+  });
+
+  it('§130: "Adları gizle" açıkken itiraz kartı ve karar geçmişi adı göstermez, Puanlama ile aynı "Yanıt N"', () => {
+    const st = durum();
+    const f = kur(st);
+    f.itirazAc(1, 11, 2, 'Kerem Aydın olarak itiraz ediyorum, örnek verdim.', 'ogrenci');
+    expect(f.itirazKuyruguHtml(true)).toContain('Kerem Aydın');            // tercih kapalı: ad görünür
+    st._adsiz = true;
+    const h = f.itirazKuyruguHtml(true);
+    const kart = h.slice(0, h.indexOf('itz-elle') > 0 ? h.indexOf('itz-elle') : h.length);
+    expect(kart).not.toContain('Kerem');
+    expect(kart).toContain('[ÖĞRENCİ] olarak itiraz ediyorum');            // gerekçedeki ad da maskeli
+    const no = f.itirazAdsizNo(st.itirazlar[0]);
+    expect(no).toBeGreaterThan(0);
+    expect(kart).toContain('Yanıt ' + no + ' · ');
+    // Puanlama ile aynı numara: sınav 1 açıldığında gönderenler sınıf sırasıyla 2 ve 3; aynı tohum, aynı sınav kimliği.
+    expect(f.adsizNumaralar([2, 3], 7, 1)['2']).toBe(no);
+    // Sınav 1 aktifken (Ada'nın canlı alanları o sınavda başlamamış oturum) numara aynı kalır (submittedStudents yolu).
+    const canli = st.examStatus;
+    st.activeExamId = 1; st.examStatus = 'not_started';
+    expect(f.itirazAdsizNo(st.itirazlar[0])).toBe(no);
+    st.activeExamId = 2; st.examStatus = canli;
+    expect(f.itirazKarar(1, 'ayni', '', 'Gerekçe yerinde değil.')).toEqual({ ok: true });
+    expect(f.itirazGecmisSatirHtml(st.itirazlar[0])).toContain('Yanıt ' + no + ' · ');
+    expect(f.itirazGecmisSatirHtml(st.itirazlar[0])).not.toContain('Kerem');
   });
 
   it('öğretmen kuyruğu: yanıt, etiketli YZ önerisi, önceki karar, gerekçe; varsayılan seçim YOK; üst/alt yerleşim', () => {

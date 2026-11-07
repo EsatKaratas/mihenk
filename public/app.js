@@ -14697,7 +14697,35 @@ function itirazKararAdi(decision) {
 }
 
 /** Öğretmen kuyruğunda tek itiraz: orijinal yanıt, YZ önerisi (etiketli), önceki karar, gerekçe, karar formu. */
+/* §130 (Q3 sınırı): "Adları gizle" (§122) açıksa itiraz kartı ve karar geçmişi de ad
+   yerine Puanlama'daki AYNI "Yanıt N" numarasını gösterir; yanıt, gerekçe ve
+   açıklamadaki kayıtlı adlar maskelenir. Numara aynı sınavın gönderen listesinden,
+   aynı tohumla kurulur (Puanlama ile tutarlı). Elle itiraz formundaki öğrenci
+   seçicisi adı göstermeye devam eder: öğretmen elindeki kâğıdın sahibini seçer. */
+function itirazAdsizNo(it) {
+  if (!puanTercihAl().adsiz) return null;
+  const ids = it.examId === state.activeExamId
+    ? submittedStudents().map(function (s) { return s.id; })
+    : (state.students || []).filter(function (s) {
+        const o = itirazOturumu(it.examId, s.id);
+        return !!o && (o.examStatus === "submitted" || o.examStatus === "graded");
+      }).map(function (s) { return s.id; });
+  const no = adsizNumaralar(ids, adsizTohumAl(), it.examId)[String(it.sid)];
+  return no != null ? no : null;
+}
+
+/** §130: adsız modda ad yerine "Yanıt N" ve metindeki adlar maskeli; değilse aynen. */
+function itirazAdsizCiz(it, ciz) {
+  const no = itirazAdsizNo(it);
+  if (!puanTercihAl().adsiz) return ciz(null);
+  return kisiselMaskele(ciz(no != null ? "Yanıt " + no : "Yanıt"), state.students || []).metin;
+}
+
 function itirazKuyrukKartiHtml(it) {
+  return itirazAdsizCiz(it, function (adsizAd) { return itirazKuyrukKartiHamHtml(it, adsizAd); });
+}
+
+function itirazKuyrukKartiHamHtml(it, adsizAd) {
   const ogr = (state.students || []).find(function (s) { return String(s.id) === String(it.sid); }) || {};
   const q = findQuestion(it.qid) || { id: it.qid, body: "(soru silinmiş)" };
   const ex = itirazSinavi(it.examId) || {};
@@ -14708,7 +14736,7 @@ function itirazKuyrukKartiHtml(it) {
   const max = itirazTavan(q);
   const i = it.id;
   return '<article class="itz-ogt" aria-labelledby="itzK-' + i + '"><div class="itz-ust"><h4 id="itzK-' + i + '">' +
-    escapeHtml(ogr.name || ("#" + it.sid)) + " · " + escapeHtml(ex.title || "Sınav") + "</h4>" +
+    escapeHtml(adsizAd || ogr.name || ("#" + it.sid)) + " · " + escapeHtml(ex.title || "Sınav") + "</h4>" +
     '<span class="pill pill-warning">' + escapeHtml(ITIRAZ_YOLLARI[it.yol] || it.yol) + " · " + escapeHtml(auditZaman(it.at)) + "</span></div>" +
     '<dl class="itz-dl"><dt>Soru</dt><dd>' + escapeHtml(q.body) + "</dd>" +
     "<dt>Öğrencinin yanıtı</dt><dd class=\"itz-yanit\">" + (yanit ? escapeHtml(yanit) : "<i>yanıt metni kayıtlı değil (kâğıt sınav olabilir)</i>") + "</dd>" +
@@ -14738,9 +14766,13 @@ function itirazKararFormuHtml(it, max) {
 
 /** Karara bağlanan itirazın tek satırı (kuyruk altındaki geçmiş). */
 function itirazGecmisSatirHtml(it) {
+  return itirazAdsizCiz(it, function (adsizAd) { return itirazGecmisSatirHamHtml(it, adsizAd); });
+}
+
+function itirazGecmisSatirHamHtml(it, adsizAd) {
   const ogr = (state.students || []).find(function (s) { return String(s.id) === String(it.sid); }) || {};
   const k = it.karar || {};
-  return '<li>' + escapeHtml(ogr.name || ("#" + it.sid)) + " · " + escapeHtml((itirazSinavi(it.examId) || {}).title || "Sınav") + ": " +
+  return '<li>' + escapeHtml(adsizAd || ogr.name || ("#" + it.sid)) + " · " + escapeHtml((itirazSinavi(it.examId) || {}).title || "Sınav") + ": " +
     (k.sonuc === "degisti" ? "puan " + ondalikTr(k.oncekiPuan) + " → " + ondalikTr(k.yeniPuan) : "puan aynı kaldı (" + ondalikTr(k.oncekiPuan) + ")") +
     (k.aciklama ? " — " + escapeHtml(k.aciklama) : "") + "</li>";
 }
@@ -21495,6 +21527,7 @@ function bosDurumHtml(mesaj) {
     "itirazDurumHtml", "itirazFormHtml", "itirazSatirHtml", "itirazKartiHtml", "wireItiraz", "itirazGonder",
     "itirazKararAdi", "itirazKuyrukKartiHtml", "itirazKararFormuHtml", "itirazGecmisSatirHtml", "itirazElleFormHtml",
     "itirazKuyruguHtml", "wireItirazKuyrugu", "itirazElleEkle", "itirazGunlukDetay",
+    "itirazAdsizNo", "itirazAdsizCiz", "itirazKuyrukKartiHamHtml", "itirazGecmisSatirHamHtml",   // §130
     "modelKisaAd", "saglayiciAdi", "aiAyrintiToggle", "aiAyrintiHtml",
     "kisiselDesen", "kisiselAdKaliplari", "kisiselMaskele", "adMaskeNotuHtml",   // §88 KVKK
     "yzIzniVar", "yzIzinsizSonuc", "evalElleCardHtml",                            // §88b
