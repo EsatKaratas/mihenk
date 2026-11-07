@@ -13830,3 +13830,72 @@ Demo raporunda kappa ≈ 0 çıktı. Bu beklenen: B'nin puanları ölçüm beti�
 - Yalnız iki puanlayıcı. Üçüncü puanlayıcı ya da puanlayıcılar arası ortak karar akışı yok; bilinçli olarak, karar A'nın.
 
 Kanıt: `side-session-notes\local_fbcef29b-…\W9-cift-131\`. İçinde ölçüm betiği, günlükler, ekran görüntüleri, örnek paket/dönüş/CSV ve axe çıktısı var.
+
+---
+
+## 132. YEDİNCİ YAYIN — §131 çift puanlama main'de; demo bandı, demoda "Adları gizle", iletişim maskesi, demo senaryosu (7 Kasım 2026, W9, Orchestrator 3 emriyle)
+
+**Main:** `7a01d2e` → `26a3dd4` (ff-only, `feature/cift-puanlama`; rebase yok). Üstüne bu bölümün küçük commit'leri. Model çağrısı 0; `/api/ai` POST 0.
+
+**a) `docs/DEMO-SENARYOSU-2026-11.md` canlıya uyduruldu (W10 provası).** Ölçümle doğrulanan ekran adları:
+- Şerit "Adım 1/5" değil, **"DEMO AKIŞI"** rozeti + numaralı daireler ①–⑤ (1280 px'te görünür; dar ekranda rozet bilerek gizli, kabuk.css §94).
+- Onay kartları **"✓ Tek Tıkla Onayla (YZ puanı: 16)"** ve **"(YZ puanı: 17)"**.
+- K2: **"✓ Öğrenci"** düğmesi. Tamamlanan adım ekranda yalnız **✓** dairesidir; ipucu "3. Öğrenci", erişilebilir ad "Öğrenci — adım 3/5". Belgeye böyle yazıldı.
+- Deneyap: "Yapay Zekâ (66 kazanım · 25 yazılı)" açılır listede bir seçenek. Önce bir hafta grubu açılır; "🎯 Yalnız kazanım" seçili gelir. Boş seçimle "Seçilenleri Ekle"ye basılmaz uyarısı eklendi.
+- Üst bantta "Demo · model çağrılmaz" (b).
+
+**b) Demo alanında üst bant.**
+- Önce: demo alanında da "Gerçek model · Llama 3.3 70B" (yeşil ●) yazıyordu. Oysa `apiPost` demo alanında hiç istek göndermez (§120). Ekran gerçeği söylemiyordu.
+- Şimdi: demo alanında **"Demo · model çağrılmaz"**, nötr renk, ○. Ayrıntı paneli `DEMO_AI_KAPALI_METNI`'ni gösterir; kolofon da aynı cümleyi kullanır.
+- Gerçek alanda metin, renk ve bütçe göstergesi aynen kaldı (test + tarayıcı).
+
+**c) Demoda "Adları gizle" tercihi.** Seçilen yol: **demo alanı kendi anahtarını kullanır** (`mihenk.puanlama.tercih.v1-demo`, `puanTercihAnahtari()`).
+- Demoya girişte demo tercihi silinir ve önbellek sıfırlanır: demo her zaman varsayılandan başlar (adlar açık; senaryo bunu varsayar).
+- Çıkışta ve demo dışı açılışta demo anahtarı silinir.
+- Gerçek anahtar demo kodunda hiç yazılmaz ve silinmez.
+- **Neden "çıkışta geri yükle" değil:** geri yükleme ancak "Demoyu Bitir"e basılırsa çalışır. Sekme demo sırasında kapanırsa gerçek tercih değişmiş kalır (sessionStorage bayrağı sekmeyle gider). Ayrı anahtarda böyle bir yol yok: gerçek tercihe hiç yazılmadığı için bozulamaz. Aynı desen §120'deki ayrı kayıt alanı (`DEMO_STORE_KEY`).
+
+**d) İletişim maskesi `kisiselMaskele`'de.** Modele giden metin, §131 paketi ve madde geçmişi aynı kuraldan geçer; `ciftEkMaske` kaldırıldı.
+- Ölçerken bulundu: §131'in deseni (`\d(?:[\s().-]{0,2}\d){9,}`) modele giden metinde **sessiz yanlış maske** üretirdi. "1000000000", "3.14159265358979", "1 2 3 4 5 6 7 8 9 10" ve "7.11.2026-8.11.2026" `[NUMARA]` olurdu; matematik yanıtı yanlış puanlanırdı.
+- Yeni desenler yalnız şu biçimleri tutar:
+  - telefon: başında 0 / +90 / 0090 olan; ya da 5xx ile başlayıp gruplu yazılan cep numarası;
+  - e-posta;
+  - **denetim haneleri tutan** 11 haneli T.C. kimlik numarası.
+- Ad ve okul-no maskesinden önce çalışır. Yoksa "ayse_yilmaz@…" içindeki ad ayrı maskelenip e-posta yarım kalıyordu, "numaram 0532 111 22 33" de "[NUMARA] 111 22 33" oluyordu (test buldu).
+- Gizlilik politikası (§2, §8) ve `/veri-nereye-gider` §4 güncellendi. Sınır da yazıldı: başında 0 / +90 olmayan sabit hat yakalanmaz.
+
+### Ölçüm
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1295/1295, 61 dosya** (önce 1260/59). Yeni dosyalar: `iletisim-maske` (12 maskelenen + 16 dokunulmayan örnek + kaynak), `demo-tercih-bant` (5) |
+| Öz-kontrol | %100, **980** ad (`ciftEkMaske` çıktı; `puanTercihAnahtari`, `puanTercihDemoAnahtari` girdi) |
+| Lint, `check:config` | temiz; GEÇERLİ ×2 |
+| `olcum:dogrula` | 37/37 |
+| Sır taraması (diff) | 0 |
+| `s132-olc.mjs` (yerel, gerçek tıklama) | **20/20 × 4** (1280/390 × açık/koyu). Ölçülenler: bant iki alanda, gerçek tercih demoda ve çıkışta bayt bayt aynı, demo anahtarı çıkışta silindi, şerit/onay 16-17/✓ Öğrenci, axe 0, konsol 0, POST 0 |
+| `kontroller.mjs` | 38/38 × 4 |
+| `sekme-cakisma.mjs` | 18/18 |
+| `veri-saglamligi.mjs` | 39/39 |
+| `cift-olc.mjs` (§131) | 44/44 |
+| axe tam tarama | 56 ekran, ihlal 0, 12 px altı 0 |
+
+Yerel Python statik sunucusu iki kez geçici bağlantı reddetti: bir `s132-olc` koşusunda konsol hatası, bir axe koşusunda app.js yüklenmeden çöküş. İkisi de tekrarda temiz (`s132-olc` 390 açık 20/20 ×2, axe 56/0). Ürün hatası değil; yine de not edildi.
+
+### Yayın 7
+
+- `npm run deploy:demo` → **Version `fddf3e8e-3d88-4836-849a-f7035a8dd41c`**, kaynak `468e755`.
+- `sha-karsilastir.sh`: 203 dosya; canlı = disk 203, canlı = git blob (bayt) 203.
+- Güvenlik başlıkları yerinde (CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy). Başlık "Mihenk — Ölçme ve Değerlendirme".
+- Canlı demo: `demo-yuru.mjs` 1280 ve 390'da 5 adım, konsol 0, POST 0. Şerit 1280'de "DEMO AKIŞI 1 İçerik Uzmanı 2 3 4 5", adım ilerledikçe ✓.
+- Canlı `s132-olc.mjs` 1280 ve 390: **20/20**. Gerçek alanda bant "Gerçek model · Llama 3.3 70B", demoda "Demo · model çağrılmaz".
+- Canlı CSP, ölçüm betiğinin inline axe enjeksiyonunu engelledi. Betik yalnız canlıda `bypassCSP` ile koştu; ürün CSP'si değişmedi.
+- `/api/ai` POST 0, Neuron 0.
+
+**Sınırlar:**
+- Başında 0 / +90 olmayan sabit hat ("212 555 12 34") ve 5 ile başlamayan grupsuz numara maskelenmez.
+- "500 600 70 80" gibi cep numarası biçimindeki bir sayı listesi maskelenebilir; bu ender ve testte yazılı değil.
+- Maskeleme anonimleştirme değildir (§88, §131).
+- Dar ekranda "DEMO AKIŞI" rozeti ve model çipi bilerek gizli; jüri ekranı ≥ 1280 px (senaryo §0).
+
+Kanıt: `side-session-notes\local_fbcef29b-…\W9-yayin7-132\`. İçinde ölçüm betiği, günlükler ve demo bandı ekran görüntüleri var.

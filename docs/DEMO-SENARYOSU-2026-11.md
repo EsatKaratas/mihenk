@@ -12,7 +12,7 @@
 
 ## ⚠ Önce: bu senaryo hangi sürümde geçerli?
 
-Canlıdaki sürüm `fcd867ef`'dir (7 Kasım, PROGRESS §130). §119–§129 canlıda.
+Canlıdaki sürüm `fddf3e8e`'dir (7 Kasım, PROGRESS §132). §119–§132 canlıda.
 Aşağıdaki akış şu eklemelere dayanır:
 - demonun ayrı alanda çalışması;
 - 24 öğrencili dolu sınıf;
