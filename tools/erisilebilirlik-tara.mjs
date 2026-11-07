@@ -42,7 +42,7 @@ const AXE = readFileSync(axeYolu(), 'utf-8');
 
 const ROLLER = [
   { ad: 'content_expert', alan: 'ceTab', sekmeler: [1, 2] },
-  { ad: 'teacher', alan: 'teacherTab', sekmeler: [0, 1, 5, 3, 4] },
+  { ad: 'teacher', alan: 'teacherTab', sekmeler: [0, 1, 5, 3, 4, 6] },   // 6: §125 Gözlem
   { ad: 'student', alan: 'studentTab', sekmeler: [1, 2, 3] },
   { ad: 'admin', alan: null, sekmeler: [1] },
   { ad: 'parent', alan: null, sekmeler: [1] },

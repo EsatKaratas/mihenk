@@ -90,7 +90,7 @@ const ROLLER = [
     // §62 (W1): öğretmen Sınıflarım'dan (0, sekme çubuğu yok) başlar; 2 artık ayrı
     // ekran değil, sınav sihirbazının rubrik adımına yönlenir. §62 öncesi bir
     // kodda 0 ve 5 bulunamaz ve atlanır.
-    sekmeler: [0, 1, 5, 3, 4], // 0 Sınıflarım, 1 Sınavlar, 5 Öğrenciler, 3 Puanlama, 4 Analitik
+    sekmeler: [0, 1, 5, 3, 4, 6], // 0 Sınıflarım, 1 Sınavlar, 5 Öğrenciler, 3 Puanlama, 4 Analitik, 6 Gözlem (§125)
     secici: '#teacherTabs'
   },
   {
