@@ -1,0 +1,53 @@
+/* §126 — Öğrenci/veli itirazı (yeniden inceleme talebi) ve öğretmenin "İtirazlar" kuyruğu.
+   Yalnız app.css belirteçleri; yeni renk yok. Kırmızı yalnız hata metninde (.field-hata-metni). */
+.itz-kart, .itz-kuyruk { margin-top: var(--sp-4); }
+.itz-kuyruk { margin-bottom: var(--sp-4); }
+.itz-kart .card-head, .itz-kuyruk .card-head { flex-wrap: wrap; gap: var(--sp-2); }
+.itz-aciklama { margin: 0 0 var(--sp-2); font-size: var(--fs-3); line-height: 1.55; }
+.itz-cihaz { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--surface-2); border-left: 3px solid var(--accent); font-size: var(--fs-2); line-height: 1.5; }
+.itz-liste { list-style: none; margin: 0; padding: 0; }
+.itz-satir { padding: var(--sp-3) 0; border-top: 1px solid var(--border); min-width: 0; }
+.itz-satir:first-child { border-top: none; }
+.itz-ust { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--sp-1) var(--sp-3);
+  margin-bottom: var(--sp-2); }
+.itz-ust h4 { margin: 0; font-size: var(--fs-3); }
+.itz-soru { flex: 1 1 260px; min-width: 0; font-size: var(--fs-3); line-height: 1.5; overflow-wrap: anywhere; }
+.itz-sinav { display: block; font-size: var(--fs-1); color: var(--text-muted); font-weight: 600; }
+.itz-puan { font-weight: 700; white-space: nowrap; }
+.itz-durum { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
+.itz-durum .pill { white-space: normal; }
+.itz-gerekce { margin: 0; font-size: var(--fs-2); line-height: 1.5; overflow-wrap: anywhere; }
+.itz-alt { margin: 0; font-size: var(--fs-1); color: var(--text-muted); line-height: 1.5; overflow-wrap: anywhere; }
+.itz-form { margin: 0; }
+.itz-form textarea { min-height: 72px; }
+.itz-sayac { text-align: right; }
+.itz-ogt { padding: var(--sp-3); margin-bottom: var(--sp-3); border: 1px solid var(--border); border-left: 3px solid var(--warning);
+  border-radius: var(--r-md); min-width: 0; }
+.itz-dl { display: grid; grid-template-columns: minmax(120px, 170px) 1fr; gap: var(--sp-1) var(--sp-3); margin: 0 0 var(--sp-3);
+  font-size: var(--fs-2); line-height: 1.5; }
+.itz-dl dt { font-weight: 700; color: var(--text-muted); }
+.itz-dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.itz-yanit { white-space: pre-wrap; }
+.itz-karar { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3) var(--sp-3); margin: 0; min-width: 0; }
+.itz-karar legend { font-weight: 700; font-size: var(--fs-3); padding: 0 var(--sp-1); }
+.itz-secim { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-bottom: var(--sp-2); font-size: var(--fs-3); }
+.itz-secim label { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: var(--hedef-min); cursor: pointer; }
+.itz-puan-alan { max-width: 220px; }
+.itz-karar .field-hata-metni:empty, .itz-elle .field-hata-metni:empty, .itz-form .field-hata-metni:empty { display: none; }
+.itz-karar .field-hata-metni, .itz-elle .field-hata-metni { margin-bottom: var(--sp-2); }
+.itz-gecmis, .itz-elle { margin-top: var(--sp-3); font-size: var(--fs-2); }
+.itz-gecmis summary, .itz-elle summary { cursor: pointer; font-weight: 600; min-height: var(--hedef-min); display: list-item; }
+.itz-gecmis ul { margin: var(--sp-2) 0 0; padding-left: var(--sp-5); line-height: 1.6; }
+.itz-elle .field { margin-top: var(--sp-2); }
+.itz-form [aria-invalid="true"], .itz-karar [aria-invalid="true"], .itz-elle [aria-invalid="true"] { border-color: var(--critical); }
+
+@media (max-width: 600px) {
+  .itz-dl { grid-template-columns: 1fr; }
+  .itz-dl dd { margin-bottom: var(--sp-1); }
+  .itz-puan-alan { max-width: none; }
+}
+
+@media print {
+  #yazdirKabi .gf-itiraz { font-size: 8.5pt; }
+}

@@ -13080,3 +13080,79 @@ Kanıt: `side-session-notes\local_fbcef29b-…\W9-e5-123\`:
 - `e5\` — `e5-olc.json` ve ekran görüntüleri;
 - `demo\`;
 - `betik\` — çözümleyiciler ve ölçüm betikleri.
+
+---
+
+## 126. ÖĞRENCİ / VELİ İTİRAZI — yeniden inceleme talebi (7 Kasım 2026, Q3, dal `feature/itiraz`, taban `entegrasyon-7kasim-d` 2c4f3a9, Orchestrator 3 emriyle)
+
+**Kaynak:** MEB, *Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu* (Ocak 2026, Rev. 0.8) §2.6, s. 12: öğrenci/veli için
+"hatalı veya haksız karara karşı" itiraz mekanizması bulunmalıdır.
+https://ttkb.meb.gov.tr/meb_iys_dosyalar/2026_01/09152326_egitimdeyapayzekauygulamalari_etik_kilavuzu.pdf
+(fikir3-D madde 2; kılavuzla karşılaştırmadaki tek somut "yok"). Model çağrısı 0, `/api/ai` POST 0; push/deploy/main yok.
+Worktree `Downloads\Mihenk\mihenk-q3-itiraz`.
+
+**Ne yapıldı** (`public/app.js` tek blok "§126", `computeDemoClassScores`'un hemen üstü; karneye/veliye yalnız birer satır çağrı):
+1. **Öğrenci (Karne) ve veli kartı:** "Puana itiraz: yeniden inceleme" kartı. Öğretmenin **yayınladığı** (`graded`) her
+   puanlanmış açık uçlu yanıtta "Yeniden incelensin" düğmesi → gerekçe alanı (en çok 300 karakter, sayaç), kişisel veri
+   uyarısı; telefon / T.C. no / e-posta biçimi reddedilir. Hata alanın altında `role="alert"` + `aria-invalid`, yazılan
+   metin kaybolmaz. Yanıt başına tek itiraz. Kaynak yalnız `reviews` (karne kuralı, `aiEvals` okunmaz).
+2. **Paylaşılan cihaz gerçeği ekranda tek cümle:** "Mihenk'te hesap ve sunucu yok: talep yalnız bu cihazın tarayıcısına
+   kaydedilir, öğretmen onu bu cihazdaki “İtirazlar” listesinde görür ve kendisine bildirim gitmez." Öğretmen kuyruğunda
+   karşılığı: başka cihaz / kâğıt sınav talebini "Elle itiraz ekle" ile öğretmen girer. README §43 notuna da eklendi.
+3. **Öğretmen → Puanlama → "İtirazlar (n)":** bekleyen varsa sayfanın en üstünde, yoksa altta. Kartta öğrencinin
+   orijinal yanıtı, YZ önerisi (varsa, "öneri · karar değil" etiketli), öğretmenin önceki kararı (puan, not, karar türü),
+   itiraz gerekçesi. Karar: "Puan aynı kalsın" ya da "Yeni puan ver" (0–tavan) + **zorunlu** açıklama. Varsayılan seçim
+   YOK; seçimsiz, aynı puanlı, aralık dışı ya da açıklamasız yeni puan reddedilir. **YZ yeniden çağrılmaz, otomatik
+   karar yok:** puanı yalnız `itirazKarar` ve yalnız "degisti" dalında değiştirir. Yeni puan `reviews[q].finalScore`'a
+   yazılır; `aiScore` ve ilk `decision` korunur, `review.itiraz = {oncekiPuan, at}` eklenir. Karne, veli kartı ve
+   analitik bu güncel puandan okur. Şube süzgeci (`ogtSinif`) uygulanır.
+4. **Karar Günlüğü:** üç yeni tür — `itiraz_acildi` (öğrenci/veli), `itiraz_elle_eklendi` (öğretmen), `itiraz_karari`
+   (öğretmen; `oncekiPuan`, `finalScore`, `degisti`, `not`, `itirazYolu`). `aiScore` yazılmaz: §104 oranlarına
+   (`puan_karari`) karışmaz. Satırda "puan 16 → 17 (öğretmen değiştirdi) · yapay zekâ çağrılmadı". CSV'ye **`itiraz`**
+   sütunu sona eklendi (eski sütun sırası aynı; üç eski testin başlık beklentisi buna göre güncellendi).
+5. **Kâğıt sınav (§122 fişi):** her fişin altında "Puana itiraz için öğretmeninize başvurun." + öğretmenin elle ekleme yolu.
+6. **§111 araştırma paketi:** beyaz listeye yalnız `oncekiPuan`, `itirazYolu` eklendi. Gerekçe (`gerekce`) ve öğretmen
+   açıklaması (`not`) pakete GİRMEZ (testle ve tarayıcıda: 0 sızıntı).
+7. **§108 tam yedek:** `itirazlar` `KALICI_ALANLAR`'a eklendi → yedek taşır; adsız yedekte gerekçedeki ad da değişir (test).
+8. **§120 demo alanı:** veri ortak `state` → `saveState` yolundan demo anahtarına gider; demoya girişte sıfırlanır
+   (`KALICI_ALANLAR` üzerinden), çıkışta silinir.
+9. **§119 sekme koruması:** itiraz bloğunda doğrudan `localStorage`/`sessionStorage`/IndexedDB yok (testle). Ek bekçi
+   `itirazCakismaVar`: sekme çakışmadaysa talep/karar **bellekte de yapılmaz** ve neden yazılır ("işlem kaydedilmedi");
+   başarı duyurusu da çakışmayı denetler. Böylece ekranda "kaydedildi" görünüp yenilemede kaybolan itiraz olmaz.
+10. `public/css/itiraz.css` (yalnız mevcut belirteçler; kırmızı yalnız hata metninde), `index.html`'e bağlantı.
+    `privacy-policy.html` "Değerlendirme verisi" maddesine itiraz cümlesi (AGENTS §7).
+
+### Ölçüm (yerel statik sunucu 127.0.0.1:8926, kendi PID 26448 ile durduruldu; servis edilen app.js SHA = disk)
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm test` | **1092/1092**, 53 dosya (taban 1072/52). Yeni `test/itiraz.test.ts` 20 test: adaylar (graded/ÇSS/aktif oturum, aiEvals okunmaz, okuma oturum yaratmaz), gerekçe denetimi (boş, 301, telefon, e-posta, T.C.), **zincir** itiraz → kuyrukta 1 → yeni puan + açıklama → günlükte satır + CSV `itiraz` sütunu, "aynı kalsın" → oturum birebir aynı, talepte puan değişmez, sekme çakışmasında işlem yok, blokta YZ/doğrudan depolama yok, paket gerekçeyi dışlar, tam yedek + adsız yedek, ekran metinleri (kaçış, varsayılan seçim yok, fiş satırı, kaynak URL) |
+| Mutasyon | 4 koruma tek tek bozuldu (KALICI_ALANLAR, çakışma bekçisi, paket beyaz listesi, talepte puan yazımı) → 4'ü de testte düştü |
+| Lint (`tsc`) | temiz |
+| Öz-kontrol | %100, **863 ad** (+29) |
+| `olcum:dogrula` | 37/37 (PANO değişmedi) |
+| `check:config` | GEÇERLİ ×2 |
+| Sır taraması | 0. Tek eşleşme vendor `tesseract-core-simd.wasm.js` (tabanda da var, yanlış pozitif); değişikliklerde yeni 64-hex 0. FFFD 0 |
+| axe `erisilebilirlik-tara` (52 ekran, 1280/390 × açık/koyu) | ihlal **0**; 12 px altı **0** |
+| Yeni ekranlar (öğrenci kartı, form + hata, bekliyor, sonuç; veli formu; öğretmen kuyruğu, elle ekleme sonrası) | axe 0, 12 px altı 0, taşma 0 — 1280/390 × açık/koyu |
+| İtiraz uçtan uca (`itiraz-olc.mjs`, gerçek tıklama, demo alanında 24 öğrenci) | **38/38** × 4 (1280/390 × açık/koyu). Kendi kayıt + sürüm demo boyunca ve çıkışta **bayt bayt aynı**; demo kaydında 3 itiraz; çıkışta kendi alanda 0. Günlükte 5 satır, CSV 5 dolu, paket sızıntısı 0, YZ önerileri değişmedi, konsol 0, POST 0 |
+| Sekme × itiraz (`itiraz-sekme.mjs`) | **8/8**, 3 koşu: A itiraz açar; eski bellekli B'de kutu çıkar, B'nin talebi reddedilir ve nedeni yazar, bellekte de yok; A'nın itirazı depoda |
+| `sekme-cakisma.mjs` | 16/16 |
+| `kontroller.mjs` | 38/38, 1280 ve 390; konsol 0; POST 0 |
+| Demo (`demo-yuru.mjs`) | 5 adım, 1280 ve 390; konsol 0; POST 0 |
+
+Ekranlar: `Downloads\Mihenk\ekran-q3\` (10 ekran × 1280/390 × açık/koyu = 40 PNG); betik ve loglar `ekran-q3\kanit\`.
+
+**Sınırlar (dürüst):**
+- Tek cihaz: itiraz yalnız aynı tarayıcıda öğretmene ulaşır; bildirim yok. Uzaktan başvuru yolu değildir — gerçek
+  karşılığı hesap + sunucu (Better Auth) ister. Başka cihaz/kâğıt talebini öğretmen elle girer.
+- Kimlik yok: öğrenci rolünü seçen herkes, o cihazda seçili öğrenci adına talep açabilir (ürünün genel rol modeli).
+- Kişisel veri denetimi biçime dayanır (telefon, T.C. no, e-posta); ad ve sağlık bilgisi yalnız uyarıyla engellenir.
+- Yanıt başına tek itiraz; karardan sonra ikinci tur yok ("öğretmeninle konuş" yazar).
+- Adsız puanlama (§122) itiraz kuyruğunu kapsamaz: itiraz kimlikli bir taleptir, kartta ad görünür.
+- Puan değişince §121 YZ denetimi ve §104 uyum raporu nihai puan olarak itiraz sonrasını görür (öğretmen kararıdır).
+- **Yan bulgu (itirazla ilgisiz, düzeltilmedi):** öğretmen rolünde Sınıflarım dışındaki bir sekmedeyken (`teacherTab ≠ 0`)
+  aynı alanda ikinci sekme açılırsa, yeni sekmenin ilk çizimi `teacherTab = 0` yazar (§62 "girmeli" düzen) ve ilk sekme
+  "Veri başka sekmede değişti" kutusuna düşer. Ölçüldü: iki sekme arasındaki tek fark `teacherTab 3 → 0`. Veri kaybı yok
+  (kutu çıkıyor), ama gereksiz kilit; ayrı iş olarak müdüre bırakıldı.
+- NVDA ile dinleme yapılmadı; Safari/Firefox denenmedi.
